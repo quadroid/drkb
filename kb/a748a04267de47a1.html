@@ -1,0 +1,80 @@
+<html>
+<head>
+  <title>Преобразование количества секунд в формат TTime</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Преобразование количества секунд в формат TTime</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Преобразование количества секунд в формат TTIME (ЧЧ:ММ:СС).
+ 
+Преобразование количества секунд в формат TTIME (ЧЧ:ММ:СС).
+На выходе функции, получаем TTIME
+ 
+Зависимости: system, sysutils
+Автор:       VID, vidsnap@mail.ru, ICQ:132234868, Махачкала
+Copyright:   VID
+Дата:        14 июня 2002 г.
+***************************************************** }
+ 
+function SecToTime(Sec: Integer): TTime;
+var
+  H, M, S: INTEGER;
+  HS, MS, SS: string;
+begin
+  S := Sec;
+  M := Round(INT(S / 60));
+  S := S - M * 60; //Seconds
+  H := Round(INT(M / 60)); //Hours
+  M := M - H * 60; //Minutes
+  if H &lt; 10 then
+    HS := '0' + Inttostr(H)
+  else
+    HS := inttostr(H);
+  if M &lt; 10 then
+    MS := '0' + Inttostr(M)
+  else
+    MS := inttostr(M);
+  if S &lt; 10 then
+    SS := '0' + inttostr(S)
+  else
+    SS := inttostr(S);
+  RESULT := StrToTime(HS + ':' + MS + ':' + SS);
+end;
+</pre>
+<p>Пример использования: </p>
+<p>ShowMessage(TimeToStr(SecToTime(50)));</p>
+<p>//получаем сообщение:</p>
+<p>"00:00:50 "</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<html>
+<head>
+  <title>Как узнать путь к программе, если известно её имя?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать путь к программе, если известно её имя?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit Unit1;
+
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    Button1: TButton;
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+uses
+  TlHelp32;
+ 
+function GetExeFilePath(ExeFileName: String): String;
+var
+  hSnapshot, hSnapshot2: THandle;
+  Proc: TProcessEntry32;
+  m: TModuleEntry32;
+begin
+  Result := '';
+  hSnapshot := CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
+  try
+    proc.dwSize := Sizeof(proc);
+    if Process32First(hSnapshot, proc) then
+    repeat
+      if AnsiSameText(proc.szExeFile, ExeFileName) then
+      begin
+        hSnapshot2 := CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,
+          proc.th32ProcessID);
+        try
+          m.dwSize := SizeOf(TModuleEntry32);
+          if Module32First(hSnapshot2, m) then
+          begin
+            Result := m.szExePath;
+            Exit;
+          end;
+        finally
+          CloseHandle(hSnapshot2);
+        end;
+      end;
+    until not Process32Next(hSnapshot, proc);
+  finally
+    CloseHandle(hSnapshot);
+  end;
+end;
+ 
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: Rouse_, P.O.D.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

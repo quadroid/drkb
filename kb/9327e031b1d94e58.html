@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>Как передать картинку по сети через TServerSocket?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushCpp.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как передать картинку по сети через TServerSocket?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Да без проблем. Звиняйте, что на сях, но, тем не менее, на Борланд сях. </p>
+<p>Со стороны, откуда посылаем (у нас это клиент), пишем:</p>
+<pre name="code" class="cpp">
+TFileStream* str = new TFileStream("M:\\MyFile.jpg",fmOpenRead);
+//ИЛИ, если мы работаем без сохранения (тогда не создается файл)
+TMemoryStream* str = new TMemoryStream ();
+str-&gt;Position = 0;
+Image1-&gt;Picture-&gt;Bitmap-&gt;SaveToStream(str);
+//и, наконец, шлем на сервер битмап
+str-&gt;Position = 0;
+ClientSocket1-&gt;Socket-&gt;SendStream(str);
+</pre>
+<p>Обратите внимание, не забывайте перед каждой операцией с потоком устанавливать позицию в 0!!! Иначе получим не то, что хотелось бы </p>
+<p>Ну а со стороны приема (у нас это, соответственно, серверсокет), в событии приема пишем:</p>
+<pre name="code" class="cpp">
+int ibLen = ServerSocket1-&gt;Socket-&gt;ReceiveLength();
+char* buf= new char[ibLen+1];
+TMemoryStream* str = new TMemoryStream();
+str-&gt;Position = 0;
+ServerSocket1-&gt;Socket-&gt;ReceiveBuf((void*)buf,ibLen);
+str-&gt;WriteBuffer((void*)buf,ibLen);
+str-&gt;Position = 0;
+Image1-&gt;Picture-&gt;Bitmap-&gt;LoadFromStream(str);
+//или
+str-&gt;SaveToFile("M:\\MyFile.jpg");
+</pre>
+
+<p>Ну и ессно, как говорит Bigbrother, сделал дело - вызови деструктор! То есть почистить за собой надо, не знаю как в Паскале, но в сях мне надо удалить str и buf.</p>
+<p id="author">Автор ответа: TwoK </p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<html>
+<head>
+  <title>При использовании DOS DBF файлов &ndash; перекодировка между форматами</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">При использовании DOS DBF файлов &ndash; перекодировка между форматами</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>При использовании DOS DBF файлов можно сделать небольшую программку (или процедурку), которая произведет перекодировку между форматами. что-то типа: </p>
+
+<pre name="code" class="delphi">
+function update_dos(s:string):string;
+var c:STRING;
+    I:INTEGeR;
+    l:byte;
+    dd:char;
+begin
+ i:=1;
+ c:='';
+ while i&lt; length(s)+1 do
+ begin
+   l:=ord(s[i]);
+   inc(i);
+   if (l&gt;=128) and (l&lt;=192)then l:=l+64 else
+   if (l&gt;=224) and (l&lt;240) then l:=l+16 else
+   if l=241 then l:=184 else
+   if l=240 then l:=168;
+   dd:=chr(l);
+   c:=c+dd;
+ end;
+update_dos:=c;
+end;
+ 
+function update_win(s:string):string;
+var c:STRING;
+    I:INTEGeR;
+    l:byte;
+    dd:char;
+begin
+ i:=1;
+ c:='';
+ while i&lt; length(s)+1 do
+ begin
+   l:=ord(s[i]);
+   inc(i);
+   if (l&gt;=192) and (l&lt;240)then l:=l-64 else
+   if (l&gt;=240) and (l&lt;256) then l:=l-16 else
+   if l=184 then l:=241 else    
+   if l=168 then l:=240;
+   dd:=chr(l);
+   c:=c+dd;
+ end;
+update_win:=c;
+end;
+</pre>
+
+
+<p>это и туда и обратно, у меня работает на старых DBF. Осталось только вызвать в нужный момент. </p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

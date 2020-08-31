@@ -1,0 +1,81 @@
+<html>
+<head>
+  <title>Как изменить цвет всех компонентов на форме в runtime?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как изменить цвет всех компонентов на форме в runtime?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>I would like to change the font color on all components on a form at runtime (and the components owned by the components etc). I devised a recursive algorithm using RTTI that accepts a TComponent as a parameter. It works to some extent, but I still have to use 'if' statements to cast the object to a particular descendant, resulting in about 30 lines of code to test for all of the components I use. Also, some objects (TColumnTitle), are not descended from TComponent, even though they have a font property.</p>
+
+<p>This may do the trick (with D6 and maybe D5):</p>
+
+<pre name="code" class="delphi">
+uses
+  TypInfo;
+ 
+{ ... }
+var
+  i: integer;
+  aFont: TFont;
+begin
+  for i := 0 to aComponent.ComponentCount - 1 do
+  begin
+    aFont := TFont(GetOrdProp(aComponent.Components[i], 'Font'));
+    if assigned(aFont) then
+      aFont.Color := clWhite;
+  end;
+end;
+</pre>
+
+<p>With D4:</p>
+
+<pre name="code" class="delphi">
+{ ... }
+var
+  i: integer;
+  aFont: TFont;
+  pi: PPropInfo;
+begin
+  for i := 0 to aComponent.ComponentCount - 1 do
+  begin
+    pi := GetPropInfo(aComponent.Components[i].ClassInfo, 'Font');
+    if assigned(pi) then
+      TFont(GetOrdProp(aComponent.Components[i],pi)).Color := clWhite;
+  end;
+end;
+</pre>
+
+<p>Tip by Charles McNicoll</p>
+<p>Взято из <a href="http://www.lmc-mediaagentur.de/dpool" target="_blank">http://www.lmc-mediaagentur.de/dpool</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

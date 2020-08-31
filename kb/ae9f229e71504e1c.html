@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>Временные таблицы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Временные таблицы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для промежуточной обработки данных клиентское приложение может создавать временные таблицы. Временной является таблица, имя которой начинается с # или ##. Таблица, имя которой начинается с # является локальной и видима только той сессии, в которой она была создана. После завершения сеанса временные таблицы, созданные им автоматически удаляются. Если временная таблица создана внутри хранимой процедуры, она автоматически удаляется по завершению процедуры. Если имя таблицы начинается с ##, то она является глобальной и видима всеми сессиями. Таблица удаляется автоматически, когда завершается последняя из использовавших её сессий.</p>
+<p>Для примера рассмотрим хранимую процедуру, которая выдает значения продаж по месяцам. Если в данном месяце продаж не было, выводится имя месяца и NULL.</p>
+<pre name="code" class="sql">
+CREATE PROCEDURE AmountsByMonths
+AS BEGIN
+ DECLARE @I INTEGER
+ CREATE TABLE #Months (
+   Id INTEGER,
+   Name CHAR(20)
+ )
+ SET @I = 1
+ WHILE (@I &lt;= 12) BEGIN
+   INSERT Months (Id, Name) VALUES
+     (@I, DATENAME(month, '1998' + REPLACE(STR(@I,2),' ','0')+'01'))
+   SET @I = @I + 1
+ END
+ SELECT M.Name, SUM(P.Amount)
+   FROM #Months M INNER JOIN Payment P 
+    ON M.Id = DATEPART(month, P.Date)
+ DROP TABLE #Months
+END
+</pre>
+
+<p>В версии MSSQL 2000 появилась возможность создавать переменные типа table, которые представляют собой таблицу. Работа с такой переменной может выглядеть следующим образом:</p>
+<pre name="code" class="sql">
+DECLARE @T TABLE (Id INT)
+
+INSERT @T (Id) VALUES (10250)
+INSERT @T (Id) VALUES (10257)
+INSERT @T (Id) VALUES (10259)
+
+SELECT O.* 
+  FROM Orders O
+   INNER JOIN @T AS T ON O.OrderId = T.Id
+</pre>
+
+
+<p>Использование переменных типа table более предпочтительно, чем использование временных таблиц, поскольку последние приводят к невозможности кэширования плана запроса (он генерируется при каждом выполнении), а в случае переменных этого не происходит.</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

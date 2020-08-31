@@ -1,0 +1,94 @@
+<html>
+<head>
+  <title>Создать процесс с правами админа</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создать процесс с правами админа</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit Main; 
+ 
+interface 
+ 
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ShellApi; 
+ 
+type 
+  TForm1 = class(TForm) 
+    Button1: TButton; 
+    procedure Button1Click(Sender: TObject); 
+  end; 
+ 
+var 
+  Form1: TForm1; 
+ 
+implementation 
+ 
+function CreateProcessWithLogonW(
+  lpUsername: PWideChar; 
+  lpDomain: PWideChar; 
+  lpPassword: PWideChar; 
+  dwLogonFlags: DWORD; 
+  lpApplicationName: PWideChar; 
+  lpCommandLine: PWideChar; 
+  dwCreationFlags: DWORD; 
+  lpEnvironment: Pointer; 
+  lpCurrentDirectory: PWideChar; 
+  const lpStartupInfo: _STARTUPINFOA; 
+  var lpProcessInfo: PROCESS_INFORMATION): BOOL; stdcall; external 'advapi32.dll' name 'CreateProcessWithLogonW'; 
+ 
+ 
+{$R *.dfm} 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+var 
+  hLib:THandle; 
+  si: _STARTUPINFOA; 
+  pi: Process_Information; 
+begin 
+  ZeroMemory(@Si, Sizeof(si));
+  si.cb := SizeOf(si); 
+  CreateProcessWithLogonw('administrator', nil, 'master', 1, nil, 'notepad', 0, nil, nil, si, pi); 
+end; 
+ 
+end.
+</pre>
+<p>&nbsp;<br>
+<p>Должно работать, только лучше указывать полный путь до папки запускаемого приложения... без этого у меня некоторые приложения не запускались(один из параметров после 'notepad').</p>
+&nbsp;<br>
+
+<p>&nbsp;<br>
+<p id="author">Автор: win_nt </p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

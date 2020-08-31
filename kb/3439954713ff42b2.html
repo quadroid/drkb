@@ -1,0 +1,54 @@
+<html>
+<head>
+  <title>Особенности работы события OnActivate</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Особенности работы события OnActivate</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Наверное многие заметили, что событие onActivate формы ведет себя по странному, иногда происходит его активация просто при приобретении формой фокуса, а иногда событие происходит только в случае, когда форма становится видимой?</p>
+<p>Виной тому виндовые API. Помните начиная с 98 виндов возникла фича - когда активация окна приводит к мельканию заголовка в таскбаре. Под win95/NT4 событие формы onActivate происходит только в момент показа формы (Show, ShowModal), а в остальных осях может возникать и просто при попадании фокуса на форму (уж не знаю почему, но не всегда). Есть хороший способ избавиться от такого поведения и заставить это событие возникать только 1 раз при активации формы и в дальнейшем только тогда когда это нужно.</p>
+<pre name="code" class="delphi">
+Procedure TForm1.Form1OnActivate(Sender:TObject);
+
+ 
+begin
+OnActivate:=nil;
+{здесь ваш код обработки события}
+end;
+</pre>
+
+<p>Чтоб подготовить обработку события если она ожидается надо вновь присвоить событию процедуру обработки</p>
+<p>OnActivate:=Form1OnActivate;</p>
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

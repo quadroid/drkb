@@ -1,0 +1,98 @@
+<html>
+<head>
+  <title>Включение и выключение закладки TNotebook</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Включение и выключение закладки TNotebook</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Вот хороший трюк от Xavier Pacheco:</p>
+<pre name="code" class="delphi">
+unit TabDis;
+ 
+interface
+ 
+uses
+  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics,
+  Controls, Forms, Dialogs, StdCtrls, TabNotBk;
+ 
+type
+  TFrmTabDis = class(TForm)
+    TabbedNotebook1: TTabbedNotebook;
+    Button1: TButton;
+    procedure FormCreate(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private-Deklarationen }
+  public
+    { Public-Deklarationen }
+  end;
+ 
+var
+  FrmTabDis: TFrmTabDis;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TFrmTabDis.FormCreate(Sender: TObject);
+var
+  i: integer;
+  j: integer;
+begin
+  { Создаем имена для всех Notebook TTabButton }
+ 
+  j := 0;
+ 
+  with TabbedNotebook1 do
+    for i := 0 to ControlCount - 1 do
+      if Controls[i].ClassName = 'TTabButton' then
+      begin
+        Controls[i].Name := Controls[i].ClassName + IntToStr(j);
+        Inc(j);
+      end;
+end;
+ 
+procedure TFrmTabDis.Button1Click(Sender: TObject);
+begin
+  { Делаем недоступной определенную страницу notebook }
+  with TControl(TabbedNotebook1.FindComponent('TTabButton2')) do
+    Enabled := not Enabled;
+end;
+ 
+end.
+ 
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

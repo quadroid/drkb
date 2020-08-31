@@ -1,0 +1,171 @@
+<html>
+<head>
+  <title>Как получить информацию о локальных настройках системы?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить информацию о локальных настройках системы?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Delphi имеет функцию GetLocaleInfo, которая позволяет получать различную информацию о локальных настройках, таких как системный язык, символ валюты, количество десятичных знаков и т.д.</p>
+<p>Далее приведена функция, которая возвращает значение в зависимости от параметра "flag":</p>
+<pre name="code" class="delphi">
+........ 
+function TForm1.GetLocaleInformation(Flag: Integer): String; 
+var 
+  pcLCA:    Array[0..20] of Char; 
+begin 
+  if( GetLocaleInfo(LOCALE_SYSTEM_DEFAULT,Flag,pcLCA,19) &lt;= 0 ) then begin 
+    pcLCA[0] := #0; 
+  end; 
+  Result := pcLCA; 
+end; 
+........ 
+</pre>
+
+<p>Пример использования функции:</p>
+<pre name="code" class="delphi">
+........ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  ShowMessage(GetLocaleInformation(LOCALE_SENGLANGUAGE)); 
+end; 
+........ 
+</pre>
+<p>"Flag" может содержать следующее значение (если посмотреть в Windows.pas):</p>
+<p>  LOCALE_NOUSEROVERRIDE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { do not use user overrides } </p>
+<p>  LOCALE_USE_CP_ACP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { use the system ACP } </p>
+<p>  LOCALE_ILANGUAGE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { language id } </p>
+<p>  LOCALE_SLANGUAGE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { localized name of language } </p>
+<p>  LOCALE_SENGLANGUAGE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { English name of language }</p>
+<p>  LOCALE_SABBREVLANGNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { abbreviated language name } </p>
+<p>  LOCALE_SNATIVELANGNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { native name of language } </p>
+<p>  LOCALE_ICOUNTRY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { country code } </p>
+<p>  LOCALE_SCOUNTRY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { localized name of country } </p>
+<p>  LOCALE_SENGCOUNTRY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { English name of country } </p>
+<p>  LOCALE_SABBREVCTRYNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { abbreviated country name } </p>
+<p>  LOCALE_SNATIVECTRYNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { native name of country } </p>
+<p>  LOCALE_IDEFAULTLANGUAGE&nbsp;&nbsp;&nbsp;&nbsp; { default language id } </p>
+<p>  LOCALE_IDEFAULTCOUNTRY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { default country code } </p>
+<p>  LOCALE_IDEFAULTCODEPAGE&nbsp;&nbsp;&nbsp;&nbsp; { default oem code page } </p>
+<p>  LOCALE_IDEFAULTANSICODEPAGE { default ansi code page } </p>
+<p>  LOCALE_IDEFAULTMACCODEPAGE&nbsp; { default mac code page } </p>
+<p>  LOCALE_SLIST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { list item separator } </p>
+<p>  LOCALE_IMEASURE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { 0 = metric, 1 = US } </p>
+<p>  LOCALE_SDECIMAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { decimal separator } </p>
+<p>  LOCALE_STHOUSAND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { thousand separator } </p>
+<p>  LOCALE_SGROUPING&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { digit grouping } </p>
+<p>  LOCALE_IDIGITS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { number of fractional digits } </p>
+<p>  LOCALE_ILZERO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { leading zeros for decimal } </p>
+<p>  LOCALE_INEGNUMBER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { negative number mode } </p>
+<p>  LOCALE_SNATIVEDIGITS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { native ascii 0-9 } </p>
+<p>  LOCALE_SCURRENCY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { local monetary symbol } </p>
+<p>  LOCALE_SINTLSYMBOL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { intl monetary symbol } </p>
+<p>  LOCALE_SMONDECIMALSEP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { monetary decimal separator } </p>
+<p>  LOCALE_SMONTHOUSANDSEP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { monetary thousand separator } </p>
+<p>  LOCALE_SMONGROUPING&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { monetary grouping } </p>
+<p>  LOCALE_ICURRDIGITS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { # local monetary digits } </p>
+<p>  LOCALE_IINTLCURRDIGITS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { # intl monetary digits } </p>
+<p>  LOCALE_ICURRENCY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { positive currency mode } </p>
+<p>  LOCALE_INEGCURR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { negative currency mode } </p>
+<p>  LOCALE_SDATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { date separator } </p>
+<p>  LOCALE_STIME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { time separator } </p>
+<p>  LOCALE_SSHORTDATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { short date format string } </p>
+<p>  LOCALE_SLONGDATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long date format string } </p>
+<p>  LOCALE_STIMEFORMAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { time format string } </p>
+<p>  LOCALE_IDATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { short date format ordering } </p>
+<p>  LOCALE_ILDATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long date format ordering } </p>
+<p>  LOCALE_ITIME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { time format specifier } </p>
+<p>  LOCALE_ITIMEMARKPOSN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { time marker position } </p>
+<p>  LOCALE_ICENTURY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { century format specifier (short date) } </p>
+<p>  LOCALE_ITLZERO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { leading zeros in time field } </p>
+<p>  LOCALE_IDAYLZERO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { leading zeros in day field (short date) } </p>
+<p>  LOCALE_IMONLZERO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { leading zeros in month field (short date) } </p>
+<p>  LOCALE_S1159&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { AM designator } </p>
+<p>  LOCALE_S2359&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { PM designator } </p>
+<p>  LOCALE_ICALENDARTYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { type of calendar specifier } </p>
+<p>  LOCALE_IOPTIONALCALENDAR&nbsp;&nbsp;&nbsp; { additional calendar types specifier } </p>
+<p>  LOCALE_IFIRSTDAYOFWEEK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { first day of week specifier } </p>
+<p>  LOCALE_IFIRSTWEEKOFYEAR&nbsp;&nbsp;&nbsp;&nbsp; { first week of year specifier } </p>
+<p>  LOCALE_SDAYNAME1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for Monday } </p>
+<p>  LOCALE_SDAYNAME2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for Tuesday } </p>
+<p>  LOCALE_SDAYNAME3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for Wednesday } </p>
+<p>  LOCALE_SDAYNAME4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for Thursday } </p>
+<p>  LOCALE_SDAYNAME5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for Friday } </p>
+<p>  LOCALE_SDAYNAME6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for Saturday } </p>
+<p>  LOCALE_SDAYNAME7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for Sunday } </p>
+<p>  LOCALE_SABBREVDAYNAME1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { abbreviated name for Monday } </p>
+<p>  LOCALE_SABBREVDAYNAME2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { abbreviated name for Tuesday } </p>
+<p>  LOCALE_SABBREVDAYNAME3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { abbreviated name for Wednesday } </p>
+<p>  LOCALE_SABBREVDAYNAME4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { abbreviated name for Thursday } </p>
+<p>  LOCALE_SABBREVDAYNAME5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { abbreviated name for Friday } </p>
+<p>  LOCALE_SABBREVDAYNAME6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { abbreviated name for Saturday } </p>
+<p>  LOCALE_SABBREVDAYNAME7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { abbreviated name for Sunday } </p>
+<p>  LOCALE_SMONTHNAME1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for January } </p>
+<p>  LOCALE_SMONTHNAME2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for February } </p>
+<p>  LOCALE_SMONTHNAME3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for March } </p>
+<p>  LOCALE_SMONTHNAME4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for April } </p>
+<p>  LOCALE_SMONTHNAME5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for May } </p>
+<p>  LOCALE_SMONTHNAME6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for June } </p>
+<p>  LOCALE_SMONTHNAME7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for July } </p>
+<p>  LOCALE_SMONTHNAME8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for August } </p>
+<p>  LOCALE_SMONTHNAME9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for September } </p>
+<p>  LOCALE_SMONTHNAME10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for October } </p>
+<p>  LOCALE_SMONTHNAME11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for November } </p>
+<p>  LOCALE_SMONTHNAME12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for December } </p>
+<p>  LOCALE_SMONTHNAME13&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { long name for 13th month (if exists) } </p>
+<p>  LOCALE_SABBREVMONTHNAME1&nbsp;&nbsp;&nbsp; { abbreviated name for January } </p>
+<p>  LOCALE_SABBREVMONTHNAME2&nbsp;&nbsp;&nbsp; { abbreviated name for February } </p>
+<p>  LOCALE_SABBREVMONTHNAME3&nbsp;&nbsp;&nbsp; { abbreviated name for March } </p>
+<p>  LOCALE_SABBREVMONTHNAME4&nbsp;&nbsp;&nbsp; { abbreviated name for April } </p>
+<p>  LOCALE_SABBREVMONTHNAME5&nbsp;&nbsp;&nbsp; { abbreviated name for May } </p>
+<p>  LOCALE_SABBREVMONTHNAME6&nbsp;&nbsp;&nbsp; { abbreviated name for June } </p>
+<p>  LOCALE_SABBREVMONTHNAME7&nbsp;&nbsp;&nbsp; { abbreviated name for July } </p>
+<p>  LOCALE_SABBREVMONTHNAME8&nbsp;&nbsp;&nbsp; { abbreviated name for August } </p>
+<p>  LOCALE_SABBREVMONTHNAME9&nbsp;&nbsp;&nbsp; { abbreviated name for September } </p>
+<p>  LOCALE_SABBREVMONTHNAME10&nbsp;&nbsp; { abbreviated name for October } </p>
+<p>  LOCALE_SABBREVMONTHNAME11&nbsp;&nbsp; { abbreviated name for November } </p>
+<p>  LOCALE_SABBREVMONTHNAME12&nbsp;&nbsp; { abbreviated name for December } </p>
+<p>  LOCALE_SABBREVMONTHNAME13&nbsp;&nbsp; { abbreviated name for 13th month (if exists) } </p>
+<p>  LOCALE_SPOSITIVESIGN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { positive sign } </p>
+<p>  LOCALE_SNEGATIVESIGN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { negative sign } </p>
+<p>  LOCALE_IPOSSIGNPOSN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { positive sign position } </p>
+<p>  LOCALE_INEGSIGNPOSN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { negative sign position } </p>
+<p>  LOCALE_IPOSSYMPRECEDES&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { mon sym precedes pos amt } </p>
+<p>  LOCALE_IPOSSEPBYSPACE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { mon sym sep by space from pos amt } </p>
+<p>  LOCALE_INEGSYMPRECEDES&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { mon sym precedes neg amt } </p>
+<p>  LOCALE_INEGSEPBYSPACE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { mon sym sep by space from neg amt } </p>
+<p>  LOCALE_FONTSIGNATURE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { font signature } </p>
+<p>  LOCALE_SISO639LANGNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { ISO abbreviated language name } </p>
+<p>  LOCALE_SISO3166CTRYNAME&nbsp;&nbsp;&nbsp;&nbsp; { ISO abbreviated country name } </p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

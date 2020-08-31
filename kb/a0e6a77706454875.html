@@ -1,0 +1,186 @@
+<html>
+<head>
+  <title>Работа с принтером</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Работа с принтером</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Delphi имеет стандартный объект для доступа к принтеру - TPRINTER,</p>
+<p> находящийся в модуле PRINTERS. В этом модуле имеется </p>
+<p>переменная Printer:Tpinter, что избавляет от необходимости описывать свою.</p>
+<p> Он позволяет выводить данные на печать и управлять процессом печати. </p>
+<p>Правда, в некоторых версиях Delphi 1 он имеет "глюк" - не работают </p>
+<p>функции Draw и StrethDraw. Но эта проблема поправима - можно </p>
+<p>использовать функции API. Далее приведены основные поля и методы объекта Printers :</p>
+<p>PROPERTY</p>
+<p>Aborted:boolean - Показывает, что процесс печати прерван</p>
+<p>Canvas:Tcanvas - Стандартный Canvas, как у любого графического объекта.</p>
+<p> Он позволяет рисовать на листе бумаге графику, выводить текст ... .</p>
+<p> Тут есть несколько особенностей, они описаны после описания объекта.</p>
+<p>Fonts:Tstrings - Возвращает список шрифтов, поддерживаемых принтером</p>
+<p>Handle:HDS - Получить Handle на принтер для использования функций API (см. Далее)</p>
+<p>Orientation:TprinterOrientation - Ориентация листа при печати : (poPortrait, poLandscape)</p>
+<p>PageHeight:integer - Высота листа в пикселах</p>
+<p>PageNumber:integer - Номер страницы, увеличивается на 1 при каждом NewPage</p>
+<p>PageWidth:integer - Ширина листа в пикселах</p>
+<p>PrinterIndex:integer - Номер используемого принтера по списку доступных принтеров Printers</p>
+<p>Printers:Tstrings - Список доступных принтеров</p>
+<p>Printing:boolean - Флаг, показывающий, что сейчас идет процесс печати</p>
+<p>Title:string - Имя документа или приложения. Под этим именем задание на печать</p>
+<p> регистрируется в диспетчере печати</p>
+
+<p>METODS</p>
+<p>AssignPrn(f:TextFile) - Связать текстовый файл с принтером.</p>
+<p>Далее вывод информации в этот файл приводит к ее печати. </p>
+<p>Удобно в простейших случаях.</p>
+<p>Abort - Сбросить печать</p>
+<p>BeginDoc - Начать печать</p>
+<p>NewPage - Начать новую страницу</p>
+<p>EndDoc - Завершить печать.</p>
+
+<p>Пример :</p>
+<pre name="code" class="delphi">
+Procedure TForm1.Button1Click(Sender: TObject);
+Begin
+ With Printer do Begin
+  BeginDoc; { Начало печати }
+  Canvas.Font:=label1.font; { Задали шрифт }
+  Canvas.TextOut(100,100,'Это тест принтера !!!'); { Печатаем текст }
+  EndDoc; { Конец печати }
+ end;
+end;
+</pre>
+
+<p>Особенности работы с TPrinter</p>
+
+<p>1. После команды BeginDoc шрифт у Canvas принтера сбрасывается и </p>
+<p>его необходимо задавать заново</p>
+<p>2. Все координаты даны в пикселах, а для нормальной работы необходимы </p>
+<p>миллиметры (по двум очевидным причинам: очень трудно произвести</p>
+<p> разметку страницы в пикселах (особенно если необходима точность), и , главное, </p>
+<p>при изменении разрешающей способности принтера будет изменяться число точек</p>
+<p> на дюйм, и все координаты "поедут".</p>
+<p>3. У TPrinter информация о принтере, по видимому, определяются один раз</p>
+<p> - в момент запуска программы (или смены принтера). Поэтому изменение настроек</p>
+<p>принтера в процессе работы программы может привести к некорректной работе,</p>
+<p> например, неправильной печать шрифтов True Type.</p>
+<p>Определение параметров принтера через API</p>
+<p>Для определения информации о принтере (плоттере, экране) необходимо</p>
+<p> знать Handle этого принтера, а его можно узнать объекта TPrinter - Printer.Handle. </p>
+<p>Далее вызывается функция API (unit WinProcs) : GetDevice(Handle:HDC; Index:integer):integer;</p>
+<p>Index - код параметра, который необходимо вернуть.</p>
+<p>Для Index существует ряд констант :</p>
+<p>DriverVersion - вернуть версию драйвера</p>
+<p>Texnology - Технология вывода, их много, основные</p>
+<p> dt_Plotter - плоттер</p>
+<p> dt_RasPrinter - растровый принтер</p>
+<p> dt_Display - дисплей</p>
+<p>HorzSize - Горизонтальный размер листа (в мм)</p>
+<p>VertSize - Вертикальный размер листа (в мм)</p>
+<p>HorzRes - Горизонтальный размер листа (в пикселах)</p>
+<p>VertRes - Вертикальный размер листа (в пикселах)</p>
+<p>LogPixelX - Разрешение по оси Х в dpi (пиксел /дюйм)</p>
+<p>LogPixelY - Разрешение по оси Y в dpi (пиксел /дюйм)</p>
+<p>Кроме перечисленных еще около сотни, они позволяют узнать о принтере практически все. </p>
+<p>Параметры, возвращаемые по LogPixelX и LogPixelY очень важны - они </p>
+<p>позволяют произвести пересчет координат из миллиметров в пиксели </p>
+<p>для текущего разрешения принтера. Пример таких функций:</p>
+<pre name="code" class="delphi">
+Procedure TForm1.GetPrinterInfo; { Получить информацию о принтере }
+begin
+  PixelsX:=GetDeviceCaps(printer.Handle,LogPixelsX);
+  PixelsY:=GetDeviceCaps(printer.Handle,LogPixelsY);
+end;
+ 
+Function TForm1.PrinterCoordX(x:integer):integer; { переводит координаты из мм в пиксели }
+begin
+ PrinterCoordX:=round(PixelsX/25.4*x);
+end;
+ 
+Function TForm1.PrinterCoordY(Y:integer):integer; { переводит координаты из мм в пиксели }
+begin
+ PrinterCoordY:=round(PixelsY/25.4*Y);
+end;
+</pre>
+
+
+
+<p>GetPrinterInfo;</p>
+
+<p>Printer.Canvas.TextOut(PrinterCoordX(30), PrinterCoordY(55),</p>
+
+<p> 'Этот текст печатается с отступом 30 мм от левого края и '+</p>
+
+<p> '55 мм от верха при любом разрешении принтера');</p>
+
+<p>Данную методику можно с успехом применять для печати картинок - зная</p>
+<p> размер картинки можно пересчитать ее размеры в пикселах для текущего </p>
+<p>разрешения принтера, масштабировать, и затем уже распечатать. </p>
+<p>Иначе на матричном принтере (180 dpi) картинка будет огромной, </p>
+<p>а на качественном струйнике (720 dpi) - микроскопической.</p>
+
+<p>P.S. Мой комментарий.</p>
+<p> Я производил печать следующим образом:</p>
+<pre name="code" class="delphi">
+procedure TForm6.SpeedButton1Click(Sender: TObject);
+var
+  PRect: Trect;
+  PBitMap: TBitmap;
+begin
+  PBitmap := TBitMap.Create;
+  PBitmap.LoadFromFile('C:\1.bmp');
+  with PRect do
+    begin
+      left := 0;
+      top := 0;
+      right := Printer.PageWidth;
+      Bottom := Printer.PageHeight;
+    end;
+  with printer do
+    begin
+      BeginDoc;
+      font.name := 'Times New Roman';
+      Canvas.StretchDraw(PRect, Bitmap);
+      EndDoc;
+    end;
+  PBitmap.Free;
+ 
+end;
+</pre>
+
+
+<p>Удачи!</p>
+<p>DenKop@mail.ru</p>
+
+<p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<html>
+<head>
+  <title>Отслеживать переход мышки на компонент и уход ее</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Отслеживать переход мышки на компонент и уход ее</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+ { 
+ The following unit is a visual component inherited of TImage, which has the 
+ 2 additional events OnMouseEnter and OnMouseLeave. 
+}
+ 
+ unit ImageEx;
+ 
+ interface
+ 
+ uses
+   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+   Dialogs, ExtCtrls;
+ 
+ type
+   TImageEx = class (TImage)
+   private
+     { Private declarations }
+     FOnMouseLeave: TNotifyEvent;
+     FOnMouseEnter: TNotifyEvent;
+     procedure CMMouseEnter(var msg: TMessage);
+       message CM_MOUSEENTER;
+     procedure CMMouseLeave(var msg: TMessage);
+       message CM_MOUSELEAVE;
+   protected
+     { Protected declarations }
+     procedure DoMouseEnter; dynamic;
+     procedure DoMouseLeave; dynamic;
+   public
+     { Public declarations }
+   published
+     { Published declarations }
+     property OnMouseEnter: TNotifyEvent read FOnMouseEnter write FOnMouseEnter;
+     property OnMouseLeave: TNotifyEvent read FOnMouseLeave write FOnMouseLeave;
+   end;
+ 
+ procedure Register;
+ 
+ implementation
+ 
+ procedure Register;
+ begin
+   RegisterComponents('Additional', [TImageEx]);
+ end;
+ 
+ { TImageEx }
+ 
+ procedure TImageEx.CMMouseEnter(var msg: TMessage);
+ begin
+   DoMouseEnter;
+ end;
+ 
+ procedure TImageEx.CMMouseLeave(var msg: TMessage);
+ begin
+   DoMouseLeave;
+ end;
+ 
+ procedure TImageEx.DoMouseEnter;
+ begin
+   if Assigned(FOnMouseEnter) then FOnMouseEnter(Self);
+ end;
+ 
+ procedure TImageEx.DoMouseLeave;
+ begin
+   if Assigned(FOnMouseLeave) then FOnMouseLeave(Self);
+ end;
+ 
+ end.
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+<hr />
+<p>Получить активный элемент управления под курсором мышки </p>
+<pre name="code" class="delphi">
+ { You may call this function in a global event procedure, 
+  linking as many components events to it as you need. }
+ 
+ function FindControlAtPos: TWinControl;
+ var
+   Pt: TPoint;
+ begin
+   GetCursorPos(Pt);
+   Result := FindControl(WindowFromPoint(Pt));
+ end;
+ 
+ 
+ { (Beispiel) Hier die allgemein gultige Procedure fur OnMouseUp. 
+  Die Behandlung von OnClick bleibt dabei erhalten: 
+  die Funktionalitat aus OnMouseUp kommt dazu. }
+ 
+ { (example) There's the global proc for the OnMouseUp event. 
+  Note: OnClick keeps working, so you can "add" the OnMouseUp 
+  facility to no cost. }
+ 
+ procedure TForm1.GenericMouseUp(Sender: TObject; Button: TMouseButton;
+   Shift: TShiftState; X, Y: Integer);
+ var
+   TWC: TWinControl;
+ begin
+   TWC := FindControlAtPos;
+   //what for a class ! 
+  Showmessage('Here we are: ' + TWC.ClassName);
+   //Let it blink... 
+  TWC.Visible := False;
+   Sleep(150);
+   TWC.Visible := True;
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

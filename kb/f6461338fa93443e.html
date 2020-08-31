@@ -1,0 +1,95 @@
+<html>
+<head>
+  <title>Поверка версии Microsoft OLE DB JET 4.X</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Поверка версии Microsoft OLE DB JET 4.X</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Поверка версии Microsoft OLE DB JET 4.X
+ 
+Функция определяет, установлен ли набор драйверов 
+Microsoft OLE DB JET 4.X на компьютере. Пригодится 
+для тех, кто использует СУБД Accsess. Можно 
+использовать при инициализации главного DataModule, 
+формы и т.д.
+ 
+В принципе, функцию можно использовать для определения 
+доступности любого поставщика данных : Oracle, MSSQL и т.д.
+ 
+Функция работает намного быстрее, чем ADODB.GetProviderNames();
+ 
+Зависимости: ADODB, ActiveX, OleDB
+Автор:       Мироводин Дмитрий, support@hcsoft.spb.ru, Санкт - Петербург
+Copyright:   Мироводин Дмитрий
+Дата:        7 июля 2004 г.
+********************************************** }
+ 
+Function CheckMSJetVersion: Integer;
+Const
+  CLSID_JETOLEDB_4_00: TGUID = '{DEE35070-506B-11CF-B1AA-00AA00B8DE95}';
+Var
+  hR : HRESULT;
+  OutParam : IUnknown;
+Begin
+  Result := -1;
+  hR := CoCreateInstance(
+    CLSID_JETOLEDB_4_00,
+    Nil,
+    CLSCTX_INPROC_SERVER,
+    IID_IDBInitialize,
+    OutParam);
+ 
+  If (hR = S_OK) And (OutParam &lt;&gt; Nil) Then
+    Begin
+      OutParam := Nil;
+      Result := 1;
+    End;
+End; 
+</pre>
+
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+...
+ 
+if (CheckMSJetVersion &lt; 0) then 
+  begin
+    ShowMessage('На машине не установлен MS Jet. ');
+    Application.Terminate;
+  end;
+ 
+... 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

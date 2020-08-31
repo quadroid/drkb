@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>Самый быстрый способ узнать количество записей в таблице</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Самый быстрый способ узнать количество записей в таблице</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>When using the standard dataset.recordcount in my client-server (win nt against sqlserver7 db, targettable has 500.000 records) i can go for lunch and stil be waiting (:-</p>
+
+<p>Answer:</p>
+
+<p>For those of you who don't know why u should not use the standard dataset.recordcount when developing client server database applications. </p>
+<p>This article is especialy for those cs db apps against a sqlserver 7 db. </p>
+
+<p>since the standard dataset.recordcount iterates from begin of the table through the end of the table to result in the recordcount. This is a crime when developing cs db apps (against sqlserver7). </p>
+
+<p>simply use another way of obtaining the number of records. I use a sql for obtaining the number of records in a sqlserver table. </p>
+
+<p>drop a tquery on the form </p>
+
+<p>provide this tquery with the follow SQL: </p>
+
+<p>SQL: </p>
+
+<pre name="code" class="sql">
+select distinct max(itbl.rows) 
+from sysindexes as itbl 
+inner join sysobjects as otbl on (itbl.id = otbl.id) 
+where (otbl.type = 'U') and (otbl.name = :parTableName) 
+</pre>
+
+<p>notice the parameter: parTableName type string </p>
+
+<p>use this tquery to find out how many rows in the table </p>
+
+<p>TIP: try to make your own tYourSqlServerCountQuery and thus override the recordcount property. </p>
+<p>ByTheWay: use this only for sqlserver </p>
+
+<p>for other cs db apps simply use a count sql (coming upnext time...) </p>
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

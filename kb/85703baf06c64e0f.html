@@ -1,0 +1,104 @@
+<html>
+<head>
+  <title>Устанавливаем дату создания файла</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Устанавливаем дату создания файла</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<pre name="code" class="delphi">
+function SetFileDate(
+  Const FileName : String;
+  Const FileDate : TDateTime): Boolean;
+var
+ FileHandle        : THandle;
+ FileSetDateResult : Integer;
+begin
+ try
+  try
+   FileHandle := FileOpen
+      (FileName,
+       fmOpenWrite OR fmShareDenyNone);
+   if FileHandle &gt; 0 Then  begin
+    FileSetDateResult :=
+      FileSetDate(
+        FileHandle,
+        DateTimeToFileDate(FileDate));
+      result := (FileSetDateResult = 0);
+    end;
+  except
+   Result := False;
+  end;
+ finally
+  FileClose (FileHandle);
+ end;
+end;
+ 
+{Использование:}
+SetFileDate('c:\mydir\myfile.ext', Now)
+ 
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr />
+<pre name="code" class="delphi">
+var
+  f: file;
+begin
+  Assign(f, DirInfo.Name);
+  Reset(f);
+  SetFTime(f, Time);
+  Close(f);
+end;
+ 
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr />
+<p>Функция, которая устанавливает дату одного файла, равную дате другого файла </p>
+<pre name="code" class="delphi">
+procedure CopyFileDate(const Source, Dest: String);
+var
+  SourceHand, DestHand: word;
+begin
+  SourceHand := FileOpen(Source, fmOutput);       { открываем исходный файл }
+  DestHand := FileOpen(Dest, fmInput);            { открываем целевой файл }
+  FileSetDate(DestHand, FileGetDate(SourceHand)); { получаем/устанавливаем дату }
+  FileClose(SourceHand);                          { закрываем исходный файл }
+  FileClose(DestHand);                            { закрываем целевой файл }
+end; 
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>Как создать вычисляемые поля во время исполнения программы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как создать вычисляемые поля во время исполнения программы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Nomadic </p>
+<p>Смотрите книгу "Developing Custom Delphi Components" от Рэя Конопки. </p>
+<p>Здесь немного исправленный пример из этой книги -</p>
+<pre name="code" class="delphi">
+function TMyClass.CreateCalcField(const AFieldName: string;
+  AFieldClass: TFieldClass; ASize: Word): TField;
+begin
+  Result := FDataSet.FindField(AFieldName); // Field may already exists!
+  if Result &lt;&gt; nil then
+    Exit;
+  if AFieldClass = nil then
+  begin
+    DBErrorFmt(SUnknownFieldType, [AFieldName]);
+  end;
+  Result := FieldClass.Create(Owner);
+  with Result do
+  try
+    FieldName := AFieldName;
+    if (Result is TStringField) or (Result is TBCDField) or
+      (Result is TBlobField) or (Result is TBytesField) or
+      (Result is TVarBytesField) then
+    begin
+      Size := ASize;
+    end;
+    Calculated := True;
+    DataSet := FDataset;
+    Name := FDataSet.Name + AFieldName;
+  except
+    Free; // We must release allocated memory on error!
+    raise;
+  end;
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

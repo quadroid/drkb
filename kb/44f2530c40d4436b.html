@@ -1,0 +1,116 @@
+<html>
+<head>
+  <title>Смешивание цветов рисунка с другим цветом</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Смешивание цветов рисунка с другим цветом</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Смешивание цветов рисунка с другим цветом
+ 
+Зависимости: Graphics
+Автор:       Fenik, chook_nu@uraltc.ru, Новоуральск
+Copyright:   Автор Федоровских Николай
+Дата:        5 июня 2002 г.
+***************************************************** }
+ 
+procedure Mixer(Bitmap: TBitmap; Value: Byte; Color: TColor);
+  function BLimit(B: Integer): Byte;
+  begin
+    if B &lt; 0 then
+      Result := 0
+    else if B &gt; 255 then
+      Result := 255
+    else
+      Result := B;
+  end;
+type
+  TRGB = record
+    B, G, R: Byte;
+  end;
+  pRGB = ^TRGB;
+var
+  x, y: Word;
+  Dest: pRGB;
+  DR, DG, DB, D: Double;
+begin
+  D := Value / 200;
+  DR := Lo(Color) * (1.275 - D);
+  DG := Lo(Color shr 8) * (1.275 - D);
+  DB := Lo((Color shr 8) shr 8) * (1.275 - D);
+  for y := 0 to Bitmap.Height - 1 do
+  begin
+    Dest := Bitmap.ScanLine[y];
+    for x := 0 to Bitmap.Width - 1 do
+    begin
+      with Dest^ do
+      begin
+        B := BLimit(Round(B * D + DB));
+        G := BLimit(Round(G * D + DG));
+        R := BLimit(Round(R * D + DR));
+      end;
+      Inc(Dest);
+    end;
+  end;
+ 
+  { Неоптимизированный вариант.
+ 
+    Value - процент цвета рисунка от конечного цвета,
+    (255-Value) - процент цвета Color от конечного цвета,
+    где 255 - это 100%;
+    Новый цвет получается путём нахождения
+    среднеарифметического значения каждого компонента
+    цвета в точке (x, y) и цвета Color
+    после процентного преобразования.
+ 
+    DR := Lo(Color);//извлечение красного
+    DG := Lo(Color shr 8);//извлечение зелёного
+    DB := Lo((Color shr 8) shr 8);//извлечение синего
+    for y := 0 to Bitmap.Height - 1 do begin
+      Dest := Bitmap.ScanLine[y];
+      for x := 0 to Bitmap.Width - 1 do begin
+        with Dest^ do begin
+          R := BLimit(Round((R/100 * Value + DR/100 * (255-Value)) / 2));
+          G := BLimit(Round((G/100 * Value + DG/100 * (255-Value)) / 2));
+          B := BLimit(Round((B/100 * Value + DB/100 * (255-Value)) / 2));
+        end;
+        Inc(Dest);
+      end;
+    end; }
+end;
+Пример использования: 
+Mixer(FBitmap, 120, clRed); 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

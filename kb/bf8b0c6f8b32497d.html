@@ -1,0 +1,228 @@
+<html>
+<head>
+  <title>Расширения оболочки Windows</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Расширения оболочки Windows</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>С каждой новой версией Windows, её оболочка (shell) приобретает всё больше и больше различных возможностей. Обычно эти возможности добавляются через расширения оболочки, которые позволяют разработчикам добавлять различные возможности в существующую оболочку Windows. Вот некоторые примеры расширений оболочки: Context Menus (меню, зависящее от объекта, на котором кликнули правой кнопкой мыши), Property Sheet Handlers (страницы в виде закладок, которые появляются в случае выбора пункта контексного меню Properties), Folder Customization, и т.д. </p>
+<p>На сайте Microsoft доступно большое количество информации о расширениях оболочки, но эта информация мало полезна Delphi аудитории. Итак давайте рассмотрим расширение оболочки под названием "Всплывающие подсказки" (InfoTip), которые появляются в эксплорере, при наведении мышкой на файл. </p>
+<p>Расширения оболочки &#8211; Краткий обзор </p>
+<p>Расширения оболочки существуют в виде In Process COM серверов. В ответ на определённые события оболочки проводник вызывает соответствующее расширение. Проводник очень специфически реагирует на различные функции в пределах оболочки. Первое, что делает Проводник - это проверяет модули, которые были зарегистрированы для определённого события и, если таковой существует, то загружает данный модуль. </p>
+<p>Чтобы быть расширением оболочки, COM сервер должен включать в себя интерфейс, который определяет специфическое поведение для данного расширения, а так же он должен включать в себя интефейс инициализации. Наконец, чтобы быть расширением оболочки, COM сервер должен следовать определённым в системе методам регистрации. </p>
+<p>Следующая таблица представляет собой список всех существующих на сегодняшний день расширений оболочки, а так же их минимальных версий, учавствующих интерфейсов и их описаний: </p>
+<table>
+          <tr>
+            <th align="left"><strong><font size="1">Тип</font></strong></th>
+            <th align="left"><strong><font size="1">Добавлено в</font></strong></th>
+            <th align="left"><strong><font size="1">Версия</font></strong></th>
+            <th align="left"><strong><font size="1">Используемые интерфейсы</font></strong></th>
+            <th align="left"><strong><font size="1">Описание</font></strong></th>
+          </tr>
+          <tr>
+            <td><font size="1">Context Menu</font></td>
+            <td><font size="1">File class and shell’s object</font></td>
+            <td><font size="1">Windows 95+</font></td>
+            <td><font size="1">IContextMenu, IContextMenu2, или IContextMenu3</font></td>
+            <td><font size="1">Позволяет добавлять новые пункты в контекстное меню объекта оболочки.</font></td>
+          </tr>
+          <tr>
+            <td><font size="1">Right Drag and Drop</font></td>
+            <td><font size="1">File class and shell’s object</font></td>
+            <td><font size="1">Windows 95+</font></td>
+            <td><font size="1">IContextMenu, IContextMenu2, или IContextMenu3</font></td>
+            <td><font size="1">Позволяет добавлять новые пункты в контекстное меню, при перетаскивании правой кнопкой мыши и отпускании файлов.</font></td>
+          </tr>
+          <tr>
+            <td><font size="1">Drawing Shell Icons</font></td>
+            <td><font size="1">File class and shell’s object</font></td>
+            <td><font size="1">Windows 95+</font></td>
+            <td><font size="1">IExtractIcon</font></td>
+            <td><font size="1">Позволяет решить в данный момент, какая будет отображаться иконка для данного файла.</font></td>
+          </tr>
+          <tr>
+            <td><font size="1">Property Sheet</font></td>
+            <td><font size="1">File class and shell’s object</font></td>
+            <td><font size="1">Windows 95+</font></td>
+            <td><font size="1">IShellPropSheetExt</font></td>
+            <td><font size="1">Позволяет
+              добавлять дополнительные страницы
+              property sheet в диалог свойств файла. Так
+              же это работает для Панели
+              управления.</font></td>
+          </tr>
+          <tr>
+            <td><font size="1">Left Drag and Drop</font></td>
+            <td><font size="1">File class and shell’s object</font></td>
+            <td><font size="1">Windows 95+</font></td>
+            <td><font size="1">IDropTarget</font></td>
+            <td><font size="1">Позволяет решать
+              - что делать с перетаскиваемым
+              объектом (используя левую кнопку
+              мыши) на другой объект в оболочке.</font></td>
+          </tr>
+          <tr>
+            <td><font size="1">Clipboard</font></td>
+            <td><font size="1">File class and shell’s object</font></td>
+            <td><font size="1">Windows 95+</font></td>
+            <td><font size="1">IDataObject</font></td>
+            <td><font size="1">Позволяет Вам
+              определить, как объект скопирован и
+              извлечён из буфера обмена.</font></td>
+          </tr>
+          <tr>
+            <td><font size="1">File Hook</font></td>
+            <td><font size="1">&nbsp;</font></td>
+            <td><font size="1">Windows 95+</font></td>
+            <td><font size="1">ICopyHook</font></td>
+            <td><font size="1">Позволяет
+              контролировать некоторые файловые
+              операции, которые происходят черех
+              оболочку. Вы можете разрешить или
+              запретить их, но Вы не сможете
+              получать уведомление об успешности
+              операции или об ошибке.</font></td>
+          </tr>
+          <tr>
+            <td><font size="1">Program Execution</font></td>
+            <td><font size="1">Explorer</font></td>
+            <td><font size="1">Desktop Update</font></td>
+            <td><font size="1">IShellExecuteHook</font></td>
+            <td><font size="1">Позволяет
+              перехватывать некоторые выполнения
+              программ, которые происходят через
+              оболочку.</font></td>
+          </tr>
+          <tr>
+            <td><font size="1">Infotip</font></td>
+            <td><font size="1">File class and shell’s object</font></td>
+            <td><font size="1">Desktop Update</font></td>
+            <td><font size="1">IQueryInfo</font></td>
+            <td><font size="1">Позволяет
+              отображать короткие текстовые
+              сообщения, когда курсор мышки
+              находится на определённом файле.</font></td>
+          </tr>
+          <tr>
+            <td><font size="1">Column</font></td>
+            <td><font size="1">Folders</font></td>
+            <td><font size="1">Windows 2000</font></td>
+            <td><font size="1">IColumnProvider</font></td>
+            <td><font size="1">Позволяет
+              добавлять новую колонку в режиме
+              отображения Details в Проводнике.</font></td>
+          </tr>
+          <tr>
+            <td><font size="1">Icon Overlay</font></td>
+            <td><font size="1">Explorer</font></td>
+            <td><font size="1">Windows 2000</font></td>
+            <td><font size="1">IShellIconOverlay</font></td>
+            <td><font size="1">Позволяет
+              определить собственные изображения,
+              которые будут использоваться как
+              иконки.</font></td>
+          </tr>
+          <tr>
+            <td><font size="1">Search</font></td>
+            <td><font size="1">Explorer</font></td>
+            <td><font size="1">Windows 2000</font></td>
+            <td><font size="1">IContextMenu</font></td>
+            <td><font size="1">Позволяет
+              добавить новую ячейку в меню &quot;Найти&quot;
+              (в меню, открывающемся при нажатии
+              на &quot;Пуск&quot;).</font></td>
+          </tr>
+          <tr>
+            <td><font size="1">Cleanup</font></td>
+            <td><font size="1">Cleanup Manager</font></td>
+            <td><font size="1">Windows 2000</font></td>
+            <td><font size="1">IEmptyVolumeCache2</font></td>
+            <td><font size="1">Позволяет
+              добавить новую ячейку в Менеджер
+              Очистки для восстановления
+              дискового пространства.</font></td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+          </tr>
+        </table>
+<p>Всплывающие подсказки &#8211; Введение и обзор </p>
+<p>Infotip-ы это всплывающие окна подсказки, которые появляются в случае, если курсор мышки находится над любым файлом. Если расширения для файла не было зарегистрировано, то будет высвечиваться окошко с подсказкой по умолчанию, однако Вы можете создать своё собственно расширение для отображения информации об определённом типе файла. Например, Office 2000 инсталирует обработчики для MS Word и MS Excel, которые отображают Имя, Автора и заголовок из свойств документа. Расширения Infotip отличаются от других расширений оболочки по регистрации. Об этом мы поговорим позже, когда перейдём к регистрации нашего расширения Infotip. </p>
+<p>Implementing Infotip Extensions </p>
+<p>Расширение Infotip является In-Process (Inproc) COM Server. Это значит, что Infotip является обыкновенной Windows DLL, которая экспортирует необходимые методы, чтобы быть как обыкновенным элементом управления ActiveX. Расширение Infotip так же включает IQueryInfo и IPersistFile и должна самостоятельно регистрировать себя в реестре. В виду того, что IQueryInfo и IPersistFile являются интерфейсами, то они не содержат исходного кода своих методов. Поэтому наш объект включает в себя каждый метод, определённый в обоих интерфейсах; однако, некоторые из методов не являются необходимыми для нашего расширения Infotip, поэтому мы просто возвращаем E_NOTIMPL, чтобы показать, что они не осуществимы. </p>
+<p>IQueryInfo обеспечивает отображение текста во всплывающем окошке и содержит два метода: GetInfoFlags &#8211; Получает информационные флаги. На текущий момент это метод не используется, поэтому возвращаем E_NOTIMPL. GetInfoTip &#8211; Получает текст Infotip-а. </p>
+<p>GetInfoTip определена следующим образом: </p>
+<p>function GetInfoTip(dwFlags: DWORD; var ppwszTip: PWideChar): HResult; stdcall;</p>
+
+<p>dwFlags </p>
+в данный момент не используется </p>
+<p>ppwszTip </p>
+Адрес указателя на строку Unicode, кото string pointer that receives the tip string pointer. </p>
+<p>Важное замечание</p>
+Параметр ppwszTip метода GetInfoTip - это указатель на строковый буфер Unicode, который содержит текст, отображаемый в всплывающем информационном поле. Этот буфер должен быть распределен, используя стандартную программу распределения памяти оболочки, потому что буфер распределен нашим приложением, но освобожден оболочкой. Чтобы быть уверенным, что всё пройдёт успешно, используйте SHGetMalloc для получения указателя на программу распределения памяти оболочки - объект IMalloc. Затем используйте метод Alloc из IMalloc-а для распределения необходимой памяти для буфера содержащего Unicode представление текста Infotip. </p>
+<p>Исходник содержит стандартный код, который Вы можете использовать для всех расширений Infotip, которые Вы создадите. </p>
+<p>IPersistFile это то, при помощи чего оболочка обеспечивает расширение информацией о файле, на котором находится курсор. В интерфейсе определены пять методов: </p>
+<p>IsDirty </p>
+проверяет объект на предмет изменений, сделанных в текущем файле. Наше расширение не требует данного метода, поэтому возвращаем E_NOTIMPL. </p>
+<p>Load </p>
+открывает указанный файл и инициализирует объект из содержимого файла. Мы будем использовать этот метод для получения имени файла, на котором находится курсор. </p>
+<p>Save </p>
+сохраняет объект в указанном файле. Мы его не используем и возвращаем E_NOTIMPL. </p>
+<p>SaveCompleted </p>
+уведомляет объект, о том, что он может быть переведён из режима NoScribble в режим Normal. Не используем, поэтому возвращаем E_NOTIMPL. </p>
+<p>GetCurFile </p>
+получает текущее имя файла, связанного с объектом. Тоже возвращаем E_NOTIMPL. </p>
+&nbsp;</p>
+<p>Load определена следующим образом: </p>
+<p>function Load(pszFileName: PoleStr; dwMode: LongInt): HResult; stdcall;</p>
+
+<p>pszFileName </p>
+указатель на строку, содержащую абсолютный путь открываемого файла. Строка должна завершаться нулём. </p>
+<p>dwMode </p>
+содержит набор атрибутов для открытия файла. </p>
+&nbsp;</p>
+<p>Чтобы получить имя файла и его путь, мы будем использовать только IPersistFile; фактически мы не используем интерфейс для доступа к файлу, поэтому игнорируем флаги. Стандартная реализация метода Load сохраняет содержимое pszFileName в приватную переменную, которая будет использоваться в IQueryInfo::GetInfoTip для расположения файла. </p>
+<p>Регистрация расширения Infotip </p>
+<p>Регистрация происходит в два этапа: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 26px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="27">1.</td><td>При помощи regsvr32.exe регистрируется COM DLL (Пуск (Start)..Выполнить(Run))</td></tr></table></div>
+<p>regsvr32 "C:\...\DPRInfoTip.dll"</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 26px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="27">2.</td><td>Добавление ссылки на расширение (.dpr) в ключ реестра HKEY_CLASSES_ROOT. </td></tr></table></div>
+<p>По умолчанию значение для нового ключа должно быть CLSID объекта COM, который содержит расширение оболочки. Данное значение можно получить из файла Type Library, который был сгенерирован Delphi (имя файла оканчивается на "_TLB.pas"). Для нашего примера расширения CLSID назван CLASS_DPRInfoTip и содержит значение "{B20433A8-D083-11D4-993A-00D00912C440}". </p>
+<p>Самый простой способ внести изменения в реестр - это сделать копию файла .REG, содержащуюся в исходниках проекта. Просто измените CLSID и расширение файла на необходимые значения. </p>
+<p>Одно важное замечание: </p>
+Если Вы регистрируете расширение оболочки в Windows NT или 2000, то необходимо войти в систему с правами администратора.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<html>
+<head>
+  <title>Поиск пересечений графика с осью абсцисс</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Поиск пересечений графика с осью абсцисс</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для поиска пересечений графика заданной функции с осью абсцисс очень удобен метод хорд.</p>
+<p> Он основан на линейной интерполяции. По двум точкам, лежащим по разные стороны от оси OX, </p>
+<p> строится прямая. Поскольку точка пересечения этой прямой с осью OX уже ближе к искомому x,</p>
+<p>  то при повторении этой операции точность резко увеличивается.</p>
+<p>Если функция задана массивом точек, то можно произвести только одну операцию приближения.</p>
+
+<pre name="code" class="delphi">
+function F(x: double): double;
+begin
+  result := sin(x);
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+const
+  left = -10;
+  right = 10;
+var
+  x1, x2: double;
+  y1, y2: double;
+  k, b: double;
+  x, y: double;
+  d1, d2: double;
+begin
+  x1 := left;
+  y1 := f(x1);
+  repeat
+    x2 := x1 + 0.1;
+    y2 := f(x2);
+    if y1 * y2 &lt; 0 then begin
+      repeat
+        y1 := f(x1);
+        y2 := f(x2);
+        k := (y1 - y2) / (x1 - x2);
+        b := y1 - k * x1;
+        x := -b / k;
+        y := k * x + b;
+        d1 := sqr(x1 - x) + sqr(y1 - y);
+        d2 := sqr(x2 - x) + sqr(y2 - y);
+        if d1 &gt; d2 then begin
+          d1 := d2;
+          x1 := x;
+        end else x2 := x;
+      until d1 &lt; 1E-20;
+      ListBox1.Items.Add(FloatToStr(x1));
+    end;
+    x1 := x2;
+    y1 := y2;
+  until x2 &gt; right;
+end;
+</pre>
+
+
+<p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

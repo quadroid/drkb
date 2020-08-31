@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>Как вызвать команды Find, Option или View Source?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как вызвать команды Find, Option или View Source?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Взято из FAQ:<a href="http://blackman.km.ru/myfaq/cont4.phtml" target="_blank">http://blackman.km.ru/myfaq/cont4.phtml</a></p>
+<p>Перевод материала с сайта members.home.com/hfournier/webbrowser.htm </p>
+
+<p>Вот пример вызова диалога </p>
+
+<pre name="code" class="delphi">
+const
+HTMLID_FIND = 1;
+HTMLID_VIEWSOURCE = 2;
+HTMLID_OPTIONS = 3;
+ 
+... 
+ 
+procedure TForm1.FindIE;
+const
+CGID_WebBrowser: TGUID = '{ED016940-BD5B-11cf-BA4E-00C04FD70816}';
+var
+CmdTarget : IOleCommandTarget;
+vaIn, vaOut: OleVariant;
+PtrGUID: PGUID;
+begin
+New(PtrGUID);
+PtrGUID^ := CGID_WebBrowser;
+if WebBrowser1.Document &lt; &gt; nil then
+try
+WebBrowser1.Document.QueryInterface(IOleCommandTarget, CmdTarget);
+if CmdTarget &lt;&gt; nil then
+try
+  CmdTarget.Exec( PtrGUID, HTMLID_FIND, 0, vaIn, vaOut);
+finally
+  CmdTarget._Release;
+end;
+except
+  // Ничего
+end;
+Dispose(PtrGUID);
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<html>
+<head>
+  <title>Как завершить любой процесс, в том числе и системный?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как завершить любой процесс, в том числе и системный?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// Включение, приминение и отключения привилегии.
+ // Для примера возьмем привилегию отладки приложений 'SeDebugPrivilege'
+ // необходимую для завершения ЛЮБЫХ процессов в системе (завершение процесов
+ // созданных текущим пользователем привилегия не нужна.
+ 
+function ProcessTerminate(dwPID:Cardinal):Boolean;
+var
+ hToken:THandle;
+ SeDebugNameValue:Int64;
+ tkp:TOKEN_PRIVILEGES;
+ ReturnLength:Cardinal;
+ hProcess:THandle;
+begin
+ Result:=false;
+ // Добавляем привилегию SeDebugPrivilege 
+ // Для начала получаем токен нашего процесса
+ if not OpenProcessToken( GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES
+  or TOKEN_QUERY, hToken ) then
+    exit;
+ 
+ // Получаем LUID привилегии
+ if not LookupPrivilegeValue( nil, 'SeDebugPrivilege', SeDebugNameValue ) 
+  then begin
+   CloseHandle(hToken);
+   exit; 
+  end;
+ 
+ tkp.PrivilegeCount:= 1;
+ tkp.Privileges[0].Luid := SeDebugNameValue;
+ tkp.Privileges[0].Attributes := SE_PRIVILEGE_ENABLED;
+ 
+ // Добавляем привилегию к нашему процессу
+ AdjustTokenPrivileges(hToken,false,tkp,SizeOf(tkp),tkp,ReturnLength);
+ if GetLastError()&lt; &gt; ERROR_SUCCESS  then exit;
+ 
+ // Завершаем процесс. Если у нас есть SeDebugPrivilege, то мы можем
+ // завершить и системный процесс
+ // Получаем дескриптор процесса для его завершения
+ hProcess := OpenProcess(PROCESS_TERMINATE, FALSE, dwPID);
+ if hProcess =0  then exit;
+  // Завершаем процесс
+   if not TerminateProcess(hProcess, DWORD(-1))
+    then exit;
+ CloseHandle( hProcess );
+ 
+ // Удаляем привилегию 
+ tkp.Privileges[0].Attributes := 0; 
+ AdjustTokenPrivileges(hToken, FALSE, tkp, SizeOf(tkp), tkp, ReturnLength);
+ if GetLastError() &lt; &gt;  ERROR_SUCCESS
+  then exit;
+ 
+ Result:=true; 
+end;
+ 
+ // Название добавление/удаление привилгии немного неправильные.  Привилегия или 
+ // есть в токене процесса или ее нет. Если привилегия есть, то она может быть в 
+ // двух состояниях - или включеная или отключеная. И в этом примере мы только 
+ // включаем или выключаем необходимую привилегию, а не добавляем ее.
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

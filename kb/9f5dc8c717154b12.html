@@ -1,0 +1,208 @@
+<html>
+<head>
+  <title>Пример EnumWindows</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Пример EnumWindows</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Создайте форму и разместите на ней два компонента ListBox. </p>
+<p>Скопируйте код, показанный ниже. </p>
+<p>Запустите SysEdit. </p>
+<p>Запустите форму Delphi. Первый ListBox должен содержать список всех запущенных приложений. Дважды щелкните на SysEdit и нижний ListBox покажет дочернее MDI-окно программы SysEdit. </p>
+<p>Paul Powers (Borland)</p>
+<pre name="code" class="delphi">
+unit Wintask1;
+ 
+ 
+interface
+ 
+ 
+uses
+  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
+  Forms, Dialogs, StdCtrls;
+ 
+ 
+type
+  TForm1 = class(TForm)
+    ListBox1: TListBox;
+    ListBox2: TListBox;
+    procedure FormCreate(Sender: TObject);
+    procedure ListBox1DblClick(Sender: TObject);
+  private
+    function enumListOfTasks(hWindow: hWnd): Bool; export;
+    function enumListOfChildTasks(hWindow: hWnd): Bool; export;
+  end;
+ 
+ 
+  THoldhWnd = class(TObject)
+  private
+  public
+    hWindow: hWnd;
+  end;
+ 
+ 
+var
+  Form1: TForm1;
+ 
+ 
+implementation
+ 
+ 
+{$R *.DFM}
+ 
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  enumWindows(@TForm1.EnumListOfTasks, Longint(Self));
+  if (ListBox1.Items.Count &gt; 0) then
+    ListBox1.ItemIndex := 0;
+end;
+ 
+ 
+function TForm1.enumListOfTasks(hWindow: hWnd): Bool;
+var
+  HoldString: PChar;
+  WindowStyle: Longint;
+  IsAChild: Word;
+  HoldhWnd: THoldhWnd;
+ 
+ 
+begin
+  GetMem(HoldString, 256);
+ 
+ 
+  HoldhWnd := THoldhWnd.Create;
+  HoldhWnd.hWindow := hWindow;
+ 
+ 
+  WindowStyle := GetWindowLong(hWindow, GWL_STYLE);
+  WindowStyle := WindowStyle and Longint(WS_VISIBLE);
+  IsAChild := GetWindowWord(hWindow, GWW_HWNDPARENT);
+ 
+ 
+ 
+{Добавляем строку с текстом задачи или именем класса и дескриптор в ListBox1.Items }
+  if (GetWindowText(hWindow, HoldString, 255) &gt; 0) and
+    (WindowStyle &gt; 0) and (IsAChild = Word(nil)) then
+    ListBox1.Items.AddObject(StrPas(HoldString), TObject(HoldhWnd))
+  else if (GetClassName(hWindow, HoldString, 255) &gt; 0) and
+    (WindowStyle &gt; 0) and (IsAChild = Word(nil)) then
+    ListBox1.Items.AddObject(Concat('&lt;', StrPas(HoldString), '&gt;'), TObject(HoldhWnd));
+ 
+ 
+  FreeMem(HoldString, 256);
+  HoldhWnd := nil;
+  Result := TRUE;
+end;
+ 
+ 
+function TForm1.enumListOfChildTasks(hWindow: hWnd): Bool;
+var
+  HoldString: PChar;
+  WindowStyle: Longint;
+  IsAChild: Word;
+  HoldhWnd: THoldhWnd;
+ 
+ 
+begin
+  GetMem(HoldString, 256);
+ 
+ 
+  HoldhWnd := THoldhWnd.Create;
+  HoldhWnd.hWindow := hWindow;
+ 
+ 
+  WindowStyle := GetWindowLong(hWindow, GWL_STYLE);
+  WindowStyle := WindowStyle and Longint(WS_VISIBLE);
+  IsAChild := GetWindowWord(hWindow, GWW_HWNDPARENT);
+ 
+ 
+{Добавляем строку с текстом задачи или именем класса и дескриптор в ListBox1.Items }
+  if (GetWindowText(hWindow, HoldString, 255) &gt; 0) and
+    (WindowStyle &gt; 0) and (IsAChild &lt;&gt; Word(nil)) then
+    ListBox2.Items.AddObject(StrPas(HoldString), TObject(HoldhWnd))
+  else if (GetClassName(hWindow, HoldString, 255) &gt; 0) and
+    (WindowStyle &gt; 0) and (IsAChild = Word(nil)) then
+    ListBox2.Items.AddObject(Concat('&lt;', StrPas(HoldString), '&gt;'), TObject(HoldhWnd));
+ 
+ 
+  FreeMem(HoldString, 256);
+  HoldhWnd := nil;
+  Result := TRUE;
+end;
+ 
+ 
+procedure TForm1.ListBox1DblClick(Sender: TObject);
+begin
+ 
+  enumChildWindows(THoldhWnd(ListBox1.Items.Objects[ListBox1.ItemIndex]).hWindow, @TForm1.enumListOfChildTasks, Longint(Self));
+ 
+  ListBox2.RePaint;
+end;
+ 
+ 
+end.
+</pre>
+
+<p>Дополнение</p>
+
+<p>В Kuliba1000.chm Win32 API/Разное/Пример EnumWindows есть принципиальная ошибка в коде:</p>
+
+<p>ЛЮБАЯ callback ( обратного вызова ) функция в Delphi должна сопровождаться директивой stdcall.</p>
+
+<p>Предоставленный пример просто не работает.</p>
+
+<p>Определение класса формы должно выглядеть как-то так:</p>
+
+<pre name="code" class="delphi">
+ 
+type
+  TForm1 = class(TForm)
+    ListBox1: TListBox;
+    ListBox2: TListBox;
+    procedure FormCreate(Sender: TObject);
+    procedure ListBox1DblClick(Sender: TObject);
+  private
+    function enumListOfTasks(hWindow: hWnd): Bool; stdcall;
+    function enumListOfChildTasks(hWindow: hWnd): Bool; stdcall;
+  end;
+</pre>
+
+<p>Директивы export (это написано в Help'е) просто не работают (игнорируются) под Win 32 :(</p>
+
+<p>С наилучшими пожеданиями</p>
+<p>Андрей Бреслав</p>
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

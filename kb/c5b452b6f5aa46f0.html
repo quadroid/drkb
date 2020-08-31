@@ -1,0 +1,114 @@
+<html>
+<head>
+  <title>Как экспортировать содержимое TDBGrid в Excel или Clipboard?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как экспортировать содержимое TDBGrid в Excel или Clipboard?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Пример dbgrid (DBGrid1) имеет всплывающее меню, которое позволяет две опции "Send to Excel" и "Copy"</p>
+
+<p>// ЗАМЕЧАНИЕ: этот метод должен включать COMObj, Excel97 units </p>
+
+<p>// ОБНОВЛЕНИЕ: если Вы используете Delphi 4, то замените xlWBatWorkSheet на 1 (один)</p>
+
+<pre name="code" class="delphi">
+//----------------------------------------------------------- 
+// если toExcel = false, то экспортируем содержимое dbgrid в Clipboard 
+// если toExcel = true, то экспортируем содержимое dbgrid в Microsoft Excel 
+procedure ExportDBGrid(toExcel: Boolean); 
+var 
+  bm: TBookmark; 
+  col, row: Integer; 
+  sline: String; 
+  mem: TMemo; 
+  ExcelApp: Variant; 
+begin 
+  Screen.Cursor := crHourglass; 
+  DBGrid1.DataSource.DataSet.DisableControls; 
+  bm := DBGrid1.DataSource.DataSet.GetBookmark; 
+  DBGrid1.DataSource.DataSet.First; 
+ 
+  // создаём объект Excel
+  if toExcel then 
+  begin 
+    ExcelApp := CreateOleObject('Excel.Application'); 
+    ExcelApp.WorkBooks.Add(xlWBatWorkSheet); 
+    ExcelApp.WorkBooks[1].WorkSheets[1].Name := 'Grid Data'; 
+  end; 
+ 
+  // Сперва отправляем данные в memo 
+  // работает быстрее, чем отправлять их напрямую в Excel
+  mem := TMemo.Create(Self); 
+  mem.Visible := false; 
+  mem.Parent := MainForm; 
+  mem.Clear; 
+  sline := ''; 
+ 
+  // добавляем информацию для имён колонок
+  for col := 0 to DBGrid1.FieldCount-1 do 
+    sline := sline + DBGrid1.Fields[col].DisplayLabel + #9; 
+  mem.Lines.Add(sline); 
+ 
+  // получаем данные из memo 
+  for row := 0 to DBGrid1.DataSource.DataSet.RecordCount-1 do 
+  begin 
+    sline := ''; 
+    for col := 0 to DBGrid1.FieldCount-1 do 
+      sline := sline + DBGrid1.Fields[col].AsString + #9; 
+    mem.Lines.Add(sline); 
+    DBGrid1.DataSource.DataSet.Next; 
+  end; 
+ 
+  // копируем данные в clipboard 
+  mem.SelectAll; 
+  mem.CopyToClipboard; 
+ 
+  // если необходимо, то отправляем их в Excel
+  // если нет, то они уже в буфере обмена
+  if toExcel then 
+  begin 
+    ExcelApp.Workbooks[1].WorkSheets['Grid Data'].Paste; 
+    ExcelApp.Visible := true; 
+  end; 
+ 
+  FreeAndNil(ExcelApp); 
+  DBGrid1.DataSource.DataSet.GotoBookmark(bm); 
+  DBGrid1.DataSource.DataSet.FreeBookmark(bm); 
+  DBGrid1.DataSource.DataSet.EnableControls; 
+  Screen.Cursor := crDefault; 
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

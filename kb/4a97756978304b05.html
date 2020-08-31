@@ -1,0 +1,63 @@
+<html>
+<head>
+  <title>Как отличить нажат правый или левый CTRL?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как отличить нажат правый или левый CTRL?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Для того, чтобы отличить нажат левый или правый Ctrl, нужно перехватить событие WM_KEYDOWN. В зависимости от состояния 24-ого бита параметра LParam нажата правая или левая клавиша. </p>
+<pre name="code" class="delphi">
+public
+  procedure WMKEYDOWN(var msg: TMessage); message WM_KEYDOWN;
+end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TForm1.WMKEYDOWN(var msg: TMessage);
+begin
+  if (msg.LParam and (255 shl 16)) shr 16 &lt;&gt; 29 then
+    Exit;
+  if msg.LParam and (1 shl 24) &gt; 0 then
+    Form1.Caption := 'Right'
+  else
+    Form1.Caption := 'Left';
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

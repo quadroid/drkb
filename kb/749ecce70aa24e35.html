@@ -1,0 +1,130 @@
+<html>
+<head>
+  <title>Прокрутка TListView</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Прокрутка TListView</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Существует довольно удобный способ прокрутки списков: если пользователь водит курсором мыши по элементам списка с нажатой левой кнопкой, то выделяется тот элемент, над которым находится курсор. А если курсор оказывается выше или ниже списка, то начинается прокрутка. О том, как такое сделать для ListView, мы сегодня и поговорим. </p>
+<p>Во-первых, нужно сделать выделение элементов, над которыми находится курсор мыши (при нажатой левой кнопке). Для нахождения элемента по координатам курсора удобно использовать функцию GetItemAt. Чтобы сменить выделение, нужно изменить свойства Selected и ItemFocused. </p>
+<p>Чтобы отлавливать события мыши при выходе курсора за границы ListView нужно "сказать" WIndows, что мышь сейчас "моя". Для этого используется функция SetCapture (чтобы сказать, что "мышь мне больше не нужна", используется функцией ReleaseCapture). Поскольку GetItemAt в случае выхода курсора за границы ListView возвращает пустой элемент (nil), дополнительно этот случай можно не проверять. Переменная d принимает положительное значение, если прокрутка будет происходить вниз и отрицательное в противном случае. Модуль d указывает на то, сколько элементов за раз будет прокручиваться. Нужно это для изменения скорости прокрутки (здесь скорость прокрутки зависит от того, насколько далеко находится курсор от ListView). </p>
+<p>Сама прокрутка осуществляется в процедуре Move. К номеру выделенного элемента прибавляется d. Если новый номер выходит за рамки допустимого значения, он устанавливается в 0 или Items.Count - 1. Далее происходит проверка: если номер выделенного элемента совпадает в новым номером, то делать ничего не нужно. В противном случае нужно изменить значение Selected и ItemFocused, а также прокрутить список. Для последнего удобно использовать процедуру MakeVisible. Она прокручивает список так, чтобы указанный элемент оказался видным. </p>
+<p>Чтобы список мог прокручиваться при неподвижной мыши, нужно сделать Timer, который бы периодически вызывал Move. Если курсор снова оказывается над ListView или пользователь отпускает левую кнопку мыши, Timer выключается. </p>
+<pre name="code" class="delphi">
+var
+  d: integer = 0;
+ 
+procedure Move;
+var
+  NewIndex: integer;
+begin
+  with Form1.ListView1 do if Assigned(Selected) then begin
+    NewIndex := Selected.Index + d;
+    if NewIndex &lt; 0
+      then NewIndex := 0
+      else if NewIndex &gt;= Items.Count
+        then NewIndex := Items.Count - 1;
+    if NewIndex &lt;&gt; Selected.Index then begin
+      Selected := Items[NewIndex];
+      ItemFocused := Selected;
+      Selected.MakeVisible(true);
+    end;
+  end;
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  i: integer;
+  li: TListitem;
+  lc: TListColumn;
+begin
+  Timer1.Interval := 100;
+  ListView1.ViewStyle := vsReport;
+  lc := ListView1.Columns.Add;
+  lc.Caption := 'Caption';
+  lc.AutoSize := true;
+  lc := ListView1.Columns.Add;
+  lc.Caption := 'SubItem';
+  lc.AutoSize := true;
+  ListView1.Items.BeginUpdate;
+  for i := 1 to 1000 do begin
+    li := ListView1.Items.Add;
+    li.Caption := 'Item ' + IntToStr(i);
+    li.SubItems.Add('SubItem ' + IntToStr(i));
+  end;
+  ListView1.Items.EndUpdate;
+end;
+ 
+procedure TForm1.ListView1MouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetCapture(ListView1.Handle);
+end;
+ 
+procedure TForm1.ListView1MouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+var
+  li: TListItem;
+begin
+  if ssLeft in Shift then with ListView1 do begin
+    li := GetItemAt(10, Y);
+    if Assigned(li) then begin
+      Timer1.Enabled := false;
+      Selected := li;
+      ItemFocused := ListView1.Selected;
+    end else begin
+      if Y &gt;= ListView1.ClientHeight
+        then d := (Y - ListView1.ClientHeight) div 20 + 1
+        else d := Y div 20 - 1;
+      if Timer1.Enabled = false then begin
+        Move;
+        Timer1.Enabled := true;
+      end;
+    end;
+  end;
+end;
+ 
+procedure TForm1.ListView1MouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  Timer1.Enabled := false;
+  ReleaseCapture;
+end;
+ 
+procedure TForm1.Timer1Timer(Sender: TObject);
+begin
+  Move;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

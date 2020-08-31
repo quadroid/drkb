@@ -1,0 +1,56 @@
+<html>
+<head>
+  <title>Почему таблица или select показывается в Grid быстро, а перемещение в конец таблицы происходит долго?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Почему таблица или select показывается в Grid быстро, а перемещение в конец таблицы происходит долго?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Когда вы открываете набор данных при помощи TTable, BDE производит fetch только такого количества записей, которые помещаются в Grid. Если вы захотели переместиться в конец таблицы, то для большинства SQL-серверов возможно перемещение по записям только вперед - т.е. если вам потребуется поместить указатель в середину таблицы то BDE пришлось-бы заново перечитывать записи с ее начала. Причина такой работы в том, что SQL-серверы в большинстве возвращают результаты запросов в виде последовательных наборов записей. В навигационных БД напротив, возможно физическое позиционирование на любую запись таблицы. </p>
+
+<p>Если SQL-сервер поддерживает двунаправленные скроллируемые курсоры, то полное кэширование записей запроса выполняться BDE не будет. </p>
+
+<p>Кроме этого, TTable и TQuery работают по разному. TQuery при перемещении в конец таблицы действительно сделает выборку всех записей, т.к. он и не может иначе - для выполнения задано конкретное SQL-выражение. </p>
+
+<p>TTable-же напротив, показывает всю таблицу, и запросы для получения содержимого таблицы формируются автоматически. Поэтому TTable при нажатии вами в TDBGrid клавиш Ctrl-End сформирует запрос типа </p>
+
+<pre name="code" class="sql">
+SELECT * FROM TABLE ORDER BY INDEXFIELD DESC 
+</pre>
+
+
+<p>и покажет только видимые в DBGrid записи "с конца". При этом, если нет DESC индекса по полю INDEXFIELD, сортировка данных (ORDER BY) будет производиться на диске. И чем больше записей в таблице, тем дольше. Для того, чтобы перемещение по Ctrl-End для TTable происходило быстро, нужно создать DESC индекс по полю сортировки. В этом случае операцию перехода в конец таблицы TTable выполнит практически мгновенно. Пользователи Delphi C/S могут посмотреть операторы, выдаваемые TTable SQL-серверу при помощи SQL Monitor. </p>
+
+<p>Более подробно на эту тему см. документ http://www.ibase.ru/devinfo/bde.htm </p>
+
+<p id="author">Автор: <a href="mailto:delphi@demo.ru" target="_blank">Дмитрий Кузьменко</a> (<a href="http://www.ibase.ru" target="_blank">http://www.ibase.ru</a>)</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

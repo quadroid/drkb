@@ -1,0 +1,75 @@
+<html>
+<head>
+  <title>Как получить статус принтера?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить статус принтера?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function TestPrinterStatus(LPTPort: Word): Byte; 
+var 
+  Status: byte; 
+  CheckLPT: word; 
+begin 
+  Status := 0; 
+  if (LPTPort &gt;= 1) and (LPTPort &lt;= 3) then 
+  begin 
+    CheckLPT := LPTPort - 1; 
+    asm 
+      mov dx, CheckLPT; 
+      mov al, 0; 
+      mov ah, 2; 
+      int 17h; 
+      mov &amp;Status, ah; 
+    end; 
+  end; 
+  Result := Status; 
+end; 
+ 
+ 
+{ 
+  Pass in the LPT port number you want to check &amp; get the following back: 
+  01h - Timeout 
+  08h - I/O Error 
+  10h - Printer selected 
+  20h - Out of paper 
+  40h - Printer acknowledgement 
+  80h - Printer not busy (0 if busy) 
+ 
+  Note: 
+  This function doesn't work under NT, it gives an access violation 
+  from the DOS interrupt call. 
+} 
+</pre>
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

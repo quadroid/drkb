@@ -1,0 +1,52 @@
+<html>
+<head>
+  <title>Как сделать отступ в TMemo?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как сделать отступ в TMemo?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>С помощью API-функции SendMessage можно задать поля в Memo-компоненте. Если необходимо, например, сделать отступ в 20 пикселей слева то можно это сделать следующим образом: </p>
+
+<pre name="code" class="delphi">
+var Rect: TRect; 
+begin 
+  SendMessage( Memo1.Handle, EM_GETRECT, 0, LongInt(@Rect)); 
+  Rect.Left:= 20; 
+  SendMessage(Memo1.Handle, EM_SETRECT, 0, LongInt(@Rect)); 
+  Memo1.Refresh; 
+end; 
+</pre>
+
+
+<p>действует до первого изменения размеров компонента TMemo, поэтому указанный код необходимо поместить в обработчик OnResize компонента владельца - формы или панели. Приводит к дополнительной перерисовке TMemo при отправке сообщения. </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

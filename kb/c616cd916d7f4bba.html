@@ -1,0 +1,116 @@
+<html>
+<head>
+  <title>Как пользоваться командой шелла MinimizeAll?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как пользоваться командой шелла MinimizeAll?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для этого надо импортировать Microsoft Shell Controls &amp; Automation Type Library.</p>
+<p>В меню Project..Import Type Library</p>
+<p>Выберите Microsoft Shell Controls &amp; Automation (version 1.0).</p>
+<p>Нажмите Install...</p>
+<p>На панели компонентов, в закладке ActiveX появится несколько компонентов. Перетащите на форму компонент TShell. После этого, например, можно всё минимизировать:</p>
+<p>Shell1.MinimizeAll;</p>
+<pre name="code" class="delphi">/*********************************************************************
+  Так же в этом компоненте присутствует давольно много забавных примочек.
+*********************************************************************/
+procedure TForm1.Shell(sMethod: Integer);
+begin
+  case sMethod of
+  0:
+     //Минимизируем все окна на рабочем столе
+   begin
+     Shell1.MinimizeAll;
+     Button1.Tag := Button1.Tag + 1;
+   end;
+  1:
+     //Показываем диалоговое окошко Run
+   begin
+     Shell1.FileRun;
+     Button1.Tag := Button1.Tag + 1;
+   end;
+  2:
+     //Показываем окошко завершения работы Windows
+   begin
+     Shell1.ShutdownWindows;
+     Button1.Tag := Button1.Tag + 1;
+   end;
+  3:
+     //Показываем окно поиска файлов
+   begin
+     Shell1.FindFiles;
+     Button1.Tag := Button1.Tag + 1;
+   end;
+  4:
+     //Отображаем окно настройки времени и даты
+   begin
+     Shell1.SetTime;
+     Button1.Tag := Button1.Tag + 1;
+   end;
+  5:
+     //Показываем диалоговое окошко настройки интернета (Internet Properties)
+   begin
+     Shell1.ControlPanelItem('INETCPL.cpl');
+     Button1.Tag := Button1.Tag + 1;
+   end;
+  6:
+     //Предлагаем пользователю выбрать директорию из Program Files
+   begin
+     Shell1.BrowseForFolder(0, 'My Programs', 0, 'C:\Program Files');
+     Button1.Tag := Button1.Tag + 1;
+   end;
+  7:
+     //Показываем диалоговое окошко настройки панели задач
+   begin
+     Shell1.TrayProperties;
+     Button1.Tag := Button1.Tag + 1;
+   end;
+   8:
+     //Восстанавливаем все окна на рабочем столе
+   begin
+     Shell1.UndoMinimizeAll;
+     Button1.Tag := 0;
+   end;
+  end; {case}
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  Shell(Button1.Tag);
+end;
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<html>
+<head>
+  <title>Функция для разворачивания строк</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Функция для разворачивания строк</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Функция для "разворачивания" строк
+ 
+ 
+Входные параметры:
+Input - входная строка, которую необходимо представить в "развернутом виде"
+ 
+на входе: 1,3,5-10,15
+на выходе: 1,3,5,6,7,8,9,10,15 
+ 
+ 
+Зависимости: стандартный набор включаемых модулей
+Автор:       Ru, DiVo_Ru@rambler.ru, Одесса
+Copyright:   DiVo 2002, creator Ru
+Дата:        12 ноября 2002 г.
+***************************************************** }
+ 
+function DecStr(Input: string): string;
+var
+  i, j, t: integer;
+  s: string;
+begin
+  if pos('-', Input) &lt;&gt; 0 then
+  begin
+    while length(Input) &lt;&gt; 0 do
+    begin
+      if Input[1] = ',' then
+      begin
+        i := strtoint(s);
+        delete(Input, 1, 1);
+        result := result + s + ',';
+        s := '';
+      end
+      else
+      begin
+        if Input[1] = '-' then
+        begin
+          i := strtoint(s);
+          delete(Input, 1, 1);
+          t := pos(',', Input);
+          result := result + s + ',';
+          s := '';
+          if t = 0 then
+          begin
+            j := strtoint(Input);
+            Input := '';
+          end
+          else
+          begin
+            j := strtoint(copy(Input, 1, t - 1));
+            delete(Input, 1, t);
+          end;
+          inc(i);
+          while i &lt; j + 1 do
+          begin
+            result := result + inttostr(i) + ',';
+            inc(i);
+          end;
+        end
+        else
+        begin
+          s := s + Input[1];
+          delete(Input, 1, 1);
+        end;
+      end;
+    end;
+  end
+  else
+    result := Input;
+  if s &lt;&gt; '' then
+    result := result + s;
+end;
+ 
+ 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

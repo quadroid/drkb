@@ -1,0 +1,155 @@
+<html>
+<head>
+  <title>Как удобнее работать с буфером обмена как последовательностью байт?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как удобнее работать с буфером обмена как последовательностью байт?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit ClipStrm;
+ 
+{
+  This unit is Copyright (c) Alexey Mahotkin 1997-1998
+  and may be used freely for any purpose. Please mail
+  your comments to
+  E-Mail: alexm@hsys.msk.ru
+  FidoNet: Alexey Mahotkin, 2:5020/433
+ 
+  This unit was developed during incorporating of TP Lex/Yacc
+  into my project. Please visit ftp://ftp.nf.ru/pub/alexm
+  or FREQ FILES from 2:5020/433 or mail me to get hacked
+  version of TP Lex/Yacc which works under Delphi 2.0+.
+}
+ 
+ 
+interface uses Classes, Windows;
+ 
+type
+  TClipboardStream = class(TStream)
+  private
+    FMemory : pointer;
+    FSize : longint;
+    FPosition : longint;
+    FFormat : word;
+  public
+    constructor Create(fmt : word);
+    destructor Destroy; override;
+ 
+    function Read(var Buffer; Count : Longint) : Longint; override;
+    function Write(const Buffer; Count : Longint) : Longint; override;
+    function Seek(Offset : Longint; Origin : Word) : Longint; override;
+  end;
+ 
+implementation uses SysUtils;
+ 
+constructor TClipboardStream.Create(fmt : word);
+ 
+var
+  tmp : pointer;
+  FHandle : THandle;
+begin
+FFormat := fmt;
+OpenClipboard(0);
+FHandle := GetClipboardData(FFormat);
+FSize := GlobalSize(FHandle);
+FMemory := AllocMem(FSize);
+tmp := GlobalLock(FHandle);
+MoveMemory(FMemory, tmp, FSize);
+GlobalUnlock(FHandle);
+FPosition := 0;
+CloseClipboard;
+end;
+ 
+destructor TClipboardStream.Destroy;
+begin
+FreeMem(FMemory);
+end;
+ 
+function TClipboardStream.Read(var Buffer; Count : longint) : longint;
+begin
+if FPosition + Count &gt; FSize then
+  Result := FSize - FPosition
+else
+  Result := Count;
+MoveMemory(@Buffer, PChar(FMemory) + FPosition, Result);
+ 
+Inc(FPosition, Result);
+end;
+ 
+function TClipboardStream.Write(const Buffer; Count : longint) : longint;
+var
+  FHandle : HGlobal;
+  tmp : pointer;
+begin
+ReallocMem(FMemory, FPosition + Count);
+MoveMemory(PChar(FMemory) + FPosition, @Buffer, Count);
+FPosition := FPosition + Count;
+FSize := FPosition;
+FHandle := GlobalAlloc(GMEM_MOVEABLE or GMEM_SHARE or GMEM_ZEROINIT, FSize);
+try
+  tmp := GlobalLock(FHandle);
+  try
+    MoveMemory(tmp, FMemory, FSize);
+    OpenClipboard(0);
+    SetClipboardData(FFormat, FHandle);
+  finally
+    GlobalUnlock(FHandle);
+ 
+  end;
+  CloseClipboard;
+except
+  GlobalFree(FHandle);
+end;
+Result := Count;
+end;
+ 
+function TClipboardStream.Seek(Offset : Longint; Origin : Word) : Longint;
+begin
+case Origin of
+0 : FPosition := Offset;
+1 : Inc(FPosition, Offset);
+2 : FPosition := FSize + Offset;
+end;
+Result := FPosition;
+end;
+ 
+end.
+</pre>
+
+
+<p>Alexey Mahotkin alexm@hsys.msk.ru (2:5020/433)</p>
+<p>Взято из FAQ:</p>
+<p>Delphi and Windows API Tips'n'Tricks </p>
+<p>olmal@mail.ru</p>
+<p>http://www.chat.ru/~olmal</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

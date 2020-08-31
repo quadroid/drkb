@@ -1,0 +1,155 @@
+<html>
+<head>
+  <title>Увидеть пароль, скрытый за звездочками</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Увидеть пароль, скрытый за звездочками</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Создание и использование DLL: </p>
+<p>Благодаря твоим просьбам и запросам из HackFaq мне приходится отходить от плана согласованного с главредом. С одной стороны, ты толкаешь меня под окровавленный кровью авторов Х нож главреда. С другой стороны ты мне усложняешь жизнь по самые &#171;не хочу&#187;. В любом случае, ничего хорошего. Если так пойдёт и дальше, то на ноже SinTEZа появится моя свежая кровь. И следующий репортаж о кодинге мне придётся вести уже из морга. </p>
+<p>Но что поделаешь. Сегодня мне приходится корректировать свой план и выполнять твои просьбы. В этом номере обе статьи кодинга построены по самым многочисленным просьбам. </p>
+<p>Эта статья отвечает на наиболее часто задаваемый вопрос из HackFaq: &#171;Как увидеть пароль спрятанный под звёздочками?&#187;. Для этого есть куча разных прог. Но мы же с тобой совместимые челы, поэтому не юзаем чужие творения. Вот поэтому мы создадим такую прогу сами. Тем более, что сам попросил объяснить, как это работает. </p>
+<p>Шкодинг: </p>
+<p>Для этого примера я написал DLL файл, который будет сейчас расписан перед твоими глазами. Ничего особо визуального мы сегодня делать не будем. Только кодинг и ничего больше. Кстати, я уже перешёл на Delphi 6, так что все исходники теперь будут писаться в нём. Если ты до сих пор застрял в Delphi 5, то бегом на рынок за свеженьким диском. </p>
+<p>Для начала создадим новый проект. Но не тот, который использовали до этого, а проект DLL библиотеки. Для этого выбирай меню File-&gt;New-&gt;Other &#8230; (для Delphi 5 это просто File-&gt;New). Перед тобой откроется окно. Найди здесь пункт DLL Wizard и дважды кликни по нему. Delphi создаст пустой проект DLL библиотеки. Сразу нажми пимпу &#171;Save&#187;, чтобы сохранить проект. В качестве имени введи &#171;hackpass&#187;, это же и будет именем dll файла. </p>
+<p>Теперь сотри весь текст, который написал Delphi и напиши: </p>
+<pre name="code" class="delphi">
+library hackpass;
+ 
+uses Windows, Messages;
+var
+ SysHook : HHook = 0;
+ Wnd : Hwnd = 0;
+ 
+function SysMsgProc(code : integer; wParam : word;
+ lParam : longint) : longint; stdcall;
+begin
+ // Передать сообщение другим ловушкам в системе
+ CallNextHookEx(SysHook, Code, wParam, lParam);
+ // Проверяю сообщение
+ if code = HC_ACTION then
+ begin
+   // Получаю идентификатор окна сгенерировавшего сообщение
+   Wnd := TMsg(Pointer(lParam)^).hwnd;
+ 
+   // Проверяю тип сообщения.
+   // Если была нажата левая кнопка мыши
+   // и удержана кнопка Control, то …
+   if TMsg(Pointer(lParam)^).message = WM_LBUTTONDOWN then
+     if ((TMsg(Pointer(lParam)^).wParam and MK_CONTROL) = MK_CONTROL) then
+     begin
+       // Убрать в окне отправившем сообщение зв?здочки
+       SendMessage(Wnd, em_setpasswordchar, 0, 0);
+       // Перерисовать окно.
+       InvalidateRect(Wnd, nil, true);
+      end;
+  end;
+end;
+ 
+// Процедура запуска.
+procedure RunStopHook(State : Boolean) export; stdcall;
+begin
+ // Если State = true, то...
+ if State=true then
+ begin
+   // Запускаем ловушку.
+   SysHook := SetWindowsHookEx(WH_GETMESSAGE,
+      @SysMsgProc, HInstance, 0);
+ end
+ else// Иначе
+ begin
+   // Отключить ловушку.
+   UnhookWindowsHookEx(SysHook);
+   SysHook := 0;
+ end;
+end;
+ 
+exports RunStopHook index 1;
+ 
+begin
+end.
+</pre>
+<p>Теория: </p>
+<p>Самое основное в нашей DLL &#8211; это процедура RunStopHook. Ей передаётся один только параметр. Если он равен true, то я регистрирую ловушку, которая будет ловить все сообщения Windows на себя. Для этого используется функция SetWindowsHookEx. У этой функции четыре параметра: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#9632;</td><td>Тип ловушки. Я указал WH_GETMESSAGE, которая ловит все сообщения. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#9632;</td><td>Указатель на функцию, которой будут пересылаться сообщения Windows. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#9632;</td><td>Указатель на приложение. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#9632;</td><td>Идентификатор потока. Если ноль, то используется текущий. </td></tr></table></div><p>В качестве второго параметра я указал имя функции SysMsgProc. Она так же описана в этой dll. Давай на неё посмотрим. </p>
+<p>Ловушка для сообщений: </p>
+<p>В первой строке я передаю пойманное сообщение остальным ловушкам установленным в системе с помощью CallNextHookEx. После этого я получаю окно сгенерировавшее событие и проверяю тип события. Если была кликнута левая кнопка крысы и удержана пимпа Control, то убрать звёздочки. </p>
+<p>Я не могу больше останавливаться на этой DLL потому что моя рубрика не резиновая. Придётся тебе разбираться с происходящим по комментариям. </p>
+<p>Юзаем DLL: </p>
+<p>Теперь напишем прогу, которая будет загружать DLL и запускать ловушку. Для этого создай новый проект (такие мы уже создавали). Перейди в исходник, и найди раздел var. Рядом должно быть написано что-то типа &#171;Form1: TForm1&#187;. Допиши сюда строку: </p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>procedure RunStopHook(State : Boolean) stdcall; external 'hackpass.dll' index 1; 
+</td>
+</tr>
+</table>
+<p>В этой строке я объясняю Delphi, что есть такая функция RunStopHook, которая находится в написанной мной библиотеке hackpass.dll и её индекс = 1. Вот по этому индексу Delphi и будет вызывать функцию. Можно конечно же и по имени, но это будет немного медленней. </p>
+<p>Теперь создай обработчик события для формы OnShow и напиши там: </p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>RunStopHook(true); 
+</td>
+</tr>
+</table>
+<p>И наконец создай обработчик события OnClose и напиши: </p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>RunStopHook(false); 
+</td>
+</tr>
+</table>
+<p>Кранты паролям: </p>
+<p>Всё наше приложение готово. Запусти его. Потом перейди в окно со строкой ввода и кликни там левой кнопкой крысы удерживая Control. Звёздочки моментально превратятся в реальный текст. </p>
+<p>Для большего эффекта можешь бросить на форму проги загружающей DLL, какую-нибудь картинку. Ну а если что-то не понятно, то просто тренируйся. Со временем всё само придёт. Главное практика. </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+
+<hr />
+<p>Наверно так: хотя классов может быть больше </p>
+<pre name="code" class="delphi">
+procedure TForm1.Timer1Timer(Sender: TObject);
+var
+  Wnd: HWND;
+  lpClassName: array[0..$FF] of Char;
+begin
+  Wnd := WindowFromPoint(Mouse.CursorPos);
+  GetClassName(Wnd, lpClassName, $FF);
+  if ((strpas(lpClassName) = 'TEdit') or (strpas(lpClassName) = 'EDIT')) then
+    PostMessage(Wnd, EM_SETPASSWORDCHAR, 0, 0);
+end;
+</pre>
+<p>Дополнение от: Mikel </p>
+<p>Здесь проблема: если страница памяти защищена, то её нельзя прочитать таким способом, но можно заменить PasswordChar(пример: поле ввода пароля в удаленном соединении) </p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

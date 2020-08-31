@@ -1,0 +1,124 @@
+<html>
+<head>
+  <title>Как перейти к нужному ключу в RegEdit?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как перейти к нужному ключу в RegEdit?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses
+  Windows, Messages, Classes, Controls, Forms, StdCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    Button1: TButton;
+    procedure Button1Click(Sender: TObject);
+    procedure JumpToKey(Key: string);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+uses
+  ShellAPI;
+ 
+procedure TForm1.JumpToKey(Key: string);
+var
+  i, n: Integer;
+  hWin: HWND;
+  ExecInfo: ShellExecuteInfoA;
+begin
+  hWin := FindWindowA(PChar('RegEdit_RegEdit'), nil);
+  if hWin = 0 then
+  {if Regedit doesn't run then we launch it}
+  begin
+    FillChar(ExecInfo, 60, #0);
+    with ExecInfo do
+    begin
+      cbSize := 60;
+      fMask  := SEE_MASK_NOCLOSEPROCESS;
+      lpVerb := PChar('open');
+      lpFile := PChar('regedit.exe');
+      nShow  := 1;
+    end;
+    ShellExecuteExA(@ExecInfo);
+    WaitForInputIdle(ExecInfo.hProcess, 200);
+    hWin := FindWindowA(PChar('RegEdit_RegEdit'), nil);
+  end;
+  ShowWindow(hWin, SW_SHOWNORMAL);
+  hWin := FindWindowExA(hWin, 0, PChar('SysTreeView32'), nil);
+  SetForegroundWindow(hWin);
+  i := 30;
+  repeat
+    SendMessageA(hWin, WM_KEYDOWN, VK_LEFT, 0);
+    Dec(i);
+  until i = 0;
+  Sleep(500);
+  SendMessageA(hWin, WM_KEYDOWN, VK_RIGHT, 0);
+  Sleep(500);
+  i := 1;
+  n := Length(Key);
+  repeat
+    if Key[i] = '\' then
+    begin
+      SendMessageA(hWin, WM_KEYDOWN, VK_RIGHT, 0);
+      Sleep(500);
+    end
+    else
+      SendMessageA(hWin, WM_CHAR, Integer(Key[i]), 0);
+    i := i + 1;
+  until i = n;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  JumpToKey('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Internet Explorer');
+end;
+ 
+end.
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

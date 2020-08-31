@@ -1,0 +1,90 @@
+<html>
+<head>
+  <title>Как оперделить все IP и порты на моем компьютере?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как оперделить все IP и порты на моем компьютере?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Функции GetTcpTable, GetUdpTable. </p>
+<p>Импорт GetTcpTable:</p>
+<pre name="code" class="delphi">
+unit TcpTable;
+interface
+type
+  PDWord = ^Longword;
+  PMIB_TCPROW = ^TMIB_TCPROW;
+  TMIB_TCPROW = record
+    dwState: LongWord;
+    dwLocalAddr: LongWord;
+    dwLocalPort: LongWord;
+    dwRemoteAddr: LongWord;
+    dwRemotePort: LongWord;
+  end;
+  PMIB_TCPTABLE = ^TMIB_TCPTABLE;
+  TMIB_TCPTABLE = record
+    dwNumEntries: LongWord;
+    table: array[0..0] of TMIB_TCPROW;
+  end;
+function GetTcpTable(var TcpTable: PMIB_TCPTABLE; var Size: PDWord; bOrder: Boolean): LongWord; stdcall
+implementation
+function GetTcpTable; external 'Iphlpapi.dll' name 'GetTcpTable';
+end.
+</pre>
+<p>Вызов GetTcpTable:</p>
+<pre name="code" class="delphi">
+{$R-}
+    Entries:=16;
+    Sz:=SizeOf(TMIB_TCPTABLE)+SizeOf(TMIB_TCPROW)*(Entries-1);
+    pMibTable:=nil;
+    try
+     repeat
+       ReallocMem(pMibTable,Sz);
+       Res:=GetTcpTable(pMibTable^,Sz,False);
+     until Res &lt;&gt; ERROR_INSUFFICIENT_BUFFER;
+     if Res &lt;&gt; NO_ERROR then
+      begin
+       ShowMessage(SysErrorMessage(Res));
+       exit;
+      end;
+     for Entries:=0 to pMibTable.dwNumEntries-1 do
+      begin
+         &lt;Делать что-то&gt;
+      end;
+    finally
+     FreeMem(pMibTable);
+    end;
+{$R+}
+</pre>
+<p id="author">Автор Spawn </p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

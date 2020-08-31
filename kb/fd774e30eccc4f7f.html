@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Как вставить картинку</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как вставить картинку</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>Answer:</p>
+
+<p>If WS is your worksheet:</p>
+
+<pre name="code" class="delphi">
+{ ... }
+WS.Shapes.AddPicture('C:\Pictures\Small.Bmp', EmptyParam, EmptyParam, 10, 160,
+  EmptyParam, EmptyParam);
+</pre>
+
+<p>or</p>
+<pre name="code" class="delphi">
+{ ... }
+var
+  Pics: Excel2000.Pictures; {or whichever Excel}
+  Pic: Excel2000.Picture;
+  Pic: Excel2000.Shape;
+  Left, Top: integer;
+{ ... }
+Pics := (WS.Pictures(EmptyParam, 0) as Pictures);
+Pic := Pics.Insert('C:\Pictures\Small.Bmp', EmptyParam);
+Pic.Top := WS.Range['D4', 'D4'].Top;
+Pic.Left := WS.Range['D4', 'D4'].Left;
+{ ... }
+</pre>
+
+
+<p>EmptyParam a special variant (declared in Variants.pas in D6+). However in later versions of Delphi some conversions cause problems. This should work:</p>
+<pre name="code" class="delphi">
+uses
+  OfficeXP;
+ 
+{ ... }
+WS.Shapes.AddPicture('H:\Pictures\Game\Hills.bmp', msoFalse, msoTrue, 10, 160, 100,
+  100);
+</pre>
+
+
+<p>But you may have to use a TBitmap to find out how large the picture should be.</p>
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

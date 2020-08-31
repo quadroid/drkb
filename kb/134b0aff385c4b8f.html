@@ -1,0 +1,208 @@
+<html>
+<head>
+  <title>Перенаправление стандартного ввода и вывода</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Перенаправление стандартного ввода и вывода</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Горбань С.В. </p>
+<p>Вообще - я программист молодой, стаж - всего 2 года. И я никак не ожидал, что в век GDI мне придется возится с консолью... Ан нет, пришлось. </p>
+<p>Начал писать "движок" для собственного сайта. А именно - "Apache 1.x shared module" (dll - линкуется к Апачу и обрабатывает определенные адреса). </p>
+<p>Написал. Всего три сотни строк. НО умеет кучу всяких полезностей, типа вставлять на страницы данные из файлов (файл в файл), строки и, главное, данные из БД. Все это прекрасно. НО не умеет вставлять результаты работы других файлов (типа как CGI). Ну, думаю, надо сделать. </p>
+<p>Ага, а как? Вот тут то все и началось... </p>
+<p>Итак, </p>
+<p>ЗАДАЧА: </p>
+<p>запустить процесс (некий файл), передать ему команды и получить от него результаты работы. Вставить полученные результаты на страницу сайта. Причем в целях совместимости механизмы передачи данных ДОЛЖНЫ быть стандартными - StdIn, StdOut, StdErr. </p>
+<p>Поискал на КД. Нашел вот такую штуку: Как переназначить StdOut в файл для консольной программы запускаемой по CreateProcess </p>
+<p>Хорошая статья, но мне-то НЕ в ФАЙЛ, а в ПРОГРАММУ надо! Автор (Спасибо ему!!!) предусмотрительно указал ссылки на полезные раздел справки - "Creating a Child Process with Redirected Input and Output". Лезем туда. Ууууух... Круто. В общем, каких-то два дня ковыряния и вуаля! Работает! </p>
+<p>Получился небольшой такой класс... За кривизну некоторых мест, типа отсутствия проверок - НЕ бить! (по крайней мере ногами :-)). Кому надо - тот сам вставит. (Вот так и рождается "кривой" код. Типа сейчас лень, потом добавлю... Ага... Через час уже забудешь!!!) </p>
+<p>В общем - перехожу таки к технике дела. </p>
+<p>Для передачи данных используются "безымянные" (Anonymus) "каналы" (Pipes). Чтобы заставить программу писать в (читать из) канал (а) - просто подменяем соответствующие Std(In, Out, Err). Программа и знать не будет, что ее данные уходят в "трубу" а не на реальную консоль. </p>
+<p>При создании каналов есть одна ВАЖНАЯ особенность. Создаем-то мы их в своем процессе (Parent) а использовать будем и в дочернем. (Учтите! дочерний процесс НЕ будет знать, что использует КАНАЛ! НО будет его использовать...). Так, вот, чтобы дочерний процесс мог нормально работать - хэндлы канала должны быть НАСЛЕДУЕМЫМИ. </p>
+<p>Чтобы это обеспечить - надо правильно заполнить структуру SECURITY_ATTRIBUTES используемую при вызове CreatePipe: </p>
+<pre name="code" class="delphi">
+New(FsaAttr);
+FsaAttr.nLength := SizeOf(SECURITY_ATTRIBUTES);
+FsaAttr.bInheritHandle := True;
+FsaAttr.lpSecurityDescriptor := nil;
+</pre>
+
+
+<p>Заполнили? Молодцы! Теперь создаем каналы (я делаю только два, StdErr мне не нужен): </p>
+<pre name="code" class="delphi">
+if not CreatePipe(FChildStdoutRd, FChildStdoutWr, FsaAttr, 0) then
+  //Создаем "читальный" Pipe
+  raise ECreatePipeErr.CreateRes(@sCreatePipeMsg)
+else
+if not CreatePipe(FChildStdinRd, FChildStdinWr, FsaAttr, 0) then
+  //Создаем "писальный" Pipe
+  raise ECreatePipeErr.CreateRes(@sCreatePipeMsg)
+</pre>
+
+
+<p>Создали? Если нет - то дальше ловить нечего, поэтому генерим Exception'ы... </p>
+<p>Есть еще одна тонкость. У нас Все созданные хэндлы наследуемые! А дочернему процессу понадобятся только два... Поэтому: </p>
+<pre name="code" class="delphi">
+// Делаем НЕ наследуемые дубликаты
+// Это нужно, чтобы не тащить лишние хэндлы в дочерний процесс...
+if not DuplicateHandle(GetCurrentProcess(), FChildStdoutRd,
+  GetCurrentProcess(), @Tmp1, 0, False, DUPLICATE_SAME_ACCESS) then
+  raise EDuplicateHandleErr.CreateRes(@sDuplicateHandleMsg)
+else if not DuplicateHandle(GetCurrentProcess(), FChildStdinWr,
+  GetCurrentProcess(), @Tmp2, 0, False, DUPLICATE_SAME_ACCESS) then
+  raise EDuplicateHandleErr.CreateRes(@sDuplicateHandleMsg)
+</pre>
+<p>Дубликаты у нас в Tmp1 и Tmp2, теперь: </p>
+<pre name="code" class="delphi">
+CloseHandle(FChildStdoutRd); //Закроем наследуемый вариант "Читального" хэндла
+CloseHandle(FChildStdinWr); //Закроем наследуемый вариант "Писального" хэндла
+FChildStdoutRd := Tmp1;    //И воткнем их места НЕ наследуемые дубликаты
+FChildStdinWr := Tmp2;    //И воткнем их места НЕ наследуемые дубликаты
+</pre>
+<p>Ура! Теперь можем создавать дочерний процесс! </p>
+<pre name="code" class="delphi">
+if not CreateChildProcess(ExeName, CommadLine, FChildStdinRd, FChildStdoutWr) then
+  // Наконец-то! Создаем дочерний процесс!
+  raise ECreateChildProcessErr.CreateRes(@sCreateChildProcessMsg)
+</pre>
+<p>Причем CreateChildProcess - это не API - это моя функция! Вот она: </p>
+<pre name="code" class="delphi">
+function TChildProc.CreateChildProcess(ExeName, CommadLine: string; StdIn,
+  StdOut: THandle): Boolean;
+var
+  piProcInfo: TProcessInformation;
+  siStartInfo: TStartupInfo;
+begin
+  // Set up members of STARTUPINFO structure.
+  ZeroMemory(@siStartInfo, SizeOf(TStartupInfo));
+  siStartInfo.cb := SizeOf(TStartupInfo);
+  siStartInfo.hStdInput := StdIn;
+  siStartInfo.hStdOutput := StdOut;
+  siStartInfo.dwFlags := STARTF_USESTDHANDLES;
+  // Create the child process.
+  Result := CreateProcess(nil,
+    PChar(ExeName + ' ' + CommadLine), // command line
+    nil, // process security attributes
+    nil, // primary thread security attributes
+    TRUE, // handles are inherited
+    0, // creation flags
+    nil, // use parent's environment
+    nil, // use parent's current directory
+    siStartInfo, // STARTUPINFO pointer
+    piProcInfo); // receives PROCESS_INFORMATION
+end;
+</pre>
+<p>Здесь важное значение имеют вот эти строчки: </p>
+<pre name="code" class="delphi">
+siStartInfo.hStdInput := StdIn;
+siStartInfo.hStdOutput := StdOut;
+siStartInfo.dwFlags := STARTF_USESTDHANDLES;
+</pre>
+<p>Первые две - понятно. А третья - читайте Хелп! Там все написано... </p>
+<p>Самые умные (то есть те, кто ухитрился дочитать до этого места :-))) спросят: </p>
+<p>- Ну, создали мы процесс и что дальше? </p>
+<p>А дальше - мы можем с ентим процессом общаться! Например вот так: </p>
+<pre name="code" class="delphi">
+function TChildProc.WriteToChild(Data: string; Timeout: Integer = 1000): Boolean;
+var
+  dwWritten, BufSize: DWORD;
+  chBuf: PChar;
+begin
+  //Обратите внимание на Chr($0D)+Chr($0A)!!! Без них - будет работать с ошибками
+  //На досуге - подумайте почему...
+  //Для тех, кому думать лень - подскажу - это пара символов конца строки.
+  //(вообще-то можно обойтись одним, но так надежнее, программы-то бывают разные)
+  chBuf := PChar(Data + Chr($0D) + Chr($0A));
+  BufSize := Length(chBuf);
+  Result := WriteFile(FChildStdinWr, chBuf^, BufSize, dwWritten, nil);
+  Result := Result and (BufSize = dwWritten);
+end;
+</pre>
+<p>Это мы посылаем данные на StdIn процесса. </p>
+<p>Читать - несколько сложнее. Нам же не надо вешать всю нашу программу только потому, что процесс не желает нам ничего сообщать??? А ReadFile - функция синхронная и висит - пока не прочитает! Если заранее известно, чего и сколько ДОЛЖЕН выдать процесс, то еще ничего... А если нет? </p>
+<p>А если нет - делаем хитрый финт ушами :-) Есть у Мелко-Мягких такая ф-ия PeekNamedPipe. Не покупайтесь, на то, что она "Named" - фигня! Она прекрасно работает а анонимными пайпами! (кто не верит - можете почитать хелп) </p>
+<p>Поэтому делаем так: </p>
+<pre name="code" class="delphi">
+function TChildProc.ReadStrFromChild(Timeout: Integer): string;
+var
+  i: Integer;
+  dwRead, BufSize, DesBufSize: DWORD;
+  chBuf: PChar;
+  Res: Boolean;
+begin
+  try
+    BufSize := 0;
+    New(chBuf);
+    repeat
+      for i := 0 to 9 do
+      begin
+        Res := PeekNamedPipe(FChildStdoutRd, nil, 0, nil, @DesBufSize, nil);
+        Res := Res and (DesBufSize &gt; 0);
+        if Res then
+          Break;
+        Sleep(Round(Timeout / 10));
+      end;
+      if Res then
+      begin
+        if DesBufSize &gt; BufSize then
+        begin
+          FreeMem(chBuf);
+          GetMem(chBuf, DesBufSize);
+          BufSize := DesBufSize;
+        end;
+        Res := ReadFile(FChildStdoutRd, chBuf^, BufSize, dwRead, nil);
+        Result := Result + LeftStr(chBuf, dwRead);
+      end;
+    until not Res;
+  except
+    Result := 'Read Err';
+  end;
+end;
+</pre>
+<p>Ну, вот, как я и говорил - работает. Даже слишком хорошо. Как я и говорил - эта вся бодяга для Web сервера. Ну, беру я в качестве файла - format.exe.... Ндаааа.... </p>
+<p>Если честно - с format'ом я не прверял - а вот help c парметрами и "net use" прошли на ура! Так что пришлось резко думать, как ограничить список разрешенных для запуска программ.... </p>
+<p>В общем, кому лень разбираться - вот вам исходники модуля с готовым классом. А вот пример его использования: </p>
+<pre name="code" class="delphi">
+with TChildProc.Create(ReadIni(TagParams.Values['file'], FPage),
+  TagParams.Values['cmd']) do
+  try
+    WriteToChild(TagParams.Text);
+    ReplaceText := ReadStrFromChild;
+  finally
+    Free;
+  end;
+</pre>
+<p>Не правда ли просто? </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

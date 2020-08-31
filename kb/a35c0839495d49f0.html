@@ -1,0 +1,163 @@
+<html>
+<head>
+  <title>WinWord через DDE</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">WinWord через DDE</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Кто-нибудь пробовал использовать WinWord в качестве DDE-сервера? Поделитесь результатами, если они, конечно, успешны. </p>
+<p>Опыт 1 </p>
+<p>Пара других пользователей также задавала на этой неделе аналогичный вопрос, но у меня не было доступа к машине, где установлена Delphi. К несчастью я затер их адреса, но надеюсь они увидят это сообщение. Нижеприведенный код является "экстрактом" моей технологии, которую я успешно применил для создания DDEPokes и DDEExecutes с WinWord в качестве сервера. Обратите внимание на то, что я использовал методы DDE, требующие PChar вместо строк, поскольку строки имеют дополнительные символы и при DDE-преобразованиях WinWord'у плохеет.</p>
+<pre name="code" class="delphi">
+function TfrmLetter.CreateLetter: Boolean;
+var
+  szCommand: array[0..2048] of char;
+  sCommand: string;
+  BmkNames: array[0..3] of string;
+  idx: ShortInt;
+  DDEOK: Boolean;
+  Buffer, ParMark: PChar;
+  BufSize: Integer;
+  hWord: hWnd;
+begin
+  CreateLetter := False;
+  DDEOK := True; {Флаг проверки результатов DDE-операций}
+  DDEClient.SetLink('winword', WordDoc);
+    {WordDoc содержит имя документа winword, необходимого для связи}
+  {DDEClient - элемент управления DDE client}
+  if DDEClient.OpenLink = False then
+    Exit;
+ 
+  hWord := FindWindow('OpusApp', nil);
+  LockWindowUpdate(hWord); {Блокируем обновление экрана winword}
+ 
+  {Убедитесь, что нужный документ является активным окном Word}
+  sCommand := '[If FileName$() &lt;&gt; "' + WordDoc + '" Then]';
+  sCommand := sCommand + '[While (idx &lt; CountWindows()) and (FileName$() &lt;&gt; "';
+  sCommand := sCommand + WordDoc + '")][NextWindow][idx = idx + 1]';
+  sCommand := sCommand + '[Wend][Activate WindowName$()][End If]';
+  StrPLCopy(szCommand, sCommand, SizeOf(szCommand) - 1);
+  DDEOK := DDEOK and DDEClient.ExecuteMacro(szCommand, False);
+ 
+  {Сбрасываем баннер}
+  sCommand := '[EditGoto "Banner"]';
+  if GetWinwordVersion = 2 then
+    {GetWinword - простая функция пользователя, использующая GetModuleHandle
+    для определения номера версии запущенного Word: Word 2 или Word 6}
+    sCommand := sCommand + '[EditGlossary "Banner"]'
+  else if GetWinwordVersion = 6 then
+    sCommand := sCommand + '[EditAutoText "Banner"]';
+  sCommand := sCommand + '[EditGoto "Date"][UpdateFields][LockFields]';
+  StrPLCopy(szCommand, sCommand, SizeOf(szCommand) - 1);
+  DDEOK := DDEOK and DDEClient.ExecuteMacro(szCommand, False);
+  Application.ProcessMessages;
+ 
+  {Вставляем Имя отправителя, Прямой номер абонента и пр.}
+  BmkNames[0] := 'DirectDialNumber';
+  BmkNames[1] := 'EMailAddress';
+  BmkNames[2] := 'AuthorName';
+  BmkNames[3] := 'Personal';
+  for idx := 0 to 3 do
+    if CheckInclude[idx].Checked = True then
+    begin
+      BufSize := TextInclude[idx].GetTextLen;
+      Inc(BufSize);
+      GetMem(Buffer, BufSize);
+      TextInclude[idx].GetTextBuf(Buffer, BufSize);
+      DDEOK := DDEOK and DDEClient.PokeData(BmkNames[idx], Buffer);
+      FreeMem(Buffer, BufSize);
+    end
+    else
+      DDEOK := DDEOK and DDEClient.PokeData(BmkNames[idx] + '2', '');
+</pre>
+<p>и так далее. </p>
+<p>Опыт 2 </p>
+<p id="author">Автор: Jean Yves </p>
+<p>Вот еще очень простой пример DDE-связи с WinWord 6. Это работает. </p>
+<p>В Word вы должны иметь заранее созданный файл (в нашем примере DDETEST.DOC) и закладку с именем "Bm1".</p>
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses
+ 
+  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
+  Forms, Dialogs, StdCtrls, DdeMan;
+ 
+type
+ 
+  TForm1 = class(TForm)
+    DdeConv: TDdeClientConv;
+    Word: TButton;
+    procedure WordClick(Sender: TObject);
+  private
+    { Private-declarations }
+  public
+    { Public-declarations }
+  end;
+ 
+  {  Свойства DdeConv:       }
+  {  ConnectMode : ddeManual }
+  {  DdeService : [None]     }
+  {  DdeTopic    : [None]    }
+  {  FormatChars : False     }
+  {  Name        : DdeConv   }
+ 
+var
+ 
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TForm1.WordClick(Sender: TObject);
+begin
+ 
+  if DdeConv.SetLink('WINWORD', 'D:\WINWORD\DDETEST') and
+    DdeConv.OpenLink then
+  begin
+    ShowMessage('Установлена связь с WinWord !')
+      { убедимся в наличии соединения }
+    DdeConv.PokeData('Bm1', 'Данные из Delphi !')
+      { вставляем 'Данные из Delphi' в документ word }
+    DdeConv.CloseLink;
+  end;
+end;
+ 
+end.
+</pre>
+<p>Но только сделав это хотя бы раз своими руками, вы сможете разобраться в этой технологии</p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<html>
+<head>
+  <title>Как узнать состояние модема в Win32?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать состояние модема в Win32?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Следующий пример демонстрирует получение состояния управляющих регистров модема.</p>
+
+<p>Пример:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject); 
+var 
+  CommPort : string; 
+  hCommFile : THandle; 
+  ModemStat : DWord; 
+begin 
+  CommPort := 'COM2'; 
+ 
+{Открываем com-порт} 
+  hCommFile := CreateFile(PChar(CommPort), 
+                          GENERIC_READ, 
+                          0, 
+                          nil, 
+                          OPEN_EXISTING, 
+                          FILE_ATTRIBUTE_NORMAL, 
+                          0); 
+  if hCommFile = INVALID_HANDLE_VALUE then 
+  begin 
+    ShowMessage('Unable to open '+ CommPort); 
+    exit; 
+  end; 
+ 
+{Получаем состояние модема} 
+  if GetCommModemStatus(hCommFile, ModemStat) &lt;&gt; false then begin 
+    if ModemStat and MS_CTS_ON &lt;&gt; 0 then 
+      ShowMessage('The CTS (clear-to-send) is on.'); 
+    if ModemStat and MS_DSR_ON &lt;&gt; 0 then 
+      ShowMessage('The DSR (data-set-ready) is on.'); 
+    if ModemStat and MS_RING_ON &lt;&gt; 0then 
+      ShowMessage('The ring indicator is on.'); 
+    if ModemStat and MS_RLSD_ON &lt;&gt; 0 then 
+      ShowMessage('The RLSD (receive-line-signal-detect) is 
+on.'); 
+end; 
+ 
+{Закрываем com-порт} 
+  CloseHandle(hCommFile); 
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

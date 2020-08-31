@@ -1,0 +1,315 @@
+<html>
+<head>
+  <title>Pipeline Components</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Pipeline Components</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Эта область разработки возникла в моем текущем проекте. Pipeline components - это COM-объекты, которые выполняются в pipeline, который в свою очередь вызывается на выполнение обычно через ASP. Pipeline представляет собой цепочку pipeline component, выполняющихся последовательно один за одним. На вход pipeline передается объект IDictionary, который передается всем компонентам в цепочке. Результатом работы этих компонент может быть видоизмененный IDictionary, либо еще чего-нибудь.</p>
+<p>   Описание. </p>
+<p>Pipeline компоненты должны поддерживать интерфейс IPipelineComponent,&nbsp; а также несколько других. Обо всех будет рассказано поподробнее ниже. </p>
+<p>Представим себе, что мы хотим создать компонент, который сбрасывает содержимое IDictionary в xml-файл на диск. Причем мы хотим иметь возможность задавать имя этого файла в Properties Page внутри Pipeline Editor. Для ознакомления с Pipeline Editor советую обратиться на сайт Microsoft.</p>
+<p>В первую очередь, для создания компонента в Delphi необходимо создать ActiveX Library. Для этого выполним команду File|New -&gt; Activex tabsheet -&gt; ActiveX Library. Затем там добавим Automation Object. Назовем объект DumpOrderToXml. Добавим методы SetXmlFilename и GetXmlFilename. Результатом должны быть следующие объявления: </p>
+<p>function SetXmlFilename(XmlFileName: WideString): HResult [dispid $00000001]; stdcall;</p>
+<p>function GetXmlFileName(retval XmlFileName: WideString): HResult [dispid $00000002]; stdcall;</p>
+<p>Для дальнейшей успешной работы Вы должны иметь на диске следующие файлы: COMMERCELib_TLB.pas, MSCSAspHelpLib_TLB.pas, MSCSCoreLib_TLB.pas, PIPELINELib_TLB.pas. Их можно сгенерировать с помощью tipe library editor, предоставляемого Delphi, либо скачать у меня. Также необходимо иметь на диске ComPUtil.pas и PipeConsts.pas файлы, которые есть у меня.</p>
+<p>Delphi поможет Вам создать макет модуля с классом TDumpOrderToXml. В объявление этого класса добавьте дополнительные интерфейсы и соответсвующие методы для их реализации:</p>
+<pre name="code" class="delphi">
+type
+  TDumpOrderToXml = class(TAutoObject, IDumpOrderToXml, IPipelineComponent, ISpecifyPropertyPages, IPersistStreamInit)
+  private
+    FXmlFileName: WideString;
+  protected
+{ IDumpOrderToXml methods }
+    function GetXmlFileName(out XmlFileName: WideString): HResult; stdcall;
+    function SetXmlFilename(const XmlFileName: WideString): HResult; stdcall;
+{ IPipelineComponent methods }
+    function EnableDesign(fEnable: Integer): HResult; stdcall;
+    function Execute(const pdispOrder, pdispContext: IDispatch;
+      lFlags: Integer; out plErrorLevel: Integer): HResult; stdcall;
+{ ISpecifyPropertyPages methods }
+    function GetPages(out pages: TCAGUID): HResult; stdcall;
+{ IPersistStreamInit methods }
+    function GetClassID(out classID: TCLSID): HResult; stdcall;
+    function IsDirty: HResult; stdcall;
+    function Load(const stm: IStream): HResult; stdcall;
+    function Save(const stm: IStream; fClearDirty: BOOL): HResult; stdcall;
+    function GetSizeMax(out cbSize: Largeint): HResult; stdcall;
+    function InitNew: HResult; stdcall;
+  end;
+</pre>
+
+<p>Интерфейс IDumpOrderToXml предоставляет нам возможность задавать и получать имя xml-файла для хранения на диске. Интерфейс IPipelineComponent - стержневой для класса, он позволяет запустить компонент на выполнение с помощью метода Execute. Интерфейс ISpecifyPropertyPage позволяет задать classid для Property Page нашего нового класса. Интерфейс IPersistStreamInit позволяет хранить введеные параметры с помощью Pipeline Editor в файле .pcf.</p>
+<p>Приступим к реализации этих методов. Методы GetXmlFilename и SetXmlFilename достаточно просты - они просто читают (пишут) значение из (в) поле FXmlFileName. Метод EnableDesing вызывается для уведомления класса, что редактор переводит его в режим дизайна. В принципе крутые компоненты могут что-либо делать в этот момент. Нам это не нужно, поэтому просто вернем S_OK. Точно также поступим с методами InitNew и IsDirty. Это несущественные методы, которые в принципе можно реализовать более детально, но не для нас.</p>
+<p>Методы Save и Load позволяют записать в поток наш параметр - имя xml-файла. В принципе ничего сложного в них нет, поэтому привожу код без комментариев</p>
+<pre name="code" class="delphi">
+function TDumpOrderToXml.Save(const stm: IStream;
+  fClearDirty: BOOL): HResult;
+var OleStream: TOleStream;
+  FileNameLen: Byte;
+begin
+  OleStream := TOleStream.Create(stm);
+  try
+    FileNameLen := Length(FXmlFileName);
+    OleStream.Write(FileNameLen, 1);
+    OleStream.Write(FXmlFileName[1], FileNameLen * Sizeof(WideChar));
+  finally
+    OleStream.Free;
+  end;
+  Result := S_OK;
+end;
+ 
+function TDumpOrderToXml.Load(const stm: IStream): HResult;
+var OleStream: TOleStream;
+  FileNameLen: Byte;
+begin
+  OleStream := TOleStream.Create(stm);
+  try
+    OleStream.Read(FileNameLen, 1);
+    SetLength(FXmlFileName, FileNameLen);
+    OleStream.Read(FXmlFileName[1], FileNameLen * Sizeof(WideChar));
+  finally
+    OleStream.Free;
+  end;
+  Result := S_OK;
+end;
+</pre>
+
+<p>Метод GetClassID позволяет вернуть наш classid для внешнего потребителя. Ниже приведенное решение в принципе универсальное для любого класса.</p>
+<pre name="code" class="delphi">
+function TDumpOrderToXml.GetClassID(out classID: TCLSID): HResult;
+begin
+  classID := Factory.ClassID;
+  Result := S_OK;
+end;
+</pre>
+
+<p>Метод GetSizeMax возвращает размер, который наш класс хочет занять в потоке. Пусть это будет 255 widechar-ов.</p>
+<pre name="code" class="delphi">
+function TDumpOrderToXml.GetSizeMax(out cbSize: Largeint): HResult;
+begin
+  cbSize := 255 * sizeof(WideChar) + 1;
+  Result := S_OK;
+end;
+</pre>
+
+<p>Теперь приступим к реализации метода Execute. В первую очередь нам необходимо получить ссылку на IDictionary из параметров метода. Для этого воcпользуемся функцией GetDictFromDispatch из модуля ComPUtil.pas. Затем вызовем функцию ExportDictionaryToXml, сохраним результат во временной строке, представляющей собой xml-текст и запишем эту строку в файл на диске.</p>
+<pre name="code" class="delphi">
+function TDumpOrderToXml.Execute(const pdispOrder, pdispContext: IDispatch;
+  lFlags: Integer; out plErrorLevel: Integer): HResult;
+var
+  hFile: Integer;
+  tmpXML: WideString;
+  Order: IDictionary;
+  tmpOutXml: string;
+begin
+  try
+    tmpXML := '';
+    if GetDictFromDispatch(pdispOrder, Order) = S_OK then
+      begin
+        ExportDictionaryToXML(Order, tmpXML);
+        tmpXML := '&lt;SO&gt;' + tmpXML + '&lt;/SO&gt;';
+      end;
+    tmpOutXml := tmpXML;
+    hFile := FileCreate(string(FXmlFileName));
+    FileWrite(hFile, tmpOutXml[1], Length(tmpOutXML));
+    FileClose(hFile);
+  finally
+    Result := S_OK;
+    Order := nil;
+  end;
+end;
+</pre>
+
+<p>Как видим, метод довольно несложный - вся нагрузка ложится на метод ExportDictionaryToXml. Рассмотрим его поподробнее. Как известно, dictionary представляет собой список именованных вариантов. Вариант сам по себе может быть IDictionary, ISimpleList или другой интерфейс. Для перечисления своих элементов dictionary поддерживает интерфейс IEnumVARIANT. Соотвественно, наша задача - взять IEnumVARIANT, пробежаться по его элементам и сохранить их имена и значение в строке. </p>
+<pre name="code" class="delphi">
+Result := E_FAIL;
+hr := InitKeyEnumInDict(Dict, Enum);
+if hr = S_OK then
+  begin
+ 
+    repeat
+      hr := GetNextKeyInDict(Enum, Key);
+      if hr &lt;&gt; S_OK then Break;
+      hr := GetDictValueVariant(Dict, LPCWSTR(Key), ItemValue);
+      if hr &lt;&gt; S_OK then Break;
+ 
+      case VarType(ItemValue) of
+        ...
+      else
+        Break;
+      end;
+ 
+    until hr &lt;&gt; S_OK;
+  end;
+ 
+XmlStr := Res;
+Result := S_OK;
+</pre>
+
+<p>Основное место в теле метода занимает оператор case. В нем определяются обычные значения варианта и сложные, такие как интерфейсы. Для обычных типов обработка будет такая:</p>
+<p>Res := Res + Format('&lt;%s&gt;%s&lt;/%s&gt;', [string(Key), string(ItemValue), string(Key)]);</p>
+<p>Для типа varUnknown обработка будет еще проще. Понятно, что для более продвинутой информации эту обработку можно расширить:</p>
+<p>Res := Res + Format('&lt;%s&gt;IUnknown&lt;/%s&gt;',[string(Key), string(Key)]);</p>
+<p>Наиболее сложная обработка для типа varDispatch. Здесь нам необходимо убедится, что элемент является либо IDictionary, либо ISimpleList. Для других случаев используем тоже самое, как для varUnknown:</p>
+<pre name="code" class="delphi">
+if GetDictFromDispatch(ItemValue, NewDict) = S_OK then
+  begin
+    if ExportDictionaryToXML(NewDict, NewXml) = S_OK then
+      begin
+        Res := Res + Format('&lt;%s type="Dictionary"&gt;%s&lt;/%s&gt;',
+          [string(Key), string(NewXml), string(Key)]);
+      end
+    else
+      begin
+        Exit;
+      end;
+  end
+else if GetSimpleListFromDispatch(ItemValue, NewList) = S_OK then
+  begin
+    if ExportSimpleListToXML(NewList, NewXml) = S_OK then
+      begin
+        Res := Res + Format('&lt;%s type="SimpleList"&gt;%s&lt;/%s&gt;',
+          [string(Key), string(NewXml), string(Key)]);
+      end
+    else
+      begin
+        Exit;
+      end;
+  end
+else
+  begin
+    Res := Res + Format('&lt;%s&gt;IDispatch&lt;/%s&gt;',
+      [string(Key), string(Key)]);
+  end;
+</pre>
+
+<p>Поскольку вариант может быть другим IDictionary, то в результате получим рекурсивный алгоритм. Замечу, что в случае ISimpleList вызывается еще один метод - ExportSimpleListToXml. Его реализация достаточно проста. Необходимо пробежаться по элементам списка, каждый из которых IDictionary, и вызывать ExportDictioanryToXml:</p>
+<pre name="code" class="delphi">
+Result := E_FAIL;
+hr := GetNumItems(List, Count);
+if hr &lt;&gt; S_OK then Exit;
+ 
+for I := 0 to Count - 1 do
+  begin
+    if GetNthItem(List, I, NewDict) = S_OK then
+      begin
+        if ExportDictionaryToXML(NewDict, NewXml) = S_OK then
+          begin
+            Res := Res + Format('&lt;LISTITEM%d&gt;'#13#10'%s&lt;/LISTITEM%d&gt;'#13#10,
+              [I, string(NewXml), I]);
+          end
+        else
+          begin
+            Exit;
+          end;
+      end;
+  end;
+ 
+XmlStr := Res;
+Result := S_OK;
+</pre>
+
+<p>Вот собственно и вся реализация метода Execute. Для полной красоты картины, нам необходимо научиться редактировать поле FXmlFilename в Pipeline редакторе. Для этого добавим в проект Property Page. На форму добавим из палитры Textbox, Label, Button и SaveDialog. </p>
+<p>В обработчик нажатия кнопки добавим код по вызову SaveDialog:</p>
+<pre name="code" class="delphi">
+ 
+if SaveDialog1.Execute then
+  begin
+    Edit1.Text := SaveDialog1.FileName;
+  end;
+</pre>
+
+<p>Для реализации поведения Property Page, мы должны реализовать два метода UpdatePropertyPage и UpdateObject. Первый метод восстанавливает значение из объекта в textbox. Второй, наоборот, записывает значение из textbox в объект.</p>
+<pre name="code" class="delphi">
+procedure TDumpToXMLPropertyPage.UpdatePropertyPage;
+var StrXmlFilename: WideString;
+begin
+{ Update your controls from OleObject }
+  (OleObjects.First as IDumpOrderToXml).GetXmlFileName(StrXmlFilename);
+  Edit1.Text := StrXmlFilename;
+end;
+ 
+procedure TDumpToXMLPropertyPage.UpdateObject;
+var StrXmlFilename: WideString;
+begin
+{ Update OleObject from your controls }
+  StrXmlFilename := Edit1.Text;
+  (OleObjects.First as IDumpOrderToXml).SetXmlFileName(StrXmlFilename);
+end;
+</pre>
+
+<p>Для того, чтобы Pipeline Editor знал, что у компонента есть дополнительные property-странички, необходимо реализовать метод GetPages&nbsp; у нашего класса.</p>
+<pre name="code" class="delphi">
+function TDumpOrderToXml.GetPages(out pages: TCAGUID): HResult;
+begin
+  pages.cElems := 1;
+  pages.pElems := CoTaskMemAlloc(sizeof(TGUID));
+  if pages.pElems = nil then
+    begin
+      Result := E_OUTOFMEMORY;
+    end
+  else
+    begin
+      pages.pElems^[0] := Class_DumpToXMLPropertyPage;
+      Result := S_OK;
+    end;
+end;
+</pre>
+
+<p>Этот метод занимается тем, что наполняет структуру, в которой хранятся все guid-ы наших property-страничек. В нашем случае это одна страничка -&nbsp; Class_DumpToXmlPropertyPage. Этот guid генерируется автоматически средой, когда мы создаем новую property page.</p>
+<p>Теперь подошел черед модифицировать .dpr файл. В нем указывается экспортная функция DllRegisterServer, которую надо переделать:</p>
+<pre name="code" class="delphi">
+function DllRegisterServer: HResult;
+begin
+  Result := ComServ.DllRegisterServer;
+  if Result = S_OK then
+    begin
+ 
+{ Register DumpOrderToXml class }
+      Result := RegisterCATID(CLASS_DumpOrderToXml, CATID_MSCSPIPELINE_COMPONENT);
+      if Result &gt;= 0 then
+        begin
+          Result := RegisterCATID(CLASS_DumpOrderToXml, CATID_MSCSPIPELINE_ANYSTAGE);
+        end;
+ 
+{ Here you should register others pipeline components }
+    end;
+end;
+</pre>
+
+<p>В этой функции указывается, что надо зарегистрировать в системе pipeline component, и что этот компонент может принадлежать любому pipeline stage.</p>
+<p>На этом разработка закончена. Осталось откомпилировать и зарегистриовать dll. Это можно сделать через командную строку: regsvr32 testpipelines.dll</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

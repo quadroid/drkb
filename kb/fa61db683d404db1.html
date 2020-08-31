@@ -1,0 +1,57 @@
+<html>
+<head>
+  <title>ISQLCommand</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">ISQLCommand</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Интерфейс isQLCommand обеспечивает функционирование запроса dbExpress. Компоненты dbExpress, работающие с наборами данных, используют его для реализации своих методов. </p>
+<p>Параметры запроса устанавливаются методом </p>
+<p>function setParameter(ulParameter: Word; ulChildPos: Word; eParamType: TSTMTParamType; uLogType: Word; uSubType: Word; iPrecision: Integer; iScale: Integer; Length: LongWord; pBuffer: Pointer; llnd: Integer): SQLResult; stdcall; </p>
+<p>где ulParameter &#8212; порядковый номер параметра; если параметр является дочерним для сложных типов данных, ulchildPos задает его порядковый номер; eParamType задает тип параметра (входной, выходной, смешанный); uLogType &#8212; тип данных параметра; uSubType &#8212; вспомогательный параметр типа данных; iscale &#8212; максимальный размер значения в байтах; iPrecision &#8212; максимальная точность типа данных; Length &#8212; размер буфера; pBuffer &#8212; буфер, содержащий значение параметра; lInd &#8212; флаг, определяющий, может ли параметр иметь нулевое значение. </p>
+<p>Для каждого параметра метод вызывается снова. Информацию о параметре можно получить, используя метод </p>
+<p>function getParameter(ParameterNumber: Word; ulChildPos: Word; Value: Pointer; Length: Integer; var IsBlank: Integer): SQLResult; stdcall; </p>
+<p>где ParameterNumber &#8212; порядковый номер параметра; если параметр является дочерним для сложных типов данных, ulchildPos задает его порядковый номер; value &#8212; указатель на буфер значения параметра; Length &#8212; размер буфера; isBlank &#8212; признак незаполненного параметра. </p>
+<p>Метод </p>
+<p>function prepare(SQL: PChar; ParamCount: Word): SQLResult; stdcall; </p>
+<p>готовит запрос к выполнению с учетом значений параметров. Выполнение запроса осуществляется методом </p>
+<p>function execute(var Cursor: ISQLCursor): SQLResult; stdcall; </p>
+<p>который возвращает в параметре интерфейс курсора, если запрос выполнен. Или метод </p>
+<p>function executelmmediate(SQL: PChar; var Cursor: ISQLCursor): SQLResult; stdcall; </p>
+<p>который выполняет запрос, не требующий подготовки (не имеющий параметров). Он также возвращает в параметре cursor готовый интерфейс курсора, если запрос выполнен успешно. Текст запроса определяется параметром SQL. </p>
+<p>И метод </p>
+<p>function getNextCursor(var Cursor: ISQLCursor): SQLResult; stdcall; </p>
+<p>определяет в параметре Cursor курсор следующего набора данных, если выполнялась хранимая процедура, которая возвращает несколько наборов данных. </p>
+<p>Интерфейс iSQLCommand используется компонентом TCustomSQLDataSet и недоступен потомкам. </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

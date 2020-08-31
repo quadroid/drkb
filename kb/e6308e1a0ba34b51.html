@@ -1,0 +1,114 @@
+<html>
+<head>
+  <title>Как прочитать свойство напрямую из его ресурса?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как прочитать свойство напрямую из его ресурса?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+if ReadPropertyValue('Form1.Button1', 'width') &gt; 1000 then
+  ShowMessage('You are about to create a big button!');
+ 
+function TForm1.ReadProp(r: TReader): string;
+begin
+  result := '';
+  {Determine the value type of the property, read it with the appropriate method of TReader
+  and convert it to string. Not all value types are implemented here but you get the idea.}
+  case r.NextValue of
+    vaInt8, vaInt16, vaInt32:
+      result := IntToStr(r.ReadInteger);
+    vaExtended:
+      result := FloatToStr(r.ReadFloat);
+    vaString:
+      result := r.ReadString;
+    else
+      r.SkipValue;  {Not implemented}
+  end;
+end;
+ 
+ 
+procedure TForm1.ReadRes(PropPath: string; r: TReader);
+var
+  p: string;
+begin
+  {Skip the class name}
+  r.ReadStr;
+  {Construct the property path}
+  if PropPath = '' then
+    p := r.ReadStr
+  else
+    p := PropPath + '.' + r.ReadStr;
+  {Read all properties and its values and fill them into the memo}
+  while not r.EndOfList do
+    Memo1.Lines.Add(p + '.' + r.ReadStr + ' = ' + ReadProp(r));
+  {Skip over the end of the list of the properties of this component}
+  r.CheckValue(vaNull);
+  {Recursively read the properties of all sub-components}
+  while not r.EndOfList do
+  begin
+    ReadRes(p, r);
+    r.CheckValue(vaNull);
+  end;
+end;
+ 
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  strm: TResourceStream;
+  Reader: TReader;
+begin
+  strm := TResourceStream.Create(HInstance, 'TForm1', RT_RCDATA);
+  Reader := TReader.Create(strm, 1024);
+  try
+    Memo1.Clear;
+    Reader.ReadSignature;
+    ReadRes('', Reader);
+  finally
+    Reader.Free;
+    strm.Free;
+  end;
+end;
+ 
+ 
+Only one small problem.
+r.SkipValue was protected (in D5) but I hacked that out with the following code:
+ 
+ 
+type THackReader = class(TReader);
+{ ... }
+  THackReader(r).SkipValue;
+</pre>
+
+<p>Tip by Michael Duerig and Tjipke A. van der Plaats</p>
+<p>Взято из <a href="http://www.lmc-mediaagentur.de/dpool" target="_blank">http://www.lmc-mediaagentur.de/dpool</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

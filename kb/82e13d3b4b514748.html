@@ -1,0 +1,81 @@
+<html>
+<head>
+  <title>Использование PosEx взамен Pos</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Использование PosEx взамен Pos</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В Delphi 7 в модуле StrUtils внесены некоторые изменения. </p>
+<p>Есть новая функция: PosEx.</p>
+<p>Обьявление этих функций:</p>
+<pre name="code" class="delphi">
+function Pos(Substr: String; S: String): Integer;
+function PosEx(Const SubStr, S: String; Offset: Cardinal = 1): Integer;
+</pre>
+<p>Новая функция PosEx, позволяет указать начальную позицию поиска внутри строки, что избавит вас от необходимости изменения исходной строки. Незабудьте указать модуль StrUtils.</p>
+<p>Ниже приведена реализация функции в модуле StrUtils (если вы используете более старшую версию среди разработки вы сможете сами добавить этот код и использовать его вместо функции Pos):</p>
+<pre name="code" class="delphi">
+function PosEx(Const SubStr, S: String; Offset: Cardinal = 1): Integer;
+var
+  I,X: Integer;
+  Len, LenSubStr: Integer;
+begin
+  if Offset = 1 then
+    Result := Pos(SubStr, S)
+  else
+  begin
+    I := Offset;
+    LenSubStr := Length(SubStr);
+    Len := Length(S) - LenSubStr + 1;
+    while I &lt;= Len do
+    begin
+      if S[I] = SubStr[1] then
+      begin
+        X := 1;
+        while (X &lt; LenSubStr) and (S[I + X] = SubStr[X + 1]) do
+          Inc(X);
+        if (X = LenSubStr) then
+        begin
+          Result := I;
+          Exit;
+        end;
+      end;
+      Inc(I);
+    end;
+    Result := 0;
+  end;
+end;
+</pre>
+<p id="author">Автор RoboSol</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

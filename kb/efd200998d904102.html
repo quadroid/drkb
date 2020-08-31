@@ -1,0 +1,214 @@
+<html>
+<head>
+  <title>Использование Hook в Delphi</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Использование Hook в Delphi</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Что такое НООК?</p>
+<p>НООК - это механизм перехвата сообщений, предоставляемый системой Microsoft Windows. Программист пишет специального вида функцию (НООК-функция), которая затем при помощи функции SetWindowsHookEx вставляется на верх стека НООК-функций системы. Ваша НООК-функция сама решает, передать ли ей сообщение в следующую НООК-функцию при помощи CallNextHookEx или нет.</p>
+
+<p>Какие бывает НООК'и?</p>
+<p>НООК бывают глобальные, контролирующие всю систему, так и локальные, ориентированные на какой-либо поток (Thread). Кроме того НООК различаются по типу перехватываемых сообщений (подробнее об этом - ниже). НООК несколько подтормаживают систему, поэтому ставить их рекомендуется только при необходимости, и кактолько необходимость в них отпадает - удалять.</p>
+
+<p>Как создавать НООК?</p>
+<p>НООК устанавливается в систему при помощи функции SetWindowsHookEx, вот её заголовок:</p>
+
+<p>function SetWindowsHookEx(idHook: Integer; lpfn: TFNHookProc; hmod: HINST; dwThreadId: DWORD): HHOOK;</p>
+
+<p>idHook</p>
+<p>константа, определяющая тип вставляемого НООК'а, должна быть одна из нижеследующих констант:</p>
+<p>WH_CALLWNDPROC</p>
+<p>вставляемая НООК-функция следит за всеми сообщения перед их отпралением в соответствующую оконную функцию</p>
+<p>WH_CALLWNDPROCRET</p>
+<p>вставляемая НООК-функция следит за всеми сообщениями после их отправления в оконную функцию</p>
+<p>WH_CBT</p>
+<p>вставляемая НООК-функция следит за окнами, а именно: за созданием, активацией, уничтожением, сменой размера; перед завершением системной команды меню, перед извлечением события мыши или клавиатуры из очереди сообщений, перед установкой фокуса и т.д.</p>
+<p>WH_DEBUG</p>
+<p>вставляемая НООК-функция следит за другими НООК-функциями.</p>
+<p>WH_GETMESSAGE</p>
+<p>вставляемая НООК-функция следит за сообщениями, посылаемыми в очередь сообщений.</p>
+<p>WH_JOURNALPLAYBACK</p>
+<p>вставляемая НООК-функция посылает сообщения, записанные до этого WH_JOURNALRECORD НООК'ом.</p>
+<p>WH_JOURNALRECORD</p>
+<p>эта НООК-функция записывает все сообщения куда-либо в специальном формате, причем позже они могут быть "воспроизведены" при помощи НООК'а WH_JOURNALPLAYBACK. Это в некотором роде аналог магнитофонной записи сообщений.</p>
+<p>WH_KEYBOARD</p>
+<p>вставляемая НООК-функция следит за сообщениями клавиатуры</p>
+<p>WH_MOUSE</p>
+<p>вставляемая НООК-функция следит за сообщениями мыши</p>
+<p>WH_MSGFILTER</p>
+<p>WH_SHELL</p>
+<p>WH_SYSMSGFILTER</p>
+<p>lpfn</p>
+<p>указатель на непосредственно функцию. Обратите внимание, что если Вы ставите глобальный НООК, то НООК-функция обязательно должна находиться в некоторой DLL!!!</p>
+<p>hmod</p>
+<p>описатель DLL, в которой находится код функции.</p>
+<p>dwThreadId</p>
+<p>идентификатор потока, в который вставляется НООК</p>
+<p>Подробнее о НООК-функциях смотри справку по Win32API.</p>
+
+<p>Как удалять НООК?</p>
+<p>НООК удаляется при помощи функции UnHookWindowsEx.</p>
+
+<p>Пример использования НООК.</p>
+<p>Ставим НООК, следящий за мышью (WH_MOUSE). Программа следит за нажатием средней кнопки мыши, и когда она нажимается, делает окно, находящееся непосредственно под указателем, поверх всех остальных (TopMost). Код самой НООК-функции помещен в библиотеку lib2.dll, туда же помещены и функции Start - для установки НООК, и Remove - для удаления НООК.</p>
+
+<p>Файл sticker.dpr</p>
+<pre name="code" class="delphi">
+program sticker;
+ uses windows, messages;
+var
+ wc : TWndClassEx;
+ MainWnd : THandle;
+ Mesg : TMsg;
+//экспортируем две функции из библиотеки с НООК'ами
+procedure Start; external 'lib2.dll' name 'Start';
+procedure Remove; external 'lib2.dll' name 'Remove';
+ 
+function WindowProc(wnd:HWND; Msg : Integer; Wparam:Wparam; Lparam:Lparam):Lresult; stdcall;
+var
+ nCode, ctrlID : word;
+Begin
+ case msg of
+ wm_destroy :
+   Begin
+   Remove;//удаляем НООК
+   postquitmessage(0); exit;
+   Result:=0;
+   End;
+ else
+   Result:=DefWindowProc(wnd,msg,wparam,lparam);
+ end;
+End;
+ 
+begin
+ wc.cbSize:=sizeof(wc);
+ wc.style:=cs_hredraw or cs_vredraw;
+ wc.lpfnWndProc:=@WindowProc;
+ wc.cbClsExtra:=0;
+ wc.cbWndExtra:=0;
+ wc.hInstance:=HInstance;
+ wc.hIcon:=LoadIcon(0,idi_application);
+ wc.hCursor:=LoadCursor(0,idc_arrow);
+ wc.hbrBackground:=COLOR_BTNFACE+1;
+ wc.lpszMenuName:=nil;
+ wc.lpszClassName:='WndClass1';
+ 
+ RegisterClassEx(wc);
+ 
+ MainWnd:=CreateWindowEx(0,'WndClass1','Caption',ws_overlappedwindow,
+           cw_usedefault,cw_usedefault,cw_usedefault,cw_usedefault,0,0,
+           Hinstance,nil);
+ ShowWindow(MainWnd,CmdShow);
+ Start;//вставляем НООК
+ 
+ While GetMessage(Mesg,0,0,0) do
+  begin
+  TranslateMessage(Mesg);
+  DispatchMessage(Mesg);
+  end;
+end.
+ 
+</pre>
+
+<p>Файл lib2.dpr</p>
+
+<pre name="code" class="delphi">
+library lib2;
+uses
+ windows, messages;
+var
+ pt : TPoint;
+ theHook : THandle;
+function MouseHook(nCode, wParam, lParam : integer) : Lresult; stdcall;
+var
+ msg : PMouseHookStruct;
+ w : THandle;
+ style : integer;
+Begin
+ if nCode&lt;0 then
+   begin
+   result := CallNextHookEx(theHook, nCode, wParam, lParam);
+   Exit;
+   end;
+ msg := PMouseHookStruct(lParam);
+ case wParam of
+ WM_MBUTTONDOWN :
+   pt := msg^.pt;
+ WM_MBUTTONUP :
+   begin
+   w := WindowFromPoint(pt);
+   style := GetWindowLong(w, GWL_EXSTYLE);
+   if (style and WS_EX_TOPMOST) &lt;&gt; 0 then
+     begin //уже поверх всех - сделать обычным
+     ShowWindow(w, sw_hide);
+     SetWindowPos(w, HWND_NOTOPMOST, 0,0,0,0, SWP_NOMOVE or SWP_NOSIZE OR SWP_SHOWWINDOW);
+     end
+   else
+     begin //сделать поверх остальных
+     ShowWindow(w, sw_hide);
+     SetWindowPos(w, HWND_TOPMOST, 0,0,0,0, SWP_NOMOVE OR SWP_NOSIZE OR SWP_SHOWWINDOW);
+     end;
+   end;
+ end;
+ Result := CallNextHookEx(theHook, nCode, wParam, lParam);
+End;
+ 
+procedure Start;
+begin
+ theHook := SetWindowsHookEx(wh_mouse, @mouseHook, hInstance, 0);
+ if theHook = 0 then
+   messageBox(0,'Error!','Error!',mb_ok);
+end;
+ 
+procedure Remove;
+begin
+ UnhookWindowsHookEx(theHook);
+end;
+ 
+exports
+ Start index 1 name 'Start',
+ Remove index 2 name 'Remove';
+end.
+</pre>
+
+
+<p>Всё.</p>
+
+<p>(С) Автор статьи: Sergey Stolyarov</p>
+<p>Development и Дельфи (http://MDelphi.far.ru).</p>
+<p id="author">Автор: StayAtHome</p>
+
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

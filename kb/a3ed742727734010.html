@@ -1,0 +1,144 @@
+<html>
+<head>
+  <title>Создание пустого wav-файла</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создание пустого wav-файла</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Как мне создать пустой wav-файл? Это просто пустой двоичный файл?</p>
+
+<p>The TMediaPlayer может открыть звуковой файл, если он содержит, по крайней мере, один байт данных. Я обнаружил это, когда с помощью данного компонента пытался создать и открыть звуковой файл, содержащий только заголовок звукового файла. The TMediaplayer не захотел этого делать.</p>
+
+<p>Нижеприведенный код создаст звуковой файл размером 1 байт. Конечно это криво, но это работает. Вам необходимо лишь добавить MMSYSTEM ко всем модулям, использующим данную функцию.</p>
+<pre name="code" class="delphi">
+function CreateNewWave(NewFileName: string): Boolean;
+ 
+var
+  DeviceID: Word;
+  Return: LongInt;
+  MciOpen: TMCI_Open_Parms;
+  MciRecord: TMCI_Record_Parms;
+  MciPlay: TMCI_Play_Parms;
+  MciSave: TMCI_SaveParms;
+  MCIResult: LongInt;
+  Flags: Word;
+  TempFileName: array[0..255] of char;
+ 
+begin
+  MediaPlayer.Close;
+ 
+  StrPCopy(TempFileName, NewFileName);
+  MciOpen.lpstrDeviceType := 'waveaudio';
+  MciOpen.lpstrElementName := '';
+  Flags := Mci_Open_Element or Mci_Open_Type;
+  MCIResult := MciSendCommand(0, MCI_OPEN, Flags, LongInt(@MciOpen));
+ 
+  DeviceID := MciOpen.wDeviceId;
+ 
+  MciRecord.dwTo := 1;
+  Flags := Mci_To or Mci_Wait;
+  MCIResult := MciSendCommand(DeviceID, Mci_Record, Flags, LongInt(@MciRecord));
+ 
+  mciPlay.dwFrom := 0;
+  Flags := Mci_From or Mci_Wait;
+  MciSendCommand(DeviceId, Mci_Play, Flags, LongInt(@MciPlay));
+ 
+  mciSave.lpfileName := TempFilename;
+  Flags := MCI_Save_File or Mci_Wait;
+  MCIResult := MciSendCommand(DeviceID, MCI_Save, Flags, LongInt(@MciSave));
+ 
+  Result := MciSendCommand(DeviceID, Mci_Close, 0, LongInt(nil)) = 0;
+end;
+</pre>
+
+
+
+<p>Как мне очистить содержимое Wav-файла? Просто заново создать пустой?</p>
+<p>Вот небольшой компонент, позволяющий стирать любую часть wave-файла:</p>
+<pre name="code" class="delphi">
+unit Nickmp;
+ 
+interface
+ 
+uses
+  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
+  Forms, Dialogs, MPlayer, MMSystem;
+ 
+type
+  TNickMediaPlayer = class(TMediaPlayer)
+  private
+{ Private declarations }
+  protected
+{ Protected declarations }
+  public
+{ Public declarations }
+    function DeleteWaveChunk(aFrom, aTo: LongInt): Longint;
+  published
+{ Published declarations }
+  end;
+ 
+procedure Register;
+ 
+implementation
+ 
+procedure Register;
+begin
+  RegisterComponents('Samples', [TNickMediaPlayer]);
+end;
+ 
+function TNickMediaPlayer.DeleteWaveChunk(aFrom, aTo: LongInt): Longint;
+var
+  DeleteParms: TMCI_WAVE_DELETE_PARMS;
+  Flags: LongInt;
+begin
+  Flags := 0;
+ 
+  if Wait then Flags := mci_Wait;
+  if Notify then Flags := Flags or mci_Notify;
+  DeleteParms.dwCallback := Handle;
+  Flags := Flags or mci_From;
+  DeleteParms.dwFrom := aFrom;
+  Flags := Flags or mci_To;
+  DeleteParms.dwTo := aTo;
+  Result := mciSendCommand(DeviceID, mci_Delete, Flags, Longint(@DeleteParms));
+end;
+ 
+end.
+</pre>
+
+
+<p>- Nick Hodges </p>
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

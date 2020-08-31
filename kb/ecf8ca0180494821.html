@@ -1,0 +1,59 @@
+<html>
+<head>
+  <title>Копируем русский текст в буфер обмена в Windows 2000</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Копируем русский текст в буфер обмена в Windows 2000</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>У меня Windows NT/2000. Когда копирую текст на русском языке, скажем, из TMemo в Ворд 97/2000, то получаю в результате каракули. Эти каракули исправляются, если перед копированием насильно переключить клавиатуру пользователя на русский язык. Но если у него нет этой клавиатуры, или если лучше не переключать ее, то как можно сообщить системе, что мы будем копировать РУССКИЙ текст. На форме создается невидимый TRichEdit (я обозвал его TRE в коде). Далее текст копируется в клипборд как обычно, после чего вызывается следующая процедура </p>
+
+<pre name="code" class="delphi">
+procedure TMainForm.ConvertClipboard;
+begin
+ TRE.SelectAll;
+ TRE.ClearSelection;
+ TRE.Lines.Add(Clipboard.AsText);
+ TRE.SelectAll;
+ 
+ TRE.Font.Name := 'Times New Roman'; //тут нужный шрифт
+ TRE.Font.Size := 12; // тут нужный размер
+ // или просто берите TRE.Font := MainMemo.Font;
+ 
+ TRE.SelAttributes.Charset := RUSSIAN_CHARSET;
+ TRE.CopyToClipboard;
+end
+</pre>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<html>
+<head>
+  <title>Как сделать графический hint?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как сделать графический hint?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<pre name="code" class="delphi">
+{********************************************************* 
+ 
+ With the following Code you can simply create custom hints. 
+ You just have to change the procedur "Paint". 
+ 
+ *********************************************************} 
+ 
+type 
+  TGraphicHintWindow = class(THintWindow) 
+    constructor Create(AOwner: TComponent); override; 
+  private 
+    FActivating: Boolean; 
+  public 
+    procedure ActivateHint(Rect: TRect; const AHint: string); override; 
+  protected 
+    procedure Paint; override; 
+  published 
+    property Caption; 
+  end; 
+ 
+  {...} 
+ 
+constructor TGraphicHintWindow.Create(AOwner: TComponent); 
+begin 
+  inherited Create(AOwner); 
+  { 
+   Here you can set custom Font Properties: 
+   } 
+ 
+  with Canvas.Font do 
+  begin 
+    Name := 'Arial'; 
+    Style := Style + [fsBold]; 
+    Color := clBlack; 
+  end; 
+end; 
+ 
+procedure TGraphicHintWindow.Paint; 
+var 
+  R: TRect; 
+  bmp: TBitmap; 
+begin 
+  R := ClientRect; 
+  Inc(R.Left, 2); 
+  Inc(R.Top, 2); 
+ 
+  {******************************************************* 
+   The folowing Code ist an example how to create a custom 
+   Hint Object. : 
+   } 
+ 
+  bmp := TBitmap.Create; 
+  bmp.LoadfromFile('D:\hint.bmp'); 
+ 
+  with Canvas do 
+  begin 
+    Brush.Style := bsSolid; 
+    Brush.Color := clsilver; 
+    Pen.Color   := clgray; 
+    Rectangle(0, 0, 18, R.Bottom + 1); 
+    Draw(2,(R.Bottom div 2) - (bmp.Height div 2), bmp); 
+  end; 
+ 
+  bmp.Free; 
+  //Beliebige HintFarbe 
+  //custom Hint Color 
+  Color := clWhite; 
+ 
+  Canvas.Brush.Style := bsClear; 
+  Canvas.TextOut(20, (R.Bottom div 2) - (Canvas.Textheight(Caption) div 2), Caption); 
+  {********************************************************} 
+end; 
+ 
+procedure TGraphicHintWindow.ActivateHint(Rect: TRect; const AHint: string); 
+begin 
+  FActivating := True; 
+  try 
+    Caption := AHint; 
+    //Hцhe des Hints setzen setzen 
+    //Set the "Height" Property of the Hint 
+    Inc(Rect.Bottom, 14); 
+    //Breite des Hints setzen 
+    //Set the "Width" Property of the Hint 
+    Rect.Right := Rect.Right + 20; 
+    UpdateBoundsRect(Rect); 
+    if Rect.Top + Height &gt; Screen.DesktopHeight then 
+      Rect.Top := Screen.DesktopHeight - Height; 
+    if Rect.Left + Width &gt; Screen.DesktopWidth then 
+      Rect.Left := Screen.DesktopWidth - Width; 
+    if Rect.Left &lt; Screen.DesktopLeft then Rect.Left := Screen.DesktopLeft; 
+    if Rect.Bottom &lt; Screen.DesktopTop then Rect.Bottom := Screen.DesktopTop; 
+    SetWindowPos(Handle, HWND_TOPMOST, Rect.Left, Rect.Top, Width, Height, 
+      SWP_SHOWWINDOW or SWP_NOACTIVATE); 
+    Invalidate; 
+  finally 
+    FActivating := False; 
+  end; 
+end; 
+ 
+procedure TForm1.FormCreate(Sender: TObject); 
+begin 
+  HintWindowClass := TGraphicHintWindow; 
+  Application.ShowHint := False; 
+  Application.ShowHint := True; 
+end; 
+</pre>
+
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

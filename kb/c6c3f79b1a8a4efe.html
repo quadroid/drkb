@@ -1,0 +1,152 @@
+<html>
+<head>
+  <title>Цвета в TDBGrid</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Цвета в TDBGrid</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// Function to color a DBGrid (declared as private)
+ 
+procedure TForm1.ColorGrid(dbgIn: TDBGrid; qryIn: TQuery; const Rect: TRect;
+  DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+var 
+  iValue: LongInt;
+begin
+  // color only the first field
+  if (DataCol = 0) then
+  begin
+    // Check the field value and assign a color
+    iValue := qryIn.FieldByName('HINWEIS_COLOR').AsInteger;
+    case iValue of
+      1: dbgIn.Canvas.Brush.Color := clGreen;
+      2: dbgIn.Canvas.Brush.Color := clLime;
+      3: dbgIn.Canvas.Brush.Color := clYellow;
+      4: dbgIn.Canvas.Brush.Color := clRed;
+    end;
+    // Draw the field
+    dbgIn.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+end;
+ 
+procedure TForm1.DBGrid1DrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
+begin
+  ColorGrid(DBGrid1, Query1, Rect, DataCol, Column, State);
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+&nbsp;</p>
+<hr />
+<p>С DBGrids это делается намного проще. Здесь мы будем использовать событие "OnDrawColumnCell". Следующий пример разукрашивает ячейки колонки "Status" когда значение НЕ равно "a". Если Вы хотите закрасить целую линию, то достаточно удалить условие "If..." (смотрите ниже) </p>
+<pre name="code" class="delphi">procedure TForm1.DBGrid1DrawColumnCell(Sender: TObject; const Rect: TRect;
+DataCol: Integer; Column: TColumn; State: TGridDrawState);
+const
+  clPaleGreen = TColor($CCFFCC);
+  clPaleRed = TColor($CCCCFF);
+begin
+  if Column.FieldName = 'Status' then //Удалите эту линию, если хотете закрасить целую линию
+    if Column.Field.Dataset.FieldByName('Status').AsString &lt;&gt; 'a' then
+      if (gdFocused in State) then //имеет ли ячейка фокус?
+        DBGrid1.Сanvas.Brush.Color := clBlack //имеет фокус
+      else
+        DBGrid1.Сanvas.Brush.Color := clPaleGreen; //не имеет фокуса
+ 
+  //Теперь давайте закрасим ячейку используя стандартный метод:
+  DBGrid1.DefaultDrawColumnCell(Rect, DataCol, Column, State)
+end;
+</pre>
+<p>Вот и всё. Не правда ли красиво? </p>
+<p>Фрагмент кода моей программы - в зависимости от значения в поле taPlatAnswerType рисует строку белым цветом на красном фоне: </p>
+<pre name="code" class="delphi">procedure TfmMain.dgPlatDrawColumnCell(Sender: TObject; const Rect:
+TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
+begin
+  with dgPlat.Canvas do
+  begin
+    // Условие какую строку надо рисовать по другому
+    if (taPlatAnswerType.AsString = 'b') and not (gdFocused in State) then
+    begin
+      Brush.Color := clRed;
+      Font.Color := clWhite;
+      FillRect(Rect);
+      TextOut(Rect.Left, Rect.Top, Column.Field.Text);
+    end
+    else
+      dgPlat.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+end;
+</pre>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<hr /><p>Не знаю, помогу ли я Вам, но я расскажу как можно изменить цвет отдельных ячеек GBGrid без необходимости создания нового компонента. Я только что протестировал этот код.... </p>
+<p>Я создал форму, поместил на ней компонент TTable и указал ему на таблицу EMPLOYEE.DB в базе данных DBDEMOS. Затем я разместил на форме Datasource и DBGrid, "соединил" их и получил живые данные. </p>
+<p>Для демонстрации данной технологии я выбрал поле "номер служащего" в таблице EMPLOYEE.DB и "покрасил" ячейки с нечетными числами. То есть, если число нечетное, красим ячейку в зеленый цвет. </p>
+<p>Единственный код расположился в обработчике события OnDrawColumnCell компонента DBGrid и выглядел он так:</p>
+<pre name="code" class="delphi">procedure TForm1.DBGrid1DrawColumnCell(Sender: TObject; const Rect:
+  TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
+var
+  holdColor: TColor;
+begin
+  holdColor := DBGrid1.Canvas.Brush.Color; {сохраняем оригинальный цвет}
+  {"раскрашиваем" ячейки только для поля EmpNo}
+  if Column.FieldName = 'EmpNo' then
+    if (Column.Field.AsInteger mod 2 &lt;&gt; 0) then
+    begin
+      DBGrid1.Canvas.Brush.Color := clGreen;
+      DBGrid1.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+      DBGrid1.Canvas.Brush.Color := holdColor;
+    end;
+end;
+</pre>
+
+<p>В данном случае мы использовали метод DefaultDrawColumnCell компонента TCustomDBGrid, являющегося родителем для TDBGrid. Он раскрасил зеленым цветом нечетные ячейки поля EmpNo. </p>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<hr /><p>Есть ли какой-либо способ придать ячейке DBGrid другой цвет? Мне хотелось бы выделить отдельные ячейки строки по определенному признаку. Типа флага, который, если если счет просрочен свыше 90 дней, делает строчку красной. Буду благодарен за любую помощь. </p>
+<p>Обработайте событие OnDrawDataCell. Вот пример, который использует демонстрационную таблицу COUNTRY и рисует текст красным цветом во всех строках, содержащих страны с населением свыше 10 миллионов человек:</p>
+<pre name="code" class="delphi">begin
+  if Table1.FieldByName('Population').AsFloat &lt; 10000000 then
+    DBGrid1.Canvas.Font.Color := clRed;
+  dbGrid1.DefaultDrawDataCell(Rect,Field,State);
+end;
+</pre>
+
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

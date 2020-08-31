@@ -1,0 +1,128 @@
+<html>
+<head>
+  <title>Взять один символ из потока памяти</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Взять один символ из потока памяти</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit MsFormR;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    OpenDialog1: TOpenDialog;
+    SaveDialog1: TSaveDialog;
+    Memo1: TMemo;
+    ListBox1: TListBox;
+    Panel1: TPanel;
+    Button1: TButton;
+    Button2: TButton;
+    Splitter1: TSplitter;
+    procedure FormCreate(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+  private
+    MemStr1: TMemoryStream;
+  public
+    procedure ShowMemStr;
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  MemStr1 := TMemoryStream.Create;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  Str1: TFileStream;
+begin
+  OpenDialog1.Filter :=
+    'Any file (*.*)|*.*';
+  OpenDialog1.DefaultExt := '*';
+  if OpenDialog1.Execute then
+  begin
+    Str1 := TFileStream.Create (
+      OpenDialog1.Filename, fmOpenRead);
+    try
+      MemStr1.LoadFromStream (Str1);
+      ShowMemStr;
+      Button2.Enabled := true;
+    finally
+      Str1.Free;
+    end;
+  end;
+end;
+ 
+procedure TForm1.ShowMemStr;
+begin
+  Memo1.Lines.LoadFromStream (MemStr1);
+end;
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+const
+  ndx: LongInt = 1;
+var
+  pch:  PChar;
+  tmpC: Char;
+begin
+  pch := MemStr1.Memory;
+  tmpC := pch[ndx];
+  pch[ndx] := #0;
+  ListBox1.Items.SetText(MemStr1.Memory);
+  pch[ndx] := tmpC;
+ 
+  if ndx &lt; MemStr1.Size then
+    Inc(ndx)
+  else
+    Button2.Enabled := False;
+end;
+ 
+end.
+</pre>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

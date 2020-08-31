@@ -1,0 +1,100 @@
+<html>
+<head>
+  <title>Как отследить завершение работы в приложении?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как отследить завершение работы в приложении?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Нужно отследить момент завершения Windows, и, если пользователь собирается выключить компьютер - программа должна вывести диалог запроса. Если пользователь нажимает кнопку YES - разрешаем выключение, если NO - отменяем. С помощью VCL компонентов это делается элементарно: </p>
+<pre name="code" class="delphi">
+procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: Boolean); 
+begin 
+ //Спрашиваем пользователя, если инициировано завершение работы. 
+ if MessageDlg('Вы уверены?', mtConfirmation, mbYesNoCancel, 0) = mrYes 
+  then CanClose := true   //Разрешаем завершение работы. 
+  else CanClose := false; //Nе разрешаем завершение работы. 
+end;
+</pre>
+
+<p id="author">Автор ответа: Mazenrat</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<p>Пример отслеживания завершения приложения написанного на чистом API:</p>
+<pre name="code" class="delphi">
+program kvd;
+ 
+uses
+  Windows,
+  Messages;
+ 
+var
+  hWnd: THandle;
+  WndClass: TWndClass;
+  Msg: TMsg;
+ 
+function WindowProc(hWnd: THandle; uMsg, wParam, lParam: Integer): Integer;
+ stdcall;
+begin
+ Result:=0;
+ case uMsg of
+  WM_QUERYENDSESSION:
+       Result := integer(false);
+   WM_DESTROY:
+      PostQuitMessage(0);
+ else
+   Result := DefWindowProc(hWnd, uMsg, wParam, lParam);
+ end;
+end;
+ 
+begin
+ FillChar(WndClass, SizeOf(WndClass), 0);
+  with WndClass do begin
+   hInstance      := SysInit.hInstance;
+   lpszClassName  := 'dd';
+   lpfnWndProc    := @WindowProc;
+  end;
+   RegisterClass(WndClass);
+  hWnd := CreateWindow('dd', '', 0, 0, 0, 0, 0, 0, 0, hInstance, NIL);
+  if hWnd = 0 then
+   Exit;
+  ShowWindow(hWnd, SW_HIDE);
+  while GetMessage(Msg, 0, 0, 0) do begin
+   TranslateMessage(Msg);
+   DispatchMessage(Msg);
+  end;
+end.
+</pre>
+
+<p id="author">Автор: Fantasist</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

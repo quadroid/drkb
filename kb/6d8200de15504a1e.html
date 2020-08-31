@@ -1,0 +1,115 @@
+<html>
+<head>
+  <title>Создание кросс-таблицы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создание кросс-таблицы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Вы можете создать их в DBD как QBE-шки. Пользуясь компонентом TQBE для загрузки одной из библиотек, вы можете непосредственно использовать QBE-шки в вашем Delphi-приложении. </p>
+
+<p>В следующем примере предполагается, что каждый служащий каждый день сообщает оператору о своем месторасположении. Код определяет начало трудовой недели с понедельника плюс еще четыре рабочих дня с показом соответствующей даты. Строки с 1 по 5 в QBE1.QBE (нулевая описательная) в нижеприведенной процедуре заменяются кодом. Результат всего этого в том, что строка (если имеется) для каждого человека отображается в колонке установленного результата и значение 'X' включается если только запись существует. Для создания агрегатной таблицы можно было бы подсчитывать результаты. </p>
+
+<p>Текст в QBE1.QBE : </p>
+
+<pre name="code" class="delphi">CALLIN.DB | StaffNo   | Date    |
+          | _join1    | 3/10/95 |
+          | _join2    | 3/11/95 |
+          | _join3    | 3/12/95 |
+          | _join4    | 3/13/95 |
+          | _join5    | 3/14/95 |
+
+XTAB.DB   | StaffNo   |Mon       |Tue       |Wed       |Thu       |Fri       |
+          | _join1    |changeto X|          |          |          |          |
+          | _join2    |          |changeto X|          |          |          |
+          | _join3    |          |          |changeto X|          |          |
+          | _join4    |          |          |          |changeto X|          |
+          | _join5    |          |          |          |          |changeto X|
+</pre>
+
+
+<pre name="code" class="delphi">
+procedure TCallInReport.ButtonSelectClick(Sender: TObject);
+begin
+  TableXTab.active := false;
+  if EditWeekOf.Text = '' then
+  begin
+    messageBeep(0);
+    messageDlg('Для выбора записи необходима дата.', mtInformation, [mbOK], 0);
+    exit;
+  end;
+ 
+  Screen.Cursor := crHourGlass;
+ 
+  dtWeekOf := StrToDate(EditWeekOf.Text);
+  dtStartDate := dtWeekOf - DayOfWeek(dtWeekOf) + 2;
+ 
+  TableXTab.active := false;
+  TableXTab.EmptyTable;
+  TableXTab.active := true;
+ 
+  {
+  Замените строки 1 - 5 в QBE1.QBE реальными датами
+  }
+  QBE1.QBE.Strings[1] := '  | _join1  | ' + DateToStr(dtStartDate) + ' | ';
+  QBE1.QBE.Strings[2] := '  | _join2  | ' + DateToStr(dtStartDate + 1) + ' | ';
+  QBE1.QBE.Strings[3] := '  | _join3  | ' + DateToStr(dtStartDate + 2) + ' | ';
+  QBE1.QBE.Strings[4] := '  | _join4  | ' + DateToStr(dtStartDate + 3) + ' | ';
+  QBE1.QBE.Strings[5] := '  | _join5  | ' + DateToStr(dtStartDate + 4) + ' | ';
+ 
+  try
+    QBE1.active := true;
+  except
+    on E: EDataBaseError do
+    begin
+      if E.Message = 'Ошибка создания дескриптора курсора' then
+        { Ничего не делайте. Делая TQBE активной, мы пытаемся создать курсор.
+          Это вызывает исключительную ситуацию, которую мы должны перехватить.
+          Пока я не нашел способа как отделаться от исключения. }
+      else
+      begin
+        Screen.Cursor := crDefault;
+        raise;
+      end;
+    end;
+  else
+    Screen.Cursor := crDefault;
+    raise;
+  end;
+  TableXTab.refresh;
+  Screen.Cursor := crDefault;
+  TableXTab.active := true;
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

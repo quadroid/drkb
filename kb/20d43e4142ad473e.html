@@ -1,0 +1,174 @@
+<html>
+<head>
+  <title>Создание DLL-библиотеки для работы с Word / Excel из приложений на Delphi</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создание DLL-библиотеки для работы с Word / Excel из приложений на Delphi</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Если вы хотите и готовы предложить своим коллегам свои собственные API-функции для работы с документами Word и Excel, то эта статья вам очень пригодится.</p>
+Весь набор функций, который рассмотрен в статьях &#8470;1 и &#8470;2, можно реализовать в виде DLL-библиотеки. Реализация в виде DLL дает большие преимущества программисту в гибкости, надежности использования своих программных продуктов и сокращает время на разработку программного обеспечения. В своих библиотеках вы можете заложить базовые функции, которые не будут изменяться довольно часто, при этом основное приложение, которое использует библиотеки, может меняться достаточно часто и совершенствоваться от версии к версии. Функции, оформленные в виде DLL, называются иначе - API-функциями. Система Windows использует как системные, так и пользовательские функции API.</p>
+Если вы решите создавать библиотеку для работы с Word.Application (Excel.Application), то столкнетесь с некоторыми особенностями, которые укладываются в общее представление о создании динамических библиотек. Эти особенности связаны с преобразованием формата данных, передаваемых через механизм DDE.</p>
+Приступим к созданию нашей библиотеки (назовем ее MyLWord). Выполним команду меню "File" -&gt; "New..." . В открывшемся окне выберите закладку "New" и далее пиктограмму "DLL", нажмите кнопку "OK". Получим новый проект. Его название изменим на MyLWord и сохраним под тем же именем. Используем нашу библиотеку MyWord, которая была создана ранее (см. "Суперфункции 1.5"). Изменим эту библиотеку, дописав в конец объявления каждой процедуры в секции interface ключевое слово StdCall, которое определяет соглашение о передаче параметров через стек. В файле проекта MyLWord.dpr в секцию подключения внешних модулей uses допишем ссылку на библиотеку MyWord. После секции uses создадим секцию экспортируемых процедур и функций, напишем ключевое слово exports, после которого через запятую перечислим список всех экспортируемых процедур и функций. Если откомпилировать этот проект, то получим файл динамической библиотеки MyLWord.dll. Ниже представлены фрагменты перечисленных выше файлов.</p>
+Файл - MyLWord.dpr</p>
+<pre name="code" class="delphi">
+library MyLWord;
+uses
+ SysUtils,
+ Classes,
+ MyWord;
+{$R *.RES}
+exports
+ CreateWord,
+ VisibleWord,
+ ................,
+ GetNameIndexShape;
+Begin
+// Секция инициализации модуля, можно вставлять функции,
+ которые должны выполняться при загрузке модуля,например
+ начальная загрузка данных, которые будут использоваться
+ всеми функциями и процедурами модуля.
+end.
+</pre>
+&nbsp;</p>
+Файл - MyWord.pas</p>
+<pre name="code" class="delphi">
+unit MyWord;
+interface
+ const
+  wdBorderTop=-1;
+  ......................
+  wdLineStyleEngrave3D=22;
+Function CreateWord:boolean; StdCall
+Function VisibleWord(visible:boolean):boolean; StdCall
+.........................................
+Function SetNewNameShape(NameShape:variant;
+  NewNameShape:string):string; StdCall
+Function GetNameIndexShape(NameIndex:variant):string; StdCall
+ var W:variant;
+implementation
+uses ComObj;
+Function CreateWord: boolean;
+ begin
+  CreateWord:=true;
+ try
+  W:=CreateOleObject ('Word.Application');
+  .........................................
+Function DeleteShape (NameShape:variant): variant;
+Begin
+ DeleteShape:=true;
+ try
+  W.ActiveDocument.Shapes.Item(NameShape).Delete;
+ except
+  DeleteShape:=false;
+ end;
+end;
+end.
+</pre>
+&nbsp;</p>
+После создания динамической библиотеки процедур и функций рассмотрим ее использование. Для этого возьмем пример, описанный в предыдущих статьях "Суперфункции". Любую динамическую библиотеку можно использовать двумя основными способами: загрузка библиотеки при старте EXE-модуля и динамическая загрузка, которая выполняется в местах программы, там, где это необходимо. Преимущество первого метода заключается в простоте написания кода, второго - в гибкости, например, в зависимости от каких-либо условий программы можно загружать различные модули, содержащие одинаковые функции. Если используется первый вариант, то при отсутствии модуля DLL программа просто не загрузится, при втором варианте программа загрузится, но в местах вызова модуля будет сгенерирована ошибка, которую можно обработать.</p>
+Рассмотрим подробнее вариант загрузки модуля DLL при старте программы, которая его использует. Если вы хотите использовать какую-либо функцию динамической библиотеки, то достаточно в модуле, где будет использоваться функция, добавить строку объявления такого типа:</p>
+Function (Procedure) &lt;Имя функции (процедуры)&gt;(&lt;список переменных и типов&gt;): &lt;возвращаемое значение&gt;; external '&lt;Имя файла библиотеки с расширением&gt;' name ' Имя функции или процедуры ';</p>
+Конкретные примеры:</p>
+<pre name="code" class="delphi">
+Function CreateWord:boolean;
+  external 'MyLWord.dll' name 'CreateWord';
+Function VisibleWord(visible:boolean):boolean;
+  external 'MyLWord.dll' name 'VisibleWord';
+.........................
+Begin
+ .....................
+ if CreateWord then VisibleWord(true);
+ .....................
+End.
+</pre>
+&nbsp;</p>
+Для объявления функций и процедур динамической библиотеки удобно использовать отдельный модуль Unit. В таком модуле в секции interface перечисляются функции и процедуры с указанием имен, параметров и типов возвращаемых значений как в обычном модуле, в секции implementation они описываются с указанием на модули (имена файлов) DLL и оригинальные имена. Например:</p>
+<pre name="code" class="delphi">
+unit MyDWord;
+interface
+Function CreateWord: boolean; StdCall
+Function VisibleWord (visible:boolean):boolean; StdCall
+.........................................
+Implementation
+Function CreateWord:boolean;
+  external 'MyLWord.dll' name 'CreateWord';
+Function VisibleWord (visible:boolean):boolean;
+  external 'MyLWord.dll' name 'VisibleWord';
+.........................................
+End.
+</pre>
+&nbsp;</p>
+Чтобы использовать данный модуль в приложении, достаточно указать на него ссылку в секции uses. Рассмотрим пример:</p>
+<pre name="code" class="delphi">
+Uses MyDWord;
+.........................................
+Begin
+// Выполним загрузку Word'а, вызвав необходимые функции.
+if CreateWord then VisibleWord(true);
+end;
+</pre>
+&nbsp;</p>
+Рассмотрим динамическое выполнение процедур и функций модуля DLL. Для динамической загрузки и выполнения необходимо определить типы вызываемых процедур (функций), загрузить библиотеку DLL, получить адреса входа в процедуру (функцию), выполнить процедуру (функцию) и выгрузить библиотеку.</p>
+Для этого рассмотрим следующий пример:</p>
+<pre name="code" class="delphi">
+ 
+//Выполним загрузку и отображение Word'а, используя
+ функции CreateWord и VisibleWord. В секции type
+ определим их типы, они должны совпадать с оригиналом
+ в модуле DLL.
+type
+TCreateWord=function: boolean;
+TVisibleWord=function (visible:boolean):boolean;
+//В разделе описания переменных определим переменную
+ hdll:thandle, через которую будем обращаться к функциям
+ работы с библиотекой, и переменные - ссылки на процедуры
+ динамической библиотеки.
+var hdll:thandle;
+ CreateWord:TCreateWord;
+ VisibleWord:TvisibleWord;
+Begin
+//В секции кода выполним загрузку модуля (библиотеки)
+ и получим ее handle.
+ hdll:=LoadLibrary ('MyLWord.dll');
+//Получим точки входа в функции.
+ CreateWord:=GetProcAddress (hdll,'CreateWord');
+ VisibleWord:=GetProcAddress (hdll,'VisibleWord');
+// Выполним загрузку Word'а, вызвав необходимые функции.
+ if CreateWord then VisibleWord(true);
+// Выгрузим библиотеку (очистим память от библиотеки).
+ FreeLibrary(hdll);
+end;
+</pre>
+Как видно, динамическая загрузка библиотеки немного сложнее, но, несмотря на это, она оправдывает себя. Используя данный материал, вы сможете создать и использовать свою персональную динамическую библиотеку для работы с редакторами Word и Excel. Полные исходные тексты с примерами смотрите по адресу www.kornjakov.ru/st3_1.zip. По всем вопросам можете обратиться к автору по адресу _kvn@mail.ru или www.kornjakov.ru.</p>
+Василий КОРНЯКОВ</p>
+Литература: Марко Кенту "Delphi 6 " "Питер" 2002.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

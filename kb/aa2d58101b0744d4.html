@@ -1,0 +1,123 @@
+<html>
+<head>
+  <title>Как сделать прямоугольник для выделения части картинки для редактирования?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как сделать прямоугольник для выделения части картинки для редактирования?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Самый простой способ - воспользоваться функцией Windows API DrawFocusRect. Функция DrawFocusRect использует операцию XOR при рисовании - таким образом вывод прямоугольника дважды с одними и теми же координатами стирает прямоугольник, и прямоугольник всегда будет виден, на фоне какого бы цвета он не выводился.</p>
+<pre name="code" class="delphi">
+type
+  TForm1 = class(TForm)
+    procedure FormMouseDown(Sender: TObject; Button: TMouseButton;
+    Shift: TShiftState; X, Y: Integer);
+    procedure FormMouseMove(Sender: TObject;
+    Shift: TShiftState; X, Y: Integer);
+    procedure FormMouseUp(Sender: TObject; Button: TMouseButton;
+    Shift: TShiftState; X, Y: Integer);
+  private
+    {Private declarations}
+    Capturing : bool;
+    Captured : bool;
+    StartPlace : TPoint;
+    EndPlace : TPoint;
+  public
+    {Public declarations}
+end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+{$R *.DFM}
+ 
+function MakeRect(Pt1: TPoint; Pt2: TPoint): TRect;
+begin
+  if pt1.x &lt; pt2.x then
+  begin
+    Result.Left := pt1.x;
+    Result.Right := pt2.x;
+  end
+  else
+  begin
+    Result.Left := pt2.x;
+    Result.Right := pt1.x;
+  end;
+  if pt1.y &lt; pt2.y then
+  begin
+    Result.Top := pt1.y;
+    Result.Bottom := pt2.y;
+  end
+  else
+  begin
+    Result.Top := pt2.y;
+    Result.Bottom := pt1.y;
+  end;
+end;
+ 
+procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
+Shift: TShiftState; X, Y: Integer);
+begin
+  if Captured then
+    DrawFocusRect(Form1.Canvas.Handle,MakeRect(StartPlace, EndPlace));
+  StartPlace.x := X;
+  StartPlace.y := Y;
+  EndPlace.x := X;
+  EndPlace.y := Y;
+  DrawFocusRect(Form1.Canvas.Handle, MakeRect(StartPlace, EndPlace));
+  Capturing := true;
+  Captured := true;
+end;
+ 
+procedure TForm1.FormMouseMove(Sender: TObject;
+Shift: TShiftState; X, Y: Integer);
+begin
+  if Capturing then
+  begin
+    DrawFocusRect(Form1.Canvas.Handle,MakeRect(StartPlace,EndPlace));
+    EndPlace.x := X;
+    EndPlace.y := Y;
+    DrawFocusRect(Form1.Canvas.Handle,MakeRect(StartPlace,EndPlace));
+  end;
+end;
+ 
+procedure TForm1.FormMouseUp(Sender: TObject; Button: TMouseButton;
+Shift: TShiftState; X, Y: Integer);
+begin
+  Capturing := false;
+end;
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

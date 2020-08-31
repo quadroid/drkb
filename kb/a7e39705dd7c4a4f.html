@@ -1,0 +1,104 @@
+<html>
+<head>
+  <title>Как экспортировать таблицу в MS Word в TStringGrid?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как экспортировать таблицу в MS Word в TStringGrid?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses 
+  ComObj; 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+const 
+  AWordDoc = 'C:\xyz\testTable.doc'; 
+var 
+  MSWord, Table: OLEVariant; 
+  iRows, iCols, iGridRows, jGridCols, iNumTables, iTableChosen: Integer; 
+  CellText: string; 
+  InputString: string; 
+begin 
+  try 
+    MSWord := CreateOleObject('Word.Application'); 
+  except 
+    // Error.... 
+    Exit; 
+  end; 
+ 
+  try 
+    MSWord.Visible := False; 
+    MSWord.Documents.Open(AWordDoc); 
+ 
+    // Get number of tables in document 
+    iNumTables := MSWord.ActiveDocument.Tables.Count; 
+ 
+    InputString := InputBox(IntToStr(iNumTables) + 
+      ' Tables in Word Document', 'Please Enter Table Number', '1'); 
+    // Todo: Validate string for integer, range... 
+    iTableChosen := StrToInt(InputString); 
+ 
+    // access table 
+    Table := MSWord.ActiveDocument.Tables.Item(iTableChosen); 
+    // get dimensions of table 
+    iCols := Table.Rows.Count; 
+    iRows := Table.Columns.Count; 
+    // adjust stringgrid columns 
+    StringGrid1.RowCount := iCols; 
+    StringGrid1.ColCount := iRows + 1; 
+ 
+    // loop through cells 
+    for iGridRows := 1 to iRows do 
+      for jGridCols := 1 to iCols do 
+      begin 
+        CellText := Table.Cell(jGridCols, iGridRows).Range.FormattedText; 
+        if not VarisEmpty(CellText) then 
+        begin 
+          // Remove Tabs 
+          CellText := StringReplace(CellText, 
+            #$D, '', [rfReplaceAll]); 
+          // Remove linebreaks 
+          CellText := StringReplace(CellText, #$7, '', [rfReplaceAll]); 
+ 
+          // fill Stringgrid 
+          Stringgrid1.Cells[iGridRows, jGridCols] := CellText; 
+        end; 
+      end; 
+    //.. 
+  finally 
+    MSWord.Quit; 
+  end; 
+end; 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

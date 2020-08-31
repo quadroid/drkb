@@ -1,0 +1,121 @@
+<html>
+<head>
+  <title>Изменить свойства системы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Изменить свойства системы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Когда вы вызываете контекстное меню на иконке "Моего компьютера" и щёлкаете на команде "Свойства" - вы видите свойства системы. Эта статья позволит вам внести туда любой свой собственный текст и даже поместить рисунок! </p>
+<p>Для начала давайте заглянем в папку System, находящуюся в директории Windows и найдём там файл инициализации с именем Oeminfo.ini, нужно его отредактировать так, чтобы он выглядел следующим образом: </p>
+<pre name="code" class="delphi">
+[General]
+Manufacturer="Производитель M$"
+Model="Модель, чёта, типа, 9x"
+ 
+[Support Information]
+Line1="Поддержка: Delphi World ©"
+Line2="Всё это написано из Delphi!"
+Line3="...а Бил ГЕЙ, тс..."
+</pre>
+
+<p>Здесь, как видно, должно быть всего два раздела: </p>
+<p>[General] </p>
+<p>Указанные здесь данные будут отображаться в окне "Свойства: Система" на закладке "Общие". </p>
+<p>[Support Information] </p>
+<p>Информация о поддержки, которая будет видна в диалоговом окне появляющимся по нажатию на кнопке "Поддержка..." на той же закладке. </p>
+<p>В разделе [General] есть два параметра (Manufacturer и Model), которым можно задавать любые значения. </p>
+<p>В разделе же информации о поддержки можно создать сколько угодно параметров. </p>
+<p>Чтобы было ещё эффектнее можно поместить в окно свойств системы даже графический файл, для этого файл нужно сначала создать, используя любой графический редактор, учитывая главное условие - размер файла должен быть 127х127. Назвать файл нужно так: Oemlogo.bmp, а затем поместить в папку System, находящуюся в директории Windows. </p>
+<p>Ну, а как же занести информацию в ini-файл программно? </p>
+<p>Для взаимодействия с ini-файлами нужно сделать следующее: </p>
+<p>Сначала в области uses нужно объявить модуль inifiles </p>
+<p>Затем объявить переменную класса TIniFile </p>
+<p>Выделить память под этот объект, т.е. создать его с помощью метода Create </p>
+<p>А после уже можно заносить или считывать данные из этого ini-файла </p>
+<p>Вид модуля должен быть примерно таким: </p>
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  inifiles; {Объявляем модуль для взаимодействия с ini-файлами}
+ 
+type
+  TForm1 = class(TForm)
+    procedure FormCreate(Sender: TObject);
+    private
+      { Private declarations }
+    public
+      { Public declarations }
+end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+{по созданию окна пишем следующий код}
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  APChar: array [0..254] of char; {сначала нужно узнать где у пользователя папка Windows - объявляем под это дело массив символов}
+  sFile: string; {объявляем текстовую переменную под имя ini-файла}
+  Ini: TIniFile; {и экземпляр класса TIniFile для взаимодействия с файлами инициализации}
+begin
+  GetWindowsDirectory(APChar, 255); {узнаём, где у чудилки находится каталог Windows}
+  sFile := string(APChar) + '\System\Oeminfo.ini'; {в текстовую переменную помещаем имя нужного нам файла}
+  if FileExists(sFile) then {и если файл существует...}
+  begin
+    Ini := TIniFile.Create(sFile); {связываем объявленную переменную с этим файлом}
+    {далее заносим данные, используя процедуру WriteString, т.к. данные текстового типа.
+    Параметры у процедуры такие: Имя раздела, Имя ключа, Вносимое значение}
+ 
+    Ini.WriteString('General','Manufacturer','"Производитель M$"');
+    Ini.WriteString('General','Model','"Модель, чёта, типа, 9x"');
+    Ini.WriteString('Support Information','Line1','"Поддержка: Delphi World ©"');
+    Ini.WriteString('Support Information','Line2','"Всё это написано из Delphi!"');
+    Ini.WriteString('Support Information','Line3','"...а Бил ГЕЙ, тс..."');
+    Ini.Free; {ну, а под конец, сделав своё грязное дело, мы как порядочные... программисты - освобождаем занимаемую память}
+  end;
+end;
+ 
+end.
+ 
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

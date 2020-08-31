@@ -1,0 +1,289 @@
+<html>
+<head>
+  <title>Исследование E-Book Html Compiler 2.12</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Исследование E-Book Html Compiler 2.12</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Wersion</p>
+<p>WEB сайт: http://expwinprg.cjb.net/ </p>
+<p>Итак, как это было. </p>
+<p>Достались мне замечательные туторы Iczelion'а по ассемблеру на русском и английском языках. Перевод был сделан немного в стиле Promt'а: с падежами, окончаниями и т.д. всё в порядке, а до смысла докопаться трудно. Я решил всё переделать и представить в культурном виде &#8211; в 'Single Exe' как обещают создатели E-Book Html Compiler 2.12. &lt;-Закачал его с http://new-projects.com/booksoft/ (не ошибитесь версией) и запустил. </p>
+<p>Что мы видим: </p>
+<p>функциональные ограничения (Нет вкладки Security вообще) </p>
+<p>Nag в производимом файле </p>
+<p>Нехорошо. Начнём. </p>
+<p>Что нужно: Tools (много): </p>
+<p>ResHacker/Restorator/Exescope &#8211; обязательно </p>
+<p>Windows Commander 32 &#8211; обязательно </p>
+<p>UPX 1.07w &#8211; обязательно </p>
+<p>HIEW 6.11 &#8211; обязательно (Ну куда же нам без него!) </p>
+<p>Turbo Pascal for Windows 7.1 &#8211; Recommended </p>
+<p>Ida Pro &#8211; optional </p>
+<p>TRW 2000 &#8211; optional </p>
+<p>Any File Analyzer &#8211; optional </p>
+<p>Procdump32 - optional </p>
+<p>The Customiser - Recommended </p>
+<p>W32Dasm &#8211; optional </p>
+<p>Brains: Среднее количество[x] </p>
+<p>Исследование </p>
+<p>Посмотрим Help. Есть, оказывается, 3 версии: </p>
+<p>This is the FREEWARE Version of the HTML Compiler. This FREEWARE version is for personal use only. You are required to purchase a license for any use that results in the exchange of money or goods by using this software. </p>
+<p>Versions available. This version - Stand-Alone HTML Compiler PRO Compiles HTML text and images (including frames) into a single stand-alone executable. </p>
+<p>Stand-Alone HTML Compiler PRO + enables the creation of shareware ebooks and button/menu text editing. </p>
+<p>Попытаемся сделать из Freeware -&gt; PRO+. </p>
+<p>Откроем программу в ResHacker'e. Ясное дело, повреждены все ресурсы. Нельзя же без того, чтобы запаковать.Если хотите, можете посмотреть на файл сквозь ваш File Analyzer. Я засунул его в Procdump32-&gt;PE Editor. Ну, это наш старый знакомый UPX. </p>
+<p>Как полагается его распаковывать: </p>
+<p>Засунуть в Ida Pro. Найти инструкцию popad. Посмотреть куда направляется следующий jmp xxxxxxxxx. Записать xxxxxxxxx - ImageBase как Original Entry Point. Поставить в TRW 2000 брейкпоинт на адрес инструкции popad. Пройти её и следующий jmp xxxxxxxxxx по F10. Сделать Suspend. Сдампить. Выставить OEP. (не помню, он портит Import Table или нет, если да, то восстановите) </p>
+<p>Воспользоваться самим Upx </p>
+<p>Проделать только в отладчике. </p>
+<p>Я пробовал это. Только размер файла практически не увеличивается. И делает он такие нехорошие 'Single Exe',что быстро вешают систему. Автораспаковщики (e.g. GUW32) вообще производят неработоспособную бурду. </p>
+<p>Что ж, я полез в Hiew 6.11 разбираться. Когда я указал ему пойти на адрес где-то в середине Exe'шника, он крайне удивил меня сообщением 'Section out of File'. Пришлось дойти до конца секции. Посмотрите: </p>
+<p>Как видите, после секции начинается что-то интересное. А именно новый Exe-file. (Последовательность байт MZP).Давайте напишем программу, которая вытащит нам его. Вот она: </p>
+<pre name="code" class="delphi">
+Program FileExtractor;
+ 
+Uses WinCrt;
+ 
+{Стандартные декларации}
+Var  i:longint;
+     FileExe,FileDump:file of byte;
+     RV:byte;
+ 
+begin
+  Assign(FileExe,'htmlcomp.exe');
+  {$I-}
+  Reset(FileExe);
+  {$I+}
+  If IOResult&lt;&gt;0 then {И}
+  begin
+    Writeln('File not Found! Exiting...');
+    Readkey;
+    DoneWinCrt;
+  end;
+  Assign(FileDump, 'Part2.exe'); {Процедуры}
+  Rewrite(FileDump);
+  {Перейдём на FilePos=235520 =(39800 в шестнадцатиричной системе - см. выше}
+  Seek(FileExe,235520);
+  For i:=FilePos(FileExe) to (FileSize(FileExe)-1) do
+  begin
+    Read(FileExe,RV); {Ну и скатаем в другой файл}
+    Write(FileDump,RV);
+  end;
+  Close(FileExe);
+  Close(FileDump);
+  Writeln('Done.');
+  Readkey;
+  DoneWinCrt;
+end.
+</pre>
+
+<p>Осторожно запустите её(Windows как бы провалится в глубокую трясину и не будет реагировать на вас, но потом очнётся). Через ~15 секунд у вас будет Part2.exe Аналогично вытащим первую часть. </p>
+<pre name="code" class="delphi">
+Program PrgExtractor;
+ 
+Uses WinCrt;
+ 
+Var  i:longint;
+     FileExe,FileDump:file of byte;
+     RV:byte;
+ 
+begin
+  Assign(FileExe,'htmlcomp.exe');
+  {$I-}
+  Reset(FileExe);
+  {$I+}
+  If IOResult&lt;&gt;0 then
+  begin
+    Writeln('File not Found! Exiting...');
+    Readkey;
+    DoneWinCrt;
+  end;
+  Assign(FileDump,'Part1.exe');
+  Rewrite(FileDump);
+  For i:=1 to 235520 do
+  begin
+    Read(FileExe,RV);
+    Write(FileDump,RV);
+  end;
+  Close(FileExe);
+  Close(FileDump);
+  Writeln('Done.');
+  Readkey;
+  DoneWinCrt;
+end.
+</pre>
+
+<p>У Part1.exe иконка как у исходной программы. У Part2.exe -- как у производимого программой 'Single Exe'.Теперь понятен принцип работы нашего приложения. Оно использует GetModuleFileName или ParamStr(0), выдирает из себя Part2.exe, кладёт куда надо и ещё дописывает к нему скрипт. Как это мог осуществить автор: </p>
+<p>А1.) Как я(As File Extractor)</p>
+<p>Б1.) Поискать последовательность байт (MZP). </p>
+<p>Способ А1.) не подходит, потому что его нужно реализовывать, не имея готового, сжатого EXE, да и проблематично вносить изменения в программу. Остаётся способ Б1.). </p>
+<p>Ну что, теперь оба файла распакуются нормально. Лучше всего воспользоваться способом В.). Смотрим Part2.exe в REsHaCkEr' e. </p>
+<p>Вот наш Nag Splash Screen: </p>
+<pre name="code" class="delphi">
+object Form3: TForm3
+//................................................
+  Caption = 'Free Splash'
+  ClientHeight = 157
+  ClientWidth = 392
+//................................................
+  FormStyle = fsStayOnTop
+  Position = poScreenCenter
+//................................................
+  object Image1: TImage
+//................................................
+    Width = 392
+    Height = 157
+    Align = alClient
+    Picture.Data = {много всего в хексе }
+  end
+  object URLLabel1: TURLLabel
+    Width = 185
+    Height = 16
+    Caption = 'www.bigwig.net/softwaredesign'
+//................................................
+  end
+  object URLLabel2: TURLLabel
+//................................................
+    Width = 205
+    Height = 16
+    Caption = 'www.new-projects.com/booksoft'
+  end
+  object Label1: TLabel
+    Width = 9
+    Height = 13
+    Caption = 'or'
+//................................................
+  end
+  object Timer1: TTimer
+    Interval = 5000
+    OnTimer = Timer1Timer
+//................................................
+  end
+end
+</pre>
+
+<p>Легко догадаться, что Timer1 определяет длительность висения формы. Внесём необходимые изменения :-)). </p>
+<pre name="code" class="delphi">
+object Form3: TForm3
+  Caption = ''
+  ClientHeight = 0
+  ClientWidth = 0
+  FormStyle = fsNormal
+  Height = 0
+  Width = 0
+  object Image1: TImage
+    Width = 0
+    Height = 0
+    Align = alNone
+    Picture.Data = {убрать всё }
+  end
+  object URLLabel1: TURLLabel
+   //................................................
+   Width = 0
+    Height =0
+    end
+  object URLLabel2: TURLLabel
+    Width = 0
+    Height = 0
+    Caption = ''
+ end
+  object Label1: TLabel
+    Width = 0
+    Height = 0
+    Caption = ''
+  end
+  object Timer1: TTimer
+    Interval = 1
+    OnTimer = Timer1Timer
+  end
+end
+ 
+</pre>
+
+<p>Вот и всё. Nag successfully removed! Пакуем файл через UPX. Клеим его к Part1.exe через Windows Commander 32. It works... </p>
+<p>Теперь разберёмся с функциональными ограничениями в Part1.exe... Рассматривая скриншот из хелпа, можно заметить, что в Freeware кнопка для Securiry просто не видна.Возьмём The Customiser, исправим сиё недоразумение(для всех подобных кнопок). Тогда everything is fine. Но это надо не на один раз, а навсегда. Что-то в коде не хочется копаться..... Тем более, что тот скомпилен в Delphi 3. А Delphi кого угодно выведет своими вложенными call'ами. Давайте поюзаем ResHacker. </p>
+<p>Вот скрытые кнопки: </p>
+<pre name="code" class="delphi">
+object Button6: TButton
+    Left = 432
+    Top = 4
+    Width = 33
+    Height = 21
+    Hint = 'Edit the E-Book Security options and Viewer Text and Graphics.'
+    Caption = '&gt;&gt;'
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 30
+    OnClick = Button6Click
+  end
+object Button7: TButton
+    Left = 488
+    Top = 144
+    Width = 177
+    Height = 25
+    Hint = 'Bring up the Trial to Full Key Registration generator dialog.'
+    Caption = 'Generate Registration Key'
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 35
+    OnClick = Button7Click
+  end
+ object Button8: TButton
+    Left = 476
+    Top = 296
+    Width = 201
+    Height = 25
+    Hint = 'Bring up the Viewer Button Graphic/Text and Menu Text editor.'
+    Caption = 'Button Images/Text and Menu Text'
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 36
+    OnClick = Button8Click
+  end
+</pre>
+
+<p>Да, нехорошо. Кнопки деактивируются динамически. Раз автор(Steve Seymor) так к нам относится, то и мы отнесёмся к нему соответственно. Сделаем копии всех этих кнопок и изменим немного. e. g. object Button8: TButton-&gt;object Mutton8: TButton Можете зайти в TFORM2 и поменять там чего-нибудь :-)). Запустим программу. Wow! Никаких ограничений! Пакуем через UPX . Склеиваем с Part2.exe.... N.B. наш файл меньше исходного !!! N.B. Мы не использовали ни дизассемблер, ни отладчик!!! </p>
+<p>OK, всё работает! Засуньте Cracked Exe в архив и добавьте *.nfo; </p>
+<p>Greates to:авторам всех использованных инструментов, Dr. Golova. </p>
+<p>TNT Team, которая распространяет свой тормознутый неработающий загрузчик для этого продукта, Must Die. </p>
+<p>Файлы, использованные при исследовании:</p>
+<p>fextract.zip</p>
+<p>prgextract.zip </p>
+<p>Created by Wersion</p>
+<p>E-mail: wcrkgroup2002@mail.ru</p>
+<p>Site: http://expwinprg.cjb.net/</p>
+<p>Вопросы/Пожелания/Угрозы/Комментарии -- приветствуются. </p>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

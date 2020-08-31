@@ -1,0 +1,63 @@
+<html>
+<head>
+  <title>Как установить минимальный размер окна?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как установить минимальный размер окна?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Необходимо объявить обработчик события для WM_GETMINMAXINFO:</p>
+<pre name="code" class="delphi">
+... 
+private 
+
+ 
+  procedure WMGetMinMaxInfo(var Message : TWMGetMinMaxInfo); 
+  message WM_GETMINMAXINFO; 
+ 
+ 
+А вот как выглядит сам обработчик:
+ 
+procedure TForm1.WMGetMinMaxInfo(var Message : TWMGetMinMaxInfo); 
+begin 
+  Message.MinMaxInfo^.ptMinTrackSize := Point(Width, Height); 
+  Message.MinMaxInfo^.ptMaxTrackSize := Point(Width, Height); 
+end; 
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+<p id="note">Примечание от Vit:</p>
+
+<p>Начиная с Дельфи 5 появилось удобное свойство Constrains - специально для ограничесния минимальных и максимальных размеров...</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

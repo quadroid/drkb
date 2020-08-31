@@ -1,0 +1,82 @@
+<html>
+<head>
+  <title>Проблема всплывающих подсказок в дочерних MDI-формах</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Проблема всплывающих подсказок в дочерних MDI-формах</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Если вам просто нужно отобразить всплывающие подсказки от элементов управления вашей дочерней формы, то сделайте это в вашей главной форме. </p>
+
+<p>Объявите следующую процедуру в классе вашей главной формы:</p>
+<pre name="code" class="delphi">
+private
+{============================================================}
+{ Процедура, вызываемая приложением всякий раз, когда        }
+{ приложение хотело бы показать всплывающую подсказку.       }
+{ Добавляет хинт на панель статуса.                          }
+{============================================================}
+procedure ShowHint(Sender : TObject);
+</pre>
+
+<p>затем в процедуре главной формы .create добавьте следующую строку:</p>
+
+<pre name="code" class="delphi">
+{ Отображает хинт на статусной панели}
+Application.OnHint := ShowHint;
+</pre>
+
+
+<p>Теперь приведем код функции ShowHint, принадлежащей главной форме:</p>
+
+<pre name="code" class="delphi">
+{================================================================}
+{ Обновляем pnlStatusText.Caption с текстом всплывающей подсказки}
+{ элемента управления, над которым находится курсор мыши.        }
+{================================================================}
+ 
+procedure
+  TMainFrame.ShowHint
+  (
+ 
+  Sender: TObject {Объект, вызывающий данную процедуру}
+  );
+begin
+ 
+  pnlStatusText.Caption := Application.Hint;
+end; { TMainFrame.ShowHint }
+</pre>
+
+
+<p>Это должно работать. Вам нужно будет только задать текст подсказок для элементов управления во всех окнах, включая главное. Устанавливая свойство показа хинтов в false или true, вы тем самым указываете способ показа хинтов: обычным способом в виде всплывающих окошек, или совместно с показом в строке состояния. </p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

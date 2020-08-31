@@ -1,0 +1,59 @@
+<html>
+<head>
+  <title>Преобразование числа в двоичную запись</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Преобразование числа в двоичную запись</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Для преобразования числа в двоичную запись удобно использовать функции shl и and. Эта функция преобразует число в строку из единиц и нулей. Количество цифр определяется параметром Digits. </p>
+<pre name="code" class="delphi">
+function IntToBin(Value: integer; Digits: integer): string;
+var
+  i: integer;
+begin
+  result := '';
+  for i := 0 to Digits - 1 do
+    if Value and (1 shl i) &gt; 0 then
+      result := '1' + result
+    else
+      result := '0' + result;
+end;
+</pre>
+<p>Вот пример использования этой функции: </p>
+<pre name="code" class="delphi">
+procedure TForm1.Edit1Change(Sender: TObject);
+begin
+  Form1.Caption := IntToBin(StrToIntDef(Edit1.Text, 0), 128);
+end;
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

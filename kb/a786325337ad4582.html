@@ -1,0 +1,105 @@
+<html>
+<head>
+  <title>Как быстро нарисовать тень в заданном регионе?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как быстро нарисовать тень в заданном регионе?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TForm2.DrawShadows(WDepth, HDepth : Integer); 
+var 
+  Dst, RgnBox  : TRect; 
+  hOldDC         : HDC; 
+  OffScreen      : TBitmap; 
+  Pattern          : TBitmap; 
+  Bits               : array[0..7] of WORD; 
+begin 
+  Bits[0]:=$0055; 
+  Bits[1]:=$00aa; 
+  Bits[2]:=$0055; 
+  Bits[3]:=$00aa; 
+  Bits[4]:=$0055; 
+  Bits[5]:=$00aa; 
+  Bits[6]:=$0055; 
+  Bits[7]:=$00aa; 
+ 
+  hOldDC:=Canvas.Handle; 
+  Canvas.Handle:=GetWindowDC(Form1.Handle); 
+ 
+ 
+  OffsetRgn(ShadeRgn, WDepth, HDepth); 
+  GetRgnBox(ShadeRgn, RgnBox); 
+ 
+  Pattern:=TBitmap.Create; 
+  Pattern.ReleaseHandle; 
+  Pattern.Handle:=CreateBitmap(8, 8, 1, 1, @(Bits[0])); 
+  Canvas.Brush.Bitmap:=Pattern; 
+ 
+  OffScreen:=TBitmap.Create; 
+  OffScreen.Width:=RgnBox.Right-RgnBox.Left; 
+  OffScreen.Height:=RgnBox.Bottom-RgnBox.Top; 
+  Dst:=Rect(0, 0, OffScreen.Width, OffScreen.Height); 
+ 
+  OffsetRgn(ShadeRgn, 0, -RgnBox.Top); 
+  FillRgn(OffScreen.Canvas.Handle, ShadeRgn, Canvas.Brush.Handle); 
+ 
+  OffsetRgn(ShadeRgn, 0, RgnBox.Top); 
+ 
+//  BitBlt работает быстрее CopyRect 
+  BitBlt(OffScreen.Canvas.Handle, 0, 0, OffScreen.Width, OffScreen.Height, 
+         Canvas.Handle, RgnBox.Left, RgnBox.Top, SRCAND); 
+ 
+  Canvas.Brush.Color:=clBlack; 
+  FillRgn(Canvas.Handle, ShadeRgn, Canvas.Brush.Handle); 
+ 
+  BitBlt(Canvas.Handle, RgnBox.Left, RgnBox.Top, OffScreen.Width, 
+   OffScreen.Height, OffScreen.Canvas.Handle, 0, 0, SRCPAINT); 
+ 
+  OffScreen.Free; 
+  Pattern.Free; 
+ 
+  OffsetRgn(ShadeRgn, -WDepth, -HDepth); 
+ 
+  ReleaseDC(Form1.Handle, Canvas.Handle); 
+  Canvas.Handle:=hOldDC; 
+end; 
+</pre>
+
+
+<p>Комментарии : </p>
+<p>Функция рисует тень сложной формы на форме Form2. </p>
+<p>Для определения формы тени используется регион ShadeRgn, который был создан где-то раньше (например в OnCreate). Относительно регионов см. Win32 API. </p>
+
+<p>Титов Игорь Евгеньевич </p>
+<p>infos@obninsk.ru </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<html>
+<head>
+  <title>Drag &amp; Drop из TScrollBox</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Drag &amp; Drop из TScrollBox</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Вы можете написать общую функцию для отдельного TImage, и назначать этот метод для каждого динамически создаваемого TImage, примерно так:</p>
+<pre name="code" class="delphi">
+procedure TForm1.GenericMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  TImage(Sender).BeginDrag(False);
+  {что-то другое, что вы хотели бы сделать}
+end;
+ 
+{....}
+ 
+UmpteenthDynImage := TImage.Create(dummyImage);
+UmpteenthDynImage.MouseDown := TForm1.GenericMouseDown;
+</pre>
+
+<p>Это должно быть синтаксически закрытым. Вы можете просто назначать каждый динамический объект методу GenericMouseDown, и они все им будут пользоваться. Предок dummyImage позволяет легко разрушать все динамические объекты обычным деструктором dummyImage. </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

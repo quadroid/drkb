@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Как нарисовать график функции?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как нарисовать график функции?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TForm1.Button3Click(Sender: TObject);
+var x, y: array[1..50] of double;
+  i: integer;
+  scalex, scaley, ymin, ymax, xmin, xmax: double;
+begin
+  for i := 1 to 50 do
+    begin
+      y[i] := sin(i * 0.5);
+      x[i] := i;
+    end;
+  xmin := x[1];
+  xmax := x[1];
+  ymin := y[1];
+  ymax := y[1];
+  for i := 2 to 50 do
+    begin // или используйте ymin:=MinValue(y); и т.д.
+      if y[i] &lt; ymin then ymin := y[i];
+      if y[i] &gt; ymax then ymax := y[i];
+      if x[i] &lt; xmin then xmin := x[i];
+      if x[i] &gt; xmax then xmax := x[i];
+    end;
+  scalex := paintbox1.Width / (xmax - xmin);
+  scaley := paintbox1.Height / (ymax - ymin);
+  with paintbox1.canvas do
+    begin
+      moveto(trunc(scalex * (x[1] - xmin)), paintbox1.height - trunc(scaley * (y[1] - ymin)));
+      for i := 2 to 50 do
+        Lineto(trunc(scalex * (x[i] - xmin)), paintbox1.height - trunc(scaley * (y[i] - ymin)));
+    end;
+end;
+</pre>
+<hr /><p>Забавная штука синусы:</p>
+<pre name="code" class="delphi">
+ 
+for i:=1 to 500 do begin
+  paintbox1.Canvas.Pixels [round(sin(i*5)*10+50),round(sin(i*10)*10+50)] := RGB(0,0,0);
+</pre>
+<p id="author">Автор ответа: Baa</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

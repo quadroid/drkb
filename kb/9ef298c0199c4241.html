@@ -1,0 +1,113 @@
+<html>
+<head>
+  <title>Предпросмотр / печать TRichEdit</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Предпросмотр / печать TRichEdit</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Чтобы вывести Rich Edit на любой канвас, нужно использовать стандартное сообщение EM_FORMATRANGE.</p>
+<p>lParam пареметр этого сообщения содержит указатель на структуру TFormatRange.</p>
+<p>Перед посылкой сообщения нужно заполнить эту структуру:</p>
+<p>hdc - контекст устройства, на который будет выводиться Rich Edit</p>
+<p>hdcTarget - контекст устройства, в соответствии с которым будет производиться форматирование текста</p>
+<p>rc - область, в которую будет выводиться Rich Edit. Единицы измерения - твипсы (twips). Twips = 1/1440 дюйма.</p>
+<p>rcPage - полная область вывода устройства (в твипсах)</p>
+<p>chrg - указывает диапазон выводимого текста</p>
+<p>chrg.cpMin и chrg.cpMax - позиции символов, определяющие кусок текста (не включая сами cpMin и cpMax)...</p>
+<pre name="code" class="delphi">
+function  PrintRTFToBitmap(ARichEdit : TRichEdit; ABitmap : TBitmap) : Longint;
+var
+  range    : TFormatRange;
+begin
+FillChar(Range, SizeOf(TFormatRange), 0);
+// Rendering to the same DC we are measuring.
+Range.hdc        := ABitmap.Canvas.handle;
+Range.hdcTarget  := ABitmap.Canvas.Handle;
+ 
+// Set up the page.
+Range.rc.left    := 0;
+Range.rc.top     := 0;
+Range.rc.right   := ABitmap.Width * 1440 div Screen.PixelsPerInch;
+Range.rc.Bottom  := ABitmap.Height * 1440 div Screen.PixelsPerInch;
+ 
+// Default the range of text to print as the entire document.
+Range.chrg.cpMax := -1;
+Range.chrg.cpMin := 0;
+ 
+// format the text
+Result := SendMessage(ARichedit.Handle, EM_FORMATRANGE, 1, Longint(@Range));
+ 
+// Free cached information
+SendMessage(ARichEdit.handle, EM_FORMATRANGE, 0,0);
+end;
+</pre>
+<p>Следующий пример покажет, как вывести Rich Edit не только на любой канвас, но и также, как вывести только определённый кусок текста...</p>
+<pre name="code" class="delphi">
+function PrintToCanvas(ACanvas : TCanvas; FromChar, ToChar : integer;
+                     ARichEdit : TRichEdit; AWidth, AHeight : integer) : Longint;
+var
+  Range    : TFormatRange;
+begin
+FillChar(Range, SizeOf(TFormatRange), 0);
+Range.hdc        := ACanvas.handle;
+Range.hdcTarget  := ACanvas.Handle;
+Range.rc.left    := 0;
+Range.rc.top     := 0;
+Range.rc.right   := AWidth * 1440 div Screen.PixelsPerInch;
+Range.rc.Bottom  := AHeight * 1440 div Screen.PixelsPerInch;
+Range.chrg.cpMax := ToChar;
+Range.chrg.cpMin := FromChar;
+Result := SendMessage(ARichedit.Handle, EM_FORMATRANGE, 1, Longint(@Range));
+SendMessage(ARichEdit.handle, EM_FORMATRANGE, 0,0);
+end; 
+</pre>
+<p>А как вывести Rich-текст с фоновым рисунком ?</p>
+<p>Рисуем по-отдельности фоновый рисунок и содержимое TRichEdit, а потом их соединяем...</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button2Click(Sender: TObject);
+  var Bmp : TBitmap;
+begin
+Bmp := TBitmap.Create;
+bmp.Width := 300;
+bmp.Height := 300;
+PrintToCanvas(bmp.Canvas,2,5,RichEdit1,300,300);
+BitBlt(Image1.Picture.Bitmap.Canvas.Handle, 0, 0, Bmp.Width, Bmp.Height,
+       bmp.Canvas.Handle, 0, 0, srcAND);
+Image1.Repaint;
+bmp.Free;
+end; 
+</pre>
+
+<p id="author">Автор: p0s0l</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

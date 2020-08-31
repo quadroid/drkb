@@ -1,0 +1,90 @@
+<html>
+<head>
+  <title>Считать значение REG_DWORD из реестра</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Считать значение REG_DWORD из реестра</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses
+   Registry;
+ 
+ // Read REG_DWORD 
+procedure TForm1.Button1Click(Sender: TObject);
+ var
+   Reg: TRegistry;
+   RegKey: DWORD;
+   Key: string;
+ begin
+   Reg := TRegistry.Create;
+   try
+     Reg.RootKey := HKEY_USERS;
+     Key := '.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Internet Settings\URL History';
+     if Reg.OpenKeyReadOnly(Key) then
+     begin
+       if Reg.ValueExists('DaysToKeep') then
+       begin
+         RegKey := Reg.ReadInteger('DaysToKeep');
+         Reg.CloseKey;
+         ShowMessage(IntToStr(RegKey));
+       end;
+     end;
+   finally
+     Reg.Free
+   end;
+ end;
+ 
+ 
+ // Write REG_DWORD 
+procedure TForm1.Button2Click(Sender: TObject);
+ var
+   Reg: TRegistry;
+   Key: string;
+ begin
+   Reg := TRegistry.Create;
+   try
+     Reg.RootKey := HKEY_USERS;
+     Key := '.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Internet Settings\URL History';
+     if Reg.OpenKey(Key, True) then
+     begin
+       Reg.WriteInteger('DaysToKeep', 20);
+       Reg.CloseKey;
+     end;
+   finally
+     Reg.Free
+   end;
+ end;
+ 
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

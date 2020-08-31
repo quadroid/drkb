@@ -1,0 +1,86 @@
+<html>
+<head>
+  <title>Bitmap.PixelFormat := pf8bit;</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Bitmap.PixelFormat := pf8bit;</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Доступ к такому формату изображения легко получить, используя TByteArray (определен в SysUtils.PAS):</p>
+
+<pre name="code" class="delphi">
+PByteArray = ^TByteArray;
+TByteArray = array[0..32767] of Byte;
+</pre>
+
+<p>(Я думаю (но сам этого не пробовал), что вы сможете получить доступ к pf16bit-изображениям, используя следующие определения в SysUtils.PAS:</p>
+
+<pre name="code" class="delphi">
+PWordArray = ^TWordArray;
+TWordArray = array[0..16383] of Word; 
+</pre>
+
+<p>Для того, чтобы обработать 8-битное (pf8bit) изображение, используйте конструктор подобный этому, который создает гистограмму изображения:</p>
+
+<pre name="code" class="delphi">
+TYPE
+THistogram  = ARRAY[0..255] OF INTEGER;
+...
+ 
+ 
+VAR
+Histogram:  THistogram;
+i      :  INTEGER;
+j      :  INTEGER;
+Row    :  pByteArray;
+ 
+ 
+...
+FOR i := Low(THistogram) TO High(THistogram) DO
+  Histogram[i] := 0;
+IF  Bitmap.PixelFormat = pf8bit THEN 
+BEGIN
+  FOR j := Bitmap.Height-1 DOWNTO 0 DO
+    BEGIN
+      Row  := pByteArray(Bitmap.Scanline[j]);
+      FOR i := Bitmap.Width-1 DOWNTO 0 DO
+        BEGIN
+          INC (Histogram[Row[i]])
+        END
+   END
+END
+...
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

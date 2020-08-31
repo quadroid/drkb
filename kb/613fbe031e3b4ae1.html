@@ -1,0 +1,153 @@
+<html>
+<head>
+  <title>Как программно двигать курсор мышки?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как программно двигать курсор мышки?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Следующий пример показывает, как "подтолкнуть мышку" без вмешательства пользователя.</p>
+
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  pt : TPoint;
+begin
+   Application.ProcessMessages;
+   Screen.Cursor := CrHourglass;
+   GetCursorPos(pt);
+   SetCursorPos(pt.x + 1, pt.y + 1);
+   Application.ProcessMessages;
+   SetCursorPos(pt.x - 1, pt.y - 1);
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+<hr />
+<pre name="code" class="delphi">
+uses
+  Windows;
+ 
+procedure PlaceMyMouse(Sender: TForm; X, Y: word);
+var
+  MyPoint: TPoint;
+begin
+  MyPoint := Sender.ClientToScreen(Point(X, Y));
+  SetCursorPos(MyPoint.X, MyPoint.Y);
+end;
+ 
+</pre>
+
+<a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+<hr />
+<p>Эта статья даёт вам возможность управлять положением курсора мыши. Теперь вы сможете указывать пользователю, что именно он должен сделать, и не позволять ему делать то, что вам не нравится. Ну, и, даже если вы будете просто хаотично передвигать мышь, пользователь будет просто беситься!.. </p>
+
+<p>Для начала мы научимся узнавать где находится курсор мыши, ведь в зависимости от этого будем принимать решение. Это мы можем сделать с помощью функции GetCursorPos(). В качестве параметра ей нужно указать адрес структуры TPoint - это попросту точка. У объектов данного класса есть два поля: X и Y, которые описывают непосредственно координаты точки. Если функция выполнится успешно, она вернёт значение true, иначе - false. Например, следующий пример сдвигает кнопку по её нажатию и вместе с ней курсор мыши, чтобы по следующему нажатию щелчок мышью не пришёлся на область, расположенную за пределами кнопки. Этот эффект можно увидеть в программе 3D Studio MAX, на временной шкале, которая позволяет передвигаться по кадрам фильма. </p>
+
+<pre name="code" class="delphi">
+procedure TForm1.Button6Click(Sender: TObject);
+var
+  p: TPoint;
+begin
+  if GetCursorPos(p)=true then
+  begin
+    SetCursorPos(p.X+5,p.Y);
+    Button6.Left:=Button6.Left+5;
+  end;
+end;
+</pre>
+
+
+
+<p>В этом примере так же используется функция SetCursorPos, которая задаёт положение курсору мыши. Ей в скобках нужно указать два числовых значения X и Y, которые определяют координаты нового положения курсора. </p>
+
+<p>Я эту функцию использовал в одной из своих программ. Было это, когда я писал About. На самом видном месте окна я установил метку-гиперссылку, указав в её заголовке свой e-mail. Но почему-то мне показалось, что этого не достаточно, чтобы привлечь внимание пользователя, тогда я заставил указатель мыши перемещаться к этой метке, и "пальцем" указывать на неё, в тот момент, когда мышь доползала до нужного места. Не заметить мой e-mail было просто невозможно!!! </p>
+
+<p>Для этого нужно сделать следующее: </p>
+
+<p>Поместите на форму компонент типа TLabel </p>
+<p>Вынесите компонент TTimer </p>
+<p>Объявите две глобальных переменные: </p>
+
+<p>var</p>
+<p>  x_need, y_need: integer;</p>
+
+
+<p>именно в них мы будем отслеживать координаты нужной позиции для указателя мыши </p>
+
+<p>По событию формы OnActivate() активизируйте переменные: </p>
+
+
+<p>x_need := Label1.Left + Form1.Left + 20;</p>
+<p>y_need := Label1.Top + Form1.Top + 30;</p>
+
+
+<p>По событию OnTimer для компонента Timer напишите: </p>
+
+<pre name="code" class="delphi">
+procedure TForm1.Timer1Timer(Sender: TObject);
+var
+  t: TPoint;
+  changex, changey: integer;
+begin
+  GetCursorPos(t);
+  if t.y&lt;&gt;y_need then
+  begin
+    if t.Y&gt;y_need then
+      changey:=-1
+    else
+      changey:=1;
+    SetCursorPos(t.X,t.Y+changey);
+  end
+  else
+  begin
+    if t.x&lt;&gt;x_need then
+    begin
+      if t.X&gt;x_need then
+        changex:=-1
+      else
+        changex:=1;
+      SetCursorPos(t.X+changex,t.Y);
+    end
+    else
+      Timer1.Enabled:=false;
+  end;
+end;
+</pre>
+
+
+
+<p>Скомпилируйте [F9] и убедитесь, что скорость движения слишком маленькая - отрегулируйте её с помощью свойства Timer'a Interval. Значение этого свойства обратнопропорционально скорости движения указателя мыши. </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

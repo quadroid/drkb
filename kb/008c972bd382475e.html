@@ -1,0 +1,107 @@
+<html>
+<head>
+  <title>Програмное выключение клавиатуры и мыши</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Програмное выключение клавиатуры и мыши</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+winexec(Pchar('rundll32 keyboard,disable' ) ,sw_Show); Клава OFF 
+winexec(Pchar('rundll32 mouse,disable' ) ,sw_Show); Маус OFF 
+</pre>
+<p>кстати а вот так клава врубается</p>
+<p>Отрубить</p>
+<pre name="code" class="delphi">
+Asm 
+  in al,21h
+  or al,00000010b
+  out 21h,al
+End;
+</pre>
+<p>Врубить</p>
+<pre name="code" class="delphi">
+Asm 
+  in al,21h
+  mov al,0
+  out 21h,al
+End;
+</pre>
+
+<p id="author">Автор: Radmin</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<p>BlockInput(), живёт в user32.dll </p>
+<p id="author">Автор: Song</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<p>Как скрыть курсор мышки</p>
+<p>Поместите в событие OnClick в button1 и button2 следующие коды.Если курсор мышки скрыт, то выбрать button2 можно клавишей Tab.</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  ShowCursor(False);
+end;
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  ShowCursor(True);
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<hr />
+<pre name="code" class="delphi">
+//Выключение курсора
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  CState: Integer;
+begin
+  CState := ShowCursor(True);
+  while Cstate &gt;= 0 do
+    Cstate := ShowCursor(False);
+end;
+ 
+//Включение курсора
+procedure TForm1.Button2Click(Sender: TObject);
+var
+  Cstate: Integer;
+begin
+  Cstate := ShowCursor(True);
+  while CState &lt; 0 do
+    CState := ShowCursor(True);
+end;
+</pre>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

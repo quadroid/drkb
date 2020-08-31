@@ -1,0 +1,102 @@
+<html>
+<head>
+  <title>Кобинации клавиш Ctrl-C, Ctrl-O, и т.д. не срабатывают. В чем проблема?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Кобинации клавиш Ctrl-C, Ctrl-O, и т.д. не срабатывают. В чем проблема?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Взято из FAQ:<a href="http://blackman.km.ru/myfaq/cont4.phtml" target="_blank">http://blackman.km.ru/myfaq/cont4.phtml</a></p>
+Перевод материала с сайта members.home.com/hfournier/webbrowser.htm</p>
+
+<p>Это не ошибка. Информацию по данному вопросу можно найти на сайте</p>
+<p>Microsoft KnowledgeBase статья Q168777.</p>
+<p>Приведённый ниже код, устраняет данную проблему: </p>
+
+<pre name="code" class="delphi">
+... var
+Form1: TForm1;
+FOleInPlaceActiveObject: IOleInPlaceActiveObject;
+SaveMessageHandler: TMessageEvent; 
+... 
+implementation 
+... 
+ 
+procedure TForm1.FormActivate(Sender: TObject);
+begin
+SaveMessageHandler := Application.OnMessage;
+Application.OnMessage := MyMessageHandler;
+end;
+ 
+procedure TForm1.FormDeactivate(Sender: TObject);
+begin
+  Application.OnMessage := SaveMessageHandler;
+end; 
+ 
+procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Application.OnMessage := SaveMessageHandler;
+  FOleInPlaceActiveObject := nil;
+end; 
+ 
+procedure TForm1.MyMessageHandler(var Msg: TMsg; var Handled: Boolean);
+var
+  iOIPAO: IOleInPlaceActiveObject;
+  Dispatch: IDispatch;
+begin
+{ exit if we don't get back a webbrowser object }
+if WebBrowser = nil then
+begin
+Handled := False;
+Exit;
+end; Handled:=(IsDialogMessage(WebBrowser.Handle, Msg) = True); if (Handled) and (not WebBrowser.Busy) then
+begin
+if FOleInPlaceActiveObject = nil then
+begin
+Dispatch := WebBrowser.Application;
+if Dispatch &lt; &gt; nil then
+begin
+Dispatch.QueryInterface(IOleInPlaceActiveObject, iOIPAO);
+if iOIPAO &lt; &gt; nil then
+FOleInPlaceActiveObject := iOIPAO;
+end;
+end; if FOleInPlaceActiveObject &lt; &gt; nil then
+if ((Msg.message = WM_KEYDOWN) or (Msg.message = WM_KEYUP)) and
+((Msg.wParam = VK_BACK) or (Msg.wParam = VK_LEFT) or (Msg.wParam = VK_RIGHT)) then
+//nothing - do not pass on Backspace, Left or Right arrows
+else
+FOleInPlaceActiveObject.TranslateAccelerator(Msg);
+end;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

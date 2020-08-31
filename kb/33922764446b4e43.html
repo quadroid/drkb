@@ -1,0 +1,65 @@
+<html>
+<head>
+  <title>Как добавить копию текущей записи?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как добавить копию текущей записи?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Следующая функция добавит в конец данных точную копию текущей записи.</p>
+<pre name="code" class="delphi">
+procedure AppendCurrent(Dataset:Tdataset); 
+var 
+  aField : Variant ; 
+  i      : Integer ; 
+begin 
+  // Создаём массив
+  aField := VarArrayCreate([0,DataSet.Fieldcount-1],VarVariant); 
+ 
+  // считываем значения в массив
+  for i := 0 to (DataSet.Fieldcount-1) do 
+     aField[i] := DataSet.fields[i].Value ; 
+ 
+  DataSet.Append ; 
+ 
+  // помещаем значения массива в новую запись
+  for i := 0 to (DataSet.Fieldcount-1) do 
+     DataSet.fields[i].Value := aField[i] ; 
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+<p>Примечания Vit:</p>
+<p>1) Если таблица имеет ключевые поля или уникальные индексы данный код приведёт к ошибке "Key violation"</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

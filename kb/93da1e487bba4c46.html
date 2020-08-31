@@ -1,0 +1,230 @@
+<html>
+<head>
+  <title>Как сделать прозрачное окно родными средствами Windows2000?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как сделать прозрачное окно родными средствами Windows2000?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В Windows2000 есть для этого ф-я SetLayeredWindowAttributes, вот пример её использования:</p>
+<pre name="code" class="delphi">
+unit Win2k;
+interface
+uses Graphics, Windows;
+ 
+function SetLayeredWindowAttributes(
+hwnd : HWND; // handle to the layered window
+crKey : TColor; // specifies the color key
+bAlpha : byte; // value for the blend function
+dwFlags : DWORD // action
+): BOOL; stdcall;
+ 
+function SetLayeredWindowAttributes; external 'user32.dll';
+implementation
+ 
+end.
+ 
+program WinLayer;
+ 
+uses
+Windows, SysUtils,
+Win2k in 'Win2k.pas';
+ 
+const
+WS_EX_LAYERED= $80000;
+LWA_COLORKEY = 1;
+LWA_ALPHA = 2;
+ 
+var
+Hndl : THandle;
+Transp : Byte;
+ 
+begin
+Writeln('Windows2000 Layer &lt;- build by AK -&gt;');
+Writeln(' Usage: WINLAYER.EXE [window name] [Transp (0-255)]');
+Writeln(' Example: WINLAYER "Calculator" 200');
+Writeln;
+if ParamCount &lt;&gt; 2 then exit;
+Hndl := FindWindow(nil, PChar(ParamStr(1)));
+Transp := StrToIntDef(ParamStr(2), 128);
+if SetWindowLong(Hndl, GWL_EXSTYLE, GetWindowLong(Hndl, GWL_EXSTYLE) or WS_EX_LAYERED) = 0 then
+Writeln('Error !');
+ 
+if not SetLayeredWindowAttributes(Hndl, 0, Transp, LWA_ALPHA) then
+// ^^^ степень прозрачности
+// 0 - полная прозрачность
+// 255 - полная непрозрачность
+Writeln('Error !');
+end.
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+
+<hr />SetWindowTransp(hndl: THandle; Perc: byte);</p>
+
+<p>hndl </p>
+Hanle окна, которое надо сделать полупрозрачным. </p>
+<p>Perc </p>
+Число от 1 до 100, указывающее уровень прозрачности.</p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+<hr />Есть более продвинутые возможности (например, альфа-канал в битмапе)</p>
+<p>http://msdn.microsoft.com/isapi/msdnlib.idc?theURL=/library/techart/layerwin.htm </p>
+<pre name="code" class="delphi">
+unit TransparentWnd;
+ 
+interface
+ 
+uses
+  Windows, Messages, Classes, Controls, Forms;
+ 
+type
+  _Percentage = 0..100;
+ 
+  TTransparentWnd = class(TComponent)
+  private
+    { Private declarations }
+  protected
+    { Protected declarations }
+    _percent: _Percentage;
+    _auto: boolean;
+    User32: HMODULE;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+ 
+    //These work on a Handle
+    //It doesn't change the Percent Property Value!
+    procedure SetTransparentHWND(hwnd: THandle; percent : _Percentage);
+ 
+    //These work on the Owner (a TWinControl decendant is the Minumum)
+    //They don't change the Percent Property Value!
+    procedure SetTransparent; overload;
+    procedure SetTransparent(percent : _Percentage); overload;
+ 
+    procedure SetOpaqueHWND(hwnd : THandle);
+    procedure SetOpaque;
+  published
+    { Published declarations }
+    //This works on the Owner (a TWinControl decendant is the Minumum)
+    property Percent: _Percentage read _percent write _percent default 0;
+ 
+    property AutoOpaque: boolean read _auto write _auto default false;
+end;
+ 
+procedure register;
+ 
+implementation
+ 
+const LWA_ALPHA = $2;
+const GWL_EXSTYLE = (-20);
+const WS_EX_LAYERED = $80000;
+const WS_EX_TRANSPARENT = $20;
+ 
+var
+  SetLayeredWindowAttributes: function (hwnd: LongInt; crKey: byte;
+    bAlpha: byte; dwFlags: LongInt): LongInt; stdcall;
+ 
+constructor TTransparentWnd.Create(AOwner: TComponent);
+begin
+  inherited;
+ 
+  User32 := LoadLibrary('USER32.DLL');
+  if User32 &lt;&gt; 0 then
+    @SetLayeredWindowAttributes := GetProcAddress(User32, 'SetLayeredWindowAttributes')
+  else
+    SetLayeredWindowAttributes := nil;
+end;
+ 
+destructor TTransparentWnd.Destroy;
+begin
+  if User32 &lt;&gt; 0 then
+    FreeLibrary(User32);
+ 
+  inherited;
+end;
+ 
+procedure TTransparentWnd.SetOpaqueHWND(hwnd: THandle);
+var
+  old: THandle;
+begin
+  if IsWindow(hwnd) then
+  begin
+    old := GetWindowLongA(hwnd,GWL_EXSTYLE);
+    SetWindowLongA(hwnd, GWL_EXSTYLE, old and ((not 0)-WS_EX_LAYERED));
+  end;
+end;
+ 
+procedure TTransparentWnd.SetOpaque;
+begin
+  Self.SetOpaqueHWND((Self.Owner as TWinControl).Handle);
+end;
+ 
+procedure TTransparentWnd.SetTransparent;
+begin
+  Self.SetTransparentHWND((Self.Owner as TWinControl).Handle, Self._percent);
+end;
+ 
+procedure TTransparentWnd.SetTransparentHWND(hwnd: THandle; percent : _Percentage);
+var
+  old: THandle;
+begin
+  if (User32 &lt;&gt; 0) and (Assigned(SetLayeredWindowAttributes)) and (IsWindow(hwnd)) then
+    if (_auto=true) and (percent=0) then
+      SetOpaqueHWND(hwnd)
+    else
+    begin
+      percent := 100 - percent;
+      old := GetWindowLongA(hwnd, GWL_EXSTYLE);
+      SetWindowLongA(hwnd, GWL_EXSTYLE, old or WS_EX_LAYERED);
+      SetLayeredWindowAttributes(hwnd, 0, (255 * percent) div 100, LWA_ALPHA);
+    end;
+end;
+ 
+procedure TTransparentWnd.SetTransparent(percent: _Percentage);
+begin
+  Self.SetTransparentHWND((Self.Owner as TForm).Handle, percent);
+end;
+ 
+procedure register;
+begin
+  RegisterComponents('Win32', [TTransparentWnd]);
+end;
+ 
+end.
+</pre>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

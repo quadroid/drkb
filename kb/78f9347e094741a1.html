@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>Некорректные вещественные значения</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Некорректные вещественные значения</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>При использовании функции StrToFloat() для значения 1234.5544 я получаю что-то типа 1234.55440000000003, но ведь это неправильно! <br>
+&nbsp;<br>
+Ничего здесь неправильного нет. Это просто погрешность чисел с плавающей точкой. Фактически источником ошибки является ошибка округления. Данная ошибка является следствием дефекта арифметики плавающей точки и того факта, что чаще всего десятичные дроби являются повторяющимися долями в двоичной системе счисления. Такие числа не могут представляться в конечном количестве битов. В связи с этим текстовое округление получается не всегда точным, т.к. большинство компьютеров подбирает последние цифры дробной части, исходя из ближайшего (с наименьшей разницей) эквивалента. Некоторые компьютеры не производят округления, а просто обрезают (выключают) последние биты, получая результирующую ошибку, правильно называемую ошибкой округления (в противоположность ошибке усечения, когда усекается расширение ряда). Для получения дополнительной информации обратитесь к Introduction to Numerical Methods (введение в числовые методы) авторов Peter A. Stark, Macmillian Company, 1970. <br>
+&nbsp;<br>
+Из-за наличия ошибки сравнение двух чисел с плавающей точкой сводится к учету абсолютной или относительной погрешности. <br>
+&nbsp;<br>
+Для сравнения двух чисел с учетом абсолютной погрешности используйте следующий код: <br>
+<p>&nbsp;</p>
+<pre name="code" class="delphi">
+IF ABS(CalculatedValue - TrueValue) &lt; FuzzValue then ...
+</pre>
+<p>&nbsp;<br>
+<p>, где FuzzValue определяет величину абсолютной погрешности. Для сравнения двух чисел с учетом относительной погрешности используйте следующий код:</p>
+<pre name="code" class="delphi">
+IF ABS( (CalculatedValue - TrueValue) / TrueValue ) &lt;
+AcceptableRelativeError then ...
+</pre>
+<p>&nbsp;<br>
+, где AcceptableRelativeError определяет величину относительной погрешности (ну, и конечно, TrueValue &lt;&gt; 0.0). <br>
+&nbsp;<br>
+<p>Математеческий модуль Delphi вычисляет относительную погрешность следующим образом (но оно не вынесено в секцию interface): </p>
+<pre name="code" class="delphi">
+FUNCTION RelSmall(X, Y: Extended): Boolean;
+{ Возвращаем Истину, если разница между X и Y незначительна }
+CONST
+  C1: Double = 1E-15;
+  C2: Double = 1E-12;
+BEGIN
+  Result := Abs(X) &lt; (C1 + C2 * Abs(Y))
+END;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+<p>Источник: DelphiWorld </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

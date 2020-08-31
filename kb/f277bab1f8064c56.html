@@ -1,0 +1,71 @@
+<html>
+<head>
+  <title>Как сохранить содержимое таблицы в текстовый файл?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как сохранить содержимое таблицы в текстовый файл?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Эти небольшие функции анализирую таблицу и записывают её содержимое в TStringList. А затем просто сохраняют в файл. </p>
+<pre name="code" class="delphi">
+procedure DatasetRecordToInfFile(aDataset: TDataSet; aStrList: TStrings);
+var
+  i: integer;
+begin
+  for i := 0 to (aDataset.FieldCount-1) do
+    aStrList.Add(aDataset.Fields[i].FieldName + '=' +
+    aDataset.Fields[i].AsString);
+end;
+ 
+procedure DatasetToInfFile(aDataset: TDataSet; aStrList: TStrings);
+begin
+  aDataSet.First;
+  while not aDataSet.EOF do
+  begin
+    DatasetRecordToInfFile(aDataset,aStrList);
+    aDataSet.Next;
+  end;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  DatasetRecordToInfFile(Table1,Memo1.Lines);
+end;
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  DatasetToInfFile(Table1,Memo1.Lines);
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

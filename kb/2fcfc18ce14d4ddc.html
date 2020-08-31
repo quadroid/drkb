@@ -1,0 +1,73 @@
+<html>
+<head>
+  <title>Справочник по функциям работы с файлами</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Справочник по функциям работы с файлами</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>function File0pen(const FileName: string; Mode: Word) : Integer; &nbsp; &nbsp; &nbsp; &nbsp;Открывает существующий FileName файл в режиме Mode&nbsp; Значение, возвращаемое в случае успеха, &#8212; дескриптор открытого файла. В противном случае &#8212; код ошибки DOS. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>function FileCreate(const PileName: string): Integer; &nbsp; &nbsp; &nbsp; &nbsp;Создает файл с именем FileName. Возвращает то же, что и FileOpen. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>function FileRead(Handle: Integer; var Buffer; Count: Longint): Longint; &nbsp; &nbsp; &nbsp; &nbsp;Считывает из файла с дескриптором Handle Count байт в буфер Buffer. Возвращает число реально прочитанных байт или -1 при ошибке. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>function FileWrite(Handle: Integer; const Buffer); &nbsp; &nbsp; &nbsp; &nbsp;Записывает в файл с дескриптором Handle Count байт из буфера Buffer. Возвращает число реально записанных байт или -1 при ошибке.</p>
+
+<p>function FileSeek(Handle: Integer; Offset: Longint; Origin: Integer): Longint; &nbsp; &nbsp; &nbsp; &nbsp;Позиционирует файл с дескриптором Handle в новое положение. При Origin = 1,2,3 положение смещается на Offset байт от начала файла, текущей позиции и конца файла соответственно. Возвращает новое положение или -1 при ошибке. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>procedure FileClose(Handle:Integer) &nbsp; &nbsp; &nbsp; &nbsp;Закрывает файл с дескриптором Handle.</p>
+
+<p>function FileAge(const FileName:String) &nbsp; &nbsp; &nbsp; &nbsp;Возвращает значения даты и времени создания файла или -1, если файл не существует.</p>
+
+<p>function FileExists(const &nbsp; &nbsp; &nbsp; &nbsp;FileName:String):boolean; Возвращает True если файл FileName существует к найден. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>function FindFirst(const Path: string; Attr: Integer; var SearchRec: TSearchRec): Integer; &nbsp; &nbsp; &nbsp; &nbsp;Ищет первый файл, удовлетворяющий маске поиска, заданной в Path и с атрибутами Attr. В случае успеха заполняет запись SearchRec (см. примеч. 3) и возвращает 0, иначе возвращает код ошибки DOS. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>function FindNext(var SearchRec: TSearchRec): Integer; &nbsp; &nbsp; &nbsp; &nbsp;Продолжает процесс поиска файлов, удовлетворяющих маске поиска. Параметр SearchRec должен быть заполнен при помощи FindFirst. Возвращает 0, если очередной файл найден, или код ошибки DOS. Изменяет SearchRec. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>procedure FindClose(var SearchRec: TSearchRec);  &nbsp; &nbsp; &nbsp; &nbsp;Завершает процесс поиска файлов, удовлетворяющих маске поиска. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>function FileQetDate(Handle: Integer) : Longint; &nbsp; &nbsp; &nbsp; &nbsp;Возвращает время создания файла с дескриптором Handle (в формате DOS) или -1, если дескриптор недействителен. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>procedure FileSetDate(Handle: Integer;) &nbsp; &nbsp; &nbsp; &nbsp;Устанавливает время создания файла с дескриптором Handle (в формате DOS). &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>function FileGetAttr(const FileName: string): Integer; &nbsp; &nbsp; &nbsp; &nbsp;Возвращает атрибуты (см. примеч. 2) файла с именем FileName или код ошибки DOS, если файл не найден. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>function FileSetAttrtconst FileName: string; Attr: &nbsp; &nbsp; &nbsp; &nbsp;Устанавливает атрибуты файла с именем FileName. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>function DeleteFile(const&nbsp; FileName:String) &nbsp; &nbsp; &nbsp; &nbsp;Уничтожает файл с именем FileName и в случае успеха возвращает True. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>function RenameFile(const OldName, NewName: string): Boolean; &nbsp; &nbsp; &nbsp; &nbsp;Переименовывает файл с именем OldName в NewName и возвращает True в случае успеха. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>  &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>function ChangeFileExt(const FileName, Extension: string): string; &nbsp; &nbsp; &nbsp; &nbsp;Изменяет расширение в имени файла FileName на Extension и возвращает новое значение FileName. Имя файла не изменяется. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>function ExtractFilePath(const FileName: string): string; &nbsp; &nbsp; &nbsp; &nbsp;Извлекает из строки с полным именем файла FileName часть, содержащую путь к нему.</p>
+
+<p>function ExtractFileName(const FileName: string): string; &nbsp; &nbsp; &nbsp; &nbsp;Извлекает из строки с полным именем файла FileName часть, содержащую его имя и расширение.</p>
+
+<p>function ExtractFileExt(const FileName: string): string; &nbsp; &nbsp; &nbsp; &nbsp;Извлекает из строки с полным именем файла FileName часть, содержащую его расширение. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>function ExpandFileName(const FileName: string): string; &nbsp; &nbsp; &nbsp; &nbsp;Возвращает полное имя файла FileName, добавляя при необходимости путь к нему и переводя все символы в верхний регистр. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>function FileSearch(const Name, DirList: string): strings- &nbsp; &nbsp; &nbsp; &nbsp;Производит поиск файла с именем Name в группе каталогов, заданных параметром DirList. Имена каталогов должны отделяться друг от друга точкой с запятой. Возвращает в случае успеха полное имя файла или пустую строку, если файл не найден. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>function DiskFree(Drive: Byte): Longint; &nbsp; &nbsp; &nbsp; &nbsp;Возвращает количество в байтах свободного места на заданном диске. Значение параметра Drive: 0 &#8212; для текущего диска, 1 &#8212; для А, 2 &#8212; для В и т. д. Если параметр неверен, функция возвращает -1.</p>
+
+<p>function DiskSize(Drive: Byte): Longint; &nbsp; &nbsp; &nbsp; &nbsp;Возвращает размер диска Drive в байтах. Параметр Drive означает то же, что и в DiskFree.</p>
+
+<p>function FileDateToDateTime(FileDate: Longint): TDateTime; &nbsp; &nbsp; &nbsp; &nbsp;Преобразует дату и время в формате DOS в принятый в Delphi формат TDateTime. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>function DateTimeToFileDate(DateTime: TDateTime): Longint; &nbsp; &nbsp; &nbsp; &nbsp;Преобразует дату и время из формата TDateTime в формат DOS. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

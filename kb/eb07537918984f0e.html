@@ -1,0 +1,162 @@
+<html>
+<head>
+  <title>Перечислить измененные ключи реестра в определенный диапазон времени</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Перечислить измененные ключи реестра в определенный диапазон времени</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit Main;
+ 
+ interface
+ 
+ uses
+   Windows, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+   Dialogs, Registry, StdCtrls, ComCtrls, ExtCtrls;
+ 
+ type
+   TFrmMain = class(TForm)
+     Memo1: TMemo;
+     btEnumReg: TButton;
+     dtBeginDate: TDateTimePicker;
+     dtEndDate: TDateTimePicker;
+     dtBeginTime: TDateTimePicker;
+     dtEndTime: TDateTimePicker;
+     Panel1: TPanel;
+     Label1: TLabel;
+     Label2: TLabel;
+     procedure btEnumRegClick(Sender: TObject);
+   private
+     { Private declarations }
+     RegDate: TDateTime;
+     RegKeyInfo: TRegKeyInfo;
+     TimeZoneInfo: TTimeZoneInformation;
+     function DateTimeToLocalDateTime(DateTime: TDateTime): TDateTime;
+     procedure FileTimeToDateTime(ft: TFileTime; var dt: TDateTime);
+   public
+     { Public declarations }
+ 
+   end;
+ 
+ var
+   FrmMain: TFrmMain;
+ 
+ implementation
+ 
+ {$R *.dfm}
+ 
+ function TFrmMain.DateTimeToLocalDateTime(DateTime: TDateTime): TDateTime;
+ begin
+   case GetTimeZoneInformation(TimeZoneInfo) of
+     TIME_ZONE_ID_STANDARD:
+       Result := DateTime - (TimeZoneInfo.Bias / 60 / 24);
+     TIME_ZONE_ID_DAYLIGHT:
+       Result := DateTime - ((TimeZoneInfo.Bias + TimeZoneInfo.DaylightBias) / 60 / 24);
+     else
+       Result := 0;
+   end;
+ end;
+ 
+ procedure TFrmMain.FileTimeToDateTime(ft: TFileTime; var dt: TDateTime);
+ var
+   SystemTime: TSystemTime;
+   FileTime: TFileTime;
+ begin
+   if FileTimeToLocalFileTime(ft, FileTime) then
+   begin
+     FileTimeToSystemTime(ft, SystemTime);
+     dt := SystemTimeToDateTime(SystemTime);
+   end;
+ end;
+ 
+ procedure TFrmMain.btEnumRegClick(Sender: TObject);
+ var
+   Inizio, Fine: TDateTime;
+ 
+   procedure EnumAllKeys(hkey: THandle; KeyName: string);
+   var
+     l: TStringList;
+     n: Integer;
+     KeyName_: string;
+   begin
+     KeyName_ := KeyName;
+     with TRegistry.Create do
+       try
+         RootKey := hkey;
+         OpenKey(EmptyStr, False);
+         l := TStringList.Create;
+         try
+           GetKeynames(l);
+           CloseKey;
+           for n := 0 to l.Count - 1 do
+           begin
+             if OpenKey(l[n], False) then
+             begin
+               GetKeyInfo(RegKeyInfo);
+               with RegKeyInfo do
+               begin
+                 FileTimeToDateTime(FileTime, RegDate);
+                 RegDate := DateTimeToLocalDateTime(RegDate);
+               end;
+               if (RegDate &lt;= Fine) and (RegDate &gt;= Inizio) then
+                 memo1.Lines.Add(DateTimeToStr(RegDate) + ' --- ' + KeyName_ + '\' + l[n]);
+               EnumAllKeys(CurrentKey, KeyName_ + '\' + l[n]);
+               CloseKey;
+             end;
+           end;
+         finally
+           l.Free
+         end;
+       finally
+         Free;
+       end;
+   end;
+ begin
+   Memo1.Clear;
+   Memo1.Lines.BeginUpdate;
+   Inizio := int(dtBeginDate.DateTime) + frac(dtBeginTime.DateTime);
+   Fine   := int(dtEndDate.Date) + frac(dtEndTime.DateTime);
+   try
+     EnumAllKeys(HKEY_CURRENT_USER, 'HKey_Current_User');
+   finally
+     Memo1.Lines.EndUpdate;
+   end;
+ 
+   MessageDlg('Enumeration ended', mtInformation, [mbOK], 0);
+ end;
+ 
+ end.
+ 
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

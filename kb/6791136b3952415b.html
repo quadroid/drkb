@@ -1,0 +1,78 @@
+<html>
+<head>
+  <title>Как вшить иконку в мою прогу с нуля?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как вшить иконку в мою прогу с нуля?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>в .RC - файле подключаемом к проекту пишешь<br>
+<p>&nbsp;</p>
+<pre name="code" class="delphi">100 ICON "100.ico"
+</pre>
+<p>&nbsp;<br>
+<p>для загрузки икоки:</p>
+<pre name="code" class="delphi">
+  with MainWindow do
+  begin
+
+ 
+    cbSize := SizeOf(MainWindow);
+    style := CS_HREDRAW or CS_VREDRAW;
+    lpfnWndProc := @WindowProc;
+    cbClsExtra := 0;
+    cbWndExtra := 0;
+    hIcon := LoadIcon(0, IDI_APPLICATION);
+    hCursor  := LoadCursor(0, IDC_ARROW);
+    hbrBackground := COLOR_BTNFACE + 1;
+    lpszMenuName := nil;
+    lpszClassName := 'TDeliveryInstaller';
+  end;
+  MainWindow.hInstance := HInstance;
+  if RegisterClassEx(MainWindow) = 0 then Exit;
+ 
+  Width := 360;
+  Height := 200;
+ 
+  InitCommonControls;
+ 
+  Handle := CreateWindowEx(0, 'TDeliveryInstaller',
+    PChar(TXT_CAPTION), WS_OVERLAPPED or WS_SYSMENU,
+    Left, Top, Width, Height, 0, 0, HInstance, nil);
+ 
+  SendMessage(Handle, WM_SETICON, 1, LoadIcon(HInstance, MAKEINTRESOURCE(100)));
+</pre>
+<p>&nbsp;<br>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: Rouse_</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

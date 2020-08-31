@@ -1,0 +1,86 @@
+<html>
+<head>
+  <title>Как создать таблицу в MS Word?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как создать таблицу в MS Word?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>If Doc is a TWordDocument, for example:</p>
+<pre name="code" class="delphi">
+{ ... }
+var
+  Tbl: Table;
+  R: Range;
+  Direction: OleVariant;
+  { ... }
+Direction := wdCollapseEnd;
+R := Doc.Range;
+R.Collapse(Direction);
+Tbl := Doc.Tables.Add(R, 2, 4, EmptyParam, EmptyParam);
+Tbl.Cell(1, 1).Range.Text := 'Row 1, Col 1';
+Tbl.Cell(1, 2).Range.Text := 'Row 1, Col 2';
+</pre>
+
+
+<p>But doing things with individual table cells in Word is extremely slow. If you can, it's better to enter the data as (for example) comma-separated values and convert it into a table only as the last step. Here's an example:</p>
+<pre name="code" class="delphi">
+ 
+{ ... }
+const
+  Line1 = 'January,February,March';
+  Line2 = '31,28,31';
+  Line3 = '31,59,90';
+var
+  R: Range;
+  Direction, Separator, Format: OleVariant;
+{ ... }
+R := Word.Selection.Range;
+Direction := wdCollapseEnd;
+R.Collapse(Direction);
+R.InsertAfter(Line1);
+R.InsertParagraphAfter;
+R.InsertAfter(Line2);
+R.InsertParagraphAfter;
+R.InsertAfter(Line3);
+R.InsertParagraphAfter;
+Separator := ',';
+Format := wdTableFormatGrid1;
+R.ConvertToTable(Separator, EmptyParam, EmptyParam, EmptyParam, Format, EmptyParam,
+  EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam,
+  EmptyParam, EmptyParam);
+{ ... }
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

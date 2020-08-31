@@ -1,0 +1,62 @@
+<html>
+<head>
+  <title>Алгоритм 1. Сортировка вставками</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Алгоритм 1. Сортировка вставками</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Алгоритм 1. Сортировка вставками. </p>
+<p>Это изящный и простой для понимания метод. Вот в чем его суть: создается новый ма ссив, в который мы последовательно вставляем элементы из исходного массива так, чтобы новый массив был упорядоченным. Вставка происходит следующим образом: в конце нового массива выделяется свободная ячейка, далее анализируется элемент, стоящий перед пустой ячейкой (если, конечно, пустая ячейка не стоит на первом месте), и если этот элемент больше вставляемого, то подвигаем элемент в свободную ячейку (при этом на том месте, где он стоял, образуется пустая ячейка) и сравниваем следующий элемент. Так мы прейдем к ситуации, когда элемент перед пустой ячейкой меньше вставляемого, или пустая ячейка стоит в начале массива. Помещаем вставляемый элемент в пустую ячейку . Таким образом, по очереди вставляем все элементы исходного массива. Очевидно, что если до вставки элемента массив был упорядочен, то после вставки перед вставленным элементом расположены все элементы, меньшие его, а после &#8212; большие. Так как порядок элементов в новом массиве не меняется, то сформированный массив будет упорядоченным после каждой вставки. А значит, после последней вставки мы получим упорядоченный исходный массив. Вот как такой алгоритм можно реализовать на языке программирования Pascal:</p>
+<pre name="code" class="delphi">
+Program InsertionSort;
+Var A,B   : array[1..1000] of integer;
+    N,i,j  : integer;
+Begin
+{Определение размера массива A (N) и его заполнение}
+ …
+{сортировка данных}
+ for i:=1 to N do
+ begin
+  j:=i;
+  while (j&gt;1) and (B[j-1]&gt;A[i]) do
+   begin
+    B[j]:=B[j-1];
+    j:=j-1;
+   end;
+  B[j]:=A[i];
+ end;
+ {Вывод массива B}
+ …
+End.
+</pre>
+<p>В принципе, данную сортировку можно реализовать и без дополнительного массива B, если сортировать массив A сразу при считывании, т. е. осуществлять вставку нового элемента в массив A. </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<html>
+<head>
+  <title>Получить информацию о BIOSе</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получить информацию о BIOSе</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Вот пример как можно даты БИОС материнской платы и видеокарты выдрать.</p>
+<p>То же самое можно с названием производителя и версией.</p>
+<p>В WinNT приходится читать не из ПЗУ а из реестра но это достаточно надежно</p>
+<p>- соотв ключи WinNT закрывает на запись и обновляет при каждом старте (?).</p>
+<p>Для Win9x можешь хоть весь БИОС напрямую читать.</p>
+
+<p>Получить заводской номер винчестера (не тот что getvolumeinfo дает) ИМХО</p>
+<p>невозможно - порты IDE даже Win9x блокирует.</p>
+<pre name="code" class="delphi">
+type
+TRegistryRO = class (TRegistry)
+   function OpenKeyRO (const Key: string): Boolean;
+  end;
+{ это уже ветхая история - был один глюк у D3}
+ 
+implementation
+ 
+uses WAPIInfo, Windows, SysUtils, StrUtils;
+ 
+function TRegistryRO.OpenKeyRO (const Key: string): Boolean;
+function
+IsRelative(const Value: string): Boolean;
+  begin Result := not ((Value &lt;&gt; '') and (Value[1] = '\')) end;
+var
+  TempKey: HKey;
+  S: string;
+  Relative: Boolean;
+begin
+  S := Key;
+  Relative := IsRelative(S);
+  if not Relative then Delete(S, 1, 1);
+  TempKey := 0;
+    Result := RegOpenKeyEx(GetBaseKey(Relative), PChar(S), 0,
+      KEY_READ, TempKey) = ERROR_SUCCESS;
+   if Result then begin
+     if (CurrentKey &lt;&gt; 0) and Relative then S := CurrentPath + '\' + S;
+     ChangeKey(TempKey, S);
+    end;
+end;
+ 
+function GetBIOSDate : string;
+const
+  BIOSDatePtr
+= $0ffff5;
+  SystemKey = 'HARDWARE\DESCRIPTION\System';
+  BiosDateParam = 'SystemBiosDate';
+var
+  p : pointer;
+  s : string[128];
+begin
+  if OSisNT then begin
+     with TRegistryRO.Create do try
+       RootKey := HKEY_LOCAL_MACHINE;
+       if OpenKeyRO (SystemKey) then begin
+         s := ReadString (BiosDateParam);
+        end;
+       finally Free;
+      end; { of try}
+    end
+   else try
+      s[0] := #8;
+      p := Pointer(BIOSDatePtr);
+      Move (p^, s[1], 8);
+     except FillChar (s[1],
+8, '9');
+    end; { of try}
+  Result := copy (s, 1, 2) + copy (s, 4, 2) + copy (s, 7, 2);
+end;
+ 
+function GetVideoDate : string;
+const
+  VideoDatePtr = $0C0000;
+  SystemKey = 'HARDWARE\DESCRIPTION\System';
+  VideoDateParam = 'VideoBiosDate';
+var
+  p : pointer;
+  s : string[255];
+begin
+  if OSisNT then begin
+     with TRegistryRO.Create do try
+       RootKey := HKEY_LOCAL_MACHINE;
+       if OpenKeyRO (SystemKey)
+        then s := ReadString (VideoDateParam)
+        else s := 'NT/de/tected';
+       finally Free;
+      end; { of
+try}
+    end
+   else try
+      s[0] := #255;
+      p := Pointer(VideoDatePtr + 60); { первые $60 - строка CopyRight}
+      Move (p^, s[1], 255);
+      if pos('/', s) &gt; 2 then s := copy (s, pos('/', s) - 2, 8)
+       else begin
+         p := Pointer(VideoDatePtr + 60 + 250);
+         Move (p^, s[1], 255);
+         if pos('/', s) &gt; 2 then s := copy (s, pos('/', s) - 2, 8);
+        end;
+     except FillChar (s[1], 8, '9');
+    end; { of try}
+  Result := copy (s, 1, 2) + copy (s, 4, 2) + copy (s, 7, 2);
+end;
+</pre>
+
+<pre name="code" class="delphi">
+unit WAPIInfo;
+ 
+interface
+ 
+uses
+Registry, SysUtils, Windows;
+ 
+procedure GetOSVerInfo (var OSID : DWORD; var OSStr : string);
+function OSisNT : boolean;
+procedure GetCPUInfo (var CPUID : DWORD; var CPUStr : string);
+procedure GetMemInfo (var MemStr : string);
+ 
+implementation
+ 
+procedure GetOSVerInfo (var OSID : DWORD; var OSStr : string);
+var
+  OSVerInfo : TOSVersionInfo;
+  Reg : TRegistry;
+  s : string;
+begin
+  OSVerInfo.dwOSVersionInfoSize := SizeOf (OSVerInfo);
+  GetVersionEx (OSVerInfo);
+  OSID := OSVerInfo.dwPlatformID;
+  case OSID of
+    VER_PLATFORM_WIN32S : OSStr := 'Windows 3+';
+    VER_PLATFORM_WIN32_WINDOWS : OSStr := 'Windows 95+';
+   VER_PLATFORM_WIN32_NT : begin
+      OSStr := 'Windows NT';
+      Reg := TRegistry.Create;
+      Reg.RootKey := HKEY_LOCAL_MACHINE;
+      if Reg.OpenKey ('SYSTEM\CurrentControlSet\Control\', False)
+        then try
+         s := Reg.ReadString ('ProductOptions')
+        except s := ''
+       end;
+      if s = 'WINNT' then OSStr := OSStr + ' WorkStation'
+      else if s = 'SERVERNT' then OSStr := OSStr + ' Server 3.5 &amp; hi'
+      else if s = 'LANMANNT' then OSStr := OSStr + ' Advanced server 3.1';
+      Reg.Free;
+ 
+  end;
+   end;
+  with OSVerInfo do OSStr := OSStr + Format (' %d.%d (выпуск %d)',
+   [dwMajorVersion, dwMinorVersion, LoWord(dwBuildNumber)]);
+end;
+ 
+function OSisNT : boolean;
+var
+  s : string;
+  i : DWORD;
+begin
+  GetOSVerInfo (i, s);
+  Result := (i = VER_PLATFORM_WIN32_NT);
+end;
+ 
+procedure GetCPUInfo (var CPUID : DWORD; var CPUStr : string);
+var SI : TSystemInfo;
+begin
+  GetSystemInfo (SI);
+  CPUID := SI.dwProcessorType;
+  case CPUID of
+    386: CPUStr := '80386-совместимый процессор';
+    486: CPUStr := '80486-совместимый процессор';
+    586: CPUStr := 'Pentium-совместимый процессор';
+ 
+ else CPUStr := 'Неизвестный процессор';
+   end;
+{  case SI.wProcessorArchitecture of
+    PROCESSOR_ARCHITECTURE_INTEL: ;
+    MIPS
+    ALPHA
+    PPC
+    UNKNOWN
+   end;}
+end;
+ 
+procedure GetMemInfo (var MemStr : string);
+var MemInfo : TMemoryStatus;
+begin
+  MemInfo.dwLength := SizeOf (MemInfo);
+  GlobalMemoryStatus (MemInfo);
+  with MemInfo do MemStr := Format ('ОЗУ: %0.2f M (свободно %0.2f M)'#$d+
+   ' Файл подкачки: %0.2f M (свободно: %0.2f M)'#$d,
+   [(dwTotalPhys div 1024) / 1024,
+    (dwAvailPhys div 1024) / 1024,
+    (dwTotalPageFile div 1024) / 1024,
+    (dwAvailPageFile div 1024) / 1024]);
+end;
+ 
+end.
+</pre>
+
+<p>PS Возможно, эти процедуры не всегда дату возвращают но то что практически всегда для разных материнских/видео плат возвращаются разные значения - проверено, что мне собственно и требовалось.</p>
+<p>Andrey Sorokin from sunny <img src="pic/embim1701.png" width="288" height="96" vspace="1" hspace="1" border="0" alt="">Saint-Petersburg anso@mail.ru</p>
+<p>Russian Technology http://attend.to/rt anso@rt.spb.ru </p>
+<p id="author">Автор: Song</p>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

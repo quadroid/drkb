@@ -1,0 +1,69 @@
+<html>
+<head>
+  <title>Показ меток удаленных записей в dBASE-файлах</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Показ меток удаленных записей в dBASE-файлах</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для начала вы должны включить SoftDeletes, после чего вы сможете просматривать записи, помеченные к удалению. В противном случае, вы их не увидите. По умолчанию, для файлов DBF, SoftDeletes установлен в False. Вот логика работы:</p>
+
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  B: BOOL;
+  W: Word;
+begin
+  Check(DbiSetProp(hDBIObj(Table1.Handle), curSOFTDELETEON,
+    longint(True)));
+  { Проверяем, что это работает }
+  Check(DbiGetProp(hDBIObj(Table1.Handle), curSOFTDELETEON, @B,
+    sizeof(B), W));
+  if B = False then
+    Label2.Caption := 'Не помечена'
+  else
+    Label2.Caption := 'Помечена';
+end;
+</pre>
+
+<p>Когда указатель на запись указывает на запись, которую вы хотите удалить, используйте следующую логику:</p>
+
+<pre name="code" class="delphi">
+Table1.UpdateCursorPos;
+Check(DbiUndeleteRecord(Table1.Handle));
+</pre>
+
+<p>Метод UpdateCursorPos устанавливает основной курсор BDE на позицию курсора текущей записи, который существуют только для того, чтобы все работало правильно. Вам нужно только вызвать этот метод прямым вызовом одной из BDE API функций (такой как, например, DbiUndeleteRecord). </p>
+
+<p>Ну и, наконец, чтобы все работало, поместите модули DBIPROCS и DBITYPES с список USES. </p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

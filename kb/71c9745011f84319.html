@@ -1,0 +1,69 @@
+<html>
+<head>
+  <title>Как изменить шрифт определенной строки в TDBGrid?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как изменить шрифт определенной строки в TDBGrid?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для этого надо воспользоваться событием OnDrawDataCell в dbgrid.</p>
+<pre name="code" class="delphi">
+procedure TForm1.DBGrid1DrawDataCell(Sender: TObject; const Rect: TRect;
+  Field: TField; State: TGridDrawState);
+begin
+  // If the record's CustNo is 4711 draw the entire row with a
+  // line through it. (set the font style to strike out)
+  if (Sender as TDBGrid).DataSource.DataSet.FieldByName('CustNo').AsString =
+    '4711' then
+    with (Sender as TDBGrid).Canvas do
+      begin
+        FillRect(Rect);
+       // Set the font style to StrikeOut
+        Font.Style := Font.Style + [fsStrikeOut];
+       // Draw the cell right aligned for floats + offset
+        if (Field.DataType = ftFloat) then
+          TextOut(Rect.Right - TextWidth(Field.AsString) - 3,
+            Rect.Top + 3, Field.AsString)
+       // Otherwise draw the cell left aligned + offset
+        else
+          TextOut(Rect.Left + 2, Rect.Top + 3, Field.AsString);
+      end;
+end;
+</pre>
+
+
+<p>Замечание: Вышеприведённый код использует таблицу "CUSTOMER.DB", TDBGrid, TDataSource </p>
+<p>и TTable</p>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

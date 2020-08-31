@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>SetFocus в Edit на OnExit</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">SetFocus в Edit на OnExit</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Я пробую выполнить editbox.SetFocus и/или editbox.Clear, но но это не дает никакого эффекта (по крайней мере видимого). Что я делаю неправильно? </p>
+<p>Вы посылаете команду на изменение фокуса внутри обработчика, который сам устанавливает фокус, этим вы получаете банальную рекурсию. </p>
+<p>Я избегаю этого путем отправления собственного сообщения в обработчике OnExit, после чего в обработчике моего сообщения выставляю логический флажок, предохраняющий код от рекурсии, поскольку данный флажок контролируется в обработчике OnExit. </p>
+<p>Следующие строки содержат необходимый код:</p>
+<pre name="code" class="delphi">
+interface
+........
+const
+  WM_MyExitRtn = WM_USER + 1001;
+  ........
+  type
+  TForm1 = class(TForm)
+    .........
+    private
+    bExitInProgress: Boolean; {предохраняемся от рекурсий сообщений}
+  public
+    procedure WMMyExitRtn(var msg: TMessage); message WM_MyExitRtn;
+  end;
+  .........
+  implementation
+.........
+ 
+procedure TForm1.DBEdit1Exit(Sender: TObject);
+begin
+  if not bExitInProgress then
+    PostMessage(Handle, WM_MyExitRtn, 0, LongInt(Sender));
+end;
+.........
+ 
+procedure TForm1.WMMyExitRtn(var msg: TMessage);
+begin
+  bExitInProgress := True; { предохраняемся от рекурсивного вызова }
+  {здесь содержится необходимый код }
+  bExitInProgress := False; { сбрасываем флаг }
+end;
+ 
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

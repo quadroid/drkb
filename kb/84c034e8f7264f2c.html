@@ -1,0 +1,153 @@
+<html>
+<head>
+  <title>RTF &gt; HTML</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">RTF &gt; HTML</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Приведу программу, которую я использую для преобразования содержимого RichEdit в SGML-код. Она не формирует полный HTML-аналог, но вы сами можете добавить необходимый RTF-код и его интерпретацию в HTML-тэги. </p>
+
+<p>Код содержит интуитивно понятные комментарии и строки на шведском языке, нецелесообразные для перевода.</p>
+
+<pre name="code" class="delphi">
+function rtf2sgml(text: string): string;
+{Funktion for att konvertera en RTF-rad till SGML-text.}
+var
+  temptext: string;
+  start: integer;
+begin
+  text := stringreplaceall(text, '&amp;', '##amp;');
+  text := stringreplaceall(text, '##amp', '&amp;amp');
+  text := stringreplaceall(text, '\' + chr(39) + 'e5', '&amp;aring;');
+  text := stringreplaceall(text, '\' + chr(39) + 'c5', '&amp;Aring;');
+  text := stringreplaceall(text, '\' + chr(39) + 'e4', '&amp;auml;');
+  text := stringreplaceall(text, '\' + chr(39) + 'c4', '&amp;Auml;');
+  text := stringreplaceall(text, '\' + chr(39) + 'f6', '&amp;ouml;');
+  text := stringreplaceall(text, '\' + chr(39) + 'd6', '&amp;Ouml;');
+  text := stringreplaceall(text, '\' + chr(39) + 'e9', '&amp;eacute;');
+  text := stringreplaceall(text, '\' + chr(39) + 'c9', '&amp;Eacute;');
+  text := stringreplaceall(text, '\' + chr(39) + 'e1', '&amp;aacute;');
+  text := stringreplaceall(text, '\' + chr(39) + 'c1', '&amp;Aacute;');
+  text := stringreplaceall(text, '\' + chr(39) + 'e0', '&amp;agrave;');
+  text := stringreplaceall(text, '\' + chr(39) + 'c0', '&amp;Agrave;');
+  text := stringreplaceall(text, '\' + chr(39) + 'f2', '&amp;ograve;');
+  text := stringreplaceall(text, '\' + chr(39) + 'd2', '&amp;Ograve;');
+  text := stringreplaceall(text, '\' + chr(39) + 'fc', '&amp;uuml;');
+  text := stringreplaceall(text, '\' + chr(39) + 'dc', '&amp;Uuml;');
+  text := stringreplaceall(text, '\' + chr(39) + 'a3', '&amp;#163;');
+  text := stringreplaceall(text, '\}', '#]#');
+  text := stringreplaceall(text, '\{', '#[#');
+  text := stringreplaceall(text, '{\rtf1\ansi\deff0\deftab720', ''); {Skall alltid tas bort}
+  text := stringreplaceall(text, '{\fonttbl', ''); {Skall alltid tas bort}
+  text := stringreplaceall(text, '{\f0\fnil MS Sans Serif;}', ''); {Skall alltid tas bort}
+  text := stringreplaceall(text, '{\f1\fnil\fcharset2 Symbol;}', ''); {Skall alltid tas bort}
+  text := stringreplaceall(text, '{\f2\fswiss\fprq2 System;}}', ''); {Skall alltid tas bort}
+  text := stringreplaceall(text, '{\colortbl\red0\green0\blue0;}', ''); {Skall alltid tas bort}
+{I version 2.01 av Delphi finns inte \cf0 med i RTF-rutan. Tog darfor bort
+det efter \fs16 och la istallet en egen tvatt av \cf0.}
+//temptext := hamtastreng (text,'{\rtf1','\deflang');
+//text := stringreplace (text,temptext,''); {Hamta och radera allt fran start till deflang}
+  text := stringreplaceall(text, '\cf0', '');
+  temptext := hamtastreng(text, '\deflang', '\pard'); {Plocka fran deflang till pard for att fa }
+  text := stringreplace(text, temptext, ''); {oavsett vilken lang det ar. Norska o svenska ar olika}
+{Har skall vi plocka bort fs och flera olika siffror beroende pa vilka alternativ vi godkanner.}
+//text := stringreplaceall (text,'\fs16','');{8 punkter}
+//text := stringreplaceall (text,'\fs20','');{10 punkter}
+{Nu stadar vi istallet bort alla tvasiffriga fontsize.}
+  while pos('\fs', text) &gt; 0 do
+ 
+    begin
+      application.processmessages;
+      start := pos('\fs', text);
+      Delete(text, start, 5);
+    end;
+  text := stringreplaceall(text, '\pard\plain\f0 ', '&lt;P&gt;');
+  text := stringreplaceall(text, '\par \plain\f0\b\ul ', '&lt;/P&gt;&lt;MELLIS&gt;');
+  text := stringreplaceall(text, '\plain\f0\b\ul ', '&lt;/P&gt;&lt;MELLIS&gt;');
+  text := stringreplaceall(text, '\plain\f0', '&lt;/MELLIS&gt;');
+  text := stringreplaceall(text, '\par }', '&lt;/P&gt;');
+  text := stringreplaceall(text, '\par ', '&lt;/P&gt;&lt;P&gt;');
+  text := stringreplaceall(text, '#]#', '}');
+  text := stringreplaceall(text, '#[#', '{');
+  text := stringreplaceall(text, '\\', '\');
+  result := text;
+end;
+ 
+    //Нижеприведенный кусок кода вырезан из довольно большой программы, вызывающей вышеприведенную функцию.
+//Я знаю что мог бы использовать потоки вместо использования отдельного файла, но у меня не было времени для реализации этого
+ 
+ 
+utfilnamn := mditted.exepath + stringreplace(stringreplace(extractfilename(pathname), '.TTT', ''), '.ttt', '') + 'ut.RTF';
+brodtext.lines.savetofile(utfilnamn);
+temptext := '';
+assignfile(tempF, utfilnamn);
+reset(tempF);
+try
+  while not eof(tempF) do
+    begin
+      readln(tempF, temptext2);
+      temptext2 := stringreplaceall(temptext2, '\' + chr(39) + 'b6', '');
+      temptext2 := rtf2sgml(temptext2);
+      if temptext2 &lt;&gt; '' then temptext := temptext + temptext2;
+      application.processmessages;
+    end;
+finally
+  closefile(tempF);
+end;
+deletefile(utfilnamn);
+temptext := stringreplaceall(temptext, '&lt;/MELLIS&gt; ', '&lt;/MELLIS&gt;');
+temptext := stringreplaceall(temptext, '&lt;/P&gt; ', '&lt;/P&gt;');
+temptext := stringreplaceall(temptext, '&lt;/P&gt;' + chr(0), '&lt;/P&gt;');
+temptext := stringreplaceall(temptext, '&lt;/MELLIS&gt;&lt;/P&gt;', '&lt;/MELLIS&gt;');
+temptext := stringreplaceall(temptext, '&lt;P&gt;&lt;/P&gt;', '');
+temptext := stringreplaceall(temptext, '&lt;/P&gt;&lt;P&gt;&lt;/MELLIS&gt;', '&lt;/MELLIS&gt;&lt;P&gt;');
+temptext := stringreplaceall(temptext, '&lt;/MELLIS&gt;', '&lt;#MELLIS&gt;&lt;P&gt;');
+temptext := stringreplaceall(temptext, '&lt;#MELLIS&gt;', '&lt;/MELLIS&gt;');
+temptext := stringreplaceall(temptext, '&lt;P&gt;&lt;P&gt;', '&lt;P&gt;');
+temptext := stringreplaceall(temptext, '&lt;P&gt; ', '&lt;P&gt;');
+temptext := stringreplaceall(temptext, '&lt;P&gt;-', '&lt;P&gt;_');
+temptext := stringreplaceall(temptext, '&lt;P&gt;_', '&lt;CITAT&gt;_');
+while pos('&lt;CITAT&gt;_', temptext) &gt; 0 do
+  begin
+    application.processmessages;
+    temptext2 := hamtastreng(temptext, '&lt;CITAT&gt;_', '&lt;/P&gt;');
+    temptext := stringreplace(temptext, temptext2 + '&lt;/P&gt;', temptext2 + '&lt;/CITAT&gt;');
+    temptext := stringreplace(temptext, '&lt;CITAT&gt;_', '&lt;CITAT&gt;-');
+  end;
+writeln(F, '&lt;BRODTEXT&gt;' + temptext + '&lt;/BRODTEXT&gt;');
+</pre>
+
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

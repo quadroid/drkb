@@ -1,0 +1,135 @@
+<html>
+<head>
+  <title>Как добавить текущую страницу TWebBrowser в favorites?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как добавить текущую страницу TWebBrowser в favorites?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// You need: 1 TEdit, 2 TButtons, 1 TWebbrowser 
+// Du brauchst: 1 TEdit, 2 TButtons, 1 TWebbrowser 
+ 
+const 
+  NotAllowed: set of Char = ['"'] + ['/'] + ['\'] + ['?'] + [':'] + ['*'] + 
+    ['&lt;'] + ['&gt;'] + ['|']; 
+ 
+implementation 
+ 
+{$R *.DFM} 
+ 
+function Load(Path, Key: string): string; 
+var 
+  Reg: TRegistry; 
+begin 
+  Reg := TRegistry.Create; 
+  try 
+    Reg.RootKey := HKEY_CURRENT_USER; 
+    Reg.OpenKey(Path, False); 
+    try 
+      Result := Reg.ReadString(Key); 
+    except 
+      Result := ''; 
+    end; 
+    Reg.CloseKey; 
+  finally 
+    Reg.Free; 
+  end; 
+end; 
+ 
+function WinDir: string; 
+var 
+  WinDir: PChar; 
+begin 
+  WinDir := StrAlloc(MAX_PATH); 
+  GetWindowsDirectory(WinDir, MAX_PATH); 
+  Result := string(WinDir); 
+  if Result[Length(Result)] &lt;&gt; '\' then 
+    Result := Result + '\'; 
+  StrDispose(WinDir); 
+end; 
+ 
+function GetSysDir: string; 
+var 
+  dir: array [0..MAX_PATH] of Char; 
+begin 
+  GetSystemDirectory(dir, MAX_PATH); 
+  Result := StrPas(dir); 
+end; 
+ 
+// Navigate to a page 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  Webbrowser1.Navigate(edit1.Text); 
+end; 
+ 
+// Add the current page to the favorites 
+ 
+procedure TForm1.Button2Click(Sender: TObject); 
+var 
+  url: TStringList; 
+  fav: string; 
+  title, b: string; 
+  i: Integer; 
+  c: Char; 
+begin 
+  fav := Load('Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders','Favorites'); 
+  url := TStringList.Create; 
+  try 
+    url.Add('[InternetShortcut]'); 
+    url.Add('URL=' + webbrowser1.LocationURL); 
+    url.Add('WorkingDirectory=' + WinDir()); 
+    url.Add('IconIndex=0'); 
+    url.Add('ShowCommand=7'); 
+    url.Add('IconFile=' + GetSysDir() + '\url.dll'); 
+    title := Webbrowser1.LocationName; 
+    b := ''; 
+    for i := 1 to Length(title) do 
+    begin 
+      c := title[i]; 
+      if not (c in NotAllowed) then 
+      begin 
+        b := b + Webbrowser1.LocationName[i]; 
+      end; 
+    end; 
+    url.SaveToFile(fav + '\' + b + '.url'); 
+  finally 
+    url.Free; 
+  end; 
+end; 
+ 
+end.
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

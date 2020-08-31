@@ -1,0 +1,105 @@
+<html>
+<head>
+  <title>Простой пример</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Простой пример</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Итак, попробуем рассказать в простоте. Вот есть у вас класс - примитивный калькулятор:</p>
+<pre name="code" class="delphi">MyCalc=class
+fx,fy:integer;
+public:
+procedure SetOperands(x,y:integer)
+function Sum:integer;
+function Diff:integer;
+end;
+procedure MyCalc.SetOperands(x,y:integer)
+begin
+fx:=x; fy:=y;
+end;
+function MyCalc.Sum:integer;
+begin
+result:=fx+fy;
+end;
+function MyCalc.Diff:integer;
+begin
+result:=fx-fy;
+end;
+ 
+</pre>
+<p>Все элементарно. Теперь если у вас есть объект этого класса, то вам не составит труда им воспользоваться.</p>
+<p>Но представим следующую ситуацию: у вас есть один модуль, где объявлется объект этого класса. Допустим:</p>
+<pre name="code" class="delphi">
+unit MyCalc
+ 
+type
+MyCalc=class
+&lt;описание выше&gt;
+ 
+var
+Calc:MyCalc;
+</pre>
+
+<p>и теперь вы хотите использовать в другом модуле. Хорошо, скажите Вы, мы его просто подключим, и используем. Но, допустим, вы хотите, чтобы и другие могли пользоваться вашим объектом, даже используея другой компилятор. То есть нужно сделать так, чтобы ваш модуль можно было бы использовать без перекомпиляции. Как это сделать?</p>
+<p>Ясно, что без каких-то стандартов не обойтись. Скорее всего, самый простой вариант выглядел бы так:</p>
+<pre name="code" class="delphi">unit MyCalc
+type
+MyCalc=class
+&lt;описание выше&gt;
+var Calc:MyCalc;
+procedure SetOperands(x,y:integer)
+begin
+Calc.SetOperands(x,y); 
+end;
+function Sum:integer;
+begin
+result:= Calc.Sum; 
+end;
+function Diff:integer;
+begin
+result:= Calс.Diff;
+end;
+procedure CreateObject;
+begin
+Calc:=MyCalc.Create;
+end;
+procedure ReleaseObject;
+begin
+Calc.Free;
+end;
+</pre>
+
+<p>откомпилировать этот юнит, посмотреть, по какому адресу находятся функции SetOperands, Sum, Diff, CreateObject и ReleaseObject и приложить документацию где эти адреса будут указанны. Теперь каждый сможет загрузить ваш модуль в память и по адресу указанном в вашей документации вызвать нужную функцию.</p>
+<p>Понятно, чем такой подход чреват. Это крайне не удобно. Но, эта проблема была поставленна давно, и теперь у нас есть стандартизированное соглашение об экспорте функций. То есть вместо того, чтобы писать для каждого модуля документацию с адресами функций при компиляции в заголовке модуля создается специальная стандартная таблица где указанны имена этих функций и их адреса (также указывается числовой индефикатор, который может быть использован вместо имени). Теперь уже лучше. Для того чтобы вызвать ваши функции, достаточно загрузить ваш модуль в память прочитать таблицу экспорта, и можно по именам в ней нати адреса функций и их вызвать. Так устроены DLL. Сейчас все это поддерживается компиляторами, и Windows API. То есть вам самому ничего этого делать не надо, а достаточно вызвать LoadLibrary, чтобы загрузить ваш модуль в память, и GetProcAddress чтобы получить адрес функции по имени. </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

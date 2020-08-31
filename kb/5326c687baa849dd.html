@@ -1,0 +1,140 @@
+<html>
+<head>
+  <title>Delphi и Corel Draw</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Delphi и Corel Draw</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Надеюсь, многие сталкивались с Corel Draw? А у многих слюнки текли, что это мощнейший графический редактор и хотелось бы под него свои программы писать, к примеру, чертежи выводить? Я один из вас :) </p>
+
+<p>Формат файлов *.cdr конечно, не представлю, т.к. сам его не знаю :), но как с этим зверем работать расскажу. Вычитал, что с Corel Draw можно работать только через скрипт, причем изначально я готовил файлы скриптов *.csc, а затем их запускал в самом редакторе. Рабочий инструмент для освоения - Corel Script Editor. Если Вы хотите действительно что-то написать, то он вам просто необходим, хотя бы ради того, что смотреть как Corel Draw их сам создает, ну и самое главное - дока по языку и функциям. Все замечательно, только вот скрипты медленно работают т.к. они эмитируют работу человека - т.е. кнопочки сами нажимаются, панельки меняются и т.д. </p>
+<p>А чертеж, к примеру на котором около 3000 объектов мог загружаться и исполнятся до часу! Нет, когда это утомляет, то можно и самому посидеть - глядишь за неделю сделаешь :) </p>
+
+<p>И тут я "чисто случайно" наткнулся на статейку http://www.djpate.freeserve.co.uk/AutoCDrw.htm. Оказывается можно и через OLE этот Corel Draw дергать, и как оказывается, не так уж оно и сложно. Да, совершенно верно, нужно использовать CorelDraw.Automation.xx. Я возился с 8-й версией. Забегая на перед, скажу, что тот же чертеж выводился в течении 5-10 минут. </p>
+
+<p>Ну что, начнем? </p>
+
+<pre name="code" class="delphi">
+var
+   CorelDraw: Variant;
+   …
+CorelDraw := CreateOleObject('CorelDraw.Automation.8');
+   // цифирку можете свою поставить
+CorelDraw.FileNew;
+   // или CorelDraw.FileOpen(FileName);
+CorelDraw.SetDocVisible(True);
+   // можно и не показывать, что он там делает, но ведь интересно! :)
+   // кстати, можно нарисовать, а потом показать - будет на 30% быстрее
+...   // ну и в конце
+CorelDraw.FileSave('NewName', 0, False, 0, False);
+CorelDraw.FileExit(False); // можно не писать, если не надо закрывать
+CorelDraw := Unassigned;
+</pre>
+
+<p>Формат функций доступным английским языком описан в draw_scr.hlp. Ну а дальше, чего душа (или начальство :) ) желает: </p>
+<pre name="code" class="delphi">
+CorelDraw.SetPageOrientation(0);
+CorelDraw.SetPageSize(PageW, PageH);
+CorelDraw.NewLayer('NewLayer1');
+CorelDraw.SelectLayer('NewLayer1');
+CorelDraw.CreateEllipse(CalcY(Y1)), CalcX(X1), CalcY(Y2), CalcX(X2), 0, 0, 0);
+     // ничего я не перепутал!!! именно так у них координаты!
+CorelDraw.CreateRectangle(CalcY(Y1)), CalcX(X1), CalcY(Y2), CalcX(X2), CalcX(Radius));
+   ... 
+</pre>
+
+<p>Все ясно? За дело!</p>
+<p>Да, чуть не забыл о самом главном - как и у любой системы в Corel Draw есть свои "заморочки" :) </p>
+<p>Ноль координат находится в середине листа бумаги (оригинально, правда?) </p>
+<p>Положительная ось Y направлено вверх, а X - в право. </p>
+<p>Координаты - целые числа в микронах. Для удобства я писал функцию: </p>
+<pre name="code" class="delphi">
+ 
+function CalcX(x_mm:double):longint;
+begin
+ result := Round(x_mm*10000);
+end;
+</pre>
+
+
+<p>Углы не знаю в чем, но 90 градусов надо записать как 90000000. Положительные против часовой стрелки. </p>
+<p>Принцип прорисовки таков: создается объект, а затем ему присваиваются различные свойства, такие как цвет, тип заливки, толщина линий и пр. По умолчанию эти значения через автоматизацию выставить нельзя - не поддерживается. </p>
+<p>Выше упомянутое наглядно видно на прорисовке текста: </p>
+
+<pre name="code" class="delphi">
+CorelDraw.CreateArtisticText( Text, CalcX(X), CalcY(Y)); 
+   // создаем текст. X,Y - левый нижний
+   // как видите, нет параметров шрифта, размера и пр. 
+ With Font do
+   begin
+   if (Italic) and (Bold) then FSK:=14 else
+   if (Italic) then FSK:=8 else
+   if (bold) then FSK:=13 else FSK:=7;
+   end;
+CorelDraw.SetCharacterAttributes( 0, 0, Font.Name, FSK, Abs(Font.Size)*10, 
+   0, 0, 0, 0, 0, 1000, 1000, HAlign);
+   // присваиваем атрибуты шрифта.
+   // HAlign имеет значения 1,2,3 - влево, по центру, вправо соответственно
+ColorToCMYK(Font.Color, C,M,Y,K);
+   // это моя функция для преобразования tColor в составляющие в модели CMYK 
+CorelDraw.StoreColor(2, C,M,Y,K, 0,0,0,0); // создание цвета
+CorelDraw.ApplyUniformFillColor; // применяем цвет к объекту
+</pre>
+
+<p>Тоже самое относится к трансформации объектов &#8211; сперва создаете, а затем изменяете как хотите. </p>
+<p>Работают функции для получения информации. </p>
+<pre name="code" class="delphi">
+CorelDraw.GetSize(XSize, YSize); // получили размеры объекта
+CorelDraw.MoveObject(0, -YSize); // сдвинули его вниз на свой размер
+</pre>
+
+
+<p>Можно "проверить" все существующие объекты. За круглым столом спрашивали, как это делается, а делается это так: </p>
+<pre name="code" class="delphi">
+var ObjID, FirstObjID:longint;
+begin
+ CorelDraw.SelectAllObjects;
+ CorelDraw.SelectNextObject(true); 
+ // true для "захода" в сгруппированный объект
+ FirstObjID := CorelDraw.GetObjectsCDRStaticID;
+ Repeat
+  ...
+  // работа с объектом     CorelDraw.SelectNextObject(true); 
+  ObjID := CorelDraw.GetObjectsCDRStaticID;
+ Until ObjID = FirstObjID; ...
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

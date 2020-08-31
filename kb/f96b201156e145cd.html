@@ -1,0 +1,89 @@
+<html>
+<head>
+  <title>Отрисовка стрелки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Отрисовка стрелки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Отрисовка стрелки с заданными параметрами
+ 
+// рисует стрелку с заданными параметрами
+// X_Line, Y_Line - координаты "неподвижного" конца линии стрелки;
+// Length_Line, Length_Arrow - длина линии и бокового ребра стрелки;
+// Angle_Line, Angle_Arrow - углы между линией стрелки и горизонтальной
+// осью и между линией стрелки и боковым ребром стрелки;
+// IsAllTriangle - если True, то "подвижные" концы боковых рёбер стрелки
+// соединяются отрезком прямой(и не рисуется высота равнобедренного треугольника стрелки);
+// DrawSurface - поверхность на которой будет рисоваться стрелка
+ 
+Зависимости: ничего неожиданного
+Автор:       Александр
+Copyright:   default
+Дата:        14 февраля 2004 г.
+***************************************************** }
+ 
+procedure DrawArrow(X_Line, Y_Line, Length_Line, Length_Arrow: Integer;
+  Angle_Line, Angle_Arrow: Extended;
+  IsAllTriangle: Boolean; DrawSurface: TCanvas);
+var
+  XB, YB, XE, YE, XM, YM: Integer;
+begin
+ 
+  XB := Round(X_Line + Cos(Angle_Line) * Length_Line);
+  YB := Round(Y_Line - Sin(Angle_Line) * Length_Line);
+  XM := Round(XB - Cos(Angle_Arrow - Angle_Line) * Length_Arrow);
+  YM := Round(YB - Sin(Angle_Arrow - Angle_Line) * Length_Arrow);
+  XE := Round(XB + Sin(Angle_Arrow + Angle_Line - Pi / 2) * Length_Arrow);
+  YE := Round(YB + Cos(Angle_Arrow + Angle_Line - Pi / 2) * Length_Arrow);
+  DrawSurface.MoveTo(X_Line, Y_Line);
+  if IsAllTriangle then
+  begin
+    DrawSurface.LineTo(Round((XM + XE) / 2), Round((YM + YE) / 2));
+    DrawSurface.MoveTo(XB, YB);
+  end
+  else
+    DrawSurface.LineTo(XB, YB);
+  DrawSurface.LineTo(XM, YM);
+  if IsAllTriangle then
+    DrawSurface.LineTo(XE, YE)
+  else
+    DrawSurface.MoveTo(XE, YE);
+  DrawSurface.LineTo(XB, YB)
+ 
+end;
+</pre>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

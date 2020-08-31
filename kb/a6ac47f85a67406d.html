@@ -1,0 +1,67 @@
+<html>
+<head>
+  <title>Как заставить появиться окошко подсказки, когда курсор мышки находится над определенным контролом?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как заставить появиться окошко подсказки, когда курсор мышки находится над определенным контролом?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+var  hintWnd: THintWindow; 
+ 
+procedure TForm1.ActivateHintNOW( x,y: Integer); 
+var rect: TRect; 
+begin 
+  HintTxt := 'qq'; 
+  if hintTxt &lt;&gt; '' then 
+  begin 
+    rect := hintWnd.CalcHintRect( Screen.Width, hinttxt, nil); 
+    rect.Left := rect.Left + x; 
+    rect.Right := rect.Right + x; 
+    rect.Top := rect.Top + y; 
+    rect.Bottom := rect.Bottom + y; 
+    hintWnd.ActivateHint( rect, hinttxt); 
+  end; 
+end; 
+</pre>
+
+<p>Замечание: Не забудьте каждый раз создавать hintWnd:</p>
+
+<p>  &nbsp;&nbsp; hintwnd:= THintWindow.create(self); </p>
+
+<p>а затем освобождать его</p>
+
+<p> &nbsp;&nbsp;&nbsp;&nbsp; hintwnd.releasehandle; </p>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

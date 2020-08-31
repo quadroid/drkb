@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Перечислить все расстановки 8-ми ферзей на шахматной доске, при которых они не бьют друг друга</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Перечислить все расстановки 8-ми ферзей на шахматной доске, при которых они не бьют друг друга</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Классической задачей, которая решается методом перебора с отходом назад считается задача о восьми ферзях: требуется перечислить все способы расстановки 8-ми ферзей на шахматной доске 8 на 8, при которых они не бьют друг друга. Эту задачу решил больше 200 лет тому назад великий математик Леонард Эйлер. Заметьте, что у него не было компьютера, но тем не менее он абсолютно верно нашел все 92 таких расстановки!</p>
+<p>Очевидно, на каждой из 8 вертикалей должно стоять по ферзю. Каждую такую расстановку можно закодировать одномерным массивом</p>
+X[1],...,X[8], </p>
+<p>где X[i] - номер горизонтали для i-го ферзя. Поскольку никакие два ферзя не могут стоять на одной горизонтали (тогда они бьют друг друга), то все X[i] различны, т.е. образуют перестановку из чисел 1..8. Можно, конечно, перебрать все 8! таких перестановок и выбрать среди них те 92, которые нас интересуют. Hо число 8!=40320 довольно большое.</p>
+<p>Поэтому мы воспользуемся алгоритмом перебора с отходом назад, который позволит значительно сократить перебор и даст ответ намного быстрее:</p>
+<pre name="code" class="delphi">
+ program Queens;
+   const N=8;
+   type Index=1..N;
+        Rasstanovka=array [Index] of 0..N;
+   var X:Rasstanovka;
+       Count:word;
+   function P(var X:Rasstanovka;k,y:Index):boolean;
+     var i:Index;
+   begin
+     i:=1;
+     while (i&lt;k)and(y&lt;&gt;X[i])and(abs(k-i)&lt;&gt;abs(y-X[i])) do inc(i);
+     P:=i=k
+   end;
+   procedure Backtracking(k:Index);
+     var i,y:Index;
+   begin
+     for y:=1 to N do
+       if P(X,k,y) then
+         begin
+           X[k]:=y;
+           if k=N then
+             begin
+               for i:=1 to N do write(X[i]);writeln;inc(Count)
+             end;
+           Backtracking(k+1)
+         end
+   end;
+ begin
+   Count:=0;
+   writeln('Расстановки ',N,' ферзей:');
+   Backtracking(1);
+   writeln('Всего ',Count,' расстановок')
+ end.
+</pre>
+
+<p><a href="http://algolist.manual.ru" target="_blank">http://algolist.manual.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

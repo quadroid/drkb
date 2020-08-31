@@ -1,0 +1,113 @@
+<html>
+<head>
+  <title>Определить размера рабочей области Desktop'а</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Определить размера рабочей области Desktop'а</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Иногда важно знать, какую часть экрана можно занимать, не перекрывая тем самым такие окна, как TaskBar. Эта программа разворачивает окно на всю рабочую область Desktop'а. </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  r : TRect;
+begin
+  SystemParametersInfo(SPI_GETWORKAREA, 0, Addr(r), 0);
+  Form1.Left := r.Left;
+  Form1.Top := r.Top;
+  Form1.Width := r.Right - r.Left;
+  Form1.Height := r.Bottom - r.Top;
+end;
+</pre>
+<p id="author">Автор советов: Даниил Карапетян</p>
+<p>e-mail: delphi4all@narod.ru</p>
+<p id="author">Автор справки: Алексей Денисов</p>
+<p>e-mail: aleksey@sch103.krasnoyarsk.su</p>
+<hr />
+<p>Воспользуйтесь функцией SystemParametersInfo(), переслав ей в качестве параметров - SPI_GETWORKAREA и адрес структуры типа TRect, куда будут передан полученный результат: </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  r: TRect;
+begin
+  SystemParametersInfo(SPI_GETWORKAREA, 0, @r, 0);
+  Memo1.Lines.Add(IntToStr(r.Top));
+  Memo1.Lines.Add(IntToStr(r.Left));
+  Memo1.Lines.Add(IntToStr(r.Bottom));
+  Memo1.Lines.Add(IntToStr(r.Right));
+end; 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+<hr />
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Получение координат области Рабочего стола, не скрытой Панелью задач
+ 
+Зависимости: Windows
+Автор:       Dimka Maslov, mainbox@endimus.ru, ICQ:148442121, Санкт-Петербург
+Copyright:   Dimka Maslov
+Дата:        4 ноября 2002 г.
+***************************************************** }
+ 
+function GetDesktopRect: TRect;
+var
+  RgnDesktop, RgnTrayWnd: HRGN;
+ 
+  function CreateWindowRgn(Handle: HWND): HRGN;
+  var
+    R: TRect;
+  begin
+    GetWindowRect(Handle, R);
+    with R do
+      Result := CreateRectRgn(Left, Top, Right, Bottom);
+  end;
+ 
+begin
+  RgnDesktop := CreateWindowRgn(GetDesktopWindow);
+  try
+    RgnTrayWnd := CreateWindowRgn(FindWindow('Shell_TrayWnd', ''));
+    try
+      CombineRgn(RgnDesktop, RgnDesktop, RgnTrayWnd, RGN_DIFF);
+      GetRgnBox(RgnDesktop, Result);
+    finally
+      DeleteObject(RgnTrayWnd);
+    end;
+  finally
+    DeleteObject(RgnDesktop);
+  end;
+end;
+</pre>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

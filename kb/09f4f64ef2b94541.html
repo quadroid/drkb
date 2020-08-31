@@ -1,0 +1,86 @@
+<html>
+<head>
+  <title>Статическая реализация стека на основе массива</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Статическая реализация стека на основе массива</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>При представлении стека в статической памяти для стека выделяется память, как для вектора. В дескрипторе этого вектора кроме обычных для вектора параметров должен находиться также указатель стека - адрес вершины стека. Указатель стека может указывать либо на первый свободный элемент стека, либо на последний записанный в стек элемент. (Все равно, какой из этих двух вариантов выбрать, важно в последствии строго придерживаться его при обработке стека.) В дальнейшем мы будем всегда считать, что указатель стека адресует первый свободный элемент и стек растет в сторону увеличения адресов. </p>
+<p>При занесении элемента в стек элемент записывается на место, определяемое указателем стека, затем указатель модифицируется таким образом, чтобы он указывал на следующий свободный элемент (если указатель указывает на последний записанный элемент, то сначала модифицируется указатель, а затем производится запись элемента). Модификация указателя состоит в прибавлении к нему или в вычитании из него единицы (помните, что наш стек растет в сторону увеличения адресов. </p>
+<p>Операция исключения элемента состоит в модификации указателя стека (в направлении, обратном модификации при включении) и выборке значения, на которое указывает указатель стека. После выборки слот, в котором размещался выбранный элемент, считается свободным. </p>
+<p>Операция очистки стека сводится к записи в указатель стека начального значения - адреса начала выделенной области памяти. </p>
+<p>Определение размера стека сводится к вычислению разности указателей: указателя стека и адреса начала области. </p>
+<p>Программный модуль, представленный в примере, иллюстрирует операции над стеком, расширяющимся в сторону уменьшения адресов. Указатель стека всегда указывает на первый свободный элемент. </p>
+<p>Предполагается, что в модуле будут уточнены определения предельного размера структуры и типа данных для элемента структуры:</p>
+<pre name="code" class="delphi">
+   const SIZE = ...;
+     type data = ...;
+ {==== Программный пример ====}
+ { Стек }
+ unit Stack;
+ Interface
+ const SIZE=...;     { предельный размер стека }
+ type data = ...;    { эл-ты могут иметь любой тип }
+ Procedure StackInit;
+ Procedure StackClr;
+ Function StackPush(a : data) : boolean;
+ Function StackPop(Var a : data) : boolean;
+ Function StackSize : integer;
+ Implementation
+ Var StA : array[1..SIZE] of data;   { Стек - данные }
+ { Указатель на вершину стека, работает на префиксное вычитание }
+     top : integer;
+ Procedure StackInit;             {** инициализация - на начало }
+ begin top:=SIZE; end;            {** очистка = инициализация }
+ Procedure StackClr;
+   begin top:=SIZE; end;
+                                 { ** занесение элемента в стек }
+ Function StackPush(a: data) : boolean;
+ begin
+   if top=0 then StackPush:=false
+   else begin { занесение, затем - увеличение указателя }
+     StA[top]:=a; top:=top-1; StackPush:=true;
+   end;  end;       { StackPush }
+                                 { ** выборка элемента из стека }
+ Function StackPop(var a: data) : boolean;
+ begin
+   if top=SIZE then StackPop:=false
+   else begin { указатель увеличивается, затем - выборка }
+     top:=top+1; a:=StA[top]; StackPop:=true;
+  end;  end;       { StackPop }
+ Function StackSize : integer;     {** определение размера }
+   begin StackSize:=SIZE-top; end;
+ END.
+</pre>
+
+<p><a href="http://algolist.manual.ru" target="_blank">http://algolist.manual.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

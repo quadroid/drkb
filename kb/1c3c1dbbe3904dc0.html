@@ -1,0 +1,93 @@
+<html>
+<head>
+  <title>Сформировать штрихкод</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сформировать штрихкод</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="sql">
+ /*возвращает строку для формирования штрихкода со стартовыми, 
+стоповыми символами и контрольной суммой по кодировке code128 
+подсистемы B на входе строка, состоящая из цифр (если 
+какой-то другой символ, то он обрабатывается как 0) */
+ 
+CREATE FUNCTION dbo.getcode128
+(@string as varchar(50) )
+RETURNS varchar(50)
+ AS  
+BEGIN 
+ 
+DECLARE @position int, @stringnew varchar(50), @sum int, @codestart int, @codestop int
+SET @position = 1
+SET @stringnew = ''
+set @codestart=104
+set @codestop=106
+set @sum=@codestart
+ 
+WHILE @position &lt;= DATALENGTH(@string)
+   BEGIN
+   SELECT @stringnew=@stringnew+SUBSTRING(@string, @position, 1), 
+          @sum=@sum+@position*
+          (case when SUBSTRING(@string, @position, 1)='1' then 17 else
+          case when SUBSTRING(@string, @position, 1)='2' then 18 else
+          case when SUBSTRING(@string, @position, 1)='3' then 19 else
+          case when SUBSTRING(@string, @position, 1)='4' then 20 else
+          case when SUBSTRING(@string, @position, 1)='5' then 21 else
+          case when SUBSTRING(@string, @position, 1)='6' then 22 else
+          case when SUBSTRING(@string, @position, 1)='7' then 23 else
+          case when SUBSTRING(@string, @position, 1)='8' then 24 else
+          case when SUBSTRING(@string, @position, 1)='9' then 25 else
+          16
+          end
+          end
+          end
+          end
+          end
+          end
+          end
+          end
+          end)
+   SET @position = @position + 1
+   END
+ 
+set @stringnew=dbo.code128toWin(@codestart)+@stringnew+dbo.code128toWin(@sum-@sum/103*103)+dbo.code128toWin(@codestop)
+ 
+return (@stringnew)
+ 
+END 
+</pre>
+
+<p id="author"> Автор: Sh@dow </p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

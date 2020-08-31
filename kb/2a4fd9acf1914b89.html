@@ -1,0 +1,158 @@
+<html>
+<head>
+  <title>Приемы оформления отчетов в Excel</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Приемы оформления отчетов в Excel</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Работа с EXCEL
+ 
+Приёмы оформления документа (отчёта)
+ 
+Зависимости: ComObj
+Автор:       Константин, konrads@mail.ru, Новосибирск
+Copyright:   &lt;Konrads&gt;
+Дата:        29 августа 2002 г.
+********************************************** }
+ 
+В uses добавить ComObj
+var
+ Form1: TForm1;
+ XL : variant; // Переменная в которой создаётся обьект EXCEL
+ 
+Создание документа
+ 
+// Обьект EXCEL
+ XL := CreateOleObject('Excel.Application');
+// Чтоб не задавал вопрос о сохранении документа
+ XL.DisplayAlerts := false;
+// новый документ
+ XL.WorkBooks.Add;
+// или загружаем его
+ XL.WorkBooks.Open(MyDir + '\akt.xls');
+{ MyDir - глобальная переменная типа string в неё помещаем путь
+к каталогу запуска нашей програмы по событию FormCreate
+ 
+ procedure TForm1.FormCreate(Sender: TObject);
+ begin
+   GetDir(0,MyDir);
+ end;
+я всегда так делаю, чтобы программу можно было в любой каталог
+поместить вместе со своими дополнительными файлами, в этом случае путь
+будет выбираться всегда правильно
+}
+ 
+ 
+// Делаем его видимым
+ XL.Visible := true;
+// Когда прога уже оттестирована лучше это делать в конце, быстрей работает,
+// а пока нет лучше в начале
+ 
+// Левое и правое поля отступа для печати
+ XL.WorkBooks[1].WorkSheets[1].PageSetup.LeftMargin := 30;
+ XL.WorkBooks[1].WorkSheets[1].PageSetup.RightMargin := 10;
+// Даём название страничке
+ XL.WorkBooks[1].WorkSheets[1].Name := 'Прайс лист';
+// Строка появляется на каждом листе при печати
+ XL.WorkBooks[1].WorkSheets[1].PageSetup.PrintTitleRows := '$3:$3';
+ XL.WorkBooks[1].WorkSheets[1].PageSetup.PrintTitleColumns := '$A:$A';
+// формат числа
+ for i := 4 to 13 do
+   XL.WorkBooks[1].WorkSheets[1].Columns[i].NumberFormat := '0,00';
+   XL.WorkBooks[1].WorkSheets[1].Columns[4].NumberFormat := '0';
+ 
+// Таким способом можно задавать ширину колонки
+ XL.WorkBooks[1].WorkSheets[1].Columns[1].ColumnWidth := 4.5;
+ XL.WorkBooks[1].WorkSheets[1].Columns[2].ColumnWidth := 50;
+ for i := 3 to 13 do
+   XL.WorkBooks[1].WorkSheets[1].Columns[i].ColumnWidth := 8;
+ 
+// Шрифт жирный
+ XL.WorkBooks[1].WorkSheets[1].Rows[1].Font.Bold := True;
+ XL.WorkBooks[1].WorkSheets[1].Rows[1].Font.Color := clBlack;
+ XL.WorkBooks[1].WorkSheets[1].Rows[1].Font.Size := 16;
+ XL.WorkBooks[1].WorkSheets[1].Rows[1].Font.Name := 'Times New Roman';
+ XL.WorkBooks[1].WorkSheets[1].Cells[1,4] := 'Прайс лист';
+// Выравнивам по центру по вертикали
+ XL.WorkBooks[1].WorkSheets[1].Rows[1].VerticalAlignment := 2;
+// Выравнивам по центру по горизонтали
+ XL.WorkBooks[1].WorkSheets[1].Rows[1].HorizontalAlignment := 3;
+// Обьединяем ячейки
+ XL.WorkBooks[1].WorkSheets[1].Range['A1:D1'].Merge;
+ 
+// Выравнивам по центру по вертикали
+ XL.WorkBooks[1].WorkSheets[1].Rows[3].VerticalAlignment := 2;
+// Выравнивам по центру по горизонтали
+ XL.WorkBooks[1].WorkSheets[1].Rows[3].HorizontalAlignment := 3;
+// Выравнивам по левому краю
+ XL.WorkBooks[1].WorkSheets[1].Cells[3,2].HorizontalAlignment := 2;
+ XL.WorkBooks[1].WorkSheets[1].Cells[3,3].HorizontalAlignment := 2;
+// Выравнивам по правому краю
+ XL.WorkBooks[1].WorkSheets[1].Cells[3,4].HorizontalAlignment := 4;
+ XL.WorkBooks[1].WorkSheets[1].Rows[3].Font.Color := clBlack;
+ XL.WorkBooks[1].WorkSheets[1].Rows[3].Font.Name := 'Times New Roman';
+ XL.WorkBooks[1].WorkSheets[1].Rows[3].Font.Size := 12;
+ XL.WorkBooks[1].WorkSheets[1].Rows[3].Font.Bold := True;
+ XL.WorkBooks[1].WorkSheets[1].Cells[3,1] := '№';
+ XL.WorkBooks[1].WorkSheets[1].Cells[3,2] := 'Наименование продукции';
+ XL.WorkBooks[1].WorkSheets[1].Cells[3,3] := 'Ед. изм.';
+ 
+// обрисовка диапазона ячеек только снизу
+// Borders[1] .... [4] - это края ячейки ColorIndex -4142 - пустой цвет i и n - переменные
+       XL.WorkBooks[1].WorkSheets[1].Range['A' + IntToStr(i) + ':' + chr(ord('C')+n) + IntToStr(i)].Borders.LineStyle := 1;
+       XL.WorkBooks[1].WorkSheets[1].Range['A' + IntToStr(i) + ':' + chr(ord('C')+n) + IntToStr(i)].Borders.Weight := 2;
+       XL.WorkBooks[1].WorkSheets[1].Range['A' + IntToStr(i) + ':' + chr(ord('C')+n) + IntToStr(i)].Borders[4].ColorIndex := 1;
+       XL.WorkBooks[1].WorkSheets[1].Range['A' + IntToStr(i) + ':' + chr(ord('C')+n) + IntToStr(i)].Borders[1].ColorIndex := -4142;
+       XL.WorkBooks[1].WorkSheets[1].Range['A' + IntToStr(i) + ':' + chr(ord('C')+n) + IntToStr(i)].Borders[2].ColorIndex := -4142;
+       XL.WorkBooks[1].WorkSheets[1].Range['A' + IntToStr(i) + ':' + chr(ord('C')+n) + IntToStr(i)].Borders[3].ColorIndex := -4142;
+ 
+// обрисовка диапазона ячеек
+   XL.WorkBooks[1].WorkSheets[1].Range['A3:' + chr(ord('C')+n) + IntToStr(i)].Borders.LineStyle := 1;
+   XL.WorkBooks[1].WorkSheets[1].Range['A3:' + chr(ord('C')+n) + IntToStr(i)].Borders.Weight := 2;
+   XL.WorkBooks[1].WorkSheets[1].Range['A3:' + chr(ord('C')+n) + IntToStr(i)].Borders.ColorIndex := 1;
+ 
+// присвоение ячейке значения
+ 
+       XL.WorkBooks[1].WorkSheets[1].Cells[i,j] := 'К-во';
+ 
+// Поворачивать слова, писать вертикально, под углом и т.д.
+ 
+ XL.WorkBooks[1].WorkSheets[1].Rows[2].Orientation := 90;
+ XL.WorkBooks[1].WorkSheets[1].Range['A2:B2'].Orientation := 0; 
+</pre>
+
+<p>По усмотрению программиста в любой программе где нужно автоматически создать документ, который можно в дальнейшем корректировать дополнять общедоступным редактором EXCEL </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

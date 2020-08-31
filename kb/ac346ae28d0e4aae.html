@@ -1,0 +1,100 @@
+<html>
+<head>
+  <title>Сохранить значение TDateTime в реестре</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сохранить значение TDateTime в реестре</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses
+   Registry;
+ 
+ // Write TDateTime to Registry 
+procedure Reg_WriteDateTime(dwRootKey: DWord; const sKey: string; const sField: string; aDate: TDateTime);
+ begin
+   with TRegistry.Create do
+   try
+     RootKey := dwRootKey;
+     if OpenKey(sKey, True) then
+     begin
+       try
+         WriteBinaryData(sField, aDate, SizeOf(aDate));
+       finally
+         CloseKey;
+       end;
+     end;
+   finally
+     Free;
+   end;
+ end;
+ 
+ // Read TDateTime from Registry 
+function Reg_ReadDateTime(dwRootKey: DWord; const sKey: string; const sField: string) : TDateTime;
+ begin
+   Result := 0; // default Return value 
+  with TRegistry.Create do
+   begin
+     RootKey := dwRootKey;
+     if OpenKey(sKey, False) then
+     begin
+       try
+         ReadBinaryData(sField, Result, SizeOf(Result));
+       finally
+         CloseKey;
+       end;
+     end;
+     Free;
+   end;
+ end;
+ 
+ // Example: 
+ 
+// Write DateTimePicker1's DateTime to Registry 
+procedure TForm1.Button1Click(Sender: TObject);
+ begin
+    Reg_WriteDateTime(HKEY_CURRENT_USER, 'Software\TestXYZ\','DateTime',DateTimePicker1.DateTime);
+ end;
+ 
+ // Set DateTimePicker1's DateTime from Registry 
+procedure TForm1.Button2Click(Sender: TObject);
+ var
+  ATime: TDateTime;
+ begin
+   ATime := Reg_ReadDateTime(HKEY_CURRENT_USER, 'Software\TestXYZ\','DateTime');
+   if ATime &lt;&gt; 0 then
+     DateTimePicker1.DateTime := TDateTime(ATime);
+ end;
+</pre>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

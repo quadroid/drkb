@@ -1,0 +1,74 @@
+<html>
+<head>
+  <title>Вернуть строку в DOS-кодировке</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Вернуть строку в DOS-кодировке</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="sql">
+-- Возвращает строку в DOS кодировке 
+-- dbo.WIN_DOS_STRING(expression)
+--    expression - строка в WIN кодировке
+CREATE FUNCTION dbo.WIN_DOS_STRING
+(
+  @ws VARCHAR(8000)    -- строка
+)
+RETURNS VARCHAR(8000)
+AS  
+BEGIN
+    DECLARE    @ss        int,                -- счетчик
+                @ds        varchar(8000),    -- DOS строка
+                @ls        int,                -- длина обр. строки
+                @os        int                -- код 1-го обраб-го символа
+    SET @ds=''
+    SET @ls=LEN(@ws)
+    SET @ss=0
+    WHILE @ss&lt;@ls
+    BEGIN
+        SET @os=ASCII(SUBSTRING(@ws,1,1))
+        SET @ds=@ds+CASE
+            WHEN @os&gt;=192 AND @os&lt;=239 THEN  CHAR(@os-64)-- 128.180
+            WHEN @os&gt;=240 AND @os&lt;=256 THEN  CHAR(@os-16)-- 224.239
+            WHEN @os=168 THEN  CHAR(240) --Ё
+            WHEN @os=184 THEN  CHAR(241) --ё
+            ELSE CHAR(@os)
+        END                        
+        SET @ss=@ss+1
+        SET @ws=SUBSTRING(@ws,2,LEN(@ws)-1)
+    END
+    RETURN @ds
+END 
+</pre>
+<p id="author">Автор: Sh@dow</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

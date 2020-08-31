@@ -1,0 +1,114 @@
+<html>
+<head>
+  <title>Как послать данные другому приложению используя Auto Drag &amp; Drop?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как послать данные другому приложению используя Auto Drag &amp; Drop?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses
+  ShellAPI;
+ 
+function MakeDrop(const FileNames: array of string): THandle;
+// Creates a hDrop Object
+var
+  I, Size: Integer;
+  Data: PDragInfoA;
+  P: PChar;
+begin
+  // Calculate memory size needed
+  Size := SizeOf(TDragInfoA) + 1;
+  for I := 0 to High(FileNames) do
+    Inc(Size, Length(FileNames[I]) + 1);
+  // allocate the memory
+  Result := GlobalAlloc(GHND or GMEM_SHARE, Size);
+  if Result &lt;&gt; 0 then
+  begin
+    Data := GlobalLock(Result);
+    if Data &lt;&gt; nil then
+      try
+        // fill up with data
+        Data.uSize := SizeOf(TDragInfoA);
+        P  := PChar(@Data.grfKeyState) + 4;
+        Data.lpFileList := P;
+        // filenames at the at of the header (separated with #0)
+        for I := 0 to High(FileNames) do
+        begin
+          Size := Length(FileNames[I]);
+          Move(Pointer(FileNames[I])^, P^, Size);
+          Inc(P, Size + 1);
+        end;
+      finally
+        GlobalUnlock(Result);
+      end
+    else
+    begin
+      GlobalFree(Result);
+      Result := 0;
+    end;
+  end;
+end;
+ 
+function MyEnum(Wnd: hWnd; Res: PInteger): Bool; stdcall;
+// search for a edit control with classname 'TEditControl'
+var
+  N: string;
+begin
+  SetLength(N, MAX_PATH);
+  SetLength(N, GetClassName(Wnd, Pointer(N), Length(N)));
+  Result := AnsiCompareText('TEditControl', N) &lt;&gt; 0;
+  if not Result then Res^ := Wnd;
+end;
+ 
+// Example: Open msdos.sys in Delphi's Editor window
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  Wnd: HWnd;
+  Drop: hDrop;
+begin
+  // search for Delphi's Editor
+  EnumChildWindows(FindWindow('TEditWindow', nil), @MyEnum, Integer(@Wnd));
+  if IsWindow(Wnd) then
+  begin
+    // Delphi's Editor found. Open msdos.sys
+    Drop := MakeDrop(['c:\msdos.sys']);
+    if Drop &lt;&gt; 0 then PostMessage(Wnd, wm_DropFiles, Drop, 0);
+    // Free the memory?
+    GlobalFree(Drop);
+  end;
+end;
+</pre>
+
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

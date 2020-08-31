@@ -1,0 +1,59 @@
+<html>
+<head>
+  <title>Как заставить приложение Delphi отвечать на сообщения Windows?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как заставить приложение Delphi отвечать на сообщения Windows?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Используем WM_WININICHANGED в качестве примера :</p>
+
+<p>Объявление метода в TForm позволит вам обрабатывать сообщение WM_WININICHANGED:</p>
+
+<p>procedure WMWinIniChange(var Message: TMessage); message WM_WININICHANGE;</p>
+
+<p>Код в implementation может выглядеть так:</p>
+
+<pre name="code" class="delphi">
+procedure TForm1.WMWinIniChange(var Message: TMessage);
+        begin
+          inherited;
+        { ... ваша реакция на событие ... }
+        end;
+</pre>
+
+
+<p>Вызов inherited метода очень важен. Обратите внимание также на то, что для функций, объявленных с директивой message (обработчиков событий Windows) после inherited нет имени наследуемой процедуры, потому что она может быть неизвестна или вообще отсутствовать (в этом случае вы в действительности вызываете процедуру DefaultHandler).</p>
+<p>Copyright © 1996 Epsylon Technologies</p>
+<p>Взято из FAQ Epsylon Technologies (095)-913-5608; (095)-913-2934; (095)-535-5349</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

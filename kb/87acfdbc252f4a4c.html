@@ -1,0 +1,118 @@
+<html>
+<head>
+  <title>Работа с портами микропроцессора</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Работа с портами микропроцессора</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Pavlo Zolotarenki&nbsp; </p>
+
+<p>Модуль для работы с портами микропроцессора с сохранением синтаксиса.</p>
+<p>Работает под Win9x.</p>
+<p>НЕ работает под WinNT.</p>
+<pre name="code" class="delphi">
+//Copyright(c) 1998 Zolotarenko P.V pvz@mail.univ.kiev.ua
+ 
+unit Ports;
+interface
+type
+ 
+  TPort = class
+  private
+    procedure Set_(index_: word; value: byte); register;
+    function Get_(index_: word): byte; register;
+  public
+    property Element[index_: word]: byte read Get_ write Set_; default;
+  end;
+ 
+  TPortW = class
+  private
+    procedure Set_(index_: word; value: Word); register;
+    function Get_(index_: word): word; register;
+  public
+    property Element[index_: word]: word read Get_ write Set_; default;
+  end;
+ 
+var
+  Port: TPort;
+  PortW: TportW;
+ 
+implementation
+ 
+procedure TPort.Set_(index_: word; value: byte);
+begin
+  asm
+    mov dx,index_
+    mov al,value
+    out dx,al
+  end;
+end;
+ 
+function TPort.Get_(index_: word): byte;
+begin
+  asm
+    mov dx,index_
+    in al,dx
+    mov @Result,al
+  end;
+end;
+ 
+procedure TPortW.Set_(index_: word; value: word);
+begin
+  asm
+    mov dx,index_
+    mov ax,value
+    out dx,ax
+  end;
+end;
+ 
+function TPortW.Get_(index_: word): word;
+begin
+  asm
+    mov dx,index_
+    in ax,dx
+    mov @Result,ax
+  end;
+end;
+ 
+initialization
+  Port := TPort.Create;
+  PortW := TPortW.Create;
+finalization
+  Port.free;
+  PortW.free;
+end.
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

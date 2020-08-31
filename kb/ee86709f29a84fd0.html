@@ -1,0 +1,131 @@
+<html>
+<head>
+  <title>Как показать Choose Domain диалог?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как показать Choose Domain диалог?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{
+  If you are developing network software for Windows NT,
+  you usually need to ask the user to select a computer or domain
+  he wants to connect/login.
+}
+ 
+const
+  FOCUSDLG_DOMAINS_ONLY = 1;
+  FOCUSDLG_SERVERS_ONLY = 2;
+  FOCUSDLG_SERVERS_DOMAINS = 3;
+  FOCUSDLG_BROWSE_LOGON_DOMAIN = $00010000;
+  FOCUSDLG_BROWSE_WKSTA_DOMAIN = $00020000;
+  FOCUSDLG_BROWSE_OTHER_DOMAINS = $00040000;
+  FOCUSDLG_BROWSE_TRUSTING_DOMAINS = $00080000;
+  FOCUSDLG_BROWSE_WORKGROUP_DOMAINS = $00100000;
+  FOCUSDLG_BROWSE_ALL_DOMAINS = FOCUSDLG_BROWSE_LOGON_DOMAIN or
+    FOCUSDLG_BROWSE_WKSTA_DOMAIN or FOCUSDLG_BROWSE_OTHER_DOMAINS or
+    FOCUSDLG_BROWSE_TRUSTING_DOMAINS or FOCUSDLG_BROWSE_WORKGROUP_DOMAINS;
+ 
+ 
+function SystemFocusDialog(hwndOwner: HWND; dwSelectionFlag: UINT;
+  wszName: PWideChar; dwBufSize: DWORD; var bOKPressed: Boolean;
+  wszHelpFile: PWideChar; dwContextHelpId: DWORD): DWORD; stdcall;
+  external 'ntlanman.dll' Name 'I_SystemFocusDialog';
+ 
+function ComputerBrowser(hWndParent: HWND; wCompName: PWideChar;
+  dwBufLen: DWORD): Boolean;
+var
+  dwError: DWORD;
+begin
+  Result := False;
+  dwError := SystemFocusDialog(hWndParent, FOCUSDLG_SERVERS_DOMAINS or
+    FOCUSDLG_BROWSE_ALL_DOMAINS,
+    wCompName, dwBufLen, Result, nil, 0);
+  if dwError &lt;&gt; NO_ERROR then Exit;
+end;
+ 
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  wCompName: array [0..MAX_COMPUTERNAME_LENGTH + 1] of WideChar;
+begin
+  if ComputerBrowser(0, wCompName, MAX_COMPUTERNAME_LENGTH + 1) then
+    ShowMessage(wCompName)
+  else
+    ShowMessage('no computer selected');
+end;
+ 
+{***************************}
+ 
+// Show the ServerBrowseDialogA0 Dialog
+ 
+type
+  TServerBrowseDialogA0 = function(hwnd: HWND; pchBuffer: Pointer;
+    cchBufSize: DWORD): bool;
+  stdcall;
+ 
+function ShowServerDialog(AHandle: THandle): string;
+var
+  ServerBrowseDialogA0: TServerBrowseDialogA0;
+  LANMAN_DLL: DWORD;
+  buffer: array[0..1024] of char;
+  bLoadLib: Boolean;
+begin
+  LANMAN_DLL := GetModuleHandle('NTLANMAN.DLL');
+  if LANMAN_DLL = 0 then
+  begin
+    LANMAN_DLL := LoadLibrary('NTLANMAN.DLL');
+    bLoadLib := True;
+  end;
+  if LANMAN_DLL &lt;&gt; 0 then
+  begin @ServerBrowseDialogA0 := GetProcAddress(LANMAN_DLL, 'ServerBrowseDialogA0');
+    DialogBox(HInstance, MAKEINTRESOURCE(101), AHandle, nil);
+    ServerBrowseDialogA0(AHandle, @buffer, 1024);
+    if buffer[0] = '\' then
+    begin
+      Result := buffer;
+    end;
+    if bLoadLib then
+      FreeLibrary(LANMAN_DLL);
+  end;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  label1.Caption := ShowServerDialog(Form1.Handle);
+end;
+</pre>
+
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<html>
+<head>
+  <title>Как узнать версию ADO?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать версию ADO?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  With different versions of MDAC available it is sometimes 
+  useful to know that your application won't fail because a user 
+  hasn't got the latest version installed. 
+  The following function returns the ADO version installed, 
+  you need to place ComObj in the uses clause to use this function. 
+} 
+ 
+function GetADOVersion: Double; 
+var 
+  ADO: OLEVariant; 
+begin 
+  try 
+    ADO    := CreateOLEObject('adodb.connection'); 
+    Result := StrToFloat(ADO.Version); 
+    ADO    := Null; 
+  except 
+    Result := 0.0; 
+  end; 
+end; 
+ 
+// To use this function try something like: 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+const 
+  ADOVersionNeeded = 2.5; 
+begin 
+  if GetADOVersion then 
+    ShowMessage('Need to install MDAC version 2.7') 
+  else 
+    ShowMessage(Format('ADO Version %n, is OK', [GetADOVersion])); 
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+<hr />
+<pre name="code" class="delphi">
+function TfrmMain.GetADOVersion: Double;
+var
+  ADO: OLEVariant;
+begin
+  try
+    ADO := CreateOLEObject('adodb.connection');
+    Result := StrToFloat(ADO.Version);
+    ADO := Null;
+  except
+    Result := 0.0;
+  end;
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<html>
+<head>
+  <title>Получение OpenGL расширений</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получение OpenGL расширений</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Получение OpenGL расширений
+ 
+Зависимости: OpenGL
+Автор:       Gua, gua@ukr.net, ICQ:141585495, Simferopol
+Copyright:   Gua
+Дата:        18 июля 2002 г.
+***************************************************** }
+ 
+function GetOGLExtensions: string;
+var
+  DC: HDC;
+  hrc: HGLRC;
+  {Установка формата пикселей}
+  procedure SetDCPixelFormat;
+  var
+    DC: HDC;
+    nPixelFormat: Integer;
+    pfd: TPixelFormatDescriptor;
+  begin
+    FillChar(pfd, SizeOf(pfd), 0);
+    nPixelFormat := ChoosePixelFormat(DC, @pfd);
+    SetPixelFormat(DC, nPixelFormat, @pfd);
+  end;
+ 
+begin
+  DC := GetDC(0);
+  SetDCPixelFormat;
+  hrc := wglCreateContext(DC);
+  wglMakeCurrent(DC, hrc);
+ 
+  Result := StrPas(PChar(glGetString(GL_EXTENSIONS)));
+ 
+  wglMakeCurrent(0, 0);
+  wglDeleteContext(hrc);
+  ReleaseDC(0, DC);
+  DeleteDC(DC);
+end;
+</pre>
+<p>Пример использования: </p>
+<pre name="code" class="delphi">MessageDlg(GetOGLExtensions,mtInformation,[mbOK],0); 
+</pre>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

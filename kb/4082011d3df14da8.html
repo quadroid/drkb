@@ -1,0 +1,187 @@
+<html>
+<head>
+  <title>Создание именных каналов</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создание именных каналов</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Создание именных каналов. Автор: Стас Пономарёв.<br>
+&nbsp;<br>
+В этой статье мы будем разбирать связь двух приложений с помощью именных каналов (named pipes). Рассмотрим типы каналов, а также создадим клиент и <br>
+сервер.<br>
+&nbsp;<br>
+1.Для чего именные каналы нужны:<br>
+Именные каналы являются средством &#171;общения&#187; программ. Они широко используются в UNIX-подобных системах, однако и в Windows они нашли применение. С помощью именных каналов можно передать любую информацию, так как все каналы работают через файлы. Даже для чтения\записи данных в канале используется функция WinAPI для работы с файлами &#8211; ReadFile() и WriteFile(). Передаваться может переменная любого типа (Integer, Boolean, Tbitmap и так далее). Однако, надо заметить, что для передачи строки, она должна быть ограничена &#8211; String[40]; Иначе при чтении канала будет появляться ошибка.<br>
+&nbsp;<br>
+2. Пример отправяемой переменной:<br>
+<p>Далее в статье я буду использовать отправляемую переменную типа TpipeData, этот тип будет такой:</p>
+<pre name="code" class="delphi">
+type TpipeData = packed record  //Имя можно изменить, а тип packed record оставьте
+  pEvent:byte;
+  ClientName: string[40]; //Заметьте, ограниченная строка
+  Date:TdateTime;
+End;
+</pre>
+
+<p>&nbsp;<br>
+&nbsp;<br>
+Как я уже сказал, здесь можно передавать любые переменные<br>
+&nbsp;<br>
+==========СЕРВЕРНАЯ ЧАСТЬ==========<br>
+&nbsp;<br>
+3.Использование потоков (TThread):<br>
+Как такового события записи в канал нет, поэтому придётся запускать цикл чтения. Как известно, циклы подвешивают программы (а точнее зацикливают). Application.ProcessMessages при работе с функцией ReadFile не поможет, так как ReadFile будет выполнятся до тех пор, пока кто-то что-то не запишет. Поэтому надо использовать потоки (TThread). Хочу заметить, что обращение к визуальным компонентам (формам, кнопкам, лэйблам и так далее) из дополнительных потоков невозможно. Для того, чтобы полученные данные не остались в дополнительном потоке, надо его синхронизироватьс главным. Для этого есть функция TThread.Synchronize(method: TtreadMethod); Параметром этой функции надо передовать Какой-нибудь метод(нами созданный) дополнительного потока, где есть обращение к визуальным компонентам. <br>
+А теперь напишем код нашего потока:<br>
+<p>&nbsp;</p>
+<pre name="code" class="delphi">
+type
+  TPipeThread = class(TThread)
+  private
+  PipeData:TPipeData; //Вот он – наша приёмная переменная, а точнее буфер.
+  Protected
+    procedure Execute; override; //Здесь мы будем создавать канал и читать данные из него
+  public
+    procedure ShowData; //Здесь будем передовать данные форме
+    constructor Create(CreateSuspended: Boolean); reintroduce; overload; //Создание потока
+  end;
+</pre>
+<p>&nbsp;<br>
+4. Работа сименными каналами:<br>
+Здесь мы рассмотрим нашу процедуру TpipeThread.Execute; но сначала рассмотрим &#171;настройку&#187; наших каналов. Функция CreateNamedPipe доступна только серверу. Ей должны быть переданы следующие параметры:<br>
+1. lpName &#8211; имя нашего канала, а точнее его директория. Если сервер будет расположен на той-же машине, что и клиент, то первый параметр должен быть такой: '\\.\PIPE\ИмяКанала', где имя канала &#8211; ваше название, только латинскими буквами<br>
+2. dwOpenMode &#8211; работа канала может быть:<br>
+PIPE_ACCESS_INBOUND &#8211; сервер может только читать канал<br>
+PIPE_ACCESS_OTTBOUND &#8211; сервет может только записывать<br>
+PIPE_ACCESS_DUPLEX &#8211; сервер может и писать и читать<br>
+3. dwPipeMode &#8211; режим канала здесь говорится о синхронности\асинхронности канала, и о том, каким методом будетпроизводится обмен данных в канале. Значения:<br>
+PIPE_WAIT - синхронный канал<br>
+PIPE_NOWAIT &#8211; асинхронный канал<br>
+PIPE_READMODE_BYTE &#8211; метод чтения - байты<br>
+PIPE_READMODE_MESSAGE &#8211; метод чтения пакеты<br>
+PIPE_TYPE_BYTE &#8211; тип канала - байты<br>
+PIPE_TYPE_MESSAGE - тип канала пакеты.<br>
+В dwPipeMode надо передавать три параметра, например, в нашем примере: PIPE_WAIT or PIPE_READMODE_MESSAGE or PIPE_TYPE_MESSAGE. А теперь, давайте вспомним наш тип TpipeData &#8211; он у нас packed, то есть &#8211; пакет. Поэтому наш канал работает с пакетами.<br>
+4. hMaxInstances &#8211; максимальное число одновременных подключений &#8211; любое ваше число, однако можно указать PIPE_UNLIMITED_INSTANCES для безконечного числа клиентов.<br>
+5. nOutBufferSize &#8211; разбер буфера чтения. Можно найти так &#8211; SizeOf(TpipeData) Это как раз тип нашего буфера.<br>
+6. nInBufferSize &#8211; размер буфера записи. Обычно такой же как и буфер чтения.<br>
+7. nDefaultTimeOut &#8211; максимальное время чтения (в милисекундах)<br>
+8. lpSecurityArtributes &#8211; просто пишем nil.<br>
+Также нам понядобятся фцнкции ConnectNamedPipe, ReadFile и DisconnectNamedPipe, но их параметры мы рассмотрим в процессе написания кода. И так, а теперь наша процедура:<br>
+<p>&nbsp;</p>
+<pre name="code" class="delphi">
+procedure TPipeThread.Execute;
+var
+  hPipe: THandle; //Указатель на наш канал
+  bytesRead: DWORD;  //Количество прочитанных байт
+begin
+  try
+   hPipe := CreateNamedPipe('\\.\PIPE\OurPipe', //Наше имя
+      PIPE_ACCESS_INBOUND, // сервер может только читать канал
+      PIPE_WAIT or               // Синхронная работа
+      PIPE_READMODE_MESSAGE or   // метод чтения - пакеты
+      PIPE_TYPE_MESSAGE,
+      PIPE_UNLIMITED_INSTANCES,        // Бесконечно много клиентов
+      SizeOf(Tpipedata), //размер буфера чтения
+      SizeOf(Tpipedata), // размер буфера записи
+                        100,                  // Тайм-аут
+      nil);                      // Артребуты безопасности.
+    if hPipe = INVALID_HANDLE_VALUE then Exit; //Если не удалось создать канал, то выходим
+ 
+    while true do //Теперь читаем, пока не надоест!
+    begin
+      try
+        ConnectNamedPipe(hPipe, nil); //Подключаемся к каналу, второй параметр 
+                                      //нужен только, если вместо PIPE_WAIT вы указали PIPE_NOWAIT
+ 
+        //Теперь читаем, параметры – указатель на канал, наш буфер, 
+        //кол-во прочитанных байт, и последнее опять таки только для PIPE_NOWAIT.
+        if ReadFile(hPipe, PipeData, SizeOf(TpipeData), bytesRead, nil) then
+        begin
+        Synchronize(ShowData); //Синхронизируемся с главным потоком
+        end;
+      finally
+        DisconnectNamedPipe(hPipe); //Закрываем канал, параметры – только указатель
+      end;
+     end;
+  finally
+  end;
+end;
+</pre>
+<br>
+Ну вот, это большая часть нашего сервера. Функцию ShowData можно сделать такую:<br>
+<p>&nbsp;</p>
+<pre name="code" class="delphi">
+procedure TPipeThread.ShowData;
+begin
+Case PipeData.pEvent of
+1:form1.Memo1.Lines.Add('======Событие 1======');
+2:form1.Memo1.Lines.Add('=========Событие 2==========');
+end;
+form1.Memo1.Lines.Add('Программа '+PipeData.Clientname+' открыла канал');
+form1.Memo1.Lines.Add(DateTostr(PipeData.Date));
+form1.Memo1.Lines.Add('');
+end;
+</pre>
+<p class="p_CodeExample" style="white-space: normal;">&nbsp;<br>
+&nbsp;<br>
+==========КЛИЕНТ==========<br>
+<p>Теперь пришло время написать наш клиент. Так как нам нужо только подключиться и выкинуть данные серверу, а затем сразу отключиться, то весь код клиета можно поместить в одну процедуру:</p>
+<pre name="code" class="delphi">
+procedure SendToServer; // Замечу, что должна быть переменная такого же 
+                        //типа TpipeData, как и у сервера. Допустим, это Data
+var
+  hPipe: THandle;
+  bytesWritten: DWORD;
+begin
+  hPipe := CreateFile('\\.\PIPE\OurPipe', //Как видите, здесь мы подключаемся 
+                                          //даже не к каналу, а к файлу
+    GENERIC_WRITE, //Только запись
+    FILE_SHARE_READ or // Обмениваемся чтенью\записью
+    FILE_SHARE_WRITE,
+    nil, //Артрибуты безопасности
+    OPEN_EXISTING,   // Канал должен быть создан
+    0, 0);
+  if hPipe = INVALID_HANDLE_VALUE then Exit; //Если произошла ошибка, выходим
+ 
+ if WriteFile(hPipe, Data, SizeOf(TpipeData), bytesWritten,
+    nil) then  DisconnectNamedPipe(hpipe); //Если удачно запиали, закрываем канал.
+end;
+</pre>
+
+<p>&nbsp;<br>
+Исходник клиента - так же можно найти в аттаче!<br>
+Всё. Теперь вы знаете, как передовать кучу переменных своим программам из других!<br>
+&nbsp;<br>
+Автор: Стас Пономарёв. Хочу поблагодарить www.sources.ru www.delphimasters.ru а также Alex-Eraser <br>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

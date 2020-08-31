@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Установка каретки в TRichEdit</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Установка каретки в TRichEdit</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Узнать положение курсора в RichEdit не составляет труда (richedit.getcaret). А вот как установить каретку в нужное место?</p>
+<pre name="code" class="delphi">
+Procedure setline(WhichEdit:TRichedit;Linepos,charpos:integer);
+Begin
+with WhichEdit do
+begin
+  selstart:=perform(EM_LineIndex,Linenum,0)+charpos;
+  perform(EM_ScrollCaret,0,0);
+end;
+end;
+</pre>
+
+<p>Комментарии:</p>
+<p>Если Вам не нужно, чтобы происходил скроллинг к позиции каретки, то EM_ScrollCaret можно убрать. Эта процедура так же может быть использована для TMemo, только надо будет заменить объявление witchedit на TMemo:</p>
+<p>Procedure CustomMemoSetline(WhichEdit:TCustomMemo;Linepos,charpos:integer);</p>
+
+<p>Так же эту процедуру можно использовать как ответ на вопрос "Как установить фокус на определённую строку в компоненте Memo ?". Для этого необходимо добавить следующий код после строки selstart:</p>
+<p>sellength:=length(lines(line));</p>
+<p>И установить charpos в 0.</p>
+
+<p>RichEdit должен иметь фокус, иначе em_ScrollCaret не сработает.</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+<hr />
+<pre name="code" class="delphi">
+// You can move the caret in a TRichEdit component by using this code : 
+ 
+procedure RichEdit_MoveTo(RichEdit: TRichEdit; LineNumber, CharNumber: Word);
+ begin
+   RichEdit.SelStart := RichEdit.Perform(EM_LINEINDEX, LineNumber, 0) + CharNumber);
+ end;
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   RichEdit_MoveTo(RichEdit1,2,5);
+   Application.ProcessMessages;
+   RichEdit1.SetFocus;
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<html>
+<head>
+  <title>Как запустить и подождать завершения 2-х процессов?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как запустить и подождать завершения 2-х процессов?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure HzChe;
+var
+hProcess : array [0..1] of Cardinal;
+struc1 : PSTARTUPINFO;
+struc2 : PROCESS_INFORMATION;
+begin
+  if not CreateProcess ( PChar('c:\PSTOLD.EXE') ,
+nil,
+nil,
+nil,
+False,
+NORMAL_PRIORITY_CLASS,
+nil,
+nil,
+struc1^,
+struc2 ) then ShowMessage ( 'Zhopa kakaya-to');
+  hProcess[0] := struc2.hProcess;
+if not CreateProcess ( PChar('c:\PSTOLD1.EXE') ,
+nil,
+nil,
+nil,
+False,
+NORMAL_PRIORITY_CLASS,
+nil,
+nil,
+struc1^,
+struc2 ) then ShowMessage ( 'Zhopa kakaya-to');
+hProcess[1] := struc2.hProcess;
+  if WaitForMultipleObjects ( 2, @hProcess, True, INFINITE ) = 1 then 
+    ShowMessage ('    vce, priehali' );
+end;
+</pre>
+
+<p>P.S. </p>
+<p>То, что я понаписал нельзя считать цивильным кодом...просто демонстрация работы функции WaitForMultipleObjects ( код позорный...просто жуть...) </p>
+<p id="author">Автор ответа: Baa</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

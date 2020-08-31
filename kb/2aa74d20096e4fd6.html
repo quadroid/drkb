@@ -1,0 +1,74 @@
+<html>
+<head>
+  <title>Как производить печать?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как производить печать?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Взято из FAQ:<a href="http://blackman.km.ru/myfaq/cont4.phtml" target="_blank">http://blackman.km.ru/myfaq/cont4.phtml</a></p>
+<p>Перевод материала с сайта members.home.com/hfournier/webbrowser.htm </p>
+
+<p>Есть два способа вывода на печать. Первый пример работает в IE 4.x и выше,</p>
+<p>в то время как второй пример расчитан на IE 3.x: </p>
+<pre name="code" class="delphi">
+var
+vaIn, vaOut: OleVariant; 
+ 
+... WebBrowser.ControlInterface.ExecWB(OLECMDID_PRINT, OLECMDEXECOPT_DONTPROMPTUSER, vaIn, vaOut); либо 
+ 
+procedure TForm1.PrintIE;
+var
+CmdTarget : IOleCommandTarget;
+vaIn, vaOut: OleVariant;
+begin
+if WebBrowser1.Document &lt; &gt; nil then
+try
+WebBrowser1.Document.QueryInterface(IOleCommandTarget, CmdTarget);
+if CmdTarget &lt; &gt; nil then
+try
+  CmdTarget.Exec( PGuid(nil), OLECMDID_PRINT,
+  OLECMDEXECOPT_DONTPROMPTUSER, vaIn, vaOut);
+finally
+  CmdTarget._Release;
+end;
+except
+  // Ничего
+end;
+end;
+</pre>
+
+
+<p>Обратите внимание: Если версия Delphi ниже чем 3.02, то необходимо заменить PGuid(nil)</p>
+<p>на PGuid(nil)^</p>
+<p>. А лучше всего проапгрейдить до 3.02 (если Вы пользуетесь версиями 3.0 или 3.01). </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

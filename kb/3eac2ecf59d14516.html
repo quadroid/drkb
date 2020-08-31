@@ -1,0 +1,123 @@
+<html>
+<head>
+  <title>Реагируем на щелчок по ссылке в TWebBrowser</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Реагируем на щелчок по ссылке в TWebBrowser</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+
+ 
+ 
+var
+  Document: IHtmlDocument2;
+  V: Variant;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  WebBrowser1.Navigate('about:blank');
+  while WebBrowser1.Document = nil do
+    Application.ProcessMessages;
+  Document := WebBrowser1.Document as IHtmlDocument2;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  V[0] :='&lt;a href="http://ya.ru"&gt;Run&lt;/a&gt;';
+  Document.Writeln(PSafeArray(TVarData(v).VArray));
+  WebBrowser1.OleObject.Document.ParentWindow.Scroll(0, 10000000);
+end;
+ 
+procedure TForm1.WebBrowser1BeforeNavigate2(Sender: TObject;
+  const pDisp: IDispatch; var URL, Flags, TargetFrameName, PostData,
+  Headers: OleVariant; var Cancel: WordBool);
+begin
+  if url &lt;&gt; 'about:blank' then
+  begin
+    WebBrowser2.Navigate(URL);
+    Cancel := True;
+  end;
+end;
+</pre>
+<p id="author">Автор: Rouse_</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+&nbsp;<br>
+
+<hr />
+<pre name="code" class="delphi">
+
+ 
+var
+  NavigateTo: Boolean = False;
+ 
+procedure TForm1.WebBrowser1BeforeNavigate2(Sender: TObject;
+  const pDisp: IDispatch; var URL, Flags, TargetFrameName, PostData,
+  Headers: OleVariant; var Cancel: WordBool);
+begin
+  if NavigateTo then
+  begin
+    Cancel := True;
+    WebBrowser2.Navigate(URL);
+  end;
+end;
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  WebBrowser1.Navigate('about:&lt;a href="http://ya.ru"&gt;Run&lt;/a&gt;');
+  NavigateTo := True;
+end;
+</pre>
+<p id="author">Автор: s-mike</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+&nbsp;<br>
+
+<hr />
+<p>OnNewWindow2 <br>
+Возникает при попытке открыть документ в новом окне. Если Вы хотите, чтобы документ был открыт в Вашем экземпляре броузера, то Вам нужно создать свой экземпляр броузера и параметру ppDisp присвоить интерфейсную ссылку на этот экземпляр:<br>
+<p>&nbsp;</p>
+<pre name="code" class="delphi">
+procedure TFormSimpleWB.WebBrowser1NewWindow2(Sender: TObject;
+  var ppDisp: IDispatch; var Cancel: WordBool);
+var 
+  newForm:TFormSimpleWB;
+begin 
+  newForm := TFormSimpleWB.Create(Application);
+  newForm.Show;
+  ppDisp := newForm.WebBrowser1.ControlInterface;
+end;
+</pre>
+<p>&nbsp;<br>
+<p id="author">Автор: -TOXA- </p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a><br>
+<p>&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

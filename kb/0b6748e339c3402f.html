@@ -1,0 +1,70 @@
+<html>
+<head>
+  <title>Установить размеры бумаги</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Установить размеры бумаги</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+  var
+     Device, Driver, Port: array[0..80] of Char;
+     DevMode: THandle;
+     pDevmode: PDeviceMode;
+   begin
+     // Get printer device name etc.
+     Printer.GetPrinter(Device, Driver, Port, DevMode);
+     // force reload of DEVMODE
+     Printer.SetPrinter(Device, Driver, Port, 0) ;
+     // get DEVMODE handle
+     Printer.GetPrinter(Device, Driver, Port, DevMode);
+     If Devmode &lt;&gt; 0 Then Begin
+       // lock it to get pointer to DEVMODE record
+       pDevMode := GlobalLock( Devmode );
+       If pDevmode &lt;&gt; Nil Then
+       try
+         With pDevmode^ Do Begin
+           // modify paper size
+           dmPapersize := DMPAPER_B5;
+           // tell printer driver that dmPapersize field contains
+           // data it needs to inspect.
+           dmFields := dmFields or DM_PAPERSIZE;
+         End;
+      finally
+        // unlock devmode handle.
+        GlobalUnlock( Devmode );
+      end;
+     End; { If }
+   end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

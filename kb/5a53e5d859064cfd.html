@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Найти центр треугольника</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Найти центр треугольника</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Determine the circum-center of a 2D triangle?</p>
+<pre name="code" class="delphi">
+procedure Circumcenter(x1, y1, x2, y2, x3, y3: Double; var Px, Py: Double);
+var 
+  A, C, B, D, E, F, G: Double;
+begin
+  A := x2 - x1;
+  B := y2 - y1;
+  C := x3 - x1;
+  D := y3 - y1;
+  E := A * (x1 + x2) + B * (y1 + y3);
+  F := C * (x1 + x2) + D * (y1 + y3);
+  G := 2.0 * (A * (y3 - y2) - B * (x3 - x2));
+  if G = 0 then
+    Exit;
+  Px := (D * E - B * F) / G;
+  Py := (A * F - C * E) / G;
+end;
+</pre>
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+<hr /><p>Determine the incenter of a 2D triangle?</p>
+<pre name="code" class="delphi">
+procedure Incenter(x1, y1, x2, y2, x3, y3: Double; var Px, Py: Double);
+var
+  Perim: Double;
+  Side12: Double;
+  Side23: Double;
+  Side31: Double;
+begin
+  Side12 := Distance(x1, y1, x2, y2);
+  Side23 := Distance(x2, y2, x3, y3);
+  Side31 := Distance(x3, y3, x1, y1);
+ 
+  { using Heron's S=UR }
+  Perim := 1 / (Side12 + Side23 + Side31);
+  Px := (Side23 * x1 + Side31 * x2 + Side12 * x3) * Perim;
+  Py := (Side23 * y1 + Side31 * y2 + Side12 * y3) * Perim;
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

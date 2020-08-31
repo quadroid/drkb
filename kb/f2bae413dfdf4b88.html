@@ -1,0 +1,60 @@
+<html>
+<head>
+  <title>Как в байте информации выделить биты?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как в байте информации выделить биты?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>В Delphi используй операцию and, которая возвращает результат побитового умножения. Пример a and $10 &#8212; выделить 4-ый бит. Если результат не ноль &#8212; бит установлен. </p>
+<p>То же самое, но на ассемблере. Это позволяет достичь максимальной скорости выполнения. </p>
+<pre name="code" class="delphi">
+function GetBites(t, Mask: LongWord): LongWord;  
+asm
+  mov eax, t;
+  and eax, mask;
+end;
+</pre>
+<p>Эта функция возвращает t and Mask. Если необходимо выполнить сдвиг, то применяется команда shr: </p>
+<pre name="code" class="delphi">
+function ShiftBites(t, Mask: LongWord; shift: byte): LongWord; 
+asm
+  mov eax, t;
+  mov cl, shift;
+  shr eax;
+  and eax, Mask;
+end;
+</pre>
+<p>Эта функция возвращает (t shr shift) and Mask. Если же ассемблер не поможет, надо или переделывать алгоритм, или менять компьютер :)) </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Как узнать драйвер принтера?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать драйвер принтера?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Иногда метод GetPrinter() компонента TPrinter возвращает пустую строку, поэтому целесообразно воспользоваться API для получения необходимых параметров из файла Windows.ini.</p>
+
+<pre name="code" class="delphi">
+uses Printers;
+ 
+{$IFNDEF WIN32}
+const MAX_PATH = 144;
+{$ENDIF}
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  pDevice: pChar;
+  pDriver: pChar;
+  pPort: pChar;
+  hDMode: THandle;
+begin
+  if PrintDialog1.Execute then begin
+    GetMem(pDevice, cchDeviceName);
+    GetMem(pDriver, MAX_PATH);
+    GetMem(pPort, MAX_PATH);
+    Printer.GetPrinter(pDevice, pDriver, pPort, hDMode);
+    if lStrLen(pDriver) = 0 then begin
+      GetProfileString('Devices', pDevice, '', pDriver, MAX_PATH);
+      pDriver[pos(',', pDriver) - 1] := #0;
+    end;
+    if lStrLen(pPort) = 0 then begin
+      GetProfileString('Devices', pDevice, '', pPort, MAX_PATH);
+      lStrCpy(pPort, @pPort[lStrLen(pPort) + 2]);
+    end;
+    Memo1.Lines.Add('Device := ' + StrPas(pDevice));
+    Memo1.Lines.Add('Driver := ' + StrPas(pDriver));
+    Memo1.Lines.Add('Port := ' + StrPas(pPort));
+    FreeMem(pDevice, cchDeviceName);
+    FreeMem(pDriver, MAX_PATH);
+    FreeMem(pPort, MAX_PATH);
+  end;
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

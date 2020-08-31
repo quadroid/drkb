@@ -1,0 +1,56 @@
+<html>
+<head>
+  <title>Проблема с освобождением ресурсов TNotebook</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Проблема с освобождением ресурсов TNotebook</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Mike Scott </p>
+<p>Проблема с использованием ресурсов в компоненте Notebook? Вы можете обойти это, освобождая дескрипторы окон невидимых страниц компонента. Следующий код поясняет как это можно сделать - я создал обработчик события компонента OnClick, освобождающий дескрипторы невидимых страниц при каждом изменении видимой страницы:</p>
+<pre name="code" class="delphi">
+procedure TForm1.TabSet1Click(Sender: TObject);
+var 
+  i: integer;
+begin
+  Notebook1.PageIndex := TabSet1.TabIndex ;
+  with Notebook1, Pages do 
+    for i := 0 to Count - 1 do
+      if (i &lt;&gt; PageIndex) then 
+        TForm1(Objects[i]).DestroyHandle;
+end;
+</pre>
+<p>Как вы могли заметить, я привел тип страницы notebook (Objects[ i ]) к объектам TForm1, что на самом деле не так. Тем не менее, эта небольшая хитрость позволяет иметь доступ к защищенным членам извне метода класса, где они определены, в данном случае DestroyHandle - защищенный метод TWinControl. </p>
+<p>Это работает, поскольку TForm1 является наследником TWinControl, и позволяет иметь доступ к защищенным членам TForm1 и ее наследникам. Быстро и грязно, но это работает! &lt;g&gt; </p>
+<p>Не волнуйтесь, если вы видите, что невидимая страница показывается снова. VCL - довольно умная штука, поскольку захватывает данные от дескриптора окна и сохраняет это непосредственно в объекте. Затем, всякий раз, когда дескриптор требуется снова, то есть тогда, когда вы делаете страницу видимой, дескриптор окна пересоздается, туда снова копируются данные, и оп-ля, как будто ничего и не произошло - магия! </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

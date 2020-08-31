@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>Пример использования курсоров</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Пример использования курсоров</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Вот пример использования курсора для прохода по каждой записи взапросе и операции с этой записью:</p>
+<pre name="code" class="sql">
+Declare  @MyVar int
+Declare c cursor for
+Select MyField From MyTable Where MyField2=1
+/*
+  c - переменная курсора
+  Select ... выражение к каждой записи которого посредством курсора можно достучаться
+*/
+
+Open c --открываем курсор, с этой строкой будет выполнен приведенный выше Select
+ 
+Fetch Next From c Into @MyVar -- вытаскиваем первую запись и присваиваем значение MyField в переменную @MyVar
+ 
+While @@Fetch_Status = 0 -- проверяем не последняя ли это запись, а точнее - смогли ли мы возвратить запись
+  Begin
+    Print @MyVar -- что-то делаем с полученными данными
+    Fetch Next From c Into @MyVar -- вытаскиваем следующую запись и присваиваем значение MyField в переменную @MyVar
+  End
+ 
+Close c -- закрывам курсор, закрываем запрос, ОПЕРАТОР ОБЯЗАТЕЛЕН!
+Deallocate c -- уничтожаем переменную, ОПЕРАТОР ОБЯЗАТЕЛЕН! 
+</pre>
+
+<p>Если курсор не должен "отслеживать" изменения в таблице по ходу своей работы и не должен менять значение таблицы желательно добавление опций предотвращающих блокирование объектов на время работы курсора:</p>
+<pre name="code" class="sql">
+Declare c cursor
+Local Fofward_Only Static Read_Only
+for
+Select MyField From MyTable Where MyField2=1
+</pre>
+
+<p id="author">Автор: Vit</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

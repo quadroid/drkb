@@ -1,0 +1,101 @@
+<html>
+<head>
+  <title>Как узнать производителя CD / DVD?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать производителя CD / DVD?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Как это сделать через WMI я вроде разобрался.</p>
+<p>Только не нравиться мне, что приходится перебирать в цикле все свойства</p>
+<p>Win32_CDROMDrive. Может кто знает как сразу к конкретному свойству обратиться, т.е.</p>
+<p>избавиться от строки "while PropEnum.Next(1, TempObj, Value) = S_OK do"</p>
+<p>Вот рабочий пример для D7.</p>
+<pre name="code" class="delphi">
+unit Unit1;
+interface
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, WbemScripting_TLB, OleServer, ActiveX, StdCtrls, ExtCtrls,
+  ComCtrls;
+type
+  TForm1 = class(TForm)
+    ListBox1: TListBox;
+    SWbemLocator1: TSWbemLocator;
+    Button1: TButton;
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+var
+  Form1: TForm1;
+implementation
+ 
+{$R *.dfm}
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  Service: ISWbemServices;
+  ObjectSet: ISWbemObjectSet;
+  SObject: ISWbemObject;
+  PropSet: ISWbemPropertySet;
+  SProp: ISWbemProperty;
+  PropEnum, Enum: IEnumVariant;
+  TempObj: OleVariant;
+  Value: Cardinal;
+  dr:string;
+begin
+  ListBox1.Clear;
+  Service:= SWbemLocator1.ConnectServer('.', 'root\CIMV2', '', '', '','', 0, nil);
+  SObject:= Service.Get('Win32_CDROMDrive', wbemFlagUseAmendedQualifiers, nil);
+  ObjectSet:= SObject.Instances_(0, nil);
+  Enum:= (ObjectSet._NewEnum) as IEnumVariant;
+  dr:='';
+  while (Enum.Next(1, TempObj, Value) = S_OK) do
+  begin
+    SObject:= IUnknown(TempObj) as SWBemObject;
+    PropSet:= SObject.Properties_;
+    PropEnum:= (PropSet._NewEnum) as IEnumVariant;
+    while PropEnum.Next(1, TempObj, Value) = S_OK do
+    begin
+      SProp:= IUnknown(TempObj) as SWBemProperty;
+      if SProp.Name='Drive' then dr:=SProp.Get_Value;
+      if SProp.Name='Name' then ListBox1.AddItem(dr+'  '+SProp.Get_Value, nil);
+    end;
+  end;
+end;
+end.
+</pre>
+<p id="author">Автор eralex</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<html>
+<head>
+  <title>Как установить цвет фона иконок на рабочем столе, либо сделать у них прозрачный фон?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как установить цвет фона иконок на рабочем столе, либо сделать у них прозрачный фон?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для этого нужно найти окно "SysListView32" (которое является списком, который содержит иконки рабочего стола). Сперва будем искать главное родительское окно "Progman", которое содержит дочернее окно "SHELLDLL_DefView" , которое в свою очередь имеет дочернее окно "SysListView32". Для этого можно воспользоваться API функцией FindWindow to. Когда Мы получим дескриптор окна "SysListView32", то можно будет воспользоваться макросами ListView_SetTextBkColor и ListView_SetTextColor для установки желаемого цвета.</p>
+<p>Ниже приведена процедура, которая делает всё вышеперечисленное. Если параметр Trans равен true, то будет установлен прозрачный фон, иначе цвет фона будет равен Background.</p>
+<pre name="code" class="delphi">
+unit DeskIcons;
+ 
+interface
+uses Graphics; // Будет использоваться TColor
+ 
+procedure SetDesktopIconColor(Forground, Background: TColor; Trans: Boolean);
+procedure SetDefaultIconColors;
+ 
+implementation
+uses Windows, CommCtrl; // будут использоваться HWND и ListView_XXXXX
+ 
+procedure SetDesktopIconColor(Forground, Background: TColor; Trans: Boolean);
+ 
+var
+  Window: HWND;
+begin
+  // Находим нужное окно в три этапа
+  Window := FindWindow('Progman', 'Program Manager');
+  // Используем FindWindowEx для нахождения дочернего окна
+  Window := FindWindowEx(Window, HWND(nil), 'SHELLDLL_DefView', '');
+  // SysListView32, это список с иконками на рабочем столе
+  Window := FindWindowEx(Window, HWND(nil), 'SysListView32', '');
+  // Используем макрос для очистки цвета фона
+  if Trans then
+    ListView_SetTextBkColor(Window, $ffffffff) // фоновый цвет
+  else
+    ListView_SetTextBkColor(Window, Background); // фоновый цвет
+  ListView_SetTextColor(Window, Forground); // передний цвет
+  // теперь перерисовываем иконки
+  ListView_RedrawItems(Window, 0, ListView_GetItemCount(Window) - 1);
+  UpdateWindow(Window);   // даём команду "немедленно перерисовать"
+end;
+ 
+procedure SetDefaultIconColors;
+{ Эта процедура устанавливает цвета, которые заданы в
+  windows по умолчанию }
+var
+  Kind: Integer;
+  Color: TColor;
+begin
+  Kind := COLOR_DESKTOP;
+  Color := GetSysColor(COLOR_DESKTOP);
+  SetSysColors(1, Kind, Color);
+end;
+ 
+end.
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

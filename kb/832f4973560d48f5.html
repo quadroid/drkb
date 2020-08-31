@@ -1,0 +1,354 @@
+<html>
+<head>
+  <title>Как создать DLL для MS Excel?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как создать DLL для MS Excel?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>Problem/Question/Abstract:</p>
+
+<p>How do I make delphi functions available to Excel users? </p>
+
+<p>I have seen many articles telling how to control Excel from within Delphi. However, it is also appealing to give Excel users (which tend to be far less programming oriented guys) the power of tools built with Dephi, its flexibility and velocity.</p>
+
+<p>Answer:</p>
+
+<p>The idea is very simple and is based upon the variable types that are common to Excel's VBA and to Delphi. Those include 32 bit integer, double precision floating point and, mainly, Excel ranges. </p>
+
+<p>I found that Excel sometimes interprets incorrectly simple types when passed by reference and thus I limmited their usage to value parameters. </p>
+<p>On the other hand, ranges can only be passed by reference and can be read from but not written to. This means that, within Delphi, you must use the reserved word CONST instead of VAR. </p>
+
+<p>First, I defined within a simple unit a set of functions that convert simple Variant types to simple types and viceversa. Those are IntToVar,Double and VarTodouble (the real unit also includes a StrToVar function but not a VarToStr since this one is already included in the System unit), and are used within the procedures that do the real work (RangeToMatrix, RangeToVector,VectorToMatrix and VectortoRange). </p>
+<p>All these functions (along with some others that you might find useful) are put together in a unit called "_Variants" whose source code is copied here (with some slight modifications). </p>
+
+<p>In the real unit you will find that there fucntions that provide conversion between Excel ranges and SDL delphi component suite which I have found to be quite useful (refer to www.lohninger.com). </p>
+
+<p>I shall restrict the examples, however to standard types. </p>
+
+<p>Lets take first a simple function: </p>
+<p>This function, called gamma_alfa, takes as input the mean and the variance of a population and returns the alfa parameter of a gamma distribution. </p>
+
+<p>In Excel's VBA it is declared as </p>
+<p>Declare Function gamma_alfa Lib "c:\archivos\del_files\f_auxiliares_delphi" Alias "gamma_alfa_XL" (ByVal media As Double, ByVal varianza As Double) As Double </p>
+
+<p>note the lib statement that refers to name that the DLL actually has. </p>
+<p>note also the ByVal modifiers used for declaring the variables as well as the "as double" statements. </p>
+<p>These mean that both the input and the output will be simple types of type double. </p>
+
+<p>In Delphi, the function is declared as </p>
+<p>function gamma_alfa(media, varianza : double) : Double;stdcall; </p>
+
+<p>Note the stdcall at the end of the declaration. This is to ensure that Delphi will use the Microsoft calling convention </p>
+
+<p>Also note the inconsistency between the delphi function's name and the "alias" statement in VBA. </p>
+<p>This is set in the export clause of the DLL: </p>
+<pre name="code" class="delphi">
+exports ..., 
+        gamma_alfa     name 'gamma_alfa_XL', 
+        ...; 
+</pre>
+
+
+<p>Although irrelevant, the implementation of the function follows: </p>
+<pre name="code" class="delphi">
+implementation
+ 
+function gamma_alfa(media, varianza: double): Double; stdcall;
+begin
+  gamma_alfa := media * media / varianza;
+end;
+</pre>
+
+
+<p>Now, let's go to the tough stuff: sending Excel ranges as parameters. </p>
+<p>Now, I will make use of a function that gets and returns excel ranges as parameters: </p>
+<p>This function is called gamma_parametros and takes as input an histogram (with frequencies and class markers) and returns the alfa and beta parameters for a gamma. Here is its VBA declaration: </p>
+
+<p>Declare Function gamma_parametros Lib "c:\archivos\del_files\f_auxiliares_delphi" Alias "gamma_parametros_XL" (ByRef marcas_de_clase As Variant, ByRef frecuencias As Variant) As Variant </p>
+
+<p>Now note hte "Byref" and the as "Variant" types. </p>
+
+<p>In Delphi, the function is declared as follows: </p>
+
+<p>function gamma_parametros_XL(const _marcas_de_clase, _frecuencias: Variant): Variant;</p>
+<p>  stdcall;</p>
+
+<p>and is implemented as: </p>
+<pre name="code" class="delphi">
+function gamma_parametros_XL(const _marcas_de_clase, _frecuencias: Variant): Variant;
+  stdcall;
+var
+  marcas_de_clase, frecuencias, pars: TVector_;
+  pars_: Variant;
+begin
+  RangeToVector(_marcas_de_clase, marcas_de_clase);
+  RangeToVector(_frecuencias, frecuencias);
+  pars := gamma_parametros(marcas_de_clase, frecuencias);
+  VectorToRange(pars, pars_);
+  gamma_parametros_XL := pars_;
+end;
+</pre>
+
+
+<p>Note that the functions that does the real work is not gamma_parametros_XL but gamma_parametros. The former only does the job of converting Excel ranges to TVector_ and viceversa. </p>
+
+<p>the exports clause exports gamma_parametros_XL, since it's the one that is replicated in the VBA definition, and thus it does not need a 'name' clause. </p>
+
+<p>Here is the implementation of the gamma_parametros function: </p>
+<pre name="code" class="delphi">
+function gamma_parametros(const marcas_de_clase, frecuencias: TVector_): TVector_;
+var
+  pars: TVector_;
+  mu, sigmac: double;
+begin
+  SetLength(pars, 2);
+  mu := media_ponderada(marcas_de_clase, frecuencias);
+  sigmac := varianza_ponderada(marcas_de_clase, frecuencias);
+  pars[0] := gamma_alfa(mu, sigmac);
+  pars[1] := gamma_beta(mu, sigmac);
+  gamma_parametros := pars;
+end;
+</pre>
+
+
+<p>Here is the listing of the _Variants unit: </p>
+<pre name="code" class="delphi">
+interface
+uses SysUtils,
+  excel97,
+  vector,
+  matrix,
+  Classes,
+  Dialogs,
+  registry,
+  windows;
+ 
+type
+ 
+  tmatriz = array of array of double;
+  tvector_ = array of double;
+ 
+function IntToVar(dato: longint): variant;
+function DoubleToVar(dato: double): variant;
+ 
+function VarToDouble(const dato: variant): double;
+ 
+procedure RangeToMatrix(const rango: variant; var matriz: tmatriz);
+procedure RangeToVector(const rango: variant; var matriz: tvector_);
+procedure MatrixToRange(const matriz: tmatriz; var rango: variant);
+procedure VectorToRange(const matriz: tvector_; var rango: variant);
+ 
+procedure transpose(var matriz: tmatriz);
+ 
+implementation
+ 
+function IntToVar(dato: longint): variant;
+var
+  temp: variant;
+begin
+  tvardata(temp).vtype := VarInteger;
+  tvardata(temp).Vinteger := dato;
+  IntToVar := temp;
+end;
+ 
+function DoubleToVar(dato: double): variant;
+var
+  temp: variant;
+begin
+  tvardata(temp).vtype := VarDouble;
+  tvardata(temp).VDouble := dato;
+  DoubleToVar := temp;
+end;
+ 
+function VarToDouble(const dato: variant): double;
+var
+  temp: variant;
+begin
+  try
+    temp := varastype(dato, vardouble);
+  except
+    on EVariantError do
+    begin
+      tvardata(temp).vtype := vardouble;
+      tvardata(temp).vdouble := 0.0;
+    end;
+  end;
+  VarToDouble := tvardata(temp).vdouble;
+end;
+ 
+procedure RangeToMatrix(const rango: variant; var matriz: tmatriz);
+var
+  Rows, Columns: longint;
+  i, j: longint;
+begin
+  if ((tvardata(rango).vtype and vararray) = 0) and
+    ((tvardata(rango).vtype and vartypemask) = vardispatch) then
+  begin
+    Rows := Rango.rows.count;
+    Columns := Rango.columns.count;
+    SetLength(matriz, Rows);
+    for i := 0 to Rows - 1 do
+      SetLength(matriz[i], Columns);
+    for i := 0 to Rows - 1 do
+      for J := 0 to Columns - 1 do
+        matriz[i, j] := VarToDouble(Rango.cells[i + 1, j + 1]);
+  end
+  else if ((tvardata(rango).vtype and vararray) &lt;&gt; 0) then
+  begin
+    rows := vararrayhighbound(rango, 1) - vararraylowbound(rango, 1) + 1;
+    if VarArrayDimCount(rango) = 2 then
+    begin
+      columns := vararrayhighbound(rango, 2) - vararraylowbound(rango, 2) + 1;
+      setLength(matriz, rows);
+      for i := 0 to Rows - 1 do
+        SetLength(matriz[i], Columns);
+      for i := 0 to Rows - 1 do
+        for J := 0 to Columns - 1 do
+          matriz[i, j] := vartodouble(rango[i + 1, j + 1]);
+    end
+    else
+    begin
+      setlength(matriz, 1);
+      setlength(matriz[0], rows);
+      for i := 0 to rows - 1 do
+        matriz[0, i] := vartodouble(rango[i + 1]);
+    end;
+  end
+  else
+  begin
+    rows := 1;
+    columns := 1;
+    setLength(matriz, rows);
+    setLength(matriz[0], columns);
+    matriz[0, 0] := vartodouble(rango);
+  end
+end;
+ 
+procedure RangeToVector(const rango: variant; var matriz: tvector_);
+var
+  Rows, columns: longint;
+  i, j: longint;
+begin
+  if ((tvardata(rango).vtype and vararray) = 0) and
+    ((tvardata(rango).vtype and vartypemask) = vardispatch) then
+  begin
+    Rows := Rango.count;
+    SetLength(matriz, Rows);
+    for i := 0 to Rows - 1 do
+      matriz[i] := VarToDouble(Rango.cells[i + 1]);
+  end
+  else if ((tvardata(rango).vtype and vararray) &lt;&gt; 0) then
+  begin
+    rows := vararrayhighbound(rango, 1) - vararraylowbound(rango, 1) + 1;
+    if VarArrayDimCount(rango) = 1 then
+    begin
+      setLength(matriz, rows);
+      for i := 0 to rows - 1 do
+        matriz[i] := vartodouble(rango[i + 1]);
+    end
+    else
+    begin
+      columns := vararrayhighbound(rango, 2) - vararraylowbound(rango, 2) + 1;
+      setlength(Matriz, Columns * Rows);
+      for i := 1 to rows do
+        for j := 1 to columns do
+        try
+          matriz[(i - 1) * columns + j] := VarToDouble(rango[i, j]);
+        except
+          on EVariantError do
+            matriz[(i - 1) * columns + j] := 0;
+        end;
+    end
+  end
+  else
+  begin
+    rows := 1;
+    setLength(matriz, rows);
+    matriz[0] := vartodouble(rango);
+  end;
+end;
+ 
+procedure MatrixToRange(const matriz: tmatriz; var rango: variant);
+var
+  Rows, Columns: longint;
+  i, j: longint;
+begin
+  Rows := high(matriz) - low(matriz) + 1;
+  Columns := high(matriz[0]) - low(matriz[0]) + 1;
+  rango := VarArrayCreate([1, Rows, 1, Columns], varDouble);
+  for i := 1 to Rows do
+    for j := 1 to Columns do
+      rango[i, j] := matriz[i - 1, j - 1];
+end;
+ 
+procedure VectorToRange(const matriz: tvector_; var rango: variant);
+var
+  Rows: longint;
+  i: longint;
+begin
+  Rows := high(matriz) - low(matriz) + 1;
+  rango := VarArrayCreate([1, Rows], varDouble);
+  for i := 1 to Rows do
+    rango[i] := matriz[i - 1];
+end;
+ 
+procedure transpose(var matriz: tmatriz);
+var
+  Rows, Columns,
+    i, j: longint;
+  temp: double;
+begin
+  Rows := high(matriz) - low(matriz) + 1;
+  Columns := high(matriz[0]) - low(matriz[0]) + 1;
+  for i := 0 to rows - 1 do
+    for j := i to columns - 1 do
+    begin
+      temp := matriz[i, j];
+      matriz[i, j] := matriz[j, i];
+      matriz[j, i] := temp;
+    end;
+end;
+ 
+end.
+</pre>
+
+<p>One final warning note: </p>
+
+<p>Notice that the types' names in VBA are NOT the same as in Delphi. </p>
+<p>The two must obvious are BOOLEAN (which in VBA is a 2 byte type whereas in Delphi is a one byte type). Thus you MUST use WORDBOOL in Delphi. </p>
+<p>The other obvious type is INTEGER (in DElphi is a 4-byte type and in VBA a 2-byte type). To avoid confussion use LONGINT in Delphi and LONG in VBA </p>
+
+<p>I will be more than glad to send you the full source code of the _Variant unit</p>
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

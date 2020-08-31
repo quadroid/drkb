@@ -1,0 +1,64 @@
+<html>
+<head>
+  <title>Правила для SetRange</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Правила для SetRange</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Я, похоже, обнаружил неплохое решение ранжирования данных - вам необходимо только установить различные начальный и конечный диапазоны последнего поля, определенного вашим индексом, после чего введенное в любое поле индекса значение будет проигнорировано. Также вы не сможете покинуть ранжируемое поле, если редактируемая запись пуста. </p>
+
+<p>Попытаюсь изложить все попроще... Скажем, у меня есть индекс Field1; Field2; Field3, затем;</p>
+
+<pre name="code" class="delphi">
+SetRangeStart;
+Table1Field1.Value := x1;
+Table1Field2.Value := y1;
+Table1Field3.Value := z1;
+SetRangeEnd;
+Table1Field1.Value := x2;
+Table1Field2.Value := y2;
+Table1Field3.Value := z2;
+ApplyRange;
+</pre>
+
+<p>Правила...</p>
+
+<p>x1 должен равняться x2, если y или z определен</p>
+<p>y1 должен равняться y2, если z определен</p>
+<p>x должен быть определен, если y или z определены</p>
+<p>y должен быть определен, если x определен</p>
+<p>если x1 = x2 и никаких других критериев не определено, тогда y1 и y2 должны быть соответственно min/max значениями y</p>
+<p>если x1 = x2 и y1 = y2 и никаких других критериев не определено, тогда z1 и z2 должны быть соответственно min/max значениями z</p>
+<p>Я не знаю, поняли вы это или нет, но надеюсь это поможет...</p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

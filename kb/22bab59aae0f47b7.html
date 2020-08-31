@@ -1,0 +1,61 @@
+<html>
+<head>
+  <title>Цветной TScrollBar</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Цветной TScrollBar</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Антон Григорьев<br>
+<p>&nbsp;</p>
+<p>В Windows предусмотрено сообщение WM_CtlColorScrollBar, которое посылается окну, содержащему элементы управления ScrollBar (полосы прокрутки). В ответ на это сообщение окно должно вернуть системе кисть, которой надо закрасить полосу прокрутки. С помощью WM_CtlColorScrollBar можно получать разноцветные полосы прокрутки, что иногда бывает достаточно красиво.</p>
+<p>В Delphi форма при получении этого сообщения посылает соответствующему компоненту типа TScrollBar сообщение CN_CtlColorScrollBar, перепоручая обработку ему. И тут мы сталкиваемся с явным глюком VCL: это сообщение передаётся в стандартную оконную процедуру, хотя сообщение само по себе нестандартное, и стандартная процедура заведомо не сможет его обработать. Из-за этого TScrollBar не может изменять свой цвет, хотя львиная доля работы, необходимой для этого, делается в VCL. Чтобы исправить это, достаточно передать обработку CN_CtlColorScrollBar в метод DefaultHandler вместо DefWndProc. Ещё надо перенести в раздел published свойство Color, чтобы получить возможность управлять цветом полосы прокрутки.</p>
+<p>Но, несмотря на то, что в VCL здесь явная ошибка, не исправленная, кстати, даже в седьмой версии Delphi, править исходный код StdCtrls всё же не стоит. Вместо этого лучше написать свой компонент, который доделает то, что не доделано в стандартном TScrollBar'е. Код этого компонента будет выглядеть так:</p>
+<pre name="code" class="delphi">
+type
+  TColorScrollBar=class(TScrollBar)
+  private
+   procedure CNCtlColorScrollBar(var Msg:TMessage);message CN_CtlColorScrollBar;
+  published
+   property Color;
+  end;
+ 
+procedure TColorScrollBar.CNCtlColorScrollBar(var Msg:TMessage);
+begin
+  DefaultHandler(Msg)
+end;
+</pre>
+<p>Создав и зарегистрировав такой компонент, вы получите возможность управлять цветом полосы прокрутки. К сожалению, управлять цветом стандартных полос прокрутки формы или ScrollBox'а так же легко не получится.</p>
+<p>В принципе, реализовав обработку CN_CtlColorScrollBar не с помощью процедуры DefaultHandler, а самостоятельно, можно получить не только цветную полосу прокрутки, но и полосу, раскрашенную разными узорами. Но это я оставлю вам для самостоятельной работы.</p>
+&nbsp;<br>
+
+<p><a href="http://www.delphikingdom.com" target="_blank">http://www.delphikingdom.com</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

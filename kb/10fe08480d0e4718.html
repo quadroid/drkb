@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>Как узнать количество видимых строчек в TMemo?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать количество видимых строчек в TMemo?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function LinesVisible(Memo: TMemo): integer; 
+    Var 
+      OldFont : HFont; 
+      Hand : THandle; 
+      TM : TTextMetric; 
+      Rect  : TRect; 
+      tempint : integer; 
+    begin 
+      Hand := GetDC(Memo.Handle); 
+      try 
+        OldFont := SelectObject(Hand, Memo.Font.Handle); 
+        try 
+          GetTextMetrics(Hand, TM); 
+          Memo.Perform(EM_GETRECT, 0, longint(@Rect)); 
+          tempint := (Rect.Bottom - Rect.Top) div 
+             (TM.tmHeight + TM.tmExternalLeading); 
+        finally 
+          SelectObject(Hand, OldFont); 
+        end; 
+      finally 
+        ReleaseDC(Memo.Handle, Hand); 
+      end; 
+      Result := tempint; 
+    end; 
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

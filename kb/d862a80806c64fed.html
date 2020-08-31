@@ -1,0 +1,92 @@
+<html>
+<head>
+  <title>Как найти простое число?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как найти простое число?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit simple_;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    Button1: TButton;
+    Label1: TLabel;
+    Edit1: TEdit;
+    Label2: TLabel;
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  n: integer; // проверяемое число
+  d: integer; // делитель
+  r: integer; // остаток от деления n на d
+begin
+  n := StrToInt(Edit1.text);
+  d := 2; // сначала будем делить на два
+  repeat
+    r := n mod d;
+    if r &lt;&gt; 0 {// n не разделилось нацело на d} then
+      d := d + 1;
+  until r = 0; // повторять пока не найдено число на n делится без остатка
+  label2.caption := Edit1.text;
+  if d = n then
+    label2.caption := label2.caption + ' - простое число.'
+  else
+    label2.caption := label2.caption + ' - обычное число.';
+end;
+ 
+end.
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

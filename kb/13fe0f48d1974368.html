@@ -1,0 +1,154 @@
+<html>
+<head>
+  <title>Преобразование иконок в Gliph-ы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Преобразование иконок в Gliph-ы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Вот небольшой пример того, как можно загрузить иконку, содержащуюся в файле EXE, в Glyph у SpeedButton, и как очистить этот самый Glyph. </p>
+<p>Огорчен, но комментарии в исходном коде на испанском языке.</p>
+<pre name="code" class="delphi">
+unit Procs;
+ 
+interface
+uses
+ 
+  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
+  Forms, StdCtrls, Buttons, ExtCtrls, ShellAPI;
+ 
+procedure LlenaBoton(boton: TSpeedButton; Programa: string);
+procedure LimpiaBoton(boton: TSpeedButton);
+ 
+var
+  {Botones de programas}
+  Pic: TPicture;
+  Fname: string;
+  TempFile: array[0..255] of Char;
+  Icon: TIcon;
+ 
+implementation
+uses ttotro;
+ 
+procedure LlenaBoton(boton: TSpeedButton; Programa: string);
+ 
+var
+  NumFiles, NameLength: integer;
+  nIconsInFile: word;
+  rBoton: TRect;
+  oBitmap: TBitmap;
+  oBitmap2: TBitmap;
+  NombreBitmap: string;
+ 
+begin
+ 
+  try
+    screen.cursor := crHourglass;
+ 
+    {Extrae el Icono}
+    Icon := TIcon.Create;
+    StrPCopy(TempFile, Programa);
+    Icon.Handle := ExtractIcon(HInstance, TempFile, 0);
+ 
+    {Crea una instancia de TPicture}
+    Pic := TPicture.Create;
+    {Asigna el icon.handle a la propiedad Pic.icon}
+ 
+    Pic.Icon := Icon;
+ 
+    {Configura el tamano del bitmap como el del icono y el del segundo
+    bitmap con el tamano del boton}
+    oBitmap := TBitMap.create;
+    oBitmap2 := TBitMap.create;
+    oBitmap2.Width := Icon.Width;
+    oBitmap2.Height := Icon.Height;
+    oBitmap.Width := boton.Width - 4;
+    oBitmap.Height := boton.Height - 4;
+ 
+    { Dibuja el icono en el bitmap }
+    oBitmap2.Canvas.Draw(0, 0, Pic.Graphic);
+    rBoton.left := 1;
+    rBoton.Top := 1;
+    rBoton.right := boton.Width - 6;
+    rBoton.Bottom := boton.Height - 6;
+    oBitmap.Canvas.StretchDraw(rBoton, oBitmap2);
+ 
+    Boton.Hint := Programa;
+ 
+    NombreBitmap := Copy(programa, 1, Length(programa) - 3) + 'BMP';
+    {Salva el bitmap en un fichero}
+    if not FileExists(NombreBitmap) then
+    begin
+      oBitmap.SaveToFile(ExtractFilePath(Application.ExeName) +
+        ExtractFileName(NombreBitmap));
+      Boton.Glyph := oBitmap;
+    end
+    else
+      {Carga el BMP en el boton}
+      Boton.Glyph.LoadFromFile(ExtractFilePath(Application.ExeName) +
+        ExtractFileName(NombreBitmap));
+ 
+  finally
+    Icon.Free;
+    oBitmap.Free;
+    oBitmap2.Free;
+    screen.cursor := crDefault;
+ 
+  end; {main begin}
+end; {llenaboton}
+ 
+procedure LimpiaBoton(boton: TSpeedButton);
+ 
+var
+  oBitmap: TBitmap;
+  rBoton: TRect;
+begin
+ 
+  try
+    {Configuara el tamano del bitmap como el del icono y el del segundo
+    bitmap con el tamano del boton}
+    oBitmap := TBitMap.create;
+    oBitmap.Width := boton.Width - 4;
+    oBitmap.Height := boton.Height - 4;
+    Boton.Glyph := oBitmap;
+ 
+  finally
+    oBitmap.Free;
+  end; {main begin}
+end; {limpiaboton}
+ 
+end.
+</pre>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

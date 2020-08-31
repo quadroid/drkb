@@ -1,0 +1,136 @@
+<html>
+<head>
+  <title>Как перехватить события в неклиентской области формы?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как перехватить события в неклиентской области формы?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Создайте обработчик одного из сообщений WM_NC (non client - не клиентских) (посмотрите</p>
+<p>WM_NC в Windows API help). Пример показывает как перехватить вижение мыши во всей</p>
+<p>неклиенстской области окна (рамка и заголовок).</p>
+
+<p>Пример:</p>
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses
+   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls;
+ 
+type
+TForm1 = class(TForm)
+private
+        {Private declarations}
+        procedure WMNCMOUSEMOVE(var Message: TMessage);
+        message WM_NCMOUSEMOVE;
+public
+        {Public declarations}
+end;
+ 
+var
+        Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TForm1.WMNCMOUSEMOVE(var Message: TMessage);
+var
+        s : string;
+begin
+        case Message.wParam of
+                HTERROR:         
+                        s:= 'HTERROR';
+                HTTRANSPARENT:
+                        s:= 'HTTRANSPARENT';
+                HTNOWHERE:        
+                        s:= 'HTNOWHERE';
+                HTCLIENT:
+                        s:= 'HTCLIENT';
+                HTCAPTION:
+                        s:= 'HTCAPTION';
+                HTSYSMENU:
+                        s:= 'HTSYSMENU';
+                HTSIZE:
+                        s:= 'HTSIZE';
+                HTMENU:
+                        s:= 'HTMENU';
+                HTHSCROLL:
+                        s:= 'HTHSCROLL';
+                HTVSCROLL:
+                        s:= 'HTVSCROLL';
+                HTMINBUTTON:
+                        s:= 'HTMINBUTTON';
+                HTMAXBUTTON:
+                        s:= 'HTMAXBUTTON';
+                HTLEFT:
+                        s:= 'HTLEFT';
+                HTRIGHT:
+                        s:= 'HTRIGHT';
+                HTTOP:
+                        s := 'HTTOP';
+                HTTOPLEFT:
+                        s:= 'HTTOPLEFT';
+                HTTOPRIGHT:
+                        s:= 'HTTOPRIGHT';
+                HTBOTTOM:
+                        s:= 'HTBOTTOM';
+                HTBOTTOMLEFT:
+                        s:= 'HTBOTTOMLEFT';
+                HTBOTTOMRIGHT:
+                        s:= 'HTBOTTOMRIGHT';
+                HTBORDER:
+                        s:= 'HTBORDER';
+                HTOBJECT:
+                        s:= 'HTOBJECT';
+                HTCLOSE:
+                        s:= 'HTCLOSE';
+                HTHELP:
+                        s:= 'HTHELP';
+                else s:= '';
+        end;
+        Form1.Caption := s;
+        Message.Result := 0;
+end;
+ 
+end.
+</pre>
+
+
+<p>Взято из </p>
+DELPHI VCL FAQ Перевод с английского &nbsp; &nbsp; &nbsp; 
+<p>Подборку, перевод и адаптацию материала подготовил Aziz(JINX)</p>
+<p>специально для <a href="http://delphi.vitpc.com/" target="_blank">Королевства Дельфи</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

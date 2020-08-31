@@ -1,0 +1,153 @@
+<html>
+<head>
+  <title>Как вывести диалог «Обзор папок»</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как вывести диалог «Обзор папок»</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для вывода диалога "Обзор папок" существует функция SHBrowseForFolder. Для выбора того, какие папки будут выведены в диалоге, используется функция SHGetSpecialFolderLocation. В этой программе выводится рабочий стол со всеми подпапками (папки рабочего стола, Мой компьютер, Корзина). Для выбора папки в меню пуск используется CSIDL_STARTMENU вместо CSIDL_DESKTOP. </p>
+<pre name="code" class="delphi">
+uses ShlObj;
+ 
+procedure CallBack(wnd: hWnd; uMsg: UINT; lParam, lpData: LParam) stdcall;
+begin
+  SendMessage(wnd, BFFM_ENABLEOK, 0, 1);
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  bi: TBrowseInfo;
+  s: PChar;
+  PIDL, ResPIDL: PItemIDList;
+begin
+  SHGetSpecialFolderLocation(Form1.Handle, CSIDL_DESKTOP, PIDL);
+  s := StrAlloc(128);
+  bi.hwndOwner := Form1.Handle;
+  bi.pszDisplayName := s;
+ 
+  bi.lpszTitle := 'Выбор прапки';
+  bi.pidlRoot := PIDL;
+  bi.lpfn := addr(CallBack);
+  ResPidl := SHBrowseForFolder(BI);
+  SHGetPathFromIDList(ResPidl, s);
+  Form1.Caption := s;
+end;
+</pre>
+<p id="author">Автор советов: Даниил Карапетян</p>
+<p>e-mail: delphi4all@narod.ru</p>
+<p id="author">Автор справки: Алексей Денисов</p>
+<p>e-mail: aleksey@sch103.krasnoyarsk.su</p>
+<hr />
+<pre name="code" class="delphi">
+Uses ... ShlObj, ...
+
+ 
+  private
+    { Private declarations }
+    sx:String;
+...
+ 
+function TfmOptions.Selectdir(const str: string): string;
+ 
+function BrowseCallbackProc(hwnd: HWND; uMsg: UINT; lParam: LPARAM; lpData:LPARAM): integer; stdcall;
+begin
+ Result := 0;
+ if uMsg = BFFM_INITIALIZED then begin
+ SendMessage(hwnd, BFFM_SETSELECTION, 1, LongInt(PChar(fmOptions.sx)))
+ end;
+end;
+ 
+var
+ TitleName : string;
+ lpItemID : PItemIDList;
+ BrowseInfo : TBrowseInfo;
+ DisplayName : array[0..MAX_PATH] of char;
+ TempPath : array[0..MAX_PATH] of char;
+ begin
+   Result:='';
+   sx:=str;
+   FillChar(BrowseInfo, sizeof(TBrowseInfo), #0);
+   BrowseInfo.hwndOwner := Application.Handle;
+   BrowseInfo.pszDisplayName := @DisplayName;
+   TitleName := 'Выберите папку...';
+   BrowseInfo.lpszTitle := PChar(TitleName);
+   BrowseInfo.ulFlags := BIF_RETURNONLYFSDIRS or $0040 or BIF_EDITBOX or BIF_STATUSTEXT;
+   BrowseInfo.lpfn := @BrowseCallbackProc;
+   lpItemID := SHBrowseForFolder(BrowseInfo);
+ 
+   if lpItemId &lt;&gt; nil then begin
+     SHGetPathFromIDList(lpItemID, TempPath);
+     Result:=StrPas(TempPath);
+     GlobalFreePtr(lpItemID);
+   end;
+ {
+  //////////////////////////////////////////////////////////////////////
+  ---  bi.ulFlags флаги, которые задают режим отображения диалога:-----
+  /////////////////////////////////////////////////////////////////////
+ 
+  BIF_BROWSEFORCOMPUTER - Возвратить только компьютеры.
+    Если пользователь выбрал что-то отличное от компьютеров, то кнопка OK останется серой.
+ 
+  BIF_BROWSEFORPRINTER - Возвратить только принтеры. Если пользователь выбрал что-
+     то отличное от принтеров, то кнопка OK останется серой.
+ 
+  BIF_RETURNONLYFSDIRS - Возвратить только папки файловой системы.
+     Если пользователь выберет папки, которые не являются частью файловой системы,
+     то кнопка OK останется серой. Это необходимо для того если ваша программа не
+     работает с виртуальными папками вроде "Панель управления".
+ 
+  BIF_BROWSEINCLUDEFILES - Диалог просмотра будет отображать файлы вместе с директориями.
+ 
+  BIF_DONTGOBELOWDOMAIN - Не включать сетевые папки Доменного уровня ниже,
+     чем в TreeView контроле.
+  BIF_RETURNFSANCESTORS - В качестве выбора допустимы только объекты,
+     представленные в файловой системе.
+  BIF_STATUSTEXT - Включает область статуса в блок диалога. Функция может
+     установить текст посылая сообщения блоку диалога.
+  BIF_EDITBOX - В диалоговом окне будет присутствовать строка редактирования,
+    таким образом пользователь может набрать имя элемента.
+  BIF_VALIDATE - Если пользователь введёт неверное имя в строке редактирования,
+    то диалоговое окно вызовет функцию обратного вызова приложения по сообщению BFFM_VALIDATEFAILED.
+ 
+  ResPidl := SHBrowseForFolder(BI);
+}
+end;
+ 
+ 
+//использование
+dbeArcSended.Text := IncludeTrailingPathDelimiter(Selectdir(ParamStr(0)));
+</pre>
+<p id="author">Автор: Akella </p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

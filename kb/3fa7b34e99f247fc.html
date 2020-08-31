@@ -1,0 +1,180 @@
+<html>
+<head>
+  <title>Как изменить число фиксированных колонок в TDBGrid?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как изменить число фиксированных колонок в TDBGrid?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  TStringGrid(DbGrid1).FixedCols := 2;
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+<hr />Это маленькая вставка в Ваш наследник от TCustomDBGrid, которая решает данную задачу.</p>
+<pre name="code" class="delphi">
+// DBGRIDEX.PAS
+// ----------------------------------------------------------------------------
+ 
+destructor TDbGridEx.Destroy;
+begin
+ 
+  _HideColumnsValues.Free;
+  _HideColumns.Free;
+ 
+  inherited Destroy;
+end;
+ 
+// ----------------------------------------------------------------------------
+ 
+constructor TDbGridEx.Create(Component: TComponent);
+begin
+ 
+  inherited Create(Component);
+ 
+  FFreezeCols := ?;
+ 
+  _HideColumnsValues := TList.Create;
+  _HideColumns := TList.Create;
+end;
+ 
+// ----------------------------------------------------------------------------
+ 
+procedure TDbGridEx.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+ 
+  if (Key = VK_LEFT) then
+    ColBeforeEnter(-1);
+  if (Key = VK_RIGHT) then
+    ColBeforeEnter(1);
+ 
+  inherited;
+end;
+ 
+// ----------------------------------------------------------------------------
+ 
+procedure TDbGridEx.SetFreezeColor(AColor: TColor);
+begin
+ 
+  InvalidateRow(0);
+end;
+ 
+// ----------------------------------------------------------------------------
+ 
+procedure TDbGridEx.SetFreezeCols(AFreezeCols: Integer);
+begin
+ 
+  FFreezeCols := AFreezeCols;
+  InvalidateRow(0);
+end;
+ 
+// ----------------------------------------------------------------------------
+ 
+procedure TDbGridEx.ColEnter;
+begin
+ 
+  ColBeforeEnter(0);
+ 
+  if Assigned(OnColEnter) then
+    OnColEnter(Self);
+end;
+ 
+// ----------------------------------------------------------------------------
+ 
+procedure TDbGridEx.ColBeforeEnter(ADelta: Integer);
+var
+ 
+  nIndex: Integer;
+ 
+  function ReadWidth: Integer;
+  var
+ 
+    i: Integer;
+ 
+  begin
+ 
+    i := _HideColumns.IndexOf(Columns[nIndex]);
+ 
+    if i = -1 then
+      result := 120
+    else
+      result := Integer(_HideColumnsValues[i]);
+  end;
+ 
+  procedure SaveWidth;
+  var
+ 
+    i: Integer;
+ 
+  begin
+ 
+    i := _HideColumns.IndexOf(Columns[nIndex]);
+    if i &lt;&gt; -1 then
+    begin
+      _HideColumnsValues[i] := Pointer(Columns[nIndex].Width);
+    end
+    else
+    begin
+      _HideColumns.Add(Columns[nIndex]);
+      _HideColumnsValues.Add(Pointer(Columns[nIndex].Width));
+    end;
+  end;
+ 
+begin
+ 
+  for nIndex := 0 to Columns.Count - 1 do
+  begin
+    if (Columns[nIndex].Width = 0) then
+    begin
+      if (nIndex + 1 &lt;= FreezeCols) or (nIndex &gt;= SelectedIndex + ADelta) then
+        Columns[nIndex].Width := ReadWidth;
+    end
+    else
+    begin
+      SaveWidth;
+      if (nIndex + 1 &gt; FreezeCols) and
+        (nIndex &lt; SelectedIndex + ADelta) and
+        (nIndex + 1 &lt; Columns.Count) and
+        (FreezeCols &gt; 0) then
+        Columns[nIndex].Width := 0;
+    end;
+  end;
+end;
+</pre>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

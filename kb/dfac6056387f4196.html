@@ -1,0 +1,78 @@
+<html>
+<head>
+  <title>Как паковать таблицу?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как паковать таблицу?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function dgPackParadoxTable(Tbl: TTable; Db: TDatabase): DBIResult;
+{Packs a Paradox table by calling the BDE DbiDoRestructure function. The TTable passed as the first parameter must be closed. The TDatabase passed as the second parameter must be connected.}
+var
+  TblDesc: CRTblDesc;
+begin
+  Result := DBIERR_NA;
+  FillChar(TblDesc, SizeOf(CRTblDesc), 0);
+  StrPCopy(TblDesc.szTblName, Tbl.TableName);
+  TblDesc.bPack := True;
+  Result := DbiDoRestructure(Db.Handle, 1, @TblDesc, nil, nil, nil, False);
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+<hr />
+<pre name="code" class="delphi">
+uses
+  DbiProcs;
+ 
+with Table do
+begin
+  OldState := Active;
+  Close;
+  Exclusive := True;
+  Open;
+ 
+  DbiPackTable(DBHandle, Handle, nil, nil, True);
+  {^ здесь можно добавить check()}
+ 
+  Close;
+  Exclusive := False;
+  Active := OldState;
+  { при желании можно сохранить закладку }
+end;
+</pre>
+
+
+<p>Nomadic</p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

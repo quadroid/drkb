@@ -1,0 +1,91 @@
+<html>
+<head>
+  <title>Встроенные форматы буфера обмена</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Встроенные форматы буфера обмена</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Peter Below </p>
+<pre name="code" class="delphi">
+procedure TForm1.BtnShowFormatsClick(Sender: TObject);
+var
+  buf: array[0..60] of Char;
+  n: Integer;
+  fmt: Word;
+  name: string[30];
+begin
+  MemFormats.Clear;
+  for n := 0 to Clipboard.FormatCount - 1 do
+  begin
+    fmt := Clipboard.Formats[n];
+    if GetclipboardFormatName(fmt, buf, Pred(Sizeof(buf))) &lt;&gt; 0 then
+      MemFormats.Lines.Add(StrPas(buf))
+    else
+    begin
+      case fmt of
+        1: name := 'CF_TEXT';
+        2: name := 'CF_BITMAP';
+        3: name := 'CF_METAFILEPICT';
+        4: name := 'CF_SYLK';
+        5: name := 'CF_DIF';
+        6: name := 'CF_TIFF';
+        7: name := 'CF_OEMTEXT';
+        8: name := 'CF_DIB';
+        9: name := 'CF_PALETTE';
+        10: name := 'CF_PENDATA';
+        11: name := 'CF_RIFF';
+        12: name := 'CF_WAVE';
+        13: name := 'CF_UNICODETEXT';
+        14: name := 'CF_ENHMETAFILE';
+        15: name := 'CF_HDROP (Win 95)';
+        16: name := 'CF_LOCALE (Win 95)';
+        17: name := 'CF_MAX (Win 95)';
+        $0080: name := 'CF_OWNERDISPLAY';
+        $0081: name := 'CF_DSPTEXT';
+        $0082: name := 'CF_DSPBITMAP';
+        $0083: name := 'CF_DSPMETAFILEPICT';
+        $008E: name := 'CF_DSPENHMETAFILE';
+        $0200..$02FF: name := 'частный формат';
+        $0300..$03FF: name := 'Объект GDI';
+      else
+        name := 'неизвестный формат';
+      end;
+      MemFormats.Lines.Add(name);
+    end;
+  end;
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

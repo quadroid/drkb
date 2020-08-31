@@ -1,0 +1,60 @@
+<html>
+<head>
+  <title>Как создать копию произвольного компонента?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как создать копию произвольного компонента?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+ Здесь пpоцедypа CreateClone, котоpая кpеатит компонентy ОЧЕHЬ ПОХОЖУЮ на 
+входнyю. С такими же значениями свойств. Пpисваивается все, кpоме методов. 
+} 
+function CreateClone(Src: TComponent): TComponent; 
+var 
+  F: TStream; 
+begin 
+  F := nil; 
+  try 
+    F := TMemoryStream.Create; 
+    F.WriteComponent(Src); 
+    RegisterClass(TComponentClass(Src.ClassType)); 
+    F.Position := 0; 
+    Result := F.ReadComponent(nil); 
+  finally 
+    F.Free; 
+  end; 
+end; 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

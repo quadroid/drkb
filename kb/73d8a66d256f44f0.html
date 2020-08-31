@@ -1,0 +1,83 @@
+<html>
+<head>
+  <title>Функция вычисления суммы полей</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Функция вычисления суммы полей</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function SumField(const fieldName: OpenString): longint;
+var
+  fld: TField;
+  bm: TBookmark; // закладка
+begin
+  result := 0;
+  tbl.DisableControls; // выключаем рекцию на перемещение по набору данных
+  bm := tbl.GetBookmark; // сохраняем позицию
+  fld := tbl.FieldByName(fieldName);
+  tbl.first;
+  while not tbl.eof do
+  begin
+    result := result + fld.AsInteger;
+    tbl.next;
+  end;
+  tbl.GotoBookmark(bm); // позиционируем обратно
+  tbl.EnableControls; // включаем реакцию на перемещение по набору данных
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+<p id="note">Примечание Vit</p>
+<p>данный способ один из худших, а точнее самый худший из всех возможных и мог бы служить пособием того как делать не следует (собственно для этого я его здесь и привёл). На больших таблицах, особенно на серверных базах данных выполнение этого кода будет исключительно медленное. Намного выгоднее выполнение SQL запроса вида:</p>
+<pre name="code" class="sql">
+Select Sum(MyField) From MyTable
+</pre>
+
+
+<p>И в коде чтение первого поля первой записи:</p>
+<pre name="code" class="delphi">
+Function Form1.GetRecordSum(TableName:string):integer;
+
+begin //на форме должен стоять компонент Query1 подсоединённый к нужной базе данных (код будет работать для любых разновидностей TQuery, TADOQuery и т.д.)
+  Query1.active:=false;
+  Query1.sql.text:='Select Sum(MyField) From '+TableName;
+  Query1.active:=true;
+  Result:=Query1.fields[0].asInteger;
+  Query1.active:=false;
+end;
+</pre>
+
+
+<p>при этом все другие открытые TTable/TQuery и т.п. на этой таблице могут продолжать оставаться открытыми.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

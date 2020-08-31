@@ -1,0 +1,104 @@
+<html>
+<head>
+  <title>Форматирование строки с использованием подстановочных символов</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Форматирование строки с использованием подстановочных символов</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Форматирование строки с использованием подстановочных символов %1, %2 и т.д.
+ 
+Функция заменяет в строке Str все подстроки '%1', '%2', и т.д. На
+соответсвующие значения из массива Values. При этом значения этого массива
+не должны содержать подстановочных подстрок, в противном случае возможно
+зависание функции.
+ 
+Зависимости: SysUtils
+Автор:       Dimka Maslov, mainbox@endimus.ru, ICQ:148442121, Санкт-Петербург
+Copyright:   Dimka Maslov
+Дата:        15 мая 2002 г.
+***************************************************** }
+ 
+{Эта функция работает неверно, если в строке, на которую надо
+заменить %1,%2,… содержится одна из строк %1,%2,…
+( она зависнет в бесконечном цикле )}
+ 
+function FmtString(const Str: string; const Values: array of string): string;
+ 
+  function InternalPos(SubStr: string; Str: PChar; out P: Integer): Integer;
+  var
+    Ptr: PChar;
+  begin
+    Ptr := StrPos(Str, PChar(SubStr));
+    if Ptr = nil then
+      Result := -1
+    else
+      Result := Integer(Ptr) - Integer(Str);
+    P := Result;
+  end;
+ 
+  function InternalReplace(const Str, OldSub, NewSub: string): string;
+  var
+    PrePos: Integer;
+    CurPos: Integer;
+    OldLen, NewLen: Integer;
+  begin
+    PrePos := 1;
+    Result := Str;
+    OldLen := Length(OldSub);
+    NewLen := Length(NewSub);
+    while InternalPos(OldSub, @Result[PrePos], CurPos) &gt;= 0 do
+    begin
+      Inc(PrePos, CurPos);
+      Delete(Result, PrePos, OldLen);
+      Insert(NewSub, Result, PrePos);
+      Inc(PrePos, NewLen);
+    end;
+  end;
+ 
+var
+  i: Integer;
+begin
+  Result := Str;
+  for i := High(Values) downto Low(Values) do
+    Result := InternalReplace(Result, '%' + IntToStr(i + 1), Values[i]);
+end;
+Пример использования: 
+ 
+FmtString('%1 %2', ['Пример', 'использования']);
+ 
+</pre>
+
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

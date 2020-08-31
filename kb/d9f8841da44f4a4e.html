@@ -1,0 +1,144 @@
+<html>
+<head>
+  <title>Получить список пользователей, подключенных к сети</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получить список пользователей, подключенных к сети</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit NetUtils;
+ 
+interface
+ 
+uses
+  Windows, Classes;
+ 
+function GetContainerList(ListRoot:PNetResource):TList;
+ 
+type
+  {$H+}
+  PNetRes = ^TNetRes;
+  TNetRes = record
+    dwScope : Integer;
+    dwType : Integer;
+    dwDisplayType : Integer;
+    dwUsage : Integer;
+    LocalName : string;
+    RemoteName : string;
+    Comment : string;
+    Provider : string;
+  end;
+  {H-}
+ 
+ 
+implementation
+ 
+uses SysUtils;
+ 
+type
+  PnetResourceArr = ^TNetResource;
+ 
+function GetContainerList(ListRoot:PNetResource):TList;
+{возвращает список сетевых имён с подуровня ListRoot, каждый
+элемент списка TList - это PNetRec, где поле RemoteName определяет
+соответственно сетевое имя элемента списка. Если ListRoot=nil, то
+возвращается самый верхний уровень типа:
+1. Microsoft Windows Network
+2. Novell Netware Network
+Чтобы получить список доменов сети Microsoft, нужно вызвать эту
+функцию второй раз, передав ей в качестве параметра,
+соответствующий элемент списка, полученного при первом её вызове.
+Чтобы получить список компьютеров домена - вызвать третий раз...}
+var
+  TempRec : PNetRes;
+  Buf : Pointer;
+  Count,
+  BufSize,
+  Res : DWORD;
+  lphEnum : THandle;
+  p : PNetResourceArr;
+  i : SmallInt;
+  NetworkList : TList;
+begin
+  NetworkList := TList.Create;
+  Result:=nil;
+  BufSize := 8192;
+  GetMem(Buf, BufSize);
+  try
+    Res := WNetOpenEnum(RESOURCE_GLOBALNET, RESOURCETYPE_DISK,
+    RESOURCEUSAGE_CONTAINER{0}, ListRoot,lphEnum);
+    {в результате получаем ссылку lphEnum}
+    if Res &lt;&gt; 0 then
+      raise Exception(Res);
+    Count := $FFFFFFFF; {требуем выдать столько записей в список, сколько есть}
+    Res := WNetEnumResource(lphEnum, Count, Buf, BufSize);
+    {в буфере Buf - списочек в виде массива указателей на структуры
+    типа TNetResourceArr, а в Count - число этих структур}
+    if Res = ERROR_NO_MORE_ITEMS then
+      Exit;
+    if (Res &lt;&gt; 0) then
+      raise Exception(Res);
+    P := PNetResourceArr(Buf);
+    for I := 0 to Count - 1 do
+    begin
+      // Требуется копирование из буфера, так как он
+      // действителен только до следующего вызова функций группы WNet
+      New(TempRec);
+      TempRec^.dwScope := P^.dwScope;
+      TempRec^.dwType := P^.dwType ;
+      TempRec^.dwDisplayType := P^.dwDisplayType ;
+      TempRec^.dwUsage := P^.dwUsage ;
+      {имеются ввиду вот эти указатели}
+      TempRec^.LocalName := StrPas(P^.lpLocalName);
+      {в смысле - строки PChar}
+      TempRec^.RemoteName := StrPas(P^.lpRemoteName);
+      TempRec^.Comment := StrPas(P^.lpComment);
+      TempRec^.Provider := StrPas(P^.lpProvider);
+      NetworkList.Add(TempRec);
+      Inc(P);
+    end;
+    Res := WNetCloseEnum(lphEnum);
+    {а следующий вызов - вот он!}
+    if Res &lt;&gt; 0 then
+      raise Exception(Res);
+    Result:=NetWorkList;
+  finally
+    FreeMem(Buf);
+  end;
+end;
+ 
+end.
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

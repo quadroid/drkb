@@ -1,0 +1,208 @@
+<html>
+<head>
+  <title>Снятие звука с микрофона, отображение звуковые данных в виде графика</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Снятие звука с микрофона, отображение звуковые данных в виде графика</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Forms,
+  Dialogs, MMSystem;
+ 
+type
+  TWavArrayBuf = array[0..1023]of byte;
+  PWavArrayBuf = ^TWavArrayBuf;
+ 
+  TForm1 = class(TForm)
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+    WaveFormat: TWaveFormatEx;
+    WaveIn: PHWaveIn;
+    procedure WndProc(var Msg: TMessage); override;
+    function InitWaveIn: Boolean;
+    procedure CloseWaveIn;
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+uses Math;
+ 
+{$R *.dfm}
+ 
+function TForm1.InitWaveIn: Boolean;
+var
+  I, Err: Integer;
+  WaveHdr: PWaveHdr;
+  WavBuff: PWavArrayBuf;
+ 
+  procedure FreeData;
+  begin
+    if WavBuff &lt;&gt; nil then Dispose(WavBuff);
+    if WaveHdr &lt;&gt; nil then Dispose(WaveHdr);
+    if WaveIn &lt;&gt; nil then Dispose(WaveIn);
+  end;
+ 
+begin
+  Result := False;
+  WaveFormat.wFormatTag := WAVE_FORMAT_PCM;
+  WaveFormat.nChannels := 1; 
+  WaveFormat.nSamplesPerSec := 44100;
+  WaveFormat.nAvgBytesPerSec := 44100;
+  WaveFormat.nBlockAlign := 4;
+  WaveFormat.wBitsPerSample := 8;
+  WaveIn := New(PHWaveIn);
+  Err := WaveInOpen(WaveIn, 0, @WaveFormat, Handle, 0, CALLBACK_WINDOW);
+  if Err &lt;&gt; 0 then Exit;
+  for i:=1 to 8 do
+  begin
+    WavBuff := New(PWavArrayBuf);
+    WaveHdr := New(PWaveHdr);
+    with WaveHdr^ do
+    begin
+      lpData := Pointer(WavBuff);
+      dwBufferLength := SizeOf(WavBuff);
+      dwBytesRecorded := 0;
+      dwUser := 0;
+      dwFlags := 0;
+      dwLoops := 0;
+    end;
+    Err := WaveInPrepareHeader(WaveIn^, WaveHdr, SizeOf(TWaveHdr));
+    if Err &lt;&gt; 0 then
+    begin
+      FreeData;
+      Exit;
+    end;
+    Err := WaveInAddBuffer(WaveIn^, WaveHdr, Sizeof(TWaveHdr));
+    if Err &lt;&gt; 0 then
+    begin
+      FreeData;
+      Exit;
+    end;
+  end;
+  Err := WaveInStart(WaveIn^);
+  if Err &lt;&gt; 0 then
+  begin
+    FreeData;
+    Exit;
+  end;
+  Result := True;
+end;
+ 
+Procedure Tform1.WndProc(var Msg: TMessage);
+var
+  Hdr: PWaveHdr;
+  I: Integer;
+  R: Real;
+begin
+  inherited;
+  case Msg.Msg of
+    MM_WIM_DATA:
+    begin
+      Hdr := PWaveHdr(Msg.LParam);
+      if Hdr^.dwBytesRecorded = 0 then Exit;
+      R := IfThen(Hdr^.dwBytesRecorded &gt; 0,
+        ClientWidth / Hdr^.dwBytesRecorded, 0);
+      PatBlt(Canvas.Handle, 0, 0, ClientWidth,  ClientHeight, PATCOPY);
+      Canvas.Pen.Color:=clRed;
+      Canvas.MoveTo(0, 127);
+      Canvas.LineTo(ClientWidth, 127);
+      Canvas.Pen.Color := clMaroon;
+      for I := 1 to 12 do
+      begin
+        Canvas.MoveTo(Round(R * (I * 100)), 0);
+        Canvas.LineTo(Round(R * (I * 100)), 255);
+      end;
+      Canvas.Pen.Color:=clLime;
+      Canvas.MoveTo(0, PWavArrayBuf(Hdr.lpData)^[0]);
+      for I := 0 to Hdr^.dwBytesRecorded - 1 do
+        Canvas.LineTo(Round(R * I), PWavArrayBuf(Hdr.lpData)^[I]);
+ 
+      WaveInUnprepareHeader(WaveIn^, Hdr, Sizeof(TWaveHdr));
+      Dispose(hdr.lpData);
+      DisPose(hdr);
+ 
+      Hdr := New(PWaveHdr);
+      Hdr^.lpData := Pointer(New(PWavArrayBuf));
+      Hdr^.dwBufferLength := 1024;
+      Hdr^.dwBytesRecorded := 0;
+      Hdr^.dwUser := 0;
+      Hdr^.dwFlags := 0;
+      Hdr^.dwLoops := 0;
+ 
+      WaveInPrepareHeader(WaveIn^, Hdr, Sizeof(TWaveHdr));
+      WaveInAddBuffer(WaveIn^, Hdr, Sizeof(TWaveHdr));
+    end;
+  end;
+end;
+ 
+procedure TForm1.CloseWaveIn;
+begin
+  WaveInStop(WaveIn^);
+  if WaveIn &lt;&gt; nil then
+  begin
+    WaveInReset(WaveIn^);
+    WaveInClose(WaveIn^);
+  end;
+  Dispose(WaveIn);
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  DoubleBuffered := True;
+  Height := 282;
+  Width := 1000;
+  Color := clBlack;
+  if not InitWaveIn then ShowMessage(SysErrorMessage(GetLastError));
+end;
+ 
+procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  CloseWaveIn;
+end;
+ 
+end.
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+<p id="author">Автор: Rouse_ </p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<html>
+<head>
+  <title>Запросы на изменение данных</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Запросы на изменение данных</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>А как менять значения в базе данных? Тоже при помощи квери это делать проще и, что важнее, значительно быстрее. Например, меняем в поле Category все "Cod" на "Kod". В квере пишем текст:</p>
+<pre name="code" class="sql">Update biolife
+Set Category='Kod'
+Where Category='Cod'
+</pre>
+
+<p>Ставим на форму кнопку, в обработчике нажания (onClick) пишем код:</p>
+<p>Query1.ExecSQL;</p>
+<p>Важные примечания:</p>
+<p>1) Обратите внимание, что в данном случае мы не открываем квери делая Active:=true и не используем эквивалентный метод Open, а используем метод ExecSQL. Если открытие квери с оператором Select приводит к возвращению данных в программу (так называемый курсор данных), то все остальные типы кверей никаких данных в программу не возвращают - они выполняют операцию над базой, но не возвращают курсор. Такую кверю НЕЛЬЗЯ соединить с визуальными компонентами, её открытие хоть и будет выполнять операцию, будет приводить к исключительной ситуации.</p>
+<p>2) Перед изменением текста квери, хоть в дизайне, хоть в run-time кверя должна быть закрыта.</p>
+<p>Аналогичным способом можно пользоваться другими операторами SQL:</p>
+<p>Delete - для удаления нескольких/всех строк</p>
+<p>Insert - для вставки одной или нескольких строк</p>
+<p>Create Table - для создания таблицы</p>
+<p>Alter Table - для изменения структуры таблицы</p>
+<p>Drop Table - для удаления таблицы</p>
+<p> и другими. Смотрите руководства по SQL по использованию этих операторов.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

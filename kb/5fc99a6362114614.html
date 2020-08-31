@@ -1,0 +1,64 @@
+<html>
+<head>
+  <title>Как программно заставить выпасть меню?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как программно заставить выпасть меню?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: InSAn</p>
+
+<p>В примере показано как показать меню и выбрать в нем какой-то пункт, эмулируя нажатие "быстрой кдавиши" пункта меню. Если у Вашего пункта меню нет "быстрой клавиши" Вы можете посылать комбинации VK_MENU, VK_LEFT, VK_DOWN, и VK_RETURN, чтобы программно "путешествовать" по меню.</p>
+
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  //Allow button to finish painting in response to the click
+  Application.ProcessMessages;
+  {Alt Key Down}
+  keybd_Event(VK_MENU, 0, 0, 0);
+  {F Key Down - Drops the menu down}
+  keybd_Event(ord('F'), 0, 0, 0);
+  {F Key Up}
+  keybd_Event(ord('F'), 0, KEYEVENTF_KEYUP, 0);
+  {Alt Key Up}
+  keybd_Event(VK_MENU, 0, KEYEVENTF_KEYUP, 0);
+  {F Key Down}
+  keybd_Event(ord('S'), 0, 0, 0);
+  {F Key Up}
+  keybd_Event(ord('S'), 0, KEYEVENTF_KEYUP, 0);
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<html>
+<head>
+  <title>Создаем собственный UnRar, используя unrar.dll</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создаем собственный UnRar, используя unrar.dll</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>// Объявления</p>
+<pre name="code" class="delphi">
+function RAROpenArchive(ArchiveData : Pointer): Integer; stdcall;
+external 'unrar.dll' name 'RAROpenArchive'; 
+ 
+function RARCloseArchive(hArcData : Integer): Integer; stdcall;
+external 'unrar.dll' name 'RARCloseArchive';
+ 
+function RARReadHeader(hArcData : Integer; HeaderData : Pointer): Integer; stdcall;
+external 'unrar.dll' name 'RARReadHeader';
+ 
+function RARProcessFile(hArcData : Integer; Operation : Integer; DestPath : Pointer;
+DestName : Pointer): Integer; stdcall;
+external 'unrar.dll' name 'RARProcessFile';
+ 
+ 
+const
+  ERAR_END_ARCHIVE = 10;
+  ERAR_NO_MEMORY = 11;
+  ERAR_BAD_DATA = 12;
+  ERAR_BAD_ARCHIVE = 13;
+  ERAR_UNKNOWN_FORMAT = 14;
+  ERAR_EOPEN = 15;
+  ERAR_ECREATE = 16;
+  ERAR_ECLOSE = 17;
+  ERAR_EREAD = 18;
+  ERAR_EWRITE = 19;
+  ERAR_SMALL_BUF = 20;
+ 
+  RAR_OM_LIST = 0;
+  RAR_OM_EXTRACT = 1;
+  RAR_SKIP = 0;
+  RAR_TEST = 1;
+  RAR_EXTRACT = 2;
+  RAR_VOL_ASK = 0;
+  RAR_VOL_NOTIFY = 1;
+ 
+ 
+type
+  Char260 = Array [1..260] of Char;
+ 
+  TRAROpenArchiveData = record
+   ArcName : PChar; // в C++ это будет выглядеть как: char *ArcName
+   OpenMode : Cardinal;
+   OpenResult : Cardinal;
+   CmtBuf : PChar;
+   CmtBufSize : Cardinal;
+   CmtSize : Cardinal;
+   CmtState : Cardinal;
+  end;
+ 
+  TRARHeaderData = record
+   ArcName : Char260;
+   FileName : Char260;
+   Flags : Cardinal;
+   PackSize : Cardinal;
+   UnpSize : Cardinal;
+   HostOS : Cardinal;
+   FileCRC : Cardinal;
+   FileTime : Cardinal;
+   UnpVer : Cardinal;
+   Method : Cardinal;
+   FileAttr : Cardinal;
+   CmtBuf : PChar;
+   CmtBufSize : Cardinal;
+   CmtSize : Cardinal;
+   CmtState : Cardinal;
+  end;
+ 
+ 
+var
+  RARExtract : boolean;
+  RAROpenArchiveData : TRAROpenArchiveData;
+  RARComment : array [1..256] of Char;
+  RARHeaderData : TRARHeaderData;
+ 
+...
+ 
+procedure ExtractRARArchive;
+var
+  sDir : string;
+  s : string;
+  sTest : string;
+  iTest : integer;
+  bTestDone : boolean;
+  RARhnd : Integer;
+  RARrc : Integer;
+  PDestPath : Char260;
+ 
+begin
+  RARExtract:=TRUE;
+  lKBWritten:=0;
+  ProgressBar2.Position := 0;
+  ProgressBar2.Max := lTotalSize;
+  RARStartTime:=Time;
+ 
+  RAROpenArchiveData.OpenResult:=99;
+  RAROpenArchiveData.OpenMode := RAR_OM_EXTRACT; // открываем для распаковки
+  RAROpenArchiveData.ArcName:= @RARFileName;
+  RAROpenArchiveData.CmtBuf := @RARComment; 
+  RAROpenArchiveData.CmtBufSize := 255; 
+ 
+// Открываем RAR архив и выделяем память
+  RARhnd := RAROpenArchive (@RAROpenArchiveData);
+  If RAROpenArchiveData.OpenResult &lt;&gt; 0 then
+  begin
+   case RAROpenArchiveData.OpenResult of
+    ERAR_NO_MEMORY : s:='Not enough memory to initialize data structures';
+    ERAR_BAD_DATA : s:='Archive header broken';
+    ERAR_BAD_ARCHIVE : s:='File is not valid RAR archive';
+    ERAR_EOPEN : s:='File open error';
+   end;
+   MessageDlg('Unable to open rar archive: ' + s + '!',mtError, [mbOK], 0);
+  end;
+ 
+  RARSetProcessDataProc(RARhnd,@Form.OnRarStatus);
+  StrPCopy(@PDestPath, EInstallPath.Text);
+ 
+  repeat
+   RARrc := RARReadHeader (RARhnd, @RARHeaderData);// Читаем заголовок
+   if RARrc &lt;&gt; ERAR_END_ARCHIVE then
+   begin
+    ProgressBar1.Position := 0;
+    ProgressBar1.Max := RARHeaderData.UnpSize;
+    s:=RARHeaderData.FileName;
+    lblCurrentFile.Caption := s;
+    lKBytesDone := 0;
+   end;
+ 
+   if RARrc = 0 then
+   RARrc:=RARProcessFile (RARhnd, RAR_EXTRACT, @PDestPath, nil);
+   if (RARrc &lt;&gt; 0) and (RARrc &lt;&gt; ERAR_END_ARCHIVE) then
+   begin
+    MessageDlg('An Error occured during extracting of ' + sTest+'!' + #13#10 +
+    'RARProcessFile: ' + MakeItAString(RARrc),mtError, [mbOK], 0);
+   end;
+  until RARrc &lt;&gt; 0;
+ 
+// закрываем RAR архив и освобождаем память
+  If RARCloseArchive(RARhnd) &lt;&gt; 0 then
+  begin
+   MessageDlg('Unable to close rar archive!',mtError, [mbOK], 0);
+  end;
+end; // ExtractRARArchive
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

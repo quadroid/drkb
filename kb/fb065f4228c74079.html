@@ -1,0 +1,74 @@
+<html>
+<head>
+  <title>Как определить, нажата ли в данный момент клавиша Shift, Ctrl или Alt?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как определить, нажата ли в данный момент клавиша Shift, Ctrl или Alt?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Следующий пример демонстрирует проверку состояния клавиши Shift (нажата она или нет), в то время когда выделен пункт меню. А так же в примере содержатся функции, позволяющие определить состояние клавишь Alt, Ctrl, и shift:</p>
+<pre name="code" class="delphi">
+function CtrlDown : Boolean;
+var
+  State : TKeyboardState;
+begin
+  GetKeyboardState(State);
+  Result := ((State[vk_Control] And 128) &lt;&gt; 0);
+end;
+ 
+function ShiftDown : Boolean;
+var
+  State : TKeyboardState;
+begin
+  GetKeyboardState(State);
+  Result := ((State[vk_Shift] and 128) &lt;&gt; 0);
+end;
+ 
+function AltDown : Boolean;
+var
+  State : TKeyboardState;
+begin
+  GetKeyboardState(State);
+  Result := ((State[vk_Menu] and 128) &lt;&gt; 0);
+end;
+ 
+procedure TForm1.MenuItem12Click(Sender: TObject);
+begin
+  if ShiftDown then
+    Form1.Caption := 'Shift' else
+    Form1.Caption := '';
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

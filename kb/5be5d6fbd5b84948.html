@@ -1,0 +1,98 @@
+<html>
+<head>
+  <title>Show text progressively as typed with a typewriter (horizontal/vertical)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Show text progressively as typed with a typewriter (horizontal/vertical)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{
+ To make this code to work you would need 2 images,
+ one for the horizontal- and another for the vertical text.
+}
+ 
+// VerticalTypewriter ( &lt;Text&gt;, &lt;Image to write to&gt;, &lt;Time to delay between every chars&gt; )
+procedure VerticalTypewriter(text: string; image: timage; delay: integer);
+var
+ x,y,i: integer;
+begin
+ image.Canvas.Refresh;
+ application.ProcessMessages;
+ y := 1;
+ 
+ for i := 1 to length(text) do begin
+  application.ProcessMessages;
+  y := y+image.Canvas.TextHeight(text[i]);
+  x := image.width div 2 - (image.Canvas.TextWidth(text[i]) div 2);
+  image.Canvas.TextOut(x,y,text[i]);
+  sleep(delay);
+ end;
+ 
+end;
+ 
+// Horizontal Typewriter ( &lt;Text&gt;, &lt;Image to write to&gt;, &lt;Time to delay between every chars&gt;, &lt;Space between chars&gt;)
+procedure HorizontalTypewriter(text: string; image: timage; delay, space: integer);
+var
+ x,y,i: integer;
+begin
+ image.Canvas.Refresh;
+ application.ProcessMessages;
+ x := 1;
+ 
+ for i := 1 to length(text) do begin
+  application.ProcessMessages;
+  y := image.Picture.Height div 2 - (image.Canvas.TextHeight(text[i]) div 2);
+  x := x+image.Canvas.TextWidth(text[i])+space;
+  image.Canvas.TextOut(x,y,text[i]);
+  sleep(delay);
+ end;
+ 
+end;
+ 
+ 
+// Sample calls:
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+ //                  &lt;text&gt;          &lt;image&gt;  &lt;delay&gt;
+ VerticalTypewriter('HELLO BIG-X',   image1,  100     );
+end;
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+ //                    &lt;text&gt;         &lt;image&gt;  &lt;delay&gt;  &lt;space&gt;
+ HorizontalTypewriter('Hello Big-X',  image2,  100,     1       );
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

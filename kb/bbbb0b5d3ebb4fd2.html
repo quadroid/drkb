@@ -1,0 +1,225 @@
+<html>
+<head>
+  <title>Как считать сигнал с микрофона?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как считать сигнал с микрофона?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В Windows нет разделения каналов записи по источникам. </p>
+
+<p>CD-ROM ----------|</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |--- Динамики</p>
+<p>Микрофон --------|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |-- Windows --|--- Записывающие программы</p>
+<p>Линейный вход ---|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |--- Линейный выход</p>
+<p>MIDI ------------|</p>
+
+<p>Все поступающие в систему звуки смешиваются, и лишь после этого их получает программа.</p>
+<p>Для получения звукового сигнала нужно воспользоваться WinAPI. </p>
+<p>WaveInOpen открывает доступ к микрофону.</p>
+<p> Одновременно только одна программа может работать с микрофоном. </p>
+<p>Заодно Вы указываете, какая нужна частота, сколько бит на значение и размер буфера.</p>
+<p> От последнего зависит, как часто и в каком объеме информация будет поступать в программу.</p>
+
+<p>Далее нужно выделить память для буфера и вызвать функцию WaveInAddBuffer, </p>
+<p>которая передаст Windows пустой буфер. </p>
+<p>После вызова WaveInStart Windows начнет заполнять буфер, </p>
+<p>и, после его заполнения, пошлет сообщение MM_WIM_DATA. </p>
+<p>В нем нужно обработать полученную информацию и вновь вызвать WaveInAddBuffer,</p>
+<p> тем самым указав, что буфер пуст.</p>
+
+<p>Функции WaveInReset и WaveInClose прекратят поступление информации в программу и закроют доступ к микрофону.</p>
+
+<p>Эта программа считывает сигнал с микрофона и выводит его на экран. </p>
+<p>Частота сигнала - 22050 Гц. Количество бит определяется флажком, размер буфера TrackBar-ом. </p>
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ExtCtrls, ComCtrls, MMSystem;
+ 
+type
+  TData8 = array [0..127] of byte;
+  PData8 = ^TData8;
+  TData16 = array [0..127] of smallint;
+  PData16 = ^TData16;
+  TPointArr = array [0..127] of TPoint;
+  PPointArr = ^TPointArr;
+  TForm1 = class(TForm)
+    Button1: TButton;
+    Button2: TButton;
+    PaintBox1: TPaintBox;
+    TrackBar1: TTrackBar;
+    CheckBox1: TCheckBox;
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure CheckBox1Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    procedure OnWaveIn(var Msg: TMessage); message MM_WIM_DATA;
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+var
+  WaveIn: hWaveIn;
+  hBuf: THandle;
+  BufHead: TWaveHdr;
+  bufsize: integer;
+  Bits16: boolean;
+  p: PPointArr;
+  stop: boolean = false;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  header: TWaveFormatEx;
+  BufLen: word;
+  buf: pointer;
+begin
+  BufSize := TrackBar1.Position * 500 + 100; { Размер буфера }
+  Bits16 := CheckBox1.Checked;
+  with header do begin
+    wFormatTag := WAVE_FORMAT_PCM;
+    nChannels := 1;  { количество каналов }
+    nSamplesPerSec := 22050; { частота }
+    wBitsPerSample := integer(Bits16) * 8 + 8; { 8 / 16 бит }
+    nBlockAlign := nChannels * (wBitsPerSample div 8);
+    nAvgBytesPerSec := nSamplesPerSec * nBlockAlign;
+    cbSize := 0;
+  end;
+  WaveInOpen(Addr(WaveIn), WAVE_MAPPER, addr(header),
+    Form1.Handle, 0, CALLBACK_WINDOW);
+  BufLen := header.nBlockAlign * BufSize;
+  hBuf := GlobalAlloc(GMEM_MOVEABLE and GMEM_SHARE, BufLen);
+  Buf := GlobalLock(hBuf);
+  with BufHead do begin
+    lpData := Buf;
+    dwBufferLength := BufLen;
+    dwFlags := WHDR_BEGINLOOP;
+  end;
+  WaveInPrepareHeader(WaveIn, Addr(BufHead), sizeof(BufHead));
+  WaveInAddBuffer(WaveIn, addr(BufHead), sizeof(BufHead));
+  GetMem(p, BufSize * sizeof(TPoint));
+  stop := true;
+  WaveInStart(WaveIn);
+end;
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  if stop = false then Exit;
+  stop := false;
+  while not stop do Application.ProcessMessages;
+  stop := false;
+  WaveInReset(WaveIn);
+  WaveInUnPrepareHeader(WaveIn, addr(BufHead), sizeof(BufHead));
+  WaveInClose(WaveIn);
+  GlobalUnlock(hBuf);
+  GlobalFree(hBuf);
+  FreeMem(p, BufSize * sizeof(TPoint));
+end;
+ 
+procedure TForm1.OnWaveIn;
+var
+  i: integer;
+  data8: PData8;
+  data16: PData16;
+  h: integer;
+  XScale, YScale: single;
+begin
+  h := PaintBox1.Height;
+  XScale := PaintBox1.Width / BufSize;
+  if Bits16 then begin
+    data16 := PData16(PWaveHdr(Msg.lParam)^.lpData);
+    YScale := h / (1 shl 16);
+    for i := 0 to BufSize - 1 do
+      p^[i] := Point(round(i * XScale),
+        round(h / 2 - data16^[i] * YScale));
+  end else begin
+    Data8 := PData8(PWaveHdr(Msg.lParam)^.lpData);
+    YScale := h / (1 shl 8);
+    for i := 0 to BufSize - 1 do
+      p^[i] := Point(round(i * XScale),
+        round(h - data8^[i] * YScale));
+  end;
+  with PaintBox1.Canvas do begin
+    Brush.Color := clWhite;
+    FillRect(ClipRect);
+    Polyline(Slice(p^, BufSize));
+  end;
+  if stop
+    then WaveInAddBuffer(WaveIn, PWaveHdr(Msg.lParam),
+      SizeOf(TWaveHdr))
+    else stop := true;
+end;
+ 
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+  Button2.Click;
+end;
+ 
+procedure TForm1.CheckBox1Click(Sender: TObject);
+begin
+  if stop then begin
+    Button2.Click;
+    Button1.Click;
+  end;
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  TrackBar1.OnChange := CheckBox1Click;
+  Button1.Caption := 'Start';
+  Button2.Caption := 'Stop';
+  CheckBox1.Caption := '16 / 8 bit';
+end;
+ 
+end.
+</pre>
+
+<p>Даниил Карапетян.</p>
+<p>На сайте <a href="http://delphi4all.narod.ru" target="_blank">http://delphi4all.narod.ru</a> Вы найдете еще более 100 советов по Delphi.</p>
+<p>Email: <a href="mailto:delphi4all@narod.ru" target="_blank">delphi4all@narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

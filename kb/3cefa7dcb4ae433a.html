@@ -1,0 +1,53 @@
+<html>
+<head>
+  <title>DLL и ресурсы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">DLL и ресурсы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>...я также имею проблемы с другими функциями DLL, которые ведут себя иначе, чем при первом обращении к ним! </p>
+
+<p>Недавно я и сам закончил большой "DLL-проект", в котором столкнулся с аналогичными проблемами. Я не знаком с вашим специфическим исключением, которое вы упомянули, но я могу предложить некоторые общие советы по поводу использования DLL. </p>
+
+<p>Главное, что нужно помнить при разработке DLL - вы не должны допускать ситуацию, при которой любое исключение осталось бы неперехваченным (спасибо Pat Ritchey за столь мудрый совет). В теле экспортируемых функций "заверните" все в блоки try..except (которые замечательно обрабатываются Delphi). </p>
+
+<p>Далее, любые ресурсы, которые вы явно создаете при открытии DLL, должны создаваться в обработчике FormCreate (а не в секции Initialization) и освобождаться в обработчике FormClose. Мне кажется, что при вызове DLL (и использовании ее для распределения ресурсов) они не полностью освобождается до тех пор, пока вызывающее приложение не будет закрыто, а при вторичном вызове DLL не перегружается (это мои наблюдения, но, похоже, они верны). По всей видимости, ресурсы, освобожденные в первый раз, во время второго вызова не пересоздаются. У меня была масса проблем до тех пор, пока в коде я не определил "нужное место" для освобождения ресурсов. Но после того, как я переместил работу с ресурсами в обработчики событий FormCreate и FormClose, GPF исчезли. </p>
+
+<p>Кроме того, для освобождения ресурсов вы должны вместо метода Close или Free использовать метод Release. </p>
+
+<p>Ну и последний совет: вы должны быть очень осторожными при создании и освобождении ресурсов в DLL и подходить к вопросу программирования очень тщательно. Delphi может простить такую ошибку в EXE, но не в DLL. </p>
+
+<p>Надеюсь я помог вам.</p>
+
+<p id="author">Автор: Mike Leftwich (Ensemble Corp) </p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

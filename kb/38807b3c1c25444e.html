@@ -1,0 +1,173 @@
+<html>
+<head>
+  <title>.NET глазами дельфийца. Использование Delphi в .NET</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushCSharp.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">.NET глазами дельфийца. Использование Delphi в .NET</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>.Net глазами дельфийца. Использование Delphi в .Net</p>
+<p>Для программистов, рассматривающих вопрос перехода на новую систему разработки, один из главных вопросов &#8211; как в новой системе можно будет использовать старые наработки. </p>
+<p>В настоящей статье рассмотрены некоторые простые способы использования наработок Delphi (автор использовал версию 6) в .Net. Естественно, полностью портировать Delphi в .Net под силу только разработчикам Borland (или аналогичным серьезным людям, владеющим к тому же полными исходниками Delphi), поэтому здесь мы не будем рассматривать клиентские (визуальные) приложения, использующие VCL. Тем не менее некоторый объем функционального кода, реализованного в Delphi, может быть использован и в .Net (пример такого кода &#8211; вычислительные модули).</p>
+<p>Итак, для переноса Delphi-кода в .Net можно использовать следующие способы:</p>
+<p>- переписывание кода;</p>
+<p>- использование в .Net COM-объектов, разработанных в Delphi;</p>
+<p>- использование в .Net библиотек DLL, разработанных в Delphi;</p>
+<p>- хакерские способы</p>
+<p>Переписывание кода</p>
+<p>Этот способ, несмотря на его прямолинейность, в некоторых случаях может оказаться наиболее рациональным и даже упростить результирующий код. </p>
+<p>Техника переноса алгоритмов на другие языки знакома многим программистам. Более того, существуют автоматические трансляторы типа Pas2C, которые входной паскалевский код преобразуют в C/C++-код (естественно, кое-что приходится править потом вручную, но основа получается вполне приемлемая).</p>
+<p>Не останавливаясь подробно на очевидных моментах ручной трансляции кода, хотелось бы напомнить следующее:</p>
+<p>- поскольку в C# нет процедур и функций вне классов, для реализации глобальных подпрограмм целесообразно использовать специальный(-ые) класс(ы) со статическими методами;</p>
+<p>- поскольку в C# нет глобальных переменных, для их реализации целесообразно использовать специальный(-ые) класс(ы) со статическими полями;</p>
+<p>- для реализации конструкций, эквивалентных записям Delphi, можно использовать как классы, так и структуры (struct) &#8211; решение зависит от объема данных, которые, возможно, будут копироваться при передаче в качестве параметров и пр.;</p>
+<p>- поскольку в C# объекты удаляются автоматически, необходимо тщательно проанализировать последовательность создания и удаления объектов, особенно если в Delphi-объектах в деструкторе выполнялось освобождение ресурсов &#8211; в таких случаях оптимальным вариантом будет или введение соответствующих методов «закрытия», или реализация интерфейса IDisposable.</p>
+
+<p>Использование в .Net COM-объектов, разработанных в Delphi</p>
+<p>Поскольку стандарт OLE четко определяет протокол обмена и форматы данных, то никаких особенностей при разработке COM-объектов в Delphi нет (не считая того, что нежелательно использовать имена методов, совпадающие с методами класса Object из C#: Equals, GetHashCode, GetType, ReferenceEquals, ToString).</p>
+<p>Если же исходный код реализован, например, в виде набора классов Delphi, то можно написать в Delphi очень простой COM-объект (inproc-server), который будет выполнять функции фасада (см. например Шаблоны проектирования на www.dotsite.spb.ru ).</p>
+<p>Кстати, во многих случаях введение «фасада» позволяет даже упростить систему со стороны основного кода.</p>
+<p>Использование в .Net библиотек DLL, разработанных в Delphi</p>
+<p>Т.к. в Delphi позволяет разрабатывать динамические библиотеки DLL, то можно существующий Delphi-код «упаковать» в библиотеку. Этот способ заставляет выполнить несколько бОльшую работу в C#, чем при использовании COM-объектов, хотя в некоторых случаях вполне может быть использован из соображений, например, быстродействия системы.</p>
+<p>Вызов функций DLL из C# достаточно неплохо описан в документации .Net. Ниже приводится пример использования DLL, разработанной в Delphi.</p>
+
+<p>Заголовки DLL-функций в Delphi:</p>
+<pre name="code" class="delphi">
+// Процедура без параметров
+procedure Proc1; stdcall;
+// Процедура с целочисленными параметрами
+procedure Proc2(A, B: integer); stdcall;
+// Процедура с вещественными параметрами
+procedure Proc3(A, B: double); stdcall;
+// Процедура с логическими параметрами
+procedure Proc4(A, B: boolean); stdcall;
+// Процедура с параметрами типа дата/время
+procedure Proc5(A, B: TDateTime); stdcall;
+// Процедура со строковыми параметрами
+procedure Proc6(P1, P2: PChar); stdcall;
+</pre>
+
+<p>Обратите внимание на два момента:</p>
+<p>- используется модификатор вызова stdcall</p>
+<p>- строки в качестве параметров передаются как PChar</p>
+<pre name="code" class="c#">
+using System;
+ 
+using System.Runtime.InteropServices;
+</pre>
+
+
+<pre name="code" class="c#">
+namespace Test1
+{
+  /// &lt;summary&gt;
+  /// Обертка для вызова функций Delphi, размещенных в DLL
+  /// &lt;/summary&gt;
+  public class LibWrap {
+    /// &lt;summary&gt;
+    /// Процедура без параметров
+    /// &lt;/summary&gt;
+    [ DllImport( @"C:\Projects\C#\DelphiPortal\Dll1.dll" ) ]
+    public static extern void Proc1();
+    /// &lt;summary&gt;
+    /// Процедура с целочисленными параметрами
+    /// &lt;/summary&gt;
+    [ DllImport( @"C:\Projects\C#\DelphiPortal\Dll1.dll" ) ]
+    public static extern void Proc2(int A, int B);
+    /// &lt;summary&gt;
+    /// Процедура с вещественными параметрами
+    /// &lt;/summary&gt;
+    [ DllImport( @"C:\Projects\C#\DelphiPortal\Dll1.dll" ) ]
+    public static extern void Proc3(double A, double B);
+    /// &lt;summary&gt;
+    /// Процедура с логическими параметрами
+    /// &lt;/summary&gt;
+    [ DllImport( @"C:\Projects\C#\DelphiPortal\Dll1.dll" ) ]
+    public static extern void Proc4(bool A, bool B);
+    /// &lt;summary&gt;
+    /// Процедура с параметрами типа дата/время
+    /// &lt;/summary&gt;
+    [ DllImport( @"C:\Projects\C#\DelphiPortal\Dll1.dll" ) ]
+    public static extern void Proc5(double A, double B);
+    /// &lt;summary&gt;
+    /// Процедура со строковыми параметрами
+    /// &lt;/summary&gt;
+    [ DllImport( @"C:\Projects\C#\DelphiPortal\Dll1.dll" ) ]
+    public static extern void Proc6(
+      [MarshalAs(UnmanagedType.LPStr)] string A, 
+      [MarshalAs(UnmanagedType.LPStr)] string B);
+  }
+  /// &lt;summary&gt;
+  /// Тестовый класс
+  /// &lt;/summary&gt;
+  class Class1 {
+    [STAThread]
+    static void Main() {
+      // Вызов процедуры без параметров
+      LibWrap.Proc1();
+      /// Вызов процедуры с целочисленными параметрами
+      LibWrap.Proc2(1, 2);
+      // Вызов процедуры с вещественными параметрами
+      LibWrap.Proc3(1.5, -2.8);
+      // Вызов процедуры с логическими параметрами
+      LibWrap.Proc4(true, false);
+      // Вызов процедуры с параметрами типа дата/время
+      DateTime dt1 = DateTime.Now;
+      DateTime dt2 = dt1.AddDays(2);
+      LibWrap.Proc5(dt1.ToOADate(), dt2.ToOADate());
+      // Вызов процедуры со строковыми параметрами
+      LibWrap.Proc6("Строка 1", "Строка 2");
+    }
+  }
+}
+</pre>
+
+
+<p>В коде C# стОит обратить внимание на следующее:</p>
+<p>- при описании метода LibWrap.Proc5, работающего с параметрами типа дата/время, типы параметров - double</p>
+<p>- при описании метода LibWrap.Proc6, работающего со строковыми параметрами, необходимо в явном виде указывать способ маршализации (атрибут MarshalAs)</p>
+<p>- объекты типа DateTime преобразуются в формат, понятный для Delphi, с помощью методов ToOADate</p>
+
+<p>Хакерские способы</p>
+<p>В каталоге &lt;Microsoft Visual Studio .NET&gt;\FrameworkSDK\Samples\Technologies\Interop\PlatformInvoke\Custom\CS имеется интересный файл - ClassMethods.cs. В этом файле показано, как вызывать классы VC++, размещенные в DLL. Этот пример натолкнул автора статьи на мысль проверить что-то подобное с Delphi. </p>
+<p>Т.к. пакеты в Delphi &#8211; не что иное, как DLL, такой вариант выглядел возможным. Более того, с помощью утилиты Depends.Exe, входящей в состав VSN (&lt;Microsoft Visual Studio .NET&gt;\Common7\Tools\Bin), при исследовании соответствующего BPL-файла можно даже увидеть имена экспортируемых функций в стиле C++, например:</p>
+
+<p>@$xp$14Class1@TClass1</p>
+<p>@Class1@TClass1@</p>
+
+<p>К сожалению, автору не удалось запустить таким образом объекты &lt;</p>
+
+
+
+<p>Взято с сайта <a href="http://delphi.h5.ru" target="_blank">http://delphi.h5.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

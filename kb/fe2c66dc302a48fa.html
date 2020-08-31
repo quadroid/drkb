@@ -1,0 +1,95 @@
+<html>
+<head>
+  <title>Как создать регион (HRNG) по маске?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как создать регион (HRNG) по маске?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Ниже приведена функция, которая создаёт HRGN из чёрно-белого битмапа. Все чёрные пиксели становятся регионом, а белые становятся прозрачными. Так же не составит труда сделать преобразования для поддержки всех цветов и чтобы один из них был прозрачным.</p>
+
+<p>По окончании необходимо освободить регион при помощи функции DeleteObject.</p>
+<pre name="code" class="delphi">
+function BitmapToRgn(Image: TBitmap): HRGN; 
+var 
+  TmpRgn: HRGN; 
+  x, y: integer; 
+  ConsecutivePixels: integer; 
+  CurrentPixel: TColor; 
+  CreatedRgns: integer; 
+  CurrentColor: TColor; 
+begin 
+  CreatedRgns := 0; 
+  Result := CreateRectRgn(0, 0, Image.Width, Image.Height); 
+  inc(CreatedRgns); 
+ 
+  if (Image.Width = 0) or (Image.Height = 0) then exit; 
+ 
+  for y := 0 to Image.Height - 1 do 
+    begin 
+    CurrentColor := Image.Canvas.Pixels[0,y]; 
+    ConsecutivePixels := 1; 
+    for x := 0 to Image.Width - 1 do 
+      begin 
+      CurrentPixel := Image.Canvas.Pixels[x,y]; 
+ 
+      if CurrentColor = CurrentPixel 
+        then inc(ConsecutivePixels) 
+        else begin 
+             // Входим в новую зону
+             if CurrentColor = clWhite then 
+               begin 
+               TmpRgn := CreateRectRgn(x-ConsecutivePixels, y, x, y+1); 
+               CombineRgn(Result, Result, TmpRgn, RGN_DIFF); 
+               inc(CreatedRgns); 
+               DeleteObject(TmpRgn); 
+               end; 
+             CurrentColor := CurrentPixel; 
+             ConsecutivePixels := 1; 
+             end; 
+      end; 
+ 
+   if (CurrentColor = clWhite) and (ConsecutivePixels &gt; 0) then 
+      begin 
+      TmpRgn := CreateRectRgn(x-ConsecutivePixels, y, x, y+1); 
+      CombineRgn(Result, Result, TmpRgn, RGN_DIFF); 
+      inc(CreatedRgns); 
+      DeleteObject(TmpRgn); 
+      end; 
+    end; 
+end;
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

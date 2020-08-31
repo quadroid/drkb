@@ -1,0 +1,105 @@
+<html>
+<head>
+  <title>Изменение регистра букв</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Изменение регистра букв</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В Delphi есть три функции для изменения регистра: upcase, lowercase, uppercase. </p>
+<p>Но они работают только для латинского алфавита. </p>
+<p>Чтобы сделать аналогичные функции для русского алфавита я </p>
+<p>использовал то, что в кодировке Windows-1251 буквы расставлены по алфавиту, </p>
+<p>как большие, так и маленькие. </p>
+<p>То есть номер большой буквы связан с номером маленькой константой. </p>
+<p>И в русском, и в английском алфавитах маленькие буквы находятся </p>
+<p>за большими с разностью в 32 символа.</p>
+<p>Здесь реализованы четыре функции: upcase и locase для</p>
+<p> изменения регистра одного символа, и uppercase и lowercase для изменения регистра строки</p>
+
+<pre name="code" class="delphi">
+function UpCase(ch: char): char;
+begin
+  if (ch in ['a'..'z', 'а'..'я'])
+    then result := chr(ord(ch) - 32)
+    else result := ch;
+end;
+ 
+function LoCase(ch: char): char;
+begin
+  if (ch in ['A'..'Z', 'А'..'Я'])
+    then result := chr(ord(ch) + 32)
+    else result := ch;
+end;
+ 
+function UpperCase(s: string): string;
+var
+  i: integer;
+begin
+  result := s;
+  for i := 1 to length(result) do
+    if (result[i] in ['a'..'z', 'а'..'я'])
+      then result[i] := chr(ord(result[i]) - 32);
+end;
+ 
+function LowerCase(s: string): string;
+var
+  i: integer;
+begin
+  result := s;
+  for i := 1 to length(result) do
+    if (result[i] in ['A'..'Z', 'А'..'Я'])
+      then result[i] := chr(ord(result[i]) + 32);
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+const
+  s = 'zZцЦ.';
+var
+  i: integer;
+begin
+  Form1.Caption := 'DownCase: ';
+  for i := 1 to Length(s) do
+    Form1.Caption := Form1.Caption + LoCase(s[i]);
+  Form1.Caption := Form1.Caption + ' UpCase: ';
+  for i := 1 to Length(s) do
+    Form1.Caption := Form1.Caption + UpCase(s[i]);
+  Form1.Caption := Form1.Caption + ' UpperCase: ' +
+    UpperCase(s);
+  Form1.Caption := Form1.Caption + ' LowerCase: ' +
+    LowerCase(s);
+end;
+</pre>
+
+
+<p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

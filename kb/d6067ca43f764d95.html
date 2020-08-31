@@ -1,0 +1,106 @@
+<html>
+<head>
+  <title>Save all TWebBrowser frame sources</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Save all TWebBrowser frame sources</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses
+  ActiveX;
+ 
+function TForm1.GetFrame(FrameNo: Integer): IWebbrowser2;
+var
+  OleContainer: IOleContainer;
+  enum: IEnumUnknown;
+  unk: IUnknown;
+  Fetched: PLongint;
+begin
+  while Webbrowser1.ReadyState &lt;&gt; READYSTATE_COMPLETE do
+    Application.ProcessMessages;
+  if Assigned(Webbrowser1.document) then
+  begin
+    Fetched := nil;
+    OleContainer := Webbrowser1.Document as IOleContainer;
+    OleContainer.EnumObjects(OLECONTF_EMBEDDINGS, Enum);
+    Enum.Skip(FrameNo);
+    Enum.Next(1, Unk, Fetched);
+    Result := Unk as IWebbrowser2;
+  end
+  else
+    Result := nil;
+end;
+ 
+// Load sample page
+// Testseite laden
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  Webbrowser1.Navigate('http://www.warebizprogramming.com/tutorials/html/framesEx1.htm');
+end;
+ 
+// Save all frames in single files
+// Alle Frameseiten in einzelne Dateien speichern
+procedure TForm1.Button2Click(Sender: TObject);
+var
+  IpStream: IPersistStreamInit;
+  AStream: TMemoryStream;
+  iw: IWebbrowser2;
+  i: Integer;
+  sl: TStringList;
+begin
+  for i := 0 to Webbrowser1.OleObject.Document.frames.Length - 1 do
+  begin
+    iw := GetFrame(i);
+    AStream := TMemoryStream.Create;
+    try
+      IpStream := iw.document as IPersistStreamInit;
+      if Succeeded(IpStream.save(TStreamadapter.Create(AStream), True)) then
+      begin
+        AStream.Seek(0, 0);
+        sl := TStringList.Create;
+        sl.LoadFromStream(AStream);
+        sl.SaveToFile('c:\frame' + IntToStr(i) + '.txt');
+        //  memo1.Lines.LoadFromStream(AStream);
+        sl.Free;
+      end;
+    except
+    end;
+    AStream.Free;
+  end;
+end;
+ 
+end.
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

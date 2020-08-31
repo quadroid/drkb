@@ -1,0 +1,146 @@
+<html>
+<head>
+  <title>Как запустить программу и подождать её завершения?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как запустить программу и подождать её завершения?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+var
+pi : TProcessInformation;
+si : TStartupInfo;
+begin
+ZeroMemory(@si,sizeof(si));
+si.cb:=SizeOf(si);
+if not CreateProcess(
+PChar(lpApplicationName), //pointer to name of executable module
+PChar(lpCommandLine), // Command line.
+nil, // Process handle not inheritable.
+nil, // Thread handle not inheritable.
+False, // Set handle inheritance to FALSE.
+0, // No creation flags.
+nil, // Use parent's environment block.
+nil, // Use parent's starting directory.
+si, // Pointer to STARTUPINFO structure.
+pi ) // Pointer to PROCESS_INFORMATION structure.
+then begin
+Result:=false;
+RaiseLastWin32Error; 
+Exit;
+end;
+WaitForSingleObject(pi.hProcess,INFINITE);
+CloseHandle(pi.hProcess);
+CloseHandle(pi.hThread);
+// ... здесь твой код
+end;
+</pre>
+
+<p id="author">Автор ответа: TAPAKAH</p>
+<p id="note">Примечание Vit:</p>
+<p>Если заменить</p>
+<p>WaitForSingleObject(pi.hProcess,INFINITE);</p>
+<p>на </p>
+<p>while WaitforSingleObject(PI.hProcess,200)=WAIT_TIMEOUT do &nbsp; application.ProcessMessages;</p>
+<p>то вызывающая программа не будет казаться завешанной и будет отвечать на сообщения</p>
+<p id="note">Примечание Mikel: В RxLib есть функция для этого: FileExecuteWait </p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<p>Здесь представлена функция, которая вызывается таким же образом как и WinExec, однако она ждёт, пока запущенная задача завершится.</p>
+<pre name="code" class="delphi">
+function WinExecAndWait(Path: PChar; Visibility: Word): Word; 
+var 
+  InstanceID: THandle; 
+  Msg: TMsg; 
+begin 
+  InstanceID := WinExec(Path, Visibility); 
+  if InstanceID &lt; 32 then { значение меньше чем 32 указывает на ошибку }
+    WinExecAndWait := InstanceID 
+  else 
+    repeat 
+       while PeekMessage(Msg, 0, 0, 0, pm_Remove) do 
+       begin 
+         if Msg.Message = wm_Quit then Halt(Msg.WParam); 
+         TranslateMessage(Msg); 
+         DispatchMessage(Msg); 
+       end; 
+    until GetModuleUsage(InstanceID) = 0; 
+  WinExecAndWait := 0; 
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+<hr />
+<p id="author">Автор: Fabrнcio Fadel Kammer</p>
+<p>Пример показывает как из Вашей программы запустить внешнее приложение и подождать его завершения.</p>
+<pre name="code" class="delphi">
+function ExecAndWait(const FileName, Params: ShortString; const WinState: Word): boolean; export; 
+var 
+  StartInfo: TStartupInfo; 
+  ProcInfo: TProcessInformation; 
+  CmdLine: ShortString; 
+begin 
+  { Помещаем имя файла между кавычками, с соблюдением всех пробелов в именах Win9x } 
+  CmdLine := '"' + Filename + '" ' + Params; 
+  FillChar(StartInfo, SizeOf(StartInfo), #0); 
+  with StartInfo do 
+  begin 
+ &nbsp;&nbsp; cb := SizeOf(SUInfo); 
+ &nbsp;&nbsp; dwFlags := STARTF_USESHOWWINDOW; 
+ &nbsp;&nbsp; wShowWindow := WinState; 
+  end; 
+  Result := CreateProcess(nil, PChar( String( CmdLine ) ), nil, nil, false, 
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CREATE_NEW_CONSOLE or NORMAL_PRIORITY_CLASS, nil, 
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PChar(ExtractFilePath(Filename)),StartInfo,ProcInfo); 
+  { Ожидаем завершения приложения } 
+  if Result then 
+  begin 
+ &nbsp;&nbsp; WaitForSingleObject(ProcInfo.hProcess, INFINITE); 
+ &nbsp;&nbsp; { Free the Handles } 
+ &nbsp;&nbsp; CloseHandle(ProcInfo.hProcess); 
+ &nbsp;&nbsp; CloseHandle(ProcInfo.hThread); 
+  end; 
+end;
+</pre>
+<p>А вот пример вызова этой функции:</p>
+<pre name="code" class="delphi">
+ExecAndWait( 'C:\windows\calc.exe', '', SH_SHOWNORMAL);
+</pre>
+<p>Параметр FileName = Имя внешней программы. </p>
+<p>Параметр Params = Параметры, необходимые для запуска внешней программы</p>
+<p>Параметр WinState = Указывает - как будет показано окно:</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Для этого параметра мы можем так же использовать следующие константы: </p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SW_HIDE, SW_MAXIMIZE, SW_MINIMIZE, SW_SHOWNORMAL </p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

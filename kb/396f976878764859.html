@@ -1,0 +1,111 @@
+<html>
+<head>
+  <title>Как получить длинное имя файла или каталога, зная короткое имя?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить длинное имя файла или каталога, зная короткое имя?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Используйте Win32_Find_Data поле TSearchRec. <br>
+<p>&nbsp;</p>
+<pre name="code" class="delphi">
+             procedure TForm1.Button1Click(Sender: TObject); 
+             var 
+               SearchRec : TSearchRec; 
+               Success : integer; 
+             begin 
+               Success := SysUtils.FindFirst('C:\DownLoad\dial-u~1.htm', 
+                                             faAnyFile, 
+                                             SearchRec); 
+               if Success = 0 then begin 
+                 ShowMessage(SearchRec.FindData.CFileName); 
+               end; 
+               SysUtils.FindClose(SearchRec); 
+             end; 
+</pre>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: P.O.D.</p>
+<hr />
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    Button1: TButton;
+    procedure Button1Click(Sender: TObject);
+  end;
+ 
+  function GetLongPathNameA(lpszShortPath, lpszLongPath: PChar;
+    cchBuffer: DWORD): DWORD; stdcall; external kernel32;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+function ExpandFileName(Path: String): String;
+begin
+  SetLength(Result, MAX_PATH);
+  if GetLongPathNameA(PChar(Path), @Result[1], MAX_PATH) = 0 then
+    RaiseLastOSError;
+  Result := Trim(Result);
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  S: String;
+begin
+  // Получаем полное имя
+  S := ExpandFileName('C:\DOCUME~1\');
+  ShowMessage(S);
+  // Получаем урезанное имя
+  GetShortPathName(PChar(S), PChar(S), MAX_PATH);
+  ShowMessage(S);
+end;
+ 
+end.
+</pre>
+&copy;Drkb::03166
+&nbsp;
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: Rouse_</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<html>
+<head>
+  <title>Установка бита в единицу</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Установка бита в единицу</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Установка бита в единицу</p>
+<pre name="code" class="delphi">
+function BitOn(const val: longint; const TheBit: byte): LongInt;
+
+begin
+  Result := val or (1 shl TheBit);
+end;
+</pre>
+
+<p id="author">Автор ответа: s-mike </p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<pre name="code" class="delphi">
+procedure SetBit(SetWord, BitNum: Word);
+begin
+  SetWord := SetWord or BitNum; { Устанавливаем бит }
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+<hr />
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Установка определенного бита в слове
+ 
+Возвращает AWord с установленным битом номер ABit (c 0 по 15) в значение 1,
+если AState = TRUE или 0, если AState = FALSE.
+ 
+Стоит заметить, что в функцию передается именно номер бита, а не маска.
+Проверка на правильный номер не производится.
+ 
+Зависимости: System
+Автор:       Григорий Ситнин, gregor@gregor.ru, Москва
+Copyright:   Григорий Ситнин, 2003
+Дата:        8 июля 2003 г.
+***************************************************** }
+ 
+function SetBit(AWord: word; ABit: byte; AState: boolean = true): word;
+begin
+  if AState then
+    Result := AWord or (1 shl ABit)
+  else
+    Result := AWord and (not (1 shl ABit));
+end;
+Пример использования: 
+ 
+{$APPTYPE CONSOLE}
+program test;
+uses Bits; // В модуле Bits описана функция SetBit
+var
+  z: word;
+  i: integer;
+  s: string;
+begin
+  z := 0;
+  z := setbit(z, 0); // 0000000000000001
+  z := setbit(z, 2); // 0000000000000101
+  z := setbit(z, 9); // 0000001000000101
+  z := setbit(z, 14); // 0100001000000101
+  z := setbit(z, 15); // 1100001000000101
+  s := '';
+  for i := 15 downto 0 do
+    s := s + inttostr(Ord(CheckBit(z, i)));
+  writeln('value: ', z, ' dec = 1100001000000101');
+  writeln('result: ', s);
+  z := $FFFF;
+  z := setbit(z, 0, false); // 1111111111111110
+  z := setbit(z, 2, false); // 1111111111111010
+  z := setbit(z, 9, false); // 1111110111111010
+  z := setbit(z, 14, false); // 1011110111111010
+  z := setbit(z, 15, false); // 0011110111111010
+  s := '';
+  for i := 15 downto 0 do
+    s := s + inttostr(Ord(CheckBit(z, i)));
+  writeln('value: ', z, ' dec = 0011110111111010');
+  writeln('result: ', s);
+end.
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

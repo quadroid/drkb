@@ -1,0 +1,112 @@
+<html>
+<head>
+  <title>Детектор мертвых ссылок</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Детектор мертвых ссылок</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Любой серьезный web сайт и его web мастер должны всегда следить за актуальность ссылок. И если обнаружится мертвая ссылка (например другой web сайт прекратил существование), но нет никаких оправданий для внутренних мертвых ссылок. И поэтому я написал простую программу, назвав ее HTMLINKS, которая может сканировать .HTM файлы на их присутствие на локальной машине. (что бы потом загрузить их на сервер). HTM файлы из текущего каталога и всех подкаталогов рекурсивно читаются и проверяются на тег "&lt;A HREF=" или "&lt;FRAME SRC=". Если страница локальная, то есть без префикса "http://", то файл открывается с использованием относительно пути. Если страница не находится, то мы имеем внутреннюю мертвую ссылку, которая должна быть исправлена!! </p>
+Заметим, что программа игнорирует все "file://", "ftp://", "mailto:", "news:" and ".exe?" значения если они встретятся внутри "HREF" части. Конечно, вы свободны в расширить HTMLINKS для проверки и этих случаев, можно также реализовать проверку и внешних ссылок. Для информации я написал и детектор внешних мертвых ссылок в статье для The Delphi Magazine, подробности можно найти на моем web сайте. Для анализа мертвых локальных ссылок код следующий: </p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 0px;"><pre name="code" class="delphi">  {$APPTYPE CONSOLE}
+  {$I-,H+}
+  uses
+ &nbsp;&nbsp; SysUtils;
+  var
+ &nbsp;&nbsp; Path: String;
+&nbsp;
+ &nbsp;&nbsp; procedure CheckHTML(const Path: String);
+ &nbsp;&nbsp; var
+ &nbsp;&nbsp;&nbsp;&nbsp; SRec: TSearchRec;
+ &nbsp;&nbsp;&nbsp;&nbsp; Str: String;
+ &nbsp;&nbsp;&nbsp;&nbsp; f: Text;
+ &nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp; if FindFirst('*.htm', faArchive, SRec) = 0 then
+ &nbsp;&nbsp;&nbsp;&nbsp; repeat
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Assign(f,SRec.Name);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Reset(f);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if IOResult = 0 then { no error }
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while not eof(f) do
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; readln(f,Str);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (Pos('&lt;A HREF="',Str)&nbsp; 0) or
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Pos('FRAME SRC="',Str)&nbsp; 0) do
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if Pos('&lt;A HREF="',Str)&nbsp; 0 then
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Delete(Str,1,Pos('HREF="',Str)+8-3)
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Delete(Str,1,Pos('FRAME SRC="',Str)+10);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (Pos('#',Str) &lt;&gt; 1) and
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Pos('http://',Str) &lt;&gt; 1) and
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Pos('mailto:',Str) &lt;&gt; 1) and
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Pos('news:',Str) &lt;&gt; 1) and
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Pos('ftp://',Str) &lt;&gt; 1) and
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Pos('.exe?',Str) = 0) then { skip external links &amp; exe }
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if Pos('file:///',Str) = 1 then Delete(Str,1,8);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (Pos('#',Str)&nbsp; 0) and
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Pos('#',Str) &lt; Pos('"',Str)) then Str[Pos('#',Str)] := '"';
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if not FileExists(Copy(Str,1,Pos('"',Str)-1)) then
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; writeln(Path,'\',SRec.Name,': [',Copy(Str,1,Pos('"',Str)-1),']')
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; end
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; end
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; end;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Close(f);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if IOResult &lt;&gt; 0 then { skip }
+ &nbsp;&nbsp;&nbsp;&nbsp; until FindNext(SRec) &lt;&gt; 0;
+ &nbsp;&nbsp;&nbsp;&nbsp; FindClose(SRec);
+ &nbsp;&nbsp;&nbsp;&nbsp; // check sub-directories recursively
+ &nbsp;&nbsp;&nbsp;&nbsp; if FindFirst('*.*', faDirectory, SRec) = 0 then
+ &nbsp;&nbsp;&nbsp;&nbsp; repeat
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ((SRec.Attr AND faDirectory) = faDirectory) and
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (SRec.Name[1] &lt;&gt; '.') then
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ChDir(SRec.Name);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CheckHTML(Path+'\'+SRec.Name);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ChDir('..')
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; end
+ &nbsp;&nbsp;&nbsp;&nbsp; until FindNext(SRec) &lt;&gt; 0;
+ &nbsp;&nbsp;&nbsp;&nbsp; FindClose(SRec)
+ &nbsp;&nbsp; end {CheckHTML};
+&nbsp;
+  begin
+ &nbsp;&nbsp; writeln('HTMLinks 4.0 (c) 1997-2000 by Bob Swart (aka Dr.Bob - www.drbob42.com)');
+ &nbsp;&nbsp; writeln;
+ &nbsp;&nbsp; FileMode := $40;
+ &nbsp;&nbsp; GetDir(0,Path);
+ &nbsp;&nbsp; CheckHTML(Path)
+  end.
+</pre>
+&nbsp;</p>
+&nbsp;</p>
+<p>Интернет решения от доктора Боба (http://www.drbob42.com)</p>
+<p>(c) 2000, Анатолий Подгорецкий, перевод на русский язык (<a href="http://nps.vnet.ee/ftp" target="_blank">http://nps.vnet.ee/ftp</a>)</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

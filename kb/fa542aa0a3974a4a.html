@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Рекурсивный поиск с помощью функции pos</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Рекурсивный поиск с помощью функции pos</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function PosN(Substring, Mainstring: string; n: Integer): Integer;
+ 
+ { 
+Function PosN get recursive - the N th position of "Substring" in 
+"Mainstring". Does the Mainstring not contain Substrign the result 
+is 0. Works with chars and strings. 
+}
+ begin
+   if Pos(substring, mainstring) = 0 then
+    begin
+      posn := 0;
+      Exit;
+    end
+   else
+   begin
+     if n = 1 then posn := Pos(substring, mainstring)
+      else
+     begin
+       posn := Pos(substring, mainstring) + posn(substring, Copy(mainstring,
+         (Pos(substring, mainstring) + 1), Length(mainstring)), n - 1);
+     end;
+   end;
+ end;
+ 
+ //Beispiele / Examples 
+ 
+  i := posn('s', 'swissdelphicenter.ch', 2);
+   //  i=4 
+ 
+ 
+ 
+  i := posn('x', 'swissdelphicenter.ch', 1);
+   //  i=0 
+ 
+ 
+  i := posn('delphi', 'swissdelphicenter.ch', 1);
+   //  i=6 
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

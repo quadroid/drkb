@@ -1,0 +1,103 @@
+<html>
+<head>
+  <title>TIF &gt; PDF</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TIF &gt; PDF</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Morten Ravn-Jonsen</p>
+
+<p>Совместимость: Delphi 5.x (или выше)</p>
+
+<p>Как-то раз получился TIF файл на несколько страниц и возникла необходимость конвертации его в PDF формат. Для использования такой возможности необходимо иметь полную версию Adobe Acrobat. Функция тестировалась на Adobe Acrobat 4.0. </p>
+
+<p>Сперва Вам необходимо импортировать элементы управления Acrobat AxtiveX. </p>
+
+<p>1) Выберите Component -&gt; Import ActiveX Control </p>
+<p>2) Выберите Acrobat Control for ActiveX и нажмите install </p>
+<p>3) Выберите пакет ActiveX control для инсталяции</p>
+<p>4) Добавьте PDFlib_tlb в Ваш проект. Этот файл находится в директории Borland\Delphi5\Imports. </p>
+
+<p>Как использовать функцию </p>
+
+<p>Вот пример её вызова: </p>
+
+<p>if not TifToPDF('c:\test.tif', 'c:\test.pdf') then Showmessage('Could not convert'); </p>
+
+<p>Функция TifToPdf </p>
+<pre name="code" class="delphi">
+function TifToPDF(TIFFilename, PDFFilename: string): boolean; 
+var 
+  AcroApp : variant; 
+  AVDoc : variant; 
+  PDDoc : variant; 
+  IsSuccess : Boolean; 
+begin 
+  result := false; 
+  if not fileexists(TIFFilename) then exit; 
+ 
+  try 
+    AcroApp := CreateOleObject('AcroExch.App'); 
+    AVDoc := CreateOleObject('AcroExch.AVDoc'); 
+ 
+    AVDoc.Open(TIFFilename, ''); 
+    AVDoc := AcroApp.GetActiveDoc; 
+ 
+    if AVDoc.IsValid then 
+    begin 
+      PDDoc := AVDoc.GetPDDoc; 
+ 
+      PDDoc.SetInfo ('Title', ''); 
+      PDDoc.SetInfo ('Author', ''); 
+      PDDoc.SetInfo ('Subject', ''); 
+      PDDoc.SetInfo ('Keywords', ''); 
+ 
+      result := PDDoc.Save(1 or 4 or 32, PDFFilename); 
+ 
+      PDDoc.Close; 
+    end; 
+ 
+    AVDoc.Close(True); 
+    AcroApp.Exit; 
+ 
+  finally 
+    VarClear(PDDoc); 
+    VarClear(AVDoc); 
+    VarClear(AcroApp); 
+  end; 
+end; 
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

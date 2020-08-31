@@ -1,0 +1,96 @@
+<html>
+<head>
+  <title>Обновление файла после перезагрузки системы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Обновление файла после перезагрузки системы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Обновление файла после перезагрузки системы
+ 
+Данная процедура настраивает систему для обновления файлов после перезагрузки.
+TargetFileName - имя файла, содержимое которого при перезагрузке будет 
+заменено на содержимое файла, имя которого укзаывается в параметре SourceFileName. 
+Если первый аргумент процедуры представляет собой пустую строку, при 
+перезагрузке файл SourceFileName будет удалён.
+ 
+Зависимости: Windows
+Автор:       Dimka Maslov, mainbox@endimus.ru, ICQ:148442121, Санкт-Петербург
+Copyright:   Dimka Maslov
+Дата:        18 ноября 2002 г.
+********************************************** }
+ 
+procedure BootReplaceFile(TargetFileName, SourceFileName: string)
+var
+ WinInitName: string;
+ P: PChar;
+ 
+procedure InternalGetShortPathName(var S: string);
+begin
+ UniqueString(S);
+ GetShortPathName(PChar(S), PChar(S), Length(S));
+ SetLength(S, StrLen(@S[1]));
+ CharToOEM(PChar(S), PChar(S));
+end;
+ 
+begin
+ if Win32Platform = VER_PLATFORM_WIN32_NT then begin
+  if TargetFileName &lt;&gt; '' 
+   then P:=PChar(TargetFileName)
+   else P:=nil;
+  MoveFileEx(PChar(SourceFileName), P,
+   MOVEFILE_DELAY_UNTIL_REBOOT or MOVEFILE_REPLACE_EXISTING);
+ end else begin
+  SetLength(WinInitName, MAX_PATH);
+  GetWindowsDirectory(@WinInitName[1], MAX_PATH);
+  SetLength(WinInitName, StrLen(@WinInitName[1]));
+  WinInitName:=IncludeTrailingBackslash(WinInitName)+'WININIT.INI';
+  if TargetFileName = '' 
+   then TargetFileName:='NUL'
+   else InternalGetShortPathName(TargetFileName);
+  InternalGetShortPathName(SourceFileName);
+  WritePrivateProfileString('Rename', PChar(TargetFileName),
+   PChar(SourceFileName), PChar(WinInit));
+ end;
+end; 
+</pre>
+
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+BootReplaceFile('c:\Program Files\proga.exe', 'c:\temp\proga.exe'); // После перезагрузки содержимое первого файла будет заменено на содержимое второго файла, а второй файл будет удалён
+ 
+BootReplaceFile('', 'c:\temp\proga.exe'); // Указанный файл будет удалён после перезагрузки 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

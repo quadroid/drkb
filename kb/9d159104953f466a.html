@@ -1,0 +1,150 @@
+<html>
+<head>
+  <title>Сохранение и чтение TStringGrid</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сохранение и чтение TStringGrid</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure SaveGrid;
+var
+  f: textfile;
+  x, y: integer;
+begin
+  assignfile(f, 'Filename');
+  rewrite(f);
+  writeln(f, stringgrid.colcount);
+  writeln(f, stringgrid.rowcount);
+  for X := 0 to stringgrid.colcount - 1 do
+    for y := 0 to stringgrid.rowcount - 1 do
+      writeln(F, stringgrid.cells[x, y]);
+  closefile(f);
+end;
+</pre>
+<pre name="code" class="delphi">
+procedure LoadGrid;
+var
+  f: textfile;
+  temp, x, y: integer;
+  tempstr: string;
+begin
+  assignfile(f, 'Filename');
+  reset(f);
+  readln(f, temp);
+  stringgrid.colcount := temp;
+  readln(f, temp);
+  stringgrid.rowcount := temp;
+  for X := 0 to stringgrid.colcount - 1 do
+    for y := 0 to stringgrid.rowcount - 1 do
+    begin
+      readln(F, tempstr);
+      stringgrid.cells[x, y] := tempstr;
+    end;
+  closefile(f);
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+<hr />
+<pre name="code" class="delphi">
+// Save a TStringGrid to a file 
+ 
+procedure SaveStringGrid(StringGrid: TStringGrid; const FileName: TFileName);
+ var
+   f:    TextFile;
+   i, k: Integer;
+ begin
+   AssignFile(f, FileName);
+   Rewrite(f);
+   with StringGrid do
+   begin
+     // Write number of Columns/Rows 
+    Writeln(f, ColCount);
+     Writeln(f, RowCount);
+     // loop through cells 
+    for i := 0 to ColCount - 1 do
+       for k := 0 to RowCount - 1 do
+         Writeln(F, Cells[i, k]);
+   end;
+   CloseFile(F);
+ end;
+ 
+ // Load a TStringGrid from a file 
+ 
+procedure LoadStringGrid(StringGrid: TStringGrid; const FileName: TFileName);
+ var
+   f:          TextFile;
+   iTmp, i, k: Integer;
+   strTemp:    String;
+ begin
+   AssignFile(f, FileName);
+   Reset(f);
+   with StringGrid do
+   begin
+     // Get number of columns 
+    Readln(f, iTmp);
+     ColCount := iTmp;
+     // Get number of rows 
+    Readln(f, iTmp);
+     RowCount := iTmp;
+     // loop through cells &amp; fill in values 
+    for i := 0 to ColCount - 1 do
+       for k := 0 to RowCount - 1 do
+       begin
+         Readln(f, strTemp);
+         Cells[i, k] := strTemp;
+       end;
+   end;
+   CloseFile(f);
+ end;
+ 
+ 
+ // Save StringGrid1 to 'c:\temp.txt': 
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   SaveStringGrid(StringGrid1, 'c:\temp.txt');
+ end;
+ 
+ // Load StringGrid1 from 'c:\temp.txt': 
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+ begin
+   LoadStringGrid(StringGrid1, 'c:\temp.txt');
+ end;
+ 
+ 
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

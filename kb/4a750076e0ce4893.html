@@ -1,0 +1,93 @@
+<html>
+<head>
+  <title>Как узнать версию программы?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать версию программы?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function FileVersion(AFileName:string): string;
+var
+  szName: array[0..255] of Char;
+  P: Pointer;
+  Value: Pointer;
+  Len: UINT;
+  GetTranslationString:string;
+  FFileName: PChar;
+  FValid:boolean;
+  FSize: DWORD;
+  FHandle: DWORD;
+  FBuffer: PChar;
+begin
+  try
+    FFileName := StrPCopy(StrAlloc(Length(AFileName) + 1), AFileName);
+    FValid := False;
+    FSize := GetFileVersionInfoSize(FFileName, FHandle);
+    if FSize &gt; 0 then
+      try
+        GetMem(FBuffer, FSize);
+        FValid := GetFileVersionInfo(FFileName, FHandle, FSize, FBuffer);
+      except
+        FValid := False;
+        raise;
+      end;
+    Result := '';
+    if FValid then
+      VerQueryValue(FBuffer, '\VarFileInfo\Translation', p, Len)
+    else p := nil;
+    if P &lt;&gt; nil then
+      GetTranslationString := IntToHex(MakeLong(HiWord(Longint(P^)), LoWord(Longint(P^))), 8);
+    if FValid then
+      begin
+        StrPCopy(szName, '\StringFileInfo\' + GetTranslationString + '\FileVersion');
+        if VerQueryValue(FBuffer, szName, Value, Len) then
+          Result := StrPas(PChar(Value));
+      end;
+  finally
+    try
+      if FBuffer &lt;&gt; nil then FreeMem(FBuffer, FSize);
+    except
+    end;
+    try
+      StrDispose(FFileName);
+    except
+    end;
+  end;
+end;
+</pre>
+
+<p>В качестве параметра задать имя программы, если своей программы:</p>
+<p>FileVersion(Paramstr(0));</p>
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

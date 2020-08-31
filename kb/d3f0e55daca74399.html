@@ -1,0 +1,87 @@
+<html>
+<head>
+  <title>Конвертация bitmap в sepia или greyscale</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Конвертация bitmap в sepia или greyscale</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+//This function adds a sepia effect to a bitmap.
+//the 'depth' sets the colour intensity of the red-brown colour
+//greater numbers set a higher intensity.
+//To create a greyscale effect instead, set 'depth' to 0
+ 
+function bmptosepia(const bmp: TBitmap; depth: Integer): Boolean;
+var
+color,color2:longint;
+r,g,b,rr,gg:byte;
+h,w:integer;
+begin
+  for h := 0 to bmp.height do
+  begin
+    for w := 0 to bmp.width do
+    begin
+//first convert the bitmap to greyscale
+    color:=colortorgb(bmp.Canvas.pixels[w,h]);
+    r:=getrvalue(color);
+    g:=getgvalue(color);
+    b:=getbvalue(color);
+    color2:=(r+g+b) div 3;
+    bmp.canvas.Pixels[w,h]:=RGB(color2,color2,color2);
+//then convert it to sepia
+    color:=colortorgb(bmp.Canvas.pixels[w,h]);
+    r:=getrvalue(color);
+    g:=getgvalue(color);
+    b:=getbvalue(color);
+    rr:=r+(depth*2);
+    gg:=g+depth;
+    if rr &lt;= ((depth*2)-1) then
+    rr:=255;
+    if gg &lt;= (depth-1) then
+    gg:=255;
+    bmp.canvas.Pixels[w,h]:=RGB(rr,gg,b);
+    end;
+  end;
+end;
+</pre>
+
+<pre name="code" class="delphi">
+//Example:
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  bmptosepia(image1.picture.bitmap, 20);
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

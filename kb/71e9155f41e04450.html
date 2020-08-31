@@ -1,0 +1,194 @@
+<html>
+<head>
+  <title>Введение в клиентов</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Введение в клиентов</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>6. Введение в клиентов</p>
+6.1. Базовый клиент</p>
+Базовый клиент Indy выглядит так:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 0px 19px;"><pre name="code" class="delphi">with IndyClient do 
+begin
+  Host := 'test.atozedsoftware.com';
+  Port := 6000;
+  Connect; 
+  Try
+ &nbsp;&nbsp; // Read and write data here
+  finally 
+ &nbsp;&nbsp; Disconnect; 
+  end;
+end;
+</pre>
+&nbsp;</p>
+host и port могут быть установлены во время разработки с помощью инспектора объектов. Это минимальный код, который требуется при написании клиента в Indy. Минимальные требования для создания клиентов следующие:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Установка свойства Host.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>Установка свойства Port. Требуется, если нет порта по умолчанию. Большинство протоколов имеют такой порт.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>Соединение.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">4.</td><td>Передача данных. Включает чтение и запись.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">5.</td><td>Разъединение.</td></tr></table></div>6.2. Обработка исключений</p>
+Обработка исключений в клиентах Indy такая же как с файлами. Если ошибка возникнет во время выполнения любого метода Indy, то будет возбуждено соответствующее исключение. Для обработки исключения код надо помещать в блоки try..finally или try..except blocks.</p>
+Также отсутствует событие OnError, так что не ищите его. Это может показаться странным, если вы уже работали с другими сокетными библиотеками, но посмотрите на TFileStream,&nbsp; он также не имеет события OnError, просто если есть проблема, то возбуждается исключение. Indy работает подобным образом.</p>
+Подобно тому, как все открытые файлы должны быть закрыты, все вызовы Connect в Indy должны быть закрытым вызовом метода Disconnect. Базовые клиенты должны начитать работу следующим образом:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 0px;"><pre name="code" class="delphi">Client.Connect; 
+try
+  // Perform read/write here
+finally 
+  Client.Disconnect; 
+end;
+</pre>
+&nbsp;</p>
+Исключения Indy только слегка отличаются от исключений VCL, все исключения Indy наследуются от EIdException. Если вы желаете обрабатывать исключения Indy отдельно от исключений VCL, то это можно сделать, как в следующем примере.</p>
+Примечание: Для использования EIdException вы должны добавить IdException в uses.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 0px;"><pre name="code" class="delphi">try
+  Client.Connect; 
+  try
+ &nbsp;&nbsp; // Perform read/write here
+  finally 
+ &nbsp;&nbsp; Client.Disconnect; 
+  end;
+except
+  on E: EIdException do 
+  begin
+ &nbsp;&nbsp; ShowMessage('Communication Exception: ' + E.Message);
+  end 
+  else 
+  begin
+ &nbsp;&nbsp; ShowMessage('VCL Exception: ' + E.Message);
+  end;
+end;
+</pre>
+&nbsp;</p>
+Если произойдет ошибка во время вызова метода Connect, то она будет очищена самостоятельно перед возбуждения&nbsp; соответствующего исключения. Поэтому, try здесь после вызова метода Connect на не перед. Тем не менее, если исключение случится во время передачи данных, то будет возбуждено исключение raised. Сокет останется подсоединенным. Это позволяет вам повторить операцию передаче или отсоединиться. В приведенном выше примере, не делается никакой дополнительной обработки и сокет отсоединяется по любой ошибке, и производится нормальное завершение.</p>
+Для обработки ошибок во время соединения и отделения от других ошибок связи, требуется изменить ваш код:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 0px;"><pre name="code" class="delphi">try
+  IdTCPClient1.Connect; 
+  try
+ &nbsp;&nbsp; try
+ &nbsp;&nbsp;&nbsp;&nbsp; // Do your communications here
+ &nbsp;&nbsp; finally 
+ &nbsp;&nbsp;&nbsp;&nbsp; IdTCPClient1.Disconnect; 
+ &nbsp;&nbsp; end;
+  except
+ &nbsp;&nbsp; on E: EIdException do 
+ &nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp; ShowMessage('An network error occurred during communication: ' + E.Message);
+ &nbsp;&nbsp; end;
+ &nbsp;&nbsp; on E: Exception do 
+ &nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp; ShowMessage('An unknown error occurred during communication: ' + E.Message);
+ &nbsp;&nbsp; end;
+  end;
+except
+  on E: EIdException do 
+  begin
+ &nbsp;&nbsp; ShowMessage('An network error occurred while trying to connect: ' + E.Message);
+  end;
+  on E: Exception do 
+  begin
+ &nbsp;&nbsp; ShowMessage('An unknown error occurred while trying to connect: ' + E.Message);
+  end;
+end;
+</pre>
+&nbsp;</p>
+Данный код не только проверяет исключения, которые возникают во время соединения, но и отделяет эти ошибки от других ошибок связи. Дальше исключения Indy изолируются от других исключений.</p>
+6.3. Исключения это не ошибки</p>
+Многие разработчики серьезно считаю, что исключения это ошибки. Но это не так. Если бы это было так, то Borland бы назвал из ошибками, а не исключениями.</p>
+Исключение &#8211; это что-то, что за пределами ординарного. В терминах программирования, исключение &#8211; это что-то, что прерывает нормальный поток исполнения.</p>
+Исключения используются для представления ошибок в Delphi и по этому большинство исключений это ошибки. Тем не менее, есть такие исключения, как EAbort, которое не является ошибкой. Indy также определяет ряд исключений, которые не являются ошибками. Такие исключения, как правило, наследованы от EIdSilentException и могут быть легко отделены от ошибок и других исключений. Более сложный пример можно посмотреть в EIdConnClosedGracefully.</p>
+6.4. Компонент TIdAntiFreeze</p>
+Indy имеет специальный компонент, который прозрачно разрешает проблему с замораживанием пользовательского интерфейса. Достаточно одного экземпляра компонента TIdAntiFreeze в приложении, позволяя использовать блокирующие вызовы в главном кодовом потоке, без замораживания пользовательского интерфейса.</p>
+TIdAntiFreeze работает внутренне, независимо от вызова стека, и позволяет обрабатывать сообщения в течении периода таймаута. Внешний вызовы Indy продолжают быть блокированы и их код работает точно так же, как и без компонента TIdAntiFreeze.</p>
+Поскольку пользовательский интерфейс замораживается только при вызове блокирующих сокетов в главном кодовом потоке, TIdAntiFreeze влияет только на вызовы Indy, сделанные из главного кодового потока. Если приложение использует вызовы Indy из других потоков, TIdAntiFreeze не требуется. Но если используется, то влияет на вызовы сделанные только из главного кодового потока.</p>
+Использование TIdAntiFreeze немного замедляет работу сокетов. Сколько давать приоритета приложению задается в свойствах TIdAntiFreeze. Причина, по которой TIdAntiFreeze замедляет сокетовые операции, состоит в том, что главному кодовому потоку разрешается обрабатывать сообщения. По этому надо позаботиться, чтобы не позволять много времени отводилось обработке сообщений. Это включает большинство таких событий, как OnClick, OnPaint, OnResize и многие другие. Поскольку неблокирующие сокеты тоже обмениваются сообщениями, этаже проблема относится и к ним. С Indy и с помощью использования TIdAntiFreeze, программист получает полный контроль.</p>
+6.5. Пример - Проверка почтового индекса - клиент</p>
+Данный пример &#8211; это клиент, протокол просмотра почтовых индексов. Протокол очень простой и предполагается, что сервер уже реализован. В данной главе рассматривается только клиент.</p>
+Клиент обеспечивает получении имени города и штата по почтовому индексу (Zip код для американских пользователей). Исходные данные находятся на сервере для американских почтовых индексов. Американские почтовые индексы (называемые zip коды) состоят из 5 цифр.</p>
+Код сервера будет приведен позже.</p>
+6.5.1. Проверка почтового индекса - протокол</p>
+Протокол клиента очень прост, он содержит только две команды:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Lookup &lt;почтовый код 1&gt; &lt; почтовый код 2&gt; ...</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Quit</td></tr></table></div>Общение с сервером выглядит так:</p>
+Server: 204 Post Code Server Ready.</p>
+Client: lookup 16412</p>
+Server: 200 Ok</p>
+Server: 16412: EDINBORO, PA</p>
+Server: .</p>
+Client: lookup 37642 77056</p>
+Server: 200 Ok</p>
+Server: 37642: CHURCH HILL, TN</p>
+Server: 77056: HOUSTON, TX</p>
+Server: .</p>
+Client: quit</p>
+Server: 201-Paka!</p>
+Server: 201 4 requests processed.</p>
+The server responds with a greeting when the client connects. Greetings and replies to commands typically contain a 3 digit number specifying status. This will be covered more in detail in later sections.</p>
+После приветственного сообщения сервер готов принимать запросы от клиента. Если принята команда Lookup &#8211; сервер отвечает списком почтовых кодов и далее соответствующим именем города и штата. Ответ заканчивается строкой с единственным символом &lt;точка&gt;. Клиент может посылать множество команд, пока не выдаст команду Quit, после происходит рассоединение.</p>
+6.5.2. Объяснение кода</p>
+Клиент просмотра почтового кода содержит две кнопки, listbox и memo. Одна кнопка используется для очистки окна результатов, а другая для получения ответов от сервера и запрос информации от него. Результаты помещаются в listbox.</p>
+В обычном приложении, пользователь должен предоставить информацию об узле, порте и возможно о прокси. Но для демонстрации данная информация указана в коде. В качестве узла используется 127.0.0.1 и порт 6000.</p>
+Когда пользователь нажимает на кнопку Lookup, то выполняется следующий обработчик:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 0px;"><pre name="code" class="delphi">procedure TformMain.butnLookupClick(Sender: TObject);
+var
+  i: integer;
+begin
+  butnLookup.Enabled := true; 
+  try
+ &nbsp;&nbsp; lboxResults.Clear;
+ &nbsp;&nbsp; with Client do 
+ &nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp; Connect; 
+ &nbsp;&nbsp;&nbsp;&nbsp; try
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Read the welcome message
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GetResponse(204);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lboxResults.Items.AddStrings(LastCmdResult.Text);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lboxResults.Items.Add('');
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Submit each zip code and read the result
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for i := 0 to memoInput.Lines.Count - 1 do 
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SendCmd('Lookup ' + memoInput.Lines[i], 200);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Capture(lboxResults.Items);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lboxResults.Items.Add('');
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; end;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SendCmd('Quit', 201);
+ &nbsp;&nbsp;&nbsp;&nbsp; finally 
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Disconnect; 
+ &nbsp;&nbsp;&nbsp;&nbsp; end;
+ &nbsp;&nbsp; end;
+  finally 
+ &nbsp;&nbsp; butnLookup.Enabled := True; 
+  end;
+end;
+</pre>
+&nbsp;</p>
+Методы Indy, использованные здесь, объясняются только коротко, поскольку подробно они рассмотрены в других главах.</p>
+Когда код выполняется, то блокируется кнопка, чтобы пользователь не мог послать другой запрос, пока не закончен текущий. Вы можете подумать, что это не возможно, поскольку событие нажатия кнопки обрабатывается с помощью сообщений. Но поскольку данный пример использует TIdAntiFreeze, который вызывает Application.ProcessMessages и позволяет обрабатывать события отрисовки, так и другие события. По этой причине вы должны побеспокоиться о защите пользовательского интерфейса.</p>
+Используя TIdTCPClient (Client) &#8211; бросьте его на форму во время проектирования и попробуйте подключиться к серверу и подождите приветствия от сервера. GetResponse читает ответы и возвращает ответы как результат. В данном случае результат отбрасывается, но GetResult знает, что надо проверить ответ на число 204. Если Сервет отвечает другим кодом, то возбуждается исключение. Сервер может отвечать разными кодами, если он, например, очень, находится на профилактике и так далее.</p>
+Для каждого почтового индекса, который вводит пользователь, пример посылает команду lookup на сервер и ожидает код ответа 200. Если SendCmd закончится успешно, пример вызывает функцию Capture, которая читает ответы, пока не поступит с единственной точкой в строке. Поскольку демонстрационный пример за раз посылает одну команду, то ожидается одна строка в ответ, или ее отсутствие если индекс неверный.</p>
+По окончанию пример шлет команду Quit и ожидает ответа с кодом 201, который означает, что сервер понял и отсоединяет клиента. Правильным поведением, является всегда посылка команды Quit, чтобы обе стороны знали что произошло разъединение</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<html>
+<head>
+  <title>Как сделать popup TComboBox по позиции курсора в TMemo?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как сделать popup TComboBox по позиции курсора в TMemo?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit CBoxInMemo;
+ 
+interface
+ 
+uses
+  Windows, Classes, Controls, Graphics, Forms, StdCtrls;
+ 
+type
+  TFrmCboxInMemo = class(TForm)
+    Button1: TButton;
+    Memo1: TMemo;
+    Label1: TLabel;
+    ComboBox1: TComboBox;
+    procedure Button1Click(Sender: TObject);
+    procedure ComboBox1Exit(Sender: TObject);
+    procedure ComboBox1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+ 
+var
+  FrmCboxInMemo: TFrmCboxInMemo;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TFrmCboxInMemo.Button1Click(Sender: TObject);
+var
+  clientPos: TPoint;
+  lineHeight: Integer;
+  tmpFont: TFont;
+begin
+  GetCaretPos(clientPos);
+  {Use the following calculation of line height only if you want your combobox
+  to appear below the char position you are referencing.}
+  tmpFont := Canvas.Font;
+  Canvas.Font := Memo1.Font;
+  lineHeight := Canvas.TextHeight('Xy');
+  Canvas.Font := tmpFont;
+  with ComboBox1 do
+  begin
+    {Adjustment of Top by lineHeight only necessary if combobox is to appear below line.}
+    Top := clientPos.Y + Memo1.Top + lineHeight;
+    Left := clientPos.X + Memo1.Left;
+    Visible := true;
+    SetFocus;
+  end;
+end;
+ 
+procedure TFrmCboxInMemo.ComboBox1Exit(Sender: TObject);
+begin
+  ComboBox1.Visible := false;
+end;
+ 
+procedure TFrmCboxInMemo.ComboBox1Click(Sender: TObject);
+begin
+  ComboBox1.Visible := false;
+end;
+ 
+end.
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

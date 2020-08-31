@@ -1,0 +1,74 @@
+<html>
+<head>
+  <title>Использование SQLMonitor (DBExpress)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Использование SQLMonitor (DBExpress)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Следи за собой - будь осторожен или использование SQLMonitor.</p>
+<p>Итак, остался всего один компонент на закладке dbExpress, не обследованный нами - это SQLMonitor. Как вы уже догадались - его задача - это протоколирование событий, происходящих в программе при обращении к базе данных. Протокол может выводиться как в StringList, так и файл. </p>
+
+<p>Создадим новый проект (File/ New Application). На главную форму положим SQLConection, SQLClientDataSet. Настроим SQLConnection на соединение с БД, а SQLClientDataSet на получение данных через SQLConnection. Свойства Connected SQLConnection и Active SQLClientDataSet установим в True. Все стандартно. </p>
+
+<p>Теперь положим на форму компонент - SQL Monitor. Обглядим, какими свойствами И событиями он обладает: </p>
+
+<p>Active Boolean Активность монитора- вкл/выкл </p>
+<p>AutoSave Boolean Авто сохранение протокола в файл, имя файла должно быть указано в св-ве FileName </p>
+<p>FileName String Имя файла для сохранения протокола. Если св-во AutoSave установлено в true, то в указанный файл протокол записывается автоматически, если AutoSave :=false, то FileName используется как файл по умолчанию, для методов LoadFromFile, SaveToFile </p>
+<p>SQLConnection TSQLConnection Соединение с БД, работа с которым будет протколироваться </p>
+<p>TraceList TStrings Содержимое протокола </p>
+<p>Методы </p>
+<p>LoadFromFile (AFileName:string) Загрузить протокол из файла </p>
+<p>SaveToFile (AFileName:string) Сохранить протокол в файл </p>
+<p>События </p>
+<p>OnLogTrace TTraceLogEvent Генерируется сразу после вставки нового сообщения в протокол </p>
+<p>OnTrace TTraceEvent Генерируется при наличии сообщения для протокола, перед его вставкой </p>
+<p>Что нам остается сделать - в компоненте SQLMonitor1 установить свойство SQLConnection равным SQLConnection1, а затем свойство Active SQLMonitor1 установим в True. Для вывода сообщений расположим на форме компонент Memo. Для его заполнения создадим обработчик события OnLogTrace компонента SQLMonitor1 со следующим кодом: </p>
+
+<p>Memo1.Clear;</p>
+<p>Memo1.LinesAddString(SQLMonitor1.TraceList);</p>
+
+<p>Все запускаем полученное приложение - читаем протокол. </p>
+
+<p>У меня возник по поводу использования монитора только один вопрос (Кто идет за "Клинским"? :) А как отслеживать не все события, а только какие-то определенные? Ответ нашелся довольно быстро. </p>
+
+<p>Структура CBInfo:pSQLTraceDesc имеет поле eTraceCat, содержащее категорию произошедшего события. Однако у меня значение этого поля всегда было равно 256. Таким образом, нам остается только анализировать текст сообщения, находящийся в поле pszTrace вышеуказанной структуры. </p>
+
+
+<p>Ну вот и все. Ваши замечания и предложения я рад буду увидеть в почтовом ящике mgoblin@mail.ru </p>
+
+<p id="author">Автор: Mike Goblin </p>
+<p>Взято с сайта <a href="http://www.delphimaster.ru/" target="_blank">http://www.delphimaster.ru/</a></p>
+
+<p>с разрешения автора.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

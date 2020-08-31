@@ -1,0 +1,60 @@
+<html>
+<head>
+  <title>Формат границ ячейки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Формат границ ячейки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Формат границ ячейки</p>
+Границы ячейки имеют следующие свойства: цвет, стиль и толщина. Чтобы получить доступ к границе, используем коллекцию Borders объекта Range, которая через индекс (Edge) предоставляет доступ к той или иной стороне границы ячейки (левая, правая и т.д. сторона). Edge может принимать одно из 8 определенных значений. Объекты коллекции Borders определяют цвет границы, который может задаваться выбором из определенной в Excel палитры или как комбинация из трех цветов RGB. Свойство ColorIndex содержит индекс цвета: когда нас не устраивает цвет из заранее определенной палитры, тогда используем свойство Color, в которое запишем значение из комбинации трех основных цветов, например: Color= RGB(200,100,125). Стиль границы (LineStyle) имеет тип integer и одно из 8 предопределенных значений (смотрите приложение). Толщина границы (Weight) имеет тип integer и одно из 4 значений. Исходный текст функции для установки параметров границы ячейки смотрите ниже.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 0px;"><pre name="code" class="delphi">Function SetBorderRange(sheet:variant;range:string;
+  Edge,LineStyle,Weight,ColorIndex,Color:integer):boolean;
+begin
+ SetBorderRange:=true;
+ try
+  E.ActiveWorkbook.Sheets.Item[sheet].Range[range].Borders.item
+ &nbsp; [Edge].Weight:=Weight;
+  E.ActiveWorkbook.Sheets.Item[sheet].Range[range].Borders.item
+ &nbsp; [Edge].LineStyle:=LineStyle;
+  if ColorIndex&gt;0 then
+ &nbsp; E.ActiveWorkbook.Sheets.Item[sheet].Range[range].Borders.item
+ &nbsp; [Edge].ColorIndex:=ColorIndex
+  else
+ &nbsp; E.ActiveWorkbook.Sheets.Item[sheet].Range[range].Borders.item
+ &nbsp; [Edge].Color:=color;
+ except
+  SetBorderRange:=false;
+ end;
+End;
+</pre>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

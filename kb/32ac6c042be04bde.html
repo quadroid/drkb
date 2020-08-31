@@ -1,0 +1,67 @@
+<html>
+<head>
+  <title>Определить формат изображения, загруженного в TMemoryStream</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Определить формат изображения, загруженного в TMemoryStream</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+type
+  ImageType = (NoImage, Bmp, Gif, Gif89, Png, Jpg);
+ 
+function KindOfImage(Start: Pointer): ImageType;
+type
+  ByteArray = array[0..10] of byte;
+var
+  PB: ^ByteArray absolute Start;
+  PW: ^Word absolute Start;
+  PL: ^DWord absolute Start;
+begin
+if PL^ = $38464947 then
+  begin
+  if PB^[4] = Ord('9') then Result := Gif89
+  else Result := Gif;
+  end
+else if PW^ = $4D42 then Result := Bmp
+else if PL^ = $474E5089 then Result := Png
+else if PW^ = $D8FF then Result := Jpg
+else Result := NoImage;
+end;
+</pre>
+
+<p>Пользоваться можно так:</p>
+<p>case KindOfImage(MemoryStream.Memory) of</p>
+<p>...</p>
+<p> Автор s-mike </p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

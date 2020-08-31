@@ -1,0 +1,103 @@
+<html>
+<head>
+  <title>Как начертить круг?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как начертить круг?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ ... }
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+uses
+  Math;
+ 
+procedure DrawCircle(CenterX, CenterY, Radius: Integer; Canvas: TCanvas; Color:
+  TColor);
+ 
+  procedure PlotCircle(x, y, x1, y1: Integer);
+  begin
+    Canvas.Pixels[x + x1, y + y1] := Color;
+    Canvas.Pixels[x - x1, y + y1] := Color;
+    Canvas.Pixels[x + x1, y - y1] := Color;
+    Canvas.Pixels[x - x1, y - y1] := Color;
+    Canvas.Pixels[x + y1, y + x1] := Color;
+    Canvas.Pixels[x - y1, y + x1] := Color;
+    Canvas.Pixels[x + y1, y - x1] := Color;
+    Canvas.Pixels[x - y1, y - x1] := Color;
+  end;
+ 
+var
+  x, y, r: Integer;
+  x1, y1, p: Integer;
+begin
+  x := CenterX;
+  y := CenterY;
+  r := Radius;
+  x1 := 0;
+  y1 := r;
+  p := 3 - 2 * r;
+  while (x1 &lt; y1) do
+  begin
+    plotcircle(x, y, x1, y1);
+    if (p &lt; 0) then
+      p := p + 4 * x1 + 6
+    else
+    begin
+      p := p + 4 * (x1 - y1) + 10;
+      y1 := y1 - 1;
+    end;
+    x1 := x1 + 1;
+  end;
+  if (x1 = y1) then
+    plotcircle(x, y, x1, y1);
+end;
+</pre>
+
+
+<p>Used like this:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  DrawCircle(ClientWidth div 2, ClientHeight div 2, Min(ClientWidth div 2,
+    ClientHeight div 2), Canvas, clBlack);
+  {Add Math to the uses clause for the Min function}
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<html>
+<head>
+  <title>Связка ActiveX &ndash; Internet Explorer</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushXml.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Связка ActiveX &ndash; Internet Explorer</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>А знаете ли вы, что на Delphi можно писать ActiveX компоненты? Конечно знаете. А что с их помощью можно взаимодействовать с Internet Explorer? Это может быть интересно для профессиональных вебмастеров, скажете вы, но я не согласен. "Простой" программист тоже может найти массу применений этому. Здесь будет описано одно из них. Все мы лазим (ходим и т.д.) по интернету. И вы тоже - раз читаете эти строки :). А не случалось ли вам, случайно где-то побывав, что-то прочитав и благополучно забыв адрес сайта через некоторое время вдруг понять, что там было именно то, что вам сейчас срочно понадобилось? Можно конечно посмотреть History браузера, можно залезть в кэш "руками" и попытаться найти там что-то. А можно написать компонент, который бы искал слова в файлах кэша (в общем случае в любых HTML-файлах) и выводил бы на просмотр требуемые файлы. Связать этот компонент с Эксплорером - и вперед. Что удобно - вся работа происходит в эксплорере: и поиск, и,естественно, просмотр. При этом для Delphi-программиста не нужны особые знания языка HTML, скриптовых языков и т.п. Достаточно знать несколько основных конструкций (а уж справочных руководств в интернете навалом - хотя бы на www.citforum.ru). Написанный ActiveX-компонент вставляется в HTML-страничку. Вот пример простейшей странички </p>
+<pre name="code" class="html">
+&lt;HTML&gt;
+&lt;HEAD&gt;
+&lt;TITLE&gt;Поиск&lt;/TITLE&gt;
+&lt;/HEAD&gt;
+&lt;BODY&gt;
+&lt;P ALIGN=CENTER&gt;
+&lt;OBJECT ID="findword1" - {при помощи этого тэга компонент вставляется в страничку}
+CLASSID="CLSID:47E50425-E611-11D3-970A-4854E82B17E6"
+CODEBASE="C:\PATH\FINDWORDS.OCX"&gt;
+&lt;/OBJECT&gt;
+&lt;/P&gt;
+&lt;/BODY&gt;
+&lt;/HTML&gt;
+</pre>
+<p>В этом примере ActiveX-компонент, находящийся в файле C:\PATH\FINDWORDS.OCX вставляется в HTML-страничку. Но важно отметить, что эта страничка откроется только в Microsoft Internet Explorer версии 4 и старше. Пишут, что третий эксплорер тоже поддерживает тэг &lt;OBJECT&gt;, но сам не пробовал, не знаю. Браузеры Netscape, Opera и какие еще там бывают, его не поддерживают. </p>
+<p>Итак, тэг &lt;OBJECT&gt; вставляет в страничку ActiveX-компонент. Его атрибут CLASSID указывает идентификатор класса нашего компонента. При создании в Delphi компонента с нуля ему автоматически присваивается этот идентификатор класса. ID="findword1" - имя объекта. Здесь можно писать любое имя. По нему мы в дальнейшем будем ссылаться на наш компонент в теле странички из скриптов-процедур обработки событий. Далее, для того, чтобы наш компонент мог использоваться прикладными программами, он должен быть зарегистрирован в реестре. Зарегистрировать его можно программой regsvr32, которая по умолчанию находится в каталоге [System]. Например так: [regsvr32 C:\PATH\FINDWORDS.OCX]. Если при открытии странички Explorer не находит в реестре указанный компонент, то он ищет его в местоположении, указанном атрибутом CODEBASE. Здесь может быть полный путь к файлу, если он находится на вашем жестком диске или даже URL-адрес (со всеми сопутствующими атрибутами, как то http:// и т.д.).Т.е, если эксплорер встретил ссылку на компонент, а этого компонента нет на вашей машине, он может загрузить его из интернета с указанного адреса. Кстати, атрибут CLASSID - обязательный, именно по нему производится "идентификация" класса. А атрибут CODEBASE - необязательный. В случае, когда он опущен, если компонент уже зарегистрирован в системе, то он отобразится в вашей страничке, если не зарегистрирован - страничка будет пустой. И наконец если эксплорер сам регистрирует компонент, он переписывает файл OCX в папку [Windows\Downloaded program files]. </p>
+<p>Для того, чтобы вручную не писать скрипты подсоединения ActiveX компонентов, я советую скачать программу Microsoft ActiveX Control Pad отсюда. Эта программа предназначена для внедрения ActiveX-компонентов в HTML-странички. После ее работы определение компонента выглядит примерно так:</p>
+<pre name="code" class="html">
+&lt;OBJECT ID="findword1"
+CLASSID="CLSID:47E50425-E611-11D3-970A-4854E82B17E6"
+CODEBASE="C:\PATH\FINDWORDS.OCX"&gt;
+&lt;PARAM NAME="Visible" VALUE="-1"&gt;
+&lt;PARAM NAME="AutoScroll" VALUE="0"&gt;
+&lt;PARAM NAME="AutoSize" VALUE="0"&gt;
+&lt;PARAM NAME="AxBorderStyle" VALUE="1"&gt;
+&lt;PARAM NAME="Caption" VALUE="findword"&gt;
+&lt;PARAM NAME="Color" VALUE="2147483663"&gt;
+&lt;PARAM NAME="Font" VALUE="MS Sans Serif"&gt;
+&lt;PARAM NAME="KeyPreview" VALUE="0"&gt;
+&lt;PARAM NAME="PixelsPerInch" VALUE="96"&gt;
+&lt;PARAM NAME="PrintScale" VALUE="1"&gt;
+&lt;PARAM NAME="Scaled" VALUE="-1"&gt;
+&lt;PARAM NAME="DropTarget" VALUE="0"&gt;
+&lt;PARAM NAME="HelpFile" VALUE=""&gt;
+&lt;PARAM NAME="DoubleBuffered" VALUE="0"&gt;
+&lt;PARAM NAME="Enabled" VALUE="-1"&gt;
+&lt;PARAM NAME="BiDiMode" VALUE="0"&gt;
+&lt;PARAM NAME="Cursor" VALUE="0"&gt;
+&lt;PARAM NAME="filename" VALUE="nothing"&gt;
+&lt;/OBJECT&gt;
+</pre>
+<p>Т.е. эта программа сама подставляет полное определение компонента (его CLASSID, например). Правда, полученный код иногда приходится подправлять вручную. Например может потребоваться убрать явное указание высоты и ширины объекта. </p>
+<p>Теперь подходим к самому главному: как сделать сам компонент (чтобы было что вставлять в нашу страничку :). Итак, в Delphi делаем New\ActiveX\Active form. В окошке Active Form Wizard выбираем Threading model=Apartment. Другие threading models не работают с IE 4. Выглядит это так: компонент в страничке открывается, но иногда вдруг выскакивает Access violation. (обычно на событие Create). Модель же Both работает с IE 5. Флажок "Include Design-Time licence" лучше не устанавливать. Дальше открывается новая форма, где вы можете размещать свои кнопки-текстбоксы, определять реакцию на события и т.д. </p>
+<p>Далее будут описаны некоторые хитрости. Например, нужно хранить некоторые данные во внешнем файле. Я столкнулся со следующим: мой компонент на разных машинах размещал свои файлы в разных местах: на одной в каталоге Windows, на другой - на рабочем столе. Был найден такой выход: пусть страничка по требованию компонента возвращает ему каталог, в котором она находится. Для этого на форму я поместил PageControl, сделал закладки невидимыми и на OnShow (у формы ActiveX компонента нет события OnShow) одной из страниц поставил генерацию собственного события OnWantDir. А в теле HTML-странички соответственно реакцию на него:</p>
+<pre name="code" class="html">
+&lt;SCRIPT LANGUAGE="VBScript"&gt;
+&lt;!--
+Sub findword1_OnWantDir()
+findword1.page_location = location.href
+End Sub
+--&gt;
+&lt;/SCRIPT&gt;
+</pre>
+<p>Далее, это событие OnShow происходит сразу после создания экземпляра компонента. Так вот, если событие OnWantDir генерировать непосредственно в нем (в OnShow), то видимо что-то в недрах Windows не успевает провернуться и машина виснет. Поэтому пришлось повесить на форму таймер, на OnShow таймер запускать, и уже на OnTimer как раз и вызывать свое событие OnWantDir. Интервал у таймера я поставил в полсекунды. Конечно можно было бы хранить свои файлы например в каталоге [Windows], но почему-то функция GetWindowsDirectory при вызове из ActiveX-компонента возвращала ошибку, хотя тут же нормально отрабатывала из обыкновенного приложения (exe). То же и с GetSystemDirectory и GetTempDirectory. Кто не знает как делать собственные свойства и события - кликайте сюда. </p>
+<p>Как сделать компонент тиражируемым? Чтобы пользователь смог работать с ним сразу же, не запуская никаких дополнительных программ, не указывая всяких-разных путей и т.д. Вот пример HTML-странички (а здесь его скриншот):</p>
+<pre name="code" class="html">
+&lt;html&gt;
+&lt;HEAD&gt;
+&lt;title&gt;Поиск&lt;/title&gt;
+&lt;SCRIPT LANGUAGE="VBScript"&gt;
+&lt;!--
+Sub Procedure1()
+location.href = findword1.NewStroke
+{Получить от компонента имя файла и открыть его для просмотра. Эта процедура запускается при возникновении события OnDocClick. Location - объект Explorer'а (см. документацию по VBScript)}
+End Sub
+--&gt;
+&lt;/SCRIPT&gt;
+&lt;/HEAD&gt;
+&lt;SCRIPT LANGUAGE="VBScript"&gt;
+&lt;!--
+Sub findword1_OnWantDir()
+findword1.page_location = location.href
+{Получить текущий каталог, т.е. свойству page_location объекта присвоить местоположение нашей странички}
+end sub
+Sub findword1_OnDocClick()
+{При возникновении события OnDocClick вызвать процедуру Procedure1 (открыть файл для просмотра)}
+call Procedure1()
+end sub
+--&gt;
+&lt;/SCRIPT&gt;
+&lt;p align = "center"&gt;
+&lt;OBJECT ID="findword1"
+CLASSID="CLSID:47E50425-E611-11D3-970A-4854E82B17E6"
+CODEBASE="findwords.ocx"&gt;
+{Здесь просто имя файла без пути. Explorer зарегистрирует компонент невидимо для пользователя, взяв его из текущеего каталога (страничка и файл OCX находятся в одном каталоге)}
+&lt;PARAM NAME="Visible" VALUE="-1"&gt;
+&lt;PARAM NAME="AutoScroll" VALUE="0"&gt;
+&lt;PARAM NAME="AutoSize" VALUE="0"&gt;
+&lt;PARAM NAME="AxBorderStyle" VALUE="1"&gt;
+&lt;PARAM NAME="Caption" VALUE="findword"&gt;
+&lt;PARAM NAME="Color" VALUE="2147483663"&gt;
+&lt;PARAM NAME="Font" VALUE="MS Sans Serif"&gt;
+&lt;PARAM NAME="KeyPreview" VALUE="0"&gt;
+&lt;PARAM NAME="PixelsPerInch" VALUE="96"&gt;
+&lt;PARAM NAME="PrintScale" VALUE="1"&gt;
+&lt;PARAM NAME="Scaled" VALUE="-1"&gt;
+&lt;PARAM NAME="DropTarget" VALUE="0"&gt;
+&lt;PARAM NAME="DoubleBuffered" VALUE="0"&gt;
+&lt;PARAM NAME="Enabled" VALUE="-1"&gt;
+&lt;PARAM NAME="BiDiMode" VALUE="0"&gt;
+&lt;PARAM NAME="Cursor" VALUE="0"&gt;
+&lt;PARAM NAME="filename" VALUE="nothing"&gt;
+&lt;PARAM NAME="page_location" VALUE=""&gt;
+&lt;/OBJECT&gt;
+&lt;/p&gt;
+&lt;/BODY&gt;
+&lt;/html&gt;
+</pre>
+<p>И еще раз: 1) открываем нашу страничку (в IE 4 и выше); 2) если компонент зарегистрирован, он сразу показывается, если не зарегистрирован, то регистрируется и показывается. При этом: 3) после создания выдерживается пауза в полсекунды и запрашивается текущий каталог (и страничка и сам OCX-файл находятся в одном каталоге, который и будет текущим). 4) если нужно открыть на просмотр какую либо страничку (выбранную пользователем в процессе работы из списка - см. скриншот), то свойству компонента (при внедрении его в страничку правильнее будет называть его уже объектом) присваивается значение (имя файла), генерируется событие. Процедура-скрипт обработчик этого события читает свойство и отрывает требуемый файл</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="note">Примечание Vit</p>
+<p>Данный FAQ не поддерживает вложения, поэтому все линки данного топика не рабочие. Используйте оригинал с Web сайта для полной функциональности: <a href="http://www.sources.ru/delphi/delphi_activex_ie.shtml " target="_blank">http://www.sources.ru/delphi/delphi_activex_ie.shtml </a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

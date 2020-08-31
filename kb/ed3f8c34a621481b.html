@@ -1,0 +1,558 @@
+<html>
+<head>
+  <title>Interprocess communication на примере keyboard hook (статья)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Interprocess communication на примере keyboard hook (статья)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+Взаимодействие процессов</p>
+<p>Архитектура Win32 подразумевает максимальную изоляцию выполняющихся приложений друг от друга. Каждое приложение выполняется в своем виртуальном адресном пространстве, которое полностью обособлено и не имеет доступа к памяти других программ. Однако иногда возникает необходимость в передаче данных их одного выполняющегося процесса в другой. Рассмотрим подробно одну из таких задач, а затем основные способы связи между процессами и рекомендации по их применению.</p>
+
+Пишем перехватчик клавиатуры</p>
+<p>Итак, стоит задача &#8211; перехватить события от клавиатуры во всех выполняющихся процессах. Для перехвата событий Win32 API предоставляет механизм, называемый «ловушками» (hook). Ловушка может быть установлена на многие события, возникающие в Windows, такие, как события от мыши, создание окон, вызов оконной процедуры и т.п. Для её установки используется функция:</p>
+
+<p>function SetWindowsHookEx(</p>
+<p>  idHook: Integer;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Идентификатор, показывающий какая</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // ловушка устанавливается</p>
+<p>  lpfn: TFNHookProc;&nbsp;&nbsp;&nbsp; // Адрес функции-ловушки</p>
+<p>  hmod: HINST;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Идентификатор модуля, в котором находится</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // процедура-ловушка</p>
+<p>  dwThreadId: DWORD&nbsp;&nbsp;&nbsp;&nbsp; // Идентификатор потока, для которого ловушка</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // устанавливается</p>
+<p>): HHOOK; stdcall;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Функция возвращает идентификатор ловушки.</p>
+
+<p>Рассмотрим эти параметры подробнее:</p>
+IdHook &nbsp; &nbsp; &nbsp; &nbsp;Целое число, инструктирующее Windows какое событие должно вызывать срабатывание «ловушки». Должно быть одной из констант, WH_XXX, описанных в Windows.pas. Нас интересует WH_KEYBOARD &nbsp; &nbsp; &nbsp; 
+lpFn &nbsp; &nbsp; &nbsp; &nbsp;Адрес функции, которая будет автоматически вызываться каждый раз при возникновении события. &nbsp; &nbsp; &nbsp; 
+hMod &nbsp; &nbsp; &nbsp; &nbsp;Идентификатор модуля, в котором расположена функция. Если ловушка устанавливается на события, происходящие в других процессах (а не только в вызывающем), то функция lpfn должна находиться в DLL. Эта DLL загружается в адресное пространство каждого процесса Windows. Если ловушка ставится только на события, происходящие в вызывающем процессе, то функция может находиться прямо в EXE файле, а в качестве этого параметра передается 0. &nbsp; &nbsp; &nbsp; 
+dwThreadId &nbsp; &nbsp; &nbsp; &nbsp;Идентификатор потока, события в котором нас интересуют. Если этот параметр равен 0, то ловушка ставится на все потоки в системе. &nbsp; &nbsp; &nbsp; 
+<p>Поскольку нам нужны события во всех потоках &#8211; необходимо написать DLL, содержащую функцию-ловушку. В эту же DLL удобно поместить функцию для включения и отключения ловушки.</p>
+<p>Функция-ловушка для WH_KEYBOARD должна соответствовать прототипу:</p>
+
+<p>function KeyboardProc( </p>
+<p>  Code: Integer;&nbsp;&nbsp; // Определяет способ обработки события</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // если Code &lt; 0, функция должна немедленно</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // вызвать CallNextHookEx и возвратить</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // её результат</p>
+<p>  wParam: WPARAM;&nbsp; // Содержит код клавиши</p>
+<p>  lParam: LPARAM&nbsp;&nbsp; // Содержит набор битовых флагов с дополнительной</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // информацией</p>
+<p>): Integer;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Функция должна вернуть 0 для разрешения Windows</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // дальнейшей обработки события или другое число </p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // для её запрета</p>
+<p>stdcall;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Функция должна соответствовать соглашению о </p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // вызовах stdcall</p>
+
+<p>В простейшем случае функция должна содержать следующий код:</p>
+<pre name="code" class="delphi">
+function KeyboardProc(Code: Integer; wParam: WPARAM;
+  lParam: LPARAM): Integer; stdcall;
+begin
+  if Code &lt; 0 then
+    Result := CallNextHookEx(HookHandle, Code, wParam, lParam );
+end;
+</pre>
+
+<p>HookHandle &#8211; это глобальная переменная, которая должна содержать идентификатор ловушки, полученный от SetWindowsHookEx. Для установки ловушки напишем функцию:</p>
+<pre name="code" class="delphi">
+function SetHook(Activate : BOOL): BOOL; stdcall; export;
+begin
+  Result := FALSE;
+  if Activate then 
+  begin
+    HookHandle := SetWindowsHookEx(WH_KEYBOARD, @KeyboardProc,
+      hInstance, 0);
+    Result := (HookHandle &lt;&gt; 0);
+  end 
+  else
+  begin
+    if HookHandle &lt;&gt; 0 then 
+    begin
+      Result := UnhookWindowsHookEx(HookHandle);
+      if Result then
+        HookHandle := 0;
+    end;
+  end;
+end;
+</pre>
+
+
+<p>Здесь возникает первая сложность. Для корректной обработки событий в каждом из процессов DLL загружается в адресное пространство всех процессов в системе. Если объявить HookHandle как глобальную переменную внутри DLL, то когда эта DLL будет загружена в адресное пространство разных процессов &#8211; в каждом из них она будет иметь свой набор глобальных переменных. Таким образом, в вызывающем процессе HookHandle будет равен идентификатору ловушки, а в остальных &#8211; нулю. Необходимо организовать доступ к этой переменной из всех процессов. Лучше всего использовать механизм отображения файлов на память (memory mapped files). Он заключается в том, что можно установить соответствие между каким-либо участком адресного пространства и участком в файле на диске. При этом, все изменения, сделанные в памяти отображаются на файл. Более того, если несколько процессов отобразили свою память на один и тот же участок файла &#8211; изменения, сделанные любым из них немедленно становятся доступными остальным т.е. этот участок памяти становится общим для всех этих процессов. Такой общий блок переменных удобно создавать прямо в swap-файле Windows. </p>
+<p>Для отображения памяти на файл используются функции:</p>
+
+<p>function CreateFileMapping(</p>
+<p>  hFile: THandle;&nbsp; // Идентификатор ранее открытого файла. Если hFile</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // равен &#8211;1, то объект создается в swap-файле</p>
+<p>  lpFileMappingAttributes: PSecurityAttributes;</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Аттрибуты защиты. Для наследования аттрибутов</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // вызывающего процесса можно передать NIL</p>
+<p>  flProtect,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Права на чтение-запись</p>
+<p>  dwMaximumSizeHigh,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Старшие 32 разряда размера объекта</p>
+<p>  dwMaximumSizeLow: DWORD;&nbsp;&nbsp; // Младшие 32 разряда размера объекта</p>
+<p>  lpName: PChar&nbsp;&nbsp;&nbsp; // Имя объекта</p>
+<p>): THandle; stdcall;</p>
+
+<p>Функция возвращает идентификатор объекта-отображения файла на память. Далее этот идентификатор надо передать функции:</p>
+
+<p>function MapViewOfFile(</p>
+<p>  hFileMappingObject: THandle; // Идентификатор объекта-отображения</p>
+<p>  dwDesiredAccess: DWORD;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Тип доступа к файлу</p>
+<p>  dwFileOffsetHigh,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Старшие 32 разряда смещения в файле</p>
+<p>  dwFileOffsetLow,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Младшие 32 разряда смещения в файле</p>
+<p>  dwNumberOfBytesToMap: DWORD&nbsp; // Количество байт для отображения. </p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Если параметр равен 0 - </p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // отображается весь файл</p>
+<p>): Pointer; stdcall;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Возвращается адрес отображенного </p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // участка памяти</p>
+
+<p>Таким образом, необходимо в каждом из процессов, нуждающихся в обмене данными при загрузке выполнить следующий код:</p>
+<pre name="code" class="delphi">
+type
+  PKeyboardHookInfo = ^TKeyboardHookInfo;
+  TKeyboardHookInfo = packed record
+    HookHandle: THandle;
+  end;
+ 
+const
+  UniqueHookId = 'sMyCoolKeyboardHook';
+ 
+var
+  CommonArea: PKeyboardHookInfo = NIL;
+  Mapping : THandle = 0;
+ 
+...
+ 
+  Mapping := CreateFileMapping(-1, NIL, PAGE_READWRITE, 0,
+    SizeOf(CommonArea), UniqueHookId);
+  CommonArea := MapViewOfFile(hMapping, FILE_MAP_ALL_ACCESS,
+    0, 0, 0);
+</pre>
+
+
+<p>а по завершении:</p>
+<pre name="code" class="delphi">
+if Assigned(CommonArea) then 
+  UnmapViewOfFile(CommonArea);
+if hMapping &lt;&gt; 0 then 
+  CloseHandle(Mapping);
+</pre>
+
+
+<p>Удобно оформить этот код в виде отдельного модуля, поместив создание и уничтожение объекта, соответственно в его секции initialization и finalization, которые автоматически выполняются при загрузке модуля в память и выгрузке его из памяти. Назвав этот модуль Exchange, и поместив его в список используемых модулей основной программы и DLL, мы автоматически получим в них глобальную переменную CommonArea, указывающую на разделяемую память.</p>
+<p>Внимание! Если Вы используете такой модуль в разных проектах, то каждый из них должен содержать свою копию этого модуля с различными значениями UniqueHookId</p>
+<p>Имея этот модуль, мы можем переписать функции KeyboardProc и SetHook</p>
+<pre name="code" class="delphi">
+function KeyboardProc(Code: Integer; wParam: WPARAM;
+  lParam: LPARAM): Integer; stdcall;
+begin
+  if Code &lt; 0 then
+    Result := CallNextHookEx(CommonArea^.HookHandle,
+      Code, wParam, lParam );
+end;
+</pre>
+
+
+<p>HookHandle &#8211; это глобальная переменная, которая должна содержать идентификатор ловушки, полученный от SetWindowsHookEx. Для установки ловушки напишем функцию:</p>
+<pre name="code" class="delphi">
+function SetHook(Activate : BOOL): BOOL; stdcall; export;
+begin
+  Result := FALSE;
+  if Activate then 
+  begin
+    CommonArea^.HookHandle := SetWindowsHookEx(WH_KEYBOARD,
+      @KeyboardProc, hInstance, 0);
+    Result := (CommonArea^.HookHandle &lt;&gt; 0);
+  end 
+  else
+  begin
+    if CommonArea^.HookHandle &lt;&gt; 0 then 
+    begin
+      Result := UnhookWindowsHookEx(CommonArea^.HookHandle);
+      if Result then
+        CommonArea^.HookHandle := 0;
+    end;
+  end;
+end;
+</pre>
+
+
+<p>Теперь наша ловушка вполне работоспособна, и можно приступать к насыщению её функциональностью. Поскольку функция может быть вызвана в адресном пространстве другого процесса, она не может вызывать функции главной программы. Простейший способ известить программу о срабатывании ловушки &#8211; послать сообщение какому-то из её окон. Но какому окну, и какое сообщение? Рассмотрим эти вопросы по отдельности.</p>
+
+Какому окну?</p>
+<p>Для того чтобы послать окну сообщение, необходимо знать его идентификатор (handle). Можно, конечно, послать сообщение сразу всем окнам Windows, указав в качестве идентификатора окна HWND_BROADCAST, но делать это по каждому нажатию клавиши &#8211; значит неоправданно увеличить нагрузку на всю систему. Поэтому, лучше выделить в области обмена, наряду с HookHandle еще одну переменную &#8211; FormHandle &#8211; в которую вызывающая программа перед установкой ловушки должна записать идентификатор окна, обрабатывающего сообщения от ловушки.</p>
+
+Какое сообщение?</p>
+<p>В Windows одновременно выполняются десятки программ. Поэтому, особенно при получении сообщений от других процессов всегда есть некоторая вероятность, что жестко закодированные номера сообщений (типа WM_APP + 1234) в разных программах совпадут, что приведет к их некорректной работе. Поэтому, для целей обмена между процессами лучше получить общий уникальный номер сообщения. Для этого служит функция:</p>
+
+<p>function RegisterWindowMessage(</p>
+<p>  lpString: PChar&nbsp; // уникальная текстовая строка</p>
+<p>): UINT; stdcall;&nbsp; </p>
+
+<p>Функция проверяет, было ли уже зарегистрировано сообщение с параметром lpString. Если еще нет &#8211; «выдается» уникальный в пределах сессии Windows номер, если да &#8211; возвращается ранее полученный номер. </p>
+<p>Получение номера удобно разместить в тот же модуль, что и область обмена, а в качестве lpString использовать тот же идентификатор UniqueHookId.</p>
+<p>Таким образом, модуль, предназначенный для обмена, принимает окончательный вид:</p>
+<pre name="code" class="delphi">
+unit Exchange;
+ 
+interface
+ 
+uses Windows;
+ 
+type
+  PKeyboardHookInfo = ^TKeyboardHookInfo;
+  TKeyboardHookInfo = packed record
+    FormHandle: THandle;
+    HookHandle: THandle;
+  end;
+ 
+var
+  WMKeyHook: Integer = 0;
+  CommonArea: PKeyboardHookInfo = NIL;
+ 
+implementation
+ 
+var
+  Mapping: THandle = 0;
+ 
+const
+  UniqueHookId = '{F61D1A60-4DB8-11D3-89E9-9579FCF8927A}';
+// Для генерации уникального идентификатора удобно использовать GUID
+// Просто нажмите Ctrl+Shift+G в среде разработки Delphi – 
+// и Вы получите статистически уникальную строку
+ 
+initialization
+  Mapping := CreateFileMapping(-1, NIL, PAGE_READWRITE, 0,
+    SizeOf(CommonArea), UniqueHookId);
+  CommonArea := MapViewOfFile(Mapping, FILE_MAP_ALL_ACCESS,
+    0, 0, 0);
+  WMKeyHook := RegisterWindowMessage(UniqueHookId);
+ 
+finalization
+  if Assigned(CommonArea) then
+    UnmapViewOfFile(CommonArea);
+  if Mapping &lt;&gt; 0 then
+    CloseHandle(Mapping);
+end.
+</pre>
+
+<p>Вопросы обмена практически решены и можно дописать функцию KeyboardProc. После этого код DLL тоже можно привести полностью:</p>
+<pre name="code" class="delphi">
+library HookDLL;
+ 
+uses Windows, Exchange;
+ 
+function KeyboardProc(Code: Integer; wParam: WPARAM;
+  lParam: LPARAM): Integer; stdcall; 
+begin
+  if Code &lt; 0 then
+    Result := CallNextHookEx(CommonArea^.HookHandle, Code, wParam,
+      lParam)
+  else
+  begin
+    PostMessage(CommonArea^.FormHandle, Exchange.WMKeyHook, wParam,
+      lParam );
+    Result := CallNextHookEx(CommonArea^.HookHandle, Code, wParam,
+      lParam );
+  end;
+end;
+ 
+function SetHook(Activate : BOOL): BOOL; stdcall; export;
+begin
+  Result := FALSE;
+  if Activate then 
+  begin
+    CommonArea^.HookHandle := SetWindowsHookEx(WH_KEYBOARD,
+      @KeyboardProc, hInstance, 0);
+    Result := (CommonArea^.HookHandle &lt;&gt; 0);
+  end 
+  else
+  begin
+    if CommonArea^.HookHandle &lt;&gt; 0 then 
+    begin
+      Result := UnhookWindowsHookEx(CommonArea^.HookHandle);
+      if Result then
+        CommonArea^.HookHandle := 0;
+    end;
+  end;
+end;
+ 
+exports
+  SetHook;
+ 
+begin
+end.
+</pre>
+
+
+<p>Для посылки сообщения лучше использовать PostMessage, т.к. она, в отличие от SendMessage просто помещает сообщение в очередь, не задерживая программу на время его обработки.</p>
+<p>В вызывающем приложении необходимо написать следующий код:</p>
+<pre name="code" class="delphi">
+unit HookForm;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    cbSetHook: TCheckBox;
+    Memo1: TMemo;
+    procedure cbSetHookClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+  private
+    procedure AppOnMessage(var Msg: TMsg; var Handled: Boolean);
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+uses Exchange;
+ 
+{$R *.DFM}
+ 
+// Объявляем прототип функции SetHook
+function SetHook(Activate: BOOL): BOOL; stdcall;
+  external 'HookDLL.DLL';
+ 
+procedure TForm1.cbSetHookClick(Sender: TObject);
+// Это функция-обработчик компонента TCheckBox
+// В зависимости от него состояния она устанавливает
+// или снимает перехватчик клавиатуры
+begin
+  SetHook(cbSetHook.Checked);
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  // Очищаем область обмена
+  FillChar(CommonArea^, SizeOf(CommonArea^), 0);
+  // Сообщения от ловушки будут посылаться приложению
+  CommonArea^.FormHandle := Application.Handle;
+  // Устанавливаем обработчик сообщений
+  Application.OnMessage := AppOnMessage;
+end;
+ 
+procedure TForm1.FormDestroy(Sender: TObject);
+// По завершении программы не забываем снять ловушку.
+begin
+  if cbSetHook.Checked then
+    SetHook( FALSE );
+end;
+ 
+procedure TForm1.AppOnMessage(var Msg: TMsg; var Handled: Boolean);
+var
+  Buffer: array[0..50] of Char;
+  S: String;
+  Flags : Word;
+begin
+  if Msg.Message = Exchange.WMKeyHook then 
+  begin
+    // Получаем наименование нажатой клавиши
+    GetKeyNameText(Msg.lParam, @Buffer, SizeOf(Buffer));
+    S := StrPas(Buffer);
+    Flags := Msg.lParam shr 16;
+    if (Flags and KF_UP) &lt;&gt; 0 then
+      S := S + ' down'
+    else if (Flags and KF_REPEAT) &lt;&gt; 0 then 
+      S := S + ' repeat'
+    else S := S + ' up';
+    Memo1.Lines.Add(S);
+    Handled := TRUE;
+  end;
+end;
+ 
+end.
+</pre>
+
+Способы обмена данными между процессами</p>
+<p>Далее мы рассмотрим основные способы обмена данными между процессами и их область применимости.</p>
+
+Clipboard </p>
+<p>Буфер обмена предназначен для переноса данных пользователем между приложениями. Приложения должны поддерживать копирование своих данных в буфер и вставку из него, однако, они не должны использовать буфер обмена без участия пользователя, поскольку это приведет к уничтожению помещенных туда данных. В Delphi для работы с буфером обмена имеется класс TClipboard.</p>
+<p>Также необходимо обратить внимание, что некоторые приложения (например, Microsoft Excel) ведут себя по-разному в Windows 95 и в Windows NT. При вставке из буфера обмена из под Windows NT, Excel вставляет данные в кодировке UNICODE, и, если русский текст был помещен в буфер обмена как 8-битовые символы, вставленные данные оказываются некорректными. Для решения этой проблемы необходимо определять версию Windows и вставлять текст с её учетом. Сделать это можно следующим образом:</p>
+<pre name="code" class="delphi">
+procedure SendToClipboard(const S: String);
+var
+  Data: THandle;
+  DataPtr: Pointer;
+  Version: TOSVersionInfo;
+  Size: Integer;
+begin
+  Version.dwOSVersionInfoSize := SizeOf(TOSVersionInfo);
+  GetVersionEx(Version);
+  if Version.dwPlatformId = VER_PLATFORM_WIN32_NT then
+  with Clipboard do
+  begin
+    Size := Length(S) * SizeOf(WideChar) + 1;
+    Open;
+    try
+      Data := GlobalAlloc(GMEM_MOVEABLE + GMEM_DDESHARE, Size);
+      try
+        DataPtr := GlobalLock(Data);
+        try
+          MultiByteToWideChar(CP_ACP, 0, PChar(S), Length(S),
+            DataPtr, Size);
+          Clear;
+          SetClipboardData(CF_UNICODETEXT, Data);
+        finally
+          GlobalUnlock(Data);
+        end;
+      finally
+        GlobalFree(Data);
+      end;
+    finally
+      Close;
+    end;
+  end
+  else
+    Clipboard.SetTextBuf(PChar(S));
+end;
+</pre>
+
+
+COM </p>
+
+<p>COM &#8211; это языконезависимая технология, позволяющая одному приложению вызывать методы другого даже если они находятся в разных процессах или на разных машинах. Разумеется, для этого вызываемое приложение должно предоставить совместимый со спецификацией COM интерфейс вызовов, т.е. быть COM-сервером. Delphi позволяет создавать такие интерфейсы, при помощи ключевого слова interface. Также Delphi содержит полный набор инструментов для быстрого создания COM-серверов, а также для написания клиентов, использующих их возможности.</p>
+<p>Типичный сценарий взаимодействия процессов при помощи COM выглядит следующим образом:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Программа, предоставляющая другим программам возможность вызывать свои функции, реализует COM-сервер, создаваемый при помощи мастера File-&gt;New-&gt;ActiveX-&gt;COM object</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>Затем эта программа регистрирует себя в реестре (для этого надо однократно запустить её на компьютере)</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>Программы, нуждающиеся в обращении к функциям, реализованным в COM-сервере запрашивают создание экземпляра сервера при помощи функции </td></tr></table></div>function CreateComObject(const ClassID: TGUID): IUnknown;</p>
+либо при помощи класса-оболочки, автоматически сгенерированного Delphi</p>
+<p>Примером работы с COM-объектом может служить следующий код:</p>
+<pre name="code" class="delphi">
+uses MyComServer_TLB;
+ 
+…
+ 
+var
+  MyComObject: IMyComObject;
+…
+ 
+MyComObject := CoMyComObject.Create;
+…  // Вызов методов IMyComObject
+MyComObject := NIL;  // Освобождение экземпляра COM-сервера
+</pre>
+
+
+<p>Остановимся подробнее на некоторых ключевых моментах приведенного примера.</p>
+<p>MyComServer_TLB.pas &#8211; это модуль, автоматически генерируемый Delphi, при создании нового COM-объекта. Этот модуль содержит описание интерфейса (IMyComObject) и реализацию ко-класса (CoMyComObject) &#8211; специального класса-оболочки, который позволяет запросить создание COM-объекта не вдаваясь в подробности архитектуры COM. Метод Create класса CoMyComObject возвращает ссылку на интерфейс созданного экземпляра COM-сервера. Для освобождения COM-сервера из памяти необходимо присвоить ссылке на него значение NIL. При этом автоматически уменьшится значение счетчика ссылок, и, при достижении им нуля, сервер будет автоматически выгружен. Если MyComObject является локальной переменной, то сервер будет выгружен при выходе этой переменной за пределы диапазона видимости.</p>
+
+Dynamic Data Exchange (DDE) </p>
+<p>DDE &#8211; механизм, поддерживаемы для обеспечения совместимости со старыми приложениями. Новые программы не должны использовать его для взаимодействия, однако, если необходимо обеспечить управление старым приложением, поддерживающим этот протокол &#8211; Delphi имеет в составе VCL компоненты для создания как DDE клиентов (TDdeClientConv, TDdeClientItem), так и серверов (TDdeServerConv, TDdeServerItem)</p>
+
+File Mapping </p>
+<p>Отображение файла на память позволяет процессу рассматривать содержимое файла как часть своего адресного пространства. Если несколько процессов используют один и тот же объект отображения файла на память, то каждый из них имеет участок своего адресного пространства, синхронизируемый с аналогичным участком остальных процессов. Отображение файла на память является очень эффективным способом совместного использования данных разными процессами. Разумеется, если существует вероятность одновременного изменения этих данных несколькими процессами, должна использоваться синхронизация. Использование этого механизма уже было подробно рассмотрено при создании перехватчика клавиатуры.</p>
+
+Mailslots </p>
+<p>Почтовые слоты &#8211; способ однонаправленной коммуникации. Приложение-сервер открывает слот, а клиенты могут писать в него. Слот сохраняет сообщения до тех пор, как сервер не прочтет их. Разумеется, одно приложение может быть одновременно сервером и клиентом, обеспечивая двунаправленную связь. При этом приложения могут находиться даже на разных компьютерах в сети.</p>
+<p>Delphi не содержит компонентов для работы с почтовыми слотами, поэтому программировать их необходимо используя WinAPI</p>
+
+Pipes </p>
+<p>Каналы бывают именованные и неименованные.</p>
+<p>Неименованные или анонимные каналы обычно используются для перенаправления стандартных устройств ввода-вывода. </p>
+<p>Именованный канал с известным именем обычно создается сервером, позволяя клиентам связываться с ним. При этом клиенты могут находиться на других компьютерах в сети. Именованный канал может быть создан только под Windows NT. Компьютеры под Windows 9x могут подключаться к каналу, но не могут создавать его сами.</p>
+
+RPC </p>
+<p>RPC (Remote Procedure Call) &#8211; это API, позволяющий приложению удаленно вызывать функции в других процессах как на своём, так и на удаленном компьютере. Предоставляемая Win32 API модель RPC совместима со спецификациями Distributed Computing Environment (DCE), разработанными Open Software Foundation. Это позволяет приложениям Win32 удаленно вызывать процедуры приложений, выполняющихся на других компьютерах под другими операционными системами. RPC обеспечивают автоматическое преобразование данных между различными аппаратными и программными архитектурами.</p>
+
+Windows Sockets </p>
+<p>Надстройка над коммуникационными протоколами, позволяющая писать независимые от сетевого протокола приложения, обменивающиеся данными. Спецификация WinSock 2 позволяет работать с сокетами как с обычными файлами, используя те же функции ввода-вывода. </p>
+
+WM_COPYDATA </p>
+<p>Сообщение WM_COPYDATA позволяет приложениям копировать данные между их адресными пространствами. При этом приложения не обязательно должны быть 32-разрядными &#8211; для 16-разрядных приложений поддерживается автоматическая трансляция указателей.</p>
+<p>Для примера создадим два приложения. В одном из них добавим следующий код:</p>
+
+<pre name="code" class="delphi">
+const
+  CD_CMD_SETCAPTION = 1;
+  // определяем команду для передачи данных
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  CDS: TCopyDataStruct;
+begin
+  // задаем команду
+  CDS.dwData := CD_CMD_SETCAPTION;
+  // задаем длину передаваемых данных
+  CDS.cbData := Length(Edit1.Text) + 1;
+  // выделяем память под буфер для передачи данных
+  GetMem(CDS.lpData, CDS.cbData);
+  try
+    // копируем данные в буфер
+    StrPCopy(CDS.lpData, Edit1.Text);
+    // посылаем сообщение в окно с заголовком «CopyData Reciever»
+    SendMessage(FindWindow(NIL, 'CopyData Reciever'), 
+      WM_COPYDATA, Handle, Integer(@CDS));
+  finally
+    // освобождаем буфер
+    FreeMem(CDS.lpData, CDS.cbData);
+  end;
+end;
+</pre>
+
+<p>В принимающем данные приложении создадим окно с заголовком «CopyData Reciever» и добавим в форму следующий код:</p>
+<pre name="code" class="delphi">
+const
+  CD_CMD_SETCAPTION = 1;
+ 
+type
+  TForm1 = class(TForm)
+  private
+    // создаем обработчик WM_COPYDATA
+    procedure WMCopyData(var M: TWMCopyData); message WM_COPYDATA;
+  end;
+ 
+…
+ 
+procedure TForm1.WMCopyData(var M: TWMCopyData);
+begin
+  // Если команда – установить заголовок
+  if M.CopyDataStruct.dwData = CD_CMD_SETCAPTION then begin
+    // Берем текст заголовка из данных
+    Caption := PChar(M.CopyDataStruct.lpData);
+    M.Result := 1;
+  end else
+    M.Result := 0;
+end;
+</pre>
+
+
+<p>При нажатии кнопки Button1 в первой форме заголовок второй станет равен тексту компонента Edit1. Отмечу, что сообщение WM_COPYDATA может быть послано только при помощи функции SendMessage. Если приложение, получающее данные, должно использовать их после возврата из обработчика WM_COPYDATA, оно должно скопировать данные в локальный буфер.</p>
+
+<p>Тенцер А. Л.</p>
+<p>ICQ UIN 15925834</p>
+<p>tolik@katren.nsk.ru</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

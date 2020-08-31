@@ -1,0 +1,257 @@
+<html>
+<head>
+  <title>DirectX (Игровой SDK) 3</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">DirectX (Игровой SDK) 3</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Листинг 10 функция MakeltSo для оказание помощи в восстановлении поверхности. </p>
+<pre name="code" class="delphi">
+function TForinl.MakeltSo(DDResult: HResult): boolean;
+begin
+  { утилита для предоставления помощи в восстановлении поверхностей }
+  case DDResult of
+    DD_OK: Result := true;
+    DDERR_SURFACELOST: Result := RestoreSurfaces &lt;&gt; DD_OK;
+  else
+    Result := DDResult &lt;&gt; DDERR_WASSTILLDRAWING;
+  end;
+end;
+</pre>
+
+<p>Последний метод иосстанаиливает поцерхность i3 случае необходимости и затем вызывает функцию RestoreSurface, которую я вам сейчас представлю. Но сначала вот как следует ее использовать, применяя Flip, как в предыдущем примере: </p>
+<pre name="code" class="delphi">
+repeat
+  ...
+until
+  MakeltSo(PrimarySurf асе.Flip(nil, DDFblP_WAIT));
+</pre>
+
+
+<p>Теперь я уверен, вы согласитесь, что это намного аккуратней и приятней, чем постоянно дублировать код, который я продемонстрировал ранее. Flip вызывается непрерывно, пока не достигнет успеха, либо пока не возникнет серьезная про блема. Я мог бы вызвать исключение в MakeltSo, если бы возникла неисправимая проблема. Примеры Game SDK, будучи написанными на С без обработки исключений, просто игнорируют результаты ошибки. Однако, если вы хотите использовать исключения, измените MakeltSo, как показано в листинге 11. </p>
+
+<p>Листинг 11 Необязательная MakeltSo, которая вызывает исключения. </p>
+<pre name="code" class="delphi">
+function TFormI.MakeltSo(DDResult: HResult): boolean;
+begin
+  { утилита для предоставления помощи в восстановлении
+  поверхностей - версия с исключениями }
+  Result := false;
+  case DDResult of
+    DD_OK: Result := true;
+    DDEKR_SURFACELOST: if RestoreSurfaces &lt;&gt; DD_OK then
+        raise Exception.Create('MakeltSo failed');
+  else if DDResult &lt;&gt; DDERR_WASSTILLDRAWING then
+    raise Exception.Create('MakeltSo failed');
+  end;
+end;
+</pre>
+
+
+<p>Хорошо, теперь перейдем к методу RestoreSurfaces, при необходимости вызываемому в MakeltSo. Листинг 12 показывает метод RestoreSurfaces. </p>
+
+<p>Листинг 12 Восстановление и перерисовка поверхности DirectDraw. </p>
+<pre name="code" class="delphi">
+function TFormI.RestoreSurfaces: HResult;
+begin
+  { вызывается MakeltSo, если поверхности "потерялись" -
+  восстановить и перерисовать их }
+  Result := PrimarySurface.Restore;
+  if Result = DD_OK then
+    DrawSurfaces;
+end;
+</pre>
+
+
+<p>Ничего удивительного. Вызывается метод Restore объекта основной поверхности. Ввиду того, что вы создали ее как комплексный объект, он автоматически восстанавливает любые неявные поверхности. Поэтому нет необходимости вызывать Restore для фонового буфера. Если Restore успешно восстановил память поверхности, вы вызываете DrawSurfaces, которую мы обсудим подробно далее. </p>
+
+<p>Рисование на поверхностям DirectDraw </p>
+
+<p>Существует два способа рисовать на поверхности DirectDraw. Вы можете получить указатель непосредственно на область памяти поверхности и непосредственно ею манипулировать. Это очень мощный способ, но требует написания специального кода и часто для скорости - на ассемблере. Все-таки вам редко придется это делать, потому что DirectDraw может создавать контекст устройства (DC), совместимый с GDI. Это означает, что вы можете рисовать на ней, используя стандартные вызовы GDI, а также любой DC. Однако, вызовы GDI достаточно утомительны, и Delphi уже включает DC в свой класс TCanvas. Таким образом, в примере я создаю TCanvas и использую его для облегчения себе жизни. Разве невозможно полюбить Delphi за это! </p>
+
+<p>Все, что необходимо сделать, - создать объект TCanvas и вызвать метод GetDC поверхности. Затем вы назначаете DCCanvas.Handle, убедившись, что вы по завершению переустановили Handle в ноль. Создание полотна и размещение контек- стов устройств требует памяти и ресурсов. Контексты устройства представляют собой особенно скудный ресурс. Существенно важно освободить их, когда вы закончите. Для того, чтобы сделать код непробиваемым, используйте блоки try...finally. </p>
+
+<p>Листинг 13 представляет этот код. Он просто заполняет основную поверхность голубым цветом и выводит текст "Primary surface" (Основная поверхность) в центре слева. Фоновый буфер закрашивается в красный цвет и содержит текст "Back buffer" (Фоновый буфер) в центре справа. Листинг 13 с примером DDDemo4 можно скачать здесь. </p>
+
+<p>Листинг 13 Данная процедура заполняет основную поверхность голубым цветом и выводит текст "Primary surface" (Основная поверхность) в центре слева. Фоновый буфер закрашивается в красный цвет и содержит текст "Back buffer" (Фоновый буфер) в центре справа. </p>
+<pre name="code" class="delphi">
+procedure TForm1.DrawSurfaces;
+var
+  DC: HDC;
+  ARect: TRect;
+  DDCanvas: TCanvas;
+  ATopPos: integer;
+begin
+  // fill the primary surface with red and the back buffer with blue
+  // and put some text on each. Using a canvas makes this trivial.
+  DDCanvas := TCanvas.Create;
+  try
+    // first output to the primary surface
+    if PrimarySurface.GetDC(DC) = DD_OK then
+    try
+      ARect := Rect(0, 0, 640, 480);
+      with DDCanvas do
+      begin
+        Handle := DC; // make the canvas output to the DC
+        Brush.Color := clRed;
+        FillRect(ARect);
+        Brush.Style := bsClear; // transparent text background
+        Font.Name := 'Arial';
+        Font.Size := 24;
+        Font.Color := clWhite;
+        ATopPos := (480 - TextHeight('A')) div 2;
+        TextOut(10, ATopPos, 'Primary surface');
+      end;
+    finally
+      // make sure we tidy up and release the DC
+      DDCanvas.Handle := 0;
+      PrimarySurface.ReleaseDC(DC);
+    end;
+ 
+    // now do back buffer
+    if BackBuffer.GetDC(DC) = DD_OK then
+    try
+      with DDCanvas do
+      begin
+        Handle := DC; // make the canvas output to the DC
+        Brush.Color := clBlue;
+        FillRect(ARect);
+        Brush.Style := bsClear; // transparent text background
+        Font.Name := 'Arial';
+        Font.Size := 24;
+        Font.Color := clWhite;
+        TextOut(630 - TextWidth('Back buffer'), ATopPos, 'Back buffer');
+      end;
+    finally
+      // make sure we tidy up and release the DC
+      DDCanvas.Handle := 0;
+      BackBuffer.ReleaseDC(DC);
+    end;
+  finally
+    // make sure the canvas is freed
+    DDCanvas.Free;
+  end;
+end;
+</pre>
+
+
+<p>Непригодность основной формы </p>
+
+<p>В предыдущих примерах форма была явно видима, заполняя собой основную поверхность. Однако, вы не хотите, чтобы пользователь видел форму. Это приложение смены страниц и оно рисует по всему экрану. Поэтому вы должны предотвратить отображение формы на экране. Также необходимо избавиться от системного меню и неклиентских клавиш. Все это можно достичь просто установкой BorderStyle формы в bsNone в методе Foi-rnCreate. Вам также не нужен и курсор, поэтому установите его в crNone. Добавьте эти три строки к FormCreate: </p>
+<pre name="code" class="delphi">
+BorderStyle := bsNone;
+Color := clBlack;
+Cursor := crNone;
+</pre>
+
+
+<p>Единственно, что остается сделать, - убедиться ц том, что поверхности рисуются правильно и самом начале. Сделайте проверку, вызвав DrawSurfaces в обработчике события OnPaint формы. Если вы этого не сделаете, основная поверхность изначально отобразит форму; то есть, экран будет полностью черным. Листинг 14 представляет обработчик события OnPaint формы. </p>
+
+<p>Листинг 14 Обработчик события OnPaint просто вызывает DrawSurfaces. </p>
+<pre name="code" class="delphi">
+procedure TForml.FormPaint(Sender: TObject);
+begin
+  // рисовать что-нибудь на основной поверхности и на фоновом буфере
+  DrawSurfaces;
+end;
+</pre>
+
+
+<p>Ну, все! Вы можете найти измененный код в примере DDDemo4(скачать). </p>
+
+<p>Мощь Delphi: пользовательский класс полотна (Canvas) </p>
+
+<p>До этого вы наблюдали, как использовать прекрасное средство Delphi TCanvas для получения доступа к контексту устройства, который позволяет рисовать на поверхности DirectDraw. Однако, мы можем значительно все упростить благодаря применению объектной ориентации. Сейчас вы создадите специализированный (пользовательский) подкласс TCanvas для того, чтобы иметь возможность рисовать на поверхности даже намного проще. Это очень просто; код представлен в листинге 15. </p>
+
+<p>Листинг 15 Объект полотна DirectDraw в Delphi. </p>
+<pre name="code" class="delphi">
+unit DDCanvas;
+ 
+interface
+ 
+uses Windows, SysUtils, Graphics, DDraw;
+ 
+type
+  TDDCanvas = class(TCanvas)
+  private
+    FSurface: IDirectDrawSurface;
+    FDeviceContext: HDC;
+  protected
+    procedure CreateHandle; override;
+  public
+    constructor Create(Asurface: IDirectDrawSurface);
+    destructor Destroy; override;
+    procedure Release;
+  end;
+ 
+implementation
+ 
+constructor TDDCanvas.Create(Asurface: IDirectDrawSurface);
+begin
+  inherited Create;
+  if Asurface = nil then
+    raise Exception.Create('Cannot create canvas for NIL surface');
+  FSurface := Asurface;
+end;
+ 
+destructor TDDCanvas.Destroy;
+begin
+  Release;
+  inherited Destroy;
+end;
+ 
+procedure TDDCanvas.CreateHandle;
+begin
+  if FDeviceContext = 0 then
+  begin
+    FSurface.GetDC(FDeviceContext);
+    Handle := FDeviceContext;
+  end;
+end;
+ 
+procedure TDDCanvas.Release;
+begin
+  if FDeviceContext &lt;&gt; 0 then
+  begin
+    Handle := 0;
+    FSurface.ReleaseDC(FDeviceContext)
+      FDeviceContext := 0;
+  end;
+end;
+ 
+end.
+ 
+ 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

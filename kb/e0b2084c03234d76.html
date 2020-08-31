@@ -1,0 +1,62 @@
+<html>
+<head>
+  <title>Формат заливки ячейки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Формат заливки ячейки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Формат заливки ячейки</p>
+Заливка ячейки определяется цветом, фоновым рисунком и цветом фонового рисунка. Доступ к этим полям осуществляется через объект Interior, который является свойством объекта Range. Цвет заливки может выбираться из определенной палитры цветов, в этом случае индекс цвета записывается в поле ColorIndex. Если необходимо задать цвет, отличный от цветов палитры, используется поле Color, в которое записывается значение комбинации трех основных цветов RGB. Фоновый рисунок заливки выбирается путем записи в поле Pattern константы из списка (смотрите исходный текст на домашней странице). Цвет фонового рисунка выбирается из цветовой палитры с записью в переменную PatternColorIndex цветового индекса или записью непосредственно значения RGB в поле PatternColor. Функция SetPatternRange реализует в среде Delphi управление форматом заливки ячеек. В этой функции, как и во всех предыдущих, действия могут выполняться как над одной ячейкой так и над множеством, все определяется форматом аргумента функции range:string.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 0px;"><pre name="code" class="delphi">
+Function SetPatternRange(sheet:variant;range:string;
+  Pattern,ColorIndex,PatternColorIndex,Color,PatternColor:integer):boolean;
+begin
+ SetPatternRange:=true;
+ try
+  E.ActiveWorkbook.Sheets.Item[sheet].Range[range].Interior.Pattern:=Pattern;
+  if ColorIndex&gt;0
+ &nbsp; then E.ActiveWorkbook.Sheets.Item[sheet].Range
+ &nbsp;&nbsp; [range].Interior.ColorIndex:=ColorIndex
+ &nbsp; else E.ActiveWorkbook.Sheets.Item[sheet].Range
+ &nbsp;&nbsp; [range].Interior.Color:=color;
+  if PatternColorIndex&gt;0
+ &nbsp; then E.ActiveWorkbook.Sheets.Item[sheet].Range
+ &nbsp;&nbsp; [range].Interior.PatternColorIndex:=PatternColorIndex
+ &nbsp; else E.ActiveWorkbook.Sheets.Item[sheet].Range
+ &nbsp;&nbsp; [range].Interior.PatternColor:=PatternColor;
+ except
+  SetPatternRange:=false;
+ end;
+End;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

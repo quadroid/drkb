@@ -1,0 +1,65 @@
+<html>
+<head>
+  <title>Проблема использования компонентов в Delphi 6 / 7 от предыдущих версий</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Проблема использования компонентов в Delphi 6 / 7 от предыдущих версий</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Решение в случае ошибок компиляции пакетов типа: Missing unit 'Proxies.pas' и Missing DsgnIntf.pas</p>
+
+<p>1) Сначала заменить </p>
+<p> uses DsgnIntf;</p>
+<p>на</p>
+<p> uses DesignIntf, DesignEditors;</p>
+
+<p>2) Затем</p>
+<p>  Добавить DesignIde.dcp в лист требуемых модулей</p>
+
+<p>Взято с сайта <a href="http://www.delphifaq.com" target="_blank">http://www.delphifaq.com</a></p>
+
+<hr /><p>Переименование модулей не решит проблемы 'Proxies.pas' Эта проблема возкает из-за того, что сами компоненты и редакторы свойств помещают в один пакет.<br>
+&nbsp;<br>
+Это нехорошо, но в D5 и ниже проходило, а начиная с D6 уже не проходит.<br>
+&nbsp;<br>
+Пакет разбиваете на два: run-time и design-time.<br>
+&nbsp;<br>
+RT-пакет содержит ТОЛЬКО код самих компонентов и больше НИЧЕГО. Ни один его модуль не должен ссылаться в uses ни на один модуль DT-пакета. В его секции Requires могут содержаться ТОЛЬКО run-time модули VCL.<br>
+&nbsp;<br>
+Компилируется RT-пакет в любой каталог, доступный через пути поиска IDE, либо через переменную системного окружения Path. Инсталлировать в IDE его не нужно. <br>
+&nbsp;<br>
+DT-пакет содержит процедуру Register, иконки компонентов и все design-time редакторы (свойств и компонентов), если такие есть. Любой его модуль может ссылаться в uses на любой модуль из RT-пакета. В его секцию Requires и подключается DesignIDE.dcp. Компилируется он куда угодно и должен инсталлироваться в IDE.<br>
+&nbsp;<br>
+Таким образом, в конечные приложения будут подключаться только модули RT-пакета, в которых нет ссылок на DesignEditors - а тогда не потребуется и Proxies. Кроме того, в конечный проект не будут подтягиваться ненужные в run-time код и ресурсы из DT-пакета.<br>
+&nbsp;<br>
+<p>Отвечал Юрий Зотов </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

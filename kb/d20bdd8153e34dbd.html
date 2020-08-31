@@ -1,0 +1,88 @@
+<html>
+<head>
+  <title>Как использовать свой диалог ввода пароля BDE?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как использовать свой диалог ввода пароля BDE?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+//  .....
+//  .....
+  public
+    { Public declarations }
+    procedure Password(Sender: TObject; var Continue: Boolean);
+//    ...
+  end;
+ 
+var
+  FormMain: TFormMain;
+ 
+implementation
+{$R *.dfm}
+ 
+procedure TFormMain.Password(Sender: TObject; var Continue: Boolean);
+var
+  Passwd: String[15];
+begin
+  Passwd := '';
+ 
+  FormPasswd := TFormPasswd.Create(Application);  // Creating dialog
+  try
+    if (FormPasswd.ShowModal = ID_OK) then begin  // If OK is pressed then get password from edit "edPassword"
+      Passwd := FormPasswd.edPasswd.Text
+    end
+      else begin                                  // If Cancel is pressed then terminate application
+        Application.ShowMainForm := False;
+        Application.Terminate;
+        Exit;
+      end;
+  finally
+    FormPasswd.Free;                              // finally free password form
+  end;
+ 
+  Continue := (Passwd &gt; '');
+  Session.AddPassword(Passwd);                    // Add password typed to session
+end;
+ 
+procedure TFormMain.FormCreate(Sender: TObject);
+begin
+  ClientDatabase.Session.RemoveAllPasswords;  // Remove all typed passwords from session, so user need type password again in app start
+//  Undocument next row in debug mode. This is for debugging and testing only, so we don't need typing password again and again ...
+//  ClientDatabase.Session.AddPassword('YOUR-PASSWORD');
+  ClientDatabase.Session.OnPassword := Password;  // Set OnPassword Event
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

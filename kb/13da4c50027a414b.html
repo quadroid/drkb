@@ -1,0 +1,75 @@
+<html>
+<head>
+  <title>Как добавить свой пункт меню?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как добавить свой пункт меню?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function AddMenuItem(ConnType: TconnType; MenuText, StatusBarText,
+  GuidOrPath: string; HelpMenu: Boolean): string;
+var
+  GUID: TGUID;
+  ID: string;
+  Reg: TRegistry;
+begin
+  CreateGuid(GUID);
+  ID := GuidToString(GUID);
+  Reg := TRegistry.Create;
+  with Reg do
+  begin
+    RootKey := HKEY_LOCAL_MACHINE;
+    OpenKey('\Software\Microsoft\Internet Explorer\Extensions\'
+      + ID, True);
+    if HelpMenu then
+      WriteString('MenuCostumize', 'help');
+    WriteString('CLSID', '{1FBA04EE-3024-11d2-8F1F-0000F87ABD16}');
+    WriteString('MenuText', MenuText);
+    WriteString('MenuStatusBar', StatusBarText);
+    case ConnType of
+      EXECUTABLE: WriteString('Exec', GuidOrPath);
+      COM_OBJECT: WriteString('ClsidExtension', GuidOrPath);
+      SCRIPT: WriteString('Script', GuidOrPath);
+    end;
+    CloseKey;
+    OpenKey('\Software\IE5Tools\Menu Items\', True);
+    WriteString(MenuText, ID);
+    CloseKey;
+    Free;
+  end;
+  Result := ID;
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

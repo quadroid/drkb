@@ -1,0 +1,127 @@
+<html>
+<head>
+  <title>Через СОМ интерфейс</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Через СОМ интерфейс</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+var Excel, WorkBook, Sheet: Variant;
+begin
+Excel := CreateOleObject('Excel.Application');
+Excel.WorkBooks.Open(FileName,False);
+WorkBook := Excel.WorkBooks.Item[1];
+Sheet := Workbook.Sheets.Item[3];
+Sheet.Cells[1,2]:='ASDFG';
+Sheet.Cells[2,2]:=230;
+</pre>
+
+<p>Все объекты и методы Офиса можно посмотреть в help'е Офиса.</p>
+<p id="author">Автор: Fantasist</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<p>Ниже представлен пример создания новой таблице в Excel 2000:</p>
+<pre name="code" class="delphi">
+uses
+  ComObj, ActiveX;
+ 
+var
+  Row, Col: integer;
+  DestRange: OleVariant;
+  Excel: Variant;
+ 
+begin
+  Excel := CreateOleObject('Excel.Application.9');
+  Excel.Visible := True;
+  Excel.WorkBooks.Add; //Создать новую таблицу
+ 
+  //Можно помещать текст и значения в диапазон ячеек
+  //Поместить     слово тест в диапазон ячеек
+  Excel.ActiveSheet.Range['A2', 'B3'].Value := 'Тест';
+  //Или число
+  Excel.ActiveSheet.Range['A4', 'B5'].Value := 42;
+ 
+  //А вот так задаётся формула
+  Excel.ActiveSheet.Range['A10', 'A11'].Formula := '=RAND()';
+ 
+  //Можно задавать номера ячеек и столбцов
+  Excel.ActiveSheet.Cells.Item[1, 1].Value := 'Первая ячейка';
+ 
+  Row:=1;
+  Col:=3;
+  Excel.ActiveSheet.Cells.Item[Row, Col].Value := 'Другая ячейка';
+ 
+  //Можно скопировать данный из одного диапазона ячеек в другой
+  DestRange := Excel.Range['D6', 'F10'];
+  Excel.Range['A1', 'C5'].Copy(DestRange);
+ 
+  //Можно задавать параметры шрифта в определённой ячейке
+  Excel.Range['A2', 'A2'].Font.Size := 20;
+  Excel.Range['A2', 'A2'].Font.FontStyle := 'Bold';
+  Excel.Range['A2', 'A2'].Font.Color := clFuchsia;
+  Excel.Range['A2', 'A2'].Font.Name := 'Arial';
+ 
+  //Можно ещё и так изменить цвет диапазона ячеек
+  Excel.Range['B2', 'C6'].Interior.Color := RGB(223, 123, 123);
+ 
+end;
+</pre>
+
+<p>Далее представлен пример открытия и закрытия таблицы:</p>
+<pre name="code" class="delphi">
+uses
+  ComObj, ActiveX;
+ 
+var
+  Excel: Variant;
+  WBk : OleVariant;
+  SaveChanges: OleVariant;
+ 
+begin
+  Excel := CreateOleObject('Excel.Application.9');
+  Excel.Visible := True;
+ 
+  //Открыть существующую таблицу
+  WBk := Excel.WorkBooks.Open('C:\Test.xls');
+ 
+  ...
+ 
+  WBk.Close(SaveChanges := True);
+  Excel.Quit;
+ 
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

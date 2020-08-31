@@ -1,0 +1,127 @@
+<html>
+<head>
+  <title>Как изменить шрифт hint?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как изменить шрифт hint?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  When the application displays a Help Hint, 
+  it creates an instance of HintWindowClass to represent 
+  the window used for displaying the hint. 
+  Applications can customize this window by creating a 
+  descendant of THintWindow and assigning it to the 
+  HintWindowClass variable at application startup. 
+} 
+ 
+type 
+  TMyHintWindow = class(THintWindow) 
+    constructor Create(AOwner: TComponent); override; 
+  end; 
+ 
+ 
+implementation 
+ 
+{....} 
+ 
+constructor TMyHintWindow.Create(AOwner: TComponent); 
+begin 
+  inherited Create(AOwner); 
+  with Canvas.Font do 
+  begin 
+    Name := 'Arial'; 
+    Size := Size + 5; 
+    Style := [fsBold]; 
+  end; 
+end; 
+ 
+procedure TForm2.FormCreate(Sender: TObject); 
+begin 
+  HintWindowClass := TMyHintWindow; 
+  Application.ShowHint := False; 
+  Application.ShowHint := True; 
+end; 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+
+<hr />
+<p>В примере перехватывается событие Application.OnShowHint и изменяется шрифт Hint'а. </p>
+
+<pre name="code" class="delphi">
+ 
+type
+  TForm1 = class(TForm)
+  procedure FormCreate(Sender: TObject);
+  private
+    {Private declarations}
+  public
+    procedure MyShowHint(var HintStr: string; var CanShow: Boolean;var HintInfo: THintInfo);
+    {Public declarations}
+end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TForm1.MyShowHint(var HintStr: string; var CanShow: Boolean; var HintInfo: THintInfo);
+var
+  i: integer;
+begin
+  for i := 0 to Application.ComponentCount - 1 do
+    if Application.Components[i] is THintWindow then
+      with THintWindow(Application.Components[i]).Canvas do
+      begin
+        Font.name := 'Arial';
+        Font.Size := 18;
+        Font.Style := [fsBold];
+        HintInfo.HintColor := clWhite;
+      end;
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  Application.OnShowHint := MyShowHint;
+end;
+ 
+ 
+</pre>
+
+<a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

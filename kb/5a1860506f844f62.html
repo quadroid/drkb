@@ -1,0 +1,155 @@
+<html>
+<head>
+  <title>Метод Гаусса решения системы линейных уравнений</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Метод Гаусса решения системы линейных уравнений</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Метод Гаусса решения системы линейных уравнений
+ 
+Рещение системы линейных уравнений (возможно переопределенной) методом Гаусса.
+Определяется ситуация, что система не имеет рещений. Ситуация, когда система 
+имеет более чем одно решение не рассматривается. В случае удачного завершения 
+возвращает нуль.
+ 
+Зависимости: System
+Автор:       Mystic, mystic2000@newmail.ru, ICQ:125905046, Харьков
+Copyright:   (C) Mystic
+Дата:        25 апреля 2002 г.
+********************************************** }
+ 
+function LinGauss(M, N: Integer; Data: PExtended; X: PExtended): Cardinal;
+var
+  PtrData: PExtended;
+  PtrData1, PtrData2: PExtended;
+  Temp: Extended;
+  I, J, Row: Integer;
+  Max: Extended;
+  MaxR: Integer;
+begin
+  Assert(M &gt;= N, 'Invalid start data');
+  for I := 0 to N-1 do // Для каждой переменной
+  begin
+ 
+    // 1. Поиск максимального элемента
+    PChar(PtrData) := PChar(Data) + I*(N+2)*SizeOf(Extended);
+    MaxR := I;
+    Max := PtrData^;
+    for J := I+1 to M-1 do
+    begin
+      PChar(PtrData) := PChar(PtrData) + (N+1)*SizeOf(Extended);
+      if Abs(PtrData^) &gt; Abs(Max) then
+      begin
+        Max := PtrData^;
+        MaxR := J;
+      end;
+    end;
+ 
+    // 2. А вдруг неразрешима?
+    if Abs(Max) &lt; 1.0E-10 then
+    begin
+      Result := $FFFFFFFF;
+      Exit;
+    end;
+ 
+    // 3. Меняем местами строки
+    if MaxR &lt;&gt; I then
+    begin
+      PChar(PtrData1) := PChar(Data) + MaxR*(N+1)*SizeOf(Extended);
+      PChar(PtrData2) := PChar(Data) + I*(N+1)*SizeOf(Extended);
+      for J := 0 to N do
+      begin
+        Temp := PtrData1^;
+        PtrData1^ := PtrData2^;
+        PtrData2^ := Temp;
+        PChar(PtrData1) := PChar(PtrData1) + SizeOf(Extended);
+        PChar(PtrData2) := PChar(PtrData2) + SizeOf(Extended);
+      end;
+    end;
+ 
+    // 4. Пересчет направляющей строки
+    PChar(PtrData) := PChar(Data) + I*(N+1)*SizeOf(Extended);
+    for J := 0 to N do
+    begin
+      PtrData^ := PtrData^ / Max;
+      PChar(PtrData) := PChar(PtrData) + SizeOf(Extended);
+    end;
+ 
+    // 5. Пересчет всей оставшйся части таблицы
+    PtrData1 := Data;
+    for Row := 0 to M-1 do
+    begin
+      if Row = I then
+      begin
+        PChar(PtrData1) := PChar(PtrData1) + (N+1)*SizeOf(Extended);
+        Continue;
+      end;
+      PChar(PtrData2) := PChar(Data) + I*(N+1)*SizeOf(Extended);
+      Temp := PExtended(PChar(PtrData1) + I*SizeOf(Extended))^;
+      for J := 0 to N do
+      begin
+        PtrData1^ := PtrData1^ - Temp * PtrData2^;
+        PChar(PtrData1) := PChar(PtrData1) + SizeOf(Extended);
+        PChar(PtrData2) := PChar(PtrData2) + SizeOf(Extended);
+      end;
+    end;
+  end;
+ 
+  // 6. Проверка того, что система переопределена
+  PChar(PtrData) := PChar(Data) + N*(N+1)*SizeOf(Extended);
+  for I := N to M-1 do
+    for J := 0 to N do
+    begin
+      if Abs(PtrData^) &gt; 1.0E-10 then
+      begin
+        Result := $FFFFFFFF;
+        Exit;
+      end;
+      PChar(PtrData) := PChar(PtrData) + SizeOf(Extended);
+    end;
+ 
+  // Все ОК
+  PChar(PtrData) := PChar(Data) + N*SizeOf(Extended);
+  for I := 0 to N-1 do
+  begin
+    X^ := PtrData^;
+    PChar(X) := PChar(X) + SizeOf(Extended);
+    PChar(PtrData) := PChar(PtrData) + (N+1) * SizeOf(Extended);
+  end;
+  Result := 0;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

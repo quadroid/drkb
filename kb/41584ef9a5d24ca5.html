@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Получить первую или последнюю видимую строку в TRichEdit</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получить первую или последнюю видимую строку в TRichEdit</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function RE_GetLastVisibleLine(RichEdit: TRichEdit): Integer;
+ const
+   EM_EXLINEFROMCHAR = WM_USER + 54;
+ var
+   r: TRect;
+   i: Integer;
+ begin
+   { 
+   The EM_GETRECT message retrieves the formatting rectangle 
+   of an edit control. 
+  }
+   RichEdit.Perform(EM_GETRECT, 0, Longint(@r));
+   r.Left := r.Left + 1;
+   r.Top  := r.Bottom - 2;
+   { 
+    The EM_CHARFROMPOS message retrieves information about the character 
+    closest to a specified point in the client area of an edit control 
+  }
+   i := RichEdit.Perform(EM_CHARFROMPOS, 0, Integer(@r.topleft));
+   { 
+    The EM_EXLINEFROMCHAR message determines which 
+    line contains the specified character in a rich edit control 
+  }
+   Result := RichEdit.Perform(EM_EXLINEFROMCHAR, 0, i);
+ end;
+ 
+ { 
+  Sending the EM_GETFIRSTVISIBLELINE message to a multi-line edit control 
+  finds out which line is the first line visible. 
+  This is the line that is currently displayed at the top of the control. 
+}
+ 
+ function RE_GetFirstVisibleLine(RichEdit: TRichEdit): Integer;
+ begin
+   Result := RichEdit.Perform(EM_GETFIRSTVISIBLELINE, 0, 0);
+ end;
+ 
+</pre>
+
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

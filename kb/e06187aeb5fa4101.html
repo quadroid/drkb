@@ -1,0 +1,222 @@
+<html>
+<head>
+  <title>Работа с казахскими шрифтами</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Работа с казахскими шрифтами</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Работа с КАЗАХСКИМИ ШРИФТАМИ. <br>
+Здравствуйте Уважаемые Господа Програмисты.<br>
+Моя небольшая статья будет, скорее всего, интересна програмистам из региона - КАЗАХСТАН.<br>
+Так как програмисты проживающиее и работающие в этом регионе чаще всего встречаются<br>
+с проблемой вывода нестандартных КАЗАХСКИХ ШРИФТОВ.<br>
+&nbsp;<br>
+Вместо введения...<br>
+Как всегда, передо мною, выросла проблема и, как всегда, я решил приложить максимум усилий <br>
+чтобы разобраться самому. (Вы меня простите но я не любитель напрягать форумы своими проблемами).<br>
+&nbsp;<br>
+Программисты Казахстана знают какая это довольно таки <br>
+серьезная проблема "Нестандартные казахские символы". <br>
+Так как я сейчас активно занимаюсь "писаниной" пишу прогу которая должна "понимать" <br>
+КАЗАХСКИЙ ЯЗЫК от и до(Если так можно сказать). Писал, писал, и вдруг случилось...<br>
+Окызывается не один элемент управления не хочить не "писать" , не "читать" по КАЗАХСКИ.<br>
+&nbsp;<br>
+Решил перелопатить инфу которая была и локальную и "ИНЕТСКУЮ".<br>
+Как выяснилось инфы типа "КАК СДЕЛАТЬ СУПЕР _TButton_" огромное количество.<br>
+А по шрифтам... "увольте". <br>
+&nbsp;<br>
+Приступим.<br>
+&nbsp;<br>
+Первое что надо сделать чтобы работать с казахскими шрифтами это...<br>
+Разместить их в системной таблице шрифтов.<br>
+Есть два способа закидываете файл со шрифтом в каталог \Windows\Fonts\/<br>
+Или же, ложите файл рядом с программой и вызываете AddFontResource('you_font.xxx');<br>
+Я пошел по первому пути(Так проще, хотя второй я тоже практиковал). <br>
+&nbsp;<br>
+Ну предположим что мы разобрались с методом регистрации шрифта в системе.<br>
+Я использовал шрифт "Times/Kazakh" и вам советую. (Во всяком случае все примеры основанны именно на этом шрифте).<br>
+Но при определенном навыке, или же когда освоитесь с этим шрифтом. Вы сможете перейти на любой другой шрифт.<br>
+&nbsp;<br>
+/*ВАЖНО*/<br>
+Второе, в чем часто путаются программеры, это - чтобы работать со шрифтами <br>
+по принципу "ОТ ОКНА К ОКНУ" надо чтобы на всех окнах, в которых подразумевается использование <br>
+казахского шрифта, было установленно одинаковое имя шрифта (Times/Kazakh). Тогда вы спокойно сможете <br>
+пользоваться буфером обмена и оператором присваивания (EditX.Text:=EditY.text;).<br>
+Это же относится и ко всем TCanvas на которых подразумевается вывод КАЗ_ШРИФТА.<br>
+&nbsp;<br>
+Основная проблема заключается в том что даже после усановки казахской раскладки и казахского шрифта<br>
+Окна (даже окна редактирования TEdit. Tmemo) все равно не хотят выводить текст, даже с клавиатуры.<br>
+И тут приходиться "хитрить" дело в том что нестандартные КАЗАХСКИЕ СИМВОЛЫ(CHAR) <br>
+лежат в диапазоне 176-191(Большие и маленькие).<br>
+Поэтому я сделал так - Во время ввода, если выбранна КАЗАХСКАЯ раскладка клавиатуры, <br>
+перехватывать VIRT_KEY в событии OnKeyDown. И транслировать их в Казахские ЧАР'ы.<br>
+&nbsp;<br>
+Уже готовый текст вы можете сохранить в файл и потом открыть.<br>
+Без всяких излишеств. Либо скопировать в буфер обмена.<br>
+Но учтите при вставке в другое окно или приложение(NOTEPAD), обязательно убедитесь в том что <br>
+<p>там установлен такой же шрифт как и у вас в программе. </p>
+<pre name="code" class="delphi">
+//Дополнительные Переменные и функции
+ 
+Const KZ_KBRD = $043f043f;//Дескриптор Казахской раскладки 
+                                               //В системе
+ 
+//Функция Определяющая какой регистр использовать
+//Данные обрабатываются в соответствии
+//С состояниями клавиш от  клавиатуры
+Function IsLow:Boolean;
+var SHF,CPS_L : Boolean;
+begin
+REsult:=false;
+SHF:= HiWord(GetAsyncKeyState(VK_SHIFT))&gt;0;       //Зажат ли ШИФТ
+CPS_L:=  0 &lt;&gt; (GetKeyState(VK_CAPITAL) and $01);   //Состояние CAPS_LOCK
+if (SHF and CPS_L) then Result:=true;                        //пропись если ЗАЖАТЫ ОБЕ КЛАВИШИ
+if (not SHF and  not CPS_L) then Result :=true;        //Или наоборт
+end;
+ 
+//Функция конвертирующая КЛАВИШУ в СИМВОЛ
+Function KeyToKZChar(Key:Integer;lowKey:boolean):Char;
+Begin
+result:=#0;             {Мальнькие }          {Большие}
+case key of           {Символы}             {Символы}
+50:  if LowKey then result:=chr(184) else Result:= chr(176);
+51:  if lowkey then result:=chr(105) else Result:= chr(73);
+52:  if lowkey then result:=chr(187) else Result:= Chr(179);
+53:  if lowkey then Result:=chr(185) else Result:= Chr(177);
+54:  if lowkey then result:=chr(190) else Result:= Chr(182);
+55:  if lowkey then result:=chr(189) else Result:= Chr(181);
+48:  if lowkey then result:=chr(186) else Result:= Chr(178);
+189:if lowkey then result:=chr(188) else Result:= Chr(180);
+187:if lowkey then result:=chr(191) else Result:= Chr(183);
+end;
+end;
+ 
+ 
+{XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}
+{XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}
+ 
+var LastKey :integer;             //Для хранения Последней клавиши
+      LowKey :Boolean = true; //Верхний или нижний регистр.
+ 
+ 
+//Проверяем как прога пишет на Казахском языке
+ 
+//Вылавливаем клавишу для дальнейшей обработки
+procedure TForm1.Edit3KeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+LastKey := Key;
+LowKey:=IsLow; //Сразу (на месте) определяем и сохраняем  регистр.
+end;
+ 
+ 
+procedure TForm1.Edit3KeyPress(Sender: TObject; var Key: Char);
+Var tmpKey :char;
+begin
+if GetKeyboardLayout(0)=KZ_KBRD then //Если казахская раскладка то..
+  Begin
+     tmpKey:=KeyToKZChar(LastKey,LowKey);// Получаем нужный символ
+     if not(tmpKey = #0) then //Если  не стандартный символ то...
+      Begin  
+       Key:=tmpKey;   // Указываем окну наш символ
+       exit;   
+   end;
+  end;
+end;
+ 
+//Дальше тоже самое только для компонента TMEMO
+ 
+procedure TForm1.Memo1KeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+   LastKey:=key;
+   LowKey:=IsLow;
+end;
+ 
+procedure TForm1.Memo1KeyPress(Sender: TObject; var Key: Char);
+var tmpKey : char;
+begin
+ if GetKeyboardLayout(0)=KZ_KBRD then
+  Begin
+     tmpKey:=KeyToKZChar(LastKey,LowKey);
+     if not(tmpKey = #0) then
+      Begin
+      Key:=tmpKey;
+      exit;
+      end;
+  end;
+end;
+ 
+ 
+//Можем сохранить наше творение в файл.
+procedure TForm1.Button4Click(Sender: TObject);
+begin
+Memo1.Lines.SaveToFile('A.txt');
+end;
+ 
+//Или же наоборот загрузить из файла.
+procedure TForm1.Button5Click(Sender: TObject);
+begin
+Memo1.Lines.LoadFromFile('A.txt');
+end;
+ 
+//Проба вывода на канвас разными методами.
+procedure TForm1.Button3Click(Sender: TObject);
+begin
+pb.Canvas.Font.Name:='Times/Kazakh';
+pb.Canvas.Font.Color:=clRed;
+pb.Canvas.Font.Size:=14;
+pb.Canvas.TextOut(10,10,Edit1.Text);
+TextOut(PB.Canvas.Handle,30,30,Pchar(Edit1.Text),10);
+end;
+ 
+//Текст На компоненты
+Edit3.Text:=Memo1.Text; 
+Button2.Caption:=Edit3.Text;
+</pre>
+<br>
+На этом моя задача исчерпала сама себя. Конечно в приведенном примере еще много белых пятен.<br>
+К примеру возникают сложности при вставке текста скопированном в другом приложении (Блокнот).<br>
+Но это уже другие проблемы, другие вопросы, другие задачи. Даже на основе этого "скилета".<br>
+Можно приступать к "написанию" программ на "Казахском языке" либо же разрабатывать <br>
+на его основе свои "скилеты". <br>
+Буду очень признателен если кто нибудь оттранслирует статью под С++(С сылкой на автора)<br>
+Если будут какие нибудь вопросы то...<br>
+Я всегда буду рад на них ответить. <br>
+&nbsp;<br>
+<a href="mailto:aster_x@inbox.ru">aster_x@inbox.ru</a></p>
+<p>Из за того что фичь есть но юзать его простым смертным не дано.... <br>
+<p>С ГЛУБОКИМ УВАЖЕНИЕМ ASTER_X </p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: ASTER_X</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

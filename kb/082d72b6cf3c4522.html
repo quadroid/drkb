@@ -1,0 +1,93 @@
+<html>
+<head>
+  <title>Быстрый способ обмена значений двух переменных</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Быстрый способ обмена значений двух переменных</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure SwapVars1(var u, v; Size: Integer); 
+var 
+  x: Pointer; 
+begin 
+  GetMem(x, Size); 
+  try 
+    System.move(u, x^, Size); 
+    System.move(v, u, Size); 
+    System.move(x^, v, Size); 
+  finally 
+    FreeMem(x); 
+  end; 
+end; 
+ 
+ 
+procedure SwapVars2(var Source, Dest; Size: Integer); 
+  // By Mike Heydon, mheydon@eoh.co.za 
+begin 
+  asm 
+     push edi 
+     push esi 
+     mov esi,Source 
+     mov edi,Dest 
+     mov ecx,Size 
+     cld 
+ @1: 
+     mov al,[edi] 
+     xchg [esi],al 
+     inc si 
+     stosb 
+     loop @1 
+     pop esi 
+     pop edi 
+  end; 
+end; 
+ 
+procedure TForm1.Button2Click(Sender: TObject); 
+begin 
+  SwapVars1(X1, X2, SizeOf(Integer)); 
+end; 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+<hr />
+<pre name="code" class="delphi">
+var 
+ X1, X2: Byte; 
+begin 
+ X1 := X2 xor X2;  
+ X2 := X1 xor X2; // X2 = X1 
+ X1 := X1 xor X2; // X1 = X2 
+</pre>
+<p id="author">Автор ___ALex___ </p>
+<p><a href="http://forum.pascal.dax.ru" target="_blank">http://forum.pascal.dax.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<html>
+<head>
+  <title>Использование интерфейса OLE</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Использование интерфейса OLE</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Использование интерфейса OLE</p>
+<p>Значение, которое придается сегодня внедрению интерфейса OLE, трудно переоценить. Фирма Microsoft извещает о том, что на получение логотипа "Windows 95 Compatible" будут сертифицированы только те приложения, которые имеют средства работы с OLE.</p>
+<p>Разъяснять суть механизмов OLE с точки зрения пользователя здесь не имеет смысла; кратко опишем их с точки зрения программиста.</p>
+<p>В создаваемый вами документ могут быть добавлены данные, созданные другим приложением: формулы, таблицы, графические файлы и т. п. Такие данные, рассматриваемые вместе с приложением, которое умеет их обрабатывать, будем называть объектом OLE, а такое приложение &#8212; сервером OLE. Дословный перевод аббревиатуры OLE означает "внедренные и связанные объекты". Разница между внедрением и связыванием состоит в том, где и как размещаются данные, представляющие объект. Внедренный объект хранится в самом документе и является его составной частью. Для связанного объекта хранится только ссылка на данные, которые могут находиться в другом документе или в другой части этого документа. Каждый из способов имеет свои достоинства и недостатки. Наличие внедренных объектов увеличивает размер документа, зато он обладает переносимостью, и несколько пользователей могут работать с ним одновременно. Когда объект связан, то он занимает гораздо меньше места, но такой документ нужно переносить вместе с данными, на которые он ссылается. Каждое изменение данных влечет за собой изменение во всех объектах, которые ссылаются на эти данные.</p>
+<p>Возможности реализации OLE в рассматриваемой версии Delphi ограничены только поддержкой приема объектов. Тем, кто хочет создавать серверы OLE, придется подождать выпуска 32-разрядной версии Delphi, где возможности этого программного интерфейса будут реализованы в большей мере. В VCL имеется специальный компонент-контейнер, в который можно помещать данные OLE. Вставлять объекты в контейнер можно как на стадии разработки приложения, так и на стадии его выполнения. Здесь будет рассмотрен только последний вариант.</p>
+<p>Компонент TOLEContainer</p>
+<p>TObject-&gt;TPersistent-"TComponent-&gt;TControl&#8212;&gt;TWinControl&#8212;&gt;</p>
+<p>•&gt;TCustomControl-"TOLEContainer</p>
+<p>Модуль TOCTRL</p>
+<p>Страница Палитры компонентов System</p>
+<p>Загрузить объект OLE в контейнер можно тремя путями:</p>
+<p>• созданием нового объекта или связыванием с уже существующим через вызов диалога InsertOLEObjectDIg;</p>
+<p>• "перетаскиванием" объекта из сервера OLE в форму, содержащую контейнер, с помощью Drag&amp;Drop;</p>
+<p>• помещением объекта из буфера обмена (посредством вызова диалога PasteSpecialDIg).</p>
+<p>Общим является то, что во всех трех способах формируется поначалу определенная структура данных (типа BOLEInitInfo). Она является "визитной кар</p>
+<p>точкой" сервера OLE и его данных. Как только &nbsp; &nbsp; &nbsp; &nbsp;значение указателя на нее присваивается свойству контейнера property PInitInfo: Pointer;</p>
+<p>происходит процесс внедрения или связывания объекта. При этом может произойти активизация сервера. Несколько примеров использования этого свойства рассмотрено ниже.</p>
+<p>Сразу после присвоения значения свойству контейнера PInitInfo потребность в созданной структуре отпадает. Ее можно уничтожить при помощи процедуры:</p>
+<p>procedure ReleaseOLEInitInfо(PInitInfo: Pointer);</p>
+<p>Контейнер, однако, продолжает хранить содержащуюся в этой структуре информацию. Для доступа к ней нужно воспользоваться свойством:</p>
+<p>property Initlnfo: BOLEInitInfo;</p>
+<p>Тип BOLEInitInfo не документирован Borland и его описание здесь не приводится.</p>
+<p>Ниже будут подробнее рассмотрены все три варианта загрузки объекта OLE в контейнер.</p>
+<p>Создание нового объекта</p>
+<p>Этот способ применяется, когда вы хотите добавить к приложению данные из уже существующего файла, снабдив их возможностями одного из серверов OLE, который "умеет" с этими данными работать. Данные можно внедрить или связать. Можно также внедрить новый (пустой) объект, в этом случае сразу будет вызван сервер. В основе этого способа лежит вызов функции:</p>
+<p>function InsertOLEObjectDIg(Form: TForm; HelpContext: THelpContext;</p>
+<p>var PInitInfo: Pointer): Boolean;</p>
+<p>Она инициализирует диалог, позволяющий создать новый объект OLE. В случае успешного окончания диалога создается структура типа BOLEInitInfo. Пример этого достаточно прост:</p>
+<pre name="code" class="delphi">
+procedure TFormI-BitBtnIClick(Sender: Tobject);
+  var Thelnfo : Pointer;
+begin
+  if InsertOLEObjectDIg(Self, 0, Thelnfo) then 
+  begin
+    OLEContainerI.PInitInfo := Thelnfo;
+    ReleaseOLEInitInfо(Thelnfo) ;
+  end;
+end;
+</pre>
+<p>Регистрация форматов</p>
+<p>Два других способа получения данных OLE &#8212; через буфер обмена или посредством "перетаскивания" &#8212; требуют выполнения предварительных операций.</p>
+<p>Для того чтобы форма могла играть роль получателя данных, нужно сделать следующее:</p>
+<p>1. Объявить ее как приемник объектов OLE.</p>
+<p>2. Связать с ней список форматов буфера обмена, получение которых будет поддерживаться.</p>
+<p>Обе этих задачи решает вызов функции:</p>
+<p>procedure RegisterFormAsOLEDropTarget(Form: TForm;</p>
+<p>const Fmts: array of BOLEFormat);</p>
+<p>Здесь Form &#8212; регистрируемая форма, Fmts &#8212; массив форматов. Каждый элемент массива форматов является записью типа:</p>
+<pre name="code" class="delphi">
+BOLEFormat = Record
+ fmtid: Word;
+ fmCName: array [0.. 31] of char;
+ fmtResultName: array[0..31] of char;
+ fmtMedium: BOLEMedium;
+ fmtIsLinkable: Bool;
+end;
+</pre>
+<p>Поля записи имеют следующее назначение:</p>
+<p>fmtid &#8212; идентификатор формата буфера обмена. Это может быть как стандартный формат (CF_TEXT, CF_BITMAP и др.), так и специальный формат для объектов OLE. В этом случае он должен быть зарегистрирован при помощи функции RegisterClipboardFormat (см. пример ниже);</p>
+<p>fmtName &#8212; имя, которое появится в списке форматов диалога PasteSpecialDIg;</p>
+<p>fmtResultName &#8212; имя формата, которое появится в комментариях внутри этого диалога. Например, если значение fmtResultName равно "Bitmap", то пользователь получит примерно следующий комментарий: "Inserts the contents of the Clipboard into your document as Bitmap";</p>
+<p>fmtIsLinkable &#8212; показывает, могут ли данные в этом формате играть роль связанных объектов.</p>
+<p>fmtMedium &#8212; константа, идентифицирующая тип данных в буфере обмена. Связана со значением поля fmtid следующим образом:</p>
+<p>BOLEMEDSTREAM &nbsp; &nbsp; &nbsp; &nbsp;Связанные объекты OLE. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>BOLEMEDSTORAGE &nbsp; &nbsp; &nbsp; &nbsp;Внедренные объекты OLE. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>BOLEMEDMFPICT &nbsp; &nbsp; &nbsp; &nbsp;Метафайлы (CF.METAFILEPICT). &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>BOLEMEDGDI &nbsp; &nbsp; &nbsp; &nbsp;Графические данные (CF BITMAP, CF SYLK, CF DIP, CF TIFF, CF DIB, CF PALETTE, CF PENDATA, CFJUFF, CFWAVE). &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>BOLEMEDHGLOBAL &nbsp; &nbsp; &nbsp; &nbsp;Все прочие данные. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>Специально для вычисления значения поля fmtMedium по формату данных предусмотрена функция:</p>
+<p>function BOLEMediumCalc(frntid: Word): BOLEMedium;</p>
+<p>Заполнить требуемый массив можно, например, так:</p>
+<pre name="code" class="delphi">
+var
+FEmbedClipFmt, FLinkClipFmt: Word;
+Fmts: array[0..2] of BOLEFormat;
+FEmbedClipFmt := RegisterClipboardFormat('Embedded Object');
+FLinkClipFmt := RegisterClipboardFormat('Link Source');
+Fmts[0].fmtid := FEmbedClipFmt;
+Fmts[0].fmtMedium := BOLEMediumCalc(FEmbedClipFmt);
+Fmts[0].fmtIsLinkable := False;
+StrPCopy (Fmts[0].fmtName, '%s');
+StrPCopy (Fmts[0].fmtResultName, '%s');
+Fmts[l].fmtid := FLinkClipFmt;
+Fmts[l].fmtMedium := BOLEMediumCalc(FLinkClipFmt);
+Fmts[1].fmtIsLinkable := True;
+StrPCopy (Fmts[1].fmtName, '%s');
+StrPCopy (Fmts[1].fmtResultName, '%s');
+Fmts[2].fmtid := CF_BITMAP;
+Fmts[2].fmtMedium := BOLEMediumCalc(CF_BITMAP);
+Fmts[2].fmtIsLinkable := False;
+StrPCopy (Fmts[2].fmtName, 'Bitmap');
+StrPCopy (Fmts[2].fmtResultName, 'Device-dependent Bitmap');
+RegisterFormAsOLEDropTarget(Self, Fmts) ;
+</pre>
+
+<p>Для упрощения создания элемента списка форматов есть функция:</p>
+<p>function OLEFormat(AFmtId: Word; AName, AResultName: String;</p>
+<p>AIsLinkable: Bool): BOLEFormat;</p>
+<p>Она заполняет структуру типа BOLEFormat переданными ей параметрами и возвращает указатель на нее. Приведенный выше фрагмент кода можно преобразовать так:</p>
+<p>FEmbedClipFmt := RegisterClipboardFormat С Embedded Object');</p>
+<p>FLinkClipFmt := RegisterClipboardFormat ('Link Source');</p>
+<p>RegisterFormAsOLEDropTarget (Self,</p>
+<p>[OLEFormat (PEmbedClipFmt, '%s', '%s', FALSE), OLEFormat (PLinkClipFmt, '%s', '%s', TRUE)]) ;</p>
+<p>Для тех случаев, когда регистрацию формы и установку списка возможных форматов нужно произвести раздельно, предусмотрены процедуры:</p>
+<p>procedure RegisterFormAsOLEDropTgt(Form: TForm);</p>
+<p>procedure SetFormOLEDropFormats(Form: TForm;</p>
+<p>const Fmts: array of BOLEFormat) ;</p>
+<p>В паре они делают то же, что и RegisterFormAsOLEDropTarget. Для очистки списка форматов можно воспользоваться процедурой:</p>
+<p>procedure ClearForrnOLEDropFormats(Form: TForm);</p>
+<p>"Перетаскивание" объектов OLE</p>
+<p>Форма может принимать данные, направляемые серверами OLE при помощи интерфейса Drag&amp;Drop. Обратите внимание, что этот случай представляет собой исключение из общего правила, разрешающего "перетаскивать" объекты только в пределах одной формы.</p>
+<p>Возможность работы Drag&amp;Drop с OLE реализована, например, в приложениях из пакета Microsoft Office, однако, далеко не все серверы OLE 2.0 ее поддерживают.</p>
+<p>Для получения данных путем "перетаскивания" нужно, во-первых, зарегистрировать форму при помощи ReisterFormAsOLEDropTarget. Во-вторых, для формы нужно создать обработчик события OnDragDrop (будьте внимательны: именно для формы, а не для контейнера!). При "перетаскивании" данных OLE этот обработчик получает в параметре Source объект специального класса TOLEDropNotify:</p>
+<pre name="code" class="delphi">
+TOLEDropNotify = class(TObject)
+public
+  procedure Setlnfo(Form: TForm; Rect: TRect; Info: BOLEInitInfo);
+  property DropPorm: TForm;
+  property DropRect: TRect;
+  property DataPormat: Word;
+  property DataHandle: THandle;
+  property PInitInfo: Pointer ;
+end;
+</pre>
+
+<p>Его свойства приведены в таблице:</p>
+<p>@ property DropForm: TForm;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Определяет форму, в которую перемещены данные. Значение обычно равно Self.</p>
+<p>(Ro) property DropRect: TRect;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Определяет&nbsp; ПрЯМОуГОЛЬНИК,&nbsp; В&nbsp; КОТОрЫН</p>
+<p>производилось перемещение. Обычно стягивается в точку, где была отпущена кнопка мыши.</p>
+<p>(Ro) property DataFormat: Word;&nbsp;&nbsp;&nbsp;&nbsp; Определяет формат перемещенных данных. (Ro) property DataHandle: THandle;&nbsp;&nbsp; Содержит дескриптор перемещенных данных.</p>
+<p>(Ro) property pinitinfo: pointer;&nbsp;&nbsp;&nbsp; Содержит указатель на структуру для инициализации.</p>
+<p>Сброшенные данные могут как представлять объект OLE, так и иметь один из обычных форматов. Логическая взаимосвязь между тремя последними свойствами такая:</p>
+<p>• если получен объект OLE, то в параметре DataFormat возвращается значение -1. В этом случает дескриптор DataHandle недействителен, смысл имеет только свойство PInitInfo;</p>
+<p>• если получены данные в одном из обычных форматов, то свойство DataFormat содержит идентификатор этого формата, DataHandle &#8212; дескриптор соответствующих данных, a PInitInfo имеет значение nil.</p>
+<p>Один из примеров обработчиков события OnDragDrop выглядит так:</p>
+<pre name="code" class="delphi">
+procedure TFormI.OLEContainerlDragDropfSender, Source:        TObject;
+X, Y:        Integer);
+begin
+  if Source is TOLEDropNotify then 
+    with Source as TOLEDropNotify do 
+      begin
+        if (DataFormat = CF_TEXT) then 
+          begin
+            Labell.Caption := StrPas(GlobalLock(DataHandle));
+            GlobalUnlock(DataHandle) ;
+            GlobalFree(DataHandle) ;
+          end
+        else 
+          if DataFormat = Word(-l) then 
+            OLEContainerI.PInitInfo := TOLEDropNotify(Source).PInitInfo;
+      end;
+end;
+</pre>
+<p>Обратите внимание, что в этом примере полученную структуру PInitInfo не нужно освобождать при помощи ReleaseOLEInitInfo.</p>
+<p>Вставка объектов OLE из буфера обмена</p>
+<p>Вставку реализует специальный диалог, вызываемый функцией:</p>
+<p>function PasteSpecialDlg(Form: TForm;</p>
+<p>const Fmts: array of BOLEFormat; HelpContext: THelpContext;</p>
+<p>var Format: Word; var Handle: THandle;</p>
+<p>var PInitInfo: Pointer ): Boolean;</p>
+<p>Параметры этой функции означают следующее:</p>
+<p>Form &#8212; принимающая данные форма;</p>
+<p>Fmts &#8212; список поддерживаемых форматов данных;</p>
+<p>HelpContext &#8212; контекст системы помощи для диалога (в файле с расширением .HLP, связанном с приложением). Если этот параметр имеет значение 0, то кнопка Help будет отсутствовать;</p>
+<p>Функция присваивает значения трем параметрам:</p>
+<p>Format &#8212; выбранный пользователем формат (из доступных в диалоге);</p>
+<p>Handle &#8212; дескриптор данных;</p>
+<p>PInitInfo &#8212; указатель на структуру данных инициализации. Функция возвращает True, если пользователь нажал в диалоге кнопку ОК или клавишу &lt;Enter&gt;. Логическая взаимосвязь между значениями Format, Handle и PInitInfo такая:</p>
+<p>• если пользователь решил присоединить или встроить имеющийся в буфере обмена объект, то в параметре Format возвращается значение -1. В этом случает дескриптор недействителен, а смысл имеет только параметр PTnitTnfo:</p>
+<p>• если вставляются имеющиеся в буфере обмена данные одного из обычных форматов, то параметр Format содержит его идентификатор, Handle &#8212; дескриптор соответствующих данных, a PInitInfo равен nil.</p>
+<p>Перед тем, как вызывать PasteSpecialDIg, нужно убедиться в целесообразности этого, вызвав функцию:</p>
+<p>function PasteSpecialEnabledfForm: TForm;const Pints: array of BOLEFormat): Boolean;</p>
+<p>Она проверяет, есть ли в буфере обмена данные поддерживаемых формой Form форматов и, если это так, возвращает True. Если вы вызвали PasteSpecialDIg, не произведя проверку с помощью этой функции, то диалог появится, но в случае отсутствия данных не произведет никаких действий.</p>
+<p>Посмотрите на приведенный ниже пример использования вызова диалога PasteSpecialDIg:</p>
+<pre name="code" class="delphi">
+procedure TFormI.PasteItemClick(Sender: TObject);
+var
+  DataFormat: Word;
+  DataHandle: THandle;
+  Thelnfo: Pointer;
+begin 
+  if PasteSpecialEnabledfSelf, Pints) then
+    if PasteSpecialDIg(Formi, Fmts, 0, DataFormat, DataHandle, Thelnfo) then
+      if DataFormat = Word(-l) then 
+        begin
+          OLEContainerl.PInitInfo := Thelnfo;
+          ReleaseOLEInitInfo(Thelnfo);
+        end
+      else 
+        if DataFormat in [CP_BITMAP, CF_METAPILEPICT] then 
+           Iinagel -Picture .Assign (Clipboard) ;
+end;
+</pre>
+<p>Если вы хотите ограничиться вставкой из буфера обмена только объектов OLE, возможно значительно упростить описанный выше механизм. Функции</p>
+<p>function PasteSpecialOLEDIg(Form: TForm; HelpContext: THelpContext;</p>
+<p>var PInitInfo: Pointer): Boolean;</p>
+<p>function PasteSpecialOLEEnabled(Form: TForm): Boolean;</p>
+<p>являются полными аналогами PasteSpecialDIg и PasteSpecialEnabled &#8212; но только в части, касающейся OLE. Список зарегистрированных форматов по-прежнему необходим, но в нем будут играть роль только форматы для связанного и внедренного объектов.</p>
+<p>Пример вызова диалога PasteSpecialOLEDIg короче предыдущего:</p>
+<pre name="code" class="delphi">
+procedure TFormI.PasteitemClick(Sender: TObject);
+  var Thelnfo: Pointer;
+begin 
+  if PasteSpecialOLEEnabled(Self, Fmts) then
+    if PasteSpecialOLEDIg(Formi, 0, Thelnfo) then 
+      begin
+        OLEContainerl.PInitInfo := Thelnfo;
+        ReleaseOLEInitInfo(Thelnfo) ;
+      end;
+end;
+</pre>
+
+<p>С помощью переключателей (радиокнопок), имеющихся в диалогах вставки, пользователь может определить, хочет ли он встроить или связать объект с вашим приложением.</p>
+<p>Если в контейнере содержится связанный объект, то его состояние можно проверить и изменить, вызвав соответствующий диалог из функции:</p>
+<p>procedure LinksDig(Form: TForm; HelpContext: THelpContext);</p>
+<p>Если связанного объекта нет, то вызов LinksDig не имеет смысла. Убедитесь в целесообразности при помощи функции:</p>
+<p>function LinksDlgEnabled(Form: TForm): Boolean;</p>
+<p>Свойства контейнера</p>
+<p>Проверить наличие объекта OLE в контейнере позволяет метод:</p>
+<p>function OLEObjAllocated: Boolean;</p>
+<p>Свойство</p>
+<p>property AutoSize: Boolean;</p>
+<p>означает, что контейнер автоматически принимает размер помещенного в него объекта OLE. Играет роль оно только в момент внедрения (связывания).</p>
+<p>После того, как в контейнер загружен объект OLE, его можно идентифицировать при помощи свойств:</p>
+<p>property ObjClass: String;</p>
+<p>property ObjDoc: String;</p>
+<p>property Objitem: String;</p>
+<p>Свойство ObjClass представляет собой имя (класс) объектов, поддерживаемых данным сервером OLE, например "Документ Microsoft Word 6.0", "Visio 3.0 Drawing" или "Paintbrush Picture".</p>
+<p>Свойства ObjDoc и Objitem применяются только для связанных объектов. Первое свойство представляет собой имя документа (зачастую имя файла), а второе &#8212; имя его части (если контейнер связан только с частью документа, например, с фрагментом изображения). Вы можете увидеть значения ObjDoc и Objitem в диалоге LinksDig: они разделяются восклицательным знаком и в паре составляют имя связи.</p>
+<p>Нужно отметить, что правило присвоения этих трех имен &#8212; прерогатива сервера, и подробности этого нужно искать в соответствующей документации.</p>
+<p>Редактирование внедренных объектов возможно как в отдельном окне, создаваемом сервером, так и прямо в содержащем его документе ("по месту"). Последняя возможность предусмотрена спецификацией OLE 2.0; при этом могут заменяться главное меню и строка состояния формы.</p>
+<p>Контейнер OLE в VCL поддерживает работу с серверами обеих спецификаций. Если же по каким-либо причинам активизация сервера "по месту" нежелательна, то установка в False свойства</p>
+<p>property AllowInPlace: Boolean;</p>
+<p>позволяет ее запретить. Поскольку загрузка сервера "по месту" подразумевает изменение главного меню, то оно должно быть у приложения, содержащего форму с контейнером.</p>
+<p>Загруженный объект OLE можно активизировать (то есть вызвать его сервер) тремя способами:</p>
+<p>property AutoActivate: TAutoActivate;</p>
+<p>TAutoActivate = (aaManual, aaGetFocus, aaDoubleClick) ;</p>
+<p>Типичным способом (принятым по умолчанию) является двойной щелчок (aaDoubleClick). При установленном aaGetFocus активизация происходит при получении объектом фокуса ввода. Наконец, aaManual обязывает активизировать объект OLE установкой в True одного из свойств:</p>
+<p>property Active: Boolean;</p>
+<p>property InPlaceActive: Boolean;</p>
+<p>Различие между ними в том, что второе (по возможности) осуществляет активизацию "по месту".</p>
+<p>Запуск и работа сервера OLE может быть длительным процессом. На время, пока объект загружается в сервер, в контейнере устанавливается флаг:</p>
+<p>property InActivation: Boolean;</p>
+<p>После того, как сервер OLE полностью активизировался, происходит событие</p>
+<p>property OnActivate: TNotifyEvent;</p>
+<p>и устанавливается в True свойство:</p>
+<p>property Modified: Boolean ;</p>
+<p>Если при этом вы снова переключитесь на приложение Delphi, то увидите, что на время работы сервера клиентская область контейнера заштриховывается.</p>
+<p>Свойство</p>
+<p>property Zoom: TZoomFactor;</p>
+<p>TZoomFactor = (г025,z050,zlOO,zl50,z200) ;</p>
+<p>показывает, с каким масштабом отображаются объекты OLE внутри контейнера (при этом размеры самого контейнера остаются неизменными; если при увеличении часть изображения объекта выходит за границы контейнера, она отсекается).</p>
+<p>Взаимодействие сервера OLE со строкой состояния осуществляется посредством обработки событий:</p>
+<p>property OnStatusLineEvent: TStatusLineEvent;</p>
+<p>TStatusLineEvent = procedure(Sender: TObject; Msg: String) of object;</p>
+<p>Контейнер получает от сервера извещение о наступлении такого события. Он должен обработать это сообщение, например, отобразив где-либо строку Msg.</p>
+<p>Инициировать это событие можно также при помощи процедуры:</p>
+<p>procedure DoStatusLineMsg (Msg :String);</p>
+<p>Контейнер может выгружать/загружать содержимое в поток и буфер обмена:</p>
+<p>procedure LoadFromFile(const FileName: strings-procedure LoadFromStream(Stream: TStream);</p>
+<p>procedure SaveToFile(const FileName: strings-procedure SaveToSCream(Stream: TStream);</p>
+<p>procedure CopyToCUpboard (Clear : Boolean);</p>
+<p>Параметр Clear в последней процедуре означает необходимость очистки предыдущего содержимого.</p>
+<p>TOLEContainer является оконным элементом управления и поддерживает все соответствующие возможности: обработку сообщений от мыши и клавиатуры, фокус ввода, интерфейс Drag&amp;Drop и т. п.</p>
+<p>Наконец, в TOLEContainer есть "выходы" на элементы внутреннего устройства интерфейса OLE. Использование этих возможностей не документировано, и более подробное их обсуждение имеет смысл отложить до выхода следующей версии продукта. Здесь мы их только перечислим:</p>
+<pre name="code" class="delphi">
+function GetContainer: TIBCont;
+property Storage: IStorage;
+property Site: TIBSite;
+property Part: IBPart;
+property PartRect: TRect;
+procedure DeleteSite;
+procedure DeleteStorage;
+</pre>
+<p>Меню OLE</p>
+<p>У каждой формы есть свойство ObjectMenuItem. Оно ссылается на пункт меню, который специально выделяется для того, чтобы сервер OLE мог модифицировать его, разместив на этом месте свое подменю. Каждый сервер может производить над данными те или иные операции; их перечень отражаются в подменю. Оно может быть проанализировано с помощью методов, имеющихся у контейнера:</p>
+<p>function GetObjectMenultemCount: Integer;</p>
+<p>function GetObjectMenuItem(Index: Integer): string;</p>
+<p>Первая функция возвращает число пунктов в подменю, а вторая &#8212; имя заданного пункта. Например, при вставке документа русской версии Microsoft Word первыми двумя будут "Редактировать" и "Открыть". Последними двумя пунктами в добавляемом меню всегда являются разделитель и пункт "Convert...", служащий для преобразования типа объекта OLE. Вы можете определить контекст помощи, предназначенный для этого диалога:</p>
+<p>property ConvertDlgHelp: THelpContext;</p>
+<p>Вызвав функцию GetObjectMenuItem с параметром -1, можно получить имя самого подменю, например, "Paintbrush Picture Object" или "Документ Word".</p>
+<p>Действия сервера, связанные с нужным пунктом меню, можно инициировать из программы путем вызова метода:</p>
+<p>procedure ObjectMenuAction(Index: Integer);</p>
+<p>Подменю становится доступным при получении фокуса компонентом TOLEContainer и блокируется при его утере. Также устанавливает состояние меню метод:</p>
+<p>procedure ActivateObjMenuItem(Activate: Boolean);</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

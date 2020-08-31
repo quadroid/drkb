@@ -1,0 +1,76 @@
+<html>
+<head>
+  <title>Как получить имя текщего стиля и имя цветовой схемы?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить имя текщего стиля и имя цветовой схемы?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses ComObj, SyncObjs;
+ 
+var
+  GetCurrentThemeName: function (pszThemeFileName: LPWSTR; cchMaxNameChars: Integer;
+    pszColorBuff: LPWSTR; cchMaxColorChars: Integer; pszSizeBuff: LPWSTR;
+    cchMaxSizeChars: Integer): HRESULT; stdcall;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  FileName, ColorScheme, SizeName: WideString;
+  hThemeLib: THandle;
+begin
+  try
+    hThemeLib := LoadLibrary('uxtheme.dll');
+    if hThemeLib &gt; 0 then
+      GetCurrentThemeName := GetProcAddress(hThemeLib, 'GetCurrentThemeName');
+    if Assigned(GetCurrentThemeName) then
+    begin
+      SetLength(FileName, 255);
+      SetLength(ColorScheme, 255);
+      SetLength(SizeName, 255);
+      OleCheck(GetCurrentThemeName(PWideChar(FileName), 255,
+        PWideChar(ColorScheme), 255, PWideChar(SizeName), 255));
+      // show the the theme path and file name.
+      ShowMessage(PWideChar(FileName));
+      // show the color scheme name
+      ShowMessage(PWideChar(ColorScheme));
+      // show the size name
+      ShowMessage(PWideChar(SizeName));
+    end;
+  finally
+    FreeLibrary(hThemeLib);
+  end;
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

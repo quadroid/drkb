@@ -1,0 +1,138 @@
+<html>
+<head>
+  <title>Как прочитать shortcut's link information?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как прочитать shortcut's link information?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses 
+  ShlObj, 
+  ComObj, 
+  ActiveX, 
+  CommCtrl; 
+ 
+type 
+  PShellLinkInfoStruct = ^TShellLinkInfoStruct; 
+  TShellLinkInfoStruct = record 
+    FullPathAndNameOfLinkFile: array[0..MAX_PATH] of Char; 
+    FullPathAndNameOfFileToExecute: array[0..MAX_PATH] of Char; 
+    ParamStringsOfFileToExecute: array[0..MAX_PATH] of Char; 
+    FullPathAndNameOfWorkingDirectroy: array[0..MAX_PATH] of Char; 
+    Description: array[0..MAX_PATH] of Char; 
+    FullPathAndNameOfFileContiningIcon: array[0..MAX_PATH] of Char; 
+    IconIndex: Integer; 
+    HotKey: Word; 
+    ShowCommand: Integer; 
+    FindData: TWIN32FINDDATA; 
+  end; 
+ 
+procedure GetLinkInfo(lpShellLinkInfoStruct: PShellLinkInfoStruct); 
+var 
+  ShellLink: IShellLink; 
+  PersistFile: IPersistFile; 
+  AnObj: IUnknown; 
+begin 
+  // access to the two interfaces of the object 
+  AnObj       := CreateComObject(CLSID_ShellLink); 
+  ShellLink   := AnObj as IShellLink; 
+  PersistFile := AnObj as IPersistFile; 
+ 
+  // Opens the specified file and initializes an object from the file contents. 
+  PersistFile.Load(PWChar(WideString(lpShellLinkInfoStruct^.FullPathAndNameOfLinkFile)), 0); 
+  with ShellLink do 
+  begin 
+    // Retrieves the path and file name of a Shell link object. 
+    GetPath(lpShellLinkInfoStruct^.FullPathAndNameOfFileToExecute, 
+      SizeOf(lpShellLinkInfoStruct^.FullPathAndNameOfLinkFile), 
+      lpShellLinkInfoStruct^.FindData, 
+      SLGP_UNCPRIORITY); 
+ 
+    // Retrieves the description string for a Shell link object. 
+    GetDescription(lpShellLinkInfoStruct^.Description, 
+      SizeOf(lpShellLinkInfoStruct^.Description)); 
+ 
+    // Retrieves the command-line arguments associated with a Shell link object. 
+    GetArguments(lpShellLinkInfoStruct^.ParamStringsOfFileToExecute, 
+      SizeOf(lpShellLinkInfoStruct^.ParamStringsOfFileToExecute)); 
+ 
+    // Retrieves the name of the working directory for a Shell link object. 
+    GetWorkingDirectory(lpShellLinkInfoStruct^.FullPathAndNameOfWorkingDirectroy, 
+      SizeOf(lpShellLinkInfoStruct^.FullPathAndNameOfWorkingDirectroy)); 
+ 
+    // Retrieves the location (path and index) of the icon for a Shell link object. 
+    GetIconLocation(lpShellLinkInfoStruct^.FullPathAndNameOfFileContiningIcon, 
+      SizeOf(lpShellLinkInfoStruct^.FullPathAndNameOfFileContiningIcon), 
+      lpShellLinkInfoStruct^.IconIndex); 
+ 
+    // Retrieves the hot key for a Shell link object. 
+    GetHotKey(lpShellLinkInfoStruct^.HotKey); 
+ 
+    // Retrieves the show (SW_) command for a Shell link object. 
+    GetShowCmd(lpShellLinkInfoStruct^.ShowCommand); 
+  end; 
+end; 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+const 
+  br = #13#10; 
+var 
+  LinkInfo: TShellLinkInfoStruct; 
+  s: string; 
+begin 
+  FillChar(LinkInfo, SizeOf(LinkInfo), #0); 
+  LinkInfo.FullPathAndNameOfLinkFile := 'C:\WINNT\Profiles\user\Desktop\FileName.lnk'; 
+  GetLinkInfo(@LinkInfo); 
+  with LinkInfo do 
+    s := FullPathAndNameOfLinkFile + br + 
+      FullPathAndNameOfFileToExecute + br + 
+      ParamStringsOfFileToExecute + br + 
+      FullPathAndNameOfWorkingDirectroy + br + 
+      Description + br + 
+      FullPathAndNameOfFileContiningIcon + br + 
+      IntToStr(IconIndex) + br + 
+      IntToStr(LoByte(HotKey)) + br + 
+      IntToStr(HiByte(HotKey)) + br + 
+      IntToStr(ShowCommand) + br + 
+      FindData.cFileName + br + 
+      FindData.cAlternateFileName; 
+  Memo1.Lines.Add(s); 
+end; 
+ 
+// Only for D3 or higher. 
+// for D1,D2 users: http://www.hitekdev.com/delphi/shellutlexamples.html 
+</pre>
+
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

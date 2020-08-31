@@ -1,0 +1,173 @@
+<html>
+<head>
+  <title>Абстрактный набор данных</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Абстрактный набор данных</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Влад Шубников<br>
+<p>&nbsp;</p>
+<p>В основе иерархии классов, обеспечивающих функционирование наборов данных в приложениях баз данных Delphi, лежит класс TDataSet. Хотя он почти не содержит методов, реально обеспечивающих работоспособность основных механизмов набора данных, тем не менее его значение трудно переоценить. </p>
+<p>Этот класс задает структурную основу функционирования набора данных. Другими словами, это скелет набора данных, к методам которого необходимо лишь добавить требуемые вызовы соответствующих функций реальных технологий. </p>
+<p>При решении наиболее распространенных задач программирования в процессе создания приложений баз данных класс TDataSet не нужен. Тем не менее знание основных принципов работы набора данных всегда полезно. Кроме этого, класс TDataSet может использоваться разработчиками в качестве основы для создания собственных компонентов. Поэтому рассмотрим основные механизмы, реализованные в наборе данных. </p>
+<p>Набор данных открывается и закрывается свойством </p>
+<p>property Active: Boolean; </p>
+<p>которому соответственно необходимо присвоить значение True или False. Аналогичные действия выполняют методы </p>
+<p>procedure Open;&nbsp; </p>
+<p>procedure Close; </p>
+<p>После открытия набора данных можно перемещаться по его записям. </p>
+<p>На одну запись вперед и назад перемещают курсор соответственно методы </p>
+<p>procedure Next;&nbsp; </p>
+<p>procedure Prior; </p>
+<p>На первую и последнюю запись можно попасть, используя соответственно методы </p>
+<p>procedure First; </p>
+<p>procedure Last; </p>
+<p>Признаком того, что достигнута последняя запись набора, является свойство </p>
+<p>property Eof: Boolean; </p>
+<p>которое в этом случае имеет значение True. </p>
+<p>Аналогичную функцию для первой записи выполняет свойство </p>
+<p>property Bof: Boolean; </p>
+<p>Перемещение вперед и назад на заданное число записей выполняет метод </p>
+<p>function MoveBy(Distance: Integer): Integer; </p>
+<p>Параметр Distance определяет число записей. Если параметр отрицательный &#8212; перемещение осуществляется к началу набора данных, иначе &#8212; к концу. </p>
+<p>Для ускоренного перемещения по набору данных можно отключить все связанные компоненты отображения данных. Это делается методом </p>
+<p>procedure DisableControls; </p>
+<p>Обратная операция выполняется методом </p>
+<p>procedure EnableControls; </p>
+<p>Общее число записей набора данных возвращает свойство </p>
+<p>property RecordCount: Integer; </p>
+<p>однако использовать его нужно аккуратно, т. к. каждое обращение к этому свойству приводит к обновлению набора данных, что может вызвать проблемы для больших таблиц или сложных запросов. Если вам нужно определить, не является ли набор данных пустым (часто используемая операция), можно использовать метод </p>
+<p>function IsEmpty: Boolean; </p>
+<p>который возвращает значение True, если набор данных пуст, или уже упоминавшиеся свойства </p>
+<pre name="code" class="delphi">
+... 
+ 
+if MyTable.Bof and MyTable.Eof 
+ then ShowMessage('DataSet is empty'); 
+... 
+</pre>
+<p>Номер текущей записи позволяет узнать свойство </p>
+<p>property RecNo: Integer; </p>
+<p>Размер записи в байтах возвращает свойство </p>
+<p>property RecordSize: Word; </p>
+<p>Каждая запись набора данных представляет собой совокупность значений полей таблицы. В зависимости от типа компонента и его настройки, число полей в наборе данных может изменяться. И совсем не обязательно набор данных должен содержать все поля таблицы базы данных. </p>
+<p>Совокупность полей набора данных инкапсулирует свойство </p>
+<p>property Fields: TFields; </p>
+<p>а все необходимые параметры полей содержатся в свойстве </p>
+<p>property FieldDefs: TFieldDefs; </p>
+<p>Общее число полей набора данных возвращает свойство </p>
+<p>property FieldCount: Integer; </p>
+<p>а общее число полей типа BLOB содержится в свойстве </p>
+<p>property BlobFieldCount: Integer; </p>
+<p>Доступ к значениям полей текущей записи предоставляет свойство </p>
+<p>property FieldValues[const FieldName: string]: Variant; default; </p>
+<p>где в параметре FieldName задается имя поля. </p>
+<p>В процессе программирования разработчик очень часто обращается к полям набора данных. Если структура полей набора данных жестко задана и не изменяется, это можно сделать так: </p>
+<pre name="code" class="delphi">
+for i := 0 to MyTable.FieldCount - 1 do 
+MyTable.Fields[i].DiplayFormat := '#.###'; 
+</pre>
+<p>Иначе, если порядок следования полей и их состав меняется, можно использовать метод </p>
+<p>function FieldByName(const FieldName: string): TField; </p>
+<p>И делается это следующим образом: </p>
+<p>MyTable.FieldByName('VENDORNO').Aslnteger := 1234; </p>
+<p>Имя поля, передаваемое в параметре FieldName, не чувствительно к регистру символов. </p>
+<p>Метод </p>
+<p>procedure GetFieldNames(List: TStrings); </p>
+<p>вернет в параметр List полный список имен полей набора данных. </p>
+<p>Более подробная информация о полях и способах работы с ними содержится в гл. 13. </p>
+<p>Класс TDataSet содержит ряд свойств и методов, которые обеспечивают редактирование набора данных. </p>
+<p>Но сначала бывает полезно поинтересоваться, можно ли редактировать набор данных вообще. Это можно сделать при помощи свойства </p>
+<p>property CanModify: Boolean; </p>
+<p>которое принимает значение True для редактируемых наборов. Перед началом редактирования набор данных нужно перевести в режим редактирования, использовав метод </p>
+<p>procedure Edit; </p>
+<p>Для сохранения сделанных изменений применяется метод </p>
+<p>procedure Post; virtual; </p>
+<p>Разработчик может вызывать его самостоятельно, или же метод Post вызывается самим набором данных при переходе на другую запись. </p>
+<p>При необходимости все сделанные после последнего вызова метода Post изменения можно отменить методом </p>
+<p>procedure Cancel; virtual; </p>
+<p>Новая пустая запись добавляется в конец набора данных методом </p>
+<p>procedure Append; </p>
+<p>Новая пустая запись добавляется на место текущей методом </p>
+<p>procedure Insert; </p>
+<p>а текущая запись и все нижеследующие смещаются на одну позицию вниз. </p>
+<p>Внимание </p>
+<p>При использовании методов Append и insert набор данных переходит в режим редактирования самостоятельно. </p>
+<p>Дополнительно, у вас есть возможность добавить или вставить новую запись уже с заполненными полями. Для этого применяются методы </p>
+<p>procedure AppendRecord(const Values: array of const); </p>
+<p>procedure InsertRecord(const Values: array of const); </p>
+<p>А делается это примерно так: </p>
+<p>МуТаblе.AppendRecord([2345, 'New customer', '+7(812)4569012', 0, '']); </p>
+<p>После вызова этих методов и их завершения набор данных автоматически возвращается в состояние просмотра. </p>
+<p>Для существующей записи аналогичным образом можно заполнить все поля, использовав метод </p>
+<p>procedure SetFields(const Values: array of const); </p>
+<p>Текущая запись удаляется методом </p>
+<p>procedure Delete; </p>
+<p>При этом набор данных не выдает никаких предупреждений, а просто делает это. </p>
+<p>Очистить содержимое всех полей текущей записи может метод </p>
+<p>procedure ClearFields; </p>
+<p>Обратите внимание, что поля становятся пустыми (NULL), а не сбрасываются в нулевое значение. </p>
+<p>О том, редактировалась ли текущая запись, сообщает свойство </p>
+<p>property Modified: Boolean; </p>
+<p>если оно имеет значение True. </p>
+<p>Набор данных можно обновить, не закрывая и не открывая его снова. Для этого применяется метод </p>
+<p>procedure Refresh; </p>
+<p>Однако он сработает только для таблиц и тех запросов, которые нельзя редактировать. </p>
+<p>В каждый момент времени набор данных находится в определенном состоянии (о состояниях см. ниже в этой главе). Свойство </p>
+<pre name="code" class="delphi">
+type TDataSetState = (dslnactive, dsBrowse, dsEdit, dslnsert, 
+                      dsSetKey, dsCalcFields, dsFilter, dsNewValue, 
+                      dsOldValue, dsCurValue, dsBlockRead, dsInternalCalc, 
+                      dsOpening); property State: TDataSetState; 
+</pre>
+<p>дает информацию о текущем состоянии набора. </p>
+<p>Методы-обработчики класса TDataSet предоставляют разработчику широчайшие возможности по отслеживанию событий, происходящих с набором данных. </p>
+<p>По паре методов-обработчиков (до и после события) предусмотрено для следующих событий в наборе данных: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#9632;</td><td>открытие и закрытие набора данных; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#9632;</td><td>переход в режим редактирования; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#9632;</td><td>переход в режим вставки новой записи; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#9632;</td><td>сохранение сделанных изменений; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#9632;</td><td>отмена сделанных изменений; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#9632;</td><td>перемещение по записям набора данных; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#9632;</td><td>обновление набора данных. </td></tr></table></div><p>Обратите внимание, что помимо методов-обработчиков режима вставки существует дополнительный метод </p>
+<p>property OnNewRecord: TDataSetNotifyEvent; </p>
+<p>который вызывается непосредственно при вставке или добавлении записи. Дополнительно к этому могут использоваться методы-обработчики возникающих ошибок. Они предусмотрены для ошибок удаления, редактирования и сохранения изменений. </p>
+<p>Метод-обработчик </p>
+<p>property OnCalcFields: TDataSetNotifyEvent; </p>
+<p>очень важен для задания значений вычисляемых полей. Он вызывается для каждой записи, которая отображается в визуальных компонентах, связанных с набором данных каждый раз, когда необходимо перерисовать значения полей в визуальных компонентах. </p>
+<p>Если в методе-обработчике OnCalcFields производятся слишком сложные вычисления, частота его вызовов может быть уменьшена за счет свойства </p>
+<p>property AutoCalcFields: Boolean; </p>
+<p>По умолчанию оно равно значению True и расчет вычисляемых полей производится при каждой перерисовке. При значении False метод-обработчик OnCalcFields вызывается только при открытии, переходе в состояние редактирования и обновлении набора данных. Все перечисленные выше обработчики имеют одинаковый тип </p>
+<p>type TDataSetNotifyEvent = procedure(DataSet: TDataSet) of object; </p>
+<p>И метод-обработчик </p>
+<p>type TFilterRecordEvent = procedure(DataSet: TDataSet; </p>
+<p>var Accept: Boolean) of object; </p>
+<p>property OnFilterRecord: TFilterRecordEvent; </p>
+<p>вызывается для каждой записи набора данных при свойстве Filtered = True. Помимо перечисленных, класс TDataSet содержит еще много свойств и методов, которые обеспечивают работоспособность многих полезных в практическом программировании приложений баз данных функций. </p>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

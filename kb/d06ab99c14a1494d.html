@@ -1,0 +1,236 @@
+<html>
+<head>
+  <title>Копировать буфер в поток и обратно</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Копировать буфер в поток и обратно</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses
+   clipbrd;
+ 
+ procedure CopyStreamToClipboard(fmt: Cardinal; S: TStream);
+ var
+   hMem: THandle;
+   pMem: Pointer;
+ begin
+   Assert(Assigned(S));
+   S.Position := 0;
+   hMem       := GlobalAlloc(GHND or GMEM_DDESHARE, S.Size);
+   if hMem &lt;&gt; 0 then
+   begin
+     pMem := GlobalLock(hMem);
+     if pMem &lt;&gt; nil then
+     begin
+       try
+         S.Read(pMem^, S.Size);
+         S.Position := 0;
+       finally
+         GlobalUnlock(hMem);
+       end;
+       Clipboard.Open;
+       try
+         Clipboard.SetAsHandle(fmt, hMem);
+       finally
+         Clipboard.Close;
+       end;
+     end { If }
+     else
+     begin
+       GlobalFree(hMem);
+       OutOfMemoryError;
+     end;
+   end { If }
+   else
+     OutOfMemoryError;
+ end; { CopyStreamToClipboard }
+ 
+ procedure CopyStreamFromClipboard(fmt: Cardinal; S: TStream);
+ var
+   hMem: THandle;
+   pMem: Pointer;
+ begin
+   Assert(Assigned(S));
+   hMem := Clipboard.GetAsHandle(fmt);
+   if hMem &lt;&gt; 0 then
+   begin
+     pMem := GlobalLock(hMem);
+     if pMem &lt;&gt; nil then
+     begin
+       try
+         S.Write(pMem^, GlobalSize(hMem));
+         S.Position := 0;
+       finally
+         GlobalUnlock(hMem);
+       end;
+     end { If }
+     else
+       raise Exception.Create('CopyStreamFromClipboard: could not lock global handle ' +
+         'obtained from clipboard!');
+   end; { If }
+ end; { CopyStreamFromClipboard }
+ 
+ procedure SaveClipboardFormat(fmt: Word; writer: TWriter);
+ var
+   fmtname: array[0..128] of Char;
+   ms: TMemoryStream;
+ begin
+   Assert(Assigned(writer));
+   if 0 = GetClipboardFormatName(fmt, fmtname, SizeOf(fmtname)) then
+     fmtname[0] := #0;
+   ms := TMemoryStream.Create;
+   try
+     CopyStreamFromClipboard(fmt, ms);
+     if ms.Size &gt; 0 then
+     begin
+       writer.WriteInteger(fmt);
+       writer.WriteString(fmtname);
+       writer.WriteInteger(ms.Size);
+       writer.Write(ms.Memory^, ms.Size);
+     end; { If }
+   finally
+     ms.Free
+   end; { Finally }
+ end; { SaveClipboardFormat }
+ 
+ procedure LoadClipboardFormat(reader: TReader);
+ var
+   fmt: Integer;
+   fmtname: string;
+   Size: Integer;
+   ms: TMemoryStream;
+ begin
+   Assert(Assigned(reader));
+   fmt     := reader.ReadInteger;
+   fmtname := reader.ReadString;
+   Size    := reader.ReadInteger;
+   ms      := TMemoryStream.Create;
+   try
+     ms.Size := Size;
+     reader.Read(ms.memory^, Size);
+     if Length(fmtname) &gt; 0 then
+       fmt := RegisterCLipboardFormat(PChar(fmtname));
+     if fmt &lt;&gt; 0 then
+       CopyStreamToClipboard(fmt, ms);
+   finally
+     ms.Free;
+   end; { Finally }
+ end; { LoadClipboardFormat }
+ 
+ procedure SaveClipboard(S: TStream);
+ var
+   writer: TWriter;
+   i: Integer;
+ begin
+   Assert(Assigned(S));
+   writer := TWriter.Create(S, 4096);
+   try
+     Clipboard.Open;
+     try
+       writer.WriteListBegin;
+       for i := 0 to Clipboard.formatcount - 1 do
+         SaveClipboardFormat(Clipboard.Formats[i], writer);
+       writer.WriteListEnd;
+     finally
+       Clipboard.Close;
+     end; { Finally }
+   finally
+     writer.Free
+   end; { Finally }
+ end; { SaveClipboard }
+ 
+ procedure LoadClipboard(S: TStream);
+ var
+   reader: TReader;
+ begin
+   Assert(Assigned(S));
+   reader := TReader.Create(S, 4096);
+   try
+     Clipboard.Open;
+     try
+       clipboard.Clear;
+       reader.ReadListBegin;
+       while not reader.EndOfList do
+         LoadClipboardFormat(reader);
+       reader.ReadListEnd;
+     finally
+       Clipboard.Close;
+     end; { Finally }
+   finally
+     reader.Free
+   end; { Finally }
+ end; { LoadClipboard }
+ 
+ 
+ 
+ // Examples: 
+ 
+{ Save Clipboard }
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ var
+   ms: TMemoryStream;
+ begin
+   ms := TMemoryStream.Create;
+   try
+     SaveClipboard(ms);
+     ms.SaveToFile('c:\temp\ClipBrdSaved.dat');
+   finally
+     ms.Free;
+   end; { Finally }
+ end;
+ 
+ { Clear Clipboard }
+ 
+ procedure TForm1.Button2Click(Sender: TObject);
+ begin
+   clipboard.Clear;
+ end;
+ 
+ { Restore Clipboard }
+ 
+ procedure TForm1.Button3Click(Sender: TObject);
+ var
+   fs: TfileStream;
+ begin
+   fs := TFilestream.Create('c:\temp\ClipBrdSaved.dat',
+     fmopenread or fmsharedenynone);
+   try
+     LoadClipboard(fs);
+   finally
+     fs.Free;
+   end; { Finally }
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<html>
+<head>
+  <title>Класс-оболочка для объекта синхронизации WaitableTimer</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Класс-оболочка для объекта синхронизации WaitableTimer</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Класс-оболочка для объекта синхронизации WaitableTimer.
+ 
+Класс представляет собой оболочку для объекта синхронизации WaitableTimer,
+существующего в операционных системах, основанных на ядре WinNT. 
+ 
+Методы.
+--------------
+Start - запуск таймера.
+ 
+Stop - остановка таймера.
+ 
+Wait - ожидает срабатывания таймера заданное количество миллисекунд и
+возвращает результат ожидания.
+ 
+ 
+Свойства.
+--------------
+Time : TDateTime - дата/время когда должен сработать таймер.
+ 
+Period : integer - Период срабатывания таймера. Если значение равно 0, то
+таймер срабатывает один раз, если же значение отлично от нуля, таймер будет
+срабатывать периодически с заданным интервалом, первое срабытывание произойдет
+в момент, заданный свойством Time. 
+ 
+LongTime : int64 - альтернативный способ задания времени срабатывания. Время
+задается в формате UTC.
+ 
+Handle : THandle (только чтение) - хендл обекта синхронизации.
+ 
+LastError : integer (только чтение) - В случае если метод Wait возвращает
+wrError, это свойство содержит значение, возвращаемое функцией GetLastError.
+ 
+Зависимости: Windows, SysUtils, SyncObjs
+Автор:       vuk
+Copyright:   Алексей Вуколов
+Дата:        25 апреля 2002 г.
+********************************************** }
+ 
+unit wtimer;
+ 
+interface
+ 
+uses
+    Windows, SysUtils, SyncObjs;
+ 
+type
+ 
+    TWaitableTimer = class( TSynchroObject )
+    protected
+      FHandle : THandle;
+      FPeriod : longint;
+      FDueTime : TDateTime;
+      FLastError: Integer;
+      FLongTime: int64;
+    public
+ 
+      constructor Create( ManualReset : boolean;
+        TimerAttributes: PSecurityAttributes; const Name : string );
+      destructor Destroy; override;
+ 
+      procedure Start;
+      procedure Stop;
+      function Wait( Timeout : longint ) : TWaitResult;
+ 
+      property Handle : THandle read FHandle;
+      property LastError : integer read FLastError;
+      property Period : integer read FPeriod write FPeriod;
+      property Time : TDateTime read FDueTime write FDueTime;
+      property LongTime : int64 read FLongTime write FLongTime;
+ 
+    end;
+ 
+ 
+ 
+implementation
+ 
+ 
+{ TWaitableTimer }
+ 
+constructor TWaitableTimer.Create(ManualReset: boolean;
+  TimerAttributes: PSecurityAttributes; const Name: string);
+var
+   pName : PChar;
+begin
+  inherited Create;
+  if Name = '' then pName := nil else
+    pName := PChar( Name );
+  FHandle := CreateWaitableTimer( TimerAttributes, ManualReset, pName );
+end;
+ 
+destructor TWaitableTimer.Destroy;
+begin
+  CloseHandle(FHandle);
+  inherited Destroy;
+end;
+ 
+procedure TWaitableTimer.Start;
+var
+   SysTime : TSystemTime;
+   LocalTime, UTCTime : FileTime;
+   Value : int64 absolute UTCTime;
+ 
+begin
+  if FLongTime = 0 then 
+  begin
+    DateTimeToSystemTime( FDueTime, SysTime );
+    SystemTimeToFileTime( SysTime, LocalTime );
+    LocalFileTimeToFileTime( LocalTime, UTCTime );
+  end else 
+    Value := FLongTime;
+  SetWaitableTimer( FHandle, Value, FPeriod, nil, nil, false );
+end;
+ 
+procedure TWaitableTimer.Stop;
+begin
+  CancelWaitableTimer( FHandle );
+end;
+ 
+function TWaitableTimer.Wait(Timeout: Integer): TWaitResult;
+begin
+  case WaitForSingleObjectEx(Handle, Timeout, BOOL(1)) of
+    WAIT_ABANDONED: Result := wrAbandoned;
+    WAIT_OBJECT_0: Result := wrSignaled;
+    WAIT_TIMEOUT: Result := wrTimeout;
+    WAIT_FAILED:
+      begin
+        Result := wrError;
+        FLastError := GetLastError;
+      end;
+  else
+    Result := wrError;
+  end;
+end;
+ 
+ 
+end. 
+</pre>
+
+<p>Пример использования:</p>
+<p>Пример создания таймера, который срабатывает по алгоритму "завтра в это же</p>
+<p>время и далее с интервалом в одну минуту".</p>
+<pre name="code" class="delphi">
+var
+  Timer : TWaitableTimer;
+....
+begin
+  Timer := TWaitableTimer.Create(false, nil, '');
+  Timer.Time := Now + 1; //завтра в это же время
+  Timer.Period := 60 * 1000; //Интервал в 1 минуту
+  Timer.Start; //запуск таймера
+.... 
+</pre>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

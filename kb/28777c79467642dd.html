@@ -1,0 +1,67 @@
+<html>
+<head>
+  <title>Использование DynArrayFromVariant</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Использование DynArrayFromVariant</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+ type
+   T2DIntArray = array of array of Integer;
+ var
+   DynArray: T2DIntArray;
+   V: Variant;
+   i, k: Integer;
+ begin
+   V := VarArrayCreate([0, 1, 0, 1], varInteger);
+   V[0, 0] := 00;
+   V[0, 1] := 01;
+   V[1, 0] := 10;
+   V[1, 1] := 11;
+   DynArrayFromVariant(Pointer(Dynarray), V, TypeInfo(T2DIntArray));
+   for i := 0 to High(Dynarray) do
+     for k := 0 to High(Dynarray[i]) do
+       memo1.Lines.add(IntToStr(DynArray[i, k]));
+ end;
+ 
+ { 
+  The problem with DynArrayFromVariant is that you can only use it on 
+  variant arrays with 0-based indexes, trying to use it on an array with 1 
+  as lower bound blows up. Since the documentation is silent on that i 
+  would consider it a bug. 
+}
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

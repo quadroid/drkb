@@ -1,0 +1,81 @@
+<html>
+<head>
+  <title>Flash SWF &gt; EXE</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Flash SWF &gt; EXE</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function Swf2Exe(S, D, F: string): string;
+  //S = Source file (swf)
+  //D = Destionation file (exe)
+  //F = Flash Player
+var
+  SourceStream, DestinyStream, LinkStream: TFileStream;
+  flag: Cardinal;
+  SwfFileSize: Integer;
+begin
+  Result := 'something error';
+  DestinyStream := TFileStream.Create(D, fmCreate);
+  try
+    LinkStream := TFileStream.Create(F, fmOpenRead or fmShareExclusive);
+    try
+      DestinyStream.CopyFrom(LinkStream, 0);
+    finally
+      LinkStream.Free;
+    end;
+ 
+    SourceStream := TFileStream.Create(S, fmOpenRead or fmShareExclusive);
+    try
+      DestinyStream.CopyFrom(SourceStream, 0);
+      flag := $FA123456;
+      DestinyStream.WriteBuffer(flag, SizeOf(Integer));
+      SwfFileSize := SourceStream.Size;
+      DestinyStream.WriteBuffer(SwfFileSize, SizeOf(Integer));
+      Result := '';
+    finally
+      SourceStream.Free;
+    end;
+  finally
+    DestinyStream.Free;
+  end;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  Swf2Exe('c:\somefile.swf', 'c:\somefile.exe',
+    'c:\Program Files\Macromedia\Flash MX\Players\SAFlashPlayer.exe');
+end;
+</pre>
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

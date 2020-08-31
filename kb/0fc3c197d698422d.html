@@ -1,0 +1,65 @@
+<html>
+<head>
+  <title>Ограничение ввода в текстовое поле</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Ограничение ввода в текстовое поле</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  In this exemple, the only keys allowed are the 
+  same allowed in e-mail adresses. 
+}
+ 
+ procedure TForm1.Edit1KeyPress(Sender: TObject;
+   var Key: Char);
+ const
+   AllowedChars: string = 'abcdefghijklmnopq' +
+     'rstuvwxyz01234567_.@';
+ var
+   i: Integer;
+   Ok: Boolean;
+ begin
+   i  := 0;
+   Ok := False;
+   { If you erase next line, user won't be able to type backspace }
+   if Key = #8 then Ok := True;
+   repeat
+     i := i + 1;
+     if Key = AllowedChars[i] then Ok := True;
+   until (Ok) or (i = Length(AllowedChars));
+   if not Ok then Key := #0;
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

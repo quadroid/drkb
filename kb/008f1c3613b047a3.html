@@ -1,0 +1,92 @@
+<html>
+<head>
+  <title>Сохранить строку в памяти + пример работы с атомами</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сохранить строку в памяти + пример работы с атомами</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Например через атомы:</p>
+<p>К счастью количество атомов ограничено 0xFFFF, так что простые функции перебора работают достаточно быстро. Вот пример как сохранять и читать значение через атомы:</p>
+<pre name="code" class="delphi">
+const UniqueSignature='GI7324hjbHGHJKdhgn90jshUH*hjsjshjdj';
+
+ 
+Procedure CleanAtoms;
+var P:PChar;
+  i:Word;
+begin
+GetMem(p, 256);
+For i:=0 to $FFFF do
+begin
+  GlobalGetAtomName(i, p, 255);
+  if StrPos(p, PChar(UniqueSignature))&lt;&gt;nil then GlobalDeleteAtom(i);
+end;
+FreeMem(p);
+end;
+ 
+Procedure WriteAtom(Str:string);
+begin
+CleanAtoms;
+GlobalAddAtom(PChar(UniqueSignature+Str));
+end;
+ 
+Function ReadAtom:string;
+var P:PChar;
+  i:Word;
+begin
+GetMem(p, 256);
+For i:=0 to $FFFF do
+begin
+GlobalGetAtomName(i, p, 255);
+if StrPos(p, PChar(UniqueSignature))&lt;&gt;nil then break;
+end;
+result:=StrPas(p+length(UniqueSignature));
+FreeMem(p);
+end;
+ 
+procedure TReadFromAtom.Button1Click(Sender: TObject);
+begin
+WriteAtom(Edit1.text);
+end;
+ 
+procedure TReadFromAtom.Button2Click(Sender: TObject);
+begin
+Showmessage(ReadAtom);
+end;
+ 
+</pre>
+<p id="note">Примечание</p>
+<p>Константа "UniqueSignature" должна быть достаточно длинной, чтобы однозначно идентифицировать атом, в тоже время длина хранимой строки вместе с UniqueSignature не должна превышать 255 символов. Данная конструкция может хранить только 1 значение. Для хранения нескольких значений надо назначить несколько разных UniqueSignature и использовать сходные процедуры.</p>
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

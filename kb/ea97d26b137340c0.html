@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Экспорт TListView в TStringGrid</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Экспорт TListView в TStringGrid</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure ListView2StringGrid(Listview: TListView; StringGrid: TStringGrid);
+ const
+   MAX_SUBITEMS = 5;
+ var
+   i, j: Integer;
+ begin
+   with ListView do
+     for i := 0 to Items.Count - 1 do
+     begin
+       {Get Item of First Column}
+       StringGrid.Cells[1, i + 1] := Items[i].Caption;
+       {loop through SubItems}
+       for j := 0 to MAX_SUBITEMS do
+       begin
+         if Items[i].SubItems.Count &gt; j then
+           StringGrid.Cells[j + 2, i + 1] := Items[i].SubItems.Strings[j]
+         else
+            break;
+       end;
+     end;
+ end;
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ var
+   i: Integer;
+ begin
+   // Clear the StringGrid if necessary 
+  // Falls notig, zuerst das StringGrid loschen 
+  i := 0;
+   while i &lt; StringGrid1.RowCount do
+   begin
+     StringGrid1.Rows[i].Clear;
+     Inc(i);
+   end;
+   // Copy ListView1 to StringGrid1 
+  ListView2StringGrid(ListView1, StringGrid1);
+ end;
+</pre>
+
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

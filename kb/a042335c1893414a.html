@@ -1,0 +1,110 @@
+<html>
+<head>
+  <title>Заполнение списка словами из строки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Заполнение списка словами из строки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Заполнение списка (TargetList) словами из строки (Text),
+с возможностью укзания множества разделителей
+ 
+Функция заполняет список TargetList, словами (наборами символов)
+из строки Text. Имеется возможность получения позиции каждого
+слова в строке (ReturnWordPlaces = True); добавления в TargetList
+не только слов, но и разделителей (ReturnWordDeviders = True);
+указания более чем одного разделителя (все в строке WordDeviders).
+Ограничением является невозможность указания разделителя,
+длинной более чем 1 символ.
+ 
+Result = TargetList.Count; {количество строк в TargetList}
+ 
+Зависимости: sysutils, classes, system
+Автор: VID, vidsnap@mail.ru, ICQ: 132234868, Махачкала
+Copyright: VID
+Дата: 02 мая 2002 г.
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  * * * * * * * * * * * * }
+ 
+function GetWordListFromText(Text, WordDeviders: string; TargetList: TStrings;
+  ReturnWordPlace, ReturnWordDeviders: Boolean): Integer;
+var
+  X, TextLength, WP: Integer;
+  W: string;
+begin
+  Result := 0;
+  TextLength := Length(Text);
+  if TextLength = 0 then
+    Exit;
+  if Length(WordDeviders) = 0 then
+    Exit;
+  if TargetList = nil then
+    Exit;
+  TargetList.BeginUpdate();
+  TargetList.Clear;
+  WordDeviders := AnsiUpperCase(WordDeviders);
+  W := '';
+  X := 0;
+  WP := 1;
+  repeat
+    X := X + 1;
+    if (POS(AnsiUpperCase(Text[x]), WordDeviders) = 0) and (X &lt;= TextLength)
+      then
+      W := W + Text[x]
+    else
+    begin
+      if W &lt;&gt; '' then
+      begin
+        case ReturnWordPlace of
+          True: TargetList.Add(W + '=' + Inttostr(WP));
+          False: TargetList.Add(W);
+        end;
+      end;
+      W := '';
+      WP := X + 1;
+      if ReturnWordDeviders = true then
+      begin
+        case ReturnWordPlace of
+          True: TargetList.Add(Text[x] + '=' + Inttostr(x));
+          False: TargetList.Add(TEXT[x]);
+        end;
+      end;
+    end;
+  until (X &gt; TextLength);
+  TargetList.EndUpdate;
+  Result := TargetList.Count;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

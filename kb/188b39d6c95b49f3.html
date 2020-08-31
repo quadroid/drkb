@@ -1,0 +1,90 @@
+<html>
+<head>
+  <title>Как поместить иконку в окошко подсказки?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как поместить иконку в окошко подсказки?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Следующий код помещает главную иконку приложения в окошки подсказок:</p>
+<pre name="code" class="delphi">
+unit HintX; 
+ 
+interface 
+ 
+uses 
+  Windows, Messages, Controls; 
+ 
+type 
+  TIconHintX = class(THintWindow) 
+  protected 
+    procedure Paint; override; 
+  public 
+    function CalcHintRect(MaxWidth: Integer; const AHint: string; AData: Pointer): TRect; override; 
+  end; 
+ 
+implementation 
+ 
+uses Forms; 
+ 
+{ TIconHintX } 
+ 
+{-Вычисляем новый размер окошка подсказки для помещения в него иконки:-}
+function TIconHintX.CalcHintRect(MaxWidth: Integer; const AHint: string; 
+  AData: Pointer): TRect; 
+begin 
+  Result := inherited CalcHintRect(MaxWidth, AHint, AData);       Result.Right := (Length(AHint) * 5) + Application.Icon.Width; 
+  Result.Bottom := (Application.Icon.Height) * 2; 
+end; 
+ 
+procedure TIconHintX.Paint; 
+const 
+  MARGIN = 5; 
+begin 
+  inherited; 
+  Canvas.Draw(MARGIN, MARGIN * 5, Application.Icon); 
+  SendMessage(Handle, WM_NCPAINT, 0, 0); //рисуем рамку окошка подсказки
+end; 
+ 
+initialization 
+  //связываем наш новый класс с классом окошка подсказки установленным поумолчанию:
+  HintWindowClass := TIconHintX; 
+ 
+end. 
+</pre>
+
+
+<p>Чтобы увидеть это в действии, всё, что надо сделать, это поместить этот юнит список USES Вашего приложения</p>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

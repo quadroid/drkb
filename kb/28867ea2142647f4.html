@@ -1,0 +1,84 @@
+<html>
+<head>
+  <title>Описание протокола SMTP</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Описание протокола SMTP</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Описание протокола SMTP</p>
+<p>Введение</p>
+Бельбаков Александр<br>
+<p>http://msa.km.ru/ </p>
+<p>Основная задача протокола SMTP (Simple Mail Transfer Protocol) заключается в том, чтобы обеспечивать передачу электронных сообщений (почту). Для работы через протокол SMTP клиент создаёт TCP соединение с сервером через порт 25. Затем клиент и SMTP сервер обмениваются информацией пока соединение не будет закрыто или прервано. Основной процедурой в SMTP является передача почты (Mail Procedure). Далее идут процедуры форвардинга почты (Mail Forwarding), проверка имён почтового ящика и вывод списков почтовых групп. Самой первой процедурой является открытие канала передачи, а последней - его закрытие. </p>
+<p>Команды SMTP указывают серверу, какую операцию хочет произвести клиент. Команды состоят из ключевых слов, за которыми следует один или более параметров. Ключевое слово состот из 4-х символов и разделено от аргумента одним или несколькими пробелами. Каждая командная строка заканчивается символами CRLF. Вот синтаксис всех команд протокола SMTP (SP - пробел): </p>
+<p>HELO &lt;SP&gt; &lt;domain&gt; &lt;CRLF&gt;</p>
+<p>MAIL &lt;SP&gt; FROM:&lt;reverse-path&gt; &lt;CRLF&gt; </p>
+<p>RCPT &lt;SP&gt; TO:&lt;forward-path&gt; &lt;CRLF&gt; </p>
+<p>DATA &lt;CRLF&gt;</p>
+<p>RSET &lt;CRLF&gt; </p>
+<p>SEND &lt;SP&gt; FROM:&lt;reverse-path&gt; &lt;CRLF&gt; </p>
+<p>SOML &lt;SP&gt; FROM:&lt;reverse-path&gt; &lt;CRLF&gt; </p>
+<p>SAML &lt;SP&gt; FROM:&lt;reverse-path&gt; &lt;CRLF&gt; </p>
+<p>VRFY &lt;SP&gt; &lt;string&gt; &lt;CRLF&gt; </p>
+<p>EXPN &lt;SP&gt; &lt;string&gt; &lt;CRLF&gt; </p>
+<p>HELP &lt;SP&gt; &lt;string&gt; &lt;CRLF&gt; </p>
+<p>NOOP &lt;CRLF&gt; </p>
+<p>QUIT &lt;CRLF&gt;</p>
+<p>Обычный ответ SMTP сервера состоит из номера ответа, за которым через пробел следует дополнительный текст. Номер ответа служит индикатором состояния сервера. </p>
+<p>Отправка почты</p>
+<p>Первым делом подключаемся к SMTP серверу через порт 25. Теперь надо передать серверу команду HELLO и наш IP адрес: </p>
+<p>C: HELLO 195.161.101.33</p>
+<p>S: 250 smtp.mail.ru is ready </p>
+<p>При отправке почты передаём некоторые нужные данные (отправитель, получатель и само письмо): </p>
+<p>C: MAIL FROM:&lt;drozd&gt; 'указываем отправителя</p>
+<p>S: 250 OK</p>
+<p>C: RCPT TO:&lt;drol@mail.ru&gt; 'указываем получателя</p>
+<p>S: 250 OK</p>
+<p>указываем серверу, что будем передавать содержание письма (заголовок и тело письма) </p>
+<p>C: DATA </p>
+<p>S: 354 Start mail input; end with &lt;CRLF&gt;.&lt;CRLF&gt; </p>
+<p>передачу письма необходимо завершить символами CRLF.CRLF </p>
+<p>S: 250 OK </p>
+<p>C: From: Drozd &lt;drozd@mail.ru&gt; </p>
+<p>C: To: Drol &lt;drol@mail.ru&gt;</p>
+<p>C: Subject: Hello </p>
+<p>между заголовком письма и его текстом не одна пара CRLF, а две. </p>
+<p>C: Hello Drol!</p>
+<p>C: You will be die on next week!</p>
+<p>заканчиваем передачу символами CRLF.CRLF </p>
+<p>S: 250 OK</p>
+<p>Теперь завершаем работу, отправляем команду QUIT: </p>
+<p>S: QUIT</p>
+<p>C: 221 smtp.mail.ru is closing transmission channel</p>
+<p>&gt; Другие команды</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>SEND - используется вместо команды MAIL и указыает, что почта должна быть доставлена на терминал пользователя. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>SOML, SAML - комбинации команд SEND или MAIL, SEND и MAIL соответственно. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>RSET - указвает серверу прервать выполнение текущего процесса. Все сохранённые данные (отправитель, получатель и др) удаляются. Сервер должен отправить положительный ответ. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>VRFY - просит сервер проверить, является ли переданный аргумент именем пользователя. В случае успеха сервер возвращает полное имя пользователя. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>EXPN - просит сервер подтвердить, что переданный аргумент - это список почтовой группы, и если так, то сервер выводит членов этой группы. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>HELP - запрашивает у сервера полезную помощь о переданной в качестве аргумента команде. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>NOOP - на вызов этой команды сервер должен положительно ответить. NOOP ничего не делает и никак не влияет на указанные до этого данные. </td></tr></table></div>&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

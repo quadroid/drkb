@@ -1,0 +1,50 @@
+<html>
+<head>
+  <title>Установка и использование IDA Pro</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Установка и использование IDA Pro</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Дизассемблер позволяет получить ассемблерный текст программы из машинного кода (.exe или .dll модуля). Многие дизассемблеры могут определять имена вызываемых программой API-функций. IDA Pro отличается от других дизассемблеров тем, что он способен опознавать имена не только API-функций, но и функций из MFC (Microsoft Foundation Class - используется программами, написанными на Visual C++) и OWL (Object Windows Library - используется программами, написанными на Borland C++), а также стандартных функций языка Си (таких как fread(), strlen() и т.д.), включенных в код программы. </p>
+<p>Установка программы обычно не вызывает никаких проблем. После запуска дизассемблера (файл idaw.exe) появляется окно сессии DOS. Не пугайтесь, IDA Pro - нормальное 32-разрядное приложение, просто оно консольное (работает в окне сессии DOS). Именно поэтому интерфейс IDA Pro напоминает интерфейс обычной DOS-программы. </p>
+<p>Отметим несколько моментов, на которые Вам следует обратить внимание перед началом работы с IDA Pro: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 14px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>Практически все настройки (кроме цветовой палитры) осуществляются через файл ida.cfg </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 14px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>В первую очередь, давайте поменяем размеры экрана программы. Установленный по умолчанию размер на разрешении 1024*768 не очень удобен, поэтому лучше заменить строку </td></tr></table></div>
+<p>SCREEN_MODE = 0 (по умолчанию 32 строки по 80 символов) </p>
+<p>на </p>
+<p>SCREEN_MODE = 0x783B (59 строк по 120 символов)- для разрешения 1024х768 </p>
+<p>это максимальный размер окна, которое умещается на экране. Если у Вас 800х600, можете ничего не менять. </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 14px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>При работе с программой я обнаружил одну странную вещь: когда я закрываю IDA Pro, выдается два сообщения о том, что программа выполнила недопустимую операцию и будет закрыта (происходит ошибка при смене видеорежима). Чтобы этого избежать, нужно принудительно установить размер используемого программой шрифта. Для этого: </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 40px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>Запомните, как выглядит окно программы при автоматическом выборе шрифта. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 40px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>Из конкретных значений размера шрифта выберите тот, при котором окно примет первоначальный вид. После этого никаких проблем при закрытии программы быть не должно. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 14px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>Для того чтобы не производить подобные изменения при каждом запуске программы, нужно соответствующим образом изменить свойства запускаемого файла. Но установить конкретный размер шрифта при запуске для файла idaw.exe не представляется возможным, т.к. это не DOS-программа, а Windows-приложение и не имеет подобных установок. Лично я для этих целей использую собственный командный файл (файл с расширение .bat). Он содержит только одну строку: idaw.exe В свойствах idaw.bat (так я назвал свой файл) я установил необходимый размер шрифта (для приведенных значений разрешения и размера окна это шрифт 8х12). Теперь, вместо idaw.exe я запускаю idaw.bat - никаких проблем при закрытии больше не возникает. </td></tr></table></div>
+<p>О приемах работы с IDA Pro Вы познакомитесь в следующих статьях на примере работы с конкретными программами, или можете обратиться к ее полному описанию, которое скоро появится в разделе Описание инструментов. Что ж, со всеми описаниями мы закончили, в следующей статье приступим к исследованию конкретной программы - WinZip 7.0 (beta). </p>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

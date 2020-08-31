@@ -1,0 +1,489 @@
+<html>
+<head>
+  <title>Эволюция средств разработки веб-приложений в Delphi</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Эволюция средств разработки веб-приложений в Delphi</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Введение</p>
+Бурный рост интернета в последние годы привел к возможности и необходимости создания информационных систем, не требующих настройки и обслуживания на стороне клиента и при этом обеспечивающих одновременную работу большого количества пользователей. Сложность бурно развивающихся систем электронной торговли и обслуживания через интернет постоянно возрастает. Сегодня только отображение информации в виде гипертекста уже не может удовлетворить возрастающие требования пользователей информационных систем. Очевидно, что сложившаяся ситуация привела к необходимости создания инструментов разработки информационных систем нового поколения. Большинство новаций недавно вышедшей шестой версия Delphi, по заявлениям самой Borland, касаются создания Web приложений. </p>
+На сегодня существуют, как минимум, три технологии разработки Web приложений в Delphi. Разнообразие средств создания Web приложений явилось следствием эволюции как самих подходов к разработке информационных систем для Web, так и совершенствованием технологии реализации этих подходов в Delphi. </p>
+Под Web приложениями мы будем понимать приложения, использующие WEB браузер для вывода информации пользователю, либо задействующие протоколы интернета (в основном http) для получения этой информации с сервера. </p>
+В данной статье мы попытаемся рассмотреть спектр технологий, предлагаемый Borland, расположив их в хронологическом порядке появления их в Delphi. <br>
+-Web broker<br>
+-Web Snap<br>
+-Web Services<br>
+<p>Технология Web broker была первой попыткой Borland представить инструментарий для разработки приложений, работающих через Internet. Она позволяет создавать приложения, расширяющие функциональность web серверов, однако не дает больших преимуществ по сравнению с другими языками программирования, такими как Perl или PHP. Осознавая это, Borland в новой версии Delphi представила на суд разработчиков две новые технологии Web Snap и Web Services. Технология Web Snap - это попытка предложить разработчикам удобный набор компонентов для решения типовых задач, возникающих при создании Web приложений, работающих под управлением Web сервера. Она призвана заменить технологию Web broker. Web services - это набор компонентов для создания приложений, использующих возможности интернета для обмена информацией между приложениями. При обмене используется протокол SOAP, который не привязан к какой-либо платформе или языку. Данный подход реализует объектную идеологию в разработке информационных систем, и является перспективным направлением, по которому, скорее всего, пойдет дальнейшее совершенствование технологий в данной области. </p>
+В первой части статьи мы рассмотрим технологии, которые были доступны еще в Delphi 5. Во второй части будут рассмотрены новые технологии, появившиеся в Delphi 6. Помимо Delphi для демонстрации работы примеров автор использовал Internet Explorer и Web сервер Apache на платформе Windows. </p>
+<p>Форматы приложений для WEB</p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>Формат приложения</p>
+</td>
+<td ><p>Описание</p>
+</td>
+</tr>
+<tr >
+<td ><p>Microsoft Server DLL (ISAPI), Netscape Server DLL (NSAPI)</p>
+</td>
+<td ><p>Web приложение представляет собой dll, которая загружается Web сервером в память. Запросы клиентов обрабатываются в отдельных потоках. ISAPI работает на Web сервере IIS (от Microsoft), NSAPI - на сервере Netscape </p>
+</td>
+</tr>
+<tr >
+<td ><p>Apache Server DLL</p>
+</td>
+<td ><p>Динамический модуль Web сервера Apache. На платформе Windows - dll. Приложение взаимодействует с ядром Apache через специальный API. Запросы клиентов обрабатываются в отдельных потоках. Приложения данного типа с помощью перекомпиляции в Kylix могут быть перенесены на платформу Linux.</p>
+</td>
+</tr>
+<tr >
+<td ><p>Stand alone CGI</p>
+</td>
+<td ><p>Консольные приложение, получающее запросы клиента через стандартный поток ввода и выдающий результат в стандартный поток вывода. Запросы клиента выполняются отдельным экземпляром приложения. Поддерживается практически всеми Web серверами. Приложения данного типа с помощью перекомпиляции в Kylix могут быть перенесены на платформу Linux.</p>
+</td>
+</tr>
+<tr >
+<td ><p>Windows CGI application</p>
+</td>
+<td ><p>Приложение Windows, получающее запросы через ini файл, создаваемый Web сервером и записывающее результаты работы в файл, который Web сервер передает обратно клиенту.</p>
+</td>
+</tr>
+<tr >
+<td ><p>Web debugger application</p>
+</td>
+<td ><p>Web debugger - это специальная программа в составе Delphi 6, которая эмулирует работу Web сервера. Позволяет проводить мониторинг работы приложения. Используется для отладки приложений. После отладки приложение должно быть конвертировано в один из вышеописанных форматов.
+</td>
+</tr>
+</table>
+<p>Web Broker</p>
+Данная технология появилась еще в 4-ой версии Delphi. Назначение технологии - разработка приложений, расширяющих возможности существующих Web серверов. Разработка приложений в данной технологии сводится к определению возможных запросов пользователя и написании обработчиков этих запросов. К достоинствам технологии можно отнести переносимость на Kylix и простоту. Недостатки - фактически невизуальный процесс разработки приложения. Компоненты, относящиеся к данной технологии, расположены на закладке Internet IDE Delphi. </p>
+Первые шаги</p>
+<p>Итак, попробуем разработать наше первое Web приложение. В IDE Delphi выберем пункт меню File/New/Other. В появившемся диалоге на закладке New выберем пункт Web Server Application. Нам будет предложено выбрать формат создаваемого приложения. </p>
+<img src="pic/clip0081.gif" width="321" height="258" border="0" alt="clip0081"></p>
+Выберем пункт Web App Debuger executable и в поле ввода CoClassName введем HelloWebApp. Delphi сгенерирует нам заготовку проекта. В состав проекта будет входить: " Unit1.pas - в нем описывается форма From1. Форма не несет никакой функциональной нагрузки в приложении. Ее наличие вызвано особенностями реализации Web App Debuger. " Unit2.pas - модуль, содержащий описание Web Module - центрального элемента нашего приложения. Тут самое время рассказать о структуре приложения Web Broker. </p>
+<img src="pic/clip0082.gif" width="379" height="209" border="0" alt="clip0082"></p>
+Web приложение, получив запрос от сервера создает объект типа TwebRequest, содержащий параметры клиентского запроса и объект типа TWebResponse, который будет содержать запрошенную информацию. Затем эти объекты передаются диспетчеру (Web модулю или компоненту TWebDispatcher, если отсутствует Web модуль). Диспетчер анализирует параметры поступившего запроса и вызывает обработчик, определенный программистом для данного запроса (Action Item). Обработчик отвечает за заполнение ответа данными. В обработчике для получения запрошенных клиентом данных могут использоваться компоненты, генерирующие динамическую информацию на основе заданного шаблона и поступивших в запросе данных (Content producer). По окончании работы обработчика диспетчер передает данные (Web Response) веб серверу, а тот в свою очередь клиенту. </p>
+Теперь, вооруженные теорией, вернемся к практике. Очевидно, что нам необходимо определить в Web модуле хотя бы один обработчик события. Для этого правой кнопкой мыши щелкнем на нашем модуле и в контекстном меню выберем пункт Action Editor. Перед нами появится окно редактора обработчиков. Кнопкой "Add New" добавим новый обработчик WebActionItem1. </p>
+<img src="pic/clip0083.gif" width="402" height="164" border="0" alt="clip0083"></p>
+В Инспекторе объектов установим следующие свойства обработчика: Default - использовать обработчик по умолчанию - true. В этом случае обработчик вызывается если нет явного обработчика запроса с данными параметрами. Можно назначить один обработчик по умолчанию для Web модуля. PachInfo - путь обработчика, часть URL адреса после имени программы, за разбор которого осуществляет данный обработчик. Так ,например, для обработки URL http://localhost/cgi-bin/Project1.exe/mypath, св-во PathInfo обработчика должно быть /mypath. Для нашего случая установим данное св-во в значение "/". Далее необходимо написать код обработчика, для этого в обработчике события OnAction WebActionItem1 введем следующий код: Response.Content:='Hello,world !'; Запустим на выполнение созданное приложение (F9). На экране появится форма Form1. В IDE Delphi выберем пункт меню Tools/Web App Debuger, при этом на экране появится главная форма отладчика. </p>
+<img src="pic/clip0084.gif" width="474" height="377" border="0" alt="clip0084"></p>
+После нажатия кнопки "Start" надпись http://localhost:1024/&#8230; подсветится синим. Левой кнопкой мыши выберем эту надпись при этом будет запущен Web броузер и в его окне выведен список приложений, доступных для отладки. В списке выберем пункт Project1.HelloWebApp (наше приложение) и нажмем кнопку Go. В окне броузера мы увидим результат работы нашего приложения - "Hello, world!". <br>
+<p>Присмотревшись к коду обработчика события OnAction WebActionItem1, мы видим, что содержание ответа формируется "вручную". При этом очень часто приходится анализировать поля переменных классов TWebResponse и TWebRequest. Ниже приведено описание и назначение наиболее часто используемых полей данных классов. </p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>Поле</p>
+</td>
+<td ><p>Тип</p>
+</td>
+<td ><p>Описание</p>
+</td>
+<td rowspan="10" style="border: solid 1px #000000;"><br>
+</td>
+</tr>
+<tr >
+<td colspan="3" ><p>TWebRequest</p>
+</td>
+</tr>
+<tr >
+<td ><p>Host</p>
+</td>
+<td ><p>String</p>
+</td>
+<td ><p>Имя сервера, на котором выполняется скрипт</p>
+</td>
+</tr>
+<tr >
+<td ><p>ScriptName</p>
+</td>
+<td ><p>String</p>
+</td>
+<td ><p>URL путь к скрипту</p>
+</td>
+</tr>
+<tr >
+<td ><p>Request.Method</p>
+</td>
+<td ><p>String</p>
+</td>
+<td ><p>Метод вызова скрипта</p>
+</td>
+</tr>
+<tr >
+<td ><p>RemoteAddr</p>
+</td>
+<td ><p>String</p>
+</td>
+<td ><p>Имя компьютера, вызвавшего скрипт</p>
+</td>
+</tr>
+<tr >
+<td ><p>UserAgent</p>
+</td>
+<td ><p>String</p>
+</td>
+<td ><p>Пользовательский браузер</p>
+</td>
+</tr>
+<tr >
+<td ><p>ContentFields, QueryFields</p>
+</td>
+<td ><p>TStrings</p>
+</td>
+<td ><p>Параметры и их значения, переданные запросу</p>
+</td>
+</tr>
+<tr >
+<td colspan="3" ><p>TWebResponse</p>
+</td>
+</tr>
+<tr >
+<td ><p>Server</p>
+</td>
+<td ><p>String</p>
+</td>
+<td ><p>Вид веб сервера</p>
+</td>
+</tr>
+<tr >
+<td ><p>ContentType</p>
+</td>
+<td ><p>Sting</p>
+</td>
+<td ><p>Тип содержимого страницы </p>
+</td>
+<td >
+</td>
+</tr>
+<tr >
+<td ><p>Content</p>
+</td>
+<td ><p>String</p>
+</td>
+<td ><p>Ответ, сформированный скриптом</p>
+</td>
+<td >
+</td>
+</tr>
+<tr >
+<td ><p>ContentStream</p>
+</td>
+<td ><p>TStream</p>
+</td>
+<td ><p>Ответ, сформированный скриптом. Используется в случае передачи двоичных данных</p>
+</td>
+<td ><p>&nbsp;
+</td>
+</tr>
+</table>
+В качестве иллюстрации использования описанных полей приведу следующий код обработчика OnAction WebActionItem1:</p>
+<pre name="code" class="delphi">
+  Response.Content:='&lt;HTML&gt;&lt;BODY&gt; Host:'+Request.Host+'&lt;br&gt;'+
+    'Скрипт: '+Request.ScriptName + '&lt;br&gt;'+
+    'Метод: '+Request.Method+'&lt;br&gt;'+
+    'Remote address: '+Request.RemoteAddr+'&lt;br&gt;'+
+    'Броузер: '+Request.UserAgent+'&lt;br&gt;';
+    if Request.ContentFields.Count &gt; 0 then
+    begin
+      Response.Content:=Response.Content+'Параметры:&lt;br&gt;Кол-во:'+
+            IntToStr(Request.ContentFields.Count)+'&lt;br&gt;';
+      for Cnt:=0 to Request.ContentFields.Count-1 do
+      begin
+        Response.Content:=Response.Content+Request.ContentFields[Cnt]+'&lt;br&gt;';
+      end;
+    end else
+    begin
+      Response.Content:=Response.Content+'Параметры:&lt;br&gt;Кол-во:'+
+            IntToStr(Request.QueryFields.Count)+'&lt;br&gt;';
+      for Cnt:=0 to Request.QueryFields.Count-1 do
+      begin
+        Response.Content:=Response.Content+Request.QueryFields[Cnt]+'&lt;br&gt;';
+      end;
+    end;
+    Response.Server:='Our soft';
+    Response.Content:=Response.Content+'Веб сервер: '+Response.Server+'&lt;br&gt;';
+    Response.Content:=Response.Content+'Тип содержимого: '+Response.ContentType+'&lt;br&gt;';
+    Response.Content:=Response.Content+'&lt;BODY/&gt;&lt;/HTML&gt;';
+</pre>
+Пользуясь данной методикой, можно создавать динамические html страницы, а воспользовавшись компонентами доступа к данным, и отображать данные из БД, однако, как говорится, есть способ лучше. </p>
+Использование шаблонов</p>
+<p>Идея использования шаблонов для генерации html страниц позволяет значительно упростить процесс генерации страницы. При этом программисту необходимо лишь подставить вместо определенных тегов значения, а размещение тегов и их группировку можно отдать на откуп дизайнерам. В Delphi данная технология реализуется с помощью компонентов-продюсеров. Добавим новый обработчик в наш веб модуль - WebActionItem2. Его путь (PathInfo) установим в значение producer. Далее в веб модуль поместим компонент PageProducer1. В свойстве HTMLDoc введем заготовку нашей страницы:<br>
+<p>&nbsp;</p>
+<p>&lt;HTML&gt;</p>
+<p>&lt;BODY&gt;</p>
+<p>&lt;#Phrase&gt;</p>
+<p>&lt;br&gt; Сейчас &lt;#Date&gt;</p>
+<p>&lt;/BODY&gt;</p>
+<p>&lt;/HTML&gt;</p>
+<p>&nbsp;<br>
+<p>Как легко догадаться это обычный html документ с двумя тегами &lt;#Phrase&gt; и &lt;#Date&gt; Свойство Producer WebActionItem2 установим равным PageProducer1. Два раза кликнем на PageProducer1 и введем код обработчика события OnHTMLTag. </p>
+<pre name="code" class="delphi">procedure TWebModule2.PageProducer1HTMLTag(Sender: TObject; Tag: TTag;
+  const TagString: String; TagParams: TStrings; var ReplaceText: String);
+begin
+  if TagString = 'Phrase' then
+  begin
+ &nbsp; ReplaceText:='Hello, world';
+  end else
+&nbsp;
+  if TagString = 'Date' then
+  begin
+ &nbsp; ReplaceText:=DateToStr(Now)+' '+TimeToStr(Now);
+  end;
+end;
+</pre>
+&nbsp;</p>
+Думаю, что пространные комментарии излишни. Просто в конец адреса скрипта в окне броузера добавьте /producer. Помимо компонента PageProducer для публикации информации из базы данных можно использовать компоненты DataSetTableProducer - публикация данных из БД в табличной форме из потомков TDataSet QueryDataSetProducer, SQL QueryDataSetProducer - публикация данных из параметрических запросов, значения параметров берутся из HTTP запроса. Для демонстрации работы с БД добавим в WebModule компоненты DataSetTableProducer1 и Table1. Ниже приведены свойства данных компонентов, которые необходимо настроить </p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>Свойство</p>
+</td>
+<td ><p>Значение</p>
+</td>
+<td ><p>Описание</p>
+</td>
+</tr>
+<tr >
+<td colspan="3" ><p>Table1</p>
+</td>
+</tr>
+<tr >
+<td ><p>DatabaseName</p>
+</td>
+<td ><p>DBDEMOS</p>
+</td>
+<td ><p>Псевдоним базы данных</p>
+</td>
+</tr>
+<tr >
+<td ><p>TableName</p>
+</td>
+<td ><p>Biolife.db</p>
+</td>
+<td ><p>Имя таблицы БД из которой мы опубликуем данные</p>
+</td>
+</tr>
+<tr >
+<td ><p>Active</p>
+</td>
+<td ><p>True</p>
+</td>
+<td ><p>Активность таблицы - доступность ее данных</p>
+</td>
+</tr>
+<tr >
+<td colspan="3" ><p>DataSetTableProducer1</p>
+</td>
+</tr>
+<tr >
+<td ><p>DataSet</p>
+</td>
+<td ><p>Table1</p>
+</td>
+<td ><p>Набор данных для отображения продюсером</p>
+</td>
+</tr>
+<tr >
+<td ><p>Caption</p>
+</td>
+<td ><p>Our biolife</p>
+</td>
+<td ><p>Заголовок страницы
+</td>
+</tr>
+</table>
+Далее двойным кликом мыши на продюсере можно вызвать редактор параметров таблицы и настроить необходимые атрибуты отображения полей таблицы </p>
+<img src="pic/clip0085.gif" width="515" height="402" border="0" alt="clip0085"></p>
+Осталось только добавить новый элемент-обработчик - WebActionItem3 и установить ему PathInfo равным db, а Producer - DataSetTableProducer1.<br>
+<p>Далее после написания основного кода приложения и его отладки можно будет преобразовать наше Web приложение из формата Web debugger application в формат пригодный для поставки пользователю. Для этого необходимо будет создать новый проект Web приложения и выбрать необходимый формат (я выбрал CGI, т.к при этом не возникает проблем совместимости с веб серверами) и подключить отлаженный WebModule. </p>
+<p>InternetXpress</p>
+<p>Технология WebBroker позволяет легко отображать данные, в том числе из БД в формате HTML. Однако при реализации процедур редактирования, ввода и удаления записей приходится выполнять довольно большой объем ручного кодирования. С другой стороны развитие концепции многоуровневых баз данный приводит к мысли об использовании в качестве тонкого клиента браузера. Все это стало толчком к расширению технологии построения web приложений для интерактивной работы с БД через сервер приложений (сервер бизнес логики). Данная технология получила название Internet Express и была впервые реализована в Delphi5. Общая схема построения системы приведена ниже. Достоинства технологии: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Возможность построения web приложений для ввода, просмотра, редактирования, удаления информации в БД. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Т.к логика работы с БД вынесена в сервер приложений возможна реализация сложных бизнес правил работы с БД. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Наряду с работой через браузер возможна реализация приложения - тонкого клиента в виде традиционного приложения для работы с БД через сервер приложений (с целью работы в локальной сети) </td></tr></table></div><img src="pic/clip0086.gif" width="404" height="638" border="0" alt="clip0086"></p>
+Недостатки: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Система становится распределенной, требуются дополнительные усилия по установке и администрированию сервера приложений. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>На сегодня доступна реализация серверов приложений только для платформы Windows. </td></tr></table></div><p>Для построения WEB приложения нам понадобится создать программу сервер бизнес логики. Я не буду здесь углубляться в тему построения серверов приложений, просто приведу последовательность действий для создания простейшего сервера приложений. Начнем новый проект - меню File/New/New Application. В проекте создадим удаленный модуль данных - File/New/Other, закладка Multitier - элемент Remote DataModule. В диалоге в поле ввода CoClassName пишем имя класса нашего модуля данных MyRDM. В удаленный модуль данных с закладки BDE (хотя никто не мешает использовать другие способы доступа к БД) положим компоненты TSession и TTable, с закладки Data Access компонент DataSetProvider. Установим свойства этих компонентов следующим образом </p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>Компонент</p>
+</td>
+<td ><p>Свойство</p>
+</td>
+</tr>
+<tr >
+<td colspan="2" ><p>Session1</p>
+</td>
+</tr>
+<tr >
+<td ><p>AutoSessionName</p>
+</td>
+<td ><p>True</p>
+</td>
+</tr>
+<tr >
+<td colspan="2" ><p>Table1</p>
+</td>
+</tr>
+<tr >
+<td ><p>DataBaseName</p>
+</td>
+<td ><p>DBDEMOS</p>
+</td>
+</tr>
+<tr >
+<td ><p>TableName</p>
+</td>
+<td ><p>country.db</p>
+</td>
+</tr>
+<tr >
+<td colspan="2" ><p>DataSetProvider1</p>
+</td>
+</tr>
+<tr >
+<td ><p>DataSet</p>
+</td>
+<td ><p>Table1
+</td>
+</tr>
+</table>
+Сохраним проект и запустим сервер на выполнение (F9). Сервер приложений готов к использованию.<br>
+Теперь можно браться непосредственно за разработку Web приложения. Из схемы построения приложения InetXPress видно, что связь с сервером приложений организуется через компонент соединения (в нашем случае DCOMConnection), получение и отправка пакетов с данными серверу приложений осуществляется компонентом XMLBroker, а отображение пользователю через браузер осуществляется компонентом InetXPageProducer. XML брокер автоматически регистрирует себя в Web модуле, как компонент реализующий диспетчеризацию запросов. Это снимает необходимость в определении обработчиков всех возможных запросов в Web модуле для работы с БД.<br>
+&nbsp;<br>
+<p>Как мы поступали ранее, в IDE Delphi выберем пункт меню File/New/Other. В появившемся диалоге на закладке New выберем пункт Web Server Application. Нам будет предложено выбрать формат создаваемого приложения. По соображениям, высказанным ранее, выберем CGI формат. В результате будет сгенерирована заготовка проекта с Web модулем WebModule1. Для связи с сервером приложений с закладки DataSnap поместим в WebModule1 компонент DCOMConnection. Выберем из выпадающего списка значение Project1.MyRDM (&lt;имя exe файла сервера приложений&gt;.&lt;имя удаленного модуля в сервере приложений&gt;) для свойства ServerName компонента DCOMConnection1. Теперь можно активизировать связь с сервером приложений, установив свойство Connected в true. При этом на экране появится главная форма сервера приложений. Далее с закладки InternetExpress поместим компоненты XMLBroker и InetXPageProducer. Ниже приведено краткое описание часто используемых свойств и событий компонента класса TXMLBroker. </p>
+<img src="pic/clip0087.gif" width="205" height="187" border="0" alt="clip0087"><br>
+<p>&nbsp;</p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td >Свойство или событие</p>
+</td>
+<td >Тип</p>
+</td>
+<td >Описание</p>
+</td>
+</tr>
+<tr >
+<td colspan="3" >TXMLBroker</p>
+</td>
+</tr>
+<tr >
+<td ><p>RemoteServer</p>
+</td>
+<td ><p>TCustomRemoteServer</p>
+</td>
+<td ><p>Компонент, представляющий соединение с сервером приложений</p>
+</td>
+</tr>
+<tr >
+<td ><p>ProviderName</p>
+</td>
+<td ><p>String</p>
+</td>
+<td ><p>Провайдер данных, с которым работает данный брокер</p>
+</td>
+</tr>
+<tr >
+<td ><p>Connected</p>
+</td>
+<td ><p>Boolean</p>
+</td>
+<td ><p>Активность брокера</p>
+</td>
+</tr>
+<tr >
+<td ><p>MaxErrors</p>
+</td>
+<td ><p>Integer</p>
+</td>
+<td ><p>Максимально допустимое количество ошибок, возникающих при попытке изменения записей. При превышении данного порога возникает исключение</p>
+</td>
+</tr>
+<tr >
+<td ><p>MaxRecords</p>
+</td>
+<td ><p>Integer</p>
+</td>
+<td ><p>Максимальное количество записей, включаемых в один пакет данных</p>
+</td>
+</tr>
+<tr >
+<td ><p>ReconcileProducer</p>
+</td>
+<td ><p>TCustomContentProducer</p>
+</td>
+<td ><p>Продюсер страницы сообщения об ошибках</p>
+</td>
+</tr>
+<tr >
+<td ><p>Params</p>
+</td>
+<td ><p>TXMLParams</p>
+</td>
+<td ><p>Параметры, которые передаются серверу приложений</p>
+</td>
+</tr>
+<tr >
+<td ><p>BeforeDispatch</p>
+</td>
+<td ><p>THTTPMethodEvent</p>
+</td>
+<td ><p>HTML запроса XML брокером</p>
+</td>
+</tr>
+<tr >
+<td ><p>AfterDispatch</p>
+</td>
+<td ><p>THTTPMethodEvent</p>
+</td>
+<td ><p>Событие окончания генерации ответа на запрос</p>
+</td>
+</tr>
+<tr >
+<td ><p>OnGetErrorResponse</p>
+</td>
+<td ><p>TGetErrorResponseEvent</p>
+</td>
+<td ><p>Событие возникновения ошибки, применения изменения данных на сервере приложений apply updates error 
+</td>
+</tr>
+</table>
+В компоненте XMLBroker1 установим следующие свойства:<br>
+RemoteServer - DCOMConnection1<br>
+ProviderName - DataSetProvider1<br>
+Connected - true<br>
+&nbsp;<br>
+<p>Теперь двойным щелчком мыши на компоненте InetXPageProducer1 вызовем его редактор HTML страницы. В редакторе нажмем кнопку New Item и добавим элемент DataForm. Выбрав добавленный элемент DataForm1, еще раз нажмем кнопку New Item и добавим элемент DataGrid. В инспекторе объектов, выбрав элемент DataGrid1, установим свойство XMLBroker в значение XMLBroker1. Таким образом, мы будем иметь возможность работать с данными из БД, представленными в сетке данных. Осталось только выбрать элемент DataForm1 и нажав кнопку New Item добавить DataNavigator. Свойство элемента DataNavigator1 XMLComponent установим в DataGrid1. В результате мы спроектировали HTML страничку для работы С БД, результат на рисунке </p>
+<img src="pic/clip0088.gif" width="506" height="437" border="0" alt="clip0088"></p>
+В своей работе приложения InetXpress используют библиотеки JavaScript. Данные библиотеки расположены в папке &lt;путь установки Delphi&gt;\Sources\WebMidas. Желательно скопировать эти библиотеки в какое-либо более доступное место на диске (я скопировал в c:\jslib\). Для нормальной работы приложения необходимо указать путь к этим библиотекам в свойстве IncludePathURL компонента InetXPageProducer1. Далее создадим новый элемент в списке обработчиков событий Web модуля (два раза кликнем мышью на свободном от компонентов месте Web модуля и в диалоге нажмем кнопку Add New). В качестве продюсера установим InetXPageProducer1, сделаем элемент обработчиком по умолчанию (св-во Default установим в true).<br>
+&nbsp;<br>
+Осталось откомпилировать наше приложение и полученный exe файл перенести на Web сервер. Окно браузера с результатом наших усилий можно увидеть ниже. <br>
+<p>&nbsp;</p>
+<img src="pic/clip0089.gif" width="800" height="303" border="0" alt="clip0089"></p>
+&nbsp;</p>
+<p id="author">Автор статьи: Mike Goblin </p>
+<p><a href="http://www.delphimaster.ru" target="_blank">http://www.delphimaster.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<html>
+<head>
+  <title>Защита паролем</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Защита паролем</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Защита паролем</p>
+Статус в HTTP-заголовке</p>
+В дополнение к строкам заголовка, которые формирует CGI-программа, сервер выводит дополнительную строку, в которой сообщает о статусе обработки полученного запроса. Например, если запрос обработан успешно, сервер выдает следующую строку в заголовке: </p>
+  HTTP/1.0 200 OK</p>
+Запрос на авторизацию</p>
+Если вы попробуете запустить без изменений мой "web browser" (см. страницу delphi), то вы увидите, что полученный HTTP заголовок несколько отличается от обычного: </p>
+  HTTP/1.0 401 Unauthorized</p>
+  Content-type: text/html</p>
+  WWW-Authenticate: Basic realm="/MyRealm"</p>
+&nbsp;</p>
+  &lt;html&gt;&lt;head&gt;&lt;title&gt;401 Unauthorized&lt;/title&gt;&lt;/head&gt;&lt;body&gt;</p>
+  &lt;h1&gt;Для доступа к этой странице требуется пароль!&lt;/h1&gt;</p>
+  &lt;/body&gt;&lt;/html&gt;</p>
+Здесь сервер отсылает предупреждение 401 Unauthorized для того, чтобы ваш браузер знал, что он обратился к защищенной странице. Тем самым, сервер предлагает вам ввести пароль и логин в строке уточнения (realm= "/MyRealm"). Если вы предоставите серверу действительный логин и пароль, то сервер откроет доступ к данной странице. В противном случае браузер будет получать вместо нужной страницы предупреждение с кодом 401. </p>
+&nbsp;</p>
+Формируем запрос на авторизацию</p>
+Теперь мы знаем все, что нужно, чтобы наша CGI-программа могла запросить от пользователя пароль для доступа: </p>
+<pre name="code" class="delphi"> Program CheckPWD;
+ {$apptype console}
+ begin
+  WriteLn('HTTP/1.0 401 Unauthorized');
+  WriteLn('Content-type: text/html');
+  WriteLn('WWW-Authenticate: Basic realm="/Check"');
+  WriteLn;
+  WriteLn('Для доступа к этой странице требуется пароль!');
+ end;
+</pre>
+&nbsp;</p>
+... и, к нашему удивлению, убеждаемся, что такой вариант не работает! Мы получаем либо внутреннюю ошибку сервера, либо браузер выдает полученный текст как обычную страницу, не понимая, что от него требуют ввести пароль! </p>
+Спокойно, без паники! Так и должно быть. Я уже говорил, что сервер автоматически дополняет HTTP-заголовок своими сообщениями, и браузер после выполнения программы CheckPWD получит следующее: </p>
+  HTTP/1.0 200 OK</p>
+  HTTP/1.0 401 Unauthorized</p>
+  Content-type: text/html</p>
+  WWW-Authenticate: Basic realm="/MyRealm"</p>
+&nbsp;</p>
+  Для доступа к этой странице требуется пароль!</p>
+Первая строка в заголовке говорит о том, что запрос обработан успешно (спасибо серверу). Поэтому браузер и не требует ничего от пользвателя. </p>
+У меня есть несколько вариантов выхода из этой ситуации, и один из вариантов заключается в том, что в соответствии с требованиями CGI, имя файла CGI-программы должно начинаться с "nph-", если она сама должна полностью формировать HTTP-заголовок. </p>
+&nbsp;</p>
+Таким образом, достаточно переименовать вышеприведенную программу в "NPH-CHECKPWD.EXE", и все заработает! </p>
+&nbsp;</p>
+Итак, мы добились, чтобы наша CGI-программа заставляла браузер потребовать от пользователя предоставить информацию об авторизации! </p>
+&nbsp;</p>
+WWW-Authenticate</p>
+Получив запрос на авторизацию, браузер выводит на экран диалог для ввода пользователем логина и пароля и отправляет их на сервер в виде строки WWW-Authenticate: Basic realm="/MyRealm". </p>
+В результате, CGI-программа получит от сервера строку авторизации в виде значения переменной среды окружения HTTP_AUTHORIZATION. </p>
+  HTTP_AUTHORIZATION=Basic dXNlcjpwYXNzd29yZA==</p>
+В этой строке как раз и записан введенный логин и пароль, но только не в открытом, а в закодированном виде... Для кодировки строки авторизации используется формат Base64. </p>
+&nbsp;</p>
+Сделаем небольшое отступление об основаниях систем счисления (как всегда - математика рулит!): </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Люди привыкли считать по основанию 10 (т.е. в 10-чной системе счисления): 0..9 </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>В информатике часто используется 16-ричное представление: 0..9,'A'..'F' </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>В интернет очень широко используется представление в системе счисления с основанием 64: 0..9,'A'..'Z','a'..'z','+','/' </td></tr></table></div>&nbsp;</p>
+В файле LOGIN.ZIP вы найдете пример использования модуля Base64, который осуществляет кодирование и декодирование строк по основанию 64. </p>
+&nbsp;</p>
+Кстати, вышеприведенный текст расшифровывается с помощью Base64 очень просто: "user:password" </p>
+&nbsp;</p>
+Итак, теперь мы можем написать CGI-программу, которая будет либо показывать запрошенную информацию, либо требовать от пользователя авторизации. </p>
+Еще одной альтернативой является переадресация на другую страницу, если авторизация не подтверждена. </p>
+&nbsp;</p>
+Практической реализацией изложенных выше принципов является программа login. </p>
+Не забудьте переименовать файлы login.exe и login.ini из этого в nph-login.exe и npg-login.ini ! </p>
+&nbsp;</p>
+В завершение я предлагаю вашему вниманию программу "CGI Web Browser". Эта программа является консольным приложением Delphi, позволяющим просматривать диски и каталоги на сервере и загружать файлы. Для разрешения доступа к дискам сервера программа требует ввода логина и пароля. (Не забудьте поменять логин/пароль в исходном коде!) </p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

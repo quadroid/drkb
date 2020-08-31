@@ -1,0 +1,114 @@
+<html>
+<head>
+  <title>Аналог функции С memcmp</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Аналог функции С memcmp</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Dennis Passmore&nbsp; </p>
+
+<p>Я создал следующие две функции, существенно повышающие произвотельность в приложениях, активно работающих с данными. Вам нужно всего-лишь обеспечить контроль типов и границ допустимого диапазона, все остальное они сделают с любым типом данных лучше нас :-) . </p>
+<pre name="code" class="delphi">
+function Keys_are_Equal(var OldRec, NewRec;
+KeyLn : word): boolean; assembler;
+asm
+  PUSH    DS
+  MOV     AL,01
+  CLD
+  LES     DI,NewRec
+  LDS     SI,OldRec
+  MOV     CX,KeyLn
+  CLI
+  REPE    CMPSB
+  STI
+  JZ      @1
+  XOR     AL,AL
+  @1:
+  POP     DS
+end;
+ 
+function First_Key_is_Less(var NewRec, OldRec; Keyln : word): boolean; assembler;
+asm
+  PUSH    DS
+  MOV     AL,01
+  CLD
+  LES     DI,NewRec
+  LDS     SI,OldRec
+  MOV     CX,KeyLn
+  CLI
+  REPE    CMPSB
+  STI
+  JZ      @5
+  JGE     @6
+  @5: XOR     AL,AL
+  @6: POP     DS
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+<p id="note">Примечание от Jin X</p>
+<p>Примеры приведены для 16-битного Pascal'я и не могут использоваться в 32-битном Delphi! Зато можно делать так:</p>
+<p>{ Возвращает -1 при X&lt;Y, 0 при X=Y, 1 при X&gt;Y. }</p>
+<p>{ Сравнение идёт по DWord'ам, будто сравнивается массив чисел Integer или Cardinal, }</p>
+<p>{ т.е. 01 02 03 04 05 06 07 08 &gt; 01 02 03 04 05 06 08 07, }</p>
+<p>{ т.к. 04030201 = 04030201, но 08070605 &gt; 07080605 (hex). }</p>
+<p>{ Однако, если Size and 3 &lt;&gt; 0, то последние Size mod 4 байт сравниваются побайтно! }</p>
+
+<pre name="code" class="delphi">
+function memcmp(const X, Y; Size: DWord): Integer;
+asm
+  mov esi,X
+  mov edi,Y
+  mov ecx,Size
+  mov dl,cl
+  and dl,3
+  shr ecx,2
+  xor eax,eax
+  rep cmpsd
+  jb @@less
+  ja @@great
+  mov cl,dl
+  rep cmpsb
+  jz @@end
+  ja @@great
+ @@less:
+  dec eax
+  jmp @@end
+ @@great:
+  inc eax
+ @@end:
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

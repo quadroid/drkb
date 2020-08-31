@@ -1,0 +1,63 @@
+<html>
+<head>
+  <title>Определить взаиморасположение точки и прямой</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Определить взаиморасположение точки и прямой</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{Расчет нормали от точки до линии и расстояния от начала и до конца линии}
+function Dfptl(key:byte;x,y,xn,yn,xk,yk:real):real;//Distance From Point To Line
+Const r0=2*pi;r1=pi;r2=pi/2;r3=3*pi/4;r4=1e-4;
+var
+a,dx,dy:double;
+begin
+dx:=xk-xn;dy:=yk-yn;
+if abs(dx)&lt;r4 then begin if dy&gt;0 then a:=r2 else a:=-r2;end else a:=arctan2(dy,dx);
+ Case key of
+ 0://расстояние от точки до прямой; &lt;0 - точка слева; &gt;0 - точка справа
+   Result:=(xn-x)*Sin(a)-(yn-y)*Cos(a);
+ 1://расстояние от точки до начала линии
+   Result:=(x-xn)*Cos(a)+(y-yn)*Sin(a);
+ 2://проекция точки на направление прямой попадает на нее если Result=0
+   Result:=(sqrt(sqr(dx)+sqr(dy))-Abs((xn-x)*Cos(a)+(yn-y)*Sin(a))-Abs((xk-x)*Cos(a)+(yk-y)*Sin(a)));
+ 3://расстояние от точки до конца линии
+   Result:=(x-xk)*Cos(a)+(y-yk)*Sin(a);
+ else result:=1e30;
+ end;
+if isZero(Result,r4) then Result:=0;
+end;
+</pre>
+<p id="author">Автор: Digar </p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

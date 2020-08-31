@@ -1,0 +1,66 @@
+<html>
+<head>
+  <title>Как передать массив как параметр?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как передать массив как параметр?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Передача параметров процедуры и функции в дельфи:</p>
+<pre name="code" class="delphi">
+type Ta=array of something;
+Var a:Ta;
+</pre>
+<p class="p_Heading1">Вариант 1.</p>
+<pre name="code" class="delphi">
+procedure Proc(a:Ta); 
+</pre>
+<p>внутри процедуры создаётся копия массива, внутри процедуры работа осуществляется только с копией данных. Недостаток: если а имеет большой размер то передача его в процедуру будет долгой и с большими затратами памяти, так как процедура должна будет скопировать всё содержимое и выделить память для копии.</p>
+<p class="p_Heading1">Вариант 2.</p>
+<pre name="code" class="delphi">
+procedure Proc(var a:Ta);
+</pre>
+<p>внутри процедуры код работает именно с переменной а и её содержимым</p>
+<p class="p_Heading1">Вариант 3.</p>
+<pre name="code" class="delphi">
+procedure Proc(const a:Ta);
+</pre>
+внутри процедуры запрещено изменять данные переменной а
+<p>&nbsp;</p>
+<p class="p_Heading1">Вариант 4.</p>
+<pre name="code" class="delphi">
+procedure Proc(out a:Ta);
+</pre>
+<p>при входе в процедуру массив рассматривается как пустой, но после выполнения процедуры можно получить значения</p>
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<html>
+<head>
+  <title>Кнопки в панели задач</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Кнопки в панели задач</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// Это необходимо объявить в секции public в верхней части вашего pas-файла
+procedure TForm1.IconCallBackMessage( var Mess : TMessage ); message WM_USER + 100;
+ 
+ 
+ 
+ 
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+var
+ 
+  nid: TNotifyIconData;
+begin
+ 
+  with nid do
+  begin
+    cbSize := SizeOf(TNotifyIconData);
+    Wnd := Form1.Handle;
+    uID := 1;
+    uFlags := NIF_ICON or NIF_MESSAGE or NIF_TIP;
+    uCallbackMessage := WM_USER + 100;
+    hIcon := Application.Icon.Handle;
+    szTip := 'Текст всплывающей подсказки';
+  end;
+  Shell_NotifyIcon(NIM_ADD, @nid);
+end;
+ 
+procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
+var
+ 
+  nid: TNotifyIconData;
+begin
+ 
+  with nid do
+  begin
+    cbSize := SizeOf(TNotifyIconData);
+    Wnd := Form1.Handle;
+    uID := 1;
+    uFlags := NIF_ICON or NIF_MESSAGE or NIF_TIP;
+    uCallbackMessage := WM_USER + 100;
+    hIcon := Application.Icon.Handle;
+    szTip := 'Текст всплывающей подсказки';
+    // Все, что указано выше, не является обязательным
+ 
+  end;
+  Shell_NotifyIcon(NIM_DELETE, @nid);
+end;
+ 
+procedure TForm1.IconCallBackMessage(var Mess: TMessage);
+var
+ 
+  sEventLog: string;
+begin
+ 
+  case Mess.lParam of
+    // Сделайте здесь все что вы хотите. Например,
+    // вызов контекстного меню при нажатии правой кнопки мыши.
+ 
+    WM_LBUTTONDBLCLK: sEventLog := 'Двойной щелчок левой кнопкой';
+    WM_LBUTTONDOWN: sEventLog := 'Нажатие левой кнопки мыши';
+    WM_LBUTTONUP: sEventLog := 'Отжатие левой кнопки мыши';
+    WM_MBUTTONDBLCLK: sEventLog := 'Двойной щелчок мышью';
+    WM_MBUTTONDOWN: sEventLog := 'Нажатие кнопки мыши';
+    WM_MBUTTONUP: sEventLog := 'Отжатие кнопки мыши';
+    WM_MOUSEMOVE: sEventLog := 'перемещение мыши';
+    WM_MOUSEWHEEL: sEventLog := 'Вращение колесика мыши';
+    WM_RBUTTONDBLCLK: sEventLog := 'Двойной щелчок правой кнопкой';
+    WM_RBUTTONDOWN: sEventLog := 'Нажатие правой кнопки мыши';
+    WM_RBUTTONUP: sEventLog := 'Отжатие правой кнопки мыши';
+  end;
+end;
+ 
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

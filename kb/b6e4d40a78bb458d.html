@@ -1,0 +1,90 @@
+<html>
+<head>
+  <title>Установка / снятие Debug привелегии у текущего процесса</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Установка / снятие Debug привелегии у текущего процесса</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Установка/снятие Debug привелегии у текущего процесса
+ 
+Функция устанавливает/снимает отладочные привелегии у 
+текущего процесса (можно выбрать и другой, изменив 
+GetCurrentProcess на нужный Handle ).
+ 
+Актуально для совместного использования с ToolHelp - т.е. получения информации о процессах.
+ 
+Зависимости: Windows
+Автор:       Мироводин Дмитрий (адаптация), mirovodin@mail.ru
+Copyright:   2000 Jeffrey Richter
+Дата:        20 октября 2003 г.
+********************************************** }
+ 
+Function EnableDebugPrivilege(Const Value: Boolean): Boolean;
+Const
+  SE_DEBUG_NAME = 'SeDebugPrivilege';
+Var
+  hToken : THandle;
+  tp : TOKEN_PRIVILEGES;
+  d : DWORD;
+Begin
+  Result := False;
+  If OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, hToken) Then
+    Begin
+      tp.PrivilegeCount := 1;
+      LookupPrivilegeValue(Nil, SE_DEBUG_NAME, tp.Privileges[0].Luid);
+      If Value Then
+        tp.Privileges[0].Attributes := $00000002
+      Else
+        tp.Privileges[0].Attributes := $80000000;
+      AdjustTokenPrivileges(hToken, False, tp, SizeOf(TOKEN_PRIVILEGES), Nil, d);
+      If GetLastError = ERROR_SUCCESS Then
+        Begin
+          Result := True;
+        End;
+      CloseHandle(hToken);
+    End;
+End; 
+</pre>
+
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+// После этого можно смотреть информация о таких системных модулях как: 
+//winlogon.exe и servises.exe и д.р.
+EnableDebugPrivilege(True); // вкрючить
+ 
+EnableDebugPrivilege(False); // выключить 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

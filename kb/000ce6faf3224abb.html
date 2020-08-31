@@ -1,0 +1,96 @@
+<html>
+<head>
+  <title>Как повернуть элипс?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png"/></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+<h1 id="title">Как повернуть элипс?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TForm1.EllipseAngle(ACanvas: TCanvas; XCenter, YCenter,
+  XRadius, YRadius: Integer; Angle: Integer);
+const
+  Step = 49;
+var
+  RX, RY: Integer;
+  i: Integer;
+  Theta: Double;
+  SAngle, CAngle: Double;
+  RotAngle: Double;
+  XC, YC: Integer;
+  Kf: Double;
+  X, Y: Double;
+  XRot, YRot: Integer;
+  Points: array[0..Step] of TPoint;
+begin
+  RotAngle := Angle * PI / 180;
+  Kf := (360 * PI / 180) / Step;
+  SAngle := Sin(RotAngle);
+  CAngle := Cos(RotAngle);
+  for i := 0 to Step do
+  begin
+    Theta := i * Kf;
+    X := XCenter + XRadius * Cos(Theta);
+    Y := YCenter + YRadius * Sin(Theta);
+    XRot := Round(XCenter + (X - XCenter) * CAngle - (Y - YCenter) * SAngle);
+    YRot := Round(YCenter + (X - XCenter) * SAngle + (Y - YCenter) * CAngle);
+    Points[i] := Point(XRot, YRot);
+  end;
+  ACanvas.Polygon(Points);
+end;
+</pre>
+
+<hr />
+<pre name="code" class="delphi">
+procedure RotatedEllipse(aCanvas: TCanvas; X1, Y1, X2, Y2: Integer);
+var
+  T, O: TXForm; {in unit Windows}
+begin
+  { ... }
+  SetGraphicsMode(aCanvas.Handle, GM_Advanced);
+  GetWorldTransform(aCanvas.Handle, O);
+  {Angle in degree}
+  T.eM11 := 1 * Cos(w / 360 * Pi * 2);
+  T.eM22 := 1 * Cos(w / 360 * Pi * 2);
+  T.eM12 := 1 * Sin(w / 360 * Pi * 2);
+  T.eM21 := 1 * -Sin(w / 360 * Pi * 2);
+  T.eDX := Round((X1 + X2) / 2);
+  T.eDY := Round((Y1 + Y2) / 2);
+  ModifyWorldTransform(aCanvas.Handle, T, MWT_LEFTMULTIPLY);
+  Canvas.Ellipse(X1, Y1, X2, Y2);
+  SetWorldTransform(TheDraw.Handle, O);
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

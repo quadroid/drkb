@@ -1,0 +1,180 @@
+<html>
+<head>
+  <title>Изменение цветовой палитры изображения</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Изменение цветовой палитры изображения</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Мне необходимо изменить цветовую палитру изображения с помощью SetBitmapBits, но у меня, к сожалению, ничего не получается. </p>
+
+<p>Использование SetBitmapBits - не очень хорошая идея, поскольку она имеет дело с HBitmaps, в котором формат пикселя не определен. Несомненно, это более безопасная операция, но никаких гарантий по ее выполнению дать невозможно. </p>
+
+<p>Взамен я предлагаю использовать функции DIB API. Вот некоторый код, позволяющий вам изменять таблицу цветов. Просто напишите метод с такими же параметрами, как у TFiddleProc и и изменяйте ColorTable, передаваемое как параметр. Затем просто вызовите процедуру FiddleBitmap, передающую TBitmap и ваш fiddle-метод, например так:</p>
+
+
+<p>FiddleBitmap( MyBitmap, Fiddler ) ;</p>
+
+<pre name="code" class="delphi">
+type
+  TFiddleProc = procedure(var ColorTable: TColorTable) of object;
+ 
+const
+  LogPaletteSize = sizeof(TLogPalette) + sizeof(TPaletteEntry) * 255;
+ 
+function PaletteFromDIB(BitmapInfo: PBitmapInfo): HPalette;
+var
+  LogPalette: PLogPalette;
+  i: integer;
+  Temp: byte;
+begin
+  with BitmapInfo^, bmiHeader do
+  begin
+    GetMem(LogPalette, LogPaletteSize);
+    try
+      with LogPalette^ do
+      begin
+        palVersion := $300;
+        palNumEntries := 256;
+        Move(bmiColors, palPalEntry, sizeof(TRGBQuad) * 256);
+        for i := 0 to 255 do
+          with palPalEntry[i] do
+          begin
+            Temp := peBlue;
+            peBlue := peRed;
+            peRed := Temp;
+            peFlags := PC_NOCOLLAPSE;
+          end;
+ 
+        { создаем палитру }
+        Result := CreatePalette(LogPalette^);
+      end;
+    finally
+      FreeMem(LogPalette, LogPaletteSize);
+    end;
+  end;
+end;
+ 
+{ Следующая процедура на основе изображения создает DIB,
+изменяет ее таблицу цветов, создавая тем самым новую палитру,
+после чего передает ее обратно изображению. При этом
+используется метод косвенного вызова, с помощью которого
+изменяется палитра цветов - ей передается array[ 0..255 ] of TRGBQuad. }
+ 
+procedure FiddleBitmap(Bitmap: TBitmap; FiddleProc: TFiddleProc);
+const
+  BitmapInfoSize = sizeof(TBitmapInfo) + sizeof(TRGBQuad) * 255;
+var
+  BitmapInfo: PBitmapInfo;
+  Pixels: pointer;
+  InfoSize: integer;
+  ADC: HDC;
+  OldPalette: HPalette;
+begin
+  { получаем DIB }
+  GetMem(BitmapInfo, BitmapInfoSize);
+  try
+    { меняем таблицу цветов - ПРИМЕЧАНИЕ: она использует 256 цветов DIB }
+    FillChar(BitmapInfo^, BitmapInfoSize, 0);
+    with BitmapInfo^.bmiHeader do
+    begin
+      biSize := sizeof(TBitmapInfoHeader);
+      biWidth := Bitmap.Width;
+      biHeight := Bitmap.Height;
+      biPlanes := 1;
+      biBitCount := 8;
+      biCompression := BI_RGB;
+      biClrUsed := 256;
+      biClrImportant := 256;
+      GetDIBSizes(Bitmap.Handle, InfoSize, biSizeImage);
+ 
+      { распределяем место для пикселей }
+      Pixels := GlobalAllocPtr(GMEM_MOVEABLE, biSizeImage);
+      try
+        { получаем пиксели DIB }
+        ADC := GetDC(0);
+        try
+          OldPalette := SelectPalette(ADC, Bitmap.Palette, false);
+          try
+            RealizePalette(ADC);
+            GetDIBits(ADC, Bitmap.Handle, 0, biHeight, Pixels, BitmapInfo^,
+              DIB_RGB_COLORS);
+          finally
+            SelectPalette(ADC, OldPalette, true);
+          end;
+        finally
+          ReleaseDC(0, ADC);
+        end;
+ 
+        { теперь изменяем таблицу цветов }
+        FiddleProc(PColorTable(@BitmapInfo^.bmiColors)^);
+ 
+        { создаем палитру на основе новой таблицы цветов }
+        Bitmap.Palette := PaletteFromDIB(BitmapInfo);
+        OldPalette := SelectPalette(Bitmap.Canvas.Handle, Bitmap.Palette,
+          false);
+        try
+          RealizePalette(Bitmap.Canvas.Handle);
+          StretchDIBits(Bitmap.Canvas.Handle, 0, 0, biWidth, biHeight, 0, 0,
+            biWidth, biHeight,
+            Pixels, BitmapInfo^, DIB_RGB_COLORS, SRCCOPY);
+        finally
+          SelectPalette(Bitmap.Canvas.Handle, OldPalette, true);
+        end;
+      finally
+        GlobalFreePtr(Pixels);
+      end;
+    end;
+  finally
+    FreeMem(BitmapInfo, BitmapInfoSize);
+  end;
+end;
+ 
+{ Пример "fiddle"-метода }
+ 
+procedure TForm1.Fiddler(var ColorTable: TColorTable);
+var
+  i: integer;
+begin
+  for i := 0 to 255 do
+    with ColorTable[i] do
+    begin
+      rgbRed := rgbRed * 9 div 10;
+      rgbGreen := rgbGreen * 9 div 10;
+      rgbBlue := rgbBlue * 9 div 10;
+    end;
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<html>
+<head>
+  <title>О таймере</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">О таймере</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Компонент timer (таймер) служит для отсчета интервалов реального времени. Его свойство interval определяет интервал временив миллисекундах , который должен пройти от включения таймера до наступления события ontimer. Таймер включается при установке значения true в его свойство enabled. Единожды включенный таймер все время будет возбуждать события ontimer до тех пор, пока его свойство enabled не примет значения false. </p>
+<p>Следует учесть, что в силу специфики реализации стандартного аппаратного таймера ibm-совместимого компьютера минимальный реально достижимый интервал отсчета времени не может быть меньше 55 мс (этот интервал называется тиком), более того, любой интервал времени, отсчитываемый с помощью таймера, всегда кратен 55 мс. Чтобы убедиться в этом, проведите эксперимент, в котором подсчитывается среднее время между двумя срабатываниями таймера (timer.dpr): </p>
+<p>Начните новый проект с пустой формой и положите на нее компонент ttimer. <br>
+Установите в свойство enabled таймера значение false. <br>
+Напишите такой модуль главной формы (листинг 4): <br>
+<p>Листинг 4</p>
+<pre name="code" class="delphi">
+unit unit1; 
+ 
+interface 
+ 
+uses 
+windows, messages, sysutils, classes, graphics, controls, forms, 
+dialogs, stdctrls, buttons, extctrls; 
+ 
+type 
+  tfmexample = class(tform) 
+  panel1: tpanel; 
+  bbrun: tbitbtn; 
+  bbclose: tbitbtn; 
+  edinput: tedit; 
+  lboutput: tlabel; 
+  mmoutput: tmemo; 
+  timer1: ttimer; 
+  procedure bbrunclick(sender: tobject); 
+  procedure timer1timer(sender: tobject); 
+  procedure formactivate(sender: tobject); 
+  private 
+  begtime: tdatetime; // Начальное время цикла 
+  counter: integer; // Счетчик цикла 
+end; 
+ 
+var fmexample: tfmexample; 
+ 
+implementation 
+ 
+{$r *.dfm} 
+ 
+procedure tfmexample.bbrunclick(sender: tobject); 
+// Запускает таймер. edinput содержит период его срабатывания. 
+var delay: word; 
+begin 
+  // Проверяем задание интервала 
+  if edinput.text='' then exit; 
+  try 
+    delay := strtoint(edinput.text); 
+  except 
+    showmessage('Ошибка в записи числа'); 
+    edinput.selectall; 
+    edinput.setfocus; 
+    exit 
+  end; 
+  counter := 0; // Сбрасываем счетчик 
+  timer1.interval := delay; // Устанавливаем интервал 
+  begtime := time; // Засекаем время 
+  timer1.enabled := true; // Пускаем таймер 
+  screen.cursor := crhourglass 
+end; 
+ 
+procedure tfmexample.timer1timer(sender: tobject); 
+  var h, m, s, ms: word; // Переменные для декодирования времени 
+  const maxcount = 55; // Количество срабатываний таймера 
+begin 
+  counter := counter + 1; // Наращиваем счетчик срабатываний 
+  if counter=maxcount then // Конец цикла? 
+  begin // - Да 
+    timer1.enabled := false; // Останавливаем таймер 
+    // Находим среднее время срабатывания: 
+    decodetime((time-begtime)/maxcount, h, m, s, ms); 
+    mmoutput.lines.add( // Выводим результат 
+    format('Задано %s ms. Получено %d ms.', [edinput.text, ms])); 
+    edinput.text := ''; // Готовим следующий запуск 
+    edinput.setfocus; 
+    screen.cursor := crdefault 
+  end; 
+end; 
+ 
+procedure tfmexample.formactivate(sender: tobject); 
+begin 
+  edinput.setfocus 
+end; 
+ 
+end. 
+</pre>
+<p>Необходимость нескольких (maxcount) срабатываний для точного усреднения результата связана с тем, что системные часы обновляются каждые 55 мс. После запуска программы и ввода 1 как требуемого периода срабатывания в редакторе mmoutput вы увидите строку </p>
+<p>Задано 1 ms. Получено 55 ms. </p>
+<p>в которой указывается, какое реальное время разделяет два соседних события ontimer. Если вы установите период таймера в диапазоне от 56 до 110 мс, в строке будет указано 110 ms и т.д. (в силу дискретности обновления системных часов результаты могут несколько отличаться в ту или иную сторону). </p>
+<p>В ряде практически важных областей применения (при разработке игр, в системах реального времени для управления внешними устройствам и т.п.) интервал 55 мс может оказаться слишком велик. Современный ПК имеет мультимедийный таймер, период срабатывания которого может быть от 1 мс и выше, однако этот таймер не имеет компонентного воплощения, поэтому для доступа к нему приходится использовать функции api. </p>
+<p>Общая схема его использования такова. Сначала готовится процедура обратного вызова (call back) с заголовком: </p>
+<pre name="code" class="delphi">
+procedure timeproc(uid, umsg: uint; dwuser, dw1, dw2: dword); stdcall; 
+</pre>
+<p>&nbsp;<br>
+<p>Здесь uid &#8212; идентификатор события таймера (см. об этом ниже); umsg &#8212; не используется; dwuser &#8212; произвольное число, передаваемое процедуре в момент срабатывания таймера; dw1, dw2 &#8212; не используются. </p>
+<p>Запуск таймера реализуется функцией: </p>
+<pre name="code" class="delphi">
+function timesetevent(udelay, uresolution: uint; lptimeproc: pointer; dwuser: dword; fuevent: uint): uint; stdcall; external 'winmm.dll'; 
+</pre>
+<p>&nbsp;<br>
+<p>Здесь udelay &#8212; необходимый период срабатывания таймера (в мс); uresolution &#8212; разрешение таймера (значение 0 означает, что события срабатывания таймера будут возникать с максимально возможной частотой; в целях снижения нагрузки на систему вы можете увеличить это значение); lptimeproc &#8212; адрес процедуры обратного вызова; dwuser &#8212; произвольное число, которое передается процедуре обратного вызова и которым программист может распоряжаться по своему усмотрению; fuevent &#8212; параметр, управляющий периодичностью возникновения события таймера: time_oneshot (0) &#8212; событие возникает только один раз через udelay миллисекунд; time_periodic (1) &#8212; события возникают периодически каждые udelay мс. При успешном обращении функция возвращает идентификатор события таймера и 0, если обращение было ошибочным. </p>
+<p>Таймер останавливается, и связанные с ним системные ресурсы освобождаются функцией: </p>
+<pre name="code" class="delphi">
+function timekillevent(uid: uint): uint; stdcall; external 'winmm.dll'; 
+</pre>
+<p>Здесь uid &#8212; идентификатор события таймера, полученный с помощью timesetevent. </p>
+<p>В следующем примере (timer.dpr) иллюстрируется использование мультимедийного таймера (листинг 5).</p>
+<pre name="code" class="delphi">
+unit unit1; 
+ 
+interface 
+ 
+uses 
+windows, messages, sysutils, classes, graphics, controls, forms, 
+dialogs, stdctrls, buttons, extctrls; 
+ 
+type 
+  tfmexample = class(tform) 
+  panel1: tpanel; 
+  bbrun: tbitbtn; 
+  bbclose: tbitbtn; 
+  edinput: tedit; 
+  lboutput: tlabel; 
+  mmoutput: tmemo; 
+  procedure bbrunclick(sender: tobject); 
+  procedure formactivate(sender: tobject); 
+end; 
+ 
+var fmexample: tfmexample; 
+ 
+implementation 
+ 
+{$r *.dfm} 
+// Объявление экспортируемых функций: 
+ 
+function timesetevent(udelay, ureolution: uint; lptimeproc: pointer; 
+dwuser: dword; fuevent: uint): integer; stdcall; external 'winmm'; 
+ 
+function timekillevent(uid: uint): integer; stdcall; external 'winmm'; 
+ 
+// Объявление глобальных переменных 
+var 
+  ueventid: uint; // Идентификатор события таймера 
+  begtime: tdatetime; // Засекаем время&lt; 
+  counter: integer; // Счетчик повторений 
+  delay: word; // Период срабатывания 
+ 
+procedure proctime(uid, msg: uint; dwuse, dw1, dw2: dword); stdcall; 
+// Реакция на срабатывание таймера (процедура обратного вызова) 
+var h, m, s, ms: word; // Переменные для декодирования времени 
+const maxcount = 55; // Количество повторений 
+begin 
+  timekillevent(ueventid); // Останавливаем таймер 
+  counter := counter+1; // Наращиваем счетчик 
+  if counter=maxcount then // Конец цикла? 
+  begin // - Да: декодируем время 
+    decodetime((time-begtime)/maxcount, h, m, s, ms); 
+    fmexample.mmoutput.lines.add( // Сообщаем результат 
+    format('Задано %s ms. Получено %d ms', 
+    [fmexample.edinput.text,ms])); 
+    fmexample.edinput.text := ''; // Готовим повторение 
+    fmexample.edinput.setfocus 
+  end 
+  else // - Нет: вновь пускаем таймер 
+    ueventid := timesetevent(delay,0,@proctime,0,1); 
+end; 
+ 
+procedure tfmexample.bbrunclick(sender: tobject); 
+// Запускает таймер. edinput содержит требуемый период. 
+begin 
+  // Проверяем задание периода 
+  if edinput.text='' then exit; 
+  try 
+    delay := strtoint(edinput.text) 
+  except 
+    showmessage('Ошибка ввода числа'); 
+    edinput.selectall; 
+    edinput.setfocus; 
+    exit 
+  end; 
+  counter := 0; // Сбрасываем счетчик 
+  begtime := time; // Засекаем время 
+  // Запускаем таймер: 
+  ueventid := timesetevent(delay,0,@proctime,0,1); 
+  if ueventid=0 then 
+    showmessage('Ошибка запуска таймера') 
+end; 
+ 
+procedure tfmexample.formactivate(sender: tobject); 
+begin 
+  edinput.setfocus 
+end; 
+ 
+end. 
+</pre>
+<p>&nbsp;<br>
+<p>Источник: http://www.delphi.h5.ru/ </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

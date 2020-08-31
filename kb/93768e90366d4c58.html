@@ -1,0 +1,109 @@
+<html>
+<head>
+  <title>Как с помощью API поместить Label на Form?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как с помощью API поместить Label на Form?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+var 
+hLabel : HWND ;
+...
+hLabel := CreateWindow ( 'STATIC', 'test', WS_CHILD or WS_VISIBLE, 0, 0, 200, 40, hWnd, NULL, hInstance, NULL ); 
+</pre>
+<p id="author">Автор ответа: Baa</p>
+<p id="note">Примечание: Vit</p>
+<p>Скорее всего последний параметр не "NULL", а "Nil" (NULL в паскале - варианта для обозначения пустого поля в базе данных)</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<pre name="code" class="delphi">program Project1;
+
+ 
+uses
+Windows,
+Messages;
+const
+myClassName= 'myWindow';
+var
+handleWnd, Label1 : THandle;
+WndClass: TWndClass;
+Msg: TMsg;
+function WindowProc(Window: HWnd; AMessage, WParam,
+LParam: Longint): Longint; stdcall;
+begin
+WindowProc:= DefWindowProc(Window, AMessage, WParam, LParam);
+case AMessage of
+{WM_COMMAND: if lParam = Button1 then
+MessageBox( 0, 'Вы нажали кнопку!', 'Информация',
+MB_OK or MB_ICONINFORMATION); }
+WM_DESTROY: Halt;
+end;
+end;
+begin
+with WndClass do
+begin
+hInstance := hInstance;
+lpszClassName:= myClassName;
+style := cs_hRedraw or cs_vRedraw;
+hbrBackground:= color_btnface +1;
+lpfnWndProc := @WindowProc;
+hCursor := LoadCursor(0, idc_Arrow);
+hIcon := LoadIcon(0, IDI_EXCLAMATION);
+lpszMenuName := NIL;
+cbWndExtra := 0;
+cbClsExtra := 0;
+end;
+RegisterClass( WndClass );
+handleWnd:= CreateWindow(myClassName, 'Hажми кнопку', ws_OverlappedWindow,
+400, 300, 200, 100, 0, 0, hInstance , NIL);
+if handleWnd = 0 then
+begin
+MessageBox( 0, 'Error', NIL, MB_OK );
+Exit;
+end;
+Label1:= CreateWindow( 'Label', 'Text',
+WS_VISIBLE or WS_CHILD or WM_SETTEXT,
+20, 10, 60, 23, handleWnd, 0, hInstance, nil);
+ShowWindow(handleWnd, SW_SHOW);
+UpdateWindow(handleWnd);
+while GetMessage(Msg, handleWnd, 0, 0) do
+begin
+TranslateMessage(Msg) ;
+DispatchMessage(Msg) ;
+end;
+end.
+</pre>
+<p id="author">Автор ответа: alex-co </p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

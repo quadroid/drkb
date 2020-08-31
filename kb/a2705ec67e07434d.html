@@ -1,0 +1,97 @@
+<html>
+<head>
+  <title>Avoiding server side locking (including DEADLOCK)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Avoiding server side locking (including DEADLOCK)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>What can I do to help avoid server side locking (including DEADLOCK)</p>
+<p>problems when working with Microsoft SQL Server (DBLIB) and Sybase </p>
+<p>SQL Server (DBLIB)?</p>
+<p>The following suggestions may help you tune your application and</p>
+<p>server.&nbsp; The server side suggestions may not apply to all server</p>
+<p>and database installations.</p>
+<p>From the client application you may want to take greater control </p>
+<p>over the size of results sets (this may mean using TQueries), </p>
+<p>minimize the length of transactions (usually not an issue if the </p>
+<p>SQLPASSTHRU MODE is set to ...AUTOCOMMIT), and only open dbaware </p>
+<p>controls when necessary to help minimize resource drain on the </p>
+<p>server and, possibly in this case, deadlock potential.</p>
+<p>The means by which the BDE selects data from each of the supported</p>
+<p>servers does not make assumptions about how each server chooses </p>
+<p>to ensure data integrity.</p>
+<p>Delphi/BDE suggestions:</p>
+<p>Work with smaller result sets (TQueries, server views, etc.)</p>
+<p>also see above form more info.</p>
+<p>Check the SQL Links MSSQL Driver "TDS Packet Size" param </p>
+<p>making sure that it is set to, at least, 4096.</p>
+<p>Minimize the length of transactions.</p>
+<p>Investigate creating appropriate indexes.</p>
+<p>Filter results before opening a dataset or use tqueries </p>
+<p>(live or otherwise) to limit the number of rows selected.</p>
+<p>Investigate using the BDE SQL PASSTHRU MODE parameter</p>
+<p>"NOT SHARED" (please see BDEADMIN.HLP and BDE32.HLP for </p>
+<p>addtional information on the SQL PASSTHRU MODE parameter)</p>
+<p>Please note:</p>
+<p>  BDE/SQL Links 4.01 will not only detect and raise a deadlock </p>
+<p>  error but it will "reset" its database transaction state when </p>
+<p>  it detects an MSSQL error 1205. It is not necessary to rollback </p>
+<p>  the explicit transaction (Database1.rollback) after the </p>
+<p>  deadlock has been detected.</p>
+<p>  The error 1205 signals to the client that the server has </p>
+<p>  "resolved" a deadlock and chosen one of the users to end the </p>
+<p>  deadlock. This user's transaction is automatically rolled back.</p>
+<p>  Please refer to the MS SQL Server documentation for more</p>
+<p>  information on deadlock detection and server error 1205.</p>
+<p>MS SQL and Sybase Server topics: (the following is by no means a </p>
+<p>comprehensive list. Please check your Sybase and MS SQL Server </p>
+<p>docs for tips on optimizing your server and databases)</p>
+<p>Create indexes on the remote tables where possible (the </p>
+<p>server may require more locks for unindexed tables.)</p>
+<p>TEXT and IMAGE columns can take up more pages (columns </p>
+<p>can be omitted from a SELECT statement if working with TQueries </p>
+<p>whose REQUEST LIVE property is false)</p>
+<p>page sizes on the server can be adjusted to better match </p>
+<p>expected row sizes (this can help prevent the server from locking </p>
+<p>adjacent rows.)</p>
+<p>The server will create a table lock if the LOCK ESCALATION </p>
+<p>level is reached (part of sp_configure)</p>
+<p>Please also see:</p>
+<p>  MS SQl Server documentation (printed or Books Online)</p>
+<p>  If using TQueries:</p>
+<p> &nbsp;&nbsp; TABLOCKX</p>
+<p> &nbsp;&nbsp; UPDLOCK</p>
+<p>For more information on the options above:</p>
+<p>  Analyzing locks Topic</p>
+<p>  (also see Database Developer's Companion Errata)</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

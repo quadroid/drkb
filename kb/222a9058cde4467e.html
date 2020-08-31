@@ -1,0 +1,337 @@
+<html>
+<head>
+  <title>Межплатформенный Drag &amp; Drop</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Межплатформенный Drag &amp; Drop</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>"Межплатформенный" Drag &amp; Drop </p>
+Сначала рассмотрим технологию Drag&amp;Drop в Windows так как большинство знакомых мне программистов работает именно в этой ОС.</p>
+<p>Немного Windows API</p>
+<p>Итак, чтоб заставить приложение реагировать на события Drag&amp;Drop, нам нужно воспользоваться функциями DragAcceptFiles, DragQueryFile и DragFinish из модуля ShellAPI.pas.</p>
+<p>Первая из них имеет вид:</p>
+<p>procedure DragAcceptFiles (Wnd: HWND; Accept: BOOL); stdcall;</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Wnd - дескриптор окна, для которого будет установлено разрешение на прием перетаскиваемых объектов; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Accept - собственно разрешение (True - разрешить прем объектов; False - запретить).</td></tr></table></div><p>При установленном флаге Accept реакция приложения распространяется на все файлы и папки, расположенные на любых дисках. Реакция приложения не распространяется на метаелементы оболочки - то есть на Панель управления, Принтеры, Сетевое окружение, иконки дисков в Моем компьютере&#8230;После этого при перетаскивании файлов или папок на "допущенный" элемент приложения курсор меняет свою форму  При "отпускании" объекта на элементе тому посылается сообщение WM_DROPFILES, которое оповещает о произошедшем событии Drag&amp;Drop. Параметр wParam сообщения содержит идентификатор события и потребуется нам дальше.</p>
+<p>Вторая функция используется для получения списка файлов (как мы помним, перетаскивать можно несколько файлов, папок&#8230;), которые были передвинуты на наш компонент:</p>
+<p>function DragQueryFile (Drop: HDROP; FileIndex: UINT; FileName: PChar;<br>
+<p>cb: UINT): UINT; stdcall;</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Drop - идентификатор, который был передан нам через сообщение WM_DROPFILES; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>FileIndex - номер запрашиваемого файла; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>FileName - указатель на строку, которая содержит имя файла с индексом (FileIndex); </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Cb - размер буфера FileName.</td></tr></table></div><p>При передаче параметру FileIndex значения $FFFFFFFF DragQueryFile возвращает количество файлов, которые были перетащены на компонент; в других случаях возвращаемое значение - количество скопированных в буфер FileName символов.</p>
+<p>DragFinish - используется для освобождения памяти занятой при перетаскивании. Формат функции:</p>
+<p>procedure DragFinish (Drop: HDROP); stdcall;</p>
+<p>Алгоритм работы</p>
+<p>Во-первых, мы разрешим "системное" перетаскивание на какой-нибудь компонент посредством DragAcceptFiles. Далее мы каким-либо образом должны отследить возникновение сообщения WM_DROPFILES и записать из полученных при его отправке данных значение wParam, которое потом используем вместе с DragQueryFile, для того чтоб вывести список перетасканных файлов. Ну и под конец - завершаем эту процедуру освобождением памяти (DragFinish).</p>
+<p>В первом приближении все очень просто. Трудности начинают возникать, когда мы доходим до отлавливания сообщения WM_DROPFILES. И тут есть несколько вариантов. Во-первых, можно создать новый класс, в котором перехватывается это сообщение. Например, так:</p>
+<pre name="code" class="delphi">
+TMyListBox = class (TListBox)
+private
+FOnDropFiles:TNotifyEvent;
+FDrop:THandle;
+protected
+procedure WMDropFiles (var Message:TMessage); message WM_DROPFILES;
+public
+property Drop:THandle read FDrop write FDrop;
+property OnDropFiles:TNotifyEvent read FOnDropFiles write FOnDropFiles;
+end;
+</pre>
+
+<p>Кроме того, можно создать универсальный компонент, который подменял бы метод WindowProc заданного компонента и таким образом давал нам возможность реагировать на сообщение. Этот метод более сложен при начальной реализации (написании компонента), но дает ощутимый прирост в скорости проектирования приложений.</p>
+<p>В этой статье мы рассмотрим первый метод, а кто захочет "пойти другим путем", может скачать компонент ShellDragDrop c моего сайта (www.g299792458.boom.ru). </p>
+<p>Реализация</p>
+<p>Для демонстрации мы сначала нарисуем форму и разместим на ней кнопку. В секции private нашей формы разместим декларацию объекта LB типа TMyListBox и добавим метод:</p>
+<p>procedure DoDropFiles (Sender:TObject);</p>
+<p>Далее запишем реакцию кнопки на нажатие:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click (Sender: TObject);
+begin
+LB:=TMyListBox.Create (Self);
+LB.Parent:=Self;
+LB.SetBounds (10,10,100,100);
+LB.OnDropFiles:=Self.DoDropFiles;
+DragAcceptFiles (LB.Handle,True);
+end;
+</pre>
+
+<p>И формы на уничтожение:</p>
+<pre name="code" class="delphi">
+procedure TForm1.FormDestroy (Sender: TObject);
+begin
+DragAcceptFiles (LB.Handle,False);
+LB.Free;
+end;
+</pre>
+
+<p>Теперь перейдем к реализации нашего вновь созданного компонента TmyListBox (см. листинг 1):</p>
+<pre name="code" class="delphi">
+procedure TMyListBox.WMDropFiles (var Message:TMessage);
+begin
+Drop:=Message.WParam;
+if Assigned (OnDropFiles) then OnDropFiles (Self);
+end;
+</pre>
+
+<p>И наконец - реализация собитыя OnDropFiles:</p>
+<pre name="code" class="delphi">
+procedure TForm1.DoDropFiles (Sender:TObject);
+var CB:Integer;I,j:Integer;
+Str:Array [0..MAX_PATH] of Char;
+begin
+I:=DragQueryFile ((Sender as TMyListBox).Drop,$FFFFFFFF,nil,cb);
+(Sender as TMyListBox).Items.Add (IntToStr (I));
+For j:=0 to i-1 do
+begin
+FillChar (Str,SizeOf (Str),0);
+DragQueryFile ((Sender as TMyLIstBox).Drop,j,Str,MAX_PATH);
+(Sender as TMyListBox).Items.Add (Str);
+end;
+end;
+</pre>
+
+<p>После запуска приложения появляется главная форма с кнопкой, по нажатии которой создается компонент LB. Теперь попробуем перетащить на него один или несколько ярлыков, которые находятся на рабочем столе. Как видим, в нашем боксе появилась требуемая информация. Полный текст программы приведен в листинге 1.</p>
+<p>А теперь - Kylix...</p>
+<p>Те из вас, кто уже пробовал Kylix, могут заметить, что переход на него действительно не вызывает сложностей, пока вы не выходите за рамки готовых компонент, но теперь мы покажем, как можно проделать такое "нестандартное" действие под Linux.</p>
+<p>&nbsp;<br>
+<p>Определения</p>
+<p>Для начала, чтоб не было неясностей, скажу, что испытания проводились на ASPLinux 7.3, которая поставлялась на диске "К + П" &#8470; 2/2003г. Программа была написана на Borland Kylix v1.0 Server Developer. При проверке приложения использовался Konqueror (рис. 3) - стандартный проводник KDE.</p>
+<p>Немного теории</p>
+<p>Во-первых, наше приложение будет основываться на работе с модулем Qt.pas, в котором объявлены все жизненно важные объекты, переменные, типы и т.д. Заметим также, что работа приложений под Linux (на мой взгляд) кардинально отличается от работы приложений в Windows. Так, если Windows API основано на обработке сообщений, то в Linux роль сообщений играют сигналы и слоты, а при использовании Qt - события (отдаленно напоминающие события компонентов Delphi). Взаимодействие с системой осуществляется не путем перехвата сообщений, а путем создания реакции на событие и его регистрации.</p>
+<p>Лезем в "дебри" Qt</p>
+<p>Сначала воспользуемся функцией QEvent_hook_create для создания экземпляра объекта, который бы реагировал на события:</p>
+<p>function QEvent_hook_create (handle: QObjectH): QEvent_hookH; cdecl;</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Handle - идентификатор объекта, для которого создается реакция на событие; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Результат - идентификатор реагирующего объекта.</td></tr></table></div><p>По завершении работы приложения надо будет освободить реагирующий объект:</p>
+<p>procedure QEvent_hook_destroy (handle: QEvent_hookH); cdecl;</p>
+<p>Теперь нам нужно создать собственно реакцию на событие, которое должно иметь следующий вид:</p>
+<p>TEventFilterMethod = function (Sender: QObjectH; Event: QEventH):<br>
+<p>Boolean of object cdecl;</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Sender - идентификатор объекта который должен реагировать на событие; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Event - идентификатор события, на которое должен реагировать объект.</td></tr></table></div><p>После этого нам необходимо инициализировать ее:</p>
+<p>procedure Qt_hook_hook_events (handle: QObject_hookH;<br>
+<p>hook: QHookH); cdecl;</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Handle - идентификатор объекта-реакции на событие; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Hook - метод, который собственно и реагирует на события объекта. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>результат - True, если на событие успешно отреагировали; False - если нет.</td></tr></table></div><p>Поскольку мы пишем реакцию, которая должна незаметно влиять на работу нашего компонента, то результат всегда должен быть равен False.</p>
+<p>&nbsp;<br>
+<p>В самом методе Hook нам необходимо разобрать, на какие события следует реагировать, так как ему передаются все без исключения события, связанные с прикрепленным (через QEvent_hook_create) объектом. Для выделения необходимого события используются методы QEvent_isXXXXXX, где XXXX - название события.</p>
+<p>Для наших нужд потребуется только одни метод - QEvent_isQDropEventEvent:</p>
+<p>function QEvent_isQDropEventEvent (e: QEventH): Boolean; cdecl;</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>e - значение, переданное параметру Event из шаблона TeventFilterMethod; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>результат - True, если событие относится к Drag&amp;Drop; False - в противном случае.</td></tr></table></div><p>После того как QEvent_isQDropEventEvent вернул true, нам следует перекодировать событие в QMimeSourceH посредством метода:</p>
+<p>function QDropEvent_to_QMimeSource (handle: QDropEventH):<br>
+<p>QMimeSourceH; cdecl;</p>
+<p>далее принять на обработку это событие:</p>
+<p>procedure QDropEvent_acceptAction (handle: QDropEventH;<br>
+<p>y: Boolean); cdecl;</p>
+<p>и, наконец, декодировать событие в приятный нашему взгляду вид:</p>
+<p>function QTextDrag_decode (e: QMimeSourceH; s: PWideString):<br>
+<p>Boolean; overload; cdecl;</p>
+<p>После этого мы можем спокойно обрабатывать наши "перетасканные" файлы.</p>
+<p>К делу</p>
+<p>Итак, для начала создадим форму и разместим на ней кнопку и компонент TListBox, который, собственно, и будет играть роль приемника перетаскиваний. В кнопке запишем код, который будет инициализировать наш TListBox на обработку событий Drag&amp;Drop:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click (Sender: TObject);
+begin
+QWidget_setAcceptDrops (ListBox1.Handle,True);
+Evt:=QEvent_hook_create (Self.ListBox1.Handle);
+//Filter:=Self.EvtFilter;
+TEventFilterMethod (H):=EvtFilter;
+Qt_hook_hook_events (Evt,H);
+end;
+</pre>
+
+<p>При закрытии формы мы должны освободить наш объект Evt от исполняемых им обязанностей:</p>
+<pre name="code" class="delphi">
+procedure TForm1.FormDestroy (Sender: TObject);
+begin
+QEvent_hook_destroy (Evt);
+end;
+</pre>
+
+<p>Теперь нам осталось только написать необходимую реакцию на события:</p>
+<pre name="code" class="delphi">
+function TForm1.EvtFilter (Sender:QObjectH; Event:QEventH):Boolean;
+var QMS:QMimeSourceH;
+S:WideString;
+begin
+Result:=False;
+if QEvent_isQDropEventEvent (Event) then
+begin
+QMS:=QDropEvent_to_QMimeSource (QDropEventH (Event));
+QDropEvent_acceptAction (QDropEventH (Event),QTextDrag_canDecode (QMS));
+if QTextDrag_canDecode (QMS) then
+begin
+ListBox1.Items.Clear;
+QTextDrag_decode (QMS,@S);
+ListBox1.Items.Add (S);
+end
+end else
+if QEvent_isQCloseEvent (Event) then
+QEvent_hook_destroy (Evt);
+end;
+</pre>
+
+<p>Код:</p>
+<p>if QEvent_isQCloseEvent (Event) then<br>
+<p>QEvent_hook_destroy (Evt);</p>
+<p>- добавлен просто так, на всякий случай. У меня Kylix время от времени зависал при закрытии приложения, а вот после добавления такой строчки кода - ни разу.</p>
+<p>В листинге 2 показан код приложения, о котором шла речь в этой статье.</p>
+<p>Послесловие</p>
+<p>Сразу же хочу предупредить тех, кто, читая эту статью, уже "сидит" в Kylix'е: в портированном Borland экземпляре Qt.pas (в версии Kylix 1.0, а, возможно, и в других) неправильно определена функция QEvent_isQDropEventEvent. Для правильной работы вам необходимо в модуле Qt.pas в секции реализации заменить имя функции на которую ссылается QEvent_isQDropEventEvent c QEvent_isQDropEventEvent на QEvent_isQDropEvent.</p>
+<p>Несколько слов для тех, кто хочет самостоятельно попробовать написать универсальный компонент для работы с Drag&amp;Drop. Во-первых, дерзайте - ибо лучше наступать на свои "грабли", нежели на чужые (да и обиды будет меньше, если что не так). Не забывайте освобождать занятые ресурсы; и, если вы пишите в моем стиле, будьте осторожны при отладке компонента и при закрытии приложения. Ну а если уж совсем ничего не получается, используйте мой компонент.</p>
+<p>А для юзающих Kylix скажу, что здесь также можно "пойти другим путем" - созданием собственного компонента, на который возлагалась бы задача по захвату событий и освобождению занятых ресурсов по окончании работы. Мы бы только трудились над реакцией компонента на те или иные события. В модуле QControls.pas есть некое подобие такого компонента (TX11DragFilter), и хотя этот компонент и не подходит под концепцию "визуального программирования", он может зато послужить основой для создания собственных компонентов.</p>
+<p>Листинг 1. Создание компонента TmyListBox под Windows </p>
+<pre name="code" class="delphi">
+unit Unit1; 
+interface 
+uses 
+Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
+Dialogs, StdCtrls; 
+type 
+TMyListBox = class (TListBox) 
+private 
+FOnDropFiles:TNotifyEvent; 
+FDrop:THandle; 
+protected 
+procedure WMDropFiles (var Message:TMessage); message WM_DROPFILES; 
+public 
+property Drop:THandle read FDrop write FDrop; 
+property OnDropFiles:TNotifyEvent read FOnDropFiles write FOnDropFiles; 
+end; 
+TForm1 = class (TForm) 
+Button1: TButton; 
+procedure Button1Click (Sender: TObject); 
+procedure FormDestroy (Sender: TObject); 
+private 
+LB:TMyListBox; 
+procedure DoDropFiles (Sender:TObject); 
+{Private declarations} 
+public 
+{Public declarations} 
+end; 
+var 
+Form1: TForm1; 
+implementation 
+Uses ShellAPI; 
+{$R *.dfm} 
+procedure TMyListBox.WMDropFiles (var Message:TMessage); 
+begin 
+Drop:=Message.WParam; 
+if Assigned (OnDropFiles) then OnDropFiles (Self); 
+end; 
+procedure TForm1.DoDropFiles (Sender:TObject); 
+var CB:Integer;I,j:Integer; 
+Str:Array [0..MAX_PATH] of Char; 
+begin 
+I:=DragQueryFile ((Sender as TMyListBox).Drop,$FFFFFFFF,nil,cb); 
+(Sender as TMyListBox).Items.Add (IntToStr (I)); 
+For j:=0 to i-1 do 
+begin 
+FillChar (Str,SizeOf (Str),0); 
+DragQueryFile ((Sender as TMyLIstBox).Drop,j,Str,MAX_PATH); 
+(Sender as TMyListBox).Items.Add (Str); 
+end; 
+end; 
+procedure TForm1.Button1Click (Sender: TObject); 
+begin 
+LB:=TMyListBox.Create (Self); 
+LB.Parent:=Self; 
+LB.SetBounds (10,10,300,100); 
+LB.OnDropFiles:=Self.DoDropFiles; 
+DragAcceptFiles (LB.Handle,True); 
+end; 
+procedure TForm1.FormDestroy (Sender: TObject); 
+begin 
+DragAcceptFiles (LB.Handle,False); 
+LB.Free; 
+end; 
+end. 
+</pre>
+
+<p>Листинг 2. Создание компонента TmyListBox под Kylix </p>
+<pre name="code" class="delphi">
+unit Unit1; 
+interface 
+uses 
+SysUtils, Types, Classes, Variants, QGraphics, QControls, QForms, QDialogs,Qt, 
+QStdCtrls; 
+type 
+TForm1 = class (TForm) 
+ListBox1: TListBox; 
+Button1: TButton; 
+procedure Button1Click (Sender: TObject); 
+procedure FormDestroy (Sender: TObject); 
+private 
+Evt:QEvent_hookH; 
+H:TMethod; 
+// FFilter:TEventFilterMethod; 
+function EvtFilter (Sender: QObjectH; Event: QEventH): Boolean; cdecl; 
+{Private declarations} 
+public 
+{Public declarations} 
+// property Filter:TEventFilterMethod read FFilter write FFilter; 
+end; 
+var 
+Form1: TForm1; 
+implementation 
+{$R *.xfm} 
+function TForm1.EvtFilter (Sender:QObjectH; Event:QEventH):Boolean; 
+var QMS:QMimeSourceH; 
+S:WideString; 
+begin 
+Result:=False; 
+if QEvent_isQDropEventEvent (Event) then 
+begin 
+QMS:=QDropEvent_to_QMimeSource (QDropEventH (Event)); 
+QDropEvent_acceptAction (QDropEventH (Event),QTextDrag_canDecode (QMS)); 
+if QTextDrag_canDecode (QMS) then 
+begin 
+ListBox1.Items.Clear; 
+QTextDrag_decode (QMS,@S); 
+ListBox1.Items.Add (S); 
+end 
+end else 
+if QEvent_isQCloseEvent (Event) then 
+QEvent_hook_destroy (Evt); 
+end; 
+procedure TForm1.Button1Click (Sender: TObject); 
+begin 
+QWidget_setAcceptDrops (ListBox1.Handle,True); 
+Evt:=QEvent_hook_create (Self.ListBox1.Handle); 
+//Filter:=Self.EvtFilter; 
+TEventFilterMethod (H):=EvtFilter; 
+Qt_hook_hook_events (Evt,H); 
+end; 
+procedure TForm1.FormDestroy (Sender: TObject); 
+begin 
+QEvent_hook_destroy (Evt); 
+end; 
+end. 
+</pre>
+
+<p>&nbsp;<br>
+2004.05.14 Автор: Михаил Продан <br>
+<a href="http://www.cpp.com.ua" target="_blank">http://www.cpp.com.ua</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

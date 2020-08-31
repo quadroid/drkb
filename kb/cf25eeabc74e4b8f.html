@@ -1,0 +1,99 @@
+<html>
+<head>
+  <title>Перечислить ключи реестра</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Перечислить ключи реестра</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  This example demonstrates how to enumerate all registry keys from 
+  a certain key (here: HKEY_CURRENT_USER) 
+}
+ 
+ 
+ 
+ 
+ uses
+   Registry;
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ var
+   indent: Integer;
+ 
+      procedure EnumAllKeys(hkey: THandle);
+   var
+     l: TStringList;
+     n: Integer;
+   begin
+     Inc(indent, 2);
+     with TRegistry.Create do
+       try
+         RootKey := hkey;
+         OpenKey(EmptyStr, False);
+         l := TStringList.Create;
+         try
+           GetKeynames(l);
+           CloseKey;
+           for n := 0 to l.Count - 1 do
+           begin
+             memo1.Lines.Add(StringOfChar(' ', indent) + l[n]);
+             if OpenKey(l[n], False) then
+             begin
+               EnumAllKeys(CurrentKey);
+               CloseKey;
+             end;
+           end;
+         finally
+           l.Free
+         end;
+       finally
+         Free;
+       end;
+     Dec(indent, 2);
+   end;
+ 
+ begin
+   Memo1.Clear;
+   Memo1.Lines.Add('Keys under HKEY_CURRENT_USER');
+   indent := 0;
+   Memo1.Lines.BeginUpdate;
+   try
+     EnumAllKEys(HKEY_CURRENT_USER);
+   finally
+     Memo1.Lines.EndUpdate;
+   end;
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

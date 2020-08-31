@@ -1,0 +1,89 @@
+<html>
+<head>
+  <title>Как мне отправить на принтер чистый поток данных?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как мне отправить на принтер чистый поток данных?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Под Win16 Вы можете использовать функцию SpoolFile, или</p>
+<p>Passthrough escape, если принтер поддерживает последнее.</p>
+<p>Под Win32 Вы можете использовать WritePrinter.</p>
+
+<p>'иже пример открытия принтера и записи чистого потока данных в принтер.</p>
+<p>Учтите, что Вы должны передать корректное имя принтера, такое, как "HP LaserJet</p>
+<p>5MP",</p>
+<p>чтобы функция сработала успешно.</p>
+
+<p>Конечно, Вы можете включать в поток данных любые необходимые управляющие коды,</p>
+
+<p>которые могут потребоваться.</p>
+
+<pre name="code" class="delphi">
+uses WinSpool;
+ 
+procedure WriteRawStringToPrinter(PrinterName:String; S:String);
+var
+  Handle: THandle;
+  N: DWORD;
+  DocInfo1: TDocInfo1;
+begin
+  if not OpenPrinter(PChar(PrinterName), Handle, nil) then
+  begin
+    ShowMessage('error ' + IntToStr(GetLastError));
+    Exit;
+  end;
+  with DocInfo1 do begin
+    pDocName := PChar('test doc');
+    pOutputFile := nil;
+    pDataType := 'RAW';
+  end;
+  StartDocPrinter(Handle, 1, @DocInfo1);
+ 
+  StartPagePrinter(Handle);
+  WritePrinter(Handle, PChar(S), Length(S), N);
+  EndPagePrinter(Handle);
+  EndDocPrinter(Handle);
+  ClosePrinter(Handle);
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  WriteRawStringToPrinter('HP', 'Test This');
+end;
+</pre>
+
+
+<p>(Borland FAQ N714, переведен Акжаном Абдулиным)</p>
+
+<p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

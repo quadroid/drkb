@@ -1,0 +1,56 @@
+<html>
+<head>
+  <title>Как заставить приложение показывать различные иконки при различных разрешениях дисплея?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как заставить приложение показывать различные иконки при различных разрешениях дисплея?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для этого достаточно текущее разрешение экрана и в соответствии с ним изменить дескриптор иконки приложения. Естевственно, что Вам прийдётся создать в ресурсах новые иконки.</p>
+
+<p>Поместите следующий код в файл проекта (.DPR) Вашего приложения:</p>
+<pre name="code" class="delphi">
+Application.Initialize;
+Application.CreateForm(TForm1, Form1);
+case GetDeviceCaps(GetDC(Form1.Handle), HORZRES) of
+  640: Application.Icon.Handle := LoadIcon(hInstance, 'ICON640');
+  800: Application.Icon.Handle := LoadIcon(hInstance, 'ICON800');
+  1024: Application.Icon.Handle := LoadIcon(hInstance, 'ICON1024');
+  1280: Application.Icon.Handle := LoadIcon(hInstance, 'ICON1280');
+end;
+Application.Run;
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

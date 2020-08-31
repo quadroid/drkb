@@ -1,0 +1,86 @@
+<html>
+<head>
+  <title>Как програмно прокрутить Memo?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как програмно прокрутить Memo?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Этот пример прокручивает на одну строку вниз.</p>
+<pre name="code" class="delphi">
+memo1.Perform(WM_VScroll, SB_LINEDOWN,0);
+</pre>
+
+<p>Возможны так же следующие опции:</p>
+<p>SB_BOTTOM</p>
+<p>SB_ENDSCROLL</p>
+<p>SB_LINEDOWN </p>
+<p>SB_LINEUP </p>
+<p>SB_PAGEDOWN</p>
+<p>SB_PAGEUP </p>
+<p>SB_THUMBPOSITION</p>
+<p>SB_THUMBTRACK </p>
+<p>SB_TOP</p>
+<p>TComboBox, TListBox, TRichEdit и т.п можно прокрутить подобным образом </p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<p>В поле ввода вводите на какую строку нужно сойти, и по нажатию на кнопку эта строка будет попадать о зону видимости: </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  line: integer;
+begin
+  line := StrToIntDef(Edit1.Text,1);
+  Memo1.SelStart := Memo1.Perform(EM_LINEINDEX, line, 0);
+  Memo1.Perform(EM_SCROLLCARET, 0, 0);
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+<hr />
+<pre name="code" class="delphi">
+Var
+  ScrollMessage:TWMVScroll;
+begin
+  ScrollMessage.Msg:=WM_VScroll;
+  for i := Memo1.Lines.Count DownTo 0 do
+  begin
+    ScrollMessage.ScrollCode:=sb_LineUp;
+    ScrollMessage.Pos:=0;
+    Memo1.Dispatch(ScrollMessage);
+  end;
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

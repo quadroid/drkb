@@ -1,0 +1,60 @@
+<html>
+<head>
+  <title>Как скрыть свойства объекта?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как скрыть свойства объекта?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В иерархии VCL в большинстве случаев существует уровень объектов-"предшественников" (TCustomXXXX), в которых многие свойства скрыты. Для унаследованных от таких "предшественников" объектов можно "открывать" на выбор те или иные свойства. А как можно скрыть свойства, которые объявлены в published-области от Object Inspector'а, но при этом оставить возможность доступа во время работы программы? Решение состоит в объявлении свойства "по новой" в public-области. В примере скрытым будет у объекта TMyControl свойство Height. </p>
+
+<pre name="code" class="delphi">
+TMyControl = class(TWinControl)
+protected
+  procedure SetHeight(Value: Integer);
+  function GetHeight: Integer;
+public
+  property Height: Integer read GetHeight write SetHeight;
+end;
+ 
+procedure TMyControl.SetHeight(Value: Integer);
+begin
+  inherited Height := Value;
+end;
+ 
+function TMyControl.GetHeight;
+begin
+  Result := inherited Height;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<html>
+<head>
+  <title>Как узнать, находится ли мышка на форме?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать, находится ли мышка на форме?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для этого можно воспользоваться API функцией GetCapture().</p>
+
+<p>Пример: </p>
+<pre name="code" class="delphi">
+procedure TForm1.FormDeactivate(Sender: TObject);
+begin
+  ReleaseCapture;
+end;
+ 
+procedure TForm1.FormMouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  If GetCapture = 0 then
+    SetCapture(Form1.Handle);
+  if PtInRect(Rect(Form1.Left,
+                   Form1.Top,
+                   Form1.Left + Form1.Width,
+                   Form1.Top + Form1.Height),
+                   ClientToScreen(Point(x, y))) then
+  Form1.Caption := 'Мышка на форме' else
+  Form1.Caption := 'Мышка за пределами формы';
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<html>
+<head>
+  <title>Как определить bitrate WAV файла?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как определить bitrate WAV файла?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{....} 
+ 
+  private 
+    procedure OpenMedia(WaveFile : string); 
+    function GetStatus(StatusRequested : DWord) : longint; 
+    procedure CloseMedia; 
+ 
+{....} 
+ 
+var 
+  MyError, dwFlags: Longint; 
+  FDeviceID : Word; 
+ 
+{....} 
+ 
+uses 
+  MMSystem; 
+ 
+{....} 
+ 
+procedure TForm1.OpenMedia(WaveFile: string); 
+var 
+  MyOpenParms: TMCI_Open_Parms; 
+begin 
+  with MyOpenParms do 
+  begin 
+    dwCallback       := Handle; // TForm1.Handle 
+    lpstrDeviceType  := PChar('WaveAudio'); 
+    lpstrElementName := PChar(WaveFile); 
+  end; {with MyOpenParms} 
+  dwFlags := MCI_WAIT or MCI_OPEN_ELEMENT or MCI_OPEN_TYPE; 
+  MyError := mciSendCommand(0, MCI_OPEN, dwFlags, Longint(@MyOpenParms)); 
+  // one could use mciSendCommand(DevId, here to specify a particular device 
+  if MyError = 0 then 
+    FDeviceID := MyOpenParms.wDeviceID 
+  else 
+    raise Exception.Create('Open Failed'); 
+end; 
+ 
+function TForm1.GetStatus(StatusRequested: DWORD): Longint; 
+var 
+  MyStatusParms: TMCI_Status_Parms; 
+begin 
+  dwFlags := MCI_WAIT or MCI_STATUS_ITEM; 
+  with MyStatusParms do 
+  begin 
+    dwCallback := Handle; 
+    dwItem     := StatusRequested; 
+  end; 
+  MyError := mciSendCommand(FDeviceID, 
+    MCI_STATUS, 
+    MCI_WAIT or MCI_STATUS_ITEM, 
+    Longint(@MyStatusParms)); 
+  if MyError = 0 then 
+    Result := MyStatusParms.dwReturn 
+  else 
+    raise Exception.Create('Status call to get status of ' + 
+      IntToStr(StatusRequested) + ' Failed'); 
+end; 
+ 
+procedure TForm1.CloseMedia; 
+var 
+  MyGenParms: TMCI_Generic_Parms; 
+begin 
+  if FDeviceID &gt; 0 then 
+  begin 
+    dwFlags := 0; 
+    MyGenParms.dwCallback := Handle; // TForm1.Handle 
+    MyError := mciSendCommand(FDeviceID, MCI_CLOSE, dwFlags, Longint(@MyGenParms)); 
+    if MyError = 0 then 
+      FDeviceID := 0 
+    else 
+    begin 
+      raise Exception.Create('Close Failed'); 
+    end; 
+  end; 
+end; 
+ 
+ 
+//Example: 
+//Beispiel: 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  if OpenDialog1.Execute then 
+  begin 
+    OpenMedia(OpenDialog1.FileName); 
+    with ListBox1.Items do 
+    begin 
+      Add('Average Bytes / Sec : ' + IntToStr(GetStatus(MCI_WAVE_STATUS_AVGBYTESPERSEC))); 
+      Add('Bits / Sample : ' + IntToStr(GetStatus(MCI_WAVE_STATUS_BITSPERSAMPLE))); 
+      Add('Samples / Sec : ' + IntToStr(GetStatus(MCI_WAVE_STATUS_SAMPLESPERSEC))); 
+      Add('Channels : ' + IntToStr(GetStatus(MCI_WAVE_STATUS_CHANNELS))); 
+    end; 
+    CloseMedia; 
+  end; 
+end; 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

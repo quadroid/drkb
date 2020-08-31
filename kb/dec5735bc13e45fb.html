@@ -1,0 +1,152 @@
+<html>
+<head>
+  <title>Дополненный TRegistry, умеет работать с значениями типа REG_MULTI_SZ</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Дополненный TRegistry, умеет работать с значениями типа REG_MULTI_SZ</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit Reg;
+{$R-,T-,H+,X+}
+ 
+interface
+ 
+uses Registry, Classes, Windows, Consts, SysUtils;
+ 
+type
+ 
+  TReg = class(TRegistry)
+  public
+    procedure ReadStringList(const name: string; list: TStringList);
+    procedure WriteStringList(const name: string; list: TStringList);
+  end;
+ 
+implementation
+ 
+//*** TReg *********************************************************************
+//------------------------------------------------------------------------------
+// Запись TStringList ввиде значения типа REG_MULTI_SZ в реестр
+//------------------------------------------------------------------------------
+ 
+procedure TReg.WriteStringList(const name: string; list: TStringList);
+var
+ 
+  Buffer: Pointer;
+  BufSize: DWORD;
+  i, j, k: Integer;
+  s: string;
+  p: PChar;
+begin
+ 
+  {подготовим буфер к записи}
+  BufSize := 0;
+  for i := 0 to list.Count - 1 do
+    inc(BufSize, Length(list[i]) + 1);
+  inc(BufSize);
+  GetMem(Buffer, BufSize);
+  k := 0;
+  p := Buffer;
+  for i := 0 to list.Count - 1 do
+  begin
+    s := list[i];
+    for j := 0 to Length(s) - 1 do
+    begin
+      p[k] := s[j + 1];
+      inc(k);
+    end;
+    p[k] := chr(0);
+    inc(k);
+  end;
+  p[k] := chr(0);
+ 
+  {запись в реестр}
+  if RegSetValueEx(CurrentKey, PChar(name), 0, REG_MULTI_SZ, Buffer,
+    BufSize) &lt;&gt; ERROR_SUCCESS then
+    raise ERegistryException.CreateResFmt(@SRegSetDataFailed, [name]);
+end;
+//------------------------------------------------------------------------------
+// Чтение TStringList ввиде значения типа REG_MULTI_SZ из реестра
+//------------------------------------------------------------------------------
+ 
+procedure TReg.ReadStringList(const name: string; list: TStringList);
+var
+ 
+  BufSize,
+    DataType: DWORD;
+  Len, i: Integer;
+  Buffer: PChar;
+  s: string;
+begin
+ 
+  if list = nil then
+    Exit;
+  {чтение из реестра}
+  Len := GetDataSize(Name);
+  if Len &lt; 1 then
+    Exit;
+  Buffer := AllocMem(Len);
+  if Buffer = nil then
+    Exit;
+  try
+    DataType := REG_NONE;
+    BufSize := Len;
+    if RegQueryValueEx(CurrentKey, PChar(name), nil, @DataType, PByte(Buffer),
+      @BufSize) &lt;&gt; ERROR_SUCCESS then
+      raise ERegistryException.CreateResFmt(@SRegGetDataFailed, [name]);
+    if DataType &lt;&gt; REG_MULTI_SZ then
+      raise ERegistryException.CreateResFmt(@SInvalidRegType, [name]);
+    {запись в TStringList}
+    list.Clear;
+    s := '';
+    for i := 0 to BufSize - 2 do
+    begin // BufSize-2 т.к. последние два нулевых символа
+      if Buffer[i] = chr(0) then
+      begin
+        list.Add(s);
+        s := '';
+      end
+      else
+        s := s + Buffer[i];
+    end;
+  finally
+    FreeMem(Buffer);
+  end;
+end;
+ 
+end.
+ 
+</pre>
+<p id="author">Автор: Кондратюк Виталий </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<html>
+<head>
+  <title>Как использовать различные шрифты и стили в TMemo-объекте?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как использовать различные шрифты и стили в TMemo-объекте?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Просто создайте собственный TxxxMemo: наследуйтесь от стандартного TMemo и перекройте метод Paint. </p>
+<p>Вот мой старый пример, изменяющий цвет каждой строки:</p>
+<pre name="code" class="delphi">
+unit Todrmemo;
+interface
+uses
+  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
+  Forms, Dialogs, StdCtrls;
+ 
+type
+  TOwnerDrawMemo = class(TMemo)
+  private
+    { Private declarations }
+    procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
+  protected
+    { Protected declarations }
+  public
+    { Public declarations }
+  published
+    { Published declarations }
+  end;
+ 
+procedure Register;
+ 
+implementation
+ 
+procedure TOwnerDrawMemo.WMPaint(var Message: TWMPaint);
+var
+  Buffer: array[0..255] of Char;
+  PS: TPaintStruct;
+  DC: HDC;
+  i: Integer;
+  X, Y, Z: Word;
+  OldColor: LongInt;
+begin
+  DC := Message.DC;
+  if DC = 0 then
+    DC := BeginPaint(Handle, PS);
+  try
+    X := 1;
+    Y := 1;
+    SetBkColor(DC, Color);
+    SetBkMode(DC, Transparent);
+    OldColor := Font.Color;
+    for i := 0 to Pred(Lines.Count) do
+    begin
+      if odd(i) then
+        SetTextColor(DC, clRed)
+      else
+        SetTextColor(DC, OldColor);
+      Z := Length(Lines[i]);
+      StrPCopy(Buffer, Lines[i]);
+      Buffer[Z] := #0; { реально не нужно }
+      TextOut(DC, X, Y, Buffer, Z);
+      Inc(Y, abs(Font.Height));
+    end;
+  finally
+    if Message.DC = 0 then
+      EndPaint(Handle, PS);
+  end;
+end;
+ 
+procedure Register;
+begin
+  RegisterComponents('Dr.Bob', [TOwnerDrawMemo]);
+end;
+ 
+end.
+ 
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

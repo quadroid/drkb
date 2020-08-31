@@ -1,0 +1,142 @@
+<html>
+<head>
+  <title>DBFSeek и DBFLocate</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">DBFSeek и DBFLocate</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Надежней и намного быстрее (если вы ищите отдельные записи) выполнить поиск строки с помощью Seek (если найдена первая запись), или выполнить Locate (индекс не требуется) </p>
+
+<p>например </p>
+<pre name="code" class="delphi">
+Table1.UpdateCursorPos;
+if DBFSeek( Table1, xVal1 ) then {_не_ delphi-функция - смотри ниже}
+begin
+  if DBFLocate( Table1, 'CUSTNAME', xVal2  ) then {_не_ delphi-функция - модификация из faq}
+  begin
+    //... делаем все, что необходимо
+  end;
+end;
+</pre>
+
+<p>P.S. </p>
+
+<p>DBFLocate - модифицированная из faq фунция fieldname </p>
+<p>DBFSeek - функция, найденная методом проб и ошибок! - значительно лучшая (IMHO) чем setkey...fieldbyname1...fieldbyname2...gotokey, используемые для выражений индексов dBase за первым полем. Вы можете использовать FindKey для dBase индексов, состоящих из одного поля, вопреки мнению других участников форума.</p>
+
+<pre name="code" class="delphi">
+{============================================================
+{ DBFSeek
+{ поиск величины с использованием индекса - простой путь
+{============================================================}
+ 
+function DBFSeek(const Table1: TTable; const sValue: string): boolean;
+var
+ 
+  sExpValue: DBIKEYEXP;
+  bmPos: TBookMark;
+  nOrder: integer;
+ 
+begin
+ 
+  Result := False;
+ 
+  with Table1 do
+  begin
+    if (Active) and (Length(IndexName) &gt; 0) then
+    begin
+      bmPos := GetBookMark;
+      DisableControls;
+ 
+      StrPCopy(sExpValue, sValue);
+      if (DbiGetRecordForKey(Handle, True, 0, strlen(sExpValue), @sExpValue, nil)
+        = DBIERR_NONE) then
+        Result := True
+      else
+        GotoBookMark(bmPos);
+ 
+      FreeBookMark(bmPos);
+      EnableControls;
+    end;
+  end;
+end;
+ 
+{==================================================================================
+{ DBFLocate
+{ поиск величины, не связанный с ключевым полем
+{ замена из faq, теперь акцептует fieldname, величина может быть частичной
+{================================================================================}
+ 
+function DBFLocate(const Table1: TTable; const sFld, sValue: string): boolean;
+var
+ 
+  bmPos: TBookMark;
+  bFound: boolean;
+  len: integer;
+begin
+ 
+  Result := False;
+  if (not StrEmpty(sValue)) and (not StrEmpty(sFld)) then
+  begin
+    with Table1 do
+    begin
+      DisableControls;
+      bFound := False;
+      bmPos := GetBookMark;
+      len := Length(sValue);
+      First;
+ 
+      while not EOF do
+      begin
+        if FieldByName(sFld).AsString &lt;&gt; sValue then
+          Next
+        else
+        begin
+          Result := True;
+          bFound := True;
+          Break;
+        end;
+      end;
+ 
+      if (not bFound) then
+        GotoBookMark(bmPos);
+ 
+      FreeBookMark(bmPos);
+      EnableControls;
+    end;
+  end;
+end;
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

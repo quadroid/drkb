@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>BCD &gt; String</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">BCD &gt; String</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function BCDToNumString(const inStr: string): string;
+  procedure UnPack(ch: Char; var ch1, ch2: Char);
+  begin
+    ch1 := Chr((Ord(ch) and $F) + $30);
+    ch2 := Chr(((Ord(ch) shr 4) and $F) + $30);
+    Assert((ch1 &gt;= '0') and (ch1 &lt;= '9'));
+    Assert((ch2 &gt;= '0') and (ch2 &lt;= '9'));
+  end;
+var
+  i: Integer;
+begin
+  SetLength(Result, Length(inStr) * 2);
+  for i := 1 to Length(inStr) do
+    UnPack(inStr[i], Result[2 * i - 1], Result[2 * i]);
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  S1, S2: string;
+begin
+  S1 := '15151515151515151515';
+  S2 := NumStringToBCD(S1);
+  memo1.lines.add('S1: ' + S1);
+  memo1.lines.add('Length(S2): ' + IntToStr(Length(S2)));
+  memo1.lines.add('S2 unpacked again: ' + BCDToNumString(S2));
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

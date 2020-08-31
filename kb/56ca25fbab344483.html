@@ -1,0 +1,157 @@
+<html>
+<head>
+  <title>Как программе удалить саму себя?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как программе удалить саму себя?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Первый способ:</p>
+<pre name="code" class="delphi">
+uses 
+  Windows, SysUtils; 
+ 
+procedure DeleteMe; 
+var 
+  BatchFile: TextFile; 
+  BatchFileName: string; 
+  ProcessInfo: TProcessInformation; 
+  StartUpInfo: TStartupInfo; 
+begin 
+  { создаём бат-файл в директории приложения }
+  BatchFileName := ExtractFilePath(ParamStr(0)) + '$$336699.bat'; 
+ 
+  { открываем и записываем в файл }
+  AssignFile(BatchFile, BatchFileName); 
+  Rewrite(BatchFile); 
+ 
+  Writeln(BatchFile, ':try'); 
+  Writeln(BatchFile, 'del "' + ParamStr(0) + '"'); 
+  Writeln(BatchFile, 
+    'if exist "' + ParamStr(0) + '"' + ' goto try'); 
+  Writeln(BatchFile, 'del "' + BatchFileName + '"'); 
+  CloseFile(BatchFile); 
+ 
+  FillChar(StartUpInfo, SizeOf(StartUpInfo), $00); 
+  StartUpInfo.dwFlags := STARTF_USESHOWWINDOW; 
+  StartUpInfo.wShowWindow := SW_HIDE; 
+ 
+  if CreateProcess(nil, PChar(BatchFileName), nil, nil, 
+     False, IDLE_PRIORITY_CLASS, nil, nil, StartUpInfo, 
+     ProcessInfo) then 
+  begin 
+    CloseHandle(ProcessInfo.hThread); 
+    CloseHandle(ProcessInfo.hProcess); 
+  end; 
+ 
+end;
+</pre>
+
+
+<p>А вот тот же способ, но немного модифицированный:</p>
+<pre name="code" class="delphi">
+program delete2; 
+ 
+uses 
+  SysUtils, 
+  windows; 
+ 
+var 
+   BatchFile: TextFile; 
+   BatchFileName : string; 
+   TM : Cardinal; 
+   TempMem : PChar; 
+ 
+begin 
+   BatchFileName:=ExtractFilePath(ParamStr(0))+ '$$336699.bat'; 
+ 
+ 
+   AssignFile(BatchFile, BatchFileName); 
+   Rewrite(BatchFile); 
+ 
+   Writeln(BatchFile,':try'); 
+   Writeln(BatchFile,'del "' + ParamStr(0) + '"'); 
+   Writeln(BatchFile,'if exist "' + ParamStr(0) + '" goto try'); 
+   Writeln(BatchFile,'del "' + BatchFileName + '"'); 
+   CloseFile(BatchFile); 
+ 
+   TM:=70; 
+   GetMem (TempMem,TM); 
+   GetShortPathName (pchar(BatchFileName), TempMem, TM); 
+   BatchFileName:=TempMem; 
+   FreeMem(TempMem); 
+ 
+   winexec(Pchar(BatchFileName),sw_hide); 
+ 
+   halt; 
+ 
+end.
+</pre>
+
+<p>Второй способ:</p>
+
+<pre name="code" class="delphi">
+procedure DeleteSelf; 
+var 
+  module: HModule; 
+  buf: array[0..MAX_PATH - 1] of char; 
+  p: ULong; 
+  hKrnl32: HModule; 
+  pExitProcess, 
+  pDeleteFile, 
+  pFreeLibrary: pointer; 
+begin 
+  module := GetModuleHandle(nil); 
+  GetModuleFileName(module, buf, SizeOf(buf)); 
+  CloseHandle(THandle(4)); 
+  p := ULONG(module) + 1; 
+  hKrnl32 := GetModuleHandle('kernel32'); 
+  pExitProcess := GetProcAddress(hKrnl32, 'ExitProcess'); 
+  pDeleteFile := GetProcAddress(hKrnl32, 'DeleteFileA'); 
+  pFreeLibrary := GetProcAddress(hKrnl32, 'FreeLibrary'); 
+  asm 
+    lea eax, buf 
+    push 0 
+    push 0 
+    push eax 
+    push pExitProcess 
+    push p 
+    push pDeleteFile 
+    push pFreeLibrary 
+    ret 
+  end; 
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<html>
+<head>
+  <title>URL кодирование строки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">URL кодирование строки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; URL кодирование строки
+ 
+Функция производит так назваемое URL кодирование строк для 
+использования в http запросах. Т.е. все алфавитно-цифровые 
+символы и знак подчёикивания '_' остаются неизменными, 
+пробел заменяется на '+', а все остальные символы на знак 
+процента '%' с двумя шестнадцатеричными цифрами.
+ 
+Зависимости: Windows
+Автор:       Dimka Maslov, mainbox@endimus.ru, ICQ:148442121, Санкт-Петербург
+Copyright:   Dimka Maslov
+Дата:        27 мая 2002 г.
+********************************************** }
+ 
+function UrlEncode(Str: string): string;
+ 
+function CharToHex(Ch: Char): Integer;
+ asm
+    and eax, 0FFh
+    mov ah, al
+    shr al, 4
+    and ah, 00fh
+    cmp al, 00ah
+    jl @@10
+    sub al, 00ah
+    add al, 041h
+    jmp @@20
+@@10:
+    add al, 030h
+@@20:
+    cmp ah, 00ah
+    jl @@30
+    sub ah, 00ah
+    add ah, 041h
+    jmp @@40
+@@30:
+    add ah, 030h
+@@40:
+    shl eax, 8
+    mov al, '%'
+end;
+ 
+var
+ i, Len: Integer;
+ Ch: Char;
+ N: Integer; P: PChar;
+begin
+ Result:='';
+ Len:=Length(Str);
+ P:=PChar(@N);
+ for i:=1 to Len do begin
+  Ch:=Str[i];
+  if Ch in ['0'..'9', 'A'..'Z', 'a'..'z', '_'] then Result:=Result+Ch else begin
+   if Ch = ' ' then Result:=Result+'+' else begin
+    N:=CharToHex(Ch);
+    Result:=Result+P;
+   end;
+  end;
+ end;
+end; 
+</pre>
+
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+ S: string;
+begin
+ S:=UrlEncode('Мастера Delphi');
+ ShellExecute(Handle, 'open',
+  PChar('http://www.yandex.ru/yandsearch?text='+S), '', '', SW_SHOWNORMAL);
+end; 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

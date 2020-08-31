@@ -1,0 +1,109 @@
+<html>
+<head>
+  <title>Эффект мозаики</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Эффект мозаики</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Эффект 'Мозаика' (пикселизация)
+ 
+Зависимости: Windows, Classes, Graphics
+Автор:       Fenik, chook_nu@uraltc.ru, Новоуральск
+Copyright:   Собственное написание (Николай федоровских)
+Дата:        1 июня 2002 г.
+***************************************************** }
+ 
+procedure PixelsEffect(Bitmap: TBitmap; Hor, Ver: Word);
+{функция разбивает изображение на прямоугольники (ширина - Hor; высота - Ver)
+И закрашивает эти прямоугольники средним цветом,
+используя среднеарифметическое составляющих}
+ 
+  function Min(A, B: Integer): Integer;
+  begin
+    if A &lt; B then
+      Result := A
+    else
+      Result := B;
+  end;
+ 
+type
+  TRGB = record
+    B, G, R: Byte;
+  end;
+  pRGB = ^TRGB;
+var
+  i, j, x, y, xd, yd,
+    rr, gg, bb, h, hx, hy: Integer;
+  Dest: pRGB;
+begin
+  Bitmap.PixelFormat := pf24Bit;
+  if (Hor = 1) and (Ver = 1) then
+    Exit;
+  xd := (Bitmap.Width - 1) div Hor;
+  yd := (Bitmap.Height - 1) div Ver;
+  for i := 0 to xd do
+    for j := 0 to yd do
+    begin
+      h := 0;
+      rr := 0;
+      gg := 0;
+      bb := 0;
+      hx := Min(Hor * (i + 1), Bitmap.Width - 1);
+      hy := Min(Ver * (j + 1), Bitmap.Height - 1);
+      for y := j * Ver to hy do
+      begin
+        Dest := Bitmap.ScanLine[y];
+        Inc(Dest, i * Hor);
+        for x := i * Hor to hx do
+        begin
+          Inc(rr, Dest^.R);
+          Inc(gg, Dest^.G);
+          Inc(bb, Dest^.B);
+          Inc(h);
+          Inc(Dest);
+        end;
+      end;
+      Bitmap.Canvas.Brush.Color := RGB(rr div h, gg div h, bb div h);
+      Bitmap.Canvas.FillRect(Rect(i * Hor, j * Ver, hx + 1, hy + 1));
+    end;
+end;
+Пример использования: 
+ 
+PixelsEffect(FBitmap, 8, 8); 
+ 
+ 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

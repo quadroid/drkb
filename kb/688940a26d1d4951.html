@@ -1,0 +1,117 @@
+<html>
+<head>
+  <title>Как реализовать обработку информации одновременно несколькими потоками?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как реализовать обработку информации одновременно несколькими потоками?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Садыков Алексей Николаевич </p>
+
+<p>Запускайте Delphi. Итак, наша программа будет представлять из себя форму с двумя edit'ами и кнопкой. Добавьте их на форму.</p>
+
+<p>При нажатии на кнопку будут осуществляться некоторые долгие вычисления. Если бы мы не использовали потоки, то, пока эти вычисления не закончатся, делать мы ничего бы не смогли. Надо было бы ждать. Но, так как потоки у нас будут, то во время долгих вычислений можно будет что-нибудь вводить во второй edit (он, собственно, только для этого и существует). В первый же edit наш поток будет выводить некоторые промежуточные результаты своей работы.</p>
+
+<p>Добавьте в программу еще один модуль (меню File, New, Unit).</p>
+
+<p>Внесите в окно кода нового модуля следующий код:</p>
+<pre name="code" class="delphi">
+unit Unit2;
+ 
+interface
+ 
+uses
+  Classes;
+ 
+type
+  TMyThread = class(TThread) //Новый класс
+  private
+    answer: Integer;
+  protected
+    procedure ShowResult;
+    procedure Execute; override;
+  end;
+ 
+implementation
+ 
+uses
+  SysUtils, Unit1;
+ 
+//Процедура для вывода информации из потока
+procedure TMyThread.ShowResult;
+begin
+  Form1.Edit1.Text := IntToStr(answer);
+end;
+ 
+//Длинная процедура
+procedure TMyThread.Execute;
+var
+  i: Integer;
+begin
+  for i := 1 to 10000 do
+  begin
+    answer := answer + 1;
+    Synchronize(ShowResult);
+  end;
+end;
+ 
+end.
+</pre>
+
+<p>Немного комментария по коду. В нашем модуле мы вводим новый класс TMyThread как «потомок» TThread. В экземпляре нашего класса и будет выполнятся отдельный поток программы. В классе есть процедура ShowResult для вывода информации из работающего потока в основной поток (форму) нашей программы. Кроме того, в классе есть наша версия метода Execute из родительского класса TThread. Обратите внимание, что в нашей реализации Execute мы пишем </p>
+
+<p>Synchronize(ShowResult);</p>
+
+<p>Тем самым наш поток что-то отправляет в основной поток программы (в данном случае, значение переменной answer). Делаем мы это посредством вызова Synchronize, в котором в качестве параметра указываем имя нужной процедуры. </p>
+
+<p>Теперь переходим к нашему основному модулю Unit1. Во-первых, добавьте в секцию uses ссылку на Unit2: </p>
+
+<pre name="code" class="delphi">
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, 
+  Forms, Dialogs, StdCtrls, Unit2;
+</pre>
+
+<p>Во-вторых, напишите обработчик для нажатия кнопки: </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  MyThread: TMyThread;
+begin
+  MyThread := TMyThread.Create(False);
+end;
+</pre>
+<p>Тут мы создаем второй поток для нашего приложения. Параметр False означает, что метод Execute для нашего потока вызовется немедленно.</p>
+
+<p>Запускайте программу. Нажимайте на кнопку. В первом edit'е замелькают промежуточные результаты работы второго потока. Во время его работы вы можете вводить информацию во второй edit &#8212; т.е. работа одного потока не мешает работе другого.</p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

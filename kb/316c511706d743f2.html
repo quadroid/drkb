@@ -1,0 +1,110 @@
+<html>
+<head>
+  <title>Количество уникальных цветов Bitmap</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Количество уникальных цветов Bitmap</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Функция возвращает колличество уникальных цветов Bitmap
+ 
+Зависимости: Graphics
+Автор:       Fenik, chook_nu@uraltc.ru, Новоуральск
+Copyright:   Собственное написание (Николай федоровских)
+Дата:        1 июня 2002 г.
+***************************************************** }
+ 
+function HowManyColors(Bitmap: TBitmap): Integer;
+type
+  TRGB = record
+    B, G, R: Byte;
+  end;
+  pRGB = ^TRGB;
+ 
+var
+  i: Byte;
+  x, y: Integer;
+  Dest: pRGB;
+  RGBArray: array[0..255, 0..255] of array of Byte;
+begin
+  Bitmap.PixelFormat := pf24Bit;
+  Result := 0;
+  for y := 0 to Bitmap.Height - 1 do
+  begin
+    Dest := Bitmap.ScanLine[y];
+    for x := 0 to Bitmap.Width - 1 do
+    begin
+      with Dest^ do
+        if RGBArray[r, g] &lt;&gt; nil then
+          for i := 0 to High(RGBArray[r, g]) do
+          begin
+            //если такой цвет уже есть, то выходим из цыкла
+            if RGBArray[r, g][i] = b then
+              Break;
+            //если это последний круг цикла, то такого цвета нет
+            if i = High(RGBArray[r, g]) then
+            begin
+              Inc(Result); //прибавляем один цвет
+              SetLength(RGBArray[r, g], Length(RGBArray[r, g]) + 1);
+              RGBArray[r, g][High(RGBArray[r, g])] := b;
+            end;
+          end
+        else
+        begin
+          Inc(Result);
+          SetLength(RGBArray[r, g], 1);
+          RGBArray[r, g][0] := b;
+        end;
+      Inc(Dest);
+    end;
+  end;
+end;
+</pre>
+<p>Пример использования: </p>
+<pre name="code" class="delphi">
+procedure TForm1.MMHowManyColorsClick(Sender: TObject);
+var
+  str: string;
+begin
+  Screen.Cursor := crHourGlass;
+  try
+    str := Format('Изображение содержит %d цветов.', [HowManyColors(FBitmap)]);
+  finally
+    Screen.Cursor := crDefault;
+  end;
+  Application.MessageBox(PChar(str), PChar(Application.Title), MB_OK);
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<html>
+<head>
+  <title>Перемещение TImage</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Перемещение TImage</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Многие, наверно, сталкивались с проблемой перемещения Image'a по форме. Решить ее можно тремя способами (может есть и больше, но я знаю только три). Способ первый. Его суть заключается в том, что свойства Left и Top картинки изменяются на разницу между начальными и конечными координатами (нажатия и отпускания мыши соответственно). Этот способ самый простой и надежный, но у него есть один недостаток: left и top изменяются по очереди, что приводит к заметному мерцанию картинки. Тем не менее мы этот способ рассмотрим. Не забудьте положить на форму Image и вставить в нее какую-нибудь картинку. Для начала необходимо объявить глобальные переменные (они объявляются в разделе Implementation) x0, y0:integer - они будут запоминать начальные координаты. И еще нам понадобится переменная move типа boolean, чтобы нам отличать перемещение мыши над картинкой, от попытки ее сдвинуть. Эти объявления делаются примерно так: </p>
+<pre name="code" class="delphi">
+implementation
+{$R *.DFM}
+ 
+var
+  x0, y0: integer;
+  move: boolean;
+</pre>
+<p>Теперь напишем обработчик OnMouseDown для нашей картинки: </p>
+<pre name="code" class="delphi">
+procedure TForm1.Image1MouseDown(Sender: TObject; Button: TMouseButton;
+Shift: TShiftState; X, Y: Integer);
+begin
+  if button &lt;&gt; mbLeft then
+    move:=false //если нажали не левой кнопкой, то перемещать не будем!
+  else
+  begin
+    move:=true;
+    x0:=x; //запоминаем начальные координаты
+    y0:=y; //запоминаем начальные координаты
+  end;
+end;
+</pre>
+
+<p>В этом участке кода проверяется какой кнопкой нажали на картинку. Если левой, то запоминаем координаты, а если любой другой, то перемещать нельзя. Теперь напишем обработчик OnMouseMove для нашей картинки: </p>
+<pre name="code" class="delphi">
+procedure TForm1.Image1MouseMove(Sender: TObject; Shift: TShiftState; X,
+Y: Integer);
+begin
+  if move then
+  begin
+    image1.Left:=image1.Left+x-x0; // Изменяем позицию левого края
+    image1.Top:=image1.Top+y-y0; // Изменяем позицию верхнего края
+  end;
+end;
+</pre>
+<p>Ну и наконец обработчик OnMouseUp для нашей картинки будет таким: </p>
+<pre name="code" class="delphi">
+procedure TForm1.Image1MouseUp(Sender: TObject; Button: TMouseButton;
+Shift: TShiftState; X, Y: Integer);
+begin
+  move := false;
+end;
+</pre>
+<p>Здесь все очень просто. Когда кнопка отпускается, то переменной move присваивается значение false, чтобы до следующего клика по картинке ее нельзя было сдвинуть. Этот способ довольно прост, как для понимания, так и для реализации. Но такой же алгоритм перемещения можно реализовать немного красивее. У некоторых компонентов, в том числе и Image, есть такая классная процедура SetBounds(Left,Top,Width,Height), которая может изменять сразу все четыре параметра. Таким образом событие OnMouseMove можно изменить так: </p>
+<pre name="code" class="delphi">
+procedure TForm1.Image1MouseMove(Sender: TObject; Shift: TShiftState; X,
+Y: Integer);
+begin
+  if move then
+    image1.SetBounds(image1.Left+x-x0, image1.Top+y-y0,
+    image1.width, image1.height);
+end;
+</pre>
+
+<p>Но есть еще один очень интересный выход: по экрану можно перемещать не саму картинку, а только ее рамку, когда пользователь выберет место для картинки и отпустит кнопку - она туда переместиться. Для этого нам понадобится еще одна глобальная переменная: rec: TRect, которая будет хранить параметры картинки. Теперь слегка изменим обработчики событий для картинки. Таким образом все в целом будет выглядеть так: </p>
+<pre name="code" class="delphi">
+procedure TForm1.Image1MouseDown(Sender: TObject; Button: TMouseButton;
+Shift: TShiftState; X, Y: Integer);
+begin
+  if button&lt;&gt;mbLeft then
+    move:=false
+  else
+  begin
+    move:=true;
+    x0:=x;
+    y0:=y;
+    rec:=image1.BoundsRect; //запоминаем контур картинки
+  end;
+end;
+ 
+procedure TForm1.Image1MouseMove(Sender: TObject; Shift: TShiftState; X,
+Y: Integer);
+begin
+  if move then
+  begin
+    Form1.Canvas.DrawFocusRect(rec); //рисуем рамку
+    with rec do
+    begin
+      left:=Left+x-x0;
+      top:=Top+y-y0;
+      right:=right+x-x0;
+      bottom:=bottom+y-y0;
+      x0:=x;
+      y0:=y; // изменяем координаты
+    end;
+    Form1.Canvas.DrawFocusRect(rec); // рисуем рамку на новом месте
+  end;
+end;
+ 
+procedure TForm1.Image1MouseUp(Sender: TObject; Button: TMouseButton;
+Shift: TShiftState; X, Y: Integer);
+begin
+  Form1.Canvas.DrawFocusRect(rec);
+  with image1 do begin
+    setbounds(rec.left+x-x0,rec.top+y-y0,width,height); //перемещаем картинку
+    move:=false;
+  end;
+end;
+</pre>
+
+<p>Поскольку DrawFocusRect рисует рамку методом Xor, то при повторном вызове этой функции с теми же параметрами, рамка стирается. Этот очень красивый метод добавит в ваши программы много интересного.</p>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

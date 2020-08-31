@@ -1,0 +1,62 @@
+<html>
+<head>
+  <title>Оглавление файлов помощи (Contents)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Оглавление файлов помощи (Contents)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Используйте HELP_FINDER, если "текущая закладка" не является закладкой 'Index' или 'Find'. HELP_FINDER открывает окно Help Topics, но не меняет закладку с оглавлением (Contents), если текущая закладка - 'Index' или 'Find'. </p>
+<p>Попробуйте следующий код:</p>
+<pre name="code" class="delphi">
+Function L1InvokeHelpMacro(const i_strMacro: String; const i_bForceFile:
+  Boolean): Boolean;
+Begin
+  if i_bForceFile then
+    Application.HelpCommand(HELP_FORCEFILE, 0);
+  Result:=Application.HelpCommand(HELP_COMMAND,
+    Longint(PChar(i_strMacro))); //Приведение типа PChar здесь необязательно.
+End;
+</pre>
+
+
+<p>Ищем ассоциированный файл помощи, открываем его (если не открыт) и переходим на закладку 'Index':</p>
+<p>L1InvokeHelpMacro('Search()', True);</p>
+
+<p>Ищем ассоциированный файл помощи, открываем его (если не открыт) и переходим на закладку 'Contents':</p>
+<p>L1InvokeHelpMacro('Contents()', True);</p>
+
+<p>Ищем ассоциированный файл помощи, открываем его (если не открыт) и переходим на закладку 'Find' (только для WinHelp 4):</p>
+<p>L1InvokeHelpMacro('Find()', True);</p>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

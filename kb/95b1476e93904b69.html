@@ -1,0 +1,101 @@
+<html>
+<head>
+  <title>Theme API</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Theme API</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Помимо описанного способа создания и управления визуальными стилями разработчик может использовать функции Theme API, разработанные Microsoft для этих целей. </p>
+<p>Для того чтобы использовать Theme API, можно стандартным способом подключить к проекту динамическую библиотеку Theme.dll: </p>
+<pre name="code" class="delphi">
+var ThemeDLL: HINST; 
+... 
+begin 
+  ThemeDLL := LoadLibrary('theme.dll'); 
+  if ThemeDLL &lt;&gt; 0 then 
+  begin 
+  ... 
+  end; 
+end;
+</pre>
+<p>Затем можно использовать возможности этого программного интерфейса напрямую. С деталями его реализации вы можете ознакомиться в документации Microsoft MSDN. </p>
+<p>Однако можно поступить проще. В составе Delphi 7 имеется модуль Ux-Theme.pas, в котором как раз и реализованы возможности Theme API. Кроме этого, модуль Themes.pas содержит классы для основных элементов управления, которые могут использоваться при создании визуальных стилей, а также класс менеджера тем TThemeServices. </p>
+<p>Так как детальное обсуждение возможностей Theme API выходит за рамки этой книги, в листинге 6.4 представлен схематичный пример использования функций этого программного интерфейса. Кроме того, как и все остальные API, работающие с GUI (Graphic User Interface) операционной системы, реальный код с использованием Theme API всегда перегружен многочисленными и ужасными на вид (а на самом деле вполне безобидными) функциями, рассчитывающими области вывода, неклиентские зоны оконных элементов и т. д. </p>
+<p>Поэтому наш пример лишь показывает, как загрузить динамическую библиотеку theme.dll и получить ссылку на тему визуального стиля для текущего окна и кнопочного элемента управления. </p>
+<p>Пример использования функций Theme API в Delphi&nbsp; </p>
+<pre name="code" class="delphi">
+var DC: HOC; 
+    CurrentThemeData: HTHEME; 
+begin 
+  if UseThemes and InitThemeLibrary then  
+    try 
+      DC := GetWindowDC(Handle) ; 
+      try 
+        CurrentThemeData := OpenThemeData(0, 'button'); 
+        CloseThemeData(CurrentThemeData);  
+      finally 
+        ReleaseDC(Handle, DC);  
+      end 
+    finally 
+      FreeThemeLibrary;  
+    end 
+  else 
+    ShowMessage('Приложение или операционная система не поддерживают использование Theme API'); 
+end;
+</pre>
+<p>Функция </p>
+<pre name="code" class="delphi">
+function UseThemes: Boolean;
+</pre>
+<p>проверяет способность операционной системы и приложения использовать Theme API. </p>
+<p>Методы </p>
+<pre name="code" class="delphi">
+function InitThemeLibrary: Boolean; 
+procedure FreeThemeLibrary; 
+</pre>
+<p>соответственно инициализируют и выгружают библиотеку theme.dll. </p>
+<p>Графический контекст ос наверняка понадобится при отрисовке элементов управления </p>
+<p>Функция </p>
+<pre name="code" class="delphi">
+OpenThemeData: function(hwnd: HWND; pszClassList: LPCWSTR): HTHEME; stdcall; 
+</pre>
+<p>возвращает дескриптор темы для текущего визуального стиля и класса, имя которого представлено параметром pszdassList. </p>
+<p>После того как тема загружена, можно использовать разнообразные графические функции, входящие в состав программного интерфейса. </p>
+<p>При завершении работы не забудьте освободить занятые дескрипторы графического контекста и темы. Для темы используйте функцию </p>
+<pre name="code" class="delphi">
+CloseThemeData: function(hTheme: HTHEME): HRESULT; stdcall; 
+</pre>
+
+<p>Заинтересованный читатель найдет подробное описание нужных функций Theme API в Microsoft MSDN или же может полюбопытствовать содержимым модулей UxTheme.pas и Themes.pas. </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

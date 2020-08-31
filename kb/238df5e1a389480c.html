@@ -1,0 +1,113 @@
+<html>
+<head>
+  <title>Добавление шума</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Добавление шума</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Добавление шума в изображение
+ 
+Зависимости: Graphics
+Автор:       Fenik, chook_nu@uraltc.ru, Новоуральск
+Copyright:   Автор Федоровских Николай
+Дата:        5 июня 2002 г.
+***************************************************** }
+ 
+procedure AddNoise(Bitmap: TBitmap; Amount: Integer; Mono: Boolean);
+{Если Mono = False, то точки цветные, иначе - чёрно-белые.
+ Процедура взята из библиотеки FastLIB и немного переделана}
+ 
+  function BLimit(B: Integer): Byte;
+  begin
+    if B &lt; 0 then
+      Result := 0
+    else if B &gt; 255 then
+      Result := 255
+    else
+      Result := B;
+  end;
+ 
+type
+  TRGB = record
+    B, G, R: Byte;
+  end;
+  pRGB = ^TRGB;
+var
+  x, y, i, a: Integer;
+  Dest: pRGB;
+begin
+  Bitmap.PixelFormat := pf24Bit;
+  Randomize;
+  i := Amount shr 1;
+  if Mono then
+    for y := 0 to Bitmap.Height - 1 do
+    begin
+      Dest := Bitmap.ScanLine[y];
+      for x := 0 to Bitmap.Width - 1 do
+      begin
+        a := Random(Amount) - i;
+        with Dest^ do
+        begin
+          r := BLimit(r + a);
+          g := BLimit(g + a);
+          b := BLimit(b + a);
+        end;
+        Inc(Dest);
+      end;
+    end
+  else
+    for y := 0 to Bitmap.Height - 1 do
+    begin
+      Dest := Bitmap.ScanLine[y];
+      for x := 0 to Bitmap.Width - 1 do
+      begin
+        with Dest^ do
+        begin
+          r := BLimit(r + Random(Amount) - i);
+          g := BLimit(g + Random(Amount) - i);
+          b := BLimit(b + Random(Amount) - i);
+        end;
+        Inc(Dest);
+      end;
+    end;
+end;
+</pre>
+<p>Пример использования: </p>
+<pre name="code" class="delphi">
+AddNoise(FBitmap, 65, False); 
+</pre>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

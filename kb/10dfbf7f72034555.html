@@ -1,0 +1,95 @@
+<html>
+<head>
+  <title>Как загрузить иконку CD-ROM?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как загрузить иконку CD-ROM?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function GetCDIcon(Drive: Char): TIcon; 
+var 
+  ico: TIcon; 
+  ini: TIniFile; 
+  s, p: string; 
+  i, j: Integer; 
+begin 
+  //Abbrechen wenn "AutoRun.Inf" nicht existiert. 
+  //Abort if "AutoRun.inf" doesn't exists. 
+  if FileExists(Drive + ':\autorun.inf') = False then Exit; 
+ 
+  //"AutoRun.inf" offnen 
+  //Opens the "AutoRun.inf" 
+  ini := TIniFile.Create(Drive + ':\autorun.inf'); 
+  ico := TIcon.Create; 
+ 
+  try 
+    //Dateinamen lesen 
+    //Read the filename 
+    s := ini.ReadString('Autorun', 'ICON', ''); 
+ 
+    //Abbrechen, wenn kein Icon festgelegt wurde 
+    //Abort if there is no icon specified 
+    if s = '' then Exit; 
+ 
+    //Icon von Datei laden 
+    //load the icon from a file 
+    if FileExists(s) then ico.LoadFromFile(s); 
+    if FileExists(Drive + ':\' + s) then ico.LoadFromFile(Drive + ':\' + s); 
+ 
+    //Icon aus einer Resource laden 
+    //Load the icon from a Win32 resource 
+    if (FileExists(s) = False) and (FileExists(Drive + ':\' + s) = False) then  
+    begin 
+      for j := (Pos(',', s) + 1) to Length(s) do  
+      begin 
+        p := p + s[j]; 
+      end; 
+      i := StrToInt(p); 
+      for j := Length(s) downto (Pos(',', s)) do 
+        Delete(s, j, Length(s)); 
+ 
+      if FileExists(s) = False then s := Drive + ':\' + s; 
+ 
+      ico.Handle := ExtractIcon(hinstance, PChar(s), i); 
+    end; 
+ 
+    Result := ico; 
+  finally 
+    ini.Free; 
+  end; 
+end; 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

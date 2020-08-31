@@ -1,0 +1,75 @@
+<html>
+<head>
+  <title>Создание DBExpress-Connection в runtime</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создание DBExpress-Connection в runtime</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TVCLScanner.PostUser(const Email, FirstName, LastName: WideString); 
+var 
+  Connection: TSQLConnection; 
+  DataSet: TSQLDataSet; 
+begin 
+  Connection := TSQLConnection.Create(nil); 
+  with Connection do 
+  begin 
+    ConnectionName := 'VCLScanner'; 
+    DriverName := 'INTERBASE'; 
+    LibraryName := 'dbexpint.dll'; 
+    VendorLib := 'GDS32.DLL'; 
+    GetDriverFunc := 'getSQLDriverINTERBASE'; 
+    Params.Add('User_Name=SYSDBA'); 
+    Params.Add('Password=masterkey'); 
+    Params.Add('Database=milo2:D:\frank\webservices\umlbank.gdb'); 
+    LoginPrompt := False; 
+    Open; 
+  end; 
+  DataSet := TSQLDataSet.Create(nil); 
+  with DataSet do 
+  begin 
+    SQLConnection := Connection; 
+    CommandText := Format('INSERT INTO kings VALUES("%s","%s","%s")', 
+      [Email, FirstN, LastN]); 
+    try 
+      ExecSQL; 
+    except 
+    end; 
+  end; 
+  Connection.Close; 
+  DataSet.Free; 
+  Connection.Free; 
+end;
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

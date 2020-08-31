@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>Инкрементация строкового поля</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Инкрементация строкового поля</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Свойства text элемента управления является строкой, в свою очередь являющейся массивом символом. Вы не можете осуществить преобразование символа в строку. Тем не менее, вы можете получить доступ ко всем символам строки через их индекс. </p>
+<p>Попробуйте это:</p>
+<pre name="code" class="delphi">
+var
+  s: string;
+begin
+  s := RevField.text;
+  s[1] := chr(ord(s[1]) + 1);
+  RevField.text := s;
+end;
+</pre>
+<p>Здесь кроется 2 проблемы:</p>
+<p>Для увеличения значения вам необходимо извлекать символы из строки. </p>
+<p>Хотя вы можете получить доступ к отдельным символам через выделение подстроки, данный метод не срабатывает у некоторых свойств, таких как, например, свойство TStringField Text. </p>
+<p>Лучшим решением, по-видимому, будет написание специфической функции. Например, в случае, если revision-символ всегда является конечным символом строки, функция могла бы выглядеть следующим образом:</p>
+<pre name="code" class="delphi">
+function IncrementTrailingVersionLetter(Str: string): string;
+begin 
+  Str[Length(Str)] := Char(Ord(Str[Length(Str)]) + 1);
+  IncrementTrailingVersionLetter := Str;
+end;
+ 
+и использовать ее следующим образом:
+ 
+with RevField do
+  Text := IncrementTrailingVersionLetter(Text);
+</pre>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

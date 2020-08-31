@@ -1,0 +1,65 @@
+<html>
+<head>
+  <title>TSQLStoredProc</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TSQLStoredProc</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Компонент TSQLStoredProc инкапсулирует функциональность хранимых процедур для их выполнения в рамках технологии dbExpress. Он подобен другим своим аналогам. Подробнее о функциях компонентов хранимых процедур см. часть III. Имя хранимой процедуры определяется свойством </p>
+<p>property StoredProcName: string; </p>
+<p>Для работы с входными и выходными параметрами предназначено свойство </p>
+<p>property Params: TParams; </p>
+<p>Внимание </p>
+<p>При работе с параметрами желательно использовать обращение к конкретному параметру по имени при помощи метода ParamByName. При работе с некоторыми серверами порядок следования параметров до выполнения процедуры и после может изменяться. </p>
+<p>Процедура выполняется методом </p>
+<p>function ExecProc: Integer; virtual; </p>
+<p>если она не возвращает набор данных. Иначе используются свойство Active или метод open. </p>
+<p>Если хранимая процедура возвращает несколько связанных наборов данных (подобно иерархическим запросам ADO), доступ к следующему набору данных осуществляет метод </p>
+<p>function NextRecordSet: TCustomSQLDataSet; </p>
+<p>автоматически создавая объект типа TCustomSQLDataSet для инкапсуляции новых данных. Возврат к предыдущему набору данных возможен, если вы определили объектные переменные для каждого набора данных: </p>
+<pre name="code" class="delphi">
+var SecondSet: TCustomSQLDataSet; 
+ 
+MyProc.Open; 
+while Not MyProc.Eof do 
+  begin 
+    {...} 
+    Next; 
+  end; 
+SecondSet := MyProc.NextRecordSet;  
+SecondSet.Open; {...} 
+SecondSet.Close;  
+MyProc.Close; 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

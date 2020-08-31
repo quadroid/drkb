@@ -1,0 +1,84 @@
+<html>
+<head>
+  <title>Проблемы INI-файла</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Проблемы INI-файла</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Кто-нибудь имел какие-нибудь проблемы при использовании модуля TIniFile? Я думаю здесь какая-то детская проблема с кэшированием!!! </p>
+<p>Вот что я делал:</p>
+<pre name="code" class="delphi">
+(* c:\test.ini уже существует *)
+myIni := TIniFile.Create('c:\test.ini');
+With myIni do
+begin
+  // .... (добавляем новую секцию в test.ini
+end;
+myIni.Free;
+RenameFile('c:\test.ini', 'c:\test1.ini');
+</pre>
+
+<p>Что я получил: </p>
+<p>test1.ini НЕ ИМЕЕТ добавленной мною секции; </p>
+<p>всякий раз при создании или открытии нового файла в том же самом каталоге с помощью File Manager, 'c:\test.ini' появляется вновь, и у него СУЩЕСТВУЕТ секция, которую я добавлял.</p>
+<p>Я решил эту проблему добавлением следующей строки перед IniFile.Free:</p>
+<p>WritePrivateProfileString(nil, nil, nil, PChar(IniFileName)); </p>
+<p>Для получения дополнительной информации обратитесь к электронной справке к разделу 'WritePrivateProfileString'</p>
+<p id="author">Автор: Tony Chang </p>
+&nbsp;</p>
+<hr /><p>Как указать системе на необходимость сбросить буфер INI-файла на диск</p>
+<pre name="code" class="delphi">
+procedure FlushIni(FileName: string);
+var
+  {$IFDEF WIN32}
+  CFileName: array[0..MAX_PATH] of WideChar;
+  {$ELSE}
+  CFileName: array[0..127] of Char;
+  {$ENDIF}
+begin
+  {$IFDEF WIN32}
+  if (Win32Platform = VER_PLATFORM_WIN32_NT) then
+    WritePrivateProfileStringW(nil, nil, nil, StringToWideChar(FileName,
+    CFileName, MAX_PATH))
+  else
+    WritePrivateProfileString(nil, nil, nil, PChar(FileName));
+  {$ELSE}
+  WritePrivateProfileString(nil, nil, nil, StrPLCopy(CFileName,
+  FileName, SizeOf(CFileName) - 1));
+  {$ENDIF}
+end;
+</pre>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

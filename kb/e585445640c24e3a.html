@@ -1,0 +1,175 @@
+<html>
+<head>
+  <title>Как изменить системное время?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как изменить системное время?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Функция SetSystemTime. </p>
+<p>Обрати внимание на привилегии. </p>
+<p id="author">Автор ответа: podval</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<pre name="code" class="delphi">
+//**********************************************************
+// Функция (раздел Public) SetPCSystemTime изменяет системную дату и время.
+// Параметр(ы) : tDati Новая дата и время
+// Возвращаемые значения: True - успешное завершение
+// False - метод несработал
+//************************************************************
+function SetPCSystemTime(tDati: TDateTime): Boolean;
+var
+tSetDati: TDateTime;
+vDatiBias: Variant;
+tTZI: TTimeZoneInformation;
+tST: TSystemTime;
+begin
+GetTimeZoneInformation(tTZI);
+vDatiBias := tTZI.Bias / 1440;
+tSetDati := tDati + vDatiBias;
+with tST do
+begin
+wYear := StrToInt(FormatDateTime('yyyy', tSetDati));
+wMonth := StrToInt(FormatDateTime('mm', tSetDati));
+wDay := StrToInt(FormatDateTime('dd', tSetDati));
+wHour := StrToInt(FormatDateTime('hh', tSetDati));
+wMinute := StrToInt(FormatDateTime('nn', tSetDati));
+wSecond := StrToInt(FormatDateTime('ss', tSetDati));
+wMilliseconds := 0;
+end;
+SetPCSystemTime := SetSystemTime(tST);
+end; 
+</pre>
+<hr />
+<p>Для изменения системного времени используется сложный спобой (через строки).</p>
+<pre name="code" class="delphi">
+DateTimeToSystemTime(tSetDati,Tst);
+</pre>
+<p> - работает быстрее и код короче</p>
+<hr />
+<pre name="code" class="delphi">
+
+ 
+Procedure settime(hour, min, sec, hundreths : byte); assembler;
+asm
+mov ch, hour
+mov cl, min
+mov dh, sec
+mov dl, hundreths
+mov ah, $2d
+int $21
+end;
+ 
+////////////////////////////////////////////////////////////////////////
+Procedure setdate(Year : word; Month, Day : byte); assembler;
+asm
+mov cx, year
+mov dh, month
+mov dl, day
+mov ah, $2b
+int $21
+end; 
+</pre>
+
+<p id="author">Автор: Pegas</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<p>Следующие несколько строк кода позволяют установить системную дату и время без использования панели управления. Дата и время устанавливаются двумя раздельными компонентами TDateTimePicker. Дата и время декодируются и передаются в API функцию.</p>
+<p>Из значения часа вычитается 2 для установки правильного времени. (Примечание Vit: вычитается не 2 часа а разница с Гринвичем)</p>
+<pre name="code" class="delphi">
+procedure TfmTime.btnTimeClick(Sender: TObject); 
+var vsys : _SYSTEMTIME; 
+vYear, vMonth, vDay, vHour, vMin, vSec, vMm : Word; 
+begin 
+DecodeDate( Trunc(dtpDate.Date), vYear, vMonth, vDay ); 
+DecodeTime( dtpTime.Time, vHour, vMin, vSec, vMm ); 
+vMm := 0; 
+vsys.wYear := vYear; 
+vsys.wMonth := vMonth; 
+vsys.wDay := vDay; 
+vsys.wHour := ( vHour - 2 ); 
+vsys.wMinute := vMin; 
+vsys.wSecond := vSec; 
+vsys.wMilliseconds := vMm; 
+vsys.wDayOfWeek := DayOfWeek( Trunc(dtpDate.Date) ); 
+SetSystemTime( vsys ); 
+end;
+</pre>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+<hr />
+<pre name="code" class="delphi">
+function SetTime(DateTime:TDateTime): boolean;
+var
+  st: TSystemTime;
+  ZoneTime: TTimeZoneInformation;
+begin
+  GetTimeZoneInformation(ZoneTime);
+  DateTime:=DateTime+ZoneTime.Bias/1440;
+  with st do
+  begin
+    DecodeDate(DateTime, wYear, wMonth, wDay);
+    DecodeTime(DateTime, wHour, wMinute, wSecond, wMilliseconds);
+  end;
+  Result:=SetSystemTime(st);
+end;
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr />
+<p>Следующие несколько строк кода позволяют установить системную дату и время без использования панели управления. Дата и время устанавливаются двумя раздельными компонентами TDateTimePicker. Дата и время декодируются и передаются в API функцию. </p>
+<p>Из значения часа вычитается 2 для установки правильного времени. </p>
+<pre name="code" class="delphi">
+procedure TfmTime.btnTimeClick(Sender: TObject);
+var
+  vsys: _SYSTEMTIME;
+  vYear, vMonth, vDay, vHour, vMin, vSec, vMm: Word;
+begin
+  DecodeDate( Trunc(dtpDate.Date), vYear, vMonth, vDay );
+  DecodeTime( dtpTime.Time, vHour, vMin, vSec, vMm );
+  vMm := 0;
+  vsys.wYear := vYear;
+  vsys.wMonth := vMonth;
+  vsys.wDay := vDay;
+  vsys.wHour := ( vHour - 2 );
+  vsys.wMinute := vMin;
+  vsys.wSecond := vSec;
+  vsys.wMilliseconds := vMm;
+  vsys.wDayOfWeek := DayOfWeek( Trunc(dtpDate.Date) );
+  SetSystemTime( vsys );
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

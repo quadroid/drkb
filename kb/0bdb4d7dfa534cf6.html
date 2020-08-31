@@ -1,0 +1,144 @@
+<html>
+<head>
+  <title>Клонирование объектов</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Клонирование объектов</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Клонирование объектов.</p>
+Создать копию объекта в Delphi очень просто. Конвертируем объект в текст, а затем - обратно. При этом будут продублированы все свойства, кроме ссылок на обработчики событий. Для преобразования компонента в файл и обратно нам понадобятся функции потоков WriteComponent(TComponent) и ReadComponent(TComponent). При этом в поток записывается двоичный ресурс. Последний с помощью функции ObjectBinaryToText можно преобразовать в текст. <br>
+<p>Создадим на их основе функции преобразования:</p>
+<pre name="code" class="delphi">
+function ComponentToString(Component: TComponent): string; 
+var 
+  ms: TMemoryStream; 
+  ss: TStringStream; 
+begin 
+  ss := TStringStream.Create(' '); 
+  ms := TMemoryStream.Create; 
+  try 
+    ms.WriteComponent(Component); 
+    ms.position := 0; 
+    ObjectBinaryToText(ms, ss); 
+    ss.position := 0; 
+    Result := ss.DataString; 
+  finally 
+    ms.Free; 
+    ss.free; 
+  end; 
+end; 
+ 
+procedure StringToComponent(Component: TComponent; Value: string); 
+var 
+  StrStream:TStringStream; 
+  ms: TMemoryStream; 
+begin 
+  StrStream := TStringStream.Create(Value); 
+  try 
+    ms := TMemoryStream.Create; 
+    try 
+      ObjectTextToBinary(StrStream, ms); 
+      ms.position := 0; 
+      ms.ReadComponent(Component); 
+    finally 
+      ms.Free; 
+    end; 
+  finally 
+    StrStream.Free; 
+  end; 
+end;
+</pre>
+<p>С помощью пары этих функций мы можем преобразовать любой компонент в текст, а затем проинициализировать другой компонент того же класса этими данными.<br>
+<p>Ниже приведен ресурс формы с одной кнопкой и текст обработчика нажатия на эту кнопку.</p>
+<pre name="code" class="delphi">
+object Form1: TForm1 
+  Left = 262 
+  Top = 129 
+  Width = 525 
+  Height = 153 
+  Caption = 'Form1' 
+  Color = clBtnFace 
+  Font.Charset = DEFAULT_CHARSET 
+  Font.Color = clWindowText 
+  Font.Height = -11 
+  Font.Name = 'MS Sans Serif' 
+  Font.Style = [] 
+  OldCreateOrder = False 
+  Scaled = False 
+  PixelsPerInch = 96 
+  TextHeight = 13 
+  object Button1: TButton 
+    Left = 16 
+    Top = 32 
+    Width = 57 
+    Height = 49 
+    Caption = 'Caption' 
+    TabOrder = 0 
+    OnClick = Button1Click 
+  end 
+end 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+var 
+  Button: TButton; 
+  OldName: string; 
+begin 
+  Button := TButton.Create(self); 
+ 
+  //...сохраняем имя компонента 
+  OldName := (Sender as TButton).Name; 
+ 
+  //...стираем имя компонента, чтобы избежать конфликта имен.
+  //...После этого Button1 станет = nil. 
+  (Sender as TButton).Name := ''; 
+ 
+  //...преобразуем в текст и обратно 
+  StringToComponent( Button, ComponentToString(Sender as TButton) ); 
+ 
+  //...дадим компоненту уникальное(?) имя 
+  Button.Name := 'Button' + IntToStr(random(1000)); 
+ 
+  //...вернем исходному компоненту имя.
+  //...После этого Button1 станет снова указывать на объект. 
+  (Sender as TButton).Name := OldName; 
+ 
+  //...размещаем новую кнопку справа от исходной 
+  Button.parent := self; 
+  Button1.Tag := Button1.Tag + 1; 
+  Button.Left := Button.Left + Button.Width * Button1.Tag + 1; 
+end; 
+</pre>
+<p>Приведенный метод не дублирует указатели на обработчики событий. Однако, если таким образом дублировать формы, то все дочерние компоненты и все обработчики сохранятся. </p>
+<p>Составление статьи: Андрей Чудин, ЦПР ТД Библио-Глобус</p>
+<p>Взято из<a href="http://delphi.chertenok.ru" target="_blank"> http://delphi.chertenok.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

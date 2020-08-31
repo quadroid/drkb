@@ -1,0 +1,270 @@
+<html>
+<head>
+  <title>Серверы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Серверы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>17. Серверы</p>
+В Indy есть несколько серверных моделей, в зависимости от ваших потребностей и используемых протоколов. Следующие несколько глав введут вас в серверные компоненты Indy.</p>
+17.1. Типы серверов</p>
+17.1.1. Класс TIdTCPServer</p>
+Наиболее известный сервер в Indy &#8211; это TIdTCPServer.</p>
+Класс TIdTCPServer создает вторичный слушающий поток, который независим от главного потока программы. Слушающий поток следит за входящими запросами от клиентов. Для каждого клиента, которому он отвечает, он создает&nbsp; новый поток, для специфического сервиса, индивидуального соединения. Все соответствующие события затем возбуждаются к контексте этого потока.</p>
+&nbsp;</p>
+<img src="pic/clip0227.gif" width="515" height="225" border="0" alt="clip0227"></p>
+&nbsp;</p>
+17.1.1.1. Роль потоков</p>
+Сервера Indy разработаны вокруг потоков и работают подобно тому, как в Unix работают сервера. Приложения Unix обычно взаимодействуют со стеком напрямую с минимумом абстракции, а то и без нее. Indy изолирует программиста от стека, используя высокий уровень абстракции и реализует многие детали внутри, автоматически и скрытно.</p>
+Обычно, сервера Unix имеют один или несколько слушающих процессов, которые следят за запросами от клиентов. При запросе от клиента, который сервер акцептирует, сервер размножает процесс, для обработки каждого клиентского соединения. Обслуживание множества клиентов таким образом очень просто, так как каждый процесс работает только с одним клиентом. Процесс также может запускаться в своем контексте безопасности, который может быть установлен слушателем или процессом на основе аутентификации, прав или других основаниях.</p>
+Сервера Indy работают подобным образом. Windows в отличии от Unix не размножает процессы, но зато Windows хорошо работает с потоками. Сервера Indy размещают поток для каждого клиентского соединения, вместо создания отдельного законченного процесса, как это делает Unix. Это дает все преимущества процессов, без наличия недостатков.</p>
+17.1.1.2. Сотни потоков</p>
+Для сильно нагруженного сервера может потребоваться сотни или даже тысячи потоков. Есть общее убеждение, что сотни и тысячи потоков могут убить вашу систему. Это неверное убеждение.</p>
+Количество потоков, которые запущены на вашей системе, может удивить вас. При минимальном количестве запущенных серверов и указанными запущенными приложениями моя система имеет 513 созданных потоков и вы видите, что даже при 513 потоках процессор нагружен только на 1%. Сильно нагруженный сервер IIS (Microsoft Internet Information Server) может создать сотни и тысячи потоков. Данный тест был выполнен на Pentium III 750 MHz с 256 MB оперативной памяти.</p>
+На большинстве серверов, потоки находятся в режиме ожидания данных. При ожидании на блокирующем сокете, поток находится в неактивном состоянии. Поэтому на сервере из 500 потоков, только 25 могут оказаться активными одновременно.</p>
+В сокетных приложениях, наибольшие ограничения накладывает самый медленный компонент. В сетевых приложениях, сетевая плата обычно самый медленный компонент и поэтому ничего не сможет превысить возможностей сетевой платы. Даже самая быстрая сетевая плата, во много раз медленнее процессора, и является узким местом, если она задействована по полной.</p>
+17.1.1.3. Реальные ограничения на потоки</p>
+Реально средняя система начинает испытать проблемы, только когда процесс создаст свыше 1000 потоков, из-за нехватки памяти. Размер стека потока может быть уменьшен за счет увеличения количества потоков, тем не менее, надо рассмотреть и другие альтернативные причины.</p>
+Большинству серверов требуется только несколько сотен потоков. Тем не менее, сильно нагруженные сервера или сервера, у которых трафик низкий, но множество подключенных клиентов, таких как чат (Chat) сервер требуют другой реализации. Такие сервера, в Indy могут создавать тысячи потоков.</p>
+Также следует понять, что количество клиентов совсем не означает тоже количество конкурирующих потоков. Когда каждый клиент выделяет отдельный поток, то поток выделяется клиенту только при соединении. Многие сервера обслуживают кратко живущие соединения, такие как HTTP сервера. HTTP соединения для страниц обычно живут только одну секунду или менее, особенно если используется прокси или кэширование. Предположим 1 секунду на соединение и только 500 потоков, что позволяет до 30 000 клиентов в час.</p>
+Indy 10 имеет и другие модели, в дополнение к потокам серверов. Возможности Indy 10 ограничены только размером доступной памяти для размещения сокетов.</p>
+17.1.1.4. Модели серверов</p>
+Есть два пути построения TCP серверов: с командными обработчиками и с событиями OnExecute. Командные обработчики делают построение серверов много проще, но не во всех ситуациях.</p>
+Командные обработчики удобны для протоколов, которые обмениваются командами в текстовом формате, но не очень удобны для протоколов, которые имеют команды двоичной структуры или совсем не имеют командной структуры. Большинство протоколов текстовые и могут использоваться командные обработчики. Командные обработчики полностью опциональны. Если они не используются сервера Indy продолжают использовать старые методы. Командные обработчики рассмотрены в деталях в главе «Командные обработчики».</p>
+Некоторые протоколы являются двоичными или не имеют командной структуры и не пригодны для использования командных обработчиков. Для таких серверов должно использоваться событие OnExecute. Событие OnExecute постоянно вызывается пока существует соединение&nbsp; и передает соединение, как аргумент. Реализация очень простого сервера с использованием события OnExecute выглядит так:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 0px;"><pre name="code" class="delphi">procedure TformMain.IdTCPServer1Execute(AThread: TIdPeerThread);
+var
+  LCmd: string;
+begin
+  with AThread.Connection do 
+  begin
+ &nbsp;&nbsp; LCmd := Trim(ReadLn);
+ &nbsp;&nbsp; if SameText(LCmd, 'QUIT') then 
+ &nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp; WriteLn('200 Good bye');
+ &nbsp;&nbsp;&nbsp;&nbsp; Disconnect;
+ &nbsp;&nbsp; end 
+ &nbsp;&nbsp; else if SameText(LCmd, 'DATE') then 
+ &nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp; WriteLn('200 ' + DateToStr(Date));
+ &nbsp;&nbsp; end 
+ &nbsp;&nbsp; else 
+ &nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp; WriteLn('400 Unknown command');
+ &nbsp;&nbsp; end;
+  end;
+end;
+</pre>
+&nbsp;</p>
+здесь нет необходимости проверять действительность соединения, так как Indy делает это автоматически. Так же нет необходимости производить опрос, поскольку и это Indy делает автоматически за вас. Она вызывает событие периодически, пока соединение не прекратится. Это может быть вызвано или явным отсоединением, или по сетевой ошибке, или если клиент отсоединился. В действительности, не требуется делать никаких опросов на предмет отсоединений. Если данный опрос все же необходимо делать, вам надо только позаботиться об возбуждении исключений, что бы Indy смог нормально их отработать.</p>
+17.1.1.5. Командные обработчики</p>
+Indy 9.0 содержит новое средство, называемое командные обработчики. Командные обработчики &#8211; это новая концепция, используемая в TIdTCPServer, которая позволяет серверу&nbsp; выполнять парсинг команды и обрабатывать его для вас. Командные обработчики это разновидность «визуального управления сервером» и является только маленьким заглядыванием в будущие реализации Indy.</p>
+Для каждой команды, которую вы желаете обрабатывать сервером, создается командный обработчик. Думайте об командных обработчиках, как о списке действий для сервера. Командный обработчик содержит свойства, которые указывают, как парсить параметры, команды, некоторые действия, которые могут быть выполнены автоматически и дополнительные автоматические ответы. В некоторых случаях используя только свойства, вы сможете создать полностью функциональную команду без необходимости написания какого либо кода. Каждый командный обработчик имеет уникальное событие OnCommand. Когда событие вызывается, то нет необходимости определять какая команда была запрошена, так как данное событие уникально для каждого командного обработчика. В дополнение, командный обработчик уже распарсил параметры и выполнил автоматические действия для вас.</p>
+Вот маленький пример использования командных обработчиков. Во-первых вы должны определить две команды: QUIT и DATE. Создадим два командных обработчика, как указано ниже:</p>
+Для cmdhQuit свойство disconnect устанавливается в true. Для cmdhDate событие OnCommand определяется так:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 0px;"><pre name="code" class="delphi">procedure TForm1.IdTCPServer1cmdhDateCommand(ASender: TIdCommand);
+begin
+  ASender.Reply.Text.Text := DateTimeToStr(Date);
+end;
+</pre>
+&nbsp;</p>
+это законченный код командного обработчика. Все другие детали, специфицированы установкой свойств в командных обработчиках.</p>
+Командные обработчики более подробно описаны в главе «командные обработчики».</p>
+17.1.2. Класс TIdUDPServer</p>
+Поскольку UDP не требуется соединения (по определению), то класс TIdUDPServer работает отлично от TIdTCPServer. Подобно TIdSimpleServer класс TIdUDPServer не имеет некоторых режимов, и поскольку UDP не требуется соединения, TIdUDPClient имеет только слушающие методы.</p>
+При активизации, класс TIdUDPServer создает слушающий поток, для прослушивания входящих UDP пакетов. Для каждого, принятого UDP пакета, класс TIdUDPServer возбуждает событие OnUDPRead в главном потоке или в контексте слушающего потока, в зависимости от значения свойства ThreadedEvent.</p>
+Когда значение свойства ThreadedEvent = false, то событие OnUDPRead возбуждается в контексте главного потока программы. Когда значение свойства ThreadedEvent = true, то событие OnUDPRead возбуждается в контексте слушающего потока.</p>
+Когда значение свойства ThreadedEvent равно false, то блокируется прием дальнейших сообщений. Поэтому событие OnUDPRead должно быть как можно более быстрым.</p>
+17.1.3. Класс TIdSimpleServer</p>
+Класс TIdSimpleServer предназначен для разового использования серверов. Класс TIdSimpleServer предназначен для обслуживания одного соединения за раз. Хотя он может обслуживать другие запросы по окончанию, обычно он используется только для одного запроса.</p>
+Класс TIdSimpleServer не создает потоков для прослушивания или вторичных потоков соединения. Вся функциональность реализована в одном потоке.</p>
+Компонент клиента TIdFTP использует класс TIdSimpleServer. Когда FTP выполняет передачу, вторичное TCP соединение открывается для передачи данных и закрывается, когда данные будут переданы. Данное соединение называется «канал данных (data channel)» и оно уникально для каждого передаваемого файла.</p>
+17.2. События потоков </p>
+События TIdTCPServer потоковые. Это означает, что они не являются частью потока, они выполняются внутри потока. Это очень важная деталь. Будьте уверены, что вы понимаете эту деталь до начала обработки.</p>
+Это сначала может показаться странным, что событие может быть частью формы но при этом выполняться внутри потока. Тем не менее, это было умышленно так сконструировано, чтобы события созданные в дизайн тайм, были подобны любым другим событиям, без необходимости создания пользовательского класса и перекрытия метода.</p>
+В создаваемых компонентах наследниках, перекрытие тоже доступно. Но для построения приложений, модель обработчиков событий намного проще в применении.</p>
+<img src="pic/clip0228.gif" width="315" height="260" border="0" alt="clip0228"></p>
+Каждый клиент создает свой собственный поток. При использовании данного потока, события TCP сервера (который является частью формы или модуля данных) вызываются из данных потоков. Это означает, что одиночное событие может быть вызвано множество раз из разных потоков. Такие события получают в качестве аргумента AThread, который указывает на поток из которого возбуждено событие.</p>
+Примерами потоковых события являются командные обработчики сервера OnConnect, OnExecute и OnDisconnect.</p>
+17.3. Модели TCP серверов</p>
+TCP сервер Indy поддерживает две модели для построения серверов. Данные методы это OnExecute и командные обработчики. Indy 8 поддерживает только OnExecute.</p>
+17.3.1 Событие OnExecute</p>
+Событие OnExecute ссылается на событие OnExecute класса TIdTCPServer. При реализации сервера по данной модели, должно быть определено событие OnExecute или перекрыт метод DoExecute.</p>
+Модель OnExecute допускает полный контроль разработчиком и позволяет реализовывать любые типы протоколов, включая двоичные протоколы.</p>
+После подсоединения клиента к серверу, возбуждается событие OnExecute. Если событие OnExecute не определено, то возбуждается исключение. Событие OnExecute возбуждается в цикле, как только подсоединяется клиент. Это очень важная деталь и поэтому разработчик должен побеспокоиться об </p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Помнить о том,&nbsp; что событие возникает в цикле.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>Не препядствовать Indy выполянть обработку в цикле.</td></tr></table></div>Внутренний цикл показан на следующей диаграмме:</p>
+<img src="pic/clip0229.gif" width="359" height="288" border="0" alt="clip0229"></p>
+На этапе проверки соединения выполняется следующие проверки:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Клиент еще подсоединен</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Disconnect не был вызван во время OnExecute</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Отсутствуют фатальные ошибки</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Не было возбуждено необработанное исключение в OnExecute</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Сервер еще активен</td></tr></table></div>Если все эти проверки и другие проверки истинны, то событие OnExecute возбуждается снова. Поэтому, разработчик никогда не должен конструировать свой цикл внутри OnExecute, который будет дублировать это, так как это будет мешать Indy.</p>
+17.3.2. Обработчики команд (Command Handlers)</p>
+Командные обработчики подобны спискам действий для построения серверов, в стиле визуальной среды проектирования. Командные обработчики ограничены текстовыми протоколами.&nbsp; Данные, передаваемые по протоколу, могут быть двоичными.</p>
+Обработчики команд автоматически читают и разбирают команды. При этом возбуждается специфическое событие OnCommand.</p>
+<img src="pic/clip0230.gif" width="463" height="403" border="0" alt="clip0230"></p>
+17.4. Обработчики команд (Command Handlers)</p>
+Создание серверов в Indy всегда было достаточно простой задачей, тем не менее в Indy 9 это стало проще после введения командных обработчиков в класс TCP сервера (TIdTCPServer).</p>
+Обработчики команд подобны спискам действий для сервера. Командные обработчики работают следующим образом: - вы создаете обработчик команд для каждой команды и затем используя обработчик команд определяете поведение для конкретной команды. Когда команда принята от клиента, то сервер автоматически разбирает ее и передает конкретному обработчику. Обработчики команд не только имеют свойства для настройки поведения, но также методы и события.</p>
+Обработчики команд работают только с текстовыми командами и ответами TCP протоколов. Тем не менее это покрывает нужды почти 95% серверов используемых в настоящее&nbsp; время. Хотя обработчик в состоянии работать с двоичными данным, но сами команды могут быть только текстовыми. Имеется некоторое количество протоколов, которые работают с помощью двоичных команд. Для протоколов, использующих двоичные команды или текстовые команды, которые не совместимы (от корректора: труднореализуемые??? Не могу себе представить что он имел&nbsp; в виду, потому что conversational это словоохотливый, разговорчивый), реализация обработчиков команд не является обязательной что позволяет сохранить обратную совместимость .</p>
+17.4.1. Реализация</p>
+Класс TCPServer содержит свойство, именуемое CommandHandlers, которое является коллекцией обработчиков команд. Обработчики обычно создаются во время разработки, тем не менее, при реализации наследников они могут создаваться и во время исполнения. Если командные обработчики создаются во время исполнения, то они должны быть созданы путем перекрытия метода InitializeCommandHandlers. Это гарантирует, что они создадутся только во время исполнения. Если они создаются в конструкторе, они будут создаваться каждый раз, когда TCPServer загружается из потока и записывается обратно в поток. Это может привести к созданию множества копий для каждого обработчика. Инициализация, напротив, вызывается только однажды после первой активации TCPServer.</p>
+Класс TCPServer содержит несколько свойств и событий имеющих отношение к обработчикам команд. Свойство CommandHandlersEnabled разрешает или запрещает работу обработчика как единого целого. Свойство OnAfterCommandHandler возбуждается после выполнения каждого&nbsp; обработчика и событие OnBeforeCommand возбуждается перед выполнением каждого&nbsp; обработчика. Событие OnNoCommandHandler возбуждается если обработчик, соответствующий команде, не найден.</p>
+Если свойство CommandHandlersEnabled равно true и определены обработчики, то выполняется&nbsp; их обработка. Иначе вызывается событие OnExecute, если оно назначено. Обработчик OnExecute не вызывается если были обработаны команды.</p>
+Если есть соединение, TCPServer читает строки текста из соединения и пытается найти подходящий обработчик команд. Любые пустые строки игнорируются. Для непустых строк сначала возбуждается событие OnBeforeCommandHandler. Затем ищется подходящий командный обработчик. Если командный обработчик найден и его свойство enabled установлено в true, то возбуждается его событие OnCommand, а иначе возбуждается событие OnNoCommandHandler. После всего этого возбуждается событие OnAfterCommand.</p>
+17.4.2. Пример протокола</p>
+Для демонстрации базовой реализации обработчиков команд, определим простой протокол. Для демонстрации пользовательского сервера времени реализуем три команды:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Help &#8211; показывает список поддерживаемых команд и их форматы.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>DateTime &lt;format&gt; - возвращает текущую дату и время в указанном формате, если формат не указан, то по умолчанию используется формат yyyy-mm-dd hh:nn:ss.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Quit &#8211; закрывает сессию и отсоединяется.</td></tr></table></div>Это очень простая базовая реализация, но она работает вполне приемлемо для целей демонстрации. Конечно, вы можете ее расширить для того чтобы изучить возможности&nbsp; обработчиков команд.</p>
+17.4.3. Базовый пример</p>
+Сначала сконструируем базу для построения примера. Это подразумевает, что вы уже умеете работать с TIdTCPServer и вот ваши следующие шаги. Для построения базового примера выполним следующие шаги:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Создадим новое приложение.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>Добавим TIdTCPServer на форму.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>Установим свойство TIdTCPServer.Default в 6000. порт 6000 это порт для демо, выбранный случайным образом,&nbsp; можно использовать любой свободный порт.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">4.</td><td>Установим свойство TIdTCPServer.Active в True. Это должно активировать сервер при старте приложения.</td></tr></table></div>Этим мы создали базовое приложение. Оно пока ничего не делает, поскольку еще нет ни обработчиков команд, ни событий.</p>
+17.4.4. Создание обработчика команд</p>
+Обработчики команд создаются при редактировании свойства CommandHandlers класса TIdTCPServer. Свойство CommandHandlers &#8211; это коллекция. Обработчики могут быть модифицированы как во время исполнения, так и во время разработки. Для редактирования&nbsp; обработчиков во время разработки нажмите на кнопку &lt;…&gt; на свойстве CommandHandlers в инспекторе объектов. Появится диалог. Он пока пуст, поскольку еще нет ни одного обработчика. Для создания обработчика&nbsp; команд, или нажмите правую кнопку мыши и выберите пункт Add, или нажмите первую кнопку в панели инструментов диалога. После это в списке появится обработчик команд. Для редактирования обработчика выберите его в инспекторе объектов. Редактирование&nbsp; обработчиков подобно редактированию полей набора данных БД или колонок в DBGrid. Если инспектор объектов не виден, то нажмите F11 для его отображения.</p>
+Инспектор объектов выглядит как на приведенном рисунке. Показано, что есть уже одно измененное свойство, реализующее команду. Это команда QUIT и она будет обсуждена ниже.</p>
+Пошаговое описание реализации команды QUIT:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Command = Quit &#8211; это команда сервера которую сервер будет использовать для поиска обработчика при чтении ввода. Команда не чувствительна к регистру.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>Disconnect = True &#8211; это значит, что сервер отсоединится от клиента после получении и&nbsp; обработки данной команды.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>Name = cmdhQuit &#8211; данное свойство не оказывает никакого влияния на обработку, но оно предназначено для упрощения идентификации обработчика в коде. Данный шаг необязательный.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">4.</td><td>ReplyNormal.NumericCode = 200 &#8211; Команды обычно возвращают 3-х разрядный код и необязательный текст.&nbsp; Задав это свойство, мы указывем обработчику возвращать в ответ на команду код 200 и дополнительный текст из ReplyNormal.Text если конечно не произойдет ошибка во время выполнения команды.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">5.</td><td>ReplyNormal.Text = Good Bye &#8211; дополнительный текст, который посылается вместе с ReplyNormal.NumericCode.</td></tr></table></div>После этого мы имеем полностью работоспособный обработчик команд.</p>
+17.4.5. Поддержка обработчика команд</p>
+Теперь когда обработчик создан, есть еще несколько глобальных параметров, относящихся к северам на текстовых командах серверов и обработчиков команд, которые также должны быть установлены. Все это свойства TIdTCPServer, а не обработчикам команд.</p>
+17.4.5.1. Свойство Greeting (приветствие)</p>
+Обычной практикой для серверов, является предоставления информации, приветствия от сервера, перед тем как сервер начнет обрабатывать команды клиента. Типичный ответ сервера, показывающий, что сервер готов, это код 200 и установка кода не равным нулю, разрешит посылку приветствия</p>
+Установите свойства Greeting. NumericCode = 200 и Greeting.Text в "Hello".</p>
+17.4.5.2. Свойство ReplyExceptionCode</p>
+Если во время обработки команд обнаружатся не обслуженные исключения, то используется данное свойство со значением отличным от нуля. Код 500 это типичный ответ для внутренних, неизвестных ошибок. Вместе с кодом отсылается и текстовый отзыв.</p>
+Установите ReplyExceptionCode в 500.</p>
+17.4.5.3. Свойство ReplyUnknownCommand</p>
+Если во время обработки команд обнаружатся не обработанные исключения, то данное свойство будет использовано для построения ответа, если его значение отличается от нуля. Код 400 наиболее общий ответ для подобных случаев.</p>
+Установите ReplyUnknown.NumericCode в 400 и ReplyUnknown.Text в "Unknown Command".</p>
+17.4.5.4. Прочие свойства</p>
+У TIdTCPServer есть еще и другие свойства и события, для реализации дополнительного поведения, относящего к командным обработчикам, но приведенные выше являются минимумом, который должен быть реализован.</p>
+17.4.6. Тестирование новой команды</p>
+Теперь, когда команда уже реализована можно приступить и к тестированию, просто воспользуемся Telnet, поскольку протокол текстовый:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Запустим приложение.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>В меню Start: Run введем: telnet 127.0.0.1 6000 и нажмем OK. Это указывает Telnet подсоединиться к компьютеру на порт 6000, который используется в демонстрационном примере.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>Сервер должен ответить 200 Hello, что является приветствием, из свойства Greeting of TIdTCPServer.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">4.</td><td>Telnet затем покажет каретку. Это означает, что сервер готов и ожидает команду.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">5.</td><td>Введем HELP и нажмем enter. Сервер ответит "400 Unknown Command". Поскольку пока мы не создали командного обработчика для команды HELP и ответ "400 Unknown Command" был взят из свойства ReplyUnknown.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">6.</td><td>Введем QUIT. Сервер ответит "200 Good Bye" и отсоединится от клиента.</td></tr></table></div>Поздравляем! Вы построили сервер с обработчиком команд. В следующей главе мы реализуем остальные две команды - HELP и DATETIME, которые имеют отличное от команды QUIT поведение.</p>
+17.4.7. Реализация HELP</p>
+Команда HELP подобно по поведению на команду QUIT за исключением двух различий.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Не происходит разъединение сеанса.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>В дополнение ответ также предоставляет текстовый отклик со справочной информацией.</td></tr></table></div>Для реализации команды HELP выполним следующие шаги:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Создадим новый командный обработчик.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>Command = Help</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>Name = cmdhHelp</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">4.</td><td>ReplyNormal.NumericCode = 200</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">5.</td><td>ReplyNormal.Text = Help Follows</td></tr></table></div>Все эти шаги знакомы вам по реализации команды QUIT. Дополнительное свойство, которое здесь используется - это свойство Response, которое является списком строк. Если свойство Response содержит текст, то оно посылается клиенту после отсылки ReplyNormal. Для реализации команды HELP используется редактор строк свойства Response:</p>
+Help - Display a list of supported commands and basic help on each.</p>
+DateTime &lt;format&gt; - Return the current date and/or time using the specified</p>
+format.</p>
+If no format is specified the format yyyy-mm-dd hh:nn:ss will be used.</p>
+Quit - Terminate the session and disconnect.</p>
+Теперь если вы подсоединитесь к серверу и пошлете команду HELP, то сервер ответит следующим образом:</p>
+200 Hello</p>
+help</p>
+200 Help Follows</p>
+Help - Display a list of supported commands and basic help on each.</p>
+DateTime &lt;format&gt; - Return the current date and/or time using the specified</p>
+format.</p>
+If no format is specified the format yyyy-mm-dd hh:nn:ss will be used.</p>
+Quit - Terminate the session and disconnect.</p>
+.</p>
+17.4.8. Реализация DATETIME</p>
+Команда DATETIME &#8211; это последняя команда данного протокола. Оно отличатся и от QUIT и от HELP, в том, что требует особой функциональности, которая не может быть создана только с помощью свойств. Для реализации команды DATETIME будет использован обработчик события.</p>
+Для начала построим базовый обработчик команды, используя шаги с которым вы уже знакомы:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Создадим новый командный обработчик.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>Command = DateTime</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>Name = cmdhDateTime</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">4.</td><td>ReplyNormal.NumericCode = 200</td></tr></table></div>В данный момент свойство ReplyNormal.Text не определяется, обработчик события будет его определять для каждого ответа. Для определения обработчика, используйте инспектор объектов, выбрав командный обработчик для DATETIME. Переключитесь на закладку events и создайте событие OnCommand. Delphi создаст обработчик следующим образом:</p>
+procedure TForm1.IdTCPServer1TIdCommandHandler2Command(ASender: TIdCommand);</p>
+begin</p>
+end;</p>
+В обработчик OnCommand передается аргумент of ASender типа TIdCommand. Это не командный обработчик, а сама команда. Командные обработчики глобальны для всех соединений, тогда как, команды специфичны для соединения connection и обрабатываются в рамках экземпляра события OnCommand. Это гарантирует, что обработчик выполнит корректную обработку для каждого клиентского соединения.</p>
+Перед вызовом обработчика события, Indy создает экземпляр команды и инициализирует его свойства на основе данных обработчика команд. Вы можете использовать команды для смены свойства со значений по умолчанию, вызывать методы для выполнения задач или для доступа к свойству Connection для общения с соединением напрямую.</p>
+Данный протокол определяет команду DATETIME, как имеющую дополнительный параметр, указывающий формат даты и времени. Команда (TIdCommand) реализует это с помощью свойства Params, которое является списком строк. Когда команда принимается от клиента и свойство ParseParams установлено в true (по умолчанию) Indy использует свойство CmdDelimeter (по умолчанию равное #32 или пробел) для разделения команды и параметров.</p>
+Например, в данном протоколе, клиент может послать следующее:</p>
+DATETIME hhnnss</p>
+В этом случае, свойство ASender.Params будет содержать строку "hhnnss" в свойстве ASender.Params[0]. Количество параметров может быть определено с помощью свойства&nbsp; ASender.Params.Count.</p>
+Используя данные свойства обработчик OnCommand может быть реализован следующим образом:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 0px;"><pre name="code" class="delphi">procedure TForm1.IdTCPServer1TIdCommandHandler2Command(ASender: TIdCommand);
+var
+  LFormat: string;
+begin
+  if ASender.Params.Count = 0 then 
+  begin
+ &nbsp;&nbsp; LFormat := 'yyyy-mm-dd hh:nn:ss';
+  end 
+  else 
+  begin
+ &nbsp;&nbsp; LFormat := ASender.Params[0];
+  end;
+  ASender.Reply.Text.Text := FormatDateTime(LFormat, Now);
+end;
+</pre>
+&nbsp;</p>
+данная реализация просто читает параметры и использует ASender.Reply.Text для посылки ответа обратно клиенту. Не требуется устанавливать ASender.Reply.NumericCode, так как Indy инициализирует его значением 200, из командного обработчика ReplyNormal.NumericCode.</p>
+Примечание: используйте свойство ASender.Reply.Text.Text. Указание слова Text дважды требуется потому что свойство Text команды это список строк и мы имеем также TStrings.Text в дополнение к этому. Поскольку это список строк, другие методы или свойства, такие как Add, Delete и другие также могут использоваться. Свойство Text используется как ASender.Reply.Text, в некоторых случаях может быть предварительно проинициализировано и запись в него вызовет перекрытия текста.</p>
+Если снова протестировать пример с помощью telnet, то теперь ответ будет таким:</p>
+200 Hello</p>
+datetime</p>
+200 2002-08-26 18:48:06</p>
+В некоторых случаях свойство Params не может быть использовано. Свойство DATETIME одно из них. Представим себе следующую команду:</p>
+DATETIME mm dd yy</p>
+В данном случае значение свойства Params.Count будет равно 3 и событие будет неверно обработано, возвратит только значение месяца (mm). Для данных случаев, когда значение параметра включает разделители, можно использовать свойство UnparsedParams. Дополнительно, свойство ParseParams можно установить в False.</p>
+Свойство UnparsedParams содержит данные независимо от свойства ParseParams, но установка ParseParams в false увеличивает эффективность, сообщая Indy, что не требуется разбирать параметры в свойство Params.</p>
+Обработчик события, модифицированный для использования с UnparsedParams:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 0px;"><pre name="code" class="delphi">procedure TForm1.IdTCPServer1TIdCommandHandler2Command(ASender: TIdCommand);
+var
+  LFormat: string;
+begin
+  if ASender.Params.Count = 0 then 
+  begin
+ &nbsp;&nbsp; LFormat := 'yyyy-mm-dd hh:nn:ss';
+  end 
+  else 
+  begin
+ &nbsp;&nbsp; LFormat := ASender.UnparsedParams;
+  end;
+ &nbsp;&nbsp;&nbsp; ASender.Reply.Text.Text := FormatDateTime(LFormat, Now);
+end;
+</pre>
+&nbsp;</p>
+17.4.9. Заключение</p>
+Обработчики команд очень гибки и содержат большее количество свойств и методов, чем приведено. Это только введение в обработчики команд и их возможности. Надеюсь, что этого достаточно, что вызвать у вас интерес и начать работать. </p>
+Имеется также особые планы для будущих версий &#8211; сделать командные обработчики еще более наглядными и удобными на стадии разработки.</p>
+17.5. Postal Code Server - реализация OnExecute </p>
+OnExecute Implementation</p>
+Demo</p>
+Threads</p>
+17.6. Postal Code Server &#8211; командные обработчики</p>
+Command Handlers</p>
+Greeting</p>
+CommandHandlers</p>
+ReplyException</p>
+ReplyTexts</p>
+ReplyUnknownCommand</p>
+Demo</p>
+17.7. Управление потоками</p>
+Управление потоками абстрагировано в Indy в менеджеры потоков. Менеджеры потоков позволяют иметь различные (даже пользовательские) реализации стратегий управления потоками.</p>
+Управление потоками - это необязательная дополнительная возможность. Если вы не определяете менеджер потоков в свойстве ThreadManager в компоненте, который поддерживает управление потоками (таком как TIdTCPServer) Indy неявно создает и уничтожает экземпляр менеджера потоков.</p>
+17.7.1. Класс TIdThreadMgrDefault</p>
+Стратегия управления потоками по умодчанию в Indy очень простая. Каждый раз, когда требуется поток, он создается. Когда поток не нужен, он уничтожается. Для большинства серверов &#8211; это приемлемо и пока вам не понадобится пул потоков, вы должны использовать стратегию управления потоками по умолчанию. В большинстве серверов различие в производительности ничтожное или полностью отсутствует.</p>
+Стратегия по умолчанию также дает дополнительное преимущество, так как, каждый поток гарантировано «чистый». Потоки часто распределяют память или другие объекты. Эти объекты обычно освобождаются автоматически, когда поток разрушается. Использование управления потоками по умолчанию дает вам уверенность, что вся память освобождена и все очищено. Когда используется пуле потоков, то вы должны быть уверены, что все очищено перед повторным использованием потока. Несоблюдение этого правила, может привести к тому что, пользователь будет иметь доступ к информации предыдузего пользователя.. Такие предосторожности не требуются при использовании менеджера потоков по умолчанию, поскольку все ассоциированные данные уничтожаются вместе с потоком.</p>
+17.7.2. Пул потоков (Thread Pooling)</p>
+Обычно диспетчеризация потоков по умолчанию вполне приемлема. Тем не менее, для серверов, которые обслуживают коротко живущие соединения, создание и уничтожение потоков, сравнимо со временем обслуживания запроса. В данной ситуации, лучше использовать пул потоков.</p>
+В пуле потоки создаются предварительно и используются повторно. Они создаются до использования и хранятся неактивными в пуле. Когда требуется поток, то он берется из пула и активируется. Если требуется больше потоков, чем есть в пуле, то создаются дополнительные потоки. Когда поток больше не требуется, то вместо его разрушения он деактивируется и возвращается в пул.</p>
+Создание и разрушение потоков может быть очень интенсивным. Это особо относится к серверам, которые обслуживают коротко живущие соединения. Такие сервера создают поток, который используется только короткое время и затем уничтожается. Это приводит к очень высокой частоте создания и уничтожения потоков. Примером таких серверов могуь служить сервера времени или даже web сервера. Посылается простой запрос и отсылается простой ответ. При использование браузера для просмотра некоторых сайтов могут создаваться сотни соединений к серверу.</p>
+Пул потоков может смягчить данную ситуацию. Вместо создания и уничтожения потоков по требованию, потоки выдаются из списка неактивных потоков, которые уже созданы. Когда поток больше не нужен, он возвращается обратно в пул. Пока потоки находятся в пуле &#8211; они отмечены как неиспользуемые и поэтому не требуют ресурсов процессора. Как дальнейшее усовершенствование - размер пула можно настраивать динамически, в зависимости от потребностей системы. Indy имеет поддержку пула потоков. Пул потоков в Indy доступен через использование компонента TIdThreadMgrPool.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

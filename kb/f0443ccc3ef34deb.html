@@ -1,0 +1,164 @@
+<html>
+<head>
+  <title>Как написать Outlook AddIn?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как написать Outlook AddIn?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  1.  Create an ActiveX-Library 
+  Save the project as e.g. "OLAddIn.dpr" 
+ 
+  2.Create an automation object 
+  Call the CoClass e.g. "AddIn" 
+  Save the Unit as "AddIn.pas" 
+ 
+  3.  Add to the uses clause 
+  - AddInDesignerObjects_TLB 
+  - Outlook_TLB 
+ 
+} 
+ 
+-     procedure OnConnection(const Application: IDispatch; ConnectMode: ext_ConnectMode; 
+                           const AddInInst: IDispatch; var custom: PSafeArray); safecall; 
+-     procedure OnDisconnection(RemoveMode: ext_DisconnectMode; var custom: PSafeArray); safecall; 
+-     procedure OnAddInsUpdate(var custom: PSafeArray); safecall; 
+-     procedure OnStartupComplete(var custom: PSafeArray); safecall; 
+-     procedure OnBeginShutdown(var custom: PSafeArray); safecall; 
+ 
+{ 
+  and complete the class by pressing Ctrl-Shft-C 
+ 
+  4. Step 
+  Register the COM-object with "run / register ActiveX Server" 
+  Register the AddIn, so that the Addin will be recognized by Outlook 
+  - Create a new key: HKEY_CURRENT_USER\Software\Microsoft\Office\Outlook\Addins\OLAddIn.AddIn 
+  - create a DWOrd "LoadBehavior" with the value 3 
+ 
+  5.
+  Compile the AddIn 
+  Start Outllok 
+ 
+  Sourcecode 
+ 
+  ********************************************************************************* 
+} 
+ 
+ 
+library OLAddIn; 
+ 
+uses 
+  ComServ, 
+  OLAddIn_TLB in 'OLAddIn_TLB.pas', 
+  AddIn in 'AddIn.pas' {AddIn: CoClass}; 
+ 
+exports 
+  DllGetClassObject, 
+  DllCanUnloadNow, 
+  DllRegisterServer, 
+  DllUnregisterServer; 
+ 
+{$R *.TLB} 
+ 
+{$R *.RES} 
+ 
+begin 
+end. 
+</pre>
+
+<pre name="code" class="delphi">
+unit AddIn; 
+ 
+{$WARN SYMBOL_PLATFORM OFF} 
+ 
+interface 
+ 
+uses 
+  ComObj, ActiveX, OLAddIn_TLB, StdVcl, AddinDesignerObjects_TLB, Outlook_TLB; 
+ 
+type 
+  TAddIn = class(TAutoObject, IAddIn, IDTExtensibility2) 
+  protected 
+    { Protected declarations } 
+    procedure OnConnection(const Application: IDispatch; ConnectMode: ext_ConnectMode; 
+                           const AddInInst: IDispatch; var custom: PSafeArray); safecall; 
+    procedure OnDisconnection(RemoveMode: ext_DisconnectMode; var custom: PSafeArray); safecall; 
+    procedure OnAddInsUpdate(var custom: PSafeArray); safecall; 
+    procedure OnStartupComplete(var custom: PSafeArray); safecall; 
+    procedure OnBeginShutdown(var custom: PSafeArray); safecall; 
+  end; 
+ 
+implementation 
+ 
+uses ComServ, Dialogs; 
+ 
+{ TAddIn } 
+ 
+procedure TAddIn.OnAddInsUpdate(var custom: PSafeArray); 
+begin 
+ 
+end; 
+ 
+procedure TAddIn.OnBeginShutdown(var custom: PSafeArray); 
+begin 
+ 
+end; 
+ 
+procedure TAddIn.OnConnection(const Application: IDispatch; 
+  ConnectMode: ext_ConnectMode; const AddInInst: IDispatch; 
+  var custom: PSafeArray); 
+begin 
+  // To show, that the AddIn has started just say anything 
+  ShowMessage('Das AddIn wurde gestartet'); 
+end; 
+ 
+procedure TAddIn.OnDisconnection(RemoveMode: ext_DisconnectMode; 
+  var custom: PSafeArray); 
+begin 
+ 
+end; 
+ 
+procedure TAddIn.OnStartupComplete(var custom: PSafeArray); 
+begin 
+ 
+end; 
+ 
+initialization 
+  TAutoObjectFactory.Create(ComServer, TAddIn, Class_AddIn, 
+    ciMultiInstance, tmApartment); 
+end. 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

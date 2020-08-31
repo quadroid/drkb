@@ -1,0 +1,176 @@
+<html>
+<head>
+  <title>Переключение консольного приложения в полный экран</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Переключение консольного приложения в полный экран</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+   There is no documented way to make a console application fullscreen. 
+   The following code works for both NT and Win9x. 
+   For win NT I used the undocumented SetConsoleDisplayMode and 
+   GetConsoleDisplayMode functions. 
+} 
+ 
+{ 
+ function GetConsoleDisplayMode(var lpdwMode: DWORD): BOOL; stdcall; 
+   external 'kernel32.dll'; 
+  // lpdwMode: address of variable for current value of display mode 
+} 
+ 
+function NT_GetConsoleDisplayMode(var lpdwMode: DWORD): Boolean; 
+type 
+  TGetConsoleDisplayMode = function(var lpdwMode: DWORD): BOOL; 
+  stdcall; 
+var 
+  hKernel: THandle; 
+  GetConsoleDisplayMode: TGetConsoleDisplayMode; 
+begin 
+  Result := False; 
+  hKernel := GetModuleHandle('kernel32.dll'); 
+  if (hKernel &gt; 0) then 
+  begin @GetConsoleDisplayMode := 
+      GetProcAddress(hKernel, 'GetConsoleDisplayMode'); 
+    if Assigned(GetConsoleDisplayMode) then 
+    begin 
+      Result := GetConsoleDisplayMode(lpdwMode); 
+    end; 
+  end; 
+end; 
+ 
+{ 
+  function SetConsoleDisplayMode(hOut: THandle; // standard output handle 
+  dwNewMode: DWORD;         // specifies the display mode 
+  var lpdwOldMode: DWORD    // address of variable for previous value of display mode 
+  ): BOOL; stdcall; external 'kernel32.dll'; 
+} 
+ 
+function NT_SetConsoleDisplayMode(hOut: THandle; dwNewMode: DWORD; 
+  var lpdwOldMode: DWORD): Boolean; 
+type 
+  TSetConsoleDisplayMode = function(hOut: THandle; dwNewMode: DWORD; 
+  var lpdwOldMode: DWORD): BOOL; 
+  stdcall; 
+var 
+  hKernel: THandle; 
+  SetConsoleDisplayMode: TSetConsoleDisplayMode; 
+begin 
+  Result := False; 
+  hKernel := GetModuleHandle('kernel32.dll'); 
+  if (hKernel &gt; 0) then 
+  begin @SetConsoleDisplayMode := 
+      GetProcAddress(hKernel, 'SetConsoleDisplayMode'); 
+    if Assigned(SetConsoleDisplayMode) then 
+    begin 
+      Result := SetConsoleDisplayMode(hOut, dwNewMode, lpdwOldMode); 
+    end; 
+  end; 
+end; 
+ 
+function GetConsoleWindow: THandle; 
+var 
+  S: AnsiString; 
+  C: Char; 
+begin 
+  Result := 0; 
+  Setlength(S, MAX_PATH + 1); 
+  if GetConsoleTitle(PChar(S), MAX_PATH) &lt;&gt; 0 then 
+  begin 
+    C := S[1]; 
+    S[1] := '$'; 
+    SetConsoleTitle(PChar(S)); 
+    Result := FindWindow(nil, PChar(S)); 
+    S[1] := C; 
+    SetConsoleTitle(PChar(S)); 
+  end; 
+end; 
+ 
+function SetConsoleFullScreen(bFullScreen: Boolean): Boolean; 
+const 
+  MAGIC_CONSOLE_TOGGLE = 57359; 
+var 
+  dwOldMode: DWORD; 
+  dwNewMode: DWORD; 
+  hOut: THandle; 
+  hConsole: THandle; 
+begin 
+  if Win32Platform = VER_PLATFORM_WIN32_NT then 
+  begin 
+    dwNewMode := Ord(bFullScreen); 
+    NT_GetConsoleDisplayMode(dwOldMode); 
+    hOut := GetStdHandle(STD_OUTPUT_HANDLE); 
+    Result := NT_SetConsoleDisplayMode(hOut, dwNewMode, dwOldMode); 
+  end 
+  else 
+  begin 
+    hConsole := GetConsoleWindow; 
+    Result := hConsole &lt;&gt; 0; 
+    if Result then 
+    begin 
+      if bFullScreen then 
+      begin 
+        SendMessage(GetConsoleWindow, WM_COMMAND, MAGIC_CONSOLE_TOGGLE, 0); 
+      end 
+      else 
+      begin 
+        // Better solution than keybd_event under Win9X ? 
+        keybd_event(VK_MENU, MapVirtualKey(VK_MENU, 0), 0, 0); 
+        keybd_event(VK_RETURN, MapVirtualKey(VK_RETURN, 0), 0, 0); 
+        keybd_event(VK_RETURN, MapVirtualKey(VK_RETURN, 0), KEYEVENTF_KEYUP, 0); 
+        keybd_event(VK_MENU, MapVirtualKey(VK_MENU, 0), KEYEVENTF_KEYUP, 0); 
+      end; 
+    end; 
+  end; 
+end; 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+var 
+  s: string; 
+begin 
+  AllocConsole; 
+  try 
+    SetConsoleFullScreen(True); 
+    Write('Hi, you are in full screen mode now. Type something [Return]: '); 
+    Readln(s); 
+    SetConsoleFullScreen(False); 
+    // ShowMessage(Format('You typed: "%s"', [s])); 
+  finally 
+    FreeConsole; 
+  end; 
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

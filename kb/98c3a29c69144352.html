@@ -1,0 +1,163 @@
+<html>
+<head>
+  <title>Градиентная заливка и сложение цветов</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Градиентная заливка и сложение цветов</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Градиентная заливка и сложение цветов.</p>
+
+<p>Иногда бывает нужно сложить два или более цветов для получения что-то типа переходного цвета. </p>
+<p>Делается это весьма просто. Координаты получаемого цвета будут равны среднему значению</p>
+<p> соответствующих координат всех цветов.</p>
+
+<p>Например, нужно сложить красный и синий. Получаем</p>
+<p>(255,0,0)+(0,0,255)=((255+0) div 2,(0+0) div 2,(0+255) div 2)=(127,0,127).</p>
+
+<p>В результате получаем сиреневый цвет. Та2: сложить соответствующие координаты,</p>
+<p>потом каждую сумму разделить нацело на количество цветов.</p>
+
+<p>Поговорим теперь о градиентной заливке. Градиентная заливка - это заливка цветом с плавным</p>
+<p> переходом от одного цвета к другому.</p>
+
+<p>Итак, пусть заданы 2 цвета своими координатами ((A1, A2, A3) и (B1, B2, B3)) и </p>
+<p>линия (длиной h пикселов), по которой нужно залить. Тогда каждый цвет каждого пиксела,</p>
+<p> находящегося на расстоянии x пикселов от начала будет равен</p>
+<p>  (A1-(A1-B1)/h*x, A2-(A2-B2)/h*x, A3-(A3-B3)/h*x). Теперь, имея линию с </p>
+<p>  градиентной заливкой, можно таким образом залить </p>
+<p> совершенно любую фигуру: будь то прямоугольник, круг или просто произвольная фигура.</p>
+
+<p>Вот как выглядит описанный алгоритм: </p>
+
+<pre name="code" class="delphi">
+{Считается, что координаты первого цвета равны (A1, A2, A3), а второго (B1, B2, B3)}
+{Кроме того, линия начинается в координатах (X1,Y1), а заканчивается в (X2,Y1)}
+ 
+Var h,i: Integer;
+ 
+begin
+  h:=X2-X1-1;
+  for i:=0 to h do begin
+    PaintBox1.Canvas.Pen.Color:=RGB(A1-(A1-B1)/h*i, A2-(A2-B2)/h*i, A3-(A3-B3)/h*i);
+    PaintBox1.Canvas.Pen.Rectangle(I,Y1,I+1,Y1);
+  end;
+end.
+</pre>
+
+<p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
+
+<hr />
+</p>
+
+<p>Just cut and paste the routines below into a unit somewhere and make the function declarations at the top of your unit.</p>
+
+<p>You can use GetGradientColor2 to get a color that is somewhere between two other colors. For example, to get the color that is 50% between Red and Blue, do this:</p>
+
+<pre name="code" class="delphi">
+var
+  MyColor: TColor;
+begin
+  R1 := 255;
+  G1 := 0;
+  B1 := 0;
+  R2 := 0;
+  G2 := 0;
+  B2 := 0;
+  Percent := 0.5;
+  MyNewColor := GetGradientColor2(R1, G1, B1, R2, G2, B2, Percent);
+</pre>
+
+
+<p>You could put percent in a loop from 0 to 1, and get all the colors as a nice gradient.</p>
+
+<p>Function GetGradientColor3 works in a similar manner, except that you can do a gradient between 3 colors, such as between red to yellow to blue. This can help prevent the colors from loosing intensity when you go between say blue and red, where the purple would otherwise be darker.</p>
+
+<pre name="code" class="delphi">
+ 
+function ColorFromRGB(Red, Green, Blue: Integer): Integer;
+{Returns the color made up of the red, green, and blue components. Red, Green, and Blue can
+be from 0 to 255.}
+begin
+  {Convert Red, Green, and Blue values to color.}
+  Result := Red + Green * 256 + Blue * 65536;
+end;
+ 
+function GetPigmentBetween(P1, P2, Percent: Double): Integer;
+{Returns a number that is Percent of the way between P1 and P2}
+begin
+  {Find the number between P1 and P2}
+  Result := Round(((P2 - P1) * Percent) + P1);
+  {Make sure we are within bounds for color.}
+  if Result &gt; 255 then
+    Result := 255;
+  if Result &lt; 0 then
+    Result := 0;
+end;
+ 
+function GetGradientColor2(R1, G1, B1, R2, G2, B2, Percent: Double): Integer;
+{Gets a color that is inbetween the colors defined by (R1,G1,B1) and (R2,G2,B2)
+Percent ranges from 0 to 1.0 (i.e. 0.5 = 50%)
+If percent =0   then the color of (R1,G1,B1) is returned
+If Percent =1   then the color of (R2,G2,B2) is returned
+if Percent is somewhere inbetween, then an inbetween color is returned.}
+var
+  NewRed, NewGreen, NewBlue: Integer;
+begin
+  {Validate input data in case it is off by a few thousanths.}
+  if Percent &gt; 1 then
+    Percent := 1;
+  if Percent &lt; 0 then
+    Percent := 0;
+  {Calculate Red, green, and blue components for the new color.}
+  NewRed := GetPigmentBetween(R1, R2, Percent);
+  NewGreen := GetPigmentBetween(G1, G2, Percent);
+  NewBlue := GetPigmentBetween(B1, B2, Percent);
+  {Convert RGB to color}
+  Result := ColorFromRGB(NewRed, NewGreen, NewBlue);
+end;
+ 
+function GetGradientColor3(R1, G1, B1, R2, G2, B2, R3, G3, B3, Percent: Double): Integer;
+{Gets a color that is inbetween the color spread defined (R1,G1,B1), (R2,G2,B2) and (R3,G3,B3).
+This is similar to GetGradientColor2, except that it allows you to specify 3 colors instead of 2.}
+begin
+  {Use GetGradient2 to do most the work}
+  if Percent &lt; 0.5 then
+    Result := GetGradientColor2(R1, G1, B1, R2, G2, B2, Percent * 2)
+  else
+    Result := GetGradientColor2(R2, G2, B2, R3, G3, B3, (Percent - 0.5) * 2);
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

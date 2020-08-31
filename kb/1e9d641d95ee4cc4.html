@@ -1,0 +1,73 @@
+<html>
+<head>
+  <title>Как получить активный URL из браузера?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить активный URL из браузера?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Ruslan Abu Zant</p>
+<p>Приводимая здесь функция показывает, как Ваше приложение может извлечь из браузера (IE или Netscape) URL , как, например, это делает аська.</p>
+<p>Совместимость: Delphi 4.x (или выше)</p>
+<p>Не забудьте добавить DDEMan в Ваш проект!</p>
+<pre name="code" class="delphi">
+uses windows, ddeman, ...... 
+ 
+ 
+function Get_URL(Servicio: string): String; 
+var 
+   Cliente_DDE: TDDEClientConv; 
+   temp:PChar;      //&lt;&lt;-------------------------This is new 
+begin 
+    Result := ''; 
+    Cliente_DDE:= TDDEClientConv.Create( nil ); 
+     with Cliente_DDE do 
+        begin 
+           SetLink( Servicio,'WWW_GetWindowInfo'); 
+           temp := RequestData('0xFFFFFFFF'); 
+           Result := StrPas(temp); 
+           StrDispose(temp);  //&lt;&lt;-Предотвращаем утечку памяти 
+           CloseLink; 
+        end; 
+      Cliente_DDE.Free; 
+end; 
+ 
+procedure TForm1.Button1Click(Sender); 
+begin 
+   showmessage(Get_URL('Netscape')); 
+      или 
+   showmessage(Get_URL('IExplore')); 
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

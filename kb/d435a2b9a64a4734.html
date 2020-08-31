@@ -1,0 +1,158 @@
+<html>
+<head>
+  <title>Документация на основе RTF-шаблона</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Документация на основе RTF-шаблона</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Документация на основе RTF-шаблона </p>
+Разработка прикладного ПО - это, как известно, не только написание кода программ, но и проектирование печатных документов и отчетов. Практически все интегрированные среды имеют в своем составе генераторы отчетов, в той или иной степени помогающие решить эту задачу. Однако, несмотря на явные достоинства, использование генераторов отчетов имеет ряд недостатков. Они сводятся, главным образом, к невозможности вносить правки в сформированный документ, а также изменять шаблоны отчета привычными средствами, например обычным текстовым редактором.</p>
+&nbsp;</p>
+<p>До последнего времени самым простым и широко применяемым решением представлялось применение механизма OLE. Например, для комбинации Word и VisualBasic возможна такая схема:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Создаем некий файл - шаблон документа. Там, где должна быть "шапка" (дата, номер документа и др.), используем закладки, а для основной части отчета создаем таблицу-заготовку соответствующей структуры. Пример такого шаблона приведен на рис. 1. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Пишем программу с использованием объектной модели Word:</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td></td></tr></table></div>
+<pre name="code" class="delphi">
+' NumStr - кол-во строк в отчете
+' NewData (5,NumStr) - массив с данными для заполнения таблицы,
+' заранее приведенными к символьному виду
+' Itog - сумма, приведенная к символьному виду
+' Pth - путь к исходному файлу
+' Str_ndoc = 'BS190'
+' Str_name = 'Петров И.И.'
+.................
+Dim objWord As Word.Application
+Dim objDoc As Word.Document
+Dim objTable As Word.Table
+' создаем объект Word
+Set objWord = New Word.Application
+' делаем его видимым - это не обязательно, но очень интересно :)
+objWord.Visible = True
+' открываем файл шаблона
+Set objDoc = objWord.Documents.Open (Pth)
+' делаем его активным
+objDoc.Activate
+' заполняем 'шапку документа' - номер и получатель
+' - закладки 'ndoc' и 'name' соответственно
+objDoc.Bookmarks ("ndoc").Range.Text = Str_ndoc
+objDoc.Bookmarks ("name").Range.Text = Str_name
+' связывам объект с таблицей
+Set objTable = objWord.ActiveDocument.Tables (1)
+' выделяем 2-ю строку таблицы в шаблоне
+objTable.Cell (2, 1).Range.Select
+' вставляем нужное кол-во строк-1 (т.к. одна уже есть в шаблоне)
+If NumStr &gt; 0 Then objWord.Selection.InsertRows (NumStr - 1)
+' для каждой строки в каждую ячейку вставляем нужные данные из массива
+For i = 1 To NumStr
+For j = 1 To 5
+objTable.Cell (i + 1, j).Range.Text = NewData (j, i)
+Next j
+Next i
+' проставляем сумму 'Всего'
+objTable.Cell (NumStr + 2, 5).Range.Text = Itog
+</pre>
+
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Запускаем ее в составе всего приложения и получаем результат  </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Пользователь, получив отчет в виде doc-файла, может легко внести в документ любые изменения, отправить его по электронной почте, распечатать - одним словом, распорядиться по своему усмотрению в привычной ему среде. Так же легко он может изменить и шаблон документа - для этого достаточно уметь работать в текстовом редакторе.</td></tr></table></div><p>Но эту идиллическую картину омрачает несколько неприятных моментов. Во-первых, недостаточная гибкость приложения - если вы захотите перейти на другой редактор, то придется писать код заново. Во-вторых, приложение работает только в среде пакета MS Office, а он стоит немалых денег. Если приложение должно работать на 30-ти компьютерах предприятия, то установка на них MS Office обойдется примерно в 40 тыс. гривен - не каждый бюджет выдержит.</p>
+&nbsp;</p>
+<p>В то же время существует целый ряд достаточно полнофункциональных и бесплатных офисных пакетов: OpenOffice, StarOffice, EasyOffice и др. Для большинства операций, выполняемых обычно с документами, их возможностей вполне достаточно. Но возможна ли их простая и эффективная интеграция в прикладное программное обеспечение?</p>
+<p>Решением этой проблемы может быть использование RTF-файлов. Этот формат, предложенный Microsoft как стандарт для обмена данными между текстовыми редакторами, поддерживается абсолютным большинством офисных пакетов. Сама Microsoft использует его в качестве формата, в котором данные передаются через буфер обмена между различными приложениями Windows.</p>
+<p>Кратко об RTF</p>
+<p>В формате RTF используются только коды, представляемые символами из наборов ASCII, MAC и PC. Помимо текста, RTF-файл содержит команды управления в читаемой форме. Документ состоит преимущественно из команд управления настройкой программы чтения. Эти команды можно разделить на управляющие слова и управляющие символы.</p>
+<p>Управляющее слово представляет собой последовательность символов с разделителем в конце. Например, фрагмент:</p>
+<p>&#8230;\bkmkstart ndoc&#8230;<br>
+<p>&nbsp;</p>
+<p>соответствует началу закладки ndoc.</p>
+<p>Перед управляющим словом вводится обратная косая черта (\). В качестве разделителей могут использоваться следующие символы:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>пробел, причем этот символ относится к управляющему слову; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>цифра или дефис (&lt;-&gt;). После этих символов должен следовать параметр с разделителем. В качестве разделителя может быть использован пробел или другие символы (кроме цифр и букв); </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>все символы, кроме цифр и букв. Эти символы не относятся к управляющему слову.</td></tr></table></div><p>Для задания управляющей последовательности в RTF-формате используются буквы от А до Z и от а до z, а также цифры от 0 до 9. Национальные символы к управляющей информации не относятся.</p>
+<p>В качестве управляющих символов используются отдельные буквы. Перед каждым управляющим символом вводится обратная косая черта (\). Например, фрагмент:</p>
+<p>&#8230;\f1\fs20&#8230;<br>
+<p>&nbsp;</p>
+<p>устанавливает шрифт &#8470; 1 размером в 20 единиц.</p>
+<p>Фрагмент RTF-файла приведен ниже. Структура его, как можно видеть, напоминает структуру HTML-документа:</p>
+<p>\intbl\phmrg\posy371\dxfrtext180\dfrmtxtx180\dfrmtxty0\nowrap\aspalpha\aspnum<br>
+\faauto\adjustright\rin0\lin0\f1\fs20\lang1049\langfe1049\cgrid\langnp1049\langfenp1049<br>
+{\lang1033\langfe1049\langnp1033 11\cell 12\cell 13\cell} \pard \ql \li0\ri0\widctlpar<br>
+<p>\intbl \aspalpha\aspnum\faauto\adjustright\rin0\lin0</p>
+<p>В RTF-формате существует возможность объединять отдельные последовательности в группы при помощи скобок:</p>
+<p>{группа}</p>
+<p>Такие группы создаются, например, при описании сносок, колонтитулов, закладок и т.п.</p>
+<p>Вот некоторые управляющие слова и символы, имеющие непосредственное отношение к теме нашей статьи:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>\раr - конец абзаца; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>\сеll - конец столбца; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>\row - конец строки (или таблицы); </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>\*\bkmkstart &lt;название закладки&gt; \*\bkmkend - закладка. Пример: {\*\bkmkstart ndoc} BS190{\*\bkmkend ndoc}; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>\pard - устанавливает стандартную настройку для абзаца; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>\intbl &#8230; \intbl - выделяет область таблицы; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>\' - прямой ввод в текст шестнадцатеричных чисел. При сохранении кириллического текста он обычно сохраняется в шестнадцатеричной форме, например: </td></tr></table></div><p>\'d1\'f2\'f0\'ee\'ea\'e0 ('строка')</p>
+<p>Поскольку нас интересуют только определенные задачи, знания приведенных выше управляющих слов и символов вполне достаточно. Условимся для простоты называть управляющие слова и символы тегами.</p>
+<p>А теперь рассмотрим алгоритмы решения трех основных задач, возникающих при создании документации.</p>
+<p>Вставка строки на месте закладки</p>
+<p>Пример такой закладки:</p>
+<p>&#8230;{\*\bkmkstart ndoc}&lt;значение закладки&gt;{\*\bkmkend ndoc}&#8230;<br>
+<p>&nbsp;</p>
+<p>Для решения данной задачи можно предложить следующий алгоритм.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Читаем последовательно строки входного файла (в большинстве случаев строка больше 255 символов). </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Ищем в текущей строке тег '\bkmkstart'. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Если находим, то выделяем название закладки и сравниваем его с искомой. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Если совпадает, то записываем строковую строку данных после закрывающей скобки (}).</td></tr></table></div><p>Алгоритм реализован в виде функции In_Zakl1(pth As String, zakl As String, data As String), где pth - имя RTF-файла, zakl - имя закладки, data - строка для добавления в файл.</p>
+<p>Добавление строк в таблицу</p>
+<p>Предположим, нам требуется найти m-ю строку в n-той таблице и повторить ее в этой таблице p раз. Для поиска начала строки таблицы мы будем использовать тег \intbl, а для поиска конца - тег \row. Конец самой таблицы определяется по последовательности тегов \row&#8230;\pard&#8230;\par.</p>
+<p>Алгоритм решения этой задачи следующий.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Читаем последовательно строки входного файла. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Ищем последовательность &#8230;\row&#8230;\pard&#8230;\par&#8230;\intbl&#8230; (не обязательно в одной строке) (n-1) раз. После этого мы находимся в начале нужной таблицы. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Ищем тег \row (m-1) раз. После этого находимся перед нужной строкой таблицы. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Ищем следующий тег \row и копируем содержимое файла от (m-1)-го до m-го тега \row (между \row и \intbl содержатся настройки строки, они нам тоже нужны). </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Вставляем после m-го тега \row скопированную нами подстроку p раз.</td></tr></table></div><p>Следует отметить, что недостатком предложенного алгоритма является то, что он может копировать любую строку таблицы, кроме первой. Но в большинстве случаев первая строка является "шапкой" документа и копировать ее нет необходимости.</p>
+<p>Алгоритм реализован в виде функции In_TStr (pth As String, itbl As Integer, irow As Integer, kol As Integer), где pth - имя RTF-файла, itbl - номер таблицы, irow - номер строки, kol - количество повторов строки.</p>
+<p>Заполнение ячейки таблицы</p>
+<p>Представим, что требуется найти k-ю ячейку в m-й строке n-й таблицы и вставить в нее текстовую строку данных. Пример таких ячеек:</p>
+<p>...{\lang1033\cgrid0&lt;содержимое 1-й ячейки&gt;\cell&lt;содержимое 2-й ячейки&gt;\cell}&#8230;<br>
+<p>&nbsp;</p>
+<p>Задача может быть решена по следующему алгоритму.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Читаем последовательно строки входного файла. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Ищем последовательность &#8230;\row&#8230;\pard&#8230;\par&#8230;\intbl&#8230; (не обязательно в одной строке) (n-1) раз. После этого мы находимся перед нужной нам таблицей. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Ищем тег \row (m-1) раз. После этого мы находимся в начале нужной строки таблицы. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Ищем k-e вхождение тега \cell. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Вставляем перед ним строку данных.</td></tr></table></div><p>Данный алгоритм реализован в виде функции In_Tcell1(pth As String, itbl As Integer, irow As Integer, icell As Integer, ndata As String), где pth - имя RTF-файла, itbl - номер таблицы, irow - номер строки, icell - номер ячейки, data - строка для занесения в ячейку.</p>
+<p>Программа на VisualBasic, демонстрирующая применение такой технологии и функционально идентичная программе, приведенной в начале этой статьи, выглядит так:</p>
+<pre name="code" class="delphi">' NumStr - кол-во строк в отчете
+' NewData (5,NumStr) - массив с данными для заполнения таблицы,
+' заранее приведенными к символьному виду
+' Itog - сумма, приведенная к символьному виду
+' pth - путь к файлу
+' Str_ndoc = 'BS190'
+' Str_name = 'Петров И.И.'
+Dim res As Boolean ' результат выполнения функций
+' заполняем 'шапку документа' - номер и получатель
+' - закладки 'ndoc' и 'name' соответственно
+res = In_Zakl1(pth, "ndoc", Str_ndoc)
+res = In_Zakl1(pth, "name", Str_name)
+' вставляем нужное кол-во строк-1 (т.к. одна уже есть в шаблоне)
+res = In_TStr (pth, 1, 2, NumStr - 1)
+' для каждой строки в каждую ячейку вставляем нужные данные из массива
+For i = 1 To NumStr
+For j = 1 To 5
+res = In_Tcell1(pth, 1, i + 1, j, NewData (j, i))
+Next j
+Next i
+res = In_Tcell1(pth, 1, NumStr + 2, 5, Itog) ' проставляем сумму 'Всего'
+</pre>
+Заключение</p>
+<p>Каковы преимущества и недостатки предложенной технологии? Начнем с достоинств. Во-первых, это более гибкая технология для формирования отчетов - даже если часть пользователей работает с OpenOffice, а часть с MS Office, программа создания отчетных документов универсальна. Во-вторых, несмотря на многоразовую перезапись файла шаблона во время работы, эта программа работает быстрее, чем связка OLE+Word. Тем более что приведенные выше алгоритмы могут совершенствоваться. Один из примеров кардинального повышения производительности приведен в листингах варианта для PascalDelphi. В-третьих, пользуясь свободным ПО, вы экономите деньги.</p>
+<p>Теперь о проблемах. Основная из них - это недостаточная стандартизация формата RTF. Производители ПО, в целом придерживаясь единого стандарта, допускают несколько свободную трактовку частных моментов. Результат - проблемы с использованием "чужих" RTF-файлов, подготовленных в других редакторах. Например, MS Word сохраняет графические изображения внутри RTF-файла в виде последовательности шестнадцатеричных кодов, а OOWriter - как внешний файл.</p>
+<p>Впрочем, эти проблемы решаются - стоит только приложить некоторые усилия.</p>
+
+<p>&nbsp;<br>
+2004.05.14 Автор: Александр Харьков <br>
+<a href="http://www.cpp.com.ua" target="_blank">http://www.cpp.com.ua</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

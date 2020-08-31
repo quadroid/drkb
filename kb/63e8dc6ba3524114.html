@@ -1,0 +1,85 @@
+<html>
+<head>
+  <title>Как определить графический формат файла (не используя расширение)?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как определить графический формат файла (не используя расширение)?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>You can determine it without extention. Below is a function that reads the file header and determines the type.</p>
+<pre name="code" class="delphi">
+function PhysicalResolveFileType(AStream: TStream): Integer;
+var
+  p: PChar;
+begin
+  Result := 0;
+  if not Assigned(AStream) then
+    Exit;
+  GetMem(p, 10);
+  try
+    AStream.Position := 0;
+    AStream.Read(p[0], 10);
+    {bitmap format}
+    if (p[0] = #66) and (p[1] = #77) then
+      Result := 1;
+    {tiff format}
+    if ((p[0] = #73) and (p[1] = #73) and (p[2] = #42) and (p[3] = #0)) or
+      ((p[0] = #77) and (p[1] = #77) and (p[2] = #42) and (p[3] = #0)) then
+      Result := 2;
+    {jpg format}
+    if (p[6] = #74) and (p[7] = #70) and (p[8] = #73) and (p[9] = #70) then
+      Result := 3;
+    {png format}
+    if (p[0] = #137) and (p[1] = #80) and (p[2] = #78) and (p[3] = #71) and
+      (p[4] = #13) and (p[5] = #10) and (p[6] = #26) and (p[7] = #10) then
+      Result := 4;
+    {dcx format}
+    if (p[0] = #177) and (p[1] = #104) and (p[2] = #222) and (p[3] = #58) then
+      Result := 5;
+    {pcx format}
+    if p[0] = #10 then
+      Result := 6;
+    {emf format}
+    if (p[0] = #215) and (p[1] = #205) and (p[2] = #198) and (p[3] = #154) then
+      Result := 7;
+    {emf format}
+    if (p[0] = #1) and (p[1] = #0) and (p[2] = #0) and (p[3] = #0) then
+      Result := 7;
+  finally
+    Freemem(p);
+  end;
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

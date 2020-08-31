@@ -1,0 +1,114 @@
+<html>
+<head>
+  <title>Как скопировать содержимое строки в буфер обмена?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как скопировать содержимое строки в буфер обмена?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure CopyStringToClipboard(s: string);
+var
+  hg: THandle;
+  P: PChar;
+begin
+  hg:=GlobalAlloc(GMEM_DDESHARE or GMEM_MOVEABLE, Length(S)+1);
+  P:=GlobalLock(hg);
+  StrPCopy(P, s);
+  GlobalUnlock(hg);
+  OpenClipboard(Application.Handle);
+  SetClipboardData(CF_TEXT, hg);
+  CloseClipboard;
+  GlobalFree(hg);
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+<hr />
+<pre name="code" class="delphi">
+uses 
+  ClipBrd; 
+ 
+procedure StrToClipbrd(StrValue: string); 
+var 
+  S: string; 
+  hMem: THandle; 
+  pMem: PChar; 
+begin 
+  hMem := GlobalAlloc(GHND or GMEM_SHARE, Length(StrValue) + 1); 
+  if hMem &lt;&gt; 0 then 
+  begin 
+    pMem := GlobalLock(hMem); 
+    if pMem &lt;&gt; nil then 
+    begin 
+      StrPCopy(pMem, StrValue); 
+      GlobalUnlock(hMem); 
+      if OpenClipboard(0) then 
+      begin 
+        EmptyClipboard; 
+        SetClipboardData(CF_TEXT, hMem); 
+        CloseClipboard; 
+      end 
+      else 
+        GlobalFree(hMem); 
+    end 
+    else 
+      GlobalFree(hMem); 
+  end; 
+end; 
+ 
+function GetStrFromClipbrd: string; 
+begin 
+  if Clipboard.HasFormat(CF_TEXT) then 
+    Result := Clipboard.AsText 
+  else 
+  begin 
+    ShowMessage('There is no text in the Clipboard!'); 
+    Result := ''; 
+  end; 
+end; 
+ 
+ 
+// write "Hallo" to the clipboard and read it back. 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  StrToClipbrd('Hallo'); 
+  ShowMessage(GetStrFromClipbrd); 
+end;
+ 
+</pre>
+
+<a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

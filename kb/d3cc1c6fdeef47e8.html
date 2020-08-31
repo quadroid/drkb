@@ -1,0 +1,88 @@
+<html>
+<head>
+  <title>Изменение гаммы рисунка</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Изменение гаммы рисунка</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{
+ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Изменение гаммы рисунка
+ 
+Зависимости: Graphics
+Автор:       Fenik, chook_nu@uraltc.ru, Новоуральск
+Copyright:   Автор Федоровских Николай
+Дата:        5 июня 2002 г.
+***************************************************** }
+ 
+procedure Gamma(Bitmap: TBitmap; L: Double);
+{0.0 &lt; L &lt; 7.0}
+  function Power(Base, Exponent: Extended): Extended;
+  begin
+    Result := Exp(Exponent * Ln(Base));
+  end;
+type
+  TRGB = record
+    B, G, R: Byte;
+  end;
+  pRGB = ^TRGB;
+var
+  Dest: pRGB;
+  X, Y: Word;
+  GT: array[0..255] of Byte;
+begin
+  Bitmap.PixelFormat := pf24Bit;
+  GT[0] := 0;
+  if L = 0 then
+    L := 0.01;
+  for X := 1 to 255 do
+    GT[X] := Round(255 * Power(X / 255, 1 / L));
+  for Y := 0 to Bitmap.Height - 1 do
+  begin
+    Dest := Bitmap.ScanLine[y];
+    for X := 0 to Bitmap.Width - 1 do
+    begin
+      with Dest^ do
+      begin
+        R := GT[R];
+        G := GT[G];
+        B := GT[B];
+      end;
+      Inc(Dest);
+    end;
+  end;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Как заставить формы минимизироваться на панель задач с анимацией?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как заставить формы минимизироваться на панель задач с анимацией?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Nomadic </p>
+<p>Дело-то вот в чем: Главным окном программы дельфийской является не главная форма, а окно TApplication, которое имеет нулевые размеры, поэтому его не видно. Именно для него показывается иконка на панели задач. Когда пользователь нажимает кнопку минимизации на главной форме, команда минимизации передается этому окну, и сворачивается именно оно, а для остальных просто делается hide. А так как окно TApplication имеет нулевые размеры, то и анимации никакой не видно. </p>
+<p>А чтобы этого избежать, необходимо: </p>
+<p>В исходном тесте модуля проекта после вызова Application.Initialize выполнить вызов</p>
+<pre name="code" class="delphi">
+// В исходном тесте модуля проекта после вызова Application.Initialize
+SetWindowLong(Application.Handle, GWL_EXSTYLE,
+GetWindowLong(Application.Handle, GWL_EXSTYLE) or WS_EX_TOOLWINDOW);
+</pre>
+<p>В исходном тексте модуля главной формы перекрыть следующие методы -</p>
+<pre name="code" class="delphi">
+// // В классе формы
+// Интерфейс
+ 
+protected
+procedure CreateParams(var p: TCreateParams); override;
+procedure WMSysCommand(var m: TMessage); message WM_SYSCOMMAND;
+ 
+ 
+ 
+ 
+ 
+// Реализация
+procedure TMainForm.CreateParams(var p: TCreateParams);
+begin
+ 
+inherited;
+p.WndParent := 0;
+end;
+ 
+procedure TMainForm.WMSysCommand(var m: TMessage);
+begin
+ 
+m.Result := DefWindowProc(Handle, m.Msg, m.wParam, m.lParam);
+end;
+</pre>
+<p>Вместо SetWindowLong в MDI-приложениях лучше использовать</p>
+ShowWindow(Application.Handle, SW_HIDE);
+<p>&nbsp;</p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

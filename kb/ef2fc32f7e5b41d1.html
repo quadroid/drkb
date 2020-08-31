@@ -1,0 +1,133 @@
+<html>
+<head>
+  <title>Копирование экрана</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Копирование экрана</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit ScrnCap;
+interface
+uses WinTypes, WinProcs, Forms, Classes, Graphics, Controls;
+ 
+ { Копирует прямоугольную область экрана }
+function CaptureScreenRect(ARect : TRect) : TBitmap;
+ { Копирование всего экрана }
+function CaptureScreen : TBitmap;
+ { Копирование клиентской области формы или элемента }
+function CaptureClientImage(Control : TControl) : TBitmap;
+ { Копирование всей формы элемента }
+function CaptureControlImage(Control : TControl) : TBitmap;
+ 
+{===============================================================}
+implementation
+function GetSystemPalette : HPalette;
+var
+ PaletteSize  : integer;
+ LogSize      : integer;
+ LogPalette   : PLogPalette;
+ DC           : HDC;
+ Focus        : HWND;
+begin
+ result:=0;
+ Focus:=GetFocus;
+ DC:=GetDC(Focus);
+ try
+   PaletteSize:=GetDeviceCaps(DC, SIZEPALETTE);
+   LogSize:=SizeOf(TLogPalette)+(PaletteSize-1)*SizeOf(TPaletteEntry);
+   GetMem(LogPalette, LogSize);
+   try
+     with LogPalette^ do
+     begin
+       palVersion:=$0300;
+       palNumEntries:=PaletteSize;
+       GetSystemPaletteEntries(DC, 0, PaletteSize, palPalEntry);
+     end;
+     result:=CreatePalette(LogPalette^);
+   finally
+     FreeMem(LogPalette, LogSize);
+   end;
+ finally
+   ReleaseDC(Focus, DC);
+ end;
+end;
+ 
+ 
+function CaptureScreenRect(ARect : TRect) : TBitmap;
+var
+ ScreenDC : HDC;
+begin
+ Result:=TBitmap.Create;
+ with result, ARect do begin
+  Width:=Right-Left;
+  Height:=Bottom-Top;
+  ScreenDC:=GetDC(0);
+  try
+    BitBlt(Canvas.Handle, 0,0,Width,Height,ScreenDC, Left, Top, SRCCOPY        );
+  finally
+    ReleaseDC(0, ScreenDC);
+  end;
+  Palette:=GetSystemPalette;
+ end;
+end;
+ 
+function CaptureScreen : TBitmap;
+begin
+ with Screen do
+  Result:=CaptureScreenRect(Rect(0,0,Width,Height));
+end;
+ 
+function CaptureClientImage(Control : TControl) : TBitmap;
+begin
+ with Control, Control.ClientOrigin do
+  result:=CaptureScreenRect(Bounds(X,Y,ClientWidth,ClientHeight));
+end;
+ 
+function CaptureControlImage(Control : TControl) : TBitmap;
+begin
+ with Control do
+  if Parent=Nil then
+    result:=CaptureScreenRect(Bounds(Left,Top,Width,Height))
+  else
+   with Parent.ClientToScreen(Point(Left, Top)) do
+    result:=CaptureScreenRect(Bounds(X,Y,Width,Height));
+end;
+end.
+</pre>
+
+
+<p>Зайцев О.В.</p>
+<p>Владимиров А.М.</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

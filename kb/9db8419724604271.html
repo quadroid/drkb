@@ -1,0 +1,85 @@
+<html>
+<head>
+  <title>Кам при прокрутке зафиксировать левое поле сетки?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Кам при прокрутке зафиксировать левое поле сетки?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit Fcdgrid;
+ 
+interface
+ 
+uses
+  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
+  Forms, Dialogs, Grids, DBGrids, DBCtrls, DB, Menus;
+ 
+type
+  TFixedColDBGrid = class(TDBGrid)
+  private
+    FUserFixedCols: Integer;
+  protected
+    procedure LayoutChanged; override;
+    procedure SetUserFixedCols(I: Integer);
+ 
+  published
+    property UserFixedCols: Integer read FUserFixedCols write SetUserFixedCols;
+  end;
+ 
+procedure Register;
+ 
+implementation
+ 
+procedure Register;
+begin
+  RegisterComponents('Data Controls', [TFixedColDBGrid]);
+end;
+ 
+procedure TFixedColDBGrid.LayoutChanged;
+begin
+  inherited LayoutChanged; {   присваиваем FixedCols 1 если индикатор, иначе 0 }
+  if ((inherited FixedCols + FUserFixedCols) &lt; inherited ColCount) then
+    inherited FixedCols := (FUserFixedCols + inherited FixedCols);
+end;
+ 
+procedure TFixedColDBGrid.SetUserFixedCols(I: Integer);
+begin
+  FUserFixedCols := I;
+  LayoutChanged;
+end;
+ 
+end.
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

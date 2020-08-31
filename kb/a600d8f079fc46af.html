@@ -1,0 +1,256 @@
+<html>
+<head>
+  <title>Перехват (Hook) клавиатуры (программа Sendkeys)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Перехват (Hook) клавиатуры (программа Sendkeys)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Bogachev  </p>
+<pre name="code" class="delphi">
+program Project1;
+ 
+uses
+  Forms,
+  Unit1 in '..\Hooks1\Unit1.pas' {Form1};
+ 
+{$R *.RES}
+ 
+begin
+  Application.Initialize;
+  Application.CreateForm(TForm1, Form1);
+  Application.Run;
+end.
+ 
+// *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* //
+</pre>
+<pre name="code" class="delphi">
+library SendKey;
+ 
+uses
+ 
+  SysUtils, Classes, Windows, Messages;
+ 
+const
+ 
+  {пользовательские сообщения}
+  wm_LeftShow_Event = wm_User + 133;
+  wm_RightShow_Event = wm_User + 134;
+  wm_UpShow_Event = wm_User + 135;
+  wm_DownShow_Event = wm_User + 136;
+ 
+  {handle для ловушки}
+  HookHandle: hHook = 0;
+ 
+var
+ 
+  SaveExitProc: Pointer;
+ 
+  {собственно ловушка}
+ 
+function Key_Hook(Code: integer; wParam: word;
+  lParam: Longint): Longint; stdcall; export;
+var
+  H: HWND;
+begin
+ 
+  {если Code&gt;=0, то ловушка может обработать событие}
+  if (Code &gt;= 0) and (lParam and $40000000 = 0) then
+  begin
+    {ищем окно по имени класса и по заголовку
+    (Caption формы управляющей программы должен быть равен 'XXX' !!!!)}
+    H := FindWindow('TForm1', 'XXX');
+ 
+    {это те клавиши?}
+    case wParam of
+      VK_Left: SendMessage(H, wm_LeftShow_Event, 0, 0);
+      VK_Right: SendMessage(H, wm_RightShow_Event, 0, 0);
+      VK_Up: SendMessage(H, wm_UpShow_Event, 0, 0);
+      VK_Down: SendMessage(H, wm_DownShow_Event, 0, 0);
+    end;
+    {если 0, то система должна дальше обработать это событие}
+    {если 1 - нет}
+    Result := 0;
+  end
+ 
+  else if Code &lt; 0 {если Code&lt;0, то нужно вызвать следующую ловушку} then
+    Result := CallNextHookEx(HookHandle, Code, wParam, lParam);
+end;
+ 
+{при выгрузке DLL надо снять ловушку}
+ 
+procedure LocalExitProc; far;
+begin
+ 
+  if HookHandle &lt;&gt; 0 then
+  begin
+    UnhookWindowsHookEx(HookHandle);
+    ExitProc := SaveExitProc;
+  end;
+end;
+ 
+exports Key_Hook;
+ 
+{инициализация DLL при загрузке ее в память}
+begin
+  {устанавливаем ловушку}
+ 
+  HookHandle := SetWindowsHookEx(wh_Keyboard, @Key_Hook,
+    hInstance, 0);
+  if HookHandle = 0 then
+    MessageBox(0, 'Unable to set hook!', 'Error', mb_Ok)
+  else
+  begin
+    SaveExitProc := ExitProc;
+    ExitProc := @LocalExitProc;
+  end;
+end.
+</pre>
+
+<pre name="code" class="delphi">
+// *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* //
+ 
+object Form1: TForm1
+  Left = 200
+    Top = 104
+    Width = 544
+    Height = 375
+    Caption = 'XXX'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    PixelsPerInch = 96
+    TextHeight = 13
+    object Label1: TLabel
+    Left = 128
+      Top = 68
+      Width = 32
+      Height = 13
+      Caption = 'Label1'
+  end
+end
+</pre>
+<pre name="code" class="delphi">
+// *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* //
+ 
+unit Unit1;
+ 
+interface
+ 
+uses
+  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics,
+  Controls, Forms, Dialogs, StdCtrls;
+ 
+{пользовательские сообщения}
+ 
+const
+ 
+  wm_LeftShow_Event = wm_User + 133;
+  wm_RightShow_Event = wm_User + 134;
+  wm_UpShow_Event = wm_User + 135;
+  wm_DownShow_Event = wm_User + 136;
+ 
+type
+ 
+  TForm1 = class(TForm)
+    Label1: TLabel;
+ 
+    procedure FormCreate(Sender: TObject);
+ 
+  private //Обработчики сообщений
+ 
+    procedure WM_LeftMSG(var M: TMessage);
+      message wm_LeftShow_Event;
+ 
+    procedure WM_RightMSG(var M: TMessage);
+      message wm_RightShow_Event;
+ 
+    procedure WM_UpMSG(var M: TMessage);
+      message wm_UpShow_Event;
+ 
+    procedure WM_DownMSG(var M: TMessage);
+      message wm_DownShow_Event;
+  end;
+ 
+var
+ 
+  Form1: TForm1;
+  P: Pointer;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+//Загрузка DLL
+ 
+function Key_Hook(Code: integer; wParam: word;
+  lParam: Longint): Longint; stdcall; external 'SendKey' name 'Key_Hook';
+ 
+procedure TForm1.WM_LefttMSG(var M: TMessage);
+begin
+ 
+  Label1.Caption := 'Left';
+end;
+ 
+procedure TForm1.WM_RightMSG(var M: TMessage);
+begin
+ 
+  Label1.Caption := 'Right';
+end;
+ 
+procedure TForm1.WM_UptMSG(var M: TMessage);
+begin
+ 
+  Label1.Caption := 'Up';
+end;
+ 
+procedure TForm1.WM_DownMSG(var M: TMessage);
+begin
+ 
+  Label1.Caption := 'Down';
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  {если не использовать вызов процедуры из DLL в программе,
+  то компилятор удалит загрузку DLL из программы}
+  P := @Key_Hook;
+end;
+ 
+end.
+</pre>
+
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

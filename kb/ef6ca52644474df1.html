@@ -1,0 +1,116 @@
+<html>
+<head>
+  <title>Как вывести звук через звуковую карту?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как вывести звук через звуковую карту?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses 
+  MMSystem; 
+ 
+type 
+  TVolumeLevel = 0..127; 
+ 
+procedure MakeSound(Frequency{Hz}, Duration{mSec}: Integer; Volume: TVolumeLevel); 
+  {writes tone to memory and plays it} 
+var 
+  WaveFormatEx: TWaveFormatEx; 
+  MS: TMemoryStream; 
+  i, TempInt, DataCount, RiffCount: integer; 
+  SoundValue: byte; 
+  w: double; // omega ( 2 * pi * frequency) 
+const 
+  Mono: Word = $0001; 
+  SampleRate: Integer = 11025; // 8000, 11025, 22050, or 44100 
+  RiffId: string = 'RIFF'; 
+  WaveId: string = 'WAVE'; 
+  FmtId: string = 'fmt '; 
+  DataId: string = 'data'; 
+begin 
+  if Frequency &gt; (0.6 * SampleRate) then 
+  begin 
+    ShowMessage(Format('Sample rate of %d is too Low to play a tone of %dHz', 
+      [SampleRate, Frequency])); 
+    Exit; 
+  end; 
+  with WaveFormatEx do 
+  begin 
+    wFormatTag := WAVE_FORMAT_PCM; 
+    nChannels := Mono; 
+    nSamplesPerSec := SampleRate; 
+    wBitsPerSample := $0008; 
+    nBlockAlign := (nChannels * wBitsPerSample) div 8; 
+    nAvgBytesPerSec := nSamplesPerSec * nBlockAlign; 
+    cbSize := 0; 
+  end; 
+  MS := TMemoryStream.Create; 
+  with MS do 
+  begin 
+    {Calculate length of sound data and of file data} 
+    DataCount := (Duration * SampleRate) div 1000; // sound data 
+    RiffCount := Length(WaveId) + Length(FmtId) + SizeOf(DWORD) + 
+      SizeOf(TWaveFormatEx) + Length(DataId) + SizeOf(DWORD) + DataCount; // file data 
+    {write out the wave header} 
+    Write(RiffId[1], 4); // 'RIFF' 
+    Write(RiffCount, SizeOf(DWORD)); // file data size 
+    Write(WaveId[1], Length(WaveId)); // 'WAVE' 
+    Write(FmtId[1], Length(FmtId)); // 'fmt ' 
+    TempInt := SizeOf(TWaveFormatEx); 
+    Write(TempInt, SizeOf(DWORD)); // TWaveFormat data size 
+    Write(WaveFormatEx, SizeOf(TWaveFormatEx)); // WaveFormatEx record 
+    Write(DataId[1], Length(DataId)); // 'data' 
+    Write(DataCount, SizeOf(DWORD)); // sound data size 
+    {calculate and write out the tone signal} // now the data values 
+    w := 2 * Pi * Frequency; // omega 
+    for i := 0 to DataCount - 1 do 
+    begin 
+      SoundValue := 127 + trunc(Volume * sin(i * w / SampleRate)); // wt = w * i / SampleRate 
+      Write(SoundValue, SizeOf(Byte)); 
+    end; 
+    {now play the sound} 
+    sndPlaySound(MS.Memory, SND_MEMORY or SND_SYNC); 
+    MS.Free; 
+  end; 
+end; 
+ 
+// How to call the function: 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  MakeSound(1200, 1000, 60); 
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

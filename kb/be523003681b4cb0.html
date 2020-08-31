@@ -1,0 +1,157 @@
+<html>
+<head>
+  <title>Обработка транзакций</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Обработка транзакций</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В MS SQL Server поддерживаются все определенные стандартом ANSI SQL 92 уровни изоляции транзакций:</p>
+
+READ UNCOMMITTED &nbsp; &nbsp; &nbsp; &nbsp;Позволяет транзакции читать неподтвержденные данные, других транзакций. &nbsp; &nbsp; &nbsp; 
+READ COMMITTED &nbsp; &nbsp; &nbsp; &nbsp;Предотвращает считывание транзакцией данных, не подтвержденных другой транзакцией &nbsp; &nbsp; &nbsp; 
+REPEATABLE READ &nbsp; &nbsp; &nbsp; &nbsp;Все блокировки удерживаются до конца транзакции, гарантируя идентичность повторно считанных данных прочитанным ранее. &nbsp; &nbsp; &nbsp; 
+SERIALIZABLE &nbsp; &nbsp; &nbsp; &nbsp;Гарантирует отсутствие «фантомов». Реализуется за блокирования диапазонов записей, внутри которых эти «фантомы» могут появиться. &nbsp; &nbsp; &nbsp; 
+<p>Для установки текущего уровня изоляции используется оператор</p>
+
+<pre name="code" class="sql">
+SET TRANSACTION ISOLATION LEVEL
+ &nbsp;&nbsp; {
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; READ COMMITTED 
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  READ UNCOMMITTED 
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  REPEATABLE READ 
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  SERIALIZABLE
+ &nbsp;&nbsp; }
+</pre>
+
+
+<p>Момент начала транзакции регулируется установкой</p>
+<pre name="code" class="sql">SET IMPLICIT_TRANSACTION ON|OFF
+</pre>
+
+
+<p>По умолчанию она установлена в ON, и каждый оператор выполняется в отдельной транзакции. По его завершении неявно выполняется COMMIT. Если необходимо выполнить транзакцию, состоящую из нескольких операторов её надо явно начать командой BEGIN TRANSACTION. Заканчивается транзакция операторами COMMIT или ROLLBACK.</p>
+
+<p>Например:</p>
+<pre name="code" class="sql">INSERT MyTable VALUES (1)
+-- Выполнился внутри отдельной транзакции
+BEGIN TRANSACTION
+-&#8211; Начали явную транзакцию
+INSERT MyTable VALUES (2) 
+INSERT MyTable VALUES (3) 
+COMMIT
+&#8211;- завершили явную транзакцию
+</pre>
+
+
+<p>Если выдать команду</p>
+<pre name="code" class="sql">SET IMPLICIT_TRANSACTION OFF
+</pre>
+
+
+<p>то сервер начинает новую транзакцию, если она еще не начата и выполнился один из следующих операторов:</p>
+ALTER TABLE &nbsp; &nbsp; &nbsp; &nbsp;FETCH &nbsp; &nbsp; &nbsp; &nbsp;REVOKE &nbsp; &nbsp; &nbsp; 
+CREATE &nbsp; &nbsp; &nbsp; &nbsp;GRANT &nbsp; &nbsp; &nbsp; &nbsp;SELECT &nbsp; &nbsp; &nbsp; 
+DELETE &nbsp; &nbsp; &nbsp; &nbsp;INSERT &nbsp; &nbsp; &nbsp; &nbsp;TRUNCATE TABLE &nbsp; &nbsp; &nbsp; 
+DROP &nbsp; &nbsp; &nbsp; &nbsp;OPEN &nbsp; &nbsp; &nbsp; &nbsp;UPDATE &nbsp; &nbsp; &nbsp; 
+<p>Транзакция продолжается до тех пор, пока не будет выдана команда COMMIT или ROLLBACK.</p>
+
+<p>Возможно создание вложенных транзакций. При этом функция @@TRANCOUNT показывает глубину вложенности транзакции. Например:</p>
+<pre name="code" class="sql">BEGIN TRANSACTION
+ SELECT @@TRANCOUNT  -- Выдаст 1
+ BEGIN TRANSACTION
+ SELECT @@TRANCOUNT  -- Выдаст 2
+ COMMIT
+ SELECT @@TRANCOUNT  -- Выдаст 1
+COMMIT
+SELECT @@TRANCOUNT  -- Выдаст 0
+</pre>
+
+
+<p>Вложенный BEGIN TRANSACTION не начинает новую транзакцию. Он лишь увеличивает @@TRANCOUNT на 1. Аналогично, Вложенный оператор COMMIT не завершает транзакцию, а лишь уменьшает @@TRANCOUNT на 1. Реальное завершение транзакции происходит, когда @@TRANCOUNT становится равным 0. Такой механизм позволяет писать хранимые процедуры, содержащие транзакцию, например:</p>
+<pre name="code" class="sql">CREATE PROCEDURE Foo 
+AS BEGIN
+  BEGIN TRANSACTION
+  INSERT MyTable VALUES (1)
+  INSERT MyTable VALUES (1)
+  COMMIT
+END
+</pre>
+
+
+<p>При запуске вне контекста транзакции процедура выполнит свою транзакцию. Если она запущена внутри транзакции &#8211; внутренние BEGIN TRANSACTION и COMMIT просто увеличат и уменьшат счетчик транзакций.</p>
+<p>Поведение ROLLBACK отличается от вышеописанного. ROLLBACK всегда, независимо от текущего уровня вложенности устанавливает @@TRANCOUNT в 0 и отменяет все изменения, начиная с начала самой внешней транзакции. Если в хранимой процедуре возможен откат её действий, исходя из какого-то условия, можно использовать точки сохранения (savepoint)</p>
+<pre name="code" class="sql">CREATE PROCEDURE Foo 
+AS BEGIN
+  BEGIN TRANSACTION
+  -- Этот оператор не может быть отменен вне контекста
+  -- основной транзакции
+  INSERT MyTable VALUES (1)
+   SAVE TRANSACTION InsideFoo
+    -- Операторы, начиная отсюда могут быть отменены
+    -- без отката основной транзакции
+    INSERT MyTable VALUES (2)
+    INSERT MyTable VALUES (3)
+    IF (SELECT COUNT(*) FROM MyTable) &gt; 3
+      ROLLBACK TRANSACTION InsideFoo
+      -- Отменяем изменения, внесенные после
+      -- последнего savepoint
+  COMMIT
+END
+</pre>
+
+
+<p>Отдельного обсуждения заслуживает ROLLBACK вызванный в триггере. </p>
+<p>В этом случае не только откатывается транзакция, в рамках которой произошло срабатывание триггера, но и прекращается выполнение пакета команд, внутри которого это произошло. Все операторы, следующие за оператором, вызвавшим триггер, не будут выполнены. Рассмотрим эту ситуацию на примере:</p>
+<pre name="code" class="sql">CREATE TABLE MyTable (Id INTEGER)
+
+GO
+
+CREATE TRIGGER MyTrig ON MyTable FOR INSERT 
+AS BEGIN
+  IF (SELECT MAX(Id) FROM Inserted) &gt;= 2 BEGIN
+    ROLLBACK
+    RAISERROR('Id &gt;= 2', 17, 1)
+  END
+END
+
+GO
+
+INSERT MyTable VALUES (1)
+INSERT MyTable VALUES (2) &#8211; Вызовет ROLLBACK в триггере
+-- Операторы, начиная отсюда не выполнятся
+INSERT MyTable VALUES (3)
+INSERT MyTable VALUES (4)
+</pre>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

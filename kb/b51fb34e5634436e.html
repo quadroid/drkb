@@ -1,0 +1,229 @@
+<html>
+<head>
+  <title>Сортировка пузырьком (bubble sort) и её улучшения</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сортировка пузырьком (bubble sort) и её улучшения</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Операция сравнения/перестановки выполняется для каждых двух стоящих </p>
+<p>рядом элементов. После первого прохода по массиву "вверху" оказывается</p>
+<p>самый "легкий" элемент. Следующий цикл сортировки выполняется начиная </p>
+<p>со второго элемента, в результате чего вторым в массиве оказывается </p>
+<p>второй наименьший по величине элемент, и так далее.</p>
+<pre name="code" class="delphi">{ Сортируются записи типа item по ключу item.key }
+{ для вспомогательных переменных используется тип index }
+procedure BubbleSort;
+    var i,j: index; x:item;
+begin for i:=2 to n do
+    begin for j:=n downto i do
+            if a[j-1].key &gt; a[j].key then
+                begin x:=a[j-1]; a[j-1]:=a[j]; a[j]:=x;
+                end;
+        end;
+end;
+</pre>
+<p>  Пример 1. Проходим по массиву снизу вверх. Меньшие/более легкие/</p>
+<p>  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; элементы 'всплывают' наверх, давая название методу.</p>
+<p>  Hачальные &nbsp;i &nbsp; &nbsp; &nbsp;i &nbsp; &nbsp; &nbsp;i &nbsp; &nbsp; &nbsp;i &nbsp; &nbsp; &nbsp;i &nbsp; &nbsp; &nbsp;i &nbsp; &nbsp; &nbsp;i</p>
+<p>  &nbsp; ключи &nbsp; &nbsp;2 &nbsp; &nbsp; &nbsp;3 &nbsp; &nbsp; &nbsp;4 &nbsp; &nbsp; &nbsp;5 &nbsp; &nbsp; &nbsp;6 &nbsp; &nbsp; &nbsp;7 &nbsp; &nbsp; &nbsp;8</p>
+<p>  &nbsp; &nbsp;44 /-&gt; 06 &nbsp; &nbsp; 06 &nbsp; &nbsp; 06 &nbsp; &nbsp; 06 &nbsp; &nbsp; 06 &nbsp; &nbsp; 06 &nbsp; &nbsp; 06 &nbsp; </p>
+<p>  &nbsp; &nbsp;55 | &nbsp; 44 /-&gt; 12 &nbsp; &nbsp; 12 &nbsp; &nbsp; 12 &nbsp; &nbsp; 12 &nbsp; &nbsp; 12 &nbsp; &nbsp; 12</p>
+<p>  &nbsp; &nbsp;12 | &nbsp; 55 | &nbsp; 44 /-&gt; 18 &nbsp; &nbsp; 18 &nbsp; &nbsp; 18 &nbsp; &nbsp; 18 &nbsp; &nbsp; 18</p>
+<p>  &nbsp; &nbsp;42 | &nbsp; 12-/ &nbsp; 55 | &nbsp; 44 /-&gt; 42 &nbsp; &nbsp; 42 &nbsp; &nbsp; 42 &nbsp; &nbsp; 42</p>
+<p>  &nbsp; &nbsp;94 | &nbsp; 42 /-&gt; 18-/ &nbsp; 55 | &nbsp; 44 --&gt; 44 &nbsp; &nbsp; 44 &nbsp; &nbsp; 44</p>
+<p>  &nbsp; &nbsp;18 | &nbsp; 94 | &nbsp; 42 &nbsp; &nbsp; 42-/ &nbsp; 55 &nbsp; &nbsp; 55 --&gt; 55 &nbsp; &nbsp; 55</p>
+<p>  &nbsp; &nbsp;06-/ &nbsp; 18-/ &nbsp; 94 -&gt; &nbsp;67 &nbsp; &nbsp; 67 &nbsp; &nbsp; 67 &nbsp; &nbsp; 67 --&gt; 67</p>
+<p>  &nbsp; &nbsp;67 &nbsp; &nbsp; 67 &nbsp; &nbsp; 67-/ &nbsp; 94 &nbsp; &nbsp; 94 &nbsp; &nbsp; 94 &nbsp; &nbsp; 94 &nbsp; &nbsp; 94</p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; </p>
+<p> Алгоритм пузырька очень медленен и неэффективен. Тем не менее,</p>
+<p>у него есть громадный плюс: он прост и его можно по-всякому улучшать.</p>
+<p>Чем мы сейчас и займемся.</p>
+<p>  &nbsp;Посмотрите на пример 1. Три последних прохода никак не влияют на </p>
+<p>порядок элементов, поскольку те уже отсортированы. Очевидный способ улучшить</p>
+<p>алгоритм - запоминать, производился ли на данном проходе какой-либо обмен.</p>
+<p>Если нет - это означает, что алгоритм может закончить работу.</p>
+<p>  &nbsp;Этот процесс улучшения можно продолжить, если запоминать не столько</p>
+<p>сам файт обмена, но и место (индекс) последнего обмена. Ведь ясно, что</p>
+<p>все пары соседих элементов с индексами, меньшими этого индекса k, </p>
+<p>уже расположены в нужном порядке. Поэтому следующие прозоды можно заканчивать</p>
+<p>на этом индексе, вместо того чтобы двигаться до установленной заранее</p>
+<p>нижней границы i.</p>
+<p>  &nbsp; Пойдем дальше: внимательный человек легко может заметить странную</p>
+<p>асимметрию: один неправильно расположенный 'пузырек' в 'тяжелом'</p>
+<p>конце рассортированного массива всплывет за один проход, а неправильно</p>
+<p>расположенный элемент в легком конце будет опускаться на правильное</p>
+<p>место только на один шаг при каждом проходе.</p>
+<p>  Hапример, массив 12 18 42 44 55 67 94 06 будет отсортирован за 1 проход,</p>
+<p>а сортировка массива 94 06 12 18 42 44 55 67 потребует 7 проходов.</p>
+<p>Эта неестественная асимметрия подсказывает третье улучшение:</p>
+<p>менять направление следующих один за другим проходов.</p>
+<p>Получившийся алгоритм иногда называют 'шейкер-сортировкой'.</p>
+<p>  Пример его работы на том же входном массиве.</p>
+
+<p>  &nbsp; &nbsp; &nbsp; &nbsp;l &nbsp;= &nbsp;2 &nbsp; &nbsp; &nbsp; 3 &nbsp; &nbsp; &nbsp; 3 &nbsp; &nbsp; &nbsp; 4 &nbsp; &nbsp; &nbsp; 4</p>
+<p>  &nbsp; &nbsp; &nbsp; &nbsp;r &nbsp;= &nbsp;8 &nbsp; &nbsp; &nbsp; 8 &nbsp; &nbsp; &nbsp; 7 &nbsp; &nbsp; &nbsp; 7 &nbsp; &nbsp; &nbsp; 4</p>
+<p>  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 44 &nbsp;/-&gt; 06 &nbsp; &nbsp; &nbsp;06 &nbsp; &nbsp; &nbsp;06 &nbsp; &nbsp; &nbsp;06</p>
+<p>  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 55 &nbsp;| &nbsp; 44 &nbsp; &nbsp; &nbsp;44 &nbsp;/-&gt; 12 &nbsp; &nbsp; &nbsp;12</p>
+<p>  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 12 &nbsp;| &nbsp; 55 -\ &nbsp; 12 -/ &nbsp; 44 -\ &nbsp; 18</p>
+<p>  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 42 &nbsp;| &nbsp; 12 &nbsp;| &nbsp; 42 &nbsp;/-&gt; 18 &nbsp;| &nbsp; 42</p>
+<p>  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 94 &nbsp;| &nbsp; 42 &nbsp;\-&gt; 55 &nbsp;| &nbsp; 42 &nbsp;\-&gt; 44</p>
+<p>  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 18 &nbsp;| &nbsp; 94 -\ &nbsp; 18 -/ &nbsp; 55 &nbsp; &nbsp; &nbsp;55</p>
+<p>  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 06 -/ &nbsp; 18 &nbsp;| &nbsp; 67 &nbsp; &nbsp; &nbsp;67 &nbsp; &nbsp; &nbsp;67</p>
+<p>  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 67 &nbsp; &nbsp; &nbsp;67 &nbsp;\-&gt; 94 &nbsp; &nbsp; &nbsp;94 &nbsp; &nbsp; &nbsp;94</p>
+<p> Проходы: &nbsp; &nbsp; /|\ &nbsp; &nbsp; &nbsp;| &nbsp; &nbsp; &nbsp;/|\ &nbsp; &nbsp; &nbsp;| &nbsp; &nbsp; &nbsp;/|\</p>
+<p>  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;| &nbsp; &nbsp; &nbsp;\|/ &nbsp; &nbsp; &nbsp;| &nbsp; &nbsp; &nbsp;\|/ &nbsp; &nbsp; &nbsp;|</p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;   </p>
+
+<pre name="code" class="delphi">
+procedure ShakerSort;
+    var j,k,l,r: index; x: item;
+begin l:=2; r:=n; k:=n;
+    repeat
+            for j:=r downto l do
+                    if a[j-1].key &gt; a[j].key then
+                        begin x:=a[j-1]; a[j-1]:=a[j]; a[j]:=x;
+                k:=j;
+                        end;
+                l:=k+1;
+                for j:=l to r do
+                    if a[j-1].key &gt; a[j].key then
+                        begin x:=a[j-1]; a[j-1]:=a[j]; a[j]:=x;
+                            k:=j;
+                        end;
+                r:=k-1;
+        until l&gt;r;
+end;
+        
+</pre>
+<p> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;   </p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;   </p>
+<p>Анализ алгоритма простого пузырька:</p>
+<p>  Число сравнений &nbsp; </p>
+<p>  &nbsp; C = 1/2 (n^2 - n),</p>
+<p> Числа пересылок:</p>
+<p>  &nbsp;Mmin = 0, Mсреднее = 3/4 (n^2 - n), Mmax = 3/2 (n^2 - n). &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;   </p>
+<p>Анализ шейкер-сортировки (из книги Д.Кнута): &nbsp; &nbsp; &nbsp; &nbsp; </p>
+<p>  Минимальное число сравнений Cmin = n-1</p>
+<p>  Среднее число проходов пропорционально n - k1*корень(n),</p>
+<p>  Cреднее число сравнений пропорционально 1/2 ( n^2 - n(k2+ln(n)) ).</p>
+<p>Hо, как видно, все предложенные усовершенствования не влияют на число </p>
+<p>обменов. К сожалению, обмен - операция, как правило, гораздо более </p>
+<p>медленная, чем сравнение ключей, поэтому реальный эффект улучшений</p>
+<p>гораздо меньше, чем можно было бы ожидать.</p>
+<p>  Метод пузырька и описанные улучшения на практике крайне неэффективны,</p>
+<p>SelectSort и InsertSort работают быстрее. Шейкер-сортировку выгодно</p>
+<p>использовать, когда известно, что элементы уже почти упорядочены.</p>
+<p>Hо даже в этом случае обычно применяют все же InsertSort, которая</p>
+<p>менее чувствительна к степени упорядоченности.</p>
+<p><a href="http://algolist.manual.ru" target="_blank">http://algolist.manual.ru</a></p>
+
+<hr />
+<pre name="code" class="delphi">{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Обычная сортировка методом "пузырька"
+ 
+ПРостой способ отсортировать массив данных
+ 
+Зависимости: стандартный набор
+Автор:       Oleg Yu. Borodin AKA Cyber, ICQ:52779990, Tomsk
+Copyright:   Oleg Yu. Borodin AKA Cyber
+Дата:        16 февраля 2004 г.
+********************************************** }
+ 
+var 
+l,m,mi,d:integer;
+mWin:array [0..8] of integer;
+begin
+ Randomize;
+ for l:=0 to 8 do mWin[l]:=Random(100);
+ for l:=0 to 7 do //последний элемент не считаем - он уже будет 
+                  //стоять на своем месте
+   begin
+     d:=0;
+     mi:=0;//ищем максимальный элемент
+     for m:=l to 8 do
+       if mWin[m]&gt;mi then
+          begin
+          mi:=mWin[m];
+          d:=m;//находим позицию максимального элемента массива
+          end;
+     mi:=mWin[l];//текущий сохраняем
+     mWin[l]:=mWin[d];//вставляем максимальный
+     mWin[d]:=mi;//текущий переставляем на свободное место
+   end;
+end;//все
+</pre>
+
+<hr />
+<p>В основе алгоритма лежит обмен соседних элементов массива. Каждый элемент массива, начиная с первого, сравнивается со следующим, и если он больше следующего, то элементы меняются местами. Таким образом, элементы с меньшим значением продвигаются к началу массива (всплывают), а элементы с большим значением — к концу массива (тонут). Поэтому данный метод сортировки обменом иногда называют методом "пузырька". Этот процесс повторяется столько раз, сколько элементов в массиве, минус единица. </p>
+<pre name="code" class="delphi">procedure TForm1.Button1Click(Sender: TObject);
+const
+  SIZE = 5;
+var
+  a: array[1..SIZE] of integer;
+  k: integer; // текущий элемент массива
+  i: integer; // индекс для ввода и вывода массива
+  changed: boolean; // TRUE, если в текущем цикле были обмены
+  buf: integer; // буфер для обмена элементами массива
+begin
+  // ввод массива
+  for i := 1 to SIZE do
+    a[i] := StrToInt(StringGrid1.Cells[i - 1, 0]);
+  label2.caption := '';
+ 
+  // сортировка массива
+  repeat
+    Changed := FALSE; // пусть в текущем цикле нет обменов
+    for k := l to SIZE - 1 do
+      if a[k] &gt; a[k + l] then
+      begin // обменяем k-й и k+1-й элементы
+        buf := a[k]; a[k] := a[k + l]; a[k + l] := buf;
+        changed := TRUE;
+      end;
+ 
+    // вывод массива
+    for i := l to SIZE do
+      Label2.caption := label2.caption + ' ' + IntTostr(a[i]);
+    Label2.caption := label2.caption + #13;
+  until
+    not changed; // если не было обменов, значит
+ 
+  // массив отсортирован
+  Label2.caption := label2.caption + #13 + 'Maccив отсортирован.';
+end;
+</pre>
+<p>Следует отметить, что максимальное необходимое количество циклов проверки соседних элементов массива равно количеству элементов массива минус один. Вместе с тем возможно, что массив реально будет упорядочен за меньшее число циклов. Например, последовательность чисел 5 1 2 3 4, если ее рассматривать как представление массива, будет упорядочена за один цикл, и выполнение оставшихся трех циклов не будет иметь смысла. </p>
+<p>Поэтому в программу введена логическая переменная changed, которой перед выполнением очередного цикла присваивается значение FALSE. Процесс сортировки (цикл repeat) завершается, если после выполнения очередного цикла проверки соседних элементов массива (цикл for) ни один элемент массива не был обменен с соседним, и, следовательно, массив уже упорядочен. </p>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

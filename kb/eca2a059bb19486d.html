@@ -1,0 +1,85 @@
+<html>
+<head>
+  <title>Управляющие коды принтера</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Управляющие коды принтера</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Как мне послать на принтер управляющие коды принтера(Printer Control Codes)без перевода их в непечатные символы? Наверняка без Windows API в Delphi не обойтись.Когда я передаю управляющие коды принтера, они печатаются как непечатные символы, а не воспринимаются принтером как управляющие коды.</p>
+
+<p>Вам нужно использовать Escape функцию принтера Passthrough, чтобы переслать данные непосредственно в принтер.В случае использования функции WriteLn это, конечно, не работает.Вот некоторый код, чтобы уговорить вас начать:</p>
+
+<pre name="code" class="delphi">
+unit Passthru;
+ 
+interface
+ 
+uses printers, WinProcs, WinTypes, SysUtils;
+ 
+procedure PrintTest;
+ 
+implementation
+ 
+type
+ 
+  TPassThroughData = record
+    nLen: Integer;
+    Data: array[0..255] of byte;
+  end;
+ 
+procedure DirectPrint(s: string);
+var
+ 
+  PTBlock: TPassThroughData;
+begin
+ 
+  PTBlock.nLen := Length(s);
+  StrPCopy(@PTBlock.Data, s);
+  Escape(printer.handle, PASSTHROUGH, 0, @PTBlock, nil);
+end;
+ 
+procedure PrintTest;
+begin
+ 
+  Printer.BeginDoc;
+  DirectPrint(CHR(27) + '&amp;l1O' + 'Привет, Вася!');
+  Printer.EndDoc;
+end;
+ 
+end.
+</pre>
+
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

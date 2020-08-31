@@ -1,0 +1,84 @@
+<html>
+<head>
+  <title>Почему возникает ошибка «Access Violation»?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Почему возникает ошибка «Access Violation»?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Ошибка "Access Violation" возникает, когда идёт обращение к памяти к которой обращение запрещено. Это возможно во многих случаях, но наиболее типичные ситуации я попытаюсь перечислить:</p>
+<p>1) Обращение к не созданному объекту.</p>
+<pre name="code" class="delphi">
+var e:TEdit;
+begin
+  e.text:='Hello world!';
+end;
+</pre>
+<p>В данном случае объект e ещё не создан и идёт обращение к памяти, которая ещё не выделена. </p>
+<p>2) Обращение к уже разрушенному объекту:</p>
+<pre name="code" class="delphi">
+var e:TEdit;
+begin
+  ...
+  e.free;
+  ...
+  e.text:='Hello world';
+end;
+</pre>
+<p>Тут есть хитрость, допустим вы хотите проверить есть ли объект и модернизируете код:</p>
+<pre name="code" class="delphi">
+if e&lt;&gt;nil then e.text:='Hello world!';
+</pre>
+<p>или </p>
+<pre name="code" class="delphi">
+if assigned(e) then  e.text:='Hello world!';
+</pre>
+<p>Особенно часто приходится такое делать когда надо уничтожить объект:</p>
+<pre name="code" class="delphi">
+if e&lt;&gt;nil then e.free;
+</pre>
+<p>Так вот - такой код может быть источником ошибки, так как метод Free автоматически не устанавливает указатель в Nil. Обязательно после каждого Free используйте установление указателя в nil:</p>
+<pre name="code" class="delphi">
+e.free;
+e:=nil;
+</pre>
+<p>3) При выходе за границы динамического массива обычно генерится ошибка "Index out of bound", но возможно и возникновение Access Violation, особенно когда не стоят опции компилляции для проверки границ массивов. Эта ошибка может быть очень сложна в отлаживании - дело в том что допустим у вас есть массив а длиной в 10 элементов, в пишете:</p>
+<pre name="code" class="delphi">
+a[20]:=something;
+</pre>
+<p>И эта строка может пройти как и надо, без всяких проблем, но её выполнение повредит какой-то другой код, причём каждый раз другой! Теперь самая безобидная операция типа i:=10 может вдруг внезапно дать Access Violation.</p>
+<p>3) На форме на onCreate вызывается что-то с других форм - эти другие формы на этот момент еще не созданы</p>
+<p>4) На форме на onDestroy вызывается что-то с других форм - эти другие формы на этот момент уже разрушены</p>
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

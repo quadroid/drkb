@@ -1,0 +1,83 @@
+<html>
+<head>
+  <title>Добавляем компонент в стандартный MessageDialog</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Добавляем компонент в стандартный MessageDialog</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Terrance Hui</p>
+
+<p>Пример показывает стандартное диалоговое окно, которое обычно используется для подтверждения дальнейших действий в любой программе с галочкой "Don't show this message again." </p>
+
+<p>Используем функцию CreateMessageDialog и добавляем любой компонент до того как будет вызвана ShowModal.</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject); 
+Var 
+  AMsgDialog: TForm; 
+  ACheckBox: TCheckBox; 
+begin 
+  AMsgDialog := CreateMessageDialog('This is a test message.', mtWarning, [mbYes, mbNo]); 
+  ACheckBox := TCheckBox.Create(AMsgDialog); 
+  with AMsgDialog do 
+  try 
+    Caption := 'Dialog Title' ; 
+    Height := 169; 
+ 
+    With ACheckBox do 
+    begin 
+      Parent := AMsgDialog; 
+      Caption := 'Do not show me again.'; 
+      top := 121; 
+      Left := 8; 
+    end; 
+ 
+    Case ShowModal of 
+      ID_YES: ;//здесь Ваш код после того как диалог будет закрыт 
+      ID_NO:  ; 
+    end; 
+    If ACheckBox.Checked then 
+    begin 
+      //... 
+    end; 
+  finally 
+    ACheckBox.Free; 
+    Free; 
+  end; 
+end; 
+</pre>
+
+
+<p>Так же Вы можете изменить диалог по Вашему усмотрению. </p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

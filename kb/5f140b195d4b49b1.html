@@ -1,0 +1,64 @@
+<html>
+<head>
+  <title>Как нажать кнопку в TWebBrowser, когда в окне есть несколько кнопок?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как нажать кнопку в TWebBrowser, когда в окне есть несколько кнопок?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// If there is only one button, you can do something like: 
+ 
+WebBrowser1.OleObject.Document.forms.item(0).elements.item(0).click; 
+ 
+// This will do a click on the first element of the first &lt;FORM&gt;, where an 
+// element is either &lt;INPUT&gt;, &lt;SELECT&gt; or &lt;TEXTAREA&gt;. 
+ 
+ 
+// If there is more than one button, you can do something like: 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+var  
+  ovElements: OleVariant;  
+  i: Integer;  
+begin  
+  ovElements := WebBrowser1.OleObject.Document.forms.item(0).elements;  
+  for i := 0 to (ovElements.Length - 1) do 
+    if (ovElements.item(i).tagName = 'INPUT') and 
+      (ovElements.item(i).type = 'SUBMIT') and 
+      (ovElements.item(i).Value = 'Recent Charges') then 
+      ovElements.item(i).Click;  
+end; 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

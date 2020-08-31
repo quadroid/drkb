@@ -1,0 +1,83 @@
+<html>
+<head>
+  <title>TListView в режиме отчета под манифестом XP</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TListView в режиме отчета под манифестом XP</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  The TListView with a vsReport style causes an access violation 
+  when you run your project with a XP manifest resource. 
+ 
+  The VCL wrapper has a bug and you must patch sources. 
+  Just copy the comctrls.pas unit in the folder with your own 
+  project and modify the UpdateColumn method. 
+  After compiling the project, a comctrls.dcu is created 
+  and you can replace the original comctrls.dcu with the 
+  patched one. 
+ 
+}
+ 
+ { 
+  Wenn ein XP Manifest als Ressource in eine Exe-Datei eingebunden 
+  wird, um einer Applikation das neue XP-Design zu verleihen, 
+  gibt es bei der TListView mit Style vsReport eine Zugriffsverletzung 
+  und die Anwenung lasst sich nicht starten. 
+ 
+  Das ist ein VCL Bug und kann behebt werden, indem 
+  comctrls.pas modifiziert wird. 
+  Kopiere die comctrls.pas in dein Projekte-Verzeichnis und 
+  andere die UpdateColumn Methode wie folgt. 
+  Nach dem Kompilieren wird eine Comctrls.dcu Datei erstellt. 
+  Die original Comctrls.dcu kann nun durch die modifizierte ersetzt werden. 
+}
+ 
+ 
+ // ComCtrls.pas: 
+ 
+procedure TCustomListView.UpdateColumn(AnIndex: Integer);
+ {...}
+ with Column, Columns.Items[AnIndex] do
+ begin
+   { PATCH start:}
+   // mask := LVCF_TEXT or LVCF_FMT or LVCF_IMAGE; 
+  mask := LVCF_TEXT or LVCF_FMT;
+   if FImageIndex &gt;= 0 then
+     mask := mask or LVCF_IMAGE;
+   { PATCH :end }
+   {...}
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

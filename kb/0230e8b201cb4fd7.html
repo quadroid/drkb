@@ -1,0 +1,46 @@
+<html>
+<head>
+  <title>Error «-10» when trying to install Kylix</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Error «-10» when trying to install Kylix</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>The Error -10 is a generic install error. The usual cause of this is due to a previous version of Kylix that wasn't uninstalled completely. You will need to check the RPM database to see if there are still components from Kylix installed. This can be done with command rpm -qa | grep kylix. For each of the resulting packages (if there are none, then Kylix is completely uninstalled), use rpm -e PackageName to remove them. Then, try reinstalling Kylix. </p>
+<p>If you have Kylix completely uninstalled (the rpm -qa | grep kylix command returns nothing), and after choosing "Begin Install" from the installation, the installer aborts with an error code -10, then the problem may be do with the your locale settings. Typing the command "locale" may show LC_NUMERIC="de_DE" (the German locale, in this case). Some versions of RPM (mostly newer ones) respect this setting and will use a comma as the decimal separator. This causes a problem for the Kylix installer. The installer needs a period as the decimal separator. The workaround is to reset the LC_NUMERIC environment like this: </p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp;  export LC_NUMERIC="en_US"</p>
+
+<p>Once installation is finished, you can reset this value by setting it to the original locale. This problem can occur for any locale which does not use a period as the decimal separator.&nbsp; </p>
+<p>It's possible that a previous version of Kylix was not uninstalled completely or that there is a problem with the RPM. [{more info}]. There are a couple ways to work around this. The first is to install as a user other than root. If you would rather not do this you can use the "-m" option on the setup script. So you would enter: ./setup.sh -m&nbsp; from a vterm. This tells the script to not use the RPM. </p>
+<p id="note">Примечание от Vit</p>
+<p>Обычно ошибка возникает при попытке установить Kylix от имени root и разрешается простой установкой Kylix от имени обычного пользователя.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

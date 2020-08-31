@@ -1,0 +1,142 @@
+<html>
+<head>
+  <title>Понимание многопоточности в VCL для веб-серверных ISAPI-расширений</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Понимание многопоточности в VCL для веб-серверных ISAPI-расширений</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Andrew Kachanov (www.arisesoft.com)</p>
+<p>В среде Delphi можно создавать высокоэффективные веб-серверные ISAPI-расширения на основе технологии WebBroker. Создайте проект с помощью мастера (New -&gt; Web Server Application - ISAPI DLL). Прилагаемая справочная документация, а так же демонстрационный пример "$(DELPHI)\Demos\Webserv" позволяют достаточно быстро освоиться в приемах написания веб-серверных ISAPI-расширений. На выходе у вас получится обычная DLL (далее по тексту - библиотека). </p>
+<p>Сложность заключается в том, что веб-сервер (для ускорения обработки поступающих запросов) вызывает нашу библиотеку в много-поточном режиме. В результате чего на разработчика ложиться ответственность за написание поточно-безопасного кода. Не беспокойтесь, ребята из Borland постарались упростить вам жизнь настолько, насколько это возможно. Когда я понял смысл "обертки" TWebApplication и наследника TISAPIApplication, то был восхищен, и вдохновлен поделиться этими знаниями с вами! </p>
+<p>Согласно спецификации ISAPI-расширений, созданная библиотека имеет всего три экспортируемые функции: GetExtensionVersion, HttpExtensionProc, TerminateExtension. Нас интересует только HttpExtensionProc, через которую выполняется вся работа: получение запросов с веб-сервера (Request), обработка и обратная отправка результата (Response). </p>
+<p>Итак, рассмотрим весь путь прохождения данных. Запрос веб-сервера поступает через экспортируемую библиотекой функцию HttpExtensionProc в TISAPIApplication через инкапсулированный метод с одноименным названием (объект Application, как и в любом VCL-приложении другого вида, присутствует всегда: создается при инициализации и разрушается при завершении приложения, однако в данном случае имеет тип TISAPIApplication): </p>
+<pre name="code" class="delphi">
+function TISAPIApplication.HttpExtensionProc(var ECB: TEXTENSION_CONTROL_BLOCK): DWORD;
+var
+  HTTPRequest: TISAPIRequest; 
+  HTTPResponse: TISAPIResponse;
+  { ^ локально объявленные переменные запроса и ответа }
+begin
+  try
+    HTTPRequest := NewRequest(ECB); 
+    { ^ инициализация переменной запроса по структуре ECB, полученной от веб-сервера }
+    try
+      HTTPResponse := NewResponse(HTTPRequest);
+      { ^ инициализация переменной ответа }
+      try
+        if HandleRequest(HTTPRequest, HTTPResponse) then
+        { ^ обработка переходит к TWebApplication.HandleRequest }
+          Result := HSE_STATUS_SUCCESS
+        else Result := HSE_STATUS_ERROR;
+      finally
+        HTTPResponse.Free;
+      end;
+    finally
+      HTTPRequest.Free;
+    end;
+  except
+    HandleServerException(Exception(ExceptObject), ECB);
+    Result := HSE_STATUS_ERROR;
+  end;
+end;
+</pre>
+
+<p>Из приведенного кода видно, что переменные HTTPRequest и HTTPResponse объявлены локально, и объекты соответствующих типов создаются для каждого поступающего запроса веб-сервера. После инициализации этих переменных обработка переходит к TWebApplication.HandleRequest: </p>
+<pre name="code" class="delphi">
+function TWebApplication.HandleRequest(Request: TWebRequest;
+  Response: TWebResponse): Boolean;
+var
+  DataModule: TDataModule;
+  Dispatcher: TCustomWebDispatcher;
+  I: Integer;
+begin
+  Result := False;
+  DataModule := ActivateWebModule; 
+  { ^ назначает объект, который не используется другими потоками }
+  if DataModule &lt;&gt; nil then
+  try
+    if DataModule is TCustomWebDispatcher then
+      Dispatcher := TCustomWebDispatcher(DataModule)
+    else with DataModule do
+    begin
+      Dispatcher := nil;
+      for I := 0 to ComponentCount - 1 do
+      begin
+        if Components[I] is TCustomWebDispatcher then
+        begin
+          Dispatcher := TCustomWebDispatcher(Components[I]);
+          Break;
+        end;
+      end;
+    end;
+    if Dispatcher &lt;&gt; nil then
+    begin
+      Result := TWebDispatcherAccess(Dispatcher).DispatchAction(Request, Response);
+      { ^ обработка переходит к TWebDispatcher.DispatchAction }
+      if Result and not Response.Sent then
+        Response.SendResponse;
+        { ^ отправка ответа веб-серверу }
+    end else raise Exception.CreateRes(@sNoDispatcherComponent);
+  finally
+    DeactivateWebModule(DataModule);
+    { ^ переводит в список неиспользуемых объектов - FInactiveWebModules }
+  end;
+end;
+</pre>
+
+<p>Тут следующая хитрость: локально объявленная переменная DataModule получает ссылку на объект от метода TWebApplication.ActivateWebModule. Для каждого потока предоставляется неиспользуемый в настоящее время другими потоками объект типа TDataModule, для чего выполняется перемещение этих объектов между списками FInactiveWebModules и FActiveWebModules. Если список FInactiveWebModules исчерпан, то создается новый экземпляр объекта типа TDataModule. В результате этих манипуляций для каждого потока используется собственный экземпляр объекта типа TDataModule, и разработчик может быть уверен в поточно-безопасном объявлении полей данных своего объекта TWebModule! Но это еще не все. </p>
+<p>Локально объявленные в TISAPIApplication.HttpExtensionProc переменные HTTPRequest и HTTPResponse, о которых говорилось выше, переданы методу TWebApplication.HandleRequest в качестве параметров Request и Response, который в свою очередь передает их методу TCustomWebDispatcher.DispatchAction: </p>
+<pre name="code" class="delphi">
+function TCustomWebDispatcher.DispatchAction(Request: TWebRequest;
+  Response: TWebResponse): Boolean;
+var
+  I: Integer;
+  Action, Default: TWebActionItem;
+  Dispatch: IWebDispatch;
+begin
+  FRequest := Request;
+  FResponse := Response;
+  {...}
+end;
+</pre>
+
+<p>Тут выполняется присваивание переменных Request и Response полям объекта TWebModule (как наследнику TCustomWebDispatcher). А нам уже известно, что экземпляр объекта TWebModule у каждого потока - собственный. Теперь посмотрим правде в глаза: у каждого запроса веб-сервера есть собственные экземпляры объектов TRequest и TResponse в полях TWebModule.Request и TWebModule.Response; и они поточно-безопасны. </p>
+<p>Далее путь лежит через метод TWebActionItem.DispatchAction, который вызывается в TCustomWebDispatcher.DispatchAction. Тут может вступать в действие ваш код обработки запроса, после чего подготовленному ответу предстоит обратная дорога. </p>
+<p>Как видно из приведенного выше фрагмента кода TWebApplication.HandleRequest - DataModule передается в качестве параметра методу TWebApplication.DeactivateWebModule, в котором может быть переведен в список FInactiveWebModules, или вовсе разрушен (если выключено свойство CacheConnections - этим не стоит пользоваться без необходимости, так как существенно снижается производительность обработки запросов). После чего обработка возвращается к TISAPIApplication.HttpExtensionProc и ответ передается веб-серверу вызовом Response.SendResponse. </p>
+<p>Отдельно следует отметить. Мне несколько раз попадались на глаза рекомендации устанавливать глобальную переменную IsMultiThread к True в dpr-файл проекта - этого делать не нужно, т.к. в конструкторе TWebApplication эта работа уже выполняется! </p>
+<p>Если вы используете доступ к BDE посредством наследников TBDEDataSet (TTable, TQuery, TStoredProc) то все что вам нужно сделать для обеспечения поточно-безопасности, это присвоить в конструкторе TWebModule: Session.AutoSessionName := True (подробнее смотри в справочной документации: "Managing multiple sessions"). </p>
+<p>Реализация инкапсуляции WinSock в компонентах TClientSocket и TServerSocket, которые вам могут потребоваться, так же поточно-безопасна. </p>
+<p>Конечно, если используется файловый ввод-вывод, а так же прямые вызовы WinSock, то тогда все же нужно выполнять много-поточную защиту самостоятельно и вам все же придется прочитать раздел документации "Programming with Delphi - Using threads". :-) </p>
+<p>Замечание: изложенное выше относится к Delphi 5.</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

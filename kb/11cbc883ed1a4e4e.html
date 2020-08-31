@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>Drag &amp; Drop из RichEdit</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Drag &amp; Drop из RichEdit</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+var
+   Form1: TForm1;
+   richcopy: string;
+   transfering: boolean;
+ implementation
+ 
+ {$R *.DFM\}
+ 
+ procedure TForm1.RichEdit1MouseDown(Sender: TObject; Button: TMouseButton;
+   Shift: TShiftState; X, Y: Integer);
+ begin
+  if length(richedit1.seltext)&gt;0 then begin
+   richcopy:=richedit1.seltext;
+   transfering:=true;
+  end; //seltext
+ end;
+ 
+ procedure TForm1.ListBox1MouseMove(Sender: TObject; Shift: TShiftState; X,
+   Y: Integer);
+ begin
+  if transfering then begin
+   transfering:=false;
+   listbox1.items.add(richcopy);
+  end; //transfering
+ end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

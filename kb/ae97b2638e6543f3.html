@@ -1,0 +1,105 @@
+<html>
+<head>
+  <title>Как получить закэшированные пароли в Win9x?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить закэшированные пароли в Win9x?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">program getpass; 
+........ 
+type 
+... 
+ListBox: TListBox; 
+procedure getpasswords; 
+....... 
+end; 
+ 
+const Count: Integer = 0; 
+ 
+function WNetEnumCachedPasswords(lp: lpStr; w: Word; b: Byte; PC: PChar; dw: DWord): Word; stdcall; 
+ 
+implementation 
+ 
+{$R *.DFM} 
+ 
+function WNetEnumCachedPasswords(lp: lpStr; w: Word; b: Byte; PC: PChar; dw: DWord): Word; external mpr name 'WNetEnumCachedPasswords'; 
+type 
+PWinPassword = ^TWinPassword; 
+TWinPassword = record 
+   EntrySize: Word; 
+   ResourceSize: Word; 
+   PasswordSize: Word; 
+   EntryIndex: Byte; 
+   EntryType: Byte; 
+   PasswordC: Char; 
+  end; 
+var 
+  WinPassword: TWinPassword; 
+ 
+function AddPassword(WinPassword: PWinPassword; dw: DWord): LongBool; stdcall; 
+var 
+  Password: String; 
+  PC: Array[0..$FF] of Char; 
+begin 
+  inc(Count); 
+ 
+  Move(WinPassword.PasswordC, PC, WinPassword.ResourceSize); 
+  PC[WinPassword.ResourceSize] := #0; 
+  CharToOem(PC, PC); 
+  Password := StrPas(PC); 
+ 
+  Move(WinPassword.PasswordC, PC, WinPassword.PasswordSize + WinPassword.ResourceSize); 
+  Move(PC[WinPassword.ResourceSize], PC, WinPassword.PasswordSize); 
+  PC[WinPassword.PasswordSize] := #0; 
+  CharToOem(PC, PC); 
+  Password := Password + ': ' + StrPas(PC); 
+ 
+  Form1.ListBox.Items.Add(Password); 
+  Result := True; 
+end; 
+ 
+procedure tform1.getpasswords;
+var error: string;
+begin
+  if WNetEnumCachedPasswords(nil, 0, $FF, @AddPassword, 0) &lt;&gt; 0 then
+    begin
+      error := 'Can not load passwords: User is not loged on.';
+    end
+  else if Count = 0 then
+    error := 'No passwords found...'
+end;
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

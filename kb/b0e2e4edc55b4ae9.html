@@ -1,0 +1,258 @@
+<html>
+<head>
+  <title>Изучаем DelphiX (Часть 6)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Изучаем DelphiX (Часть 6)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Изучаем DelphiX. Часть 6: Мультиплеер. </p>
+Автор: Влад Энгельгардт </p>
+"SINGLE-хорошо, а <br>
+<p>MULTIPLAYER - лучше" </p>
+<p>Здравствуйте дорогие мои читатели. Сегодня мы будем говорить о мультиплеере. Точнее об его создании в DelphiX. В DelphiX это реализуется с помощью компонента: </p>
+<p><img src="pic/clip0116.png" width="30" height="30" border="0" alt="clip0116"></p>
+<p>DXPlay. Многие, кто пытался что-то сделать на DXPlay, сталкивался с такой проблемой: что если вызывать диалог с DXPlay то получаем непонятный текст: </p>
+<img src="pic/clip0117.png" width="506" height="293" border="0" alt="clip0117"></p>
+<p>Устранить ее очень легко. Дело в том, что из-за "НЕРУССКОГО" происхождения программист Hiroyuki Hori в DXPlayFm.dfm в некоторых местах поставил шрифт: "Terminal", а нам нужен "MS Sans Serif". Поэтому то и всё так исковеркано. Я исправил эту проблему вот так: </p>
+<img src="pic/clip0118.png" width="506" height="314" border="0" alt="clip0118"></p>
+<p>И выкладываю исправленный мною модуль DXPlayFm.dfm, и более того, он русифицирован. Так что пользуйтесь на здоровье :) DXPlayFm.rar. </p>
+<p>Сегодня мы напишем простенькую, мультиплеерную гаму. В этом я помогу вам. <br>
+<p>В качестве шаблона я буду использовать part2.rar. Мы его модернизируем, и предадим ему мультиплеерность. Сразу говорю, что part2.rar состоял из 2 интерактивных объектов, соответственно и в наш мультиплеер можно играть только вдвоем. </p>
+<p>Теперь я расскажу, как нужно модернизировать пример из второй части под шестой :). </p>
+<p>На мой взгляд, эта часть является единственно растолковывающая создание мультиплеера под DelphiX. Сколько я прочитал статей по программированию мультиплеера на DelphiX, ничего путного не увидел. Здесь я использую простой алгоритм. Принцип его следующий: передаются не координаты объекта, а клавиши, которые были нажаты на удалённой машине. </p>
+<p>Кидаем на форму компонент DXPlay и устанавливаем вот такие свойства: </p>
+<pre name="code" class="delphi">
+MaxPlayers = 2, 
+GUID = {218A0D84-949C-42BC-A97B-40C3E3A642F1}.
+</pre>
+<br>
+<p>GUID можно создать любой достаточно нажать на кнопку New. </p>
+<p>Добавляем в uses модуль: DirectX. </p>
+<p>После uses создаём список констант: </p>
+<pre name="code" class="delphi">
+const
+  DXACTION_MESSAGE = 1; // Это нажата клавиша действия
+  DXKEY_LEFT = 1;       // двигаемся влево
+  DXKEY_RIGHT = 2;      // двигаемся вправо
+  DXKEY_SHOOT = 3;      // Стреляем
+</pre>
+
+<p>Создаём новый тип для наших ACTION сообщений: </p>
+<pre name="code" class="delphi">
+type
+  TDXActionMessage = record
+    dwType: DWORD;
+    ActionCode: Integer;
+  end; 
+</pre>
+
+<p>Далее идут классы спрайтов: <br>
+Единственное, что поменялось это класс TBOSS, я его переименовал в TPLU. <br>
+<p>Когда мы поменяли названия то и картинку нужно изменить на более подходящую. </p>
+<p>Заходим в DXImageList и переименовываем спрайт Boss на Plu . <br>
+<p>А вот картинка: </p>
+<img src="pic/clip0120.png" width="43" height="43" border="0" alt="clip0120"></p>
+<p>&nbsp;<br>
+<p>В Var перед implementation обозначаем два наших класса: </p>
+<pre name="code" class="delphi">
+var
+  Form1: TForm1;
+  plu:Tplu;
+  PlayerSprite:TPlayerSprite;
+ 
+implementation
+</pre>
+
+<p>Теперь подходим к процедуре TPlayerSprite.DoMove. <br>
+<p>Она должна выглядеть вот так: </p>
+<pre name="code" class="delphi">
+Procedure TPlayerSprite.DoMove(MoveCount: Integer);
+  var
+    Msg: ^TDXActionMessage; //Само сообщение
+    msgSize: Integer; //размер сообщения
+  begin
+    inherited DoMove(MoveCount);
+    if form1.DXPlay1.Players.Count =2 then // пока в игру не зайдёт второй игрок
+                                           // ни кто, не двинется
+    begin
+      if isLeft in Form1.DXInput1.States then
+      begin
+        x:=x-5;
+        msgSize := SizeOf( TDXActionMessage );
+        GetMem(Msg, MsgSize);
+        msg.dwType := DXACTION_MESSAGE; //тип сообщения
+        msg.ActionCode := DXKEY_LEFT; //действие
+        form1.DXPlay1.SendMessage(DPID_ALLPLAYERS,msg,msgsize); //отсылаем всем
+      end;
+      if isRight in Form1.DXInput1.States then
+      begin
+        X:=x+5;
+        msgSize := SizeOf( TDXActionMessage );
+        GetMem(Msg, MsgSize);
+        msg.dwType := DXACTION_MESSAGE;
+        msg.ActionCode := DXKEY_RIGHT;
+        form1.DXPlay1.SendMessage(DPID_ALLPLAYERS,msg,msgsize);
+      end;
+      if isup in Form1.DXInput1.States then
+      begin
+        if lngpolet-oldlngpolet&gt;=900 then
+        begin
+          Inc(lngpolet);
+          with TPlayerFa.Create(Engine) do
+          begin
+            msgSize := SizeOf( TDXActionMessage );
+            GetMem(Msg, MsgSize);
+            msg.dwType := DXACTION_MESSAGE;
+            msg.ActionCode := DXKEY_SHOOT;
+            form1.DXPlay1.SendMessage(DPID_ALLPLAYERS,msg,msgsize);
+            PixelCheck := True;
+            Image := form1.dxImageList1.Items.Find('Pula');
+            X := Self.X+Self.Width  -40;
+            Y := Self.Y+Self.Height -80 ;
+            Width := Image.Width;
+            Height := Image.Height;
+            stril:=-4;
+          end;
+          oldlngpolet := lngpolet;
+        end;
+      end;
+      if  y &gt;= form1.DXDraw1.SurfaceHeight-image.Height then
+        y := form1.DXDraw1.SurfaceHeight-image.Height;
+      if  x &gt;= form1.DXDraw1.SurfaceWidth -image.Width  then
+        x := form1.DXDraw1.SurfaceWidth -image.Width;
+      if  y &lt;= 0 then
+        y := 1;
+      if  x &lt;= 0 then
+        x:=1;
+      lngpolet := lngpolet + MoveCount;
+      Collision;
+    end;
+  end;  
+</pre>
+
+<p>Теперь, как вы понимаете, так как TBoss уже не существует, то и некоторые процедуры должны быть пусты: </p>
+<pre name="code" class="delphi">
+Procedure TPLU.DoMove(MoveCount: Integer);
+  begin
+    inherited DoMove(MoveCount);
+    Collision;
+  end; 
+ 
+  constructor TPLU.Create(AParent: TSprite);
+  begin
+    inherited Create(AParent);
+  end;
+</pre>
+
+<p>Далее очищаем событие для формы OnCreate и пишем в нём: </p>
+<pre name="code" class="delphi">
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  try
+    DXPlay1.Open;
+  Except
+    On E: Exception do
+    begin
+      Application.ShowMainForm := False;
+      Application.HandleException(E);
+      Application.Terminate;
+    end;
+  end;
+ 
+  With TBackgroundSprite.Create(DXSpriteEngine1.Engine) do
+  begin
+    SetMapSize(1,1);
+    Image := dxImageList1.Items.Find('bg');
+    Z:= -2;
+    Tile := True;
+  end;
+end;
+</pre>
+
+<p>Далее кликаем по компоненту DXPlay создаём событие: OnMessage </p>
+<p>И пишем следующее:</p>
+<pre name="code" class="delphi">procedure TForm1.DXPlay1Message(Sender: TObject; From: TDXPlayPlayer;
+  Data: Pointer; DataSize: Integer);
+begin
+  if TDXActionMessage( Data^ ).actioncode AND DXKEY_LEFT = DXKEY_LEFT then
+ &nbsp;&nbsp; plu.X:=plu.X -5; // получаем сообщение влево, двигаем удалённого
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //playerа в лево
+  if TDXActionMessage( Data^ ).actioncode AND DXKEY_RIGHT = DXKEY_RIGHT then
+ &nbsp;&nbsp; plu.X:=plu.X +5; // получаем сообщение вправо, двигаем удалённого
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //playerа в право
+  if TDXActionMessage( Data^ ).actioncode AND DXKEY_SHOOT = DXKEY_SHOOT then
+  begin &nbsp;&nbsp; // получаем сообщение - удалённый игрок выстрелил,
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // создаём патрон на месте PLU
+ &nbsp;&nbsp; with TPlayerFa.Create(dxspriteengine1.Engine) do
+ &nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp; PixelCheck := True;
+ &nbsp;&nbsp;&nbsp;&nbsp; Image := form1.dxImageList1.Items.Find('Pula');
+ &nbsp;&nbsp;&nbsp;&nbsp; X := plu.X+plu.Width-70;
+ &nbsp;&nbsp;&nbsp;&nbsp; Y := plu.Y+plu.Height+10;
+ &nbsp;&nbsp;&nbsp;&nbsp; Width := Image.Width;
+ &nbsp;&nbsp;&nbsp;&nbsp; Height := Image.Height;
+ &nbsp;&nbsp;&nbsp;&nbsp; stril:=4;
+ &nbsp;&nbsp;&nbsp;&nbsp; Collision;
+ &nbsp;&nbsp; end;
+  end;
+end;
+</pre>
+
+<p>Далее кликаем по DXDraw создаём событие Initialize и в нем пишем: </p>
+<pre name="code" class="delphi">
+  plu:= Tplu.Create(DXSpriteEngine1.Engine);
+  plu.PixelCheck  := True;
+  plu.Image := form1.dxImageList1.Items.Find('plu');
+  plu.x:=350;
+  plu.y:=10;
+  plu.Width := plu.Image.Width;
+  plu.Height := plu.Image.Height;
+ 
+  PlayerSprite:= TPlayerSprite.Create(DXSpriteEngine1.Engine);
+  PlayerSprite.PixelCheck := True;
+  PlayerSprite.Image := form1.dxImageList1.Items.Find('Pla');
+  PlayerSprite.x:=350;
+  PlayerSprite.y:=500;
+  PlayerSprite.Width := PlayerSprite.Image.Width;
+  PlayerSprite.Height := PlayerSprite.Image.Height;
+</pre>
+
+<p>Вот, и всё запускаем, и радуемся. <br>
+<p>А теперь я расскажу, как это всё работает. </p>
+<p>Прежде чем начать писать мультиплеер, нужно осознавать, что тебе придётся думать за каждую из удалённых машин. Как она получит пакет, кому что нужно будет отправить и так далее. Так вот, в событии Message в DXPlay1 обрабатываются всё принятые сообщения, а отсылать их можно любым плеером из любого места в коде. Так вот когда один из игроков запускает игру, а другой присоединяется к нему, происходит такая картина: </p>
+<img src="pic/clip0119.png" width="141" height="194" border="0" alt="clip0119"></p>
+<p>В нашем примере все действия, которые происходят на другой машине, отражается на спрайте Plu. </p>
+<p>Скачать всё, что мы творили можно вот здесь: part6.rar. </p>
+<p>P.S Назвал я класс PLU потому что, так проще, расшифровывается как плеер удаленный. </p>
+<p>P.S.S Я устал уже отвечать на такие письма типа: "У меня не распаковывается архив?" так вот, говорю, всё архивы запакованы WinRAR 3.0. </p>
+<p id="author">Автор: Влад Энгельгардт </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

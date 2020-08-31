@@ -1,0 +1,105 @@
+<html>
+<head>
+  <title>Работает ли IB с русскими буквами?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Работает ли IB с русскими буквами?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>Да, как с кодировкой 866 так и с 1251, как из Delphi 1.0, так и из Delphi 2.0. Для того, чтобы в БД в строковых полях использовались русские буквы, необходимо при создании БД указать в качестве дополнительного параметра фразу: </p>
+
+<p>DEFAULT CHARACTER SET WIN1251 </p>
+
+<p>А в BDECFG32 в драйвере IB и его псевдонимах (aliases) указать языковый драйвер Pdox ANSI Cyrillic. Такие установки обеспечат нормальную работу с кодировкой 1251. (в TDatabase.Params этот языковый драйвер указывается как LANGDRIVER=ancyrr). </p>
+
+<p>Для компонент прямого доступа необходимо в параметрах соответствующего компонента XXDatabase дописать </p>
+<p>lc_ctype=WIN1251 </p>
+
+<p>Дополнительно, если вы предполагаете использовать выражение UPPER в SQL запросах, то Вам потребуется при создании таблиц IB использовать уточнение COLLATION SEQUENCE для строковых полей. </p>
+
+<p>К сожалению, установить COLLATE PXW_CYRL по умолчанию для базы данных невозможно (такой параметр отсутствует). Поэтому таблицы IB, созданные при помощи Database Desktop или компонента TTable не будут иметь правильного COLLATE для работы с функцией SQL UPPER. (Эта проблема, необходимо отметить, не относится к работе с регистром русских букв внутри Delphi, поскольку для этого внутри VCL используются функции Windows, правильно переводящие буквы кодировки 1251 в верхний регистр и обратно.) </p>
+
+<p>Например, если возможен запрос такого типа: </p>
+<pre name="code" class="sql">SELECT * FROM CUSTOMERS 
+WHERE UPPER(NAME) = 'ИВАНОВ' 
+</pre>
+
+
+<p>То таблицу CUSTOMERS придется создавать при помощи текста </p>
+<pre name="code" class="sql">CREATE TABLE CUSTOMERS ( 
+ID INTEGER NOT NULL, 
+NAME CHAR(30) COLLATE PXW_CYRL, 
+PRIMARY KEY (ID)) 
+</pre>
+
+
+<p>фраза COLLATE PXW_CYRL заставляет IB использовать таблицу трансляции символов PXW_CYRL вместо WIN1251 (которая устанавливается по умолчанию для DEFAULT CHARACTER SET WIN1251). </p>
+
+<p>Однако можно использовать указание порядка сортировки "на ходу", без указания порядка сортировки в описании таблицы - при помощи того-же спецификатора COLLATE. В этом случае запросы могут выглядеть следующим образом: </p>
+<pre name="code" class="sql">SELECT * FROM CUSTOMERS 
+WHERE UPPER(NAME COLLATE PXW_CYRL) = 'ИВАНОВ' 
+</pre>
+
+
+<p>Учтите, что если Вы используете ORDER BY NAME, то порядок записей у полей с COLLATE PXW_CYRL будет отличаться от имеющих только CHARACTER SET WIN1251. В этом случае необходимо и в ORDER BY указывать COLLATE. Например </p>
+<pre name="code" class="sql">SELECT * FROM CUSTOMERS 
+WHERE UPPER(NAME COLLATE PXW_CYRL) = 'ИВАНОВ' 
+ORDER BY NAME COLLATE PXW_CYRL 
+</pre>
+
+
+<p id="note">Примечание</p>
+<p>Решить проблему с изменением данных в русской кодировке при использовании ODBC-драйвера можно следующим образом: напрямую указывать кодировку перед строковым значением, содержащим русские символы. </p>
+<pre name="code" class="sql">
+INSERT INTO MYTABLE VALUES (1, _win1251 'Привет!'). 
+</pre>
+
+
+<p>К сожалению, такой способ приводит к тому, что со стандартными компонентами TTable и TQuery можно работать только используя дополнительный компонент UpdateSQL (который позволяет переопределить запросы выдаваемые этими компонентами при INSERT, UPDATE, DELETE, и кроме этого присутствует только в Delphi 2.0). </p>
+
+<p>ODBC-драйвер, поставляемый в дистрибутиве IB 5.5 позволяет указать кодировку win1251 для алиаса, при этом никаких манипуляций с _win1251 не требуется. </p>
+
+<p>Подробнее см. документ http:/www.ibase.ru/devinfo/0109.htm </p>
+<p>Borland Interbase / Firebird FAQ </p>
+<p>Borland Interbase / Firebird Q&amp;A, версия 2.02 от 31 мая 1999</p>
+<p>последняя редакция от 17 ноября 1999 года.</p>
+<p>Часто задаваемые вопросы и ответы по Borland Interbase / Firebird</p>
+<p>Материал подготовлен в Демо-центре клиент-серверных технологий. (Epsylon Technologies)</p>
+<p>Материал не является официальной информацией компании Borland. </p>
+<p>E-mail mailto:delphi@demo.ru </p>
+<p>www: http://www.ibase.ru/</p>
+<p>Телефоны: 953-13-34</p>
+<p>источники: Borland International, Борланд АО, релиз Interbase 4.0, 4.1, 4.2, 5.0, 5.1, 5.5, 5.6, различные источники на WWW-серверах, текущая переписка, московский семинар по Delphi и конференции, листсервер ESUNIX1, листсервер mers.com. </p>
+<p>Cоставитель: Дмитрий Кузьменко </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

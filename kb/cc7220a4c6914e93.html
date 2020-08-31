@@ -1,0 +1,94 @@
+<html>
+<head>
+  <title>DLL со строковыми ресурсами</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">DLL со строковыми ресурсами</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Делаешь текстовый файл с ресурсами, типа</p>
+
+<p>--my.rc--</p>
+<p>STRINGTABLE</p>
+<p>{</p>
+<p>00001, "My String #1"</p>
+<p>00002, "My String #2"</p>
+<p>}</p>
+
+<p>Далее компилируешь его:</p>
+<p>brcc32 my.rc</p>
+<p>У тебя получится my.res. </p>
+<p>Делаешь DLL: </p>
+
+<p>--my.dpr--</p>
+
+<pre name="code" class="delphi">
+library my;
+ 
+{$R my.res}
+ 
+begin
+ 
+end.
+</pre>
+
+
+
+<p>Компилируешь Дельфиским компилятором:</p>
+
+<p>dcc32 my.dpr</p>
+<p>Получаешь, наконец-то свою my.dll </p>
+
+<p>Теперь о том, как использовать. </p>
+
+<p>В своей программе:</p>
+
+<pre name="code" class="delphi">
+var
+  h: THandle;
+  S: array [0..255] of Char;
+begin
+  h := LoadLibrary('MY.DLL');
+  if h &lt;= 0 then 
+    ShowMessage('Bad Dll Load')
+  else
+  begin
+    SetLength(S, 512);
+    LoadString(h, 1, @S, 255);
+    FreeLibrary(h);
+  end;
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

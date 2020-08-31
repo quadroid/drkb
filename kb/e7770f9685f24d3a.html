@@ -1,0 +1,75 @@
+<html>
+<head>
+  <title>Как работать из Delphi напрямую с ADO</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как работать из Delphi напрямую с ADO</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Nomadic </p>
+<p>Итак, хочу поделиться некоторыми достижениями... так на всякий случай. Если у вас вдруг потребуется сделать в своей программке доступ к базе данных, а BDE использовать будет неохота (или невозможно) - то есть довольно приятный вариант: использовать ActiveX Data Objects. Однако с их использованием есть некоторые проблемы, и одна из них это как передавать Optional параметры, которые вроде как можно не указывать. Однако, если вы работаете с ADO по-человечески, а не через тормозной IDispatch.Invoke то это превращается в головную боль. Вот как от нее избавляться:</p>
+<pre name="code" class="delphi">
+var
+  OptionalParam: OleVariant;
+  VarData: PVarData;
+begin
+  OptionalParam := DISP_E_PARAMNOTFOUND;
+  VarData := @OptionalParam;
+  VarData^.VType := varError;
+</pre>
+<p>после этого переменную OptionalParam можно передавать вместо неиспользуемого аргумента. </p>
+<p>Далее, самый приятный способ получения Result sets: </p>
+<p>Там есть масса вариантов, но как выяснилось оптимальным является следующий вариант, который позволяет получить любой желаемый вид курсора (как клиентский, так и серверный)</p>
+<pre name="code" class="delphi">
+var
+  MyConn: _Connection;
+  MyComm: _Command;
+  MyRecSet: _Recordset;
+  prm1: _Parameter;
+begin
+  MyConn := CoConnection.Create;
+  MyConn.ConnectionString := 'DSN=pubs;uid=sa;pwd=;'; MyConn.Open( '', '', '', -1 );
+  MyCommand := CoCommand.Create;
+  MyCommand.ActiveConnection := MyConn;
+  MyCommand.CommandText := 'SELECT * FROM blahblah WHERE BlahID=?'
+  Prm1 := MyCommand.CreateParameter( 'Id', adInteger.adParamInput, -1, &lt;value&gt; );
+  MyCommand.AppendParameter( Prm1 );
+  MyRecSet := CoRecordSet.Create;
+  MyRecSet.Open( MyCommand, OptionalParam, adOpenDynamic, adLockReadOnly, adCmdText );
+</pre>
+<p>... теперь можно фетчить записи. Работает шустро и классно. Меня радует. Особенно радуют серверные курсоры. </p>
+<p>Проверялось на Delphi 3.02 + ADO 1.5 + MS SQL 6.5 sp4. Пашет как зверь. </p>
+<p>Из вкусностей ADO - их легко можно использовать во всяких многопоточных приложениях, где BDE порой сбоит, если, конечно, ODBC драйвер грамотно сделан... </p>
+<p>Ну и еще можно использовать для доступа к данным всяких там "нестандартных" баз типа MS Index Server или MS Active Directory Services. </p>
+<p>В Delphi (как минимум в 4 версии) существует "константа" EmptyParam, которую можно подставлять в качестве пустого параметра. </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

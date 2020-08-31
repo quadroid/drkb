@@ -1,0 +1,719 @@
+<html>
+<head>
+  <title>Сабклассинг и суперклассинг в Delphi для начинающих</title>
+  <meta http-equiv="Content-type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сабклассинг и суперклассинг в Delphi для начинающих</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В данной статье я постараюсь рассказать об использовании двух мощных средств технологии Windows API - сабклассинга и суперклассинга. Все примеры к статье были составлены мною. Вы найдете их в прикрепленном к статье файле.</p>
+<p>Сабклассинг</p>
+<p>Сабклассинг (subclassing) - контроль сообщений окон путем модификации оконной процедуры последних. Сабклассинг подразумевает использование изменённой оконной процедуры до оригинальной (а её можно вовсе и не использовать), позволяя нам создать сколь угодно заготовок оконных процедур для данного объекта. Хотя на практике обычно используется только одна.</p>
+<p>Оконная процедура</p>
+<p>Оконная процедура (window procedure) - специальная функция любого окна, имеющего дескриптор, которая принимает и обрабатывает все поступающие окну сообщения (от других программ или от Windows). Оконная процедура является косвенно вызываемой (callback) пользовательской (user-defined) функцией. Соответственно, реакцию на сообщения задаёт программист.</p>
+<p>Оконная процедура - самое существенное из всего того, что принадлежит окну, поэтому сабклассинг является очень мощной технологией, необходимой для полноценной работы с Windows API. Важно уметь правильно обрабатывать сообщения, чтобы использовать сабклассинг.</p>
+<p>Оконная процедура обычно назначается при создании окна, когда заполняется структура класса последнего TWndClass(Ex).</p>
+<p>Оконная процедура имеет такой прототип:</p>
+<pre name="code" class="delphi">
+function XWindowProc(HWnd: THandle; Msg: Cardinal; 
+  WParam, LParam: Integer): Integer; Stdcall;
+</pre>
+<p>Где X - любой префикс (можно и опустить), по которому можно идентифицировать</p>
+<p>нужную оконную процедуру (например, Edit или New).</p>
+<p>Рассмотрим, какие параметры передаются при вызове оконной процедуры. В параметре HWnd передаётся дескриптор окна, классу которого принадлежит оконная процедура. В параметре Msg передаётся идентификатор поступившего сообщения. В параметрах WParam и LParam передаётся дополнительная информация, которая зависит от типа посланного сообщения.</p>
+<p>Возвращаемый функцией результат должен определить программист.</p>
+<p>Рекомендуется обрабатывать сообщения через оператор Case:</p>
+<pre name="code" class="delphi">
+case Msg of
+  WM_DESTROY:
+end;
+</pre>
+<p>Чтобы сообщение не обрабатывалось оригинальной оконной процедурой, необходимо после своих действий осуществить выход из блока Case:</p>
+<pre name="code" class="delphi">
+case Msg of
+  WM_CLOSE:
+    begin
+      MessageBox(0, 'WM_CLOSE', 'Caption', MB_OK);
+      { Осуществляем выход из текущей процедуры }  
+      Exit;
+    end;
+end; 
+</pre>
+<p>Этот способ применяется также для того, чтобы функция DefWindowProc не обрабатывала сообщение. Данная функция предназначена для выполнения стандартных действий системы при поступлении очередного сообщения. В сабклассинге она практически не используется (её роль выполняет оригинальная оконная процедура, в которой, быть может, и находится вызов DefWindowProc).</p>
+<p>Для вызова оконной процедуры по её адресу используется функция CallWindowProc. По параметрам она аналогична любой оконной процедуре, но помимо этого она имеет еще один параметр, определяющий адрес требуемой оконной процедуры для вызова (параметр первый).</p>
+<pre name="code" class="delphi">
+ ...
+{ Тип первого параметра представляет собой простой указатель }
+TFarProc = Pointer; 
+TFNWndProc = TFarProc;
+...
+function CallWindowProc(lpPrevWndFunc: TFNWndProc; HWnd: HWND; Msg: Cardinal;
+  WParam: Integer; LParam: Integer): Integer; Stdcall;
+</pre>
+<p>Функция CallWindowProc позволяет нам, по сути, менять поведение окна, ведь мы можем сабклассировать его множество раз с сохранением адресов оконных процедур, а потом вызывать нужные оконные процедуры по надобности. Но на практике эта функция используется для вызова одной оригинальной оконной процедуры окна, которая была до его сабклассирования.</p>
+<p>После детального рассмотрения основ сабклассинга непосредственно перейдём к его реализации в Delphi.</p>
+<p id="note">Примечание</p>
+<p>Суперклассинг, как один из видов сабклассинга, будет описан далее отдельно!</p>
+<p id="note">Примечание</p>
+<p>Сабклассинг для окон, принадлежащих чужим процессам, в данной статье не рассматривается! В частности, для начинающих программистов он достаточно сложен.</p>
+<p>Основная функция сабклассирования окна: SetWindowLong. Вообще, эта функция предназначена для изменения определённого атрибута окна (функция может изменять атрибут как самого окна, так и атрибут его класса). Рассмотрим её параметры. </p>
+<p>Объявление функции:</p>
+<pre name="code" class="delphi">
+ function SetWindowLong(HWnd: HWND; nIndex: Integer;
+  dwNewLong: LongInt): LongInt; Stdcall;
+</pre>
+<p>Параметр HWnd определяет окно, с которым будет производиться работа. Параметр nIndex определяет индекс аттрибута, который мы хотим изменить. Пока нас будут интересовать значения GWL_WNDPROC и GWL_USERDATA. Первый индекс определяет, что изменения затронут оконную процедуру окна, второй - то, что будет изменена специальная внутренняя четырёхбайтовая переменная, которой обладает каждое окно. В ней удобно хранить адрес старой оконной процедуры при сабклассинге.</p>
+<p>Рассмотрим, как по шагам засабклассировать окно. </p>
+<p> Создаём заготовку новой оконной процедуры;</p>
+<p> Помещаем в переменную GWL_USERDATA адрес старой оконной процедуры;</p>
+<p> Изменяем адрес оконной процедуры на новый.</p>
+<p>Последние два действия можно объединить в одно, так как функция SetWindowLong возвращает предыдущее значение изменённого параметра.</p>
+<p>Далее я публикую примеры кода, в которых будут рассмотрены способы сабклассирования окон как средствами VCL, так и средствами WinAPI. Все примеры кода хорошо комментированы.</p>
+<p>Сабклассинг окон на VCL</p>
+<p>В VCL на компонентном уровне сабклассинг реализуется достаточно просто и быстро. Его использование предпочтительней, чем использование сабклассинга на WinAPI (разумеется, при программировании с VCL) - всегда, если возможно, делайте сабклассинг именно через VCL. Для сабклассирования оконного компонента необходимо расширить его функциональность путём добавления обработчика желаемого сообщения, либо через перекрытие оконной процедуры компонента.</p>
+<p>Ниже приведен пример сабклассирования компонента TEdit таким образом, чтобы последний не реагировал на вставку текста:</p>
+<pre name="code" class="delphi">
+unit UMain;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes,
+  Graphics, Controls, Forms, Dialogs,
+  StdCtrls;
+ 
+type
+  TMainForm = Class(TForm)
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+  private
+    { private declarations }
+  public
+    { public declarations }
+  end;
+ 
+  { Новый класс с дополнительным методом,
+   который вызвается при сообщении WM_PASTE }
+ 
+  TNewEdit = Class(TEdit)
+  protected
+    { Обработчик сообщения } 
+    procedure WMCopy(var Msg: TWMPaste); Message WM_PASTE;
+  end;
+ 
+var
+  MainForm: TMainForm;
+  { Экземпляр нового класса }
+  Edit: TNewEdit;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+{ TNewEdit }
+ 
+procedure TNewEdit.WMCopy(var Msg: TWMPaste);
+begin
+  { Игнорируем сообщение }
+  Msg.Result := 0;
+end;
+ 
+procedure TMainForm.FormCreate(Sender: TObject);
+begin
+  { Создание и размещение компонента на форме }
+  Edit := TNewEdit.Create(Self);
+  Edit.Parent := Self;
+  Edit.Left := 8;
+  Edit.Top := 8;
+  Edit.Width := MainForm.Width - 23;
+  { Следующий метод работать не будет }
+  Edit.PasteFromClipboard;
+end;
+ 
+procedure TMainForm.FormDestroy(Sender: TObject);
+begin
+  Edit.Free;
+end;
+ 
+end. 
+</pre>
+<p>Таким образом, чтобы засабклассировать оконный компонент, нужно просто реализовать свой обработчик сообщений. Есть еще один способ, который заключается в модификации оконной процедуры компонента на VCL-уровне:</p>
+<pre name="code" class="delphi">
+ unit UMain;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes,
+  Graphics, Controls, Forms, Dialogs,
+  StdCtrls;
+ 
+type
+  TMainForm = Class(TForm)
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+  private
+    { private declarations }
+  public
+    { public declarations }
+  end;
+ 
+  TNewEdit = Class(TEdit)  
+  protected
+    { Перекрытая оконная процедура компонента }
+    procedure WndProc(var Msg: TMessage); Override;
+  end;
+ 
+var
+  MainForm: TMainForm;
+  { Экземпляр нового класса }
+  Edit: TNewEdit;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+{ TNewEdit }
+ 
+procedure TNewEdit.WndProc(var Msg: TMessage);
+begin
+  case Msg.Msg of
+    WM_PASTE:
+      begin
+        Msg.Result := 0;
+        { Звуковой сигнал, оповещающий пользователя о
+          невозможности вставки текста }
+        MessageBeep(0);
+        { Выход после обработки необходим, чтобы
+          оригинальная оконная процедура не имела
+          возможности обработать WM_PASTE; в противном
+          случае вставка текста всё равно произойдёт }
+        Exit;
+      end;
+  end;
+  { Не забывайте вызывать унаследованную оконную процедуру }
+  inherited WndProc(Msg);
+end;
+ 
+procedure TMainForm.FormCreate(Sender: TObject);
+begin
+  { Создание и размещение компонента на форме }
+  Edit := TNewEdit.Create(Self);
+  Edit.Parent := Self;
+  Edit.Left := 8;
+  Edit.Top := 8;
+  Edit.Width := MainForm.Width - 23;
+  { Следующий метод работать не будет }
+  Edit.PasteFromClipboard;
+end;
+ 
+procedure TMainForm.FormDestroy(Sender: TObject);
+begin
+  Edit.Free;
+end;
+ 
+end. 
+</pre>
+<p>Этот способ по функциональности ничем не отличается от первого (только озвучкой).</p>
+<p>Вот и всё! Думаю, что Вы разобрались в примерах и мы можем переходить к сабклассингу средствами Windows API. Ту часть кода примеров, которые не относятся к теме статьи, я снабдил краткими комментариями. </p>
+<p>Сабклассинг окон с помощью Windows API</p>
+<p>В следующем примере будет показано, как усовершенствовать кнопку (Button) и поле ввода (Edit). Вот список усовершенствований:</p>
+<p>1) Для кнопки: создать такую кнопку, которая при нажатии левой кнопки мыши отображала бы текущую дату;</p>
+<p>2) Для поля ввода: запретить контекстное меню; установить шрифт для текста синего цвета</p>
+<p>Разберем, как это выглядит в теории. Для создания кнопки, отображающей дату, мы должны получить текущую дату функцией GetLocalTime. В переданной функции структуре будет находиться текущая дата. Нас интересует только текущие час, минута и секунда. Мы преобразуем полученные значения в строковый формат и дополняем нулями слева, если это необходимо. После этого отображаем дату на кнопке, по срабатыванию таймера. </p>
+<p>Что касается поля ввода, то для запрета контекстного меню необходимо проигнорировать сообщение WM_CONTEXTMENU, после чего осуществить выход из оконной процедуры. Для изменения цвета текста необходимо использовать функция SetTextColor для контекста Edit'а. Этот контекст можно получить, обрабатывая сообщение WM_CTLCOLOREDIT (обратите внимание, что это сообщение посылается родительскому окну поля ввода). Данное сообщение посылается при каждой отрисовке Edit'а, передавая в параметре WParam контекст для рисования. Не следует забывать включить прозрачность фона функцией SetBkMode (хотя для нашего примера эта функция ничего не изменяет, попробуйте использовать другие цвета, чтобы убедиться в её надобности). </p>
+<pre name="code" class="delphi">
+program SampleProject03;
+ 
+{$R *.res}
+{$R WinXP.res} 
+ 
+uses
+  Windows,
+  Messages,
+  SysUtils;
+ 
+procedure InitCommonControls; Stdcall; External 'comctl32.dll';  
+ 
+const
+  { Идентификатор таймера }
+  BtnTimer = 450;
+  { Константы с заголовками дочерних окон }
+  StaticInfoText = 'Метка без сабклассирования';
+  BtnText = 'Кнопка для сабклассирования';
+ 
+var
+  { Главное окно }
+  HWnd: THandle;
+  { Три дочерних компонента для сабклассирования }
+  Btn, Edit, InfoStatic: THandle;  
+ 
+{ Устанавливает для окна AWindow шрифт для контролов по умолчанию }
+procedure SetDefFont(AWindow: THandle);
+begin
+  SendMessage(AWindow, WM_SETFONT, GetStockObject(DEFAULT_GUI_FONT), 1);
+end;
+ 
+{ Косвенно-вызваемая процедура сообщений таймера }
+{ Эта процедура выполняется при каждом срабатывании таймера }
+procedure BtnTimerProc(HWnd: THandle; Msg: Cardinal;
+  IDEvent, DWTime: Cardinal); Stdcall;
+var
+  { Переменная, куда будет помещено текущее время }
+  Time: TSystemTime;
+  { Для анализа времени }
+  Hour, Minute, Second: String;
+begin
+  { Получаем время }
+  GetLocalTime(Time);
+  { Инициализируем переменные }
+  Hour := IntToStr(Time.wHour);
+  Minute := IntToStr(Time.wMinute);
+  Second := IntToStr(Time.wSecond);
+  { Добавляем нули при необходимости }
+  if Length(Hour) = 1 Then Hour := '0' + Hour;
+  if Length(Minute) = 1 Then Minute := '0' + Minute;
+  if Length(Second) = 1 Then Second := '0' + Second;
+  { Отображаем дату }
+  SetWindowText(HWnd, PChar(Hour + ':' + Minute + ':' + Second));
+end;
+ 
+{ Модифицированная оконная процедура поля ввода }
+function EditWinProc(HWnd: THandle; Msg: Cardinal;
+  WParam, LParam: Integer): Cardinal; Stdcall;
+begin  
+  case Msg of
+    { Запрещаем показ контекстного меню }
+    WM_CONTEXTMENU:
+      begin
+        Result := 0;
+        MessageBeep(0);
+        Exit;
+      end;
+  end;
+ { Не забываем вызвать оригинальную оконную процедуру }
+  Result := CallWindowProc(Pointer(GetWindowLong(HWnd, GWL_USERDATA)),
+    Hwnd, Msg, WParam, LParam);
+end;
+ 
+{ Модифицированная оконная процедура кнопки }
+function BtnWinProc(HWnd: THandle; Msg: Cardinal;
+  WParam, LParam: Integer): Cardinal; Stdcall;
+begin
+  case Msg of
+    { При нажатии мыши запускаем таймер, интервал - 10 миллисекунд }
+    WM_LBUTTONDOWN: SetTimer(HWnd, BtnTimer, 10, @BtnTimerProc);
+ 
+    { При отпускании мыши уничтожаем таймер }
+    WM_LBUTTONUP:
+      begin
+        KillTimer(HWnd, BtnTimer);
+        { Восстанавливаем прежний текст }
+        SetWindowText(HWnd, BtnText); 
+      end;  
+  end;
+  { Не забываем вызвать оригинальную оконную процедуру }
+  Result := CallWindowProc(Pointer(GetWindowLong(HWnd, GWL_USERDATA)),
+    HWnd, Msg, WParam, LParam);
+end;
+ 
+{ Оконная процедура главного окна }
+function MainWinProc(HWnd: THandle; Msg: Cardinal;
+  WParam, LParam: Integer): Cardinal; Stdcall;
+ 
+  { Конвертирует сроку PChar в String }
+  function StrPas(const AStr: PChar): String;
+  begin
+    Result := AStr;
+  end; 
+ 
+begin  
+  case Msg of
+ 
+    { Здесь будет произведено создание дочерних окон }
+    WM_CREATE:
+      begin
+        InfoStatic := CreateWindowEx(0, 'Static', StaticInfoText,
+          WS_CHILD Or WS_VISIBLE Or SS_LEFT,
+            8, 8, 270, 16, HWnd, 0, HInstance, NIL);
+        SetDefFont(InfoStatic);
+ 
+        Edit := CreateWindowEx(WS_EX_CLIENTEDGE, 'Edit', NIL,
+          WS_CHILD Or WS_VISIBLE Or ES_LEFT,
+          8, 28, 300, 21, HWnd, 0, HInstance, NIL);
+        SetDefFont(Edit);
+        { Выделяем весь текст }
+        SendMessage(Edit, EM_SETSEL, 0, -1);
+        { Далее делаем сабклассинг поля ввода }
+        SetWindowLong(Edit, GWL_USERDATA,
+          SetWindowLong(Edit, GWL_WNDPROC, LongInt(@EditWinProc)));
+ 
+        Btn := CreateWindowEx(0, 'Button', BtnText, WS_CHILD Or WS_VISIBLE
+           Or BS_PUSHBUTTON, 8, 52, 300, 25, HWnd, 0,
+             HInstance, NIL);
+        SetDefFont(Btn); 
+        { Далее делаем сабклассинг кнопки }
+        SetWindowLong(Btn, GWL_USERDATA,
+          SetWindowLong(Btn, GWL_WNDPROC, LongInt(@BtnWinProc)));
+      end;
+ 
+    WM_KEYDOWN:
+      { Закрытие окна по нажатию Enter'а }
+      if WParam = VK_RETURN Then PostQuitMessage(0);
+ 
+    {Данное сообщение посылается при отрисовке Edit'a;
+     вы можете использовать переданный контекст для рисования
+     фона, либо для смены цвета текста; после завершения рисования
+     верните модифицированный контекст как результат сообщения и не
+     забудьте сделать выход из оконной процедуры, так как в противном
+     случае DefWindowProc снова разукрасит Edit в стандартный системный цвет }
+    WM_CTLCOLOREDIT:
+      begin 
+        { Устанавливаем прозрачность фона }
+        SetBkMode(WParam, TRANSPARENT);
+        { Устанавливаем цвет шрифта }
+        SetTextColor(WParam, $FF0000);
+        { Возвращаем нужный нам контекст }
+        Result := WParam;
+        Exit;
+      end;
+ 
+    WM_DESTROY:
+      begin
+        { Выход для освобождения памяти }
+        PostQuitMessage(0);
+      end;
+  end;
+  { Обработка всех остальных сообщений по умолчанию }
+  Result := DefWindowProc(HWnd, Msg, WParam, LParam);
+end;
+ 
+procedure WinMain;
+var
+  Msg: TMsg;
+  { Оконный класс }
+  WndClassEx: TWndClassEx;
+begin
+  { Подготовка структуры класса окна }
+  ZeroMemory(@WndClassEx, SizeOf(WndClassEx));
+ 
+  {************* Заполнение структуры нужными значениями ******************* }
+ 
+  { Размер структуры }
+  WndClassEx.cbSize := SizeOf(TWndClassEx);
+  { Имя класса окна }
+  WndClassEx.lpszClassName := 'SubclassSampleWnd';
+  { Стиль класса, не окна }
+  WndClassEx.style := CS_VREDRAW Or CS_HREDRAW;
+  { Дескриптор программы (для доступа к сегменту данных) }
+  WndClassEx.hInstance := HInstance;
+  { Адрес оконной процедуры }
+  WndClassEx.lpfnWndProc := @MainWinProc;
+  { Иконки }
+  WndClassEx.hIcon :=  LoadIcon(HInstance, MakeIntResource('MAINICON'));
+  WndClassEx.hIconSm := LoadIcon(HInstance, MakeIntResource('MAINICON'));
+  { Курсор }
+  WndClassEx.hCursor := LoadCursor(0, IDC_ARROW);
+  { Кисть для заполнения фона }
+  WndClassEx.hbrBackground := COLOR_BTNFACE + 1;
+  { Меню }
+  WndClassEx.lpszMenuName := NIL;
+ 
+  { Регистрация оконного класса в Windows }
+  if RegisterClassEx(WndClassEx) = 0 Then
+    MessageBox(0, 'Невозможно зарегистрировать класс окна',
+      'Ошибка', MB_OK Or MB_ICONHAND)
+  Else
+  begin
+    { Создание окна по зарегистрированному классу }
+    HWnd := CreateWindowEx(0, WndClassEx.lpszClassName,
+        'Subclassing Sample by Rrader', WS_OVERLAPPEDWINDOW And Not WS_BORDER
+         And Not WS_MAXIMIZEBOX And Not WS_SIZEBOX,
+         Integer(CW_USEDEFAULT), Integer(CW_USEDEFAULT), 320, 116, 0, 0,
+         HInstance, NIL);
+ 
+    if HWnd = 0 Then 
+      MessageBox (0, 'Окно не создалось!',
+        'Ошибка', MB_OK Or MB_ICONHAND)
+    Else
+    begin
+      { Показ окна }
+      ShowWindow(HWnd, SW_SHOWNORMAL);
+      { Обновление окна }
+      UpdateWindow(HWnd); 
+ 
+      { Цикл обработки сообщений }
+      While GetMessage(Msg, 0, 0, 0) Do
+      begin
+        TranslateMessage(Msg);
+        DispatchMessage(Msg);
+      end;
+      { Выход по прерыванию цикла }
+      Halt(Msg.WParam);
+    end;
+  end;
+end;
+ 
+begin
+  InitCommonControls;
+  { Создание окна } 
+  WinMain;
+end. 
+</pre>
+<p>Все примеры очень простые, они должны дать Вам базовое представление о сабклассинге.</p>
+<p>Теперь можно переходить к суперклассингу.</p>
+<p>Суперклассинг</p>
+<p>Сабклассинг особенно удобен, когда дело касается изменения одного окна, класс которого не совпадает с другими окнами, подлежащими сабклассированию. А что, если нам нужно засабклассировать сотню Edit'ов? Сабклассинг здесь будет громоздким. Решением этой проблемы является суперклассинг.</p>
+<p>Суперклассинг (superclassing) - создание и регистрация нового класса окна в системе. После чего этот класс окна готов к использованию.</p>
+<p>VCL-суперклассинг мы рассматривать не будем. Думаю, Вам понятно, что реализация суперклассинга на VCL - это создание компонентов. При создании оконного компонента в Delphi вы неявно создаёте подобие суперкласса. После этого вы можете использовать хоть сотню таких компонентов (например, создать из них массив). Заметьте, что такой компонент будет, как правило не стандартным, например, кнопка TBitBtn. Чтобы Вам было понятней, почему это суперкласс, можете посмотреть имя класса окна компонента через любой сканер окон (я использовал InqSoft Window Scanner) - это имя будет совпадать с тем именем, которое обозначает имя компонента в Delphi (например, TBitBtn или TLabeledEdit). Из этого мы можем сделать вывод, что суперклассинг прекрасно прижился в Delphi и широко там используется.</p>
+<p>У каждого потомка класса TWinControl в Delphi есть метод CreateParams. Можете воспользоваться им, чтобы изменить название класса окна.</p>
+<p>Гораздо более интересен суперклассинг на WinAPI. Необходимо уметь его использовать.</p>
+<p>Рассмотрим, как по шагам создать суперкласс. </p>
+<p> Вызываем функцию GetClassInfoEx, чтобы получить информацию о классе окна, который мы будем далее модернизировать. Эта функция заполнит переданную ей запись TWndClassEx параметрами класса;</p>
+<p> Изменяем всё, что нам нужно в полученной записи. Нужно задать свое имя класса, размер структуры, а также дескриптор HInstance, также нас будет интересовать оконная процедура - мы также изменим её у класса;</p>
+<p> Регистрируем новый класс при помощи функции RegisterClassEx;</p>
+<p> По окончании работы программы освобождаем класс функцией UnregisterClass.</p>
+<p>Далее новый класс можно использовать. В примерах я буду делать простые изменения в классах окон.</p>
+<p>Давайте рассмотрим функции для суперклассинга более подробно.</p>
+<p>Суперклассинг начинается с функции GetClassInfoEx.</p>
+<p>Объявление функции:</p>
+<pre name="code" class="delphi">
+ function GetClassInfoEx(Instance: Cardinal; Classname: PChar; 
+  var WndClass: TWndClassEx): LongBool; Stdcall;
+</pre>
+<p>Первый параметр функции - дескриптор приложения, которое создало класс. Если же Вы желаете модифицировать предопределённые класс окон Windows (например, классы 'Button', 'Edit', 'ListBox' и т. п.), то передайте нуль в параметре.</p>
+<p>Следующий параметр - собственно название интересующего Вас класса. Сюда можно передать атом (см. ниже)</p>
+<p>В последнем параметре передается структура типа TWndClassEx, в которую в случае успешного вызова функции будет помещена информация о классе.</p>
+<p>Когда информация о классе получена, можно изменить его (что обязательно к этому, сказано выше).</p>
+<p>После подготовки класса окна Вы регистрируете его в Windows с помощью функции RegisterClassEx.</p>
+<pre name="code" class="delphi">
+ function RegisterClassEx(const WndClass: TWndClassEx): Word; Stdcall;
+</pre>
+<p>Функция возвращает атом, который по сути есть числовое уникальное значение. Это будет идентификатор класса окна в системе.</p>
+<p>По завершению работы приложения желательно уничтожить класс. В противном случае - "утечка памяти".</p>
+<p>Для этого существует функция UnregisterClass:</p>
+<pre name="code" class="delphi">
+ function UnregisterClass(lpClassName: PChar; hInstance: Cardinal): LongBool; Stdcall;
+</pre>
+<p>Эта функция уничтожает класс окна из Windows, освобождая память, ранее под него выделенную.</p>
+<p>Первый параметр функции - имя класса для деинсталляции. Обратите внимание, что эта функция сможет уничтожить только класс, который был зарегистрирован приложением, чей дескриптор передан во втором параметре. Глобальные предопределённые классы (см. выше) Windows (например, класс Edit) не могут быть уничтожены. В первом параметре также разрешается передавать атом-идентификатор класса.</p>
+<p>Для полного ознакомления с суперклассингом следует обобщить знания о самом классе окна.</p>
+<p>Класс окна</p>
+<p>Вообще, класс окна - объемная тема. Мы рассмотрим её самые главные особенности.</p>
+<p>Класс окна (window class) - набор свойств, который используются как шаблон для создания окон. Класс окна всегда можно расширить, изменить. Давайте подробнее разберем атрибуты класса.</p>
+<p>Первый атрибут - имя класса. Оно позволяет отличать одни классы от других. Классы с одинаковыми именами считаются идентичными. После создания окна по классу это окно может подвергнуться сабклассингу. Сабклассинг не изменяет класс окна. Не делайте имена классов длиннее 64 символов.</p>
+<p>Второй атрибут - это адрес оконной процедуры для окна. Об оконной процедуре подробно рассказано выше.</p>
+<p>Третий атрибут - дескриптор приложения (или DLL), которое зарегистрировало класс.</p>
+<p>Четвёртый - курсор окна при создании.</p>
+<p>Пятый - дескриптор большой иконки для окна.</p>
+<p>Шестой - тоже дескриптор иконки, но маленькой. Этого атрибута нет у структуры типа TWndClass (поняли, в чем отличие TWndClass от TWndClassEx?). </p>
+<p>Седьмой - дескриптор кисти, которой будет зарисована клиентская область окна.</p>
+<p>Восьмой - дескриптор меню, которое присваивается окну при создании.</p>
+<p>Девятый - стили класса (см. ниже)</p>
+<p>Десятый - дополнительная память, выделяемая классу (тип Integer).</p>
+<p>Одиннадцатый - дополнительная память (Integer), выделяемая под каждое окно класса.</p>
+<p>Напоследок рассмотрим стили класса. Стили класса - это комбинация значений, которые определяют поведение класса.</p>
+<p>Вот они:</p>
+<p>CS_BYTEALIGNCLIENT - выстраивает клиентскую часть окна на границу байта, что позволяет достичь большей производительности при отрисовке;</p>
+<p>CS_BYTEALIGNWINDOW - то же, что и CS_BYTEALIGNCLIENT, только увеличивает производительность при перемещении окна; &nbsp;  </p>
+<p>CS_CLASSDC - создает контекст устройства, который разделяется между всеми наследниками этого класса - общий контекст для рисования; &nbsp;  </p>
+<p>CS_DBLCLKS - разрешает обработку сообщений при двойном щелчке мыши; &nbsp;  </p>
+<p>CS_GLOBALCLASS - разрешает создание окон с независимыми идентификаторами (HInstance) приложений. Создаётся глобальный класс. Если этот флаг не указан, то значение HInstance при создании окна должно быть таким же как и при регистрации класса RegisterClass(Ex).</p>
+<p>CS_HREDRAW - перерисовывает окно при его перемещении по горизонтали (и при изменении горизонтальных размеров); &nbsp;  </p>
+<p>CS_VREDRAW - перерисовывает окно при его перемещении по вертикали (и при изменении вертикальных размеров); &nbsp;  </p>
+<p>CS_NOCLOSE - убирает команду "Закрыть" из системного меню окна; &nbsp;  </p>
+<p>CS_OWNDC - создает уникальный контекст устройства для каждого вновь создаваемого окна.</p>
+<p>На суперклассинг я публикую один пример, в котором на главном окне будет создано 10 "измененных" Edit'ов. Каждый такой Edit при клике на нём мышки уничтожит себя сам.</p>
+<pre name="code" class="delphi">
+program SampleProject04;
+ 
+{$R *.res}
+{$R WinXP.res} 
+ 
+uses
+  Windows, Messages;
+ 
+procedure InitCommonControls; Stdcall; External 'comctl32.dll';  
+ 
+var
+  { Главное окно }
+  HWnd: THandle;
+  { Массив Edit'ов }
+  Edits: Array[0..9] of THandle;
+  { Сюда будет помещено значение оригинальной оконной процедуры класса Edit }
+  OldProc: Pointer;
+ 
+{ Устанавливает для окна AWindow шрифт для контролов по умолчанию }
+procedure SetDefFont(AWindow: THandle);
+begin
+  SendMessage(AWindow, WM_SETFONT, GetStockObject(DEFAULT_GUI_FONT), 1);
+end;
+ 
+{ Модифицированная оконная процедура каждого поля ввода }
+function EditWinProc(HWnd: THandle; Msg: Cardinal;
+  WParam, LParam: Integer): Cardinal; Stdcall;
+begin
+  case Msg of
+    {Уничтожение Edit'а }
+    WM_LBUTTONDOWN: DestroyWindow(HWnd);
+  end;
+  { Вызов оригинальной оконной процедуры }
+  Result := CallWindowProc(OldProc,
+    HWnd, Msg, WParam, LParam);
+end;
+ 
+{ Оконная процедура главного окна }
+function MainWinProc(HWnd: THandle; Msg: Cardinal;
+  WParam, LParam: Integer): Cardinal; Stdcall;
+var
+  TmpEdit: TWndClassEx;
+  I: Integer;
+begin
+  case Msg of 
+    { Здесь будет произведено создание дочерних окон }
+    WM_CREATE:
+      begin
+        { Начало суперклассинга }
+        if Not GetClassInfoEx(0, 'Edit', TmpEdit) Then Halt;
+        { Запоминаем оконную процедуры для правильной работы окна }
+        OldProc := TmpEdit.lpfnWndProc;
+        { Модификация класса }
+        TmpEdit.cbSize := SizeOf(TWndClassEx);
+        TmpEdit.lpfnWndProc := @EditWinProc;
+        TmpEdit.lpszClassName := 'Sample04EditWindowClass';
+        TmpEdit.hInstance := GetModuleHandle(NIL);
+        { Регистрация класса }
+        if RegisterClassEx(TmpEdit) = 0 Then Halt;
+        { Подготовка массива }
+        FillChar(Edits, SizeOf(Edits), 0);
+        For I := Low(Edits) To High(Edits) Do
+        begin
+          Edits[I] := CreateWindowEx(WS_EX_CLIENTEDGE,
+            'Sample04EditWindowClass', 'Sample',
+            WS_CHILD Or WS_VISIBLE Or ES_LEFT,
+            8, 28, 300, 21, HWnd, 0, HInstance, NIL);
+          SetDefFont(Edits[I]);   
+        end;
+      end;
+ 
+    WM_KEYDOWN:
+      { Закрытие окна по нажатию Enter'а }
+      if WParam = VK_RETURN Then PostQuitMessage(0);
+ 
+    WM_DESTROY:
+      begin
+        { Уничтожение классов}
+        UnregisterClass('Sample04EditWindowClass', HInstance);
+        { Выход для освобождения памяти }
+        PostQuitMessage(0);
+      end;
+  end;
+  { Обработка всех остальных сообщений по умолчанию }
+  Result := DefWindowProc(HWnd, Msg, WParam, LParam);
+end;
+ 
+procedure WinMain;
+var
+  Msg: TMsg;
+  { Оконный класс }
+  WndClassEx: TWndClassEx;
+begin
+  { Подготовка структуры класса окна }
+  ZeroMemory(@WndClassEx, SizeOf(WndClassEx));
+ 
+  {************* Заполнение структуры нужными значениями ******************* }
+ 
+  { Размер структуры }
+  WndClassEx.cbSize := SizeOf(TWndClassEx);
+  { Имя класса окна }
+  WndClassEx.lpszClassName := 'SuperclassSampleWnd';
+  { Стиль класса, не окна }
+  WndClassEx.style := CS_VREDRAW Or CS_HREDRAW;
+  { Дескриптор программы (для доступа к сегменту данных) }
+  WndClassEx.hInstance := HInstance;
+  { Адрес оконной процедуры }
+  WndClassEx.lpfnWndProc := @MainWinProc;
+  { Иконки }
+  WndClassEx.hIcon :=  LoadIcon(HInstance, MakeIntResource('MAINICON'));
+  WndClassEx.hIconSm := LoadIcon(HInstance, MakeIntResource('MAINICON'));
+  { Курсор }
+  WndClassEx.hCursor := LoadCursor(0, IDC_ARROW);
+  { Кисть для заполнения фона }
+  WndClassEx.hbrBackground := COLOR_BTNFACE + 1;
+  { Меню }
+  WndClassEx.lpszMenuName := NIL;
+ 
+  { Регистрация оконного класса в Windows }
+  if RegisterClassEx(WndClassEx) = 0 Then
+    MessageBox(0, 'Невозможно зарегистрировать класс окна',
+      'Ошибка', MB_OK Or MB_ICONHAND)
+  Else
+  begin
+    { Создание окна по зарегистрированному классу }
+    HWnd := CreateWindowEx(0, WndClassEx.lpszClassName,
+        'Superclassing Sample by Rrader', WS_OVERLAPPEDWINDOW And Not WS_BORDER
+         And Not WS_MAXIMIZEBOX And Not WS_SIZEBOX,
+         Integer(CW_USEDEFAULT), Integer(CW_USEDEFAULT), 320, 116, 0, 0,
+         HInstance, NIL);
+ 
+    if HWnd = 0 Then 
+      MessageBox (0, 'Окно не создалось!',
+        'Ошибка', MB_OK Or MB_ICONHAND)
+    Else
+    begin
+      { Показ окна }
+      ShowWindow(HWnd, SW_SHOWNORMAL);
+      { Обновление окна }
+      UpdateWindow(HWnd); 
+ 
+      { Цикл обработки сообщений }
+      While GetMessage(Msg, 0, 0, 0) Do
+      begin
+        TranslateMessage(Msg);
+        DispatchMessage(Msg);
+      end;
+      { Выход по прерыванию цикла }
+      Halt(Msg.WParam);
+    end;
+  end;
+end;
+ 
+begin
+  InitCommonControls;
+  { Создание окна } 
+  WinMain;
+end.
+</pre>
+<p>Это было базовое знакомство с сабклассингом и суперклассингом. Надеюсь, материал данной статьи поможет Вам при программировании!</p>
+<p id="author">Автор:Rrader</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

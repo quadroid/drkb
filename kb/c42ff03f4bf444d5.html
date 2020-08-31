@@ -1,0 +1,82 @@
+<html>
+<head>
+  <title>Зарегистрировать новый тип файлов</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Зарегистрировать новый тип файлов</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Не хуже M$ получается! У них свои типы файлов, и у нас будут свои! Всё, что для этого нужно - точно выполнять последовательность действий и научиться копировать в буфер, чтобы не писать все те коды, что будут тут изложены :)) </p>
+<p>Сначала, естественно, объявляем в uses модуль Registry. </p>
+<pre name="code" class="delphi">
+uses
+  Registry;
+</pre>
+<p>Затем в публичных объявлениях объявляем процедуру регистрации нового типа файлов: </p>
+<pre name="code" class="delphi">
+public
+  { Public declarations }
+  procedure RegisterFileType(ext: string; FileName: string);
+</pre>
+<p>Описываем её так: </p>
+<pre name="code" class="delphi">
+procedure TForm1.RegisterFileType(ext: string; FileName: string);
+var
+  reg: TRegistry;
+begin
+  reg:=TRegistry.Create;
+  with reg do
+  begin
+    RootKey:=HKEY_CLASSES_ROOT;
+    OpenKey('.'+ext,True);
+    WriteString('',ext+'file');
+    CloseKey;
+    CreateKey(ext+'file');
+    OpenKey(ext+'file\DefaultIcon',True);
+    WriteString('',FileName+',0');
+    CloseKey;
+    OpenKey(ext+'file\shell\open\command',True);
+    WriteString('',FileName+' "%1"');
+    CloseKey;
+    Free;
+  end;
+end;
+</pre>
+<p>Ну а по нажатию какого-нибудь батона регистрируем! </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  RegisterFileType('DelphiWorld', Application.ExeName);
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

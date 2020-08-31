@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>Нетипизированные файлы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Нетипизированные файлы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Идем дальше. Есть такое понятие как нетипизированный файл. Это такой файл который содержит разнородные элементы. Например файл EXE - вначале он имеет заголовок, затем двоичный код, в конце какие-то ресурсы. Все части файла имеют разную длину и разную структуру. Тут уже обратится к произвольному элементу сложно, обычно надо вначале узнать где этот элемент находится, подчас это записано в предыдущем куске информации. Работа с такими файлами достаточно сложна и требует вручную разработки алгоритмов его чтения, но в связи гибкостью структуры и компактностью такие файлы составляют большинство. Для работы с нетипизированными файлами используют процедуры BlockRead и BlockWrite, которые позволяют читать/писать произвольное количество байт. Привожу пример пользования этими функциями из справки по Дельфи:</p>
+<pre name="code" class="delphi">var
+FromF, ToF: file;
+NumRead, NumWritten: Integer;
+Buf: array[1..2048] of Char;
+begin
+if OpenDialog1.Execute then { Display Open dialog box }
+begin
+AssignFile(FromF, OpenDialog1.FileName);
+Reset(FromF, 1); { Record size = 1 }
+if SaveDialog1.Execute then { Display Save dialog box}
+begin
+AssignFile(ToF, SaveDialog1.FileName); { Open output file }
+Rewrite(ToF, 1); { Record size = 1 }
+Canvas.TextOut(10, 10, 'Copying ' + IntToStr(FileSize(FromF))+ ' bytes...');
+repeat
+BlockRead(FromF, Buf, SizeOf(Buf), NumRead);
+BlockWrite(ToF, Buf, NumRead, NumWritten);
+until (NumRead = 0) or (NumWritten &lt;&gt; NumRead);
+CloseFile(FromF);
+CloseFile(ToF);
+end;
+end;
+end;
+ 
+</pre>
+<p>Этот код копирует из одного файла в другой. Замечания по поводу этого метода работы с файлами - плюсы - очень высокая скорость, особенно если размер буффера увеличить до 64kb-512kb, что позволит считывать файл достаточно большими кусками, чтобы обеспечить отсутствие простоев винчестера, к тому же обеспечивается очень высокая гибкость в работе. Минусы - сложность разработки, необходимость вручную писать все детали механизма чтения/записи и интерпретации данных.</p>
+<p>Пожалуй на этом можно было бы и завершить описание работы с файлами средствами Паскаля и файловых переменных, но заглянув в Help Дельфей я обнаружил еще несколько функций достойных упоминания.</p>
+<p>Erase(f) - удаляет файл</p>
+<p>FilePos(f) - возвращает текущую позицию чтения/записи в файл</p>
+<p>Flush(f) - сбрасывает кэшированные файловые операции на диск</p>
+<p>Rename(f, 'MyNewFileName.txt') - переименование файлов</p>
+<p>Truncate(f) - файл обрезается до текущей позиции чтения/записи </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

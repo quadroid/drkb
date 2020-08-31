@@ -1,0 +1,97 @@
+<html>
+<head>
+  <title>Запустить приложение и подождать</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Запустить приложение и подождать</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+Function ExecuteFile(FileName, Params, WorkingDir:string; Wait:boolean):integer;
+
+var
+  buffer: array[0..511] of Char;
+  TmpStr: String;
+  i: Integer;
+  StartupInfo:TStartupInfo;
+  ProcessInfo:TProcessInformation;
+  ext, key, fname, path:string;
+  exitcode:cardinal;
+begin
+  if WorkingDir&lt;&gt;'' then ChDir(WorkingDir);
+  ext:=lowercase(ExtractFileExt(FileName));
+  path:=ExtractFilePath(FileName);
+  if ext&lt;&gt;'.exe' then
+    With TRegistry.create do
+      try
+        RootKey:=HKEY_CLASSES_ROOT;
+        OpenKey(ext, false);
+        Key:=ReadString('');
+        CloseKey;
+        OpenKey(key+'\Shell\open\command', false);
+        key:=ReadString('');
+        fname:=ExtractFileName(key);
+        if pos('/', fname)&gt;0 then fname:=copy(fname,1, pos('/',fname)-1);
+        FName:=StringReplace(FName, '%1', '', [rfReplaceAll, rfIgnoreCase]);
+        if pos(' ',FileName)&gt;0 then FileName:='"'+Filename+'"';
+        TmpStr:=ExtractFilePath(key)+Fname+' '+FileName;
+        if Params&lt;&gt;'' then TmpStr := TmpStr + ' ' + Params;
+        Closekey;
+      finally
+        free;
+      end
+  else
+    begin
+      TmpStr := FileName;
+      TmpStr := TmpStr + ' ' + Params;
+    end;
+  StrPCopy(buffer,TmpStr);
+  FillChar(StartupInfo,Sizeof(StartupInfo),#0);
+  StartupInfo.cb := Sizeof(StartupInfo);
+  StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
+  StartupInfo.wShowWindow := SW_SHOWNORMAL;
+  if CreateProcess(nil, buffer, nil, nil, false, CREATE_NEW_CONSOLE or NORMAL_PRIORITY_CLASS, nil, nil, StartupInfo, ProcessInfo) then
+    begin
+      if Wait then
+        begin
+          while WaitforSingleObject(ProcessInfo.hProcess,200)=WAIT_TIMEOUT         do application.ProcessMessages;
+          GetExitCodeProcess(ProcessInfo.hProcess, exitcode);
+        end;
+    end
+  else
+    Result := GetLastError();
+end;
+</pre>
+
+<p id="author">Автор: Vit</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

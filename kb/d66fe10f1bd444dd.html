@@ -1,0 +1,89 @@
+<html>
+<head>
+  <title>Объединение двух иконок</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Объединение двух иконок</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  I want to combine 2 icons like Windows does with 
+  the links (the small arrow). 
+  Can anyone tell me how that works? 
+}
+ 
+ function CombineIcons(FrontIcon, BackIcon: HIcon): HIcon;
+ var
+   WinDC: HDC;
+   FrontInfo: TIconInfo;
+   FrontDC: HDC;
+   FrontSv: HBITMAP;
+   BackInfo: TIconInfo;
+   BackDC: HDC;
+   BackSv: HBITMAP;
+   BmpObj: tagBitmap;
+ begin
+   WinDC := GetDC(0);
+ 
+   GetIconInfo(FrontIcon, FrontInfo);
+   FrontDC := CreateCompatibleDC(WinDC);
+   FrontSv := SelectObject(FrontDC, FrontInfo.hbmMask);
+ 
+   GetIconInfo(BackIcon, BackInfo);
+   BackDC := CreateCompatibleDC(WinDC);
+   BackSv := SelectObject(BackDC, BackInfo.hbmMask);
+ 
+   GetObject(FrontInfo.hbmMask, SizeOf(BmpObj), @BmpObj);
+   BitBlt(BackDC, 0,0,BmpObj.bmWidth, BmpObj.bmHeight, FrontDC, 0,0,SRCAND);
+ 
+   SelectObject(BackDC, BackInfo.hbmColor);
+   DrawIconEx(BackDC, 0,0,FrontIcon, 0,0,0,0,DI_NORMAL);
+ 
+   Result := CreateIconIndirect(BackInfo);
+ 
+   SelectObject(FrontDC, FrontSv);
+   DeleteDC(FrontDC);
+   SelectObject(BackDC, BackSv);
+   DeleteDC(BackDC);
+   ReleaseDC(0,WinDC);
+   DeleteObject(FrontInfo.hbmColor);
+   DeleteObject(FrontInfo.hbmMask);
+   DeleteObject(BackInfo.hbmColor);
+   DeleteObject(BackInfo.hbmMask);
+ end;
+ 
+ // Remember: The icon created with this function must be destroyed with 
+// DestroyIcon() function when finished using it. 
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<html>
+<head>
+  <title>TNotebook как контейнер для форм</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TNotebook как контейнер для форм</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Neil </p>
+<p>...у меня происходит утечка памяти при изменениях страниц в закладках NoteBook. </p>
+<p>Вы не "теряете" ресурсы, вы их используете. Вы ИСПОЛЬЗУЕТЕ ресурсы на каждой страницы начиная с первой, которая доступна для вашего созерцания. Я упомянаю это потому, потому что проблема ПОТЕРИ ресурсов относится к другому типу проблемы. </p>
+<p>Недавно я работал над проблемой показа других *ФОРМ* в главной форме, как если бы они были страницами NoteBook. Форма создается при перелистывании на эту "страницу", и разрушается при ее покидании. Это требует хранения неизменяемой информации, естественно, в главной форме, но это чрезвычайно нетребовательно к ресурсам. Главное, что вы храните поля индивидуальных данных в главной форме с именем "Child", а инициализируете в обработчике события экземпляра TForm2 (или имеющего другое имя, в зависимости от имени вашей первой дочерней формы) OnCreate. Поместите закладки в нижней части формы, и при изменении закладки освобождайте текущего "ребенка", а затем создавайте и делайте ребенком другой соответствующий экземпляр формы. </p>
+<p>Как заставить работать эту технологию: у каждой дочерней формы имеется метод CreateParams, позволяющий сделать ее "ребенком" главной формы:</p>
+<pre name="code" class="delphi">procedure TPageForm.CreateParams(var Params: TCreateParams);
+begin
+  inherited CreateParams(Params);
+  with Params do
+  begin
+    WndParent := Application.MainForm.Handle;
+    Parent := Application.MainForm;
+    Style := WS_CHILD or WS_CLIPSIBLINGS or WS_CLIPCHILDREN;
+    Align := alClient;
+  end;
+end;
+</pre>
+<p>Код главной формы должен выглядеть примерно так:</p>
+<pre name="code" class="delphi">procedure TForm1.TabSet1Change(Sender: TObject; NewTab: Integer;
+  var AllowChange: Boolean);
+begin
+  LockWindowUpdate(Handle);
+  Child.Free;
+  case NewTab of
+    0: Child := TForm2.Create(Application);
+    1: Child := TForm3.Create(Application);
+    2: Child := TForm4.Create(Application);
+  end;
+  Child.Show;
+  LockWindowUpdate(0);
+end;
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+<hr />
+<p id="author">Автор: Ralph Friedman </p>
+<p>Кто-нибудь может мне помочь в вопросе размещения подклассов форм на страницах компонента TTabbedNotebook? </p>
+<p>Я пробовал следующий код и он отлично работает с компонентами, являющимися частью формы, содержащей TTabbedNotebook; тем не менее он не работает с дочерними формами:</p>
+<pre name="code" class="delphi">ChildForml[i].Parent := TWinControl(BrowseTabNotebook.Pages.Objects[i]);
+</pre>
+<p>В дочерней форме должен быть следующий код:</p>
+<pre name="code" class="delphi">private
+  { Private }
+  procedure CreateParams(var Params: TCreateParams); override;
+ 
+...
+ 
+procedure TChildForm1.CreateParams(var Params: TCreateParams);
+begin
+  { сначала вызываем унаследованные методы. }
+  inherited CreateParams(Params);
+  with Params do
+  begin
+    WndParent := Application.Mainform.Handle;
+    Style := (Style or WS_CHILD) and not WS_POPUP;
+  end;
+end;
+ 
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

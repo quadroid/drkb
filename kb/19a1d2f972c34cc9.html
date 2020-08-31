@@ -1,0 +1,71 @@
+<html>
+<head>
+  <title>Выделение подстроки по контексту</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Выделение подстроки по контексту</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Вот 2 функции которыми я очень часто пользуюсь - они выделяют из строки подстроку, которая находится до или после ключевого словаю Задача надо сказать частая, например есть строка:</p>
+<p>"Total-2.00$"</p>
+<p>Нижеприведенные функции позволяют выделить из строки логические элементы:</p>
+<pre name="code" class="delphi">
+function GetBefore(substr, str:string):string;
+
+begin
+ if pos(substr,str)&gt;0 then
+   result:=copy(str,1,pos(substr,str)-1)
+ else
+   result:='';
+end;
+ 
+function GetAfter(substr, str:string):string;
+
+begin
+ if pos(substr,str)&gt;0 then
+   result:=copy(str,pos(substr,str)+length(substr),length(str))
+ else
+   result:='';
+end;
+</pre>
+<p>Примеры:</p>
+<p>1) Найти название параметра (оно находится до символа "-"):</p>
+GetBefore('-', 'Total-2.00$')  // Результат будет "Total"
+<p>&nbsp;</p>
+<p>2) Найти сумму денег (оно находится после символа "-"):</p>
+GetAfter('-', 'Total-2.00$')  // Результат будет "2.00$"
+&nbsp;
+<p>&nbsp;</p>
+<p>3) Найти сумму денег без знака доллара и остатка строки(оно находится после символа "-", но до символа "$"):</p>
+GetBefore('$',GetAfter('-', 'Total-2.00$ (общая сумма)')&nbsp; // Результат будет "2.00"
+<p>&nbsp;</p>
+<p id="author">Автор: Vit</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

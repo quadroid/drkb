@@ -1,0 +1,97 @@
+<html>
+<head>
+  <title>Как узнать расход памяти процессом?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать расход памяти процессом?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Расход памяти можно прочитать из виртуального файла </p>
+<p>/proc/Pid/status</p>
+<p>где Pid - номер процесса</p>
+<pre name="code" class="delphi">
+function ReadProcData(Pid:string; var VmSize, VmLck, VmRSS, VmData, VmStk, VmExe, VmLib, ProcName:string):boolean;
+  var f:TextFile;
+      s, stat:string;
+      i:integer;
+ 
+  function getbefore(substr, str:string):string;
+  begin
+    if pos(substr,str)&gt;0 then result:=copy(str,1,pos(substr,str)-1)
+    else result:='';
+  end;
+ 
+  function getafter(substr, str:string):string;
+  begin
+    if pos(substr,str)&gt;0 then result:=copy(str,pos(substr,str)+length(substr),length(str))
+    else result:='';
+  end;
+ 
+begin
+  Result:=False;
+  FileMode:=0;
+  VmSize:='-1'; VmLck:='-1'; VmRSS:='-1'; VmData:='-1'; VmStk:='-1'; VmExe:='-1'; VmLib:='-1'; ProcName:='';
+  try
+    try
+      try
+        assignFile(f,'/proc/'+Pid+'/status');
+        reset(f);
+        while not eof(f) do
+          begin
+            readln(f, s);
+            if pos('VmSize', s)&gt;0 then VmSize:=GetBefore(' ',trim(GetAfter(':',s)));
+            if pos('VmLck', s)&gt;0 then VmLck:=GetBefore(' ',trim(GetAfter(':',s)));
+            if pos('VmRSS', s)&gt;0 then VmRSS:=GetBefore(' ',trim(GetAfter(':',s)));
+            if pos('VmData', s)&gt;0 then VmData:=GetBefore(' ',trim(GetAfter(':',s)));
+            if pos('VmStk', s)&gt;0 then VmStk:=GetBefore(' ',trim(GetAfter(':',s)));
+            if pos('VmExe', s)&gt;0 then VmExe:=GetBefore(' ',trim(GetAfter(':',s)));
+            if pos('VmLib', s)&gt;0 then VmLib:=GetBefore(' ',trim(GetAfter(':',s)));
+            if pos('Name', s)&gt;0 then ProcName:=trim(GetAfter(':',s));
+          end;
+      finally
+        closefile(f);
+      end;
+    finally
+      FileMode:=2;
+    end;
+    Result:=True;
+  except
+  end;
+end;
+</pre>
+
+<p id="note">Примечание</p>
+<p>Функция может и не сработать, какие-то мгновения файл недоступен по чтению, выход - повторить процедуру.</p>
+<p>Более подробную информацию можно получить запустив в консоле:</p>
+<p>man proc </p>
+<p id="author">Автор: Vit</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<html>
+<head>
+  <title>Различные стили подчеркивания для TRichEdit</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Различные стили подчеркивания для TRichEdit</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses
+   RichEdit;
+ 
+ // Underline styles 
+const
+   CFU_UNDERLINETHICK = 9;
+   CFU_UNDERLINEWAVE = 8;
+   CFU_UNDERLINEDASHDOTDOT = 7;
+   CFU_UNDERLINEDASHDOT = 6;
+   CFU_UNDERLINEDASH = 5;
+   CFU_UNDERLINEDOTTED = 4;
+   CFU_UNDERLINE = 1;
+   CFU_UNDERLINENONE = 0;
+ 
+ procedure RE_SetCharFormat(ARichEdit: TRichEdit; AUnderlineType: Byte; AColor: Word);
+ var
+   // The CHARFORMAT2 structure contains information about 
+  // character formatting in a rich edit control. 
+  Format: CHARFORMAT2;
+ begin
+   FillChar(Format, SizeOf(Format), 0);
+   with Format do
+   begin
+     cbSize := SizeOf(Format);
+     dwMask := CFM_UNDERLINETYPE;
+     bUnderlineType := AUnderlineType or AColor;
+     ARichEdit.Perform(EM_SETCHARFORMAT, SCF_SELECTION, Longint(@Format));
+   end;
+ end;
+ 
+ // Underline the current selection with a CFU_UNDERLINEWAVE line style (color red); 
+procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   RE_SetCharFormat(RichEdit1, CFU_UNDERLINEWAVE, $50);
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

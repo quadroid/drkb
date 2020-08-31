@@ -1,0 +1,81 @@
+<html>
+<head>
+  <title>Конвертируем Unix-дату</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Конвертируем Unix-дату</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>The value is a Unix Time, defined as seconds since 1970-01-01T00:00:00,0Z. Important is the Letter Z, you live in Sweden, in consequence you must add 1 hour for StandardDate and 2 hours for DaylightDate to the date. The infos you can get with GetTimeZoneInformation. But you must determine, which Bias (Standard or Daylight) is valid for the date (in this case -60). You can convert the date value with the function below.</p>
+
+<p>The Date for 977347109 is 2000-12-20T22:18:29+01:00.</p>
+
+<pre name="code" class="delphi">
+const
+  UnixDateDelta = 25569; { 1970-01-01T00:00:00,0 }
+  SecPerMin = 60;
+  SecPerHour = SecPerMin * 60;
+  SecPerDay = SecPerHour * 24;
+  MinDayFraction = 1 / (24 * 60);
+ 
+  {Convert Unix time to TDatetime}
+ 
+function UnixTimeToDateTime(AUnixTime: DWord; ABias: Integer): TDateTime;
+begin
+  Result := UnixDateDelta + (AUnixTime div SecPerDay) { Days }
+  + ((AUnixTime mod SecPerDay) / SecPerDay) { Seconds }
+  - ABias * MinDayFraction { Bias to UTC in minutes };
+end;
+ 
+{Convert Unix time to String with locale settings}
+ 
+function UnixTimeToStr(AUnixTime: DWord; ABias: Integer): string;
+begin
+  Result := FormatDateTime('ddddd  hh:nn:ss', UnixTimeToDateTime(AUnixTime, ABias));
+end;
+ 
+{Convert TDateTime to Unix time}
+ 
+function DateTimeToUnixTime(ADateTime: TDateTime; ABias: Integer): DWord;
+begin
+  Result := Trunc((ADateTime - UnixDateDelta) * SecPerDay) + ABias * SecPerMin;
+end;
+ 
+procedure TForm1.Button4Click(Sender: TObject);
+begin
+  Label1.Caption := UnixTimeToStr(977347109, -60);
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

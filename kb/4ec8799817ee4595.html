@@ -1,0 +1,58 @@
+<html>
+<head>
+  <title>Как определить, насдледовано ли свойство от определенного класса?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как определить, насдледовано ли свойство от определенного класса?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function GetFontProp(anObj: TObject): TFont;
+var
+  PInfo: PPropInfo;
+begin
+  {Try to get a pointer to the property information for a property with the name 'Font'.
+  TObject.ClassInfo returns a pointer to the RTTI table, which we need to pass to GetPropInfo}
+  PInfo := GetPropInfo(anObj.ClassInfo, 'font');
+  Result := nil;
+  if PInfo &lt;&gt; nil then
+    {found a property with this name, check if it has the correct type}
+    if (PInfo^.Proptype^.Kind = tkClass) and
+      GetTypeData(PInfo^.Proptype^)^.ClassType.InheritsFrom(TFont)
+      then
+      Result := TFont(GetOrdProp(anObj, PInfo));
+end;
+</pre>
+
+<p>Tip by Peter Below</p>
+<p>Взято из <a href="http://www.lmc-mediaagentur.de/dpool" target="_blank">http://www.lmc-mediaagentur.de/dpool</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

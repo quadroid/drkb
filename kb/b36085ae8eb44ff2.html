@@ -1,0 +1,129 @@
+<html>
+<head>
+  <title>Как выбрать цвет пользуя TTrackBar?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как выбрать цвет пользуя TTrackBar?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>Drop three TrackBars on a form. Set Min to 0, Max to 255. Drop a TImage on the form. Then try this code:</p>
+<pre name="code" class="delphi">
+{ ... }
+var
+  Form1: TForm1;
+  MyColor: LongWord;
+  RedColor: LongWord = $00000000;
+  GreenColor: LongWord = $00000000;
+  BlueColor: LongWord = $00000000;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  DoImageFill;
+end;
+ 
+procedure TForm1.DoImageFill;
+begin
+  MyColor := RedColor or GreenColor or BlueColor;
+  Image1.Canvas.Brush.Color := TColor(MyColor);
+  Image1.Canvas.FillRect(Rect(0, 0, Image1.Width, Image1.Height));
+end;
+ 
+procedure TForm1.RedBarChange(Sender: TObject);
+begin
+  RedColor := RedBar.Position;
+  DoImageFill;
+end;
+ 
+procedure TForm1.GreenBarChange(Sender: TObject);
+begin
+  GreenColor := GreenBar.Position shl 8;
+  DoImageFill;
+end;
+ 
+procedure TForm1.BlueBarChange(Sender: TObject);
+begin
+  BlueColor := BlueBar.Position shl 16;
+  DoImageFill;
+end;
+ 
+end.
+</pre>
+
+
+<hr />
+<p>Each color value ranges from 0 to 255. Set the three trackbars with this range. You can use the RGB function to create a color from these values.</p>
+<pre name="code" class="delphi">
+{ ... }
+type
+  TForm1 = class(TForm)
+    redTrackBar: TTrackBar;
+    greenTrackBar: TTrackBar;
+    blueTrackBar: TTrackBar;
+    Panel1: TPanel;
+    procedure blueTrackBarChange(Sender: TObject);
+    procedure greenTrackBarChange(Sender: TObject);
+    procedure redTrackBarChange(Sender: TObject);
+  public
+    { Public declarations }
+    procedure ChangeColor;
+  end;
+ 
+procedure TForm1.ChangeColor;
+begin
+  Panel1.Color := RGB(redTrackBar.Position, greenTrackBar.Position, blueTrackBar.Position);
+end;
+ 
+procedure TForm1.blueTrackBarChange(Sender: TObject);
+begin
+  ChangeColor;
+end;
+ 
+procedure TForm1.greenTrackBarChange(Sender: TObject);
+begin
+  ChangeColor;
+end;
+ 
+procedure TForm1.redTrackBarChange(Sender: TObject);
+begin
+  ChangeColor;
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

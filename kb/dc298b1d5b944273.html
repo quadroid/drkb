@@ -1,0 +1,122 @@
+<html>
+<head>
+  <title>Прочитать boot-сектор</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Прочитать boot-сектор</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Вообще-то загрузочный сектор можно прочитать вот так:</p>
+<pre name="code" class="delphi">
+type
+  TSector = array[0..511] of Byte;
+var
+  Boot: TSector;
+begin
+  ReadBoot(Drive, Boot);
+</pre>
+
+<p>Но учитывая разницу платформ 95, 98, Me и NT, 2000, XP можно сделать 2 процедуры, а в главной части проги вызывать необходимую:</p>
+<pre name="code" class="delphi">
+//для 95, 98, Me
+type
+   TDiocRegisters = record
+     EBX, EDX, ECX, EAX, EDI, ESI, Flags: LongWord end;
+ 
+   TVWin32CtlCode = (ccNone, ccVWin32IntIoctl, ccVWin32Int25,
+     ccVWin32Int26, ccVWin32Int13);
+ 
+ function VWin32(CtlCode: TVWin32CtlCode; 
+   var Regs: TDiocRegisters): Boolean; // вспомогательная процедура
+  var
+     Device: THandle;
+     Count: LongWord;
+   begin
+   Device := CreateFile('\.\VWIN32', 0, 0, nil, 0,
+     FILE_FLAG_DELETE_ON_CLOSE, 0);
+   if Device = INVALID_HANDLE_VALUE then
+     raise Exception.Create(SysErrorMessage(GetLastError));
+   try
+     Result := DeviceIoControl(Device, Ord(CtlCode), @Regs,
+       SizeOf(Regs), @Regs, SizeOf(Regs), Count, nil);
+   finally
+     CloseHandle(Device) end end;
+ 
+//само чтение
+procedure ReadBoot95(Drive: Char; var Boot: TSector);
+   var
+     Regs: TDiocRegisters;
+   begin
+   with Regs do begin
+     EAX := Ord(UpCase(Drive)) - Ord('A');
+     EBX := LongWord(@Boot);
+     ECX := 1;
+     EDX := 0 end;
+   if not VWin32(ccVWin32Int25, Regs) then
+     raise Exception.Create(SysErrorMessage(GetLastError)) end;
+ 
+//для NT, 2000, XP попроще
+type
+   TSector = array[0..511] of Byte;
+ procedure ReadBootNT(Drive: Char; var Boot: TSector);
+   var
+     BytesRead: Cardinal;
+     H: THandle;
+   begin
+   H := CreateFile(PChar(Format('\.\%s:', [UpCase(Drive)])),
+     GENERIC_READ, 0, nil, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+   if H = INVALID_HANDLE_VALUE then
+     raise Exception.Create(SysErrorMessage(GetLastError));
+   try
+     if not ReadFile(H, Boot, SizeOf(Boot), BytesRead, nil)then
+       raise Exception.Create(SysErrorMessage(GetLastError));
+   finally
+     CloseHandle(H) end end;
+ 
+// а юзать так
+ 
+var
+     Boot: TSector;
+   begin
+   case Win32Platform of
+     VER_PLATFORM_WIN32_WINDOWS:
+       ReadBoot95(Drive, Boot);
+     VER_PLATFORM_WIN32_NT:
+       ReadBootNT(Drive, Boot) end;
+</pre>
+
+<p>Boot и есть необходимый массив.</p>
+
+<p id="author">Автор: startinger</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

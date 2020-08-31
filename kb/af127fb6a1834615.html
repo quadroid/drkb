@@ -1,0 +1,76 @@
+<html>
+<head>
+  <title>Как перевести монитор в режим stand by?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как перевести монитор в режим stand by?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Kecvin S. Gallagher</p>
+<p>Если монитор поддерживает режим Stand by, то его можно программно перевести в этот режим. Данная возможность доступна на Windows95 и выше.</p>
+<p>Чтобы перевести монитор в режим Stand by:</p>
+<pre name="code" class="delphi">
+SendMessage(Application.Handle, wm_SysCommand, SC_MonitorPower, 0) ; 
+</pre>
+<p>Чтобы вывести его из этого режима:</p>
+<pre name="code" class="delphi">SendMessage(Application.Handle, wm_SysCommand, SC_MonitorPower, -1) ;
+</pre>
+
+<p>А теперь более полный пример кода:</p>
+<p>На новую форму поместите кнопку, таймер и ListBox.</p>
+<pre name="code" class="delphi">Timer (use Object Inspector):
+ 
+Enabled := False
+Interval := 15000 
+</pre>
+
+<p>Добавьте следующее событие таймеру:</p>
+<pre name="code" class="delphi">procedure TForm1.Timer1Timer(Sender: TObject);
+begin
+  ListBox1.Items.Add(FormatDateTime('h:mm:ss AM/PM',Time)) ;
+  SendMessage(Application.Handle, wm_SysCommand, SC_MonitorPower, -1);
+end;
+</pre>
+<p>Command Button:</p>
+<pre name="code" class="delphi">procedure TForm1.Button1Click(Sender: TObject);
+begin
+  ListBox1.Items.Add('--&gt; ' + FormatDateTime('h:mm:ss AM/PM',Time)) ;
+  Timer1.Enabled := not Timer1.Enabled ;
+  SendMessage(Application.Handle, wm_SysCommand, SC_MonitorPower, 0) ;
+end;
+</pre>
+<p>После запуска откомпилированного приложения и нажатия на кнопку, экран погаснет на 15 секунд.</p>
+<p>ЗАМЕЧАНИЕ: Удостоверьтесь, что во первых компьютер поддерживает режимы энергосбережения, а вовторых, эти функции не запрещены на данном компьютере.</p>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

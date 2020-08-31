@@ -1,0 +1,87 @@
+<html>
+<head>
+  <title>Предотвратить изменение ширины колонки для TListView</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Предотвратить изменение ширины колонки для TListView</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+private
+   FListViewOldWndProc: TWndMethod;
+   procedure ListViewNewWndProc(var Msg: TMessage);
+ end;
+ 
+ {....}
+ 
+ implementation
+ 
+ uses
+   CommCtrl;
+ 
+ 
+ procedure TForm1.FormCreate(Sender: TObject);
+ begin
+   //Sichern der ursprunglichen WindowProc der Listview 
+  FListViewOldWndProc := ListView1.WindowProc;
+ 
+   //Subclassing: Umleiten der WindowProc auf unsere eigene Procedur 
+  Listview1.WindowProc := ListViewNewWndProc;
+ end;
+ 
+ procedure TForm1.ListViewNewWndProc(var Msg: TMessage);
+ var
+   hdn: ^THDNotify;
+ begin
+   if Msg.Msg = WM_NOTIFY then
+   begin
+     hdn := Pointer(Msg.lParam);
+     //Abfangen und loschen der HDN_BeginTrack Botschaft 
+    if (hdn.hdr.code = HDN_BeginTrackW) or (hdn.hdr.code = HDN_BeginTrackA) then
+       Msg.Result := 1
+     else
+       FListViewOldWndProc(Msg);
+   end
+   // ansonsten Botschaft an die ursprungliche WindowProc weiterreichen 
+  else
+      FListViewOldWndProc(Msg);
+ end;
+ 
+ procedure TForm1.FormDestroy(Sender: TObject);
+ begin
+   //vor dem Beenden Original WindowProc wiederherstellen 
+  ListView1.WindowProc := FlistViewOldWndProc;
+   FListViewOldWndProc  := nil;
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

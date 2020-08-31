@@ -1,0 +1,69 @@
+<html>
+<head>
+  <title>Рисование на минимизированной иконке</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Рисование на минимизированной иконке</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Nick Hodges (Monterey, CA) </p>
+<p>Есть ли у кого пример рисования на иконке минимизированного приложения с помощью Delphi? </p>
+<p>Когда Delphi-приложение минимизировано, иконка, которая вы видите - реальное главное окно, объект TApplication, поэтому вам необходимо использовать переменную Application. Таким образом, чтобы удостовериться что приложение минимизировано, вызовите IsIconic(Application.Handle). Если функция возвратит True, значит так оно и есть. Для рисования на иконке создайте обработчик события Application.OnMessage. Здесь вы можете проверять наличие сообщения WM_Paint и при его нахождении отрисовывать иконку. Это должно выглядеть приблизительно так:</p>
+<pre name="code" class="delphi">
+...
+{ private declarations }
+  procedure AppOnMessage(var Msg: TMsg; var Handled: Boolean);
+...
+ 
+procedure TForm1.AppOnMessage(var Msg: TMsg; var Handled: Boolean);
+var
+  DC: hDC;
+  PS: TPaintStuff;
+begin
+  if (Msg.Message = WM_PAINT) and IsIconic(Application.Handle) then
+  begin
+    DC := BeginPaint(Application.Handle, PS);
+    ...осуществляем отрисовку с помощью вызовов Windows GDI...
+ 
+    EndPaint(Application.Handle, PS);
+    Handled := True;
+  end;
+end;
+ 
+procedure TForm1.OnCreate(Sender: TObject);
+begin
+  Application.OnMessage := AppOnMessage;
+end;
+</pre>
+<p>Код создан на основе алгоритма Neil Rubenking.</p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

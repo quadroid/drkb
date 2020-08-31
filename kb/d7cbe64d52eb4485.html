@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>Как послать сообщение?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как послать сообщение?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  You need 3 TEdits, 1 TMemo and 1 TClientSocket. 
+  Set the  TClientsocket's Port to 80 and the Host to wwp.mirabilis.com. 
+} 
+ 
+var 
+  Form1: TForm1; 
+  csend: string; 
+ 
+implementation 
+ 
+{$R *.dfm} 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  cSend := 'POST http://wwp.icq.com/scripts/WWPMsg.dll HTTP/2.0' + chr(13) + chr(10); 
+  cSend := cSend + 'Referer: http://wwp.mirabilis.com' + chr(13) + chr(10); 
+  cSend := cSend + 'User-Agent: Mozilla/4.06 (Win95; I)' + chr(13) + chr(10); 
+  cSend := cSend + 'Connection: Keep-Alive' + chr(13) + chr(10); 
+  cSend := cSend + 'Host: wwp.mirabilis.com:80' + chr(13) + chr(10); 
+  cSend := cSend + 'Content-type: application/x-www-form-urlencoded' + chr(13) + chr(10); 
+  cSend := cSend + 'Content-length:8000' + chr(13) + chr(10); 
+  cSend := cSend + 'Accept: image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, */*' + 
+    chr(13) + chr(10) + chr(13) + chr(10); 
+  cSend := cSend + 'from=' + edit1.Text + ' &amp;fromemail=' + edit2.Text + 
+    ' &amp;fromicq:110206786' + ' &amp;body=' + memo1.Text + ' &amp;to=' + edit3.Text + '&amp;Send='; 
+  clientsocket1.Active := True; 
+end; 
+ 
+procedure TForm1.ClientSocket1Connect(Sender: TObject; 
+  Socket: TCustomWinSocket); 
+begin 
+  clientsocket1.Socket.SendText(csend); 
+  clientsocket1.Active := False; 
+end; 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,406 @@
+<html>
+<head>
+  <title>RC6</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">RC6</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Матвеев Игорь </p>
+<p> Как я уже говорил, RC6 Очень похож на RC5, во всяком случае расчет подключа производится тем же способом, что и в RC5. RC6 участвовал в конкурсе на звание AES и, по некоторым данным, не выиграл только из-за медленной работы аппаратных реализаций. Программные же реализации RC6, пожалуй, являются самыми быстрыми среди алгоритмов шифрования, при обеспечении достаточной стойкости шифра.</p>
+<p> Нижепредставленный модуль построен по тому же принципу, что и предыдущие - имена функций совпадают и если вы хотите заменить в своей программе шифрование с IDEA или RC5 на RC6 - просто добавьте модуль RC6, а IDEA или RC5 - удалите из списка uses.</p>
+<p> Шифр RC6, в отличии от RC5, оперирует блоками по 16 байт, а модуль построен так, что если при шифрации методами: EncryptCopy, DecryptCopy, EncryptStream, DecryptStream размер данных не будет кратен 16 - последний блок длинной 1..15 байт не шифруется и в "чистом" виде добавляется к зашифрованным. Также и при дешифровании - если последний блок размером 1..15 байт он не дешифруется а добавляется к расшифрованным данным. Такой подход обеспечивает в полной мере "симметричное" шифрование так как размеры входных и выходных данных полностью совпадают. Однако такой подход приводит к некоторым сложностям, если последний блок также нуждается в шифровании. На мой взгляд лучший выход - добавить при шифровании к исходным данным строку определенной длинны и после дешифрования отсечь с конца строку той же длинны.</p>
+<p> Также в заключении цыкла статей, посвященных шифрованию я подготовил примеры по всем представленным алгоритмам (IDEA, RC5, RC6).</p>
+<p>А вот последний модуль:</p>
+<pre name="code" class="delphi">
+{ *********************************************************************** }
+{                                                                         }
+{ Delphi Еncryption Library                                               }
+{ Еncryption / Decryption stream - RC6                                    }
+{                                                                         }
+{ Copyright (c) 2004 by Matveev Igor Vladimirovich                        }
+{ With offers and wishes write: teap_leap@mail.ru                         }
+{                                                                         }
+{ *********************************************************************** }
+ 
+unit RC6;
+ 
+interface
+ 
+uses
+  SysUtils, Classes;
+ 
+const
+  Rounds    = 20;
+  KeyLength = 2 * (Rounds + 2);
+ 
+  BlockSize = 16;
+  KeySize   = 16 * 4;
+ 
+  P32       = $b7e15163;
+  Q32       = $9e3779b9;
+  lgw       = 5;
+ 
+type
+  TRC6Block = array[1..4] of LongWord;
+ 
+var
+  S      : array[0..KeyLength-1] of LongWord;
+  Key    : string;
+  KeyPtr : PChar;
+ 
+////////////////////////////////////////////////////////////////////////////////
+// Дополнительные функции
+ 
+procedure Initialize(AKey: string);          // Инициализация
+procedure CalculateSubKeys;                  // Подготовка подключей
+function EncipherBlock(var Block): Boolean;  // Шифрация блока (16 байт)
+function DecipherBlock(var Block): Boolean;  // Дешифрация блока
+ 
+////////////////////////////////////////////////////////////////////////////////
+// Главные функции
+ 
+function EncryptCopy(DestStream, SourseStream : TStream; Count: Int64;
+  Key : string): Boolean;    // Зашифровать данные из одного потока в другой
+ 
+function DecryptCopy(DestStream, SourseStream : TStream; Count: Int64;
+  Key : string): Boolean;    // Расшифровать данные из одного потока в другой
+ 
+function EncryptStream(DataStream: TStream; Count: Int64;
+  Key: string): Boolean;     // Зашифровать содержимое потока
+ 
+function DecryptStream(DataStream: TStream; Count: Int64;
+  Key: string): Boolean;     // Расшифровать содержимое потока
+ 
+implementation
+ 
+////////////////////////////////////////////////////////////////////////////////
+ 
+function ROL(a, s: LongWord): LongWord;
+asm
+  mov    ecx, s
+  rol    eax, cl
+end;
+ 
+////////////////////////////////////////////////////////////////////////////////
+ 
+function ROR(a, s: LongWord): LongWord;
+asm
+  mov    ecx, s
+  ror    eax, cl
+end;
+ 
+////////////////////////////////////////////////////////////////////////////////
+ 
+procedure InvolveKey;
+var
+  TempKey : string;
+  i, j    : Integer;
+  K1, K2  : LongWord;
+begin
+ // Разворачивание ключа до длинны KeySize = 64
+ TempKey := Key;
+ i := 1;
+ while ((Length(TempKey) mod KeySize) &lt;&gt; 0) do
+   begin
+     TempKey := TempKey + TempKey[i];
+     Inc(i);
+   end;
+ 
+ i := 1;
+ j := 0;
+ while (i &lt; Length(TempKey)) do
+   begin
+     Move((KeyPtr+j)^, K1, 4);
+     Move(TempKey[i], K2, 4);
+     K1 := ROL(K1, K2) xor K2;
+     Move(K1, (KeyPtr+j)^, 4);
+     j := (j + 4) mod KeySize;
+     Inc(i, 4);
+   end;
+end;
+ 
+////////////////////////////////////////////////////////////////////////////////
+ 
+procedure CalculateSubKeys;
+var
+  i, j, k : Integer;
+  L       : array[0..15] of LongWord;
+  A, B         : LongWord;
+begin
+ // Копирование ключа в L
+ Move(KeyPtr^, L, KeySize);
+ 
+ // Инициализация подключа S
+ S[0] := P32;
+ for i := 1 to KeyLength-1 do
+   S[i] := S[i-1] + Q32;
+ 
+ // Смешивание S с ключом
+ i := 0;
+ j := 0;
+ A := 0;
+ B := 0;
+ for k := 1 to 3*KeyLength do
+   begin
+     A := ROL((S[i] + A + B), 3);
+     S[i] := A;
+     B := ROL((L[j] + A + B), (A + B));
+     L[j] := B;
+     i := (i + 1) mod KeyLength;
+     j := (j + 1) mod 16;
+   end;
+end;
+ 
+////////////////////////////////////////////////////////////////////////////////
+ 
+procedure Initialize(AKey: string);
+begin
+ GetMem(KeyPtr, KeySize);
+ FillChar(KeyPtr^, KeySize, #0);
+ Key := AKey;
+ 
+ InvolveKey;
+end;
+ 
+////////////////////////////////////////////////////////////////////////////////
+ 
+function EncipherBlock(var Block): Boolean;
+var
+  RC6Block : TRC6Block absolute Block;
+  i           : Integer;
+  t, u           : LongWord;
+  Temp           : LongWord;
+begin
+ // Инициализация блока
+ Inc(RC6Block[2], S[0]);
+ Inc(RC6Block[4], S[1]);
+ 
+ for i := 1 to Rounds do
+   begin
+     t := ROL((RC6Block[2] * (2*RC6Block[2] + 1)), lgw);
+     u := ROL((RC6Block[4] * (2*RC6Block[4] + 1)), lgw);
+     RC6Block[1] := ROL((RC6Block[1] xor t), u) + S[2*i];
+     RC6Block[3] := ROL((RC6Block[3] xor u), t) + S[2*i+1];
+ 
+     Temp := RC6Block[1];
+     RC6Block[1] := RC6Block[2];
+     RC6Block[2] := RC6Block[3];
+     RC6Block[3] := RC6Block[4];
+     RC6Block[4] := Temp;
+   end;
+ 
+ RC6Block[1] := RC6Block[1] + S[2*Rounds+2];
+ RC6Block[3] := RC6Block[3] + S[2*Rounds+3];
+ 
+ Result := TRUE;
+end;
+ 
+////////////////////////////////////////////////////////////////////////////////
+ 
+function DecipherBlock(var Block): Boolean;
+var
+  RC6Block : TRC6Block absolute Block;
+  i           : Integer;
+  t, u           : LongWord;
+  Temp           : LongWord;
+begin
+ // Инициализация блока
+ RC6Block[3] := RC6Block[3] - S[2*Rounds+3];
+ RC6Block[1] := RC6Block[1] - S[2*Rounds+2];
+ 
+ for i := Rounds downto 1 do
+   begin
+     Temp := RC6Block[4];
+     RC6Block[4] := RC6Block[3];
+     RC6Block[3] := RC6Block[2];
+     RC6Block[2] := RC6Block[1];
+     RC6Block[1] := Temp;
+ 
+     u := ROL((RC6Block[4] * (2*RC6Block[4] + 1)),lgw);
+     t := ROL((RC6Block[2] * (2*RC6Block[2] + 1)),lgw);
+     RC6Block[3] := ROR((RC6Block[3]-S[2*i+1]), t) xor u;
+     RC6Block[1] := ROR((RC6Block[1]-S[2*i]), u) xor t;
+   end;
+ 
+ Dec(RC6Block[4], S[1]);
+ Dec(RC6Block[2], S[0]);
+ 
+ Result := TRUE;
+end;
+ 
+////////////////////////////////////////////////////////////////////////////////
+// Реализация главных функций
+ 
+function EncryptCopy(DestStream, SourseStream : TStream; Count: Int64;
+  Key : string): Boolean;
+var
+  Buffer   : TRC6Block;
+  PrCount  : Int64;
+  AddCount : Byte;
+begin
+ Result := True;
+ try
+   if Key = '' then
+     begin
+       DestStream.CopyFrom(SourseStream, Count);
+       Exit;
+     end;
+   Initialize(Key);
+   CalculateSubKeys;
+   PrCount := 0;
+   while Count - PrCount &gt;= BlockSize do
+     begin
+       SourseStream.Read(Buffer, BlockSize);
+       EncipherBlock(Buffer);
+       DestStream.Write(Buffer, BlockSize);
+       Inc(PrCount, BlockSize);
+     end;
+ 
+   AddCount := Count - PrCount;
+   if Count - PrCount &lt;&gt; 0 then
+     begin
+       SourseStream.Read(Buffer, AddCount);
+       DestStream.Write(Buffer, AddCount);
+     end;
+ except
+   Result := False;
+ end;
+end;
+ 
+////////////////////////////////////////////////////////////////////////////////
+ 
+function DecryptCopy(DestStream, SourseStream : TStream; Count: Int64;
+  Key : string): Boolean;
+var
+  Buffer   : TRC6Block;
+  PrCount  : Int64;
+  AddCount : Byte;
+begin
+ Result := True;
+ try
+   if Key = '' then
+     begin
+       DestStream.CopyFrom(SourseStream, Count);
+       Exit;
+     end;
+   Initialize(Key);
+   CalculateSubKeys;
+   PrCount := 0;
+   while Count - PrCount &gt;= BlockSize do
+     begin
+       SourseStream.Read(Buffer, BlockSize);
+       DecipherBlock(Buffer);
+       DestStream.Write(Buffer, BlockSize);
+       Inc(PrCount, BlockSize);
+     end;
+ 
+   AddCount := Count - PrCount;
+   if Count - PrCount &lt;&gt; 0 then
+     begin
+       SourseStream.Read(Buffer, AddCount);
+       DestStream.Write(Buffer, AddCount);
+     end;
+ except
+   Result := False;
+ end;
+end;
+ 
+////////////////////////////////////////////////////////////////////////////////
+ 
+function EncryptStream(DataStream: TStream; Count: Int64; Key: string): Boolean;
+var
+  Buffer   : TRC6Block;
+  PrCount  : Int64;
+begin
+ Result := True;
+ try
+   if Key = '' then
+     begin
+       DataStream.Seek(Count, soFromCurrent);
+       Exit;
+     end;
+   Initialize(Key);
+   CalculateSubKeys;
+   PrCount := 0;
+   while Count - PrCount &gt;= BlockSize do
+     begin
+       DataStream.Read(Buffer, BlockSize);
+       EncipherBlock(Buffer);
+       DataStream.Seek(-BlockSize, soFromCurrent);
+       DataStream.Write(Buffer, BlockSize);
+       Inc(PrCount, BlockSize);
+     end;
+ except
+   Result := False;
+ end;
+end;
+ 
+////////////////////////////////////////////////////////////////////////////////
+ 
+function DecryptStream(DataStream: TStream; Count: Int64; Key: string): Boolean;
+var
+  Buffer   : TRC6Block;
+  PrCount  : Int64;
+begin
+ Result := True;
+ try
+   if Key = '' then
+     begin
+       DataStream.Seek(Count, soFromCurrent);
+       Exit;
+     end;
+   Initialize(Key);
+   CalculateSubKeys;
+   PrCount := 0;
+   while Count - PrCount &gt;= BlockSize do
+     begin
+       DataStream.Read(Buffer, BlockSize);
+       DecipherBlock(Buffer);
+       DataStream.Seek(-BlockSize, soFromCurrent);
+       DataStream.Write(Buffer, BlockSize);
+       Inc(PrCount, BlockSize);
+     end;
+ except
+   Result := False;
+ end;
+end;
+ 
+// Завершение главных функций ...
+////////////////////////////////////////////////////////////////////////////////
+ 
+end.
+ 
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

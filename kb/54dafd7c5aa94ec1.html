@@ -1,0 +1,131 @@
+<html>
+<head>
+  <title>Рисование линий как в Microsoft Paint</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Рисование линий как в Microsoft Paint</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ToolWin, ComCtrls, ExtCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    Image1: TImage;
+    procedure FormCreate(Sender: TObject);
+    procedure FormMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure FormMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure FormMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+  private
+    { Private declarations }
+    StartX: integer;
+    StartY: integer;
+    EndX: integer;
+    EndY: integer;
+    isMousePressed: boolean;
+  public
+    { Public declarations }
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+ isMousePressed:=false;
+ Image1.Picture.Bitmap:=TBitmap.create();
+ Image1.Picture.Bitmap.Width:=Image1.Width;
+ Image1.Picture.Bitmap.Height:=Image1.Height
+end;
+ 
+procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+ StartX:=X;
+ StartY:=Y;
+ EndX:=StartX;
+ EndY:=StartY;
+ isMousePressed:=true
+end;
+ 
+procedure TForm1.FormMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+ isMousePressed:=false;
+ Image1.Picture.Bitmap.Canvas.Pen.Mode:=pmNOT;
+ Image1.Picture.Bitmap.Canvas.moveTo(StartX, StartY);
+ Image1.Picture.Bitmap.Canvas.lineTo(EndX, EndY);
+ Image1.Picture.Bitmap.Canvas.Pen.Mode:=pmCopy;
+ EndX:=X;
+ EndY:=Y;
+ Image1.Picture.Bitmap.Canvas.moveTo(StartX, StartY);
+ Image1.Picture.Bitmap.Canvas.lineTo(EndX, EndY)
+end;
+ 
+procedure TForm1.FormMouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+begin
+ if isMousePressed then
+ begin
+  Image1.Picture.Bitmap.Canvas.Pen.Mode:=pmNOT;
+  Image1.Picture.Bitmap.Canvas.moveTo(StartX, StartY);
+  Image1.Picture.Bitmap.Canvas.lineTo(EndX, EndY);
+  EndX:=X;
+  EndY:=Y;
+  Image1.Picture.Bitmap.Canvas.moveTo(StartX, StartY);
+  Image1.Picture.Bitmap.Canvas.lineTo(EndX, EndY);
+  Image1.Picture.Bitmap.Canvas.Pen.Mode:=pmCopy
+ end
+end;
+ 
+end.
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+Более развернутую демку можно найти в папке {$DELPHI7}/Demos/Doc/Graphex<br>
+&nbsp;<br>
+<p id="author">Автор: Mischka </p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<html>
+<head>
+  <title>Определение типов логических дисков</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Определение типов логических дисков</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit Unit1;
+
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    Memo1: TMemo;
+    Button1: TButton;
+    procedure Button1Click(Sender: TObject);
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+const
+  NameSize = 4;
+  VolumeCount = 26;
+  TotalSize = NameSize * VolumeCount;
+  Report = 'Volume: %s %s';
+var
+  Buff, Volume: String;
+  lpQuery: array [0..MAXCHAR - 1] of Char;
+  I, Count: Integer;
+begin
+  SetLength(Buff, TotalSize);
+  Count := GetLogicalDriveStrings(TotalSize, @Buff[1]) div NameSize;
+  if Count = 0 then
+    Memo1.Lines.Add(SysErrorMessage(GetLastError))
+  else
+    for I := 0 to Count - 1 do
+    begin
+      Volume := PChar(@Buff[(I * NameSize) + 1]);
+      case GetDriveType(PChar(Volume)) of
+        DRIVE_UNKNOWN: Memo1.Lines.Add(Format(Report, [Volume,
+          'The drive type cannot be determined.']));
+        DRIVE_NO_ROOT_DIR: Memo1.Lines.Add(Format(Report, [Volume,
+          'The root path is invalid. For example, no volume is mounted at the path.']));
+        DRIVE_REMOVABLE:
+        begin
+          Volume[3] := #0;
+          QueryDosDevice(PChar(Volume), @lpQuery[0], MAXCHAR);
+          Volume[3] := '\';
+          if String(lpQuery) = '\Device\Floppy0' then
+            Memo1.Lines.Add(Format(Report, [Volume, 'The drive is a Floppy disk A:.']))
+          else
+            if String(lpQuery) = '\Device\Floppy1' then
+              Memo1.Lines.Add(Format(Report, [Volume, 'The drive is a Floppy disk B:.']))
+            else
+              Memo1.Lines.Add(Format(Report, [Volume, 'The drive is a Flash Drive.']));
+        end;
+        DRIVE_FIXED:
+        begin
+          Volume[3] := #0;
+          QueryDosDevice(PChar(Volume), @lpQuery[0], MAXCHAR);
+          Volume[3] := '\';
+          if Copy(String(lpQuery), 1, 22)  = '\Device\HarddiskVolume' then
+            Memo1.Lines.Add(Format(Report, [Volume,
+              'The disk cannot be removed from the drive.']))
+          else
+            Memo1.Lines.Add(Format(Report, [Volume,
+              'The drive is a SUBST disk on path: "' +
+                Copy(String(lpQuery), 5, Length(String(lpQuery))) + '"']));
+        end;
+        DRIVE_REMOTE: Memo1.Lines.Add(Format(Report, [Volume,
+          'The drive is a remote (network) drive.']));
+        DRIVE_CDROM: Memo1.Lines.Add(Format(Report, [Volume,
+          'The drive is a CD-ROM drive.']));
+        DRIVE_RAMDISK: Memo1.Lines.Add(Format(Report, [Volume,
+          'The drive is a RAM disk.']));
+      else
+        Memo1.Lines.Add(Format(Report, [Volume, 'Xpen znaet chto :)']));
+      end;
+    end;
+end;
+ 
+end.
+</pre>
+<p id="author">Автор: Александр (Rouse_) Багель</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

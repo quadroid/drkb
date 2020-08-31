@@ -1,0 +1,315 @@
+<html>
+<head>
+  <title>Файловые операции средствами ShellAPI</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Файловые операции средствами ShellAPI</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Файловые операции средствами ShellAPI.&nbsp; </p>
+<p>В данной статье мы подробно рассмотрим применение функции SHFileOperation. </p>
+<p>function SHFileOperation(const lpFileOp: TSHFileOpStruct): Integer; stdcall;</p>
+<p>Данная функция позволяет производить копирование, перемещение, </p>
+<p>переименование и удаление (в том числе и в Recycle Bin) объектов файловой системы. </p>
+<p>Функция возвращает 0, если операция выполнена успешно, </p>
+<p>и ненулевое значение в противном :-) случае. </p>
+
+<p>Функция имеет единственный аргумент - структуру типа TSHFileOpStruct,</p>
+<p> в которой и передаются все необходимые данные. </p>
+<p>Эта структура выглядит следующим образом: </p>
+
+<pre name="code" class="delphi">
+_SHFILEOPSTRUCTA = packed record
+    Wnd: HWND;
+    wFunc: UINT;
+    pFrom: PAnsiChar;
+    pTo: PAnsiChar;
+    fFlags: FILEOP_FLAGS;
+    fAnyOperationsAborted: BOOL;
+    hNameMappings: Pointer;
+    lpszProgressTitle: PAnsiChar; { используется только при установленном флаге FOF_SIMPLEPROGRESS }
+  end;
+</pre>
+
+<p>Поля этой структуры имеют следующее назначение:</p>
+<p>hwnd Хэндл окна, на которое будут выводиться диалоговые окна о ходе операции.</p>
+<p>wFunc Требуемая операция. Может принимать одно из значений:</p>
+
+<p>FO_COPY Копирует файлы, указанные в pFrom в папку, указанную в pTo. </p>
+<p>FO_DELETE Удаляет файлы, указанные pFrom (pTo игнорируется). </p>
+<p>FO_MOVE Перемещает файлы, указанные в pFrom в папку, указанную в pTo. </p>
+<p>FO_RENAME Переименовывает файлы, указанные в pFrom. </p>
+<p>pFrom </p>
+<p>Указатель на буфер, содержащий пути к одному или нескольким файлам. </p>
+<p>Если файлов несколько, между путями ставится нулевой байт. </p>
+<p>Список должен заканчиваться двумя нулевыми байтами. </p>
+
+<p>pTo</p>
+<p>Аналогично pFrom, но содержит путь к директории - адресату, </p>
+<p>в которую производится копирование или перемещение файлов. </p>
+<p>Также может содержать несколько путей. </p>
+<p>При этом нужно установить флаг FOF_MULTIDESTFILES. </p>
+
+<p>fFlags</p>
+<p>Управляющие флаги. </p>
+<p>FOF_ALLOWUNDO Если возможно, сохраняет информацию для возможности UnDo. </p>
+<p>FOF_CONFIRMMOUSE Не реализовано. </p>
+<p>FOF_FILESONLY Если в поле pFrom установлено *.*, то операция </p>
+<p>будет производиться только с файлами. </p>
+<p>FOF_MULTIDESTFILES Указывает, что для каждого исходного</p>
+<p> файла в поле pFrom указана своя директория - адресат. </p>
+<p>FOF_NOCONFIRMATION Отвечает "yes to all" на все запросы в ходе опеации. </p>
+<p>FOF_NOCONFIRMMKDIR Не подтверждает создание нового каталога, </p>
+<p>если операция требует, чтобы он был создан. </p>
+<p>FOF_RENAMEONCOLLISION В случае, если уже существует файл </p>
+<p>с данным именем, создается файл с именем "Copy #N of..." </p>
+<p>FOF_SILENT Не показывать диалог с индикатором прогресса. </p>
+<p>FOF_SIMPLEPROGRESS Показывать диалог с индикатором прогресса,</p>
+<p> но не показывать имен файлов. </p>
+<p>FOF_WANTMAPPINGHANDLE Вносит hNameMappings элемент.</p>
+<p> Дескриптор должен быть освобожден функцией SHFreeNameMappings. </p>
+<p>fAnyOperationsAborted</p>
+<p>Принимает значение TRUE если пользователь прервал любую файловую</p>
+<p> операцию до ее завершения и FALSE в ином случае. </p>
+
+<p>hNameMappings</p>
+<p>Дескриптор объекта отображения имени файла, который содержит</p>
+<p> массив структур SHNAMEMAPPING. Каждая структура содержит</p>
+<p>  старые и новые имена пути для каждого файла, который перемещался,</p>
+<p> &nbsp; скопирован, или переименован. Этот элемент используется только,</p>
+<p> &nbsp; если установлен флаг FOF_WANTMAPPINGHANDLE. </p>
+
+<p>lpszProgressTitle</p>
+<p>Указатель на строку, используемую как заголовок для диалогового окна прогресса. </p>
+<p>Этот элемент используется только, если установлен флаг FOF_SIMPLEPROGRESS. </p>
+
+<p id="note">Примечание.</p>
+<p>Если pFrom или pTo не указаны, берутся файлы из текущей директории. </p>
+<p>Текущую директорию можно установить с помощью функции SetCurrentDirectory </p>
+<p>и получить функцией GetCurrentDirectory. </p>
+
+<p>А теперь - примеры. </p>
+
+<p>Разумеется, вам нужно вставить в секцию uses модуль ShellAPI, в котором определена</p>
+<p> функция SHFileOperation. </p>
+
+<p>Рассмотрим самое простое - удаление файлов. </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  SHFileOpStruct : TSHFileOpStruct;
+  From : array [0..255] of Char;
+begin
+  SetCurrentDirectory( PChar( 'C:\' ) );
+  From := 'Test1.tst' + #0 + 'Test2.tst' + #0 + #0;
+  with SHFileOpStruct do
+    begin
+      Wnd := Handle;
+      wFunc := FO_DELETE;
+      pFrom := @From;
+      pTo := nil;
+      fFlags := 0;
+      fAnyOperationsAborted := False;
+      hNameMappings := nil;
+      lpszProgressTitle := nil;
+    end;
+  SHFileOperation( SHFileOpStruct );
+end;
+</pre>
+
+
+<p>Обратите внимание, что ни один из флагов не установлен.</p>
+<p>Если вы хотите не просто удалить файлы, а переместить их</p>
+<p> в корзину, должен быть установлен флаг FOF_ALLOWUNDO. </p>
+
+<p>Для удобства дальнейших экспериментов напишем функцию,</p>
+<p> создающую из массива строк буфер для передачи его в качестве параметра pFrom. </p>
+<p>После каждой строки в буфер вставляется нулевой байт, в конце списка - два нулевых байта. </p>
+<pre name="code" class="delphi">
+type TBuffer = array of Char;
+ 
+ 
+procedure CreateBuffer( Names : array of string; var P : TBuffer );
+var I, J, L : Integer;
+begin
+  for I := Low( Names ) to High( Names ) do
+    begin
+      L := Length( P );
+      SetLength( P, L + Length( Names[ I ] ) + 1 );
+      for J := 0 to Length( Names[ I ] ) - 1 do
+        P[ L + J ] := Names[ I, J + 1 ];
+      P[ L + J ] := #0;
+    end;
+  SetLength( P, Length( P ) + 1 );
+  P[ Length( P ) ] := #0;
+end;
+</pre>
+
+<p>Выглядит ужасно, но работает. Можно написать красивее, просто лень. </p>
+
+<p>И, наконец, функция, удаляющая файлы, переданные ей в списке Names. </p>
+<p>Параметр ToRecycle определяет, будут ли файлы перемещены в корзину</p>
+<p> или удалены. Функция возвращает 0, если операция выполнена успешно, </p>
+<p>и ненулевое значение, если руки у кого-то растут не из того места, и этот </p>
+<p>кто-то всунул функции имена несуществующих файлов. </p>
+<pre name="code" class="delphi">
+function DeleteFiles( Handle : HWnd; Names : array of string; ToRecycle : Boolean ) : Integer;
+var
+  SHFileOpStruct : TSHFileOpStruct;
+  Src : TBuffer;
+begin
+  CreateBuffer( Names, Src );
+  with SHFileOpStruct do
+    begin
+      Wnd := Handle;
+      wFunc := FO_DELETE;
+      pFrom := Pointer( Src );
+      pTo := nil;
+      fFlags := 0;
+      if ToRecycle then fFlags := FOF_ALLOWUNDO;
+      fAnyOperationsAborted := False;
+      hNameMappings := nil;
+      lpszProgressTitle := nil;
+    end;
+  Result := SHFileOperation( SHFileOpStruct );
+  Src := nil;
+end;
+</pre>
+
+<p>Обратите внимание, что мы освобождаем буфер Src простым</p>
+<p> присваиванием значения nil. Если верить документации, </p>
+<p>потери памяти при этом не происходит, а напротив, </p>
+<p>происходит корректное уничтожение динамического массива. </p>
+<p>Каким образом, правда - это рак мозга :-). </p>
+
+<p>Проверяем : </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  DeleteFiles( Handle, [ 'C:\Test1', 'C:\Test2' ], True );
+end;
+</pre>
+
+<p>Вроде все работает. </p>
+
+<p>Кстати, обнаружился забавный глюк - вызовем процедуру DeleteFiles таким образом: </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  SetCurrentDirectory( PChar( 'C:\' ) );
+  DeleteFiles( Handle, [ 'Test1', 'Test2' ], True );
+end;
+</pre>
+
+<p>Файлы 'Test1' и 'Test2' удаляются совсем, без помещения в корзину,</p>
+<p> несмотря на установленный флаг FOF_ALLOWUNDO. </p>
+<p>Мораль: при использовании функции</p>
+<p> SHFileOperation используйте полные пути всегда, когда это возможно.</p>
+<p>Ну, с удалением файлов разобрались. </p>
+
+<p>Теперь очередь за копированием и перемещением. </p>
+
+<p>Следующая функция перемещает файлы указанные в списке Src в директорию Dest. </p>
+<p>Параметр Move определяет, будут ли файлы перемещаться или копироваться. </p>
+<p>Параметр AutoRename указывает, переименовывать ли файлы в случае конфликта имен. </p>
+<pre name="code" class="delphi">
+function CopyFiles( Handle : Hwnd; Src : array of string; Dest : string;
+Move : Boolean; AutoRename : Boolean ) : Integer;
+var
+  SHFileOpStruct : TSHFileOpStruct;
+  SrcBuf : TBuffer;
+begin
+  CreateBuffer( Src, SrcBuf );
+  with SHFileOpStruct do
+    begin
+      Wnd := Handle;
+      wFunc := FO_COPY;
+      if Move then wFunc := FO_MOVE;
+      pFrom := Pointer( SrcBuf );
+      pTo := PChar( Dest );
+      fFlags := 0;
+      if AutoRename then fFlags := FOF_RENAMEONCOLLISION;
+      fAnyOperationsAborted := False;
+      hNameMappings := nil;
+      lpszProgressTitle := nil;
+    end;
+  Result := SHFileOperation( SHFileOpStruct );
+  SrcBuf := nil;
+end;
+</pre>
+
+
+<p>Ну, проверим. </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  CopyFiles( Handle, [ 'C:\Test1', 'C:\Test2' ], 'C:\Temp', True, True );
+end;
+</pre>
+
+<p>Все в порядке (а кудa ж оно денется). </p>
+
+<p>Есть, правда еще одна возможность - перемещать много файлов каждый</p>
+<p> в свою директорию за один присест, но я с трудом представляю, кому это может понадобиться. </p>
+
+<p>Осталась последняя о</p>
+<pre name="code" class="delphi">
+function RenameFiles( Handle : HWnd; Src : string; New : string; AutoRename : Boolean ) : Integer;
+var SHFileOpStruct : TSHFileOpStruct;
+begin
+  with SHFileOpStruct do
+    begin
+      Wnd := Handle;
+      wFunc := FO_RENAME;
+      pFrom := PChar( Src );
+      pTo := PChar( New );
+      fFlags := 0;
+      if AutoRename then fFlags := FOF_RENAMEONCOLLISION;
+      fAnyOperationsAborted := False;
+      hNameMappings := nil;
+      lpszProgressTitle := nil;
+    end;
+  Result := SHFileOperation( SHFileOpStruct );
+end;
+</pre>
+
+<p>И проверка ...</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  RenameFiles( Handle, 'C:\Test1' , 'C:\Test3' , False );
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

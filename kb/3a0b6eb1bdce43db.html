@@ -1,0 +1,59 @@
+<html>
+<head>
+  <title>Как добавить горизонтальную полосу прокрутки (scrollbar) в TListBox?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как добавить горизонтальную полосу прокрутки (scrollbar) в TListBox?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В Delphi компонент TListBox автоматически включает в себя вертикальный scrollbar. Полоска прокрутки появляется в том случае, если все элементы списка не помещаются в видимую область списка. Однако, list box не показывает горизонтального скролбара, когда ширина элементов превышает ширину списка. Конечно же существует способ добавить горизонтальную полосу прокрутки.</p>
+
+<p>Добавьте следующий код в событие Вашей формы OnCreate.</p>
+<pre name="code" class="delphi">
+procedure TForm1.FormCreate(Sender: TObject); 
+var 
+  i, MaxWidth: integer; 
+begin 
+  MaxWidth := 0; 
+  for i := 0 to LB1.Items.Count - 1 do 
+  if MaxWidth &lt; LB1.Canvas.TextWidth(LB1.Items.Strings[i]) then 
+    MaxWidth := LB1.Canvas.TextWidth(LB1.Items.Strings[i]); 
+  SendMessage(LB1.Handle, LB_SETHORIZONTALEXTENT, MaxWidth+2, 0); 
+end; 
+</pre>
+
+<p>Приведённый код определяет ширину в пикселях самой длинной строки списка. Затем он использует сообщение LB_SETHORIZONTALEXTENT, чтобы установить ширину горизонтального скролбара в пикселях. Два дополнительных пикселя добавленные к MaxWidth служат для стрелки в правом углу list box-а.</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

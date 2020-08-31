@@ -1,0 +1,63 @@
+<html>
+<head>
+  <title>Как отправить бинарные данные из CGI приложения?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как отправить бинарные данные из CGI приложения?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Не для кого не секрет, как просто можно получать данные различного типа из CGI приложения. Однако, иногда необходимо, чтобы данные сохранялись в виде файла с определённым именем, типа "Test.ZIP". Для этого необходимо добавить в заголовок HTTP пункт "Content-Disposition".</p>
+<p>В Delphi для этого используется свойство CustomHeaders. В это TStrings свойство можно добавлять пункты в виде "name=value" - так как HTTP синтакс name:value здесь не используется.</p>
+<p>Пример:</p>
+<pre name="code" class="delphi">procedure TWebModule1.WebModule1CHECKSTATUSAction(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var s : TFileStream;
+begin
+  s := nil;
+  if request.query='download' then
+  try
+    response.Title := 'Download Test.ZIP';
+    response.CustomHeaders.Add('Content-Disposition=filename=Test.zip');
+    response.ContentType := 'application/zip';
+    s := TFileStream.Create(fmOpenRead+fmShareDenyNone,'Test.zip');
+    response.contentstream := s;
+    response.sendresponse;
+  finally
+    s.Free;
+  end;
+end;
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

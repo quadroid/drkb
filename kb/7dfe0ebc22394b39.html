@@ -1,0 +1,162 @@
+<html>
+<head>
+  <title>Информация о сетевых интерфейсах</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Информация о сетевых интерфейсах</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit netinfo;
+ 
+interface
+uses Libc;
+ 
+type
+  INTERFACE_INFO = packed record
+    Name: string;
+    IPAddress: string;
+    Broadcast: string;
+    NetMask: string;
+    IsUp: boolean;
+    IsRun: boolean;
+    IsBroadcast: boolean;
+    IsMulticast: boolean;
+    IsLoopBack: boolean;
+    IsPPP: boolean;
+  end;
+ 
+  TAInfo = record
+    INFO: array of INTERFACE_INFO;
+  end;
+ 
+function EnumInterfaces(var IInfo: TAInfo): Boolean;
+ 
+implementation
+ 
+function EnumInterfaces(var IInfo: TAInfo): Boolean;
+var SHandle: integer;
+  len: longint;
+  bufChar;
+  ifc: ifconf;
+  pifr: pifreq;
+  ifr: ifreq;
+  lastlen, i: integer;
+  pAddrChar;
+begin
+  Result := False;
+ //создать UDP сокет
+  SHandle := Socket(AF_INET, SOCK_DGRAM, 0);
+  if SHandle = INVALID_SOCKET then exit;
+ 
+{
+При вызове SIOCGIFCONF некоторые реализации
+не возвращают ошибок, если буфер слишком мал
+для хранения результата вызова (результат просто обрезается)
+Поэтому надо сделать вызов, запомнить возвращенную длину,
+увеличить буфер и сделать еще один вызов
+ксли после этого вызова длины будут равны - OK!
+иначе надо циклично увеличивать буфер.
+}
+  lastlen := 0;
+  len := 100 * sizeof(ifreq);
+ 
+  while true do
+    begin
+      buf := Malloc(len);
+      ifc.ifc_len := len;
+      PChar(ifc.ifc_ifcu) := buf;
+      if ioctl(SHandle, SIOCGIFCONF, @ifc) &lt; 0 then
+        begin
+          if (errno &lt;&gt; EINVAL) and (lastlen &lt;&gt; 0) then
+            warn('ioctl error');
+        end
+      else
+        begin
+          if ifc.ifc_len = lastlen then break;
+          lastlen := ifc.ifc_len;
+        end;
+      len := len + 10 * sizeof(ifreq);
+      free(buf);
+    end;
+  Result := True;
+ //здесь результат получен полностью
+ //len - кол-во интерфейсов
+  len := ifc.ifc_len div sizeof(ifreq);
+  SetLength(IInfo.Info, len);
+ 
+ //указатель - на начало буфера
+  pifr := ifc.ifc_ifcu.ifcu_req;
+  for i := 0 to len - 1 do
+    begin
+      fillchar(ifr, sizeof(ifreq), 0);
+  //считать очередную порцию данных
+      move(pifr^, ifr, sizeof(ifreq));
+ 
+  //имя интерфейса
+      IInfo.INFO[i].Name := ifr.ifrn_name;
+  //адрес интерфейса
+      pAddr := inet_ntoa(ifr.ifru_addr.sin_addr);
+      IInfo.INFO[i].IPAddress := pAddr;
+ 
+  //ШВ адрес
+      ioctl(SHandle, SIOCGIFBRDADDR, @ifr);
+      pAddr := inet_ntoa(ifr.ifru_netmask.sin_addr);
+      IInfo.INFO[i].Broadcast := pAddr;
+ 
+  //маска сети
+      ioctl(SHandle, SIOCGIFNETMASK, @ifr);
+      pAddr := inet_ntoa(ifr.ifru_netmask.sin_addr);
+      IInfo.INFO[i].NetMask := pAddr;
+ 
+  //флаги
+      ioctl(SHandle, SIOCGIFFLAGS, @ifr);
+ 
+      IInfo.INFO[i].IsUP := (ifr.ifru_flags and IFF_UP) = IFF_UP;
+      IInfo.INFO[i].IsRun := (ifr.ifru_flags and IFF_RUNNING) = IFF_RUNNING;
+      IInfo.INFO[i].IsBroadcast := (ifr.ifru_flags and IFF_BROADCAST) = IFF_BROADCAST;
+      IInfo.INFO[i].IsLoopBack := (ifr.ifru_flags and IFF_LOOPBACK) = IFF_LOOPBACK;
+      IInfo.INFO[i].IsPPP := (ifr.ifru_flags and IFF_POINTOPOINT) = IFF_POINTOPOINT;
+      IInfo.INFO[i].IsMulticast := (ifr.ifru_flags and IFF_MULTICAST) = IFF_MULTICAST;
+ 
+      inc(pifr);
+    end;
+ 
+end;
+end.
+</pre>
+
+
+<p>Взято с Исходников.Ru</p>
+<p id="author">Автор pve </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

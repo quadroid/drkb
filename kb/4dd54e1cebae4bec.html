@@ -1,0 +1,146 @@
+<html>
+<head>
+  <title>Как узнать номер недели данного дня в году?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать номер недели данного дня в году?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Вариант 1:</p>
+<pre name="code" class="delphi">
+function WeekOfYear(ADate : TDateTime) : word;
+var
+  day : word;
+  month : word;
+  year : word;
+  FirstOfYear : TDateTime;
+begin
+  DecodeDate(ADate, year, month, day);
+  FirstOfYear := EncodeDate(year, 1, 1);
+  Result := Trunc(ADate - FirstOfYear) div 7 + 1;
+end;
+ 
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  ShowMessage(IntToStr(WeekOfYear(Date)));
+end;
+</pre>
+<hr /><p>Вариант 2:</p>
+<pre name="code" class="delphi">
+function WeekNum(const ADate: TDateTime): word;
+var
+  Year: word;
+  Month: word;
+  Day: word;
+begin
+  DecodeDate(ADate + 4 - DayOfWeek(ADate + 6), Year, Month, Day);
+  result := 1 + trunc((ADate - EncodeDate(Year, 1, 5) +
+      DayOfWeek(EncodeDate(Year, 1, 3))) / 7);
+end;
+</pre>
+<hr /><p>Вариант 3:</p>
+<pre name="code" class="delphi">
+function WeekOfYear(Dat: TDateTime): Word;
+// Интерпретация номеров дней:
+// ISO: 1 = Понедельник, 7 = Воскресенье
+// Delphi SysUtils: 1 = Воскресенье, 7 = Суббота
+var
+  Day,
+  Month,
+  Year: Word;
+  FirstDate: TDateTime;
+  DateDiff : Integer;
+begin
+  day := SysUtils.DayOfWeek(Dat)-1;
+  Dat := Dat + 3 - ((6 + day) mod 7);
+  DecodeDate(Dat, Year, Month, Day);
+  FirstDate := EncodeDate(Year, 1, 1);
+  DateDiff  := Trunc(Dat - FirstDate);
+  Result    := 1 + (DateDiff div 7);
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+&nbsp;</p>
+<p>Получить номер недели по дате </p>
+<pre name="code" class="delphi">
+var
+   FirstWeekDay: Integer = 2;
+   { Wochentag, mit dem die Woche beginnt 
+   (siehe Delphi-Wochentage) 
+   2 : Montag (nach DIN 1355) }
+   FirstWeekDate: Integer = 4;
+   { 1 : Beginnt am ersten Januar 
+    4 : Erste-4 Tage-Woche (nach DIN 1355) 
+    7 : Erste volle Woche }
+ 
+   { liefert das Datum des ersten Tages der Woche }
+   { get date of first day of week}
+ function WeekToDate(AWeek, AYear: Integer): TDateTime;
+ begin
+   Result := EncodeDate(AYear, 1, FirstWeekDate);
+   Result := Result + (AWeek - 1) * 7 - ((DayOfWeek(Result) + (7 - FirstWeekDay)) mod 7);
+ end;
+ 
+ { liefert die Wochennummer und das Jahr, zu dem die Woche gehort }
+ { get weeknumber and year of the given week number}
+ procedure DateToWeek(ADate: TDateTime; var AWeek, AYear: Word);
+ var
+   Month, Day: Word;
+ begin
+   ADate := ADate - ((DayOfWeek(ADate) - FirstWeekDay + 7) mod 7) + 7 - FirstWeekDate;
+   DecodeDate(ADate, AYear, Month, Day);
+   AWeek := (Trunc(ADate - EncodeDate(AYear, 1, 1)) div 7) + 1;
+ end;
+ 
+ 
+ {Week to date example}
+ procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   ShowMessage(FormatDateTime('dd.mm.yyyy', WeekToDate(51, 2000)));
+ end;
+ 
+ {Date to week example}
+ procedure TForm1.Button2Click(Sender: TObject);
+ var
+   week, year: Word;
+ begin
+   DateToWeek(now, week, year);
+   ShowMessage(IntToStr(week));
+   ShowMessage(IntToStr(year));
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+&nbsp;</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

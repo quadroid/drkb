@@ -1,0 +1,92 @@
+<html>
+<head>
+  <title>Динамическое распределение памяти</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Динамическое распределение памяти</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses WinCRT;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  MyArray: array[0..30] of char;
+  b: ^char;
+  i: integer;
+begin
+  StrCopy(MyArray, 'Delphi World - это круто!!!');
+  b := @MyArray;
+  for i := StrLen(MyArray) downto 0 do
+  begin
+    write(b^);
+    inc(b, sizeof(char));
+  end;
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr />
+<p>Как мне уменьшить количество занимаемой мной памяти в сегменте данных? (или как мне распределять память динамически?) </p>
+<p>Скажем, ваша структура данных выглядит похожей на эту: </p>
+<pre name="code" class="delphi">
+type
+  TMyStructure = record
+    Name: String[40];
+    Data: array[0..4095] of Integer;
+end;
+</pre>
+<p>Она слишком большая для глобального распределения, так что вместо объявления глобальной переменной,</p>
+<p>var</p>
+<p>  MyData: TMyStructure;</p>
+<p>объявляете указательный тип, </p>
+<p>type</p>
+<p>  PMyStructure = ^TMyStructure;</p>
+<p>и переменную этого типа, </p>
+<p>var</p>
+<p>  MyDataPtr: PMyStructure;</p>
+<p>Такой указатель занимает всего лишь четыре байта сегмента данных. </p>
+<p>Прежде, чем вы сможете использовать структуру данных, вы должны распределить ее в куче:</p>
+<p>New(MyDataPtr);</p>
+<p>и получить к ней доступ через глобальные данные любым удобным для вас способом. Единственное отличие от традиционного способа заключается в необходимости использования символа "^" для обозначения указателя на данные:</p>
+<pre name="code" class="delphi">
+MyDataPtr^.Name := 'Советы по Delphi';
+MyDataPtr^.Data[0] := 12345;
+</pre>
+<p>И, наконец, после использования памяти, освободите ее:</p>
+<p>Dispose(MyDataPtr);</p>
+<p id="note">Примечание от Vit: статья актуальна в основном для 16 разрядных систем</p>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

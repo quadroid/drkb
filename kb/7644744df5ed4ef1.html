@@ -1,0 +1,78 @@
+<html>
+<head>
+  <title>Проверка правильности E-mail адреса</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Проверка правильности E-mail адреса</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Udo Nesshoever </p>
+<p>Если пользователю Вашего приложения необходимо вводить почтовый адрес, то возникает потребность в проверке адреса на правильнось. Конечно способов сделать это существует множество, но этот, на мой взгляд, самый короткий и доступный для понимания.</p>
+<p>Совместимость: Delphi 3.x (или выше)</p>
+<pre name="code" class="delphi">
+function IsValidEmail(const Value: string): boolean; 
+  function CheckAllowed(const s: string): boolean; 
+  var 
+    i: integer; 
+  begin 
+    Result:= false; 
+    for i:= 1 to Length(s) do 
+    begin 
+      { недопустимый символ в s - значит недопустимый адрес } 
+      if not (s[i] in ['a'..'z', 'A'..'Z', '0'..'9', '_', '-', '.']) then 
+        Exit; 
+    end; 
+    Result:= true; 
+  end; 
+var 
+  i: integer; 
+  namePart, serverPart: string; 
+begin // начало выполнения IsValidEmail 
+  Result:= false; 
+  i:= Pos('@', Value); 
+  if i = 0 then 
+    Exit; 
+  namePart:= Copy(Value, 1, i - 1); 
+  serverPart:= Copy(Value, i + 1, Length(Value)); 
+  // @ не указано имя         имя или сервер не указаны; минимально для сервера. "a.com" 
+  if (Length(namePart) = 0) or ((Length(serverPart) &lt; 1)) then 
+    Exit; 
+  i:= Pos('.', serverPart); 
+  // должно иметь точку и как минимум два знака от конца 
+  if (i = 0) or (i &gt; (Length(serverPart) - 1)) then 
+    Exit; 
+  Result:= CheckAllowed(namePart) and CheckAllowed(serverPart); 
+end; 
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

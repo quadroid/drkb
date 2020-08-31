@@ -1,0 +1,208 @@
+<html>
+<head>
+  <title>Перехватить WM_CONTEXTMENU в TWebBrowser</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Перехватить WM_CONTEXTMENU в TWebBrowser</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Перехват меню (ТОЛЬКО БЛОКИРОВКА):</p>
+<pre name="code" class="delphi">
+var
+ HookID: THandle;
+ 
+function MouseProc(nCode: Integer; wParam, lParam: Longint): Longint; stdcall; 
+var 
+ szClassName: array[0..255] of Char; 
+const 
+ ie_name = 'Internet Explorer_Server'; 
+begin 
+ case nCode &lt; 0 of 
+   True: 
+     Result := CallNextHookEx(HookID, nCode, wParam, lParam) 
+     else 
+       case wParam of 
+         WM_RBUTTONDOWN, 
+         WM_RBUTTONUP: 
+           begin 
+             GetClassName(PMOUSEHOOKSTRUCT(lParam)^.HWND, szClassName, SizeOf(szClassName)); 
+             if lstrcmp(@szClassName[0], @ie_name[1]) = 0 then 
+               Result := HC_SKIP 
+             else 
+               Result := CallNextHookEx(HookID, nCode, wParam, lParam); 
+           end 
+           else 
+             Result := CallNextHookEx(HookID, nCode, wParam, lParam); 
+       end; 
+ end; 
+end; 
+ 
+procedure TForm1.FormCreate(Sender: TObject); 
+begin 
+ HookID := SetWindowsHookEx(WH_MOUSE, MouseProc, 0, GetCurrentThreadId()); 
+end; 
+ 
+procedure TForm1.FormDestroy(Sender: TObject); 
+begin 
+ if HookID &lt;&gt; 0 then 
+   UnHookWindowsHookEx(HookID); 
+end; 
+</pre>
+
+<p>Здесь по замыслу автора меню подменяется своим, но у меня не сработало (почему, не&nbsp; разбирался):</p>
+<pre name="code" class="delphi">
+// Для преобразования кликов правой кнопкой в клики левой,  раскомментировать
+ 
+// {$DEFINE __R_TO_L}
+ 
+implementation
+ 
+uses Windows,Controls,Messages,ShDocVw;
+ 
+var
+ HMouseHook:THandle;
+ 
+function MouseProc(
+   nCode: Integer;     // hook code
+   WP: wParam; // message identifier
+   LP: lParam  // mouse coordinates
+  ):Integer;stdcall;
+var MHS:TMOUSEHOOKSTRUCT;
+   WC:TWinControl;
+{$ifdef __R_TO_L}
+   P:TPoint;
+{$endif}
+begin
+ Result:=CallNextHookEx(HMouseHook,nCode,WP,LP);
+ if nCode=HC_ACTION then
+  begin
+    MHS:=PMOUSEHOOKSTRUCT(LP)^;
+    if ((WP=WM_RBUTTONDOWN) or (WP=WM_RBUTTONUP)) then
+     begin
+       WC:=FindVCLWindow(MHS.pt);
+       if (WC is TWebBrowser) then
+       begin
+         Result:=1;
+{$ifdef __R_TO_L}
+         P:=WC.ScreenToClient(MHS.pt);
+         if WP=WM_RBUTTONDOWN 
+         then PostMessage(MHS.hwnd,WM_LBUTTONDOWN,0,P.x + P.y shl 16);
+ 
+         if WP=WM_RBUTTONUP 
+         then PostMessage(MHS.hwnd,WM_LBUTTONUP,0,P.x + P.y shl 16);
+{$endif}
+         if (TWebBrowser(WC).PopupMenu&lt;&gt;nil) and  (WP=WM_RBUTTONUP) then
+          begin
+           TWebBrowser(WC).PopupMenu.PopupComponent:=WC;
+           TWebBrowser(WC).PopupMenu.Popup(MHS.pt.x,MHS.pt.y);
+          end;
+       end;
+     end;
+  end;
+end;
+ 
+initialization
+ 
+ 
+HMouseHook:=SetWindowsHookEx(WH_MOUSE,@MouseProc,HInstance,GetCurrentThreadID);
+ 
+finalization
+ 
+ CloseHandle(HMouseHook);
+ 
+end.
+</pre>
+
+<p>Предлагаю свой вариант, взято с Королевства, но немного переделано из-за глюкавости. Для использования достаточно подключить юнит в Uses и все (Исправлены глюки, которые досаждали)! </p>
+<pre name="code" class="delphi">
+unit WbPopup;
+ 
+interface
+ 
+implementation
+ 
+uses Windows,Controls,Messages,ShDocVw, Forms, frmMain;
+ 
+var
+ HMouseHook:THandle;
+ Pop: Boolean;
+ 
+function MouseProc(
+   nCode: Integer;     // hook code
+   WP: wParam; // message identifier
+   LP: lParam  // mouse coordinates
+  ):Integer;stdcall;
+var MHS:TMOUSEHOOKSTRUCT;
+   WC:TWinControl;
+begin
+ Result:=CallNextHookEx(HMouseHook,nCode,WP,LP);
+ if nCode=HC_ACTION then
+  begin
+    MHS:=PMOUSEHOOKSTRUCT(LP)^;
+    if ((WP=WM_RBUTTONDOWN) or (WP=WM_RBUTTONUP)) then
+     begin
+       WC:=FindVCLWindow(MHS.pt);
+       if (WC is TWebBrowser) then
+       begin
+         Result:=1;
+         if (TWebBrowser(WC).PopupMenu&lt;&gt;nil) and (WP=WM_RBUTTONUP) then
+          begin
+           if Pop then Exit;
+           Pop := True;
+           TWebBrowser(WC).PopupMenu.Popup(MHS.pt.x,MHS.pt.y);
+           Pop := False;
+          end;
+       end;
+     end;
+  end;
+end;
+ 
+initialization
+ 
+ 
+HMouseHook:=SetWindowsHookEx(WH_MOUSE,@MouseProc,HInstance,GetCurrentThreadID);
+ 
+finalization
+try
+ UnhookWindowsHookEx(HMouseHook);
+ Sleep(100);
+ CloseHandle(HMouseHook);
+except
+ 
+end;
+end.
+</pre>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

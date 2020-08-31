@@ -1,0 +1,161 @@
+<html>
+<head>
+  <title>Как получить контекст свойства по его целочисленному значению?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить контекст свойства по его целочисленному значению?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<pre name="code" class="delphi">
+unit PropertyList;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, Buttons;
+ 
+type
+  TMyStream = class(TFileStream)
+  private
+  FFred: integer;
+  published
+  property Fred: integer read FFred write FFred;
+  end;
+type
+  TFrmPropertyList = class(TForm)
+  SpeedButton1: TSpeedButton;
+  ListBox1: TListBox;
+  procedure SpeedButton1Click(Sender: TObject);
+private
+  { Private declarations }
+public
+  { Public declarations }
+end;
+ 
+var
+  FrmPropertyList: TFrmPropertyList;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+uses
+  TypInfo;
+ 
+procedure ListProperties(AInstance: TPersistent; AList: TStrings);
+var
+  i: integer;
+  pInfo: PTypeInfo;
+  pType: PTypeData;
+  propList: PPropList;
+  propCnt: integer;
+  tmpStr: string;
+begin
+  pInfo := AInstance.ClassInfo;
+  if (pInfo = nil) or (pInfo^.Kind &lt;&gt; tkClass) then
+    raise Exception.Create('Invalid type information');
+  pType := GetTypeData(pInfo);  {Pointer to TTypeData}
+  AList.Add('Class name: ' + pInfo^.Name);
+  {If any properties, add them to the list}
+  propCnt := pType^.PropCount;
+  if propCnt &gt; 0 then 
+  begin
+    AList.Add (EmptyStr);
+    tmpStr := IntToStr(propCnt) + ' Propert';
+    if propCnt &gt; 1 then
+      tmpStr := tmpStr + 'ies'
+    else
+      tmpStr := tmpStr + 'y';
+    AList.Add(tmpStr);
+    FillChar(tmpStr[1], Length(tmpStr), '-');
+    AList.Add(tmpStr);
+    {Get memory for the property list}
+    GetMem(propList, sizeOf(PPropInfo) * propCnt);
+    try
+      {Fill in the property list}
+      GetPropInfos(pInfo, propList);
+      {Fill in info for each property}
+      for i := 0 to propCnt - 1 do
+        AList.Add(propList[i].Name + ': ' + propList[i].PropType^.Name);
+    finally
+      FreeMem(propList, sizeOf(PPropInfo) * propCnt);
+    end;
+  end;
+end;
+ 
+ 
+function GetPropertyList(AControl: TPersistent; AProperty: string): PPropInfo;
+var
+  i: integer;
+  props: PPropList;
+  typeData: PTypeData;
+begin
+  Result := nil;
+  if (AControl = nil) or (AControl.ClassInfo = nil) then
+    Exit;
+  typeData := GetTypeData(AControl.ClassInfo);
+  if (typeData = nil) or (typeData^.PropCount = 0) then
+    Exit;
+  GetMem(props, typeData^.PropCount * SizeOf(Pointer));
+  try
+    GetPropInfos(AControl.ClassInfo, props);
+    for i := 0 to typeData^.PropCount - 1 do
+    begin
+      with Props^[i]^ do
+        if (Name = AProperty) then
+          result := Props^[i];
+    end;
+  finally
+    FreeMem(props);
+  end;
+end;
+ 
+ 
+procedure TFrmPropertyList.SpeedButton1Click(Sender: TObject);
+var
+  c: integer;
+begin
+  ListProperties(self, ListBox1.Items);
+  for c := 0 to ComponentCount - 1 do
+  begin
+    ListBox1.Items.Add(EmptyStr);
+    ListProperties(Components[c], ListBox1.Items);
+  end;
+end;
+ 
+end.
+</pre>
+
+<p>Tip by Ralph Friedman</p>
+<p>Взято из <a href="http://www.lmc-mediaagentur.de/dpool" target="_blank">http://www.lmc-mediaagentur.de/dpool</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

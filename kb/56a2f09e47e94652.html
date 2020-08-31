@@ -1,0 +1,88 @@
+<html>
+<head>
+  <title>Перемещать объект на сложном фоне</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Перемещать объект на сложном фоне</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Написать графический редактор, как Paint Brush, в Delphi очень просто. Но встает одна проблема. Чтобы нарисовать линию, пользователь нажимает мышью на поле, двигает ее, и отпускает кнопку. Во время движения мыши линия все время перерисовывается. Причем фон, после того, как линия переместилась, должен восстановиться. Для этого можно использовать логическую операцию XOR. Важное свойство этой операции заключается в том, что при любых A и B, A XOR B XOR B = A. Это означает, что если воспользоваться этой операцией для рисования линии, то при повторном ее рисовании на этом месте этим же цветом она сотрется, оставив за собой прежний фон. </p>
+
+<pre name="code" class="delphi">
+procedure TForm1.XORLine;
+begin
+  Form1.Canvas.MoveTo(xo, yo);
+  Form1.Canvas.LineTo(lx, ly);
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  Form1.Color := clWhite;
+  Form1.Canvas.Pen.Color := clRed;
+  Form1.Canvas.Pen.Width := 3;
+end;
+ 
+procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
+Shift: TShiftState; X, Y: Integer);
+begin
+  Form1.Tag := 1;
+  xo := X;
+  yo := Y;
+  lx := X;
+  ly := Y;
+  Form1.Canvas.Pen.Mode := pmNotXor;
+  XORLine;
+end;
+ 
+procedure TForm1.FormMouseMove(Sender: TObject; Shift: TShiftState; X,
+Y: Integer);
+begin
+  if ssLeft in Shift then
+  begin
+    XORLine;
+    lx := X;
+    ly := Y;
+    XORLine;
+  end;
+end;
+ 
+procedure TForm1.FormMouseUp(Sender: TObject; Button: TMouseButton;
+Shift: TShiftState; X, Y: Integer);
+begin
+  Form1.Canvas.Pen.Mode := pmCopy;
+  Form1.Canvas.MoveTo(xo, yo);
+  Form1.Canvas.LineTo(X, Y);
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

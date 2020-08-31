@@ -1,0 +1,84 @@
+<html>
+<head>
+  <title>Вращение объектов</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Вращение объектов</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Здесь я бы хотел рассказать не о том, как работать с DelphiX, OpenGL или Direct, а о том, как можно вращать многогранники с помощью простых действий: moveto и lineto. </p>
+
+<p>Здесь рассмотрим пример вращения куба. Будем рисовать на Canvase (например Listbox). Сначала нарисуем врашающийся квадрат (точнее 2 квадрата и соединим их). Пусть q - угол поворота квадрата, который мы рисуем. Очевидно, что нам надо задать координаты вершин квадрата - a:array [1..5,1..2] of integer. 1..4+1 - количество вершин квадрата (почему +1 будет объяснено позже). 1..2 - координата по X и Y. Кто учился в школе, наверное помнит, что уравнение окружности: X^2+Y^2=R^2, кто хорошо учился в школе, возможно вспомнит уравнение эллипса: (X^2)/(a^2)+ (Y^2)/(b^2)=1. Но это нам не надо. Нам понадобится уравнение эллипса в полярных координатах: x=a*sin(t); y=a*cos(t);t=0..2*PI; (учащиеся университетов и институтов ликуют). </p>
+
+<p>С помощью данного уравнения мы заполняем массив с координатами. </p>
+
+<pre name="code" class="delphi">
+for i:=1 to 5 do
+begin
+  // координата по Х; q+i*pi/2 - угол поворота
+  // i-той вершины квадрата.
+  a[i,1]:=trunc(80*sin(q+i*pi/2));
+  // координата по Y; знак минус - потому что координаты
+  // считаются с верхнего левого угла
+  a[i,1]:=trunc(-30*cos(q+i*pi/2));
+end;
+ 
+</pre>
+
+<p>Сейчас будем рисовать квадрат: </p>
+<pre name="code" class="delphi">
+for i:=1 to 4 do
+begin
+  moveto(100+a[i,1],50+a[i,2]); //Встаем на i-ую точку квадрата.
+  lineto(100+a[i+1,1],50+a[i+1,2]); //Рисуем линию к i+1-ой точке.
+</pre>
+
+
+<p>Вот почему array[1..5,1..2], иначе - выход за границы. end; </p>
+
+<p>Затем рисуем второй такой же квадрат, но пониже (или повыше). Соединяем линиями первый со вторым: </p>
+<pre name="code" class="delphi">
+for i:=1 to 4 do
+begin
+  moveto(100+a[i,1],50+a[i,2]);
+  lineto(100+a[i,1],130+a[i,2]);
+end;
+</pre>
+
+
+<p>Осталось очистить Listbox, увеличить q и сделать сначала. Все!!! </p>
+
+<p>Можно также скрывать невидимые линии - когда q находится в определенном интервале. Также можно поизвращаться: повернуть куб в другой плоскости - поворот осей(для тех, кто знает формулу). </p>
+
+<p id="author">Автор: Айткулов Павел</p>
+<p>WEB-сайт: http://rax.ru/click?apg67108864.narod.ru/ </p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

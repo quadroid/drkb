@@ -1,0 +1,128 @@
+<html>
+<head>
+  <title>Как выяснить, имеет ли объект определенное свойство?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как выяснить, имеет ли объект определенное свойство?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<pre name="code" class="delphi">
+function hasprop(comp: TComponent; const prop: String): Boolean;
+var
+  proplist: PPropList;
+  numprops, i: Integer;
+begin
+  result := false;
+  getmem(proplist, getTypeData(comp.classinfo)^.propcount * Sizeof(Pointer));
+  try
+    NumProps := getproplist(comp.classInfo, tkProperties, proplist);
+    for i := 0 to pred (NumProps) do
+    begin
+      if comparetext(proplist[i]^.Name, prop) = 0 then
+      begin
+        result := true;
+        break;
+      end;
+    end;
+  finally
+    freemem(proplist, getTypeData(comp.classinfo)^.propcount * Sizeof(Pointer));
+  end;
+end;
+ 
+ 
+procedure setcomppropstring(comp: TComponent; const prop, s: String);
+var
+  proplist: PPropList;
+  numprops, i: Integer;
+begin
+  getmem(proplist, getTypeData(comp.classinfo)^.propcount * Sizeof(Pointer));
+  try
+    NumProps := getproplist(comp.classInfo, tkProperties, proplist);
+    for i := 0 to pred (NumProps) do
+    begin
+      if (comparetext(proplist[i]^.Name, prop) = 0) and
+         (comparetext(proplist[i]^.proptype^.name, 'string') = 0 then
+      begin
+        setStrProp(comp, proplist[i], s);
+        break;
+      end;
+    end;
+  finally
+    freemem(proplist, getTypeData(comp.classinfo)^.propcount * Sizeof(Pointer));
+  end;
+end;
+</pre>
+
+<p>Взято из <a href="http://www.lmc-mediaagentur.de/dpool" target="_blank">http://www.lmc-mediaagentur.de/dpool</a></p>
+
+<hr />
+<pre name="code" class="delphi">
+function HasProperty(Obj: TObject; Prop: string): PPropInfo;
+begin
+  Result := GetPropInfo(Obj.ClassInfo, Prop);
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  p: pointer;
+begin
+  p := HasProperty(Button1, 'Color');
+  if p &lt;&gt; nil then
+    SetOrdProp(Button1, p, clRed)
+  else
+    ShowMessage('Button has no color property');
+  p := HasProperty(Label1, 'Color');
+  if p &lt;&gt; nil then
+    SetOrdProp(Label1, p, clRed)
+  else
+    ShowMessage('Label has no color property');
+  p := HasProperty(Label1.Font, 'Color');
+  if p &lt;&gt; nil then
+    SetOrdProp(Label1.Font.Color, p, clBlue)
+  else
+    ShowMessage('Label.Font has no color property');
+end;
+</pre>
+<hr />
+<pre name="code" class="delphi">
+TypInfo.GetPropInfo (My_Component.ClassInfo, 'Hint') &lt;&gt; nil 
+</pre>
+
+<p>Таким образом можно узнать наличие таковой published "прОперти". А вот если это не поможет, то можно и "ломиком" поковыряться посредством FieldAddress. Однако этот метод дает адрес полей, которые перечисляются сразу после объявления класса как в unit'ых форм. А вот ежели "прОперть" нигде не "засветилась" (published) то фиг ты ее достанешь. </p>
+
+<p>А модифицировать значение можно посредством прямой записи по адресу FieldAddress (крайне нежелательно!) либо используя цивилизованный способы, перечисленные в unit'е TypInfo. </p>
+
+<p>Модифицировать кучу объектов можно организовав цикл перебора оных с получением в цикле PropertyInfo объекта и записи в объект на основе PropInfo.</p>
+
+<p id="author">Автор: <a href="mailto:Nomadic@newmail.ru" target="_blank">Nomadic</a></p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

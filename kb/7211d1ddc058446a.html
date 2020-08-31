@@ -1,0 +1,49 @@
+<html>
+<head>
+  <title>TStringList: сортировка и системная locale</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TStringList: сортировка и системная locale</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Alexander Ilyin </p>
+<p>При разработке CGI-программы, отображающей иерархическую структуру в виде дерева, возникла следующая проблема: под административным логином все работало правильно, под другим - ветки дерева перемешивались. </p>
+<p>Оказалось, дело в текущем locale. Так работает сортированный TStringList, использованный для хранения структур отображаемых данных. Дело в том, что там для упорядочивания элементов списка по ключам использована функция AnsiCompareText (а не AnsiCompareStr, как указано в хелпе). </p>
+<p>ТИПОВЫЕ РЕШЕНИЯ.</p>
+<p>В ранних версиях Дельфи это поведение изменить можно, только переписав часть модуля Classes. </p>
+<p>В 5-й версии Борланд добавил к TStringList метод CustomSort (работающий, когда Sorted = False), который позволяет решить проблему путем подстановки своей функции сравнения строк. </p>
+<p>Сделать класс TStrList, в котором для упорядочивания использовать простую CompareStr. </p>
+<p>КОММЕНТАРИЙ </p>
+<p>Действительно, в справке Delphi по TStringList указано, что для сортировки используется AnsiCompareStr, и порядок сортировки зависит от текущей локали во время работы программы. Анализ текста Classes.pas показывает, что все операции сравнения строк в списках (при сортировке по-умолчанию, при поиске, а также при IndexOf) производятся при помощи AnsiCompareText. Последняя отличается от AnsiCompareStr тем, что выполняет сравнение без учета регистра символов, и, следовательно, результат иным образом зависит от текущей локали. </p>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

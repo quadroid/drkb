@@ -1,0 +1,325 @@
+<html>
+<head>
+  <title>Пример использование методов интерфейса IShellDispatch</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Пример использование методов интерфейса IShellDispatch</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+Unit UMain;
+ 
+Interface
+ 
+Uses
+  Windows, Messages, SysUtils, Classes,
+  Graphics, Controls, Forms, Dialogs, StdCtrls,
+  ComObj, ActiveX, XPMan;
+ 
+Const
+  CLASS_Shell: TGUID = '{13709620-C279-11CE-A49E-444553540000}';
+ 
+Type
+  TMainForm = Class(TForm)
+    FolderBtn: TButton;
+    GroupBox1: TGroupBox;
+    OpenBtn: TButton;
+    EdFolder: TEdit;
+    MinAllBtn: TButton;
+    UnMinAllBtn: TButton;
+    RunBtn: TButton;
+    ExitWinBtn: TButton;
+    FindBtn: TButton;
+    CmpFndBtn: TButton;
+    GroupBox2: TGroupBox;
+    DTBtn: TButton;
+    TaskBtn: TButton;
+    Helpbtn: TButton;
+    ApplBtn: TButton;
+    Label1: TLabel;
+    EdAppl: TEdit;
+    procedure FormCreate(Sender: TObject);
+    procedure FolderBtnClick(Sender: TObject);
+    procedure OpenBtnClick(Sender: TObject);
+    procedure MinAllBtnClick(Sender: TObject);
+    procedure UnMinAllBtnClick(Sender: TObject);
+    procedure RunBtnClick(Sender: TObject);
+    procedure ExitWinBtnClick(Sender: TObject);
+    procedure FindBtnClick(Sender: TObject);
+    procedure CmpFndBtnClick(Sender: TObject);
+    procedure HelpbtnClick(Sender: TObject);
+    procedure DTBtnClick(Sender: TObject);
+    procedure TaskBtnClick(Sender: TObject);
+    procedure ApplBtnClick(Sender: TObject);
+  Private
+    { Private declarations }
+  Public
+    { Public declarations }
+  End;
+ 
+  FolderItemVerb = Interface(IDispatch)
+    ['{08EC3E00-50B0-11CF-960C-0080C7F4EE85}']
+    Function Get_Application: IDispatch; Safecall;
+    Function Get_Parent: IDispatch; Safecall;
+    Function Get_Name: WideString; Safecall;
+    Procedure DoIt; Safecall;
+    Property Application: IDispatch Read Get_Application;
+    Property Parent: IDispatch Read Get_Parent;
+    Property Name: WideString Read Get_Name;
+  End;
+ 
+  FolderItemVerbs = Interface(IDispatch)
+    ['{1F8352C0-50B0-11CF-960C-0080C7F4EE85}']
+    Function Get_Count: Integer; Safecall;
+    Function Get_Application: IDispatch; Safecall;
+    Function Get_Parent: IDispatch; Safecall;
+    Function Item(index: OleVariant): FolderItemVerb; Safecall;
+    Function _NewEnum: IUnknown; Safecall;
+    Property Count: Integer Read Get_Count;
+    Property Application: IDispatch Read Get_Application;
+    Property Parent: IDispatch Read Get_Parent;
+  End;
+ 
+  FolderItem = Interface(IDispatch)
+    ['{FAC32C80-CBE4-11CE-8350-444553540000}']
+    Function Get_Application: IDispatch; Safecall;
+    Function Get_Parent: IDispatch; Safecall;
+    Function Get_Name: WideString; Safecall;
+    Procedure Set_Name(Const pbs: WideString); Safecall;
+    Function Get_Path: WideString; Safecall;
+    Function Get_GetLink: IDispatch; Safecall;
+    Function Get_GetFolder: IDispatch; Safecall;
+    Function Get_IsLink: WordBool; Safecall;
+    Function Get_IsFolder: WordBool; Safecall;
+    Function Get_IsFileSystem: WordBool; Safecall;
+    Function Get_IsBrowsable: WordBool; Safecall;
+    Function Get_ModifyDate: TDateTime; Safecall;
+    Procedure Set_ModifyDate(pdt: TDateTime); Safecall;
+    Function Get_Size: Integer; Safecall;
+    Function Get_type_: WideString; Safecall;
+    Function Verbs: FolderItemVerbs; Safecall;
+    Procedure InvokeVerb(vVerb: OleVariant); Safecall;
+    Property Application: IDispatch Read Get_Application;
+    Property Parent: IDispatch Read Get_Parent;
+    Property Name: WideString Read Get_Name Write Set_Name;
+    Property Path: WideString Read Get_Path;
+    Property GetLink: IDispatch Read Get_GetLink;
+    Property GetFolder: IDispatch Read Get_GetFolder;
+    Property IsLink: WordBool Read Get_IsLink;
+    Property IsFolder: WordBool Read Get_IsFolder;
+    Property IsFileSystem: WordBool Read Get_IsFileSystem;
+    Property IsBrowsable: WordBool Read Get_IsBrowsable;
+    Property ModifyDate: TDateTime Read Get_ModifyDate Write Set_ModifyDate;
+    Property Size: Integer Read Get_Size;
+    Property Type_: WideString Read Get_type_;
+  End;
+ 
+  FolderItems = Interface(IDispatch)
+    ['{744129E0-CBE5-11CE-8350-444553540000}']
+    Function Get_Count: Integer; Safecall;
+    Function Get_Application: IDispatch; Safecall;
+    Function Get_Parent: IDispatch; Safecall;
+    Function Item(Index: OleVariant): FolderItem; Safecall;
+    Function _NewEnum: IUnknown; Safecall;
+    Property Count: Integer Read Get_Count;
+    Property Application: IDispatch Read Get_Application;
+    Property Parent: IDispatch Read Get_Parent;
+  End;
+ 
+  Folder = Interface(IDispatch)
+    ['{BBCBDE60-C3FF-11CE-8350-444553540000}']
+    Function Get_Title: WideString; Safecall;
+    Function Get_Application: IDispatch; Safecall;
+    Function Get_Parent: IDispatch; Safecall;
+    Function Get_ParentFolder: Folder; Safecall;
+    Function Items: FolderItems; Safecall;
+    Function ParseName(Const bName: WideString): FolderItem; Safecall;
+    Procedure NewFolder(Const bName: WideString; vOptions: OleVariant); Safecall;
+    Procedure MoveHere(vItem: OleVariant; vOptions: OleVariant); Safecall;
+    Procedure CopyHere(vItem: OleVariant; vOptions: OleVariant); Safecall;
+    Function GetDetailsOf(vItem: OleVariant; iColumn: SYSINT): WideString; Safecall;
+    Property Title: WideString Read Get_Title;
+    Property Application: IDispatch Read Get_Application;
+    Property Parent: IDispatch Read Get_Parent;
+    Property ParentFolder: Folder Read Get_ParentFolder;
+  End;
+ 
+  IShellDispatch = Interface(IDispatch)
+    ['{D8F015C0-C278-11CE-A49E-444553540000}']
+    Function Get_Application: IDispatch; Safecall;
+    Function Get_Parent: IDispatch; Safecall;
+    Function NameSpace(vDir: OleVariant): Folder; Safecall;
+    Function BrowseForFolder(Hwnd: Integer; Const Title: WideString;
+      Options: Integer; RootFolder: OleVariant): Folder; Safecall;
+    Function Windows: IDispatch; Safecall;
+    Procedure Open(vDir: OleVariant); Safecall;
+    Procedure Explore(vDir: OleVariant); Safecall;
+    Procedure MinimizeAll; Safecall;
+    Procedure UndoMinimizeALL; Safecall;
+    Procedure FileRun; Safecall;
+    Procedure CascadeWindows; Safecall;
+    Procedure TileVertically; Safecall;
+    Procedure TileHorizontally; Safecall;
+    Procedure ShutdownWindows; Safecall;
+    Procedure Suspend; Safecall;
+    Procedure EjectPC; Safecall;
+    Procedure SetTime; Safecall;
+    Procedure TrayProperties; Safecall;
+    Procedure Help; Safecall;
+    Procedure FindFiles; Safecall;
+    Procedure FindComputer; Safecall;
+    Procedure RefreshMenu; Safecall;
+    Procedure ControlPanelItem(Const szDir: WideString); Safecall;
+    Property Application: IDispatch Read Get_Application;
+    Property Parent: IDispatch Read Get_Parent;
+  End;
+ 
+  CoShell = Class
+    Class Function Create: IShellDispatch;
+    Class Function CreateRemote(Const MachineName: String): IShellDispatch;
+  End;
+ 
+Var
+  MainForm: TMainForm;
+  I: IShellDispatch;
+ 
+Implementation
+ 
+{$R *.dfm}
+ 
+{ CoShell }
+ 
+Class Function CoShell.Create: IShellDispatch;
+Begin
+  Result := CreateComObject(CLASS_Shell) As IShellDispatch;
+End;
+ 
+Class Function CoShell.CreateRemote(Const MachineName: String): IShellDispatch;
+Begin
+  Result := CreateRemoteComObject(MachineName, CLASS_Shell) As IShellDispatch;
+End;
+ 
+Procedure TMainForm.FormCreate(Sender: TObject);
+Begin
+  I := CoShell.Create;
+End;
+ 
+Procedure TMainForm.FolderBtnClick(Sender: TObject);
+Var
+  F: Folder;
+Begin
+  { Работа с папкой }
+  F := I.BrowseForFolder(Handle, 'IShellDispatch example', 0, 0);
+  If F = NIL Then Exit;
+  If F.ParentFolder &lt;&gt; NIL Then
+  Begin
+    { Показ имени родительской папки }
+    ShowMessage(F.ParentFolder.Title);
+    { Показ количества дочерних папок }
+    ShowMessage(IntToStr(F.Items.Count));
+  End;
+End;
+ 
+Procedure TMainForm.OpenBtnClick(Sender: TObject);
+Begin
+  { Открытие папки }
+  Try
+    I.Explore(EdFolder.Text);
+  Except
+    Exit;
+  End;
+End;
+ 
+Procedure TMainForm.MinAllBtnClick(Sender: TObject);
+Begin
+  { Свернуть все окна }
+  I.MinimizeAll;
+End;
+ 
+procedure TMainForm.UnMinAllBtnClick(Sender: TObject);
+Begin
+  I.UndoMinimizeALL;
+End;
+ 
+Procedure TMainForm.RunBtnClick(Sender: TObject);
+Begin
+  { Окно "Выполнить..." }
+  I.FileRun;
+End;
+ 
+Procedure TMainForm.ExitWinBtnClick(Sender: TObject);
+Begin
+  { Выключить Windows }
+  I.ShutdownWindows;
+End;
+ 
+Procedure TMainForm.FindBtnClick(Sender: TObject);
+Begin
+  { Поиск }
+  I.FindFiles;
+End;
+ 
+Procedure TMainForm.CmpFndBtnClick(Sender: TObject);
+Begin
+  { Поиск компьютеров }
+  I.FindComputer;
+End;
+ 
+Procedure TMainForm.HelpbtnClick(Sender: TObject);
+Begin
+  { Вызов справки }
+  I.Help;
+End;
+ 
+Procedure TMainForm.DTBtnClick(Sender: TObject);
+Begin
+  { Апплет: дата/время }
+  I.SetTime;
+End;
+ 
+Procedure TMainForm.TaskBtnClick(Sender: TObject);
+Begin
+  { Апплет: панель задач }
+  I.TrayProperties;
+End;
+ 
+Procedure TMainForm.ApplBtnClick(Sender: TObject);
+Begin
+  { Запуск своего апплета }
+  I.ControlPanelItem(EdAppl.Text);
+End;
+ 
+End.
+</pre>
+<p id="author">Автор: Rrader</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

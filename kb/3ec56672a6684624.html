@@ -1,0 +1,75 @@
+<html>
+<head>
+  <title>Установка Kylix под новые версии Linux (ядро 2.6)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Установка Kylix под новые версии Linux (ядро 2.6)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Взято с <a href="http://www.nux.co.za/" target="_blank">http://www.nux.co.za/</a></p>
+<p>Follow these steps to fix/patch kylix 3 work:</p>
+<p>Step 1</p>
+<p>Download the ilink and ilink.so patch provided by Andreas Hausladen here:</p>
+<p><a href="http://unvclx.sourceforge.net/downloads/ilinkPatch.tar.gz" target="_blank">ilinkpatch</a> for more info on the patch go to <a href="http://unvclx.sourceforge.net/" target="_blank">unvclx.sourceforge.net</a></p>
+<p>To install just go to the download directory and run</p>
+<p>./ilinkPatch /home/yourname/kylix</p>
+<p>Step 2 </p>
+<p>Download the latest 3.6 clx patch provided by Andreas Hausladen from <a href="http://unvclx.sourceforge.net/" target="_blank">unvclx.sourceforge.net</a> or <a href="http://nux.co.za/media/k3patches.20040915.tar.bz2" target="_blank">here</a>. Copy or save this file to /tmp folder </p>
+<p>Install the patch by executing the following from the shell</p>
+<p>tar -jxf k3patches.20040915.tar.bz2</p>
+<p>/tmp/k3patches/installpatch</p>
+<p>Step 3</p>
+<p>Download and install the older compatible glibc libraries for running kylix apps from <a href="http://nux.co.za/media/compat-glibc-6.2-2.1.3.2.i386.rpm" target="_blank">here</a>. Save or copy it to /tmp.</p>
+<p>Install by runing from the shell</p>
+<p>rpm -i /tmp/compat-glibc-6.2-2.1.3.2.i386.rpm</p>
+<p>Now the patching is complete.... now to run kylix do the following</p>
+<p>Step 4</p>
+<p>export LD_ASSUME_KERNEL=2.4.21</p>
+<p>Step 5</p>
+<p>Run/Start kylix via </p>
+<p>/usr/local/kylix3/bin/startbcb</p>
+<p>Step 6</p>
+<p>Open your project and change your projects include directories via the project options by adding</p>
+<p>/usr/i386-glibc21-linux/include </p>
+<p>/usr/include</p>
+<p>as the very first include paths to that your include paths.. </p>
+<p>this will fix the error so that the correct "time.h" be included.</p>
+<p>Step 7</p>
+<p>Change your lib paths by adding (preferably in the beginning)</p>
+<p>/usr/i386-glibc21-linux/lib and</p>
+<p>/usr/lib</p>
+<p>Finally: </p>
+<p>Open the ThrdDemo (the c++ demo included with Kylix in the examples directory) This sample demonstrates the use of threads and different sort algorithms... (remember step 6+7 for this project).</p>
+<p>Compile and run/debug....</p>
+<p>Congatulations!!! your have done it!!!</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

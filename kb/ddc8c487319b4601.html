@@ -1,0 +1,123 @@
+<html>
+<head>
+  <title>Хранение данных в EXE-файле</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Хранение данных в EXE-файле</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Вы можете включить любой тип данных как RCDATA или пользовательских тип ресурса. Это очень просто. Данный совет покажет вам общую технику создания такого ресурса.</p>
+<pre name="code" class="delphi">
+Type
+  TStrItem = String[39];  { 39 символов + байт длины -&gt; 40 байтов }
+  TDataArray = Array [0..7, 0..24] of TStrItem;
+ 
+Const
+  Data: TDataArray = (
+  ('..', ...., '..' ),  { 25 строк на строку }
+  ...                   { 8 таких строк }
+  ('..', ...., '..' )); { 25 строк на строку }
+</pre>
+
+
+<p>Данные размещаются в вашем сегменте данных и занимают в нем 8K. Если это слишком много для вашего приложения, поместите реальные данные в ресурс RCDATA. Следующие шаги демонстрируют данный подход. Создайте небольшую безоконную программку, объявляющую типизированную константу как показано выше, и запишите результат в файл на локальный диск:</p>
+<pre name="code" class="delphi">
+program MakeData;
+type
+  TStrItem = string[39]; { 39 символов + байт длины -&gt; 40 байтов }
+  TDataArray = array[0..7, 0..24] of TStrItem;
+ 
+const
+  Data: TDataArray = (
+    ('..', ...., '..'), { 25 строк на строку }
+    ... { 8 таких строк }
+    ('..', ...., '..')); { 25 строк на строку }
+ 
+var
+  F: file of TDataArray;
+begin
+  Assign(F, 'data.dat');
+  Rewrite(F);
+  Write(F, Data);
+  Close(F);
+end.
+</pre>
+
+
+<p>Теперь подготовьте файл ресурса и назовите его DATA.RC. Он должен содержать только следующую строчку:</p>
+
+<p> DATAARRAY RCDATA "data.dat"</p>
+
+<p>Сохраните это, откройте сессию DOS, перейдите в каталог где вы сохранили data.rc (там же, где и data.dat!) и выполните следующую команду:</p>
+<p> brcc data.rc&nbsp;&nbsp; (brcc32 для Delphi 2.0)</p>
+<p>Теперь вы имеете файл data.res, который можете подключить к своему Delphi-проекту. Во время выполнения приложения вы можете генерировать указатель на данные этого ресурса и иметь к ним доступ, что и требовалось.</p>
+<pre name="code" class="delphi">
+ 
+{ в секции interface модуля  }
+type
+  TStrItem = string[39]; { 39 символов + байт длины -&gt; 40 байтов }
+  TDataArray = array[0..7, 0..24] of TStrItem;
+  PDataArray = ^TDataArray;
+const
+  pData: PDataArray = nil; { в Delphi 2.0 используем Var }
+ 
+implementation
+{$R DATA.RES}
+ 
+procedure LoadDataResource;
+var
+  dHandle: THandle;
+begin
+  { pData := Nil; если pData - Var }
+  dHandle := FindResource(hInstance, 'DATAARRAY', RT_RCDATA);
+  if dHandle &lt;&gt; 0 then
+  begin
+    dhandle := LoadResource(hInstance, dHandle);
+    if dHandle &lt;&gt; 0 then
+      pData := LockResource(dHandle);
+  end;
+  if pData = nil then
+    { неудача, получаем сообщение об ошибке с помощью
+    WinProcs.MessageBox, без помощи VCL, поскольку здесь код
+    выполняется как часть инициализации программы и VCL
+    возможно еще не инициализирован! }
+end;
+ 
+initialization
+  LoadDataResource;
+end.
+</pre>
+
+<p>Теперь вы можете ссылаться на элементы массива с помощью синтаксиса pData^[i,j].</p>
+
+<p id="author">Автор: Peter Below </p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

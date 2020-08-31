@@ -1,0 +1,107 @@
+<html>
+<head>
+  <title>Использование case</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Использование case</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Оператор выбора Case работает немного по другому чем в классических языках. В классических языках Case выбирает какой оператор запускать, а в T-SQL он выбирает выражение которое надо использовать для вычисления чего-то. Case выступает в ввиде функции которая возвращает результат в зависимости от условия. Имеет 2 формы написания:</p>
+<p>1.</p>
+<pre name="code" class="sql">
+Declare @m int
+
+Set @m=Month(GetDate())
+ 
+Select
+  @m as MonthNumber, 
+  Case @m
+    When  1 Then 'Январь'
+    When  2 Then 'Февраль'
+    When 12 Then 'Декабрь'
+    Else 'Не зима'
+  End as MonthName
+</pre>
+
+<p> 2.</p>
+<pre name="code" class="sql">
+Declare @m int
+
+Set @m=Month(GetDate())
+ 
+Select
+  @m as MonthNumber, 
+  Case 
+    When @m=1 Then 'Январь'
+    When @m=2 Then 'Февраль'
+    When @m=12 Then 'Декабрь'
+    When @m is Null Then 'Неизвестно'
+    Else 'Не зима'
+  End as MonthName
+</pre>
+
+<p>Можно использовать Case для присвоения</p>
+
+<pre name="code" class="sql">
+Set @MyVar=
+  Case  
+    When @m=1 Then 'Январь'
+    When @m=2 Then 'Февраль'
+    When @m=12 Then 'Декабрь'
+    When @m is Null Then 'Неизвестно'
+    Else 'Не зима'
+  End
+</pre>
+
+<p>Можно использовать в операциях сравнения, сортировки, группировки и функциях:</p>
+
+<pre name="code" class="sql">
+Select 
+  dbo.MyFunction( 
+    Case  
+      When @m=1 Then 'Январь'
+      When @m=2 Then 'Февраль'
+      When @m=12 Then 'Декабрь'
+      When @m is Null Then 'Неизвестно'
+      Else 'Не зима'
+    End),
+  Case When MyField=0 Then 'False' else 'True' End,
+  Count(*) 
+From MyTable
+Where Case When MyField1=0 Then Field2 else Field3 End&gt;1
+Group by Case When MyField=0 Then 'False' else 'True' End
+Order By Case When MyField=0 Then 'False' else 'True' End 
+</pre>
+
+<p id="author">Автор: Vit</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

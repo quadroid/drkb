@@ -1,0 +1,91 @@
+<html>
+<head>
+  <title>Изменить экранный курсор без необходимости возвращать предыдущий</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Изменить экранный курсор без необходимости возвращать предыдущий</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// By implementing Interface we can set the cursor without restore it in the end. 
+// Example: In convensional way... 
+var
+   Cur: TCursor;
+ begin
+   Cur := Screen.Cursor;
+   Screen.Cursor := crSQLWait;
+   //do coding here 
+  //What happend is that if your code did not finish, the screen cursor will 
+  //remain as crSQLWait.. even with try..finally block (sometimes) 
+  Screen.Cursor := Cur;
+ end;
+ 
+ // By using interface, we can implement as follows 
+type
+   ImyCursor = interface
+     [(GUID - Ctrl - Shift - G)]
+   end;
+   TmyCursor = class(TInterfacedObjects, ImyCursor);
+   private
+   FCursor: TCursor;
+   public
+ constructor Create;
+   destructor Destroy; override;
+     end;
+ 
+ implementation
+ 
+ TmyCursor.Create;
+ 
+ begin
+   FCursor := Screen.Cursor;
+ end;
+ 
+ TmyCursor.Destroy;
+ 
+ begin
+   Screen.Cursor := FCursor;
+   inherited;
+ end;
+ 
+ procedure....var
+   C: ImyCursor;
+ begin
+   C := TmyCursor.Create;
+   Screen.Curosr := crSQLWait; // whatever cursor you like 
+  // Do coding here without worring to free it. 
+  // Screen Cursor will restore when the TMyCursor object get out of scope. 
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

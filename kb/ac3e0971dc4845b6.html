@@ -1,0 +1,96 @@
+<html>
+<head>
+  <title>Сортировка методом двунаправленного пузырька</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сортировка методом двунаправленного пузырька</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Сортировка различными методами
+ 
+Сортировка одномерного массива значений типа Double методами:
+1) Двунаправленный Пузырёк (BiDirBubbleSort);
+ 
+Зависимости: Math
+Автор:       iZEN, izen@mail.ru
+Copyright:   адаптация для Delphi
+Дата:        14 сентября 2004 г.
+********************************************** }
+ 
+{ Сортировка Двунаправленным Пузырьком }
+procedure BiDirBubbleSort(var data: array of double);
+var
+  i, j, limit, st: Integer;
+  t: double;
+  Swapped: Boolean;
+begin
+  limit := High(data) + 1;
+  st := -1;
+  while (st &lt; limit)
+  do begin
+     Inc(st);
+     Dec(limit);
+     Swapped := False;
+     j := st;
+     while (j &lt; limit)
+     do begin
+        if (data[j] &gt; data[j+1])
+        then begin
+             t := data[j];
+             data[j] := data[j+1];
+             data[j+1] := t;
+             Swapped := True;
+             end;
+        Inc(j);
+        end;
+     if (not Swapped)
+     then EXIT
+     else Swapped := False;
+     j := limit - 1;
+     repeat
+       if (data[j] &gt; data[j+1])
+       then begin
+            t := data[j];
+            data[j] := data[j+1];
+            data[j+1] := t;
+            Swapped := True;
+            end;
+       Dec(j);
+     until (j &lt; st);
+     if (not Swapped) then EXIT;
+     end;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<html>
+<head>
+  <title>Stack Overflow, runtime error 202</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Stack Overflow, runtime error 202</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Simply put, stack overflows are caused by putting too much on the stack. Usually, they are caused by recursive procedures that never end. A good example would be creating an event handler for the TMemo's onChange event, and making a change to the Memo during the processing of the event. Every time the OnChange event gets fired, another change is made, so the OnChange event gets fired again in an almost endless loop. The loop finally ends when the stack overflows, and the application crashes.</p>
+<p>Here is an example of a recursive procedure:</p>
+<pre name="code" class="delphi">
+procedure RecursiveBlowTheStack;
+begin
+  RecursiveBlowTheStack;
+end;
+</pre>
+<p>Sometimes, a stack overflow is caused by too many large procedures. Each procedure calls another procedure, until the stack simply overflows. This can be remidied by breaking up large procedures into smaller ones. A good rule of thumb in regard to a procedures size is if the procedure's source code takes up more than a screen, its time to break it down into smaller procedures.</p>
+<p>Finally, stack overflows can be caused by creating very large local variables inside a procedure, or passing a large variable by value to another procedure. Consider the passing of string variables. If the string is 255 characters (plus the length byte), if passed by value, you are actually taking up 256 bytes off the stack. If the procedure</p>
+<p>you are calling passes the string by value to yet another procedure, the string now takes 512 bytes of stack space. Passing the string (or other variable) as a var or const parameter takes only 4 bytes, since var and const parameters are simply pointers to the actual data. You can also create large variables on the heap by dynamic allocation of the memory;</p>
+<p>The following code demonstrates two procedures BlowTheStack(), and NoBlowTheStack(). The BlowTheStack procedure attempts to allocate a large local variable designed to be large enough to crash the</p>
+<p>application. The NoBlowTheStack() procedure allocates the same large variable but allocates it on the heap so the function will succeed.</p>
+<pre name="code" class="delphi">
+type
+  PBigArray = ^TBigArray;
+{$IFDEF WIN32}
+  TBigArray = array[0..10000000] of byte;
+{$ELSE}
+  TBigArray = array[0..64000] of byte;
+{$ENDIF}
+ 
+procedure BlowTheStack;
+var
+  BigArray : TBigArray;
+begin
+  BigArray[0] := 10;
+end;
+ 
+procedure NoBlowTheStack;
+var
+  BigArray : PBigArray;
+begin
+  GetMem(BigArray, sizeof(BigArray^));
+  BigArray^[0] := 10;
+  FreeMem(BigArray, sizeof(BigArray^));
+end;
+</pre>
+<p>Finally, the following code demonstrates creating procedures that accept large variables as parameters. The PassByValueAnCrash() procedure is designed to crash since the value parameter is too large</p>
+<p>for the stack. The PassByVar(), PassByPointer(), and PassByConst will succeed, since these procedures only use 4 bytes of stack space. Note that you cannot modify a parameter passed as const, as a const parameter is assumed to be read only.</p>
+<p>Example:</p>
+<pre name="code" class="delphi">
+procedure PassByValueAnCrash(BigArray : TBigArray);
+begin
+  BigArray[0] := 10;
+end;
+ 
+procedure PassByVar(var BigArray : TBigArray);
+begin
+  BigArray[0] := 10;
+end;
+ 
+procedure PassByPointer(BigArray : PBigArray);
+begin
+  PBigArray^[0] := 10;
+end;
+ 
+procedure PassByConst(const BigArray : TBigArray);
+begin
+  ShowMessage(IntToStr(BigArray[0]));
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

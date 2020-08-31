@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Увеличение значения указателя</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Увеличение значения указателя</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Увеличение значения указателя
+ 
+Конвертирует указатель в Cardinal, увеличиваем значение адреса,
+и конвертирует обратно в указатель, который и возвращает.
+Внимание, функция не выделяет никаких блоков памяти,
+она просто работает с указателем.
+ 
+Зависимости: System
+Автор:       Григорий Ситнин, gregor@gregor.ru, Москва
+Copyright:   Григорий Ситнин, 2003
+Дата:        8 июля 2003 г.
+***************************************************** }
+ 
+function IncPtr(APointer: pointer; AHowMuch: cardinal = 1): pointer;
+begin
+  //*** Конвертируем указатель в Cardinal, увеличиваем значение адреса,
+  //*** и конвертируем обратно в указатель, который и возвращаем.
+  //**! Внимание, функция не выделяет никаких блоков памяти,
+  //**! она просто работает с указателем.
+  Result := Ptr(cardinal(APointer) + AHowMuch);
+end;
+Пример использования: 
+ 
+{$APPTYPE CONSOLE}
+program testptr;
+uses SysUtils, uIncPtr; //*** Модуль uIncPtr содержит функцию IncPtr
+var
+  ptr1, ptr2: pointer;
+begin
+  ptr1 := AllocMem(255);
+  ptr2 := incptr(ptr1, 10);
+  writeln('ptr1 : ', cardinal(ptr1));
+  //*** Напечатать увеличенный на 10 указатель ptr1
+  writeln('ptr2 (+10): ', cardinal(ptr2));
+  FreeMem(ptr1, 255)
+end.
+</pre>
+
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

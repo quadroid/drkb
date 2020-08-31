@@ -1,0 +1,169 @@
+<html>
+<head>
+  <title>Чтение email адресов из Outlook .dbx файлов</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Чтение email адресов из Outlook .dbx файлов</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit ExtractEmailsFunc;
+ 
+interface
+ 
+uses
+  Windows, SysUtils;
+ 
+procedure CheckEMail(FilePath: string);
+ 
+implementation
+ 
+var
+  BufferSize: Integer;
+ 
+function VerifyFile(strFileName: string): Integer;
+var
+  intErro: Integer;
+  tsrFile: TSearchRec;
+begin
+  intErro := FindFirst(strFileName, FaAnyFile, tsrFile);
+  if intErro = 0 then Result := tsrFile.Size 
+  else 
+    Result := -1;
+  FindClose(tsrFile);
+end;
+ 
+procedure CheckEMail(FilePath: string);
+var
+  I: Integer;
+  hFile: Integer;
+  Buffer: PChar;
+  StrEmail: string;
+begin
+  hFile := FileOpen(FilePath, fmOpenRead);
+  try
+    if hFile = 0 then Exit;
+    GetMem(Buffer, bufferSize + 1);
+    ZeroMemory(Buffer, BufferSize + 1);
+    try
+      FileRead(hFile, Buffer^, BufferSize);
+      I := 0;
+      while I &lt;= BufferSize - 1 do 
+      begin
+        StrEmail := '';
+        if Buffer[I] = '&lt;' then 
+        begin
+          Inc(I);
+          while (Buffer[I] &lt;&gt; '@') and (I &lt;= BufferSize) do 
+          begin
+            if (Buffer[I] = CHR(45)) or (Buffer[I] = CHR(46)) or
+              (Buffer[I] = CHR(90)) or ((Buffer[I] &gt; CHR(49)) and (Buffer[I] &lt;= CHR(57)))
+              or ((Buffer[I] &gt;= CHR(65)) and (Buffer[I] &lt;= CHR(90))) or
+              ((Buffer[I] &gt;= CHR(97)) and (Buffer[I] &lt;= CHR(122))) then 
+            begin
+              StrEmail := StrEmail + Buffer[I];
+            end 
+            else 
+            begin
+              StrEmail := '';
+              Break;
+            end;
+            Inc(I);
+          end;
+          if StrEmail &lt;&gt; '' then 
+          begin
+            StrEmail := StrEmail + '@';
+            Inc(I);
+            while (Buffer[I] &lt;&gt; '.') and (I &lt;= BufferSize) do 
+            begin
+              if (Buffer[I] = CHR(45)) or (Buffer[I] = CHR(46)) or
+                (Buffer[I] = CHR(90)) or ((Buffer[I] &gt;= CHR(49)) and (Buffer[I] &lt;= CHR(57)))
+                or ((Buffer[I] &gt;= CHR(65)) and (Buffer[I] &lt;= CHR(90))) or
+                ((Buffer[I] &gt;= CHR(97)) and (Buffer[I] &lt;= CHR(122))) then 
+              begin
+                StrEmail := StrEmail + Buffer[I];
+              end 
+              else 
+              begin
+                StrEmail := '';
+                Break;
+              end;
+              Inc(I);
+            end;
+            if StrEmail &lt;&gt; '' then 
+            begin
+              StrEmail := StrEmail + '.';
+              Inc(i);
+              while (Buffer[I] &lt;&gt; '&gt;') and (I &lt;= BufferSize) do 
+              begin
+                if (Buffer[I] = CHR(45)) or (Buffer[I] = CHR(46)) or
+                  (Buffer[I] = CHR(90)) or ((Buffer[I] &gt;= CHR(49)) and (Buffer[I] &lt;= CHR(57)))
+                  or ((Buffer[I] &gt;= CHR(65)) and (Buffer[I] &lt;= CHR(90))) or
+                  ((Buffer[I] &gt;= CHR(97)) and (Buffer[I] &lt;= CHR(122))) then 
+                begin
+                  StrEmail := StrEmail + Buffer[I];
+                end 
+                else 
+                begin
+                  StrEmail := '';
+                  Break;
+                end;
+                Inc(I);
+              end;
+              if StrEmail &lt;&gt; '' then 
+              begin
+                WriteLn(StrEmail);
+                Inc(I);
+              end;
+            end;
+          end;
+        end 
+        else 
+          Inc(I);
+      end;
+    finally
+      FreeMem(Buffer);
+    end;
+  finally
+    FileClose(hFile);
+  end;
+end;
+ 
+begin
+  BufferSize := VerifyFile(ParamStr(1));
+  if BufferSize &lt;= 0 then Exit;
+  CheckEMail(ParamStr(1));
+end.
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

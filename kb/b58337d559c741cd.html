@@ -1,0 +1,85 @@
+<html>
+<head>
+  <title>Открытие сокращенного или полного диалога выбора цвета</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Открытие сокращенного или полного диалога выбора цвета</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Открытие сокращённого или полного диалога выбора цвета
+ 
+Вид диалога зависит от того, можно ли показать начальный цвет (C : TColor) 
+в сокращённом диалоге или нужно раскрывать его полностью. 
+Возвращает выбранный пользователем цвет.
+ 
+Зависимости: Windows, Messages, SysUtils, Classes, DIALOGS;
+Автор:       Igor Kovalevsky, pc-ambulance@mail.ru, Владикавказ
+Copyright:   Igor Kovalevsky
+Дата:        1 июня 2002 г.
+********************************************** }
+ 
+function SelectColor(C : TColor) : TColor;
+const
+     BasicColors = [ $00, $40, $80, $A0, $C0, $FF ];
+begin
+     with TColorDialog.Create(Application) do
+          begin
+               Color := C;
+               if (GetRValue(Color) in BasicColors) and
+                  (GetGValue(Color) in BasicColors) and
+                  (GetBValue(Color) in BasicColors) then
+                  begin
+                       Options := Options - [ cdFullOpen ];
+                  end
+               else
+                   begin
+                        Options := Options + [ cdFullOpen ];
+                   end;
+               if Execute then
+                  begin
+                       Result := Color
+                  end
+               else
+                   begin
+                        Result := clNone;
+                   end;
+               Free;
+          end;
+end; 
+</pre>
+<p> Пример использования:</p>
+<pre name="code" class="delphi">Form1.Color := SelectColor( Form1.Color ); 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

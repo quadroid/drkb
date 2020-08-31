@@ -1,0 +1,168 @@
+<html>
+<head>
+  <title>Hook на буфер обмена</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Hook на буфер обмена</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  *Just create a new form and call it ClipFormats. 
+  *Drop a TButton and call it btnUpdate. 
+  *Drop a TListBox and call it lbFormats. 
+ 
+  Then just add the code below and hook up all the event handlers. 
+  All it does is display all the formats currently on the clipboard and 
+  updates as soon as the clipboard changes. 
+}
+ 
+ unit DynaClip;
+ 
+ interface
+ 
+ uses
+   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+   Dialogs, StdCtrls, ExtCtrls;
+ 
+ type
+   TClipFormats = class(TForm)
+     btnUpdate: TButton;
+     lbFormats: TListBox;
+     procedure FormCreate(Sender: TObject);
+     procedure FormDestroy(Sender: TObject);
+     procedure btnUpdateClick(Sender: TObject);
+   private
+     { Private declarations }
+     NextWindow: HWND;
+     procedure WMChangeCBChain(var Message: TWMChangeCBChain); message
+     WM_CHANGECBCHAIN;
+     procedure WMDrawClipboard(var Message: TWMDrawClipboard); message
+     WM_DRAWCLIPBOARD;
+   public
+     { Public declarations }
+   end;
+ 
+ var
+   ClipFormats: TClipFormats;
+ 
+ implementation
+ 
+ {$R *.DFM}
+ 
+ procedure TMDIChildClipFormats.FormCreate(Sender: TObject);
+ begin
+   NextWindow := SetClipboardViewer(Handle);
+ end;
+ 
+ procedure TClipFormats.FormDestroy(Sender: TObject);
+ begin
+   ChangeClipboardChain(Handle, NextWindow);
+ end;
+ 
+ procedure TClipFormats.WMChangeCBChain(var Message: TWMChangeCBChain);
+ begin
+   with Message do
+    begin
+     if (Remove = NextWindow) then
+      begin
+       NextWindow := Next;
+     end
+     else
+      begin
+       SendMessage(NextWindow, WM_CHANGECBCHAIN, Remove, Next);
+     end;
+   end;
+ end;
+ 
+ procedure TClipFormats.WMDrawClipboard(var Message: TWMDrawClipboard);
+ begin
+   btnUpdate.Click;
+   SendMessage(NextWindow, WM_DRAWCLIPBOARD, 0, 0);
+ end;
+ 
+ procedure TClipFormats.btnUpdateClick(Sender: TObject);
+ const
+   PreDefinedFormats: array[1..16] of string = ('CF_TEXT',
+     'CF_BITMAP',
+     'CF_METAFILEPICT',
+     'CF_SYLK',
+     'CF_DIF',
+     'CF_TIFF',
+     'CF_OEMTEXT',
+     'CF_DIB',
+     'CF_PALETTE',
+     'CF_PENDATA',
+     'CF_RIFF',
+     'CF_WAVE',
+     'CF_UNICODETEXT',
+     'CF_ENHMETAFILE',
+     'CF_HDROP',
+     'CF_LOCALE');
+ var
+   ClipFormat: TClipFormat;
+   szBuffer: array[0..511] of Char;
+   FormatID: string;
+ begin
+   if not OpenClipboard(Handle) then Exit;
+   try
+     lbFormats.Items.BeginUpdate;
+     try
+       lbFormats.Items.Clear;
+ 
+       ClipFormat := EnumClipboardFormats(0);
+       while (ClipFormat &lt;&gt; 0) do
+        begin
+         if (ClipFormat in [1..16]) then
+          begin
+           FormatID := PreDefinedFormats[ClipFormat];
+         end
+         else
+          begin
+           GetClipboardFormatName(ClipFormat, szBuffer, SizeOf(szBuffer));
+           FormatID := string(szBuffer);
+         end;
+         lbFormats.Items.Add(Format('%s [%d]', [FormatID, ClipFormat]));
+         ClipFormat := EnumClipboardFormats(ClipFormat);
+       end;
+     finally
+       lbFormats.Items.EndUpdate;
+     end;
+   finally
+     CloseClipboard;
+   end;
+ end;
+ 
+ end.
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

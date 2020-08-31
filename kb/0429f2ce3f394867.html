@@ -1,0 +1,106 @@
+<html>
+<head>
+  <title>Как прочитать из модема?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как прочитать из модема?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>После предварительной настройки переменных, COM порт открывается как обычный файл. Так же пример показывает, как очищать буфер COM порта и читать из него.</p>
+<pre name="code" class="delphi">
+Var 
+PortSpec : array[0..255] of char; 
+PortNo   : Word; 
+success : Boolean; 
+error:integer; 
+begin 
+FillChar(PortSpec,Sizeof(PortSpec),#0); 
+StrPCopy(PortSpec,'Com1:19200,n,8,1'); 
+PortSpec[3]:=Char(Ord(PortSpec[3])+Ord(PortNo)); 
+ 
+if not BuildCommDCB(PortSpec,Mode) Then 
+  Begin 
+//какая-то ошибка... 
+  Exit; 
+  End; 
+ 
+PortSpec[5]:=#0;    { 'Com1:' } 
+ 
+Mode.Flags:=EV_RXCHAR +   EV_EVENT2;  { $1001 } 
+ 
+  Com := CreateFile(PortSpec,GENERIC_READ or GENERIC_WRITE, 
+                    0,    //* comm устройство открывается с эксклюзивным доступом*/ 
+                    Nil, //* нет security битов */ 
+                    OPEN_EXISTING, //* comm устройства должны использовать OPEN_EXISTING*/ 
+                    0,    //* not overlapped I/O */ 
+                    0  //* hTemplate должен быть NULL для comm устройств */ 
+                     ); 
+  if Com = INVALID_HANDLE_VALUE then Error := GetLastError; 
+  Success := GetCommState(Com,Mode); 
+ 
+  if not Success then  // Обработчик ошибки. 
+  begin 
+ 
+  end; 
+ 
+  Mode.BaudRate := 19200; 
+  Mode.ByteSize := 8; 
+  Mode.Parity := NOPARITY; 
+  Mode.StopBits := ONESTOPBIT;//нужен был для перезаписи в NT 
+ 
+  Success := SetCommState(Com, Mode); 
+ 
+  if not Success then  // Обработчик ошибки. 
+  begin 
+ 
+  end; 
+end; 
+</pre>
+
+<p>Переменная "com" типа dword. </p>
+
+<p>Вы так же можете очистить буфер COM порта PurgeComm(Com,PURGE_RXCLEAR or PURGE_TXCLEAR); И прочитать из него </p>
+
+<pre name="code" class="delphi">
+Function ReadCh(Var Ch:Byte):dword; 
+var 
+n : dword; 
+Begin 
+  Readfile(Com,ch,1,result,nil); 
+End;
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

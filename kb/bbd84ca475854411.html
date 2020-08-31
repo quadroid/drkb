@@ -1,0 +1,87 @@
+<html>
+<head>
+  <title>TTreeView. Проблемы CustomDraw</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TTreeView. Проблемы CustomDraw</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Rustam Kafarov </p>
+<p>При использовании компонента TTreeView возникают проблемы при собственной отрисовке содержимого компонента в событиях OnCustomDraw, OnCustomDrawItem, OnAdvancedCustomDraw, OnAdvancedCustomDrawItem. Проблема проявляется когда свойства Canvas компонента устанавливаются вторично. К примеру, при попытке изменить цвет фонта во второй раз, соотвествующих изменений НЕ ПОСЛЕДУЕТ. Тоже самое и со свойствами Brush, Pen. </p>
+<p>Проверено на Дельфи 5. </p>
+<p>Контрольный пример (на форме TTreeView и TCheckBox): </p>
+<pre name="code" class="delphi">procedure TForm1.TreeView1AdvancedCustomDrawItem(Sender: TCustomTreeView;
+  Node: TTreeNode; State: TCustomDrawState; Stage: TCustomDrawStage;
+  var PaintImages, DefaultDraw: Boolean);
+var
+  ARect: TRect;
+  S: string;
+begin
+  if not CheckBox1.Checked then
+    Exit;
+  case Stage of
+    cdPostPaint:
+      begin
+        ARect := Node.DisplayRect(True);
+        ARect.Right := TreeView1.ClientWidth;
+        with TreeView1.Canvas do
+        begin
+          if cdsSelected in State then
+            Brush.Color := clHighlight
+          else
+            Brush.Color := clWindow;
+          FillRect(ARect);
+          Font.Color := clGreen;
+          S := 'AbsoluteIndex : ' + IntToStr(Node.AbsoluteIndex);
+          TextOut(ARect.Left, ARect.Top, S);
+          // цвет шрифта должен поменяться!!!
+          Font.Color := clBlue;
+          // Но он не меняется :-(((
+          TextOut(ARect.Left + TextWidth(S) + 20, ARect.Top, Node.Text);
+        end;
+      end;
+  end; { Case }
+end;
+ 
+procedure TForm1.CheckBox1Click(Sender: TObject);
+begin
+  TreeView1.Repaint;
+end;
+</pre>
+<p>ТИПОВЫЕ РЕШЕНИЯ </p>
+<p>Использовать API функции Windows такие как SetTextColor, SelectObject и т.д, передавая им в качестве первого параметра Canvas.Handle. </p>
+<p>КОММЕНТАРИЙ </p>
+<p>Проверено (Delphi 5 Update Pack 1, WinNT, Win2000). Действительно, эффект имеет место быть. Вероятно, Борланд перемудрил что-то в своем кэше ресурсов GDI (класс TCanvas). </p>
+<p>При присваивании Font.Color изменяется только внутреннее поле FColor. В методе TCanvas.TextOut не выполняется SetTextColor(FHandle, ColorToRGB(FFont.Color)), как это сделано в TCanvas.Draw. Следовательно, мы имеем более глобальную проблему, чем рисование узлов дерева вручную. </p>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<html>
+<head>
+  <title>Создание новой MS Access базы данных</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создание новой MS Access базы данных</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Приведенная ниже процедура создает пустую базу данных MS Access</p>
+<pre name="code" class="delphi">
+procedure CreateMSAccessDatabase(filename: string);
+
+ 
+var DAO: Variant;
+  i: integer;
+const Engines: array[0..2] of string = ('DAO.DBEngine.36', 'DAO.DBEngine.35', 'DAO.DBEngine');
+ 
+  function CheckClass(OLEClassName: string): boolean;
+  var Res: HResult;
+  begin
+    Result := CoCreateInstance(ProgIDToClassID(OLEClassName), nil, CLSCTX_INPROC_SERVER or CLSCTX_LOCAL_SERVER, IDispatch, Res) = S_OK;
+  end;
+begin
+  for i := 0 to 2 do
+    if CheckClass(Engines[i]) then
+      begin
+        DAO := CreateOleObject(Engines[i]);
+        DAO.Workspaces[0].CreateDatabase(filename, ';LANGID=0x0409;CP=1252;COUNTRY=0', 32);
+        exit;
+      end;
+  raise Exception.Create('DAO engine could not be initialized');
+end;
+</pre>
+
+<p>Кусочек кода, который должен распознавать какая версия DAO установлена на компьютере мной не мог быть оттестирован, так как только одна работающая версия DAO может быть установлена на компьютере. У меня установлен Office XP (DAO36) и на нем все работает нормально. Интересно было бы узнать работает ли логика для Office 2000 (DAO35) и Office 97 (DAO30)</p>
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<p>Here is an OP function that will do it for you:</p>
+<pre name="code" class="delphi">
+procedure CreateMSAccessDB(filename: string);
+var
+  DBEngine, Workspace: Variant;
+const
+  {Important to use the following constant as is}
+  dbLangGeneral = '';
+  LANGID = 0x0409;
+  CP = 1252;
+  COUNTRY = '0';
+  dbVersion30 = 32;
+begin
+  DBEngine := CreateOleObject('DAO.DBEngine');
+  {DBEngine := CreateOleObject('DAO.DBEngine.35'); For DAO 3.5}
+  Workspace := DBEngine.Workspaces[0];
+  try
+    Workspace.CreateDatabase(filename, dbLangGeneral, dbVersion30);
+  except
+    on EOleException do
+      ShowMessage('Database already exists');
+  end;
+end;
+</pre>
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+<hr />
+<p>It's very simple to create a empty Access-Database (*.mdb File) using OLE. It's not necessary to have MS-Access installed on your computer. If an exception occures the error message will returned. After creating the DB you can create Tables with simple SQL-Statements. </p>
+<pre name="code" class="delphi">
+uses comobj, sysutils;
+ 
+function CreateAccessDatabase(FileName: string): string;
+var
+  cat: OLEVariant;
+begin
+  result := '';
+  try
+    cat := CreateOleObject('ADOX.Catalog');
+    cat.create('Provider=Microsoft.Jet.OLEDB.4.0;Data Source=' + Filename + ';');
+    cat := NULL;
+  except
+    on e: Exception do
+      result := e.message;
+  end;
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+<hr />
+<pre name="code" class="delphi">
+const
+  CLASS_DBEngine: TGUID = '{00000100-0000-0010-8000-00AA006D2EA4}';
+  dbLangCyrillic = ';LANGID=0x0409;CP=1252;COUNTRY=0';
+  dbOption       =     0
+//                  or $20 // ? похоже создание в формате Access 97
+                ;
+ 
+procedure CreateMSAccessDatabase(FileName :String);
+begin
+  Variant(CreateOleObject(ClassIDToProgID(CLASS_DBEngine)))
+    .Workspaces[0]
+      .CreateDatabase (FileName, dbLangCyrillic, dbOption);
+end;
+</pre>
+
+<p id="author">Автор: Петрович</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

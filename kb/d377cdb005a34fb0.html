@@ -1,0 +1,97 @@
+<html>
+<head>
+  <title>Как узнать версию сервера?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать версию сервера?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>This function gets the connected MS SQL Server version. It returns the version info in 3 OUT parameters. </p>
+
+<p> &nbsp; &nbsp; &nbsp; &nbsp;VerNum &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;: double  &nbsp; &nbsp; &nbsp; &nbsp;eg. 7.00623</p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp;VerStrShort  &nbsp; &nbsp; &nbsp; &nbsp;: string  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;eg. '7.00.623' </p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp;VerStrLong  &nbsp; &nbsp; &nbsp; &nbsp;: string  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;eg. 'Microsoft SQL Server&nbsp; 7.00 - 7.00.623 (Intel X86)  &nbsp; &nbsp; &nbsp; &nbsp;Nov 27 1998 22:20:07&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Copyright (c) 1988-1998 Microsoft Corporation &nbsp; &nbsp; &nbsp; &nbsp;Enterprise Edition on&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Windows NT 5.0 (Build 2195: Service Pack 1)'</p>
+
+<p>I have tested it with MSSQL 7 and MSSQL 2000. I assume it should work for the others. Any feedback and fixes for different versions would be appreciated. </p>
+
+<p>The TQuery parameter that it recieves is a TQuery component that is connected to an open database connection. </p>
+
+<pre name="code" class="delphi">
+procedure GetSqlVersion(Query: TQuery;
+  out VerNum: double;
+  out VerStrShort: string;
+  out VerStrLong: string);
+var
+  sTmp, sValue: string;
+  i: integer;
+begin
+  // @@Version does not return a Cursor.
+  // Read the value from the Record Buffer
+  // Can be used to read all sys functions from MS Sql
+  sValue := '';
+  Query.SQL.Text := 'select @@Version';
+  Query.Open;
+  SetLength(sValue, Query.RecordSize + 1);
+  Query.GetCurrentRecord(PChar(sValue));
+  SetLength(sValue, StrLen(PChar(sValue)));
+  Query.Close;
+ 
+  if sValue &lt;&gt; '' then
+    VerStrLong := sValue
+  else
+  begin
+    // Don't know this version
+    VerStrLong := '?';
+    VerNum := 0.0;
+    VerStrShort := '?.?.?.?';
+  end;
+ 
+  if VerStrLong &lt;&gt; '' then
+  begin
+    sTmp := trim(copy(VerStrLong, pos('-', VerStrLong) + 1, 1024));
+    VerStrShort := copy(sTmp, 1, pos(' ', sTmp) - 1);
+    sTmp := copy(VerStrShort, 1, pos('.', VerStrShort));
+ 
+    for i := length(sTmp) + 1 to length(VerStrShort) do
+    begin
+      if VerStrShort[i] &lt;&gt; '.' then
+        sTmp := sTmp + VerStrShort[i];
+    end;
+ 
+    VerNum := StrToFloat(sTmp);
+  end;
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

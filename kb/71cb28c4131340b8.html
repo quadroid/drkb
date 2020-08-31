@@ -1,0 +1,87 @@
+<html>
+<head>
+  <title>Как спрятать и отключить кнопку «Пуск»?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как спрятать и отключить кнопку «Пуск»?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Приведенный пример прячет и показывает кнопку "Пуск", а также разрешает и запрещает ее. </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject); 
+             var 
+               Rgn : hRgn; 
+             begin 
+              {Cпрятать кнопку "Пуск"} 
+               Rgn := CreateRectRgn(0, 0, 0, 0); 
+               SetWindowRgn(FindWindowEx(FindWindow('Shell_TrayWnd', nil), 
+                                                    0, 
+                                                   'Button', 
+                                                    nil), 
+                                                    Rgn, 
+                                                    true); 
+             end; 
+ 
+             procedure TForm1.Button2Click(Sender: TObject); 
+             begin 
+              {Показать кнопку "Пуск"} 
+               SetWindowRgn(FindWindowEx(FindWindow('Shell_TrayWnd', nil), 
+                                                    0, 
+                                                   'Button', 
+                                                    nil), 
+                                                    0, 
+                                                    true); 
+             end; 
+ 
+             procedure TForm1.Button3Click(Sender: TObject); 
+             begin 
+              {Запретить кнопку "Пуск"} 
+               EnableWindow(FindWindowEx(FindWindow('Shell_TrayWnd', nil), 
+                                                    0, 
+                                                    'Button', 
+                                                    nil), 
+                                                    false); 
+             end; 
+ 
+             procedure TForm1.Button4Click(Sender: TObject); 
+             begin 
+              {Разрешить кнопку "Пуск"} 
+               EnableWindow(FindWindowEx(FindWindow('Shell_TrayWnd', nil), 
+                                                    0, 
+                                                    'Button', 
+                                                    nil), 
+                                                    true); 
+             end 
+</pre>
+<p>&nbsp;
+<p>&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

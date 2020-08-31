@@ -1,0 +1,116 @@
+<html>
+<head>
+  <title>Транслитерация</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Транслитерация</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Например, молоко - moloko. И всё.</p>
+<p>Вот пример функции, которая транслирует из русских слов в английские. </p>
+<p>Пригодилась, когда нужно было файлы в mp3-плеер перегонять - он русский не понимает. </p>
+<pre name="code" class="delphi">
+unit Translate;
+ 
+interface
+ 
+function Convert(OldName: string): string;
+ 
+implementation
+ 
+function Convert(OldName: string): string;
+var OldNameLength: integer;
+   i: integer;
+   s: string;
+begin
+OldNameLength := length(OldName);
+s:='';
+i:=1;
+while i &lt;= OldNameLength do begin
+ if (OldName[i] in ['A'..'Z']+['a'..'z']+['0'..'9']+
+                 ['{']+['}']+['[']+[']']+['`']+['~']+
+                 ['!']+['@']+['#']+['$']+['%']+['^']+
+                 ['&amp;']+['*']+['(']+[')']+['-']+['_']+
+                 ['+']+['=']+['\']+['|']+[';']+[':']+
+                 ['"']+['{']+['&lt;']+['&gt;']+[',']+['.']+
+                 [' ']+['?']+['/']+['№']+['^'])
+                then s:=s+OldName[i];
+ if OldName[i] in ['А','Б','а','б'] then
+    s:=s+chr(ord(OldName[i])-127);
+ if OldName[i] in ['В','в'] then
+    s:=s+chr(ord(OldName[i])-108);
+ if OldName[i] in ['Г','г','Ж','ж'] then
+    s:=s+chr(ord(OldName[i])-124);
+ if OldName[i] in ['Д','д','Е','е'] then
+    s:=s+chr(ord(OldName[i])-128);
+ if OldName[i] in ['З','з'] then
+    s:=s+chr(ord(OldName[i])-109);
+ if OldName[i] in ['И','и','К','к','Л','л','М','м','Н','н','О','о','П','п'] then
+    s:=s+chr(ord(OldName[i])-127);
+ if OldName[i] in ['Й','й'] then
+    s:=s+chr(ord(OldName[i])-128);
+ if OldName[i] in ['Р','р','С','с','Т','т','У','у'] then
+    s:=s+chr(ord(OldName[i])-126);
+ if OldName[i] in ['Ф','ф'] then
+    s:=s+chr(ord(OldName[i])-142);
+ if OldName[i] in ['Х','х'] then
+    s:=s+chr(ord(OldName[i])-141);
+ if OldName[i] in ['Ц','ц'] then
+    s:=s+chr(ord(OldName[i])-147);
+ if OldName[i] in ['Ы','ы'] then
+    s:=s+chr(ord(OldName[i])-130);
+ if OldName[i] in ['Э','э'] then
+    s:=s+chr(ord(OldName[i])-152);
+ if OldName[i] = 'Ё' then s:=s+'Yo';
+ if OldName[i] = 'ё' then s:=s+'yo';
+ if OldName[i] = 'Ч' then s:=s+'Ch';
+ if OldName[i] = 'ч' then s:=s+'ch';
+ if OldName[i] = 'Ш' then s:=s+'Sh';
+ if OldName[i] = 'ш' then s:=s+'sh';
+ if OldName[i] = 'Щ' then s:=s+'Sch';
+ if OldName[i] = 'щ' then s:=s+'sch';
+ if OldName[i] in ['Ъ','ъ','Ь','ь'] then s:=s+chr(39);
+ if OldName[i] = 'Ю' then s:=s+'Yu';
+ if OldName[i] = 'ю' then s:=s+'yu';
+ if OldName[i] = 'Я' then s:=s+'Ya';
+ if OldName[i] = 'я' then s:=s+'ya';
+ i:=i+1;
+end;
+Convert:=s;
+end;
+ 
+end.
+ 
+</pre>
+<p id="author">Автор NiJazz</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<html>
+<head>
+  <title>Вставка и удаление строк в TStringGrid</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Вставка и удаление строк в TStringGrid</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Dennis Passmore </p>
+<p>Поскольку свойство Cols[x] компонента TStringGrid реально является компонентом TStrings, все методы TStrings применимы также и к Cols[x]. </p>
+<p>Недавно в интернете я нашел реализацию расширенных функций TStringGrid: </p>
+<pre name="code" class="delphi">
+{
+Создано:               Dennis Passmore
+                       1929 Mango Tree Drive
+                       Edgewater, Fl. 32141
+                       CIS: 71640,2464
+                       Март 1, 1996
+Данный код свободен в использовании при одном условии:
+в исходном коде должна присутствовать указанная выше кредитка
+со ссылкой на автора.
+ 
+Примечание по использованию кода:
+Всякий раз при удалении Row (строки) или Column (колонки)
+проверяйте наличие и удаляйте любые объекты, которые могли
+быть назначены любой ячейке в строке или колонке, которые вы
+собираетесь удалять, поскольку данный код не может знать ни
+размера, ни типа ассигнованных ими объектов.
+ 
+}
+ 
+unit GridFunc;
+ 
+interface
+ 
+uses
+  Sysutils, WinProcs, Grids;
+ 
+procedure InsertRow(Sender: TStringGrid; ToIndex: Longint);
+procedure DeleteRow(Sender: TStringGrid; FromIndex: Longint);
+procedure InsertColumn(Sender: TStringGrid; ToIndex: Longint);
+procedure DeleteColumn(Sender: TStringGrid; FromIndex: Longint);
+ 
+implementation
+ 
+type
+  TCSGrid = class(TStringGrid)
+  private
+  public
+    procedure MoveRow(FromIndex, ToIndex: Longint);
+    procedure MoveColumn(FromIndex, ToIndex: Longint);
+  end;
+ 
+procedure TCSGrid.MoveRow(FromIndex, ToIndex: Longint);
+begin
+  RowMoved(FromIndex, ToIndex); { Защищенный метод TStringGrid }
+end;
+ 
+procedure TCSGrid.MoveColumn(FromIndex, ToIndex: Longint);
+begin
+  ColumnMoved(FromIndex, ToIndex); { Защищенный метод TStringGrid }
+end;
+ 
+procedure InsertRow(Sender: TStringGrid; ToIndex: Longint);
+var
+  xx, yy: Integer;
+begin
+  if ToIndex &gt;= 0 then
+    with TCSGrid(Sender) do
+      if (ToIndex &lt;= RowCount) then
+      begin
+        RowCount := RowCount + 1;
+        xx := RowCount - 1;
+        for yy := 0 to ColCount - 1 do
+        begin
+          Cells[yy, xx] := ' ';
+          ObJects[yy, xx] := nil;
+        end;
+        if ToIndex &lt; RowCount - 1 then
+          MoveRow(RowCount - 1, ToIndex);
+      end
+      else
+        MessageBeep(0)
+    else
+      MessageBeep(0);
+end;
+ 
+procedure DeleteRow(Sender: TStringGrid; FromIndex: Longint);
+begin
+  if FromIndex &gt; l;
+  = 0 then
+    with TCSGrid(Sender) do
+      if (RowCount &gt; 0) and (FromIndex &lt; RowCount) then
+      begin
+        if (FromIndex &lt; RowCount - 1) then
+          MoveRow(FromIndex, RowCount - 1);
+        Rows[RowCount - 1].Clear;
+        RowCount := RowCount - 1;
+      end
+      else
+        MessageBeep(0)
+    else
+      MessageBeep(0);
+end;
+ 
+procedure InsertColumn(Sender: TStringGrid; ToIndex: Longint);
+var
+  xx, yy: Integer;
+begin
+  if ToIndex &gt;= 0 then
+    with TCSGrid(Sender) do
+      if (ToIndex &lt;= ColCount) then
+      begin
+        ColCount := ColCount + 1;
+        xx := ColCount - 1;
+        Cols[xx].BeginUpdate;
+        for yy := 0 to RowCount - 1 do
+        begin
+          Cells[xx, yy] := ' ';
+          ObJects[xx, yy] := nil;
+        end;
+        Cols[xx].EndUpdate;
+        if ToIndex &lt; ColCount - 1 then
+          MoveColumn(ColCount - 1, ToIndex);
+      end
+      else
+        MessageBeep(0)
+    else
+      MessageBeep(0);
+end;
+ 
+procedure DeleteColumn(Sender: TStringGrid; FromIndex: Longint);
+begin
+  if FromIndex &gt;= 0 then
+    with TCSGrid(Sender) do
+      if (ColCount &gt; 0) and (FromIndex &lt; ColCount) then
+      begin
+        if (FromIndex &lt; ColCount - 1) then
+          MoveColumn(FromIndex, ColCount - 1);
+        Cols[ColCount - 1].Clear;
+        ColCount := ColCount - 1;
+      end
+      else
+        MessageBeep(0)
+    else
+      MessageBeep(0);
+end;
+ 
+end.
+ 
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+<hr />
+<pre name="code" class="delphi">
+// For this tip you need a StringGrid1 and a Button1. 
+// Fur diesen Tip braucht man ein StringGrid1 und einen Button1. 
+ 
+ 
+{...}
+ type
+   TForm1 = class(TForm)
+     StringGrid1: TStringGrid;
+     Button1: TButton;
+     procedure Button1Click(Sender: TObject);
+   private
+     {...}
+   public
+     {...}
+   end;
+ 
+ type
+   TStringGridHack = class(TStringGrid)
+   protected
+     procedure DeleteRow(ARow: Longint); reintroduce;
+     procedure InsertRow(ARow: Longint);
+   end;
+ 
+ var
+   Form1: TForm1;
+ 
+ implementation
+ 
+ {$R *.DFM}
+ 
+ procedure TStringGridHack.DeleteRow(ARow: Longint);
+ var
+   GemRow: Integer;
+ begin
+   GemRow := Row;
+   if RowCount &gt; FixedRows + 1 then
+     inherited DeleteRow(ARow)
+   else
+     Rows[ARow].Clear;
+   if GemRow &lt; RowCount then Row := GemRow;
+ end;
+ 
+ procedure TStringGridHack.InsertRow(ARow: Longint);
+ var
+   GemRow: Integer;
+ begin
+   GemRow := Row;
+   while ARow &lt; FixedRows do Inc(ARow);
+   RowCount := RowCount + 1;
+   MoveRow(RowCount - 1, ARow);
+   Row := GemRow;
+   Rows[Row].Clear;
+ end;
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   // Insert Row, Zeile hinzufugen 
+  TStringGridHack(StringGrid1).InsertRow(1);
+   // Remove Row, Zeile entfernen 
+  TStringGridHack(StringGrid1).DeleteRow(2);
+ end;
+ 
+ end.
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

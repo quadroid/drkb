@@ -1,0 +1,233 @@
+<html>
+<head>
+  <title>Метод Рунге-Кутта решения дифференциальных уравнений и их систем</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Метод Рунге-Кутта решения дифференциальных уравнений и их систем</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Метод Рунге-Кутта решения дифференциальных уравнений и их систем</p>
+© 2006 Андрей Садовой</p>
+<p>Метод позволяет решать системы обыкновенных дифференциальных уравнений (ОДУ) первого порядка следующего вида:<br>
+      <img src="pic/clip0307.gif" width="104" height="22" border="0" alt="clip0307">,<br>
+      <img src="pic/clip0308.gif" width="98" height="22" border="0" alt="clip0308">,<br>
+      и т.д.,<br>
+&nbsp;<br>
+которые имеют решение:<br>
+&nbsp;<br>
+      <img src="pic/clip0309.gif" width="59" height="19" border="0" alt="clip0309">,<br>
+      <img src="pic/clip0310.gif" width="53" height="19" border="0" alt="clip0310">,<br>
+      и т.д.,<br>
+&nbsp;<br>
+<p>где t &#8211; независимая переменная (например, время); X, Y и т.д. &#8211; искомые функции (зависимые от t переменные). Функции f, g и т.д. &#8211; заданы. Также предполагаются заданными и начальные условия, т.е. значения искомых функций в начальный момент. </p>
+<p>Одно дифференциальное уравнение &#8211; частный случай системы с одним элементом. Поэтому, далее речь пойдет для определенности о системе уравнений.</p>
+<p>Метод может быть полезен и для решения дифференциальных уравнений высшего (второго и т.д.) порядка, т.к. они могут быть представлены системой дифференциальных уравнений первого порядка.</p>
+<p>Метод Рунге-Кутта заключается в рекурентном применении следующих формул:<br>
+      <img src="pic/clip0311.gif" width="210" height="37" border="0" alt="clip0311"><br>
+      <img src="pic/clip0312.gif" width="214" height="37" border="0" alt="clip0312"><br>
+      ...<br>
+где<br>
+      <img src="pic/clip0313.gif" width="134" height="22" border="0" alt="clip0313">,<br>
+      <img src="pic/clip0314.gif" width="136" height="22" border="0" alt="clip0314">,<br>
+      <img src="pic/clip0315.png" width="230" height="39" border="0" alt="clip0315">,<br>
+      <img src="pic/clip0001.png" width="232" height="39" border="0" alt="clip0001">,<br>
+      <img src="pic/clip0002.png" width="234" height="39" border="0" alt="clip0002">,<br>
+      <img src="pic/clip0003.png" width="235" height="39" border="0" alt="clip0003">,<br>
+      <img src="pic/clip0004.png" width="220" height="22" border="0" alt="clip0004">,<br>
+<p>      <img src="pic/clip0005.png" width="223" height="22" border="0" alt="clip0005"> </p>
+<p>Реализация Метода Рунге-Кутта на Delphi может выглядеть так (привожу полностью модуль): </p>
+<pre name="code" class="delphi">
+unit RK_Method;
+ 
+interface
+ 
+type
+   TVarsArray = array of Extended; // вектор переменных включая независимую
+   TInitArray = array of Extended; // вектор начальных значений
+   TFunArray = array of function(VarsArray: TVarsArray ):Extended;
+   // вектор функций
+   TResArray = array of array of Extended; // матрица результатов
+   TCoefsArray = array of Extended; // вектор коэффициетов метода
+ 
+function Runge_Kutt( // метод Рунге-Кутта
+   FunArray: TFunArray; // массив функций
+   First: Extended; // начальная точка по независимой координате
+   Last: Extended; // конечная точка по независимой координате
+   Steps: Integer; // число шагов по независимой координате
+   InitArray: TInitArray; // вектор начальных значений
+   var Res: TResArray // матрица результатов включая независ. переменную
+   ):Word; 
+   // возвращаемое значение - код ошибки
+ 
+implementation 
+Function Runge_Kutt( // метод Рунге-Кутта
+   FunArray: TFunArray; // массив функций
+   First: Extended; // начальная точка по независимой координате
+   Last: Extended; // конечная точка по независимой координате
+   Steps: Integer; // число шагов по независимой координате
+   InitArray: TInitArray; // вектор начальных значений
+   var Res: TResArray // матрица результатов включая независ. переменную
+   ):Word; // возвращаемое значение - код ошибки
+var
+   Num: Word; // число уравнений
+   NumInit: Word; // число начальных условий
+   Delt: Extended; // шаг разбиения
+   Vars: TVarsArray; // вектор переменных включая независимую
+   Vars2,Vars3,Vars4: TVarsArray; // значения перем. для 2-4 коэф.
+   Coefs1: TCoefsArray; // вектор 1-ыx коэффициентов в методе
+   Coefs2: TCoefsArray; // вектор 2 коэффициентов в методе
+   Coefs3: TCoefsArray; // вектор 3 коэффициентов в методе
+   Coefs4: TCoefsArray; // вектор 4 коэффициентов в методе
+   I: Integer; // счетчик цикла по иттерациям
+   J: Word; // индекс коэф.-тов метода
+   K: Integer; // счетчик прочих циклов
+begin
+   Num:=Length(FunArray); // узнаем число уравнений
+   NumInit:=Length(InitArray); // узнаем число начальных условий
+   If NumInit&lt;&gt;Num then
+     begin
+       Result:=100; // код ошибки 100: число уравнений не равно числу нач. усл.
+       Exit;
+     end;
+   Delt:=(Last-First)/Steps; // находим величину шага разбиений
+   SetLength(Res,Num+1,Steps+1); // задаем размер матрицы ответов с незав. перем.
+   SetLength(Vars,Num+1); // число переменных включая независимую
+   SetLength(Vars2,Num+1); // число переменных для 2-го коэф. включая независимую
+   SetLength(Vars3,Num+1); // число переменных для 3-го коэф. включая независимую
+   SetLength(Vars4,Num+1); // число переменных для 4-го коэф. включая независимую
+   SetLength(Coefs1,Num); // число 1-ыx коэф. метода по числу уравнений
+   SetLength(Coefs2,Num); // число 2-ыx коэф. метода по числу уравнений
+   SetLength(Coefs3,Num); // число 3-иx коэф. метода по числу уравнений
+   SetLength(Coefs4,Num); // число 4-ыx коэф. метода по числу уравнений
+   // Начальные значения переменных:
+   Vars[0]:=First;
+   For K:=0 to NumInit-1 do Vars[K+1]:=InitArray[K];
+   For J:=0 to Num do Res[J,0]:=Vars[J]; // первая точка результата
+   For I:=0 to Steps-1 do // начало цикла иттераций
+     begin
+       For J:=0 to Num-1 do Coefs1[J]:=FunArray[J](Vars)*delt; // 1-й коэфф.
+       // Находим значения переменных для второго коэф.
+       Vars2[0]:=Vars[0]+delt/2;
+       For K:=1 to Num do Vars2[K]:=Vars[K]+Coefs1[K-1]/2;
+       For J:=0 to Num-1 do Coefs2[J]:=FunArray[J](Vars2)*delt; // 2-й коэф.
+       // Находим значения переменных для третьго коэф.
+       Vars3[0]:=Vars[0]+delt/2;
+       For K:=1 to Num do Vars3[K]:=Vars[K]+Coefs2[K-1]/2;
+       For J:=0 to Num-1 do Coefs3[J]:=FunArray[J](Vars3)*delt; // 3 коэфф.
+       // Находим значения переменных для 4 коэф.
+       Vars4[0]:=Vars[0]+delt;
+       For K:=1 to Num do Vars4[K]:=Vars[K]+Coefs3[K-1];
+       For J:=0 to Num-1 do Coefs4[J]:=FunArray[J](Vars4)*delt; // 4 коэфф.
+       // Находим новые значения переменных включая независимую
+       Vars[0]:=Vars[0]+delt;
+       For K:=1 to Num do
+       Vars[K]:=Vars[K]+(1/6)*(Coefs1[K-1]+2*(Coefs2[K-1]+Coefs3[K-1])+Coefs4[K-1]);
+       // Результат иттерации:
+       For J:=0 to Num do Res[J,I+1]:=Vars[J];
+     end; // конец итераций
+   Result:=0; // код ошибки 0 - нет ошибок
+end;
+ 
+end. 
+</pre>
+
+<p>Модуль полностью работоспособен. Возвращаемое функцией Runge_Kutt значение &#8211; код ошибки. Вы можете дополнить список ошибок по своему усмотрению. Рассчитанные функции системы помещаются в массив Res. Чтобы не загромождать код, в модуле опущены проверки (типа блоков try). Рекомендую их добавить по своему усмотрению.</p>
+<p>Ниже приводится описание функции Runge_Kutt и типов, использующихся в модуле. </p>
+<pre name="code" class="delphi">
+ 
+</pre>
+<p>Function Runge_Kutt (FunArray: TFunArray; First: Extended; Last: Extended; Steps: Integer; InitArray: TInitArray; var Res: TResArray):Word;<br>
+&nbsp;<br>
+Здесь:<br>
+   FunArray - вектор функций (правых частей уравнений системы);<br>
+   First, Last - начальная и конечная точки расчетного интервала;<br>
+   Steps - число шагов по расчетному интервалу;<br>
+   InitArray - вектор начальных значений<br>
+<p>   Res - матрица результатов включая независимую переменную. </p>
+<p>В модуле описаны типы: </p>
+<p>type<br>
+   TVarsArray = array of Extended; // вектор переменных включая независимую<br>
+   TInitArray = array of Extended; // вектор начальных значений<br>
+   TFunArray = array of function(VarsArray: TVarsArray ):Extended; // вектор функций<br>
+   TResArray = array of array of Extended; // матрица результатов<br>
+<p>   TCoefsArray = array of Extended; // вектор коэффициетов метода </p>
+<p>Функция возвращает коды ошибок:<br>
+  0 &#8211; нет ошибок;<br>
+<p>  100 - число уравнений не равно числу начальных условий. </p>
+<p>Решение содержится в переменной-матрице Res. Первый индекс матрицы относится к переменной (0 &#8211; независимая переменная, 1 &#8211; первая зависимая и т.д.), второй &#8211; к номеру расчетной точки (0 &#8211; начальная точка).</p>
+<p>Рассмотрим один пример использования модуля. Создадим новое приложение и подключим к нему модуль. На форме приложения разместим кнопку Button1 и область текста Memo1. Поместим в приложение две функции и обработчик нажатия кнопки: </p>
+<pre name="code" class="delphi">
+//Задаем функции (правые части уравнений)
+function f0(VarArray:TVarsArray):extended;
+begin
+   Result:=4*VarArray[0]*VarArray[0]*VarArray[0];
+end;
+ 
+function f1(VarArray:TVarsArray):extended;
+begin
+   Result:=1;
+end;
+ 
+////////////////////////////////////////////////////////////////////////////////
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+   I: Integer;
+   FunArray: TFunArray; // массив функций
+   First: Extended; // начальная точка по независимой координате
+   Last: Extended; // конечная точка по независимой координате
+   Steps: Integer; // число шагов по независимой координате
+   InitArray: TInitArray; // вектор начальных значений
+   Res: TResArray; // матрица результатов включая независ. переменную
+begin    // Создаем вектор функций:
+   SetLength(FunArray,2);
+   FunArray[0]:=f0;
+   FunArray[1]:=f1;
+   // Задаем интервал и число шагов:
+   First:=0;
+   Last:=10;
+   Steps:=10;
+   // Задаем начальные условия:
+   SetLength(InitArray,2);
+   InitArray[0]:=0;
+   InitArray[1]:=0;
+   // Вызов метода и получение результатов:
+   Memo1.Lines.Clear;
+   I:=Runge_Kutt(FunArray, First, Last, Steps, InitArray, Res);
+   ShowMessage('Код ошибки = '+IntToStr(I));
+   For I:=0 to Steps do
+     Memo1.Lines.Add(floattostr(Res[0,I])+' '+floattostr(Res[1,I])+' '+floattostr(Res[2,I]));
+end; 
+</pre>
+
+<p>Нажатие кнопки приведет к расчету точек системы, которые будут выведены в текстовую область. </p>
+<p>Copyright© 2006 Андрей Садовой  Специально для Delphi Plus</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

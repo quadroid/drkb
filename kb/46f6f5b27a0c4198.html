@@ -1,0 +1,167 @@
+<html>
+<head>
+  <title>Определить корень слова (для поиска похожих слов)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Определить корень слова (для поиска похожих слов)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p id="author">Автор: ___Nikolay</p>
+<pre name="code" class="delphi">
+// Поиск по корню слова
+function RootOfWord(s: string): string;
+label
+  start;
+const
+  sGlas = 'аеёиоуыэюяaeiou'; // With english letters
+  sSoglas = 'бвгджзйклмнпрстфхцчшщъь';
+  sCompletions1 = 'й ь s';
+  sCompletions2 = 'ам ям ом ем ин ём ся ет ит ут ют ат ят ыв ив ев ан ян ов ев ог ег ир ер ых ок ющ ущ er ed';
+  sCompletions3 = 'енн овл евл ённ анн ост ест';
+  sAttachments1 = 'в с';
+  sAttachments2 = 'на за ис из до по вы во со';
+  sAttachments3 = 'при рас пре про под';
+  sAttachments4 = 'пере';
+var
+  sResult: string;
+  i, iCnt, iGlasCount, iCheckCount: integer;
+begin
+  sResult := AnsiLowerCase(Trim(s));
+  iCheckCount := 0;
+ 
+  start:
+  // "ся"
+  if Length(sResult) &gt; 3 then
+    if sResult[Length(sResult) - 1] + sResult[Length(sResult)] = 'ся' then
+      Delete(sResult, Length(sResult) - 1, 2);
+ 
+  (*  E N G L I S H  *)
+ 
+  // "ing"
+  if Length(sResult) &gt; 4 then
+    if sResult[Length(sResult) - 2] + sResult[Length(sResult) - 1] + sResult[Length(sResult)] = 'ing' then
+      Delete(sResult, Length(sResult) - 2, 3);
+ 
+  // --
+ 
+  // Гласные
+  if Length(sResult) &gt; 3 then
+  begin
+    iGlasCount := 0;
+    for i := Length(sResult) downto 1 do
+      if Pos(sResult[i], sGlas) &lt;&gt; 0 then // Если последний символ - гласная
+        inc(iGlasCount)
+      else
+        break;
+    if iGlasCount &lt;&gt; 0 then
+    begin
+      iGlasCount := iGlasCount - 1;
+      Delete(sResult, Length(sResult) - iGlasCount, iGlasCount + 1);
+    end;
+  end;
+ 
+  // Окончания
+  if Length(sResult) &gt; 3 then
+    if Pos(sResult[Length(sResult)], sCompletions1) &lt;&gt; 0 then
+      Delete(sResult, Length(sResult), 1);
+ 
+  // "ся"
+  if Length(sResult) &gt; 3 then
+    if sResult[Length(sResult) - 1] + sResult[Length(sResult)] = 'ся' then
+      Delete(sResult, Length(sResult) - 1, 2);
+ 
+  if Length(sResult) &gt; 3 then
+    while Pos(sResult[Length(sResult) - 2] + sResult[Length(sResult) - 1] +
+      sResult[Length(sResult)], sCompletions3) &lt;&gt; 0 do
+    begin
+      if Length(sResult) &gt; 3 then
+        Delete(sResult, Length(sResult) - 1, 3)
+      else
+        break;
+    end;
+ 
+  if Length(sResult) &gt; 3 then
+    while Pos(sResult[Length(sResult) - 1] + sResult[Length(sResult)], sCompletions2) &lt;&gt; 0 do
+    begin
+      if Length(sResult) &gt; 3 then
+        Delete(sResult, Length(sResult) - 1, 2)
+      else
+        break;
+    end;
+ 
+  // Гласные
+  if Length(sResult) &gt; 3 then
+  begin
+    iGlasCount := 0;
+    for i := Length(sResult) downto 1 do
+      if Pos(sResult[i], sGlas) &lt;&gt; 0 then // Если последний символ - гласная
+        inc(iGlasCount)
+      else
+        break;
+    if iGlasCount &lt;&gt; 0 then
+    begin
+      iGlasCount := iGlasCount - 1;
+      Delete(sResult, Length(sResult) - iGlasCount, iGlasCount + 1);
+    end;
+  end;
+ 
+  // Приставки
+  iCnt := 4;
+  if Length(sResult) &gt; iCnt then
+    if Pos(Copy(sResult, 1, iCnt), sAttachments4) &lt;&gt; 0 then
+      Delete(sResult, 1, iCnt);
+ 
+  iCnt := 3;
+  if Length(sResult) &gt; iCnt then
+    if Pos(Copy(sResult, 1, iCnt), sAttachments3) &lt;&gt; 0 then
+      Delete(sResult, 1, iCnt);
+ 
+  iCnt := 2;
+  if Length(sResult) &gt; iCnt then
+    if Pos(Copy(sResult, 1, iCnt), sAttachments2) &lt;&gt; 0 then
+      Delete(sResult, 1, iCnt);
+ 
+  iCnt := 1;
+  if Length(sResult) &gt; iCnt then
+    if Pos(Copy(sResult, 1, iCnt), sAttachments1) &lt;&gt; 0 then
+      Delete(sResult, 1, iCnt);
+ 
+  inc(iCheckCount);
+  if iCheckCount &lt; 2 then
+    goto start;
+ 
+  Result := sResult;
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

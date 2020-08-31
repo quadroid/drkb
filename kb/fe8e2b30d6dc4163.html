@@ -1,0 +1,127 @@
+<html>
+<head>
+  <title>Как в консольном приложении можно задать цвет текста?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как в консольном приложении можно задать цвет текста?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Цвет Текста задается командой SetTextColor(Color), параметр Color - целое число от 0 до 15.</p>
+<p>Вывод текста в указанном месте экрана задается командой GotoXY(X,Y,Text).</p>
+<p>X,Y-координаты экрана.</p>
+<p>Text - переменная типа String.</p>
+<p>Ответ 3:</p>
+<p>Вот текст модуля, напоминающего про наш любимый ДОС (CRT-like):</p>
+<pre name="code" class="delphi">
+unit UffCRT;
+// written by Michael Uskoff, Apr 2001, St.Petersburg, RUSSIA
+ 
+interface
+ 
+procedure ClrScr;
+procedure SetAttr(attr: word);
+function GetAttr: word;
+procedure GotoXY(aX, aY: integer); // zero-based coords
+function WhereX: integer;
+function WhereY: integer;
+ 
+implementation
+ 
+uses Windows;
+ 
+var
+  UpperLeft: TCoord = (X: 0; Y: 0);
+  hCon: integer;
+ 
+procedure GotoXY(aX, aY: integer);
+var aCoord: TCoord;
+begin
+  aCoord.x := aX;
+  aCoord.y := aY;
+  SetConsoleCursorPosition(hCon, aCoord);
+end;
+ 
+procedure SetAttr(attr: word);
+begin
+  SetConsoleTextAttribute(hCon, attr);
+end;
+ 
+function WhereX: integer;
+var ScrBufInfo: TConsoleScreenBufferInfo;
+begin
+  GetConsoleScreenBufferInfo(hCon, ScrBufInfo);
+  Result := ScrBufInfo.dwCursorPosition.x;
+end;
+ 
+function WhereY: integer;
+var ScrBufInfo: TConsoleScreenBufferInfo;
+begin
+  GetConsoleScreenBufferInfo(hCon, ScrBufInfo);
+  Result := ScrBufInfo.dwCursorPosition.y;
+end;
+ 
+function GetAttr: word;
+var ScrBufInfo: TConsoleScreenBufferInfo;
+begin
+  GetConsoleScreenBufferInfo(hCon, ScrBufInfo);
+  Result := ScrBufInfo.wAttributes;
+end;
+ 
+procedure ClrScr;
+var fill: integer;
+  ScrBufInfo: TConsoleScreenBufferInfo;
+begin
+  GetConsoleScreenBufferInfo(hCon, ScrBufInfo);
+  fill := ScrBufInfo.dwSize.x * ScrBufInfo.dwSize.y;
+  FillConsoleOutputCharacter(hCon, ' ', fill, UpperLeft, fill);
+  FillConsoleOutputAttribute(hCon, ScrBufInfo.wAttributes, fill, UpperLeft, fill);
+  GotoXY(0, 0);
+end;
+ 
+initialization
+  hCon := GetStdHandle(STD_OUTPUT_HANDLE);
+end.
+ 
+Теперь можно творить такое:
+ 
+uses UffCRT;
+....
+ClrScr;
+SetAttr($1E);
+GotoXY(32, 12);
+Write('Hello, master !');
+ReadLn;
+...
+</pre>
+
+<p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>Обрезание строки по длине</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Обрезание строки по длине</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p id="author">Автор: ___Nikolay</p>
+<pre name="code" class="delphi">
+// Обрезание строки по длине
+function TfmDW6Main.BeautyStr(s: string; iLength: integer): string;
+var
+  bm: TBitmap;
+  sResult: string;
+  iStrLen: integer;
+  bAdd: boolean;
+begin
+  Result := s;
+  if Trim(s) = '' then
+    exit;
+ 
+  bAdd := false;
+    sResult := s;
+  bm := TBitmap.Create;
+  bm.Width := 100;
+  bm.Height := 100;
+  iStrLen := bm.Canvas.TextWidth(sResult);
+  while iStrLen &gt; iLength do
+  begin
+    if Length(sResult) &lt; 4 then
+      break;
+ 
+    Delete(sResult, Length(sResult) - 2, 3);
+    bAdd := true;
+    iStrLen := bm.Canvas.TextWidth(sResult);
+  end;
+ 
+  if (iStrLen &lt;= iLength) and bAdd then
+    sResult := sResult + '...';
+ 
+  bm.Free;
+  Result := sResult;
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

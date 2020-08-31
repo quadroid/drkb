@@ -1,0 +1,119 @@
+<html>
+<head>
+  <title>Сохранение массива c изображениями</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сохранение массива c изображениями</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Я решил проблему записи массива TBitmap в файл и его повторного чтения. </p>
+
+<p>Идея заключается в загрузке каждого TBitmap во временный TMemoryStream. Член TMemoryStream.Size информирует о размере данных, которые нужно сохранить на диске. Затем мы пишем размер и сопровождаем его данными типа TFileStream. Эту манипуляцию мы проделываем для каждого TBitmap в массиве. </p>
+
+<p>Для процедуры чтения сначала мы должны считать из потока размер данных TBitmap. Затем мы распределяем область для типа TMemoryStream полученного размера и считываем данные. Затем переписываем из TFileStream в TMemoryStream. И, наконец, мы читает из TMemoryStream сам TBitmap. Эту манипуляцию мы проделываем для каждого TBitmap в массиве. </p>
+
+<p>Ниже я привел код, который я реально использовал. Код из игры Bingo, которую я разрабатываю, имеет сетку 5x5, чьи ячейки содержат изображение. </p>
+
+<p>Реализация алгоритма весьма медленна, поэтому если вы имеете или найдете более быстрый алгоритм, пожалуйста, уведомите меня об этом. Если у вас есть любые вопросы, пожалуйста, свяжитесь со мной.</p>
+
+<pre name="code" class="delphi">
+procedure TMainForm.SaveBoard;
+var
+  MemoryStream: TMemoryStream;
+  FileStream: TFileStream;
+  Writer: TWriter;
+  Buffer: Pointer;
+  Size: Longint;
+  Column: Integer;
+  Row: Integer;
+begin
+  MemoryStream := TMemoryStream.Create;
+  FileStream := TFileStream.Create(SaveFilename, fmCreate);
+  Writer := TWriter.Create(FileStream, $1000);
+  try
+    for Column := 0 to 4 do
+      for Row := 0 to 4 do
+      begin
+        MemoryStream.Clear;
+        Bitmaps[Column, Row].SaveToStream(MemoryStream);
+        Buffer := MemoryStream.Memory;
+        Size := MemoryStream.Size;
+        Writer.WriteInteger(Size);
+        Writer.Write(Buffer^, Size);
+      end;
+  finally
+    Writer.Free;
+    FileStream.Free;
+    MemoryStream.Free;
+  end;
+end;
+ 
+procedure TMainForm.Open1Click(Sender: TObject);
+var
+  MemoryStream: TMemoryStream;
+  FileStream: TFileStream;
+  Buffer: Pointer;
+  Reader: TReader;
+  Column: Integer;
+  Row: Integer;
+  Size: Longint;
+begin
+  OpenDialog2.Filename := SaveFilename;
+  if not OpenDialog2.Execute then
+    Exit;
+  MemoryStream := TMemoryStream.Create;
+  FileStream := TFileStream.Create(OpenDialog2.Filename, fmOpenRead);
+  Reader := TReader.Create(FileStream, $1000);
+  try
+    for Column := 0 to 4 do
+      for Row := 0 to 4 do
+      begin
+        Size := Reader.ReadInteger;
+        MemoryStream.SetSize(Size);
+        Buffer := MemoryStream.Memory;
+        Reader.Read(Buffer^, Size);
+        Bitmaps[Column, Row].LoadFromStream(MemoryStream);
+      end;
+  finally
+    Reader.Free;
+    FileStream.Free;
+    MemoryStream.Free;
+  end;
+  DrawGrid1.Repaint;
+  SaveFilename := OpenDialog2.Filename;
+  Caption := 'Bingo-создатель - ' + ExtractFilename(SaveFilename);
+end;
+</pre>
+<a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<html>
+<head>
+  <title>Получение данных из Program Manager через DDE</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получение данных из Program Manager через DDE</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Установите соединение DDEClientConv с сервером и установите обоим DdeTopic в 'ProgMan'. Вызовите RequestData и передайте 'Groups' как элемент (item); обратно вы получите список имен групп. Вызовите RequestData с одним из имен групп и вы получите детальную информцию о группе. Вероятно дальше вы захотите передать полученные данные в ListBox, т.к. сразу можно увидеть что мы имеем и как затем это можно обработать, например:</p>
+<pre name="code" class="delphi">VAR P : PChar;
+...
+P := DdeClientConv1.RequestData('Groups');
+ListBox1.Items.SetText(P);
+StrDispose(P);
+...
+WITH ListBox1 DO
+P := DdeClientConv1.RequestData(Items[ItemIndex]);
+ListBox2.Items.SetText(P);
+StrDispose(P);
+...
+</pre>
+
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

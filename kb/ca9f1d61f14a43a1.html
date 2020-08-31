@@ -1,0 +1,90 @@
+<html>
+<head>
+  <title>Получить Handle и имя класса окна под мышкой</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получить Handle и имя класса окна под мышкой</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+type 
+  TForm1 = class(TForm) 
+    Label1: TLabel; 
+    Label2: TLabel; 
+    Timer1: TTimer; 
+    procedure Timer1Timer(Sender: TObject); 
+    procedure FormCreate(Sender: TObject); 
+  private 
+    procedure ShowHwndAndClassName(CrPos: TPoint); 
+  public 
+ 
+end; 
+ 
+var 
+  Form1: TForm1; 
+ 
+implementation 
+ 
+{$R *.DFM} 
+ 
+procedure TForm1.Timer1Timer(Sender: TObject); 
+var 
+  rPos: TPoint; 
+begin 
+  if Boolean(GetCursorPos(rPos)) then ShowHwndAndClassName(rPos); 
+end; 
+ 
+procedure TForm1.ShowHwndAndClassName(CrPos: TPoint); 
+var 
+  hWnd: THandle; 
+  aName: array [0..255] of Char; 
+begin 
+  hWnd := WindowFromPoint(CrPos); 
+  Label1.Caption := 'Handle :  ' + IntToStr(hWnd); 
+ 
+  if Boolean(GetClassName(hWnd, aName, 256)) then 
+    Label2.Caption := 'ClassName :  ' + string(aName) 
+  else 
+    Label2.Caption := 'ClassName :  not found'; 
+end; 
+ 
+procedure TForm1.FormCreate(Sender: TObject); 
+begin 
+  Form1.FormStyle := fsStayOnTop; 
+  Timer1.Interval := 50; 
+end;
+ 
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

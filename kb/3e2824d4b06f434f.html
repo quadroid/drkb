@@ -1,0 +1,159 @@
+<html>
+<head>
+  <title>Управление Program Manager в Win95 с помощью DDE</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Управление Program Manager в Win95 с помощью DDE</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Для управления программными группами в Program Manager с помощью DDE мною был использован следующий модуль. За основу был взят код Steve Texeira (sp) из руководства Dephi Developers Guide. </p>
+<p>Работает под Win 3.1 и '95.</p>
+<pre name="code" class="delphi">
+unit Pm;
+ 
+interface
+ 
+uses
+  SysUtils, Classes, DdeMan;
+ 
+type
+  EProgManError = class(Exception);
+ 
+  TProgMan = class(TComponent)
+  private
+    FDdeClientConv: TDdeClientConv;
+    procedure InitDDEConversation;
+    function ExecMacroString(Macro: string): Boolean;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure CreateGroup(GroupName: string; ShowGroup: Boolean);
+    procedure DeleteGroup(GroupName: string);
+    procedure DeleteItem(ItemName: string);
+    procedure AddItem(CmdLine, ItemName: string);
+  end;
+ 
+implementation
+ 
+uses Utils;
+ 
+const
+ 
+  { DDE-макростроки для Program Manager }
+  SDDECreateGroup = '[CreateGroup(%s)]';
+  SDDEShowGroup = '[ShowGroup(%s, 1)]';
+  SDDEDeleteGroup = '[DeleteGroup(%s)]';
+  SDDEDeleteItem = '[DeleteItem(%s)]';
+  SDDEAddItem = '[AddItem(%s, "%s", %s)]';
+ 
+constructor TProgMan.Create(AOwner: TComponent);
+begin
+ 
+  inherited Create(AOwner);
+  InitDDEConversation;
+end;
+ 
+destructor TProgMan.Destroy;
+begin
+ 
+  if Assigned(FDDEClientConv) then
+    FDdeClientConv.CloseLink;
+  inherited Destroy;
+end;
+ 
+function TProgMan.ExecMacroString(Macro: string): Boolean;
+begin
+ 
+  StringAsPchar(Macro);
+  Result := FDdeClientConv.ExecuteMacro(@Macro[1], False);
+end;
+ 
+procedure TProgMan.InitDDEConversation;
+begin
+ 
+  FDdeClientConv := TDdeClientConv.Create(Self);
+  if not FDdeClientConv.SetLink('PROGMAN', 'PROGMAN') then
+    raise EProgManError.Create('Не могу установить DDE Link');
+end;
+ 
+procedure TProgMan.CreateGroup(GroupName: string; ShowGroup: Boolean);
+begin
+ 
+  { Удаляем группу, если она существует }
+  ExecMacroString(Format(SDDEDeleteGroup, [GroupName]));
+ 
+  if not ExecMacroString(Format(SDDECreateGroup, [GroupName])) then
+    raise EProgManError.Create('Не могу создать группу ' + GroupName);
+  if ShowGroup then
+    if not ExecMacroString(Format(SDDEShowGroup, [GroupName])) then
+      raise EProgManError.Create('Не могу показать группу ' + GroupName);
+end;
+ 
+procedure TProgMan.DeleteGroup(GroupName: string);
+begin
+ 
+  if not ExecMacroString(Format(SDDEDeleteGroup, [GroupName])) then
+    raise EProgManError.Create('Не могу удалить группу ' + GroupName);
+end;
+ 
+procedure TProgMan.DeleteItem(ItemName: string);
+begin
+ 
+  if not ExecMacroString(Format(SDDEDeleteGroup, [ItemName])) then
+    raise EProgManError.Create('Не могу удалить элемент ' + ItemName);
+end;
+ 
+procedure TProgMan.AddItem(CmdLine, ItemName: string);
+var
+ 
+  P: PChar;
+  PSize: Word;
+begin
+ 
+  PSize := StrLen(SDDEAddItem) + (Length(CmdLine) * 2) + Length(ItemName) + 1;
+  GetMem(P, PSize);
+  try
+    StrFmt(P, SDDEAddItem, [CmdLine, ItemName, CmdLine]);
+    if not FDdeClientConv.ExecuteMacro(P, False) then
+      raise EProgManError.Create('Не могу добавить элемент ' + ItemName);
+  finally
+    FreeMem(P, PSize);
+  end;
+end;
+ 
+end.
+ 
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

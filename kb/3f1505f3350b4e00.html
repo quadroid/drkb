@@ -1,0 +1,124 @@
+<html>
+<head>
+  <title>Примеры форматирования строк с использованием API функции wvsprintf</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Примеры форматирования строк с использованием API функции wvsprintf</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Примеры форматирования строк с использованием API-функции wvsprintf
+ 
+Примеры показывают приемы использования функции wvsprintf в Delphi для
+форматирования строк. Эта функция входит в состав Windows API
+(реализована в user32.dll), поэтому не требует подключения модуля
+SysUtils по сравнению с аналогичной функцией Format.
+ 
+Зависимости: Windows
+Автор:       Внук, Zhigalin@poria.ru, ICQ:60571446, Самара
+Copyright:   Внук
+Дата:        29 мая 2002 г.
+***************************************************** }
+ 
+// Пример использования функции wvsprintf с двумя параметрами разного типа
+ 
+function WinFormat(out TargetString: AnsiString): Boolean;
+const
+  FormatStr = 'String Parameter:"%s", Number Parameter:%05d';
+var
+  StrParam: AnsiString;
+  NumberParam, FormatResult: Integer;
+  ParamArray: array[0..1] of Pointer;
+begin
+  NumberParam := 105; // Задаем значение первого параметра
+  StrParam := 'Hello'; // Задаем значение второго параметра
+  SetLength(TargetString, 50); // Должно быть достаточно места для результата.
+  // Без этой строки работать не будет
+  ParamArray[0] := @StrParam[1];
+  ParamArray[1] := Pointer(NumberParam);
+  FormatResult := wvsprintf(PChar(TargetString), FormatStr, PChar(@ParamArray));
+  if FormatResult &lt; Length(FormatStr) then // В случае ошибки значение функции
+    // меньше длины шаблонной строки
+  begin
+    TargetString := '';
+    Result := False;
+  end
+  else
+    result := True;
+end;
+ 
+// Пример использования функции wvsprintf с одним параметром
+ 
+function SimpleWinFormat(out TargetString: AnsiString): Boolean;
+const
+  FormatStr = 'Number Parameter:%05d';
+var
+  NumberParam, FormatResult: Integer;
+begin
+  NumberParam := 112;
+  SetLength(TargetString, 50); // Должно быть достаточно места для результата.
+  // Без этой строки работать не будет
+  FormatResult := wvsprintf(PChar(TargetString), FormatStr,
+    PChar(@NumberParam));
+  if FormatResult &lt; Length(FormatStr) then // В случае ошибки значение функции
+    // меньше длины шаблонной строки
+  begin
+    TargetString := '';
+    Result := False;
+  end
+  else
+    result := True;
+end;
+Пример использования: 
+ 
+uses Dialogs, ...;
+...
+var
+  S: AnsiString;
+  ...
+begin
+  ...
+    if WinFormat(S) then
+    ShowMessage(S)
+  else
+    ShowMessage('An error has been occured!');
+  if SimpleWinFormat(S) then
+    ShowMessage(S)
+  else
+    ShowMessage('An error has been occured!');
+  ...
+end;
+...
+</pre>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

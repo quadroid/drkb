@@ -1,0 +1,71 @@
+<html>
+<head>
+  <title>Ханойская башня</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Ханойская башня</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>"Ханойская башня" построена на очень простом алгоритме. Здесь я привожу этот алгоритм, который Вы сможете без труда воспроизвести. </p>
+
+<pre name="code" class="delphi">
+type
+  THanoiBin = 0..2;
+  THanoiLevel = 0..9;
+ 
+procedure MoveDisc(FromPin, ToPin : THanoiPin; Level : THanoiLevel);
+//  Это Вы должны сделать сами. Переместите один диск с одного штырька на другой.
+//  Диск окажется наверху (естественно, выше него дисков не будет) 
+</pre>
+
+<p>Вы можете каким угодно образом перемещать диски 3-х пирамид. 3 пирамиды - наиболее простая разновидность алгоритма. Таким образом процедура переноса диска (MoveDisc) аналогична операции переноса диска на верхний уровень (MoveTopDisc): переместить диск наверх с одного штырька (FromPin) на другой штырек (ToPin) и передать указатель на штырек-приемник (MoveTower) вместе с уровнем расположения перемещенного диска. Другое решение заключается в использовании трех массивов [THanoiLevel] логического типа. В этом случае триггер "Истина (True)" означает наличие на пирамиде диска с размером, соответствующим порядковому номеру элемента массива THanoiLevel. </p>
+
+<pre name="code" class="delphi">
+procedure MoveTower(FromPin, ToPin : THanoiPin; Level : THanoiLevel);
+begin
+  if HanoiLevel &lt;= High(THanoiLevel) then
+  begin
+    MoveTower(FromPin, 3 - FromPin - ToPin, Level + 1);
+    MoveDisc(FromPin, ToPin, Level);
+    MoveTower(3 - FromPin - ToPin, ToPin, Level + 1);
+  end;
+end;
+</pre>
+
+
+
+<p>Чтобы переместить пирамиду целиком, вы должны вызвать процедуру MoveTower следующим образом: </p>
+
+
+<p>MoveTower(0, 1, Low(THanoiLevel));</p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

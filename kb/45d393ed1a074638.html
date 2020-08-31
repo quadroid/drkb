@@ -1,0 +1,154 @@
+<html>
+<head>
+  <title>Drag &amp; Drop c Explorer</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Drag &amp; Drop c Explorer</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+interface
+ 
+uses
+ 
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs,
+ 
+  ComCtrls;
+ 
+type
+ 
+  TForm1 = class(TForm)
+    procedure FormCreate(Sender: TObject);
+  private
+    { Private declarations }
+    procedure FileIsDropped(var Msg: TMessage); message WM_DropFiles;
+  public
+    { Public declarations }
+  end;
+ 
+var
+ 
+  Form1: TForm1;
+ 
+implementation
+uses
+  shellapi;
+{$R *.DFM}
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+ 
+  DragAcceptFiles(Handle, True);
+end;
+ 
+procedure TForm1.FileIsDropped(var Msg: TMessage);
+var
+ 
+  hDrop: THandle;
+  fName: array[0..254] of CHAR;
+  NumberOfFiles: INTEGER;
+  fCounter: INTEGER;
+  Names: string;
+begin
+ 
+  hDrop := Msg.WParam;
+  NumberOfFiles := DragQueryFile(hDrop, -1, fName, 254);
+  Names := '';
+  for fCounter := 1 to NumberOfFiles do
+  begin
+    DragQueryFile(hDrop, fCounter, fName, 254);
+    // Здесь вы получаете один к одному имя вашего файла
+ 
+    Names := Names + #13#10 + fName;
+  end;
+ 
+  ShowMessage('Бросаем ' + IntToStr(NumberOfFiles) + ' файла(ов) : ' + Names);
+  DragFinish(hDrop);
+end;
+ 
+end.
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr /><p id="author">Автор: Aleksey </p>
+<pre name="code" class="delphi">
+{Так можно заставить окно принимать файлы, перетаскиваемые из проводника}
+{ОБЯЗАТЕЛЬНО ПОМЕСТИТЕ В СЕКЦИЮ PRIVATE СТРОКИ
+ 
+procedure CreateParams(var Params: TCreateParams); override;
+procedure WMDropFiles(var Message: TWMDropFiles); message WM_DROPFILES;
+и не забудьте - ShellAPI поместить в uses}
+ 
+procedure TForm1.CreateParams(var Params: TCreateParams);
+begin
+ 
+  inherited
+    CreateParams(Params);
+  {сделаем окно способным принимать файлы}
+  Params.ExStyle := Params.ExStyle or WS_EX_ACCEPTFILES;
+end;
+ 
+procedure TForm1.WMDropFiles(var Message: TWMDropFiles);
+var
+ 
+  aFile: array[0..255] of Char;
+  //FilesCount : Integer;
+begin
+ 
+  inherited;
+  {так можно узнать сколько файлов перетягивается}
+  // FilesCount := DragQueryFile(Message.drop, $FFFFFFFF, nil, 0);
+ 
+  begin
+    {здесь можно поставить цикл открытия всех перетаскиваемых файлов
+ 
+    for N := 0 to FilesCount - 1 do DragQueryFile(Message.drop, N, aFile, 256);
+    а в данном случае открывается только первый файл в списке}
+    DragQueryFile(Message.drop, 0, aFile, 256);
+    Memo1.Lines.LoadFromFile(aFile);
+  end;
+  DragFinish(Message.Drop);
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject); {Form1.OnCreate}
+begin
+  {сделаем окно неравнодушным к пролетающим над ним файлам}
+  DragAcceptFiles(Handle, True);
+end;
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

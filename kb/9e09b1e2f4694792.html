@@ -1,0 +1,95 @@
+<html>
+<head>
+  <title>Сохранить F1Book в Blob поле</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сохранить F1Book в Blob поле</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses vcf1, dbtables;
+ 
+ 
+procedure SaveSpreadsheet(F1Book: TF1Book);
+var
+  BlobStream: TBlobStream;
+  MyBlob: HGlobal;
+  pblob: Pointer;
+begin
+  with Datamodule1.Query1 do
+  begin
+    Set8087CW($133f);
+    try
+      Application.ProcessMessages;
+      F1Book.SaveWindowInfo;
+      MyBlob := GlobalAlloc(GMEM_MOVEABLE, 2000);
+      try
+        F1Book.WriteToBlob(MyBlob, 0);
+        pBlob := globalLock(MyBlob);
+        try
+          Blobstream := TBlobStream.Create(TBlobField(FieldByName('QUOTE_BLOB')),
+            bmWrite);
+          try
+            Blobstream.Write(pBlob^, GlobalSize(myBlob));
+          finally
+            Blobstream.Free;
+          end;
+        finally
+          globalUnlock(MyBlob);
+        end;
+        F1book.IF1Book_Modified := False;
+      finally
+        globalFree(myblob);
+      end;
+    finally
+      Set8087CW(Default8087CW);
+      Application.ProcessMessages;
+    end;
+  end;
+end;
+ 
+//Depending on your Delphi Version (&lt;D4), you will need:
+ 
+var
+  Default8087CW: Word = $1332;
+ 
+procedure Set8087CW(NewCW: Word);
+asm
+  MOV     Default8087CW,AX
+  FLDCW   Default8087CW
+end;
+</pre>
+
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<html>
+<head>
+  <title>Вывод изображений</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Вывод изображений</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Вывод изображений</p>
+Заголовок HTTP-ответа для HTML-страниц</p>
+Мы уже знаем, что для сообщения браузеру, что передаваемый документ является HTML-документом, CGI-программа выводит специальный заголовок, не отображаемый браузером: </p>
+  WriteLn('Content-Type: text/html');</p>
+  WriteLn(''); </p>
+HTTP-заголовок для изображений</p>
+Точно таким же образом можно с успехом указать и другой тип данных! Например, для вывода изображения в формате GIF достаточно вывести следующее: </p>
+  WriteLn('Content-Type: image/gif');</p>
+  WriteLn(''); </p>
+Таким образом мы сообщаем браузеру, что далее будет следовать именно изображение... </p>
+Передача двоичных данных</p>
+Для начала давайте разберемся, как отправить двоичные данные в STDOUTPUT. </p>
+&nbsp;</p>
+Я написал две процедуры: первая выводит поток TSTREAM в STDOUTPUT, а вторая выводит двоичный файл в выходной поток: </p>
+<pre name="code" class="delphi">
+// Процедура вывода потока в STDOUTPUT.
+ // Попробуйте самостоятельно переделать ее для Kylix...
+ procedure WriteStream(stream:TStream);
+  var
+   OutStream:THandleStream;
+ begin
+  Flush(output); // для передачи заголовка мы используем обычный WRITELN...
+ // здесь используется код из программы
+ // DCOUNTER for Delphi 3 by Dave Wedwick (dwedwick@bigfoot.com)
+  OutputStream:=THandleStream.Create(GetStdHandle(STD_OUTPUT_HANDLE));
+  Stream.SaveToStream(OutputStream);
+  OutputStream.Free;
+ end;
+ 
+ // Процедура для передачи двоичного файла
+ procedure WriteFile(FileName:string);
+  var
+   s:TFileStream;
+ begin
+  s:=TFileStream.Create(FileName,fmOpenRead);
+  WriteStream(s);
+ end;
+</pre>
+
+<p>Передача GIF файлов</p>
+<p>Теперь нам осталось только создать (или взять готовый) GIF файл и вывести его! </p>
+<pre name="code" class="delphi">
+ procedure WriteGIF(FileName:string);
+ begin
+   WriteLn('Content-type: image/gif');
+   WriteLn;
+   WriteFile(FileName);
+ end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<html>
+<head>
+  <title>Как прокрутить TRichEdit в конец?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как прокрутить TRichEdit в конец?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Существует множество способов, включая и:</p>
+
+<pre name="code" class="delphi">    with MainFrm.RichEdit1 do 
+    begin 
+      perform (WM_VSCROLL, SB_BOTTOM, 0); 
+      perform (WM_VSCROLL, SB_PAGEUP, 0); 
+    end; 
+</pre>
+
+<p>Вышеприведенный пример работает отлично в 9x и NT4, но не работает в Windows 2000. Поэтому предлагаю воспользоваться следующим примером:</p>
+<pre name="code" class="delphi">
+    with MainFrm.RichEdit1 do 
+    begin 
+      SelStart := Length(Text); 
+      Perform(EM_SCROLLCARET, 0, 0); 
+    end;
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

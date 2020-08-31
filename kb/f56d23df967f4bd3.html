@@ -1,0 +1,65 @@
+<html>
+<head>
+  <title>Поиск записи в больших таблицах</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Поиск записи в больших таблицах</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Александр Куприн </p>
+
+<p>В свою очередь хочу предложить на Ваш суд небольшую процедуру, которая мне очень помогла. Процедура позволяет переходить на любую из записей в таблице (формат Paradox или DBase). Необходимость в ней возникла, когда мне пришлось работать с таблицей размером в 10 и более тысяч записей у которой было несколько калькулируемых полей и полей подлинкованных из объектов TQuery. При использовании метода TTable.MoveBy программа медленно и печально замолкала (вообще-то она работала, но как?!). Встретил я этот пример в технической документации Borland (2656), где сравнивались функции Paradox Engine и BDE. Пример был написан на C. Вот его интерпретация на Delphi:</p>
+
+<pre name="code" class="delphi">
+uses BDE;
+...
+ 
+procedure MoveToRec(RecNo: longint; taSingle: TDBDataSet);
+// переход на логическую запись
+var
+  ErrorCode: DBIResult;
+  CursorProps: CurProps;
+begin
+  ErrorCode := DbiGetCursorProps(taSingle.Handle, CursorProps);
+  if ErrorCode = DBIERR_NONE then
+  begin
+    case TTable(taSingle).TableType of
+      ttParadox: ErrorCode := DbiSetToSeqNo(taSingle.Handle, RecNo);
+      ttDBase: ErrorCode := DbiSetToRecordNo(taSingle.Handle, RecNo);
+    end; { case..}
+    taSingle.Resync([rmCenter]);
+  end { if..}
+end; { procedure MoveToRec }
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

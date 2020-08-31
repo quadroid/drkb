@@ -1,0 +1,101 @@
+<html>
+<head>
+  <title>Число текущей недели</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Число текущей недели</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function WeekOfYear(ADate: TDateTime): word;
+var
+  day: word;
+  month: word;
+  year: word;
+  FirstOfYear: TDateTime;
+begin
+  DecodeDate(ADate, year, month, day);
+  FirstOfYear := EncodeDate(year, 1, 1);
+  Result := Trunc(ADate - FirstOfYear) div 7 + 1;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  ShowMessage(IntToStr(WeekOfYear(Date)));
+end;
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+&nbsp;</p>
+<hr />
+<pre name="code" class="delphi">
+function WeekNum(const ADate: TDateTime): word;
+var
+  Year: word;
+  Month: word;
+  Day: word;
+begin
+  DecodeDate(ADate + 4 - DayOfWeek(ADate + 6), Year, Month, Day);
+  result := 1 + trunc((ADate - EncodeDate(Year, 1, 5) +
+    DayOfWeek(EncodeDate(Year, 1, 3))) / 7);
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+&nbsp;</p>
+<hr />
+<pre name="code" class="delphi">
+function WeekOfYear(Dat: TDateTime): Word;
+// Интерпретация номеров дней:
+// ISO: 1 = Понедельник, 7 = Воскресенье
+// Delphi SysUtils: 1 = Воскресенье, 7 = Суббота
+var
+  Day, Month, Year: Word;
+  FirstDate: TDateTime;
+  DateDiff: Integer;
+begin
+  day := SysUtils.DayOfWeek(Dat) - 1;
+  Dat := Dat + 3 - ((6 + day) mod 7);
+  DecodeDate(Dat, Year, Month, Day);
+  FirstDate := EncodeDate(Year, 1, 1);
+  DateDiff := Trunc(Dat - FirstDate);
+  Result := 1 + (DateDiff div 7);
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

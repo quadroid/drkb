@@ -1,0 +1,73 @@
+<html>
+<head>
+  <title>Автоматическая регистрация серверов из своей программы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Автоматическая регистрация серверов из своей программы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Удобно в своей программе автоматически регистрировать все необходимые серверы. Это можно сделать при помощи следующей процедуры:</p>
+<pre name="code" class="delphi">
+procedure CheckComServerInstalled(const CLSID: TGUID; const DllName: String);
+var
+  Size: Integer;
+  DllHandle: THandle;
+  FileName: String;
+begin
+  Size := MAX_PATH;
+  SetLength(FileName, Size);
+  try
+    if RegQueryValue(HKEY_CLASSES_ROOT,
+         PChar(Format('CLSID\%s\InProcServer32',
+        [GUIDToString(CLSID)])), PChar(FileName), Size) = ERROR_SUCCESS then
+    begin
+      SetLength(FileName, Size);
+      DllHandle := LoadLibrary(PChar(FileName));
+      FreeLibrary(DllHandle);
+      if DllHandle = 0 then begin
+        RegDeleteKey(HKEY_CLASSES_ROOT,
+          PChar(Format('CLSID\%s',[GUIDToString(CLSID)])));
+        RegisterComServer(DllName);
+      end;
+    end else begin
+      RegisterComServer(DllName);
+    end;
+  except
+    raise Exception.CreateFmt('Не могу зарегистрировать %s.', [DllName]);
+  end;
+end;
+</pre>
+
+<p>В процедуре осуществляется дополнительная проверка наличия на диске файла с зарегистрированным сервером. Если файл не найден по указанному в реестре месту &#8211; данные о регистрации удаляются и предпринимается попытка зарегистрировать сервер заново. Такая проверка очень полезна при переносе DLL с сервером в другую папку на диске.</p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

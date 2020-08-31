@@ -1,0 +1,222 @@
+<html>
+<head>
+  <title>Получение переменных среды</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получение переменных среды</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure GetEnvironmentStrings(ss: TStrings);
+{Переменные среды}
+var
+  ptr: PChar;
+  s: string;
+  Done: boolean;
+begin
+  ss.Clear;
+  s := '';
+  Done := FALSE;
+  ptr := windows.GetEnvironmentStrings;
+  while Done = false do begin
+    if ptr^ = #0 then begin
+      inc(ptr);
+      if ptr^ = #0 then Done := TRUE
+      else ss.Add(s);
+      s := ptr^;
+    end else s := s + ptr^;
+    inc(ptr);
+  end;
+end;
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+<hr />
+<pre name="code" class="delphi">
+procedure TForm1.Button5Click(Sender: TObject);
+var
+  p: pChar;
+begin
+  Memo1.Lines.Clear;
+  Memo1.WordWrap := false;
+  {$IFDEF WIN32}
+  p := GetEnvironmentStrings;
+  {$ELSE}
+  p := GetDOSEnvironment;
+  {$ENDIF}
+  while p^ &lt;&gt; #0 do begin
+    Memo1.Lines.Add(StrPas(p));
+    inc(p, lStrLen(p) + 1);
+  end;
+  {$IFDEF WIN32}
+  FreeEnvironmentStrings(p);
+  {$ENDIF}
+end;
+ 
+</pre>
+<a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+<hr />
+<p>Функция GetEnvironmentStrings возвращает адрес памяти со средой текущего процесса. Все переменные возвращаются в виде строк, оканчивающихся нулем. Набор строк терминируется двумя нулями. </p>
+
+<p>Функция GetEnvironmentVariable возвращает значения переменных среды опрашиваемого процесса. Величина также возвращается в виде строки с завершающим нулем. </p>
+
+<a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+<hr />
+<pre name="code" class="delphi">
+unit TDosEnv;
+interface
+ 
+uses
+  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
+  Forms, Dialogs;
+ 
+type
+  TDosEnvironment = class(TComponent)
+  public
+    { Public объявления класса }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+ 
+  private
+    { Объявления Private-полей }
+    FDosEnvList: TStringList;
+    procedure DoNothing(const Value: TStringList);
+ 
+  protected
+    { Объявления Protected-методов }
+    dummy: Word;
+    function GetDosEnvCount: Word;
+ 
+  public
+    { Public interface объявления }
+    function GetDosEnvStr(const Name: string): string;
+    { Данная функция является измененной версией функции GetEnvVar,
+    присутствующей в поставляемом с Delphi модуле WinDos. Она
+    использует паскалевские строки вместо строк с терминирующим нулем.
+    }
+ 
+  published
+    { Published design объявления }
+    property DosEnvCount: Word read GetDosEnvCount write dummy;
+    property DosEnvList: TStringList read FDosEnvList write DoNothing;
+  end;
+ 
+procedure Register;
+ 
+implementation
+ 
+constructor TDosEnvironment.Create(AOwner: TComponent);
+var
+  P: PChar;
+  i: Integer;
+begin
+  inherited Create(AOwner);
+  FDosEnvList := TStringList.Create;
+  P := GetDosEnvironment; { Win API }
+  i := 0;
+  while P^ &lt;&gt; #0 do
+  begin
+    Inc(i);
+    FDosEnvList.Add(StrPas(P));
+    Inc(P, StrLen(P) + 1) { Быстрый переход к следующей переменной }
+  end
+end {Create};
+ 
+destructor TDosEnvironment.Destroy;
+begin
+  FDosEnvList.Free;
+  FDosEnvList := nil;
+  inherited Destroy
+end {Destroy};
+ 
+procedure TDosEnvironment.DoNothing(const Value: TStringList);
+begin
+  MessageDlg('TDosEnvironment.DosEnvList только для чтения!', mtInformation,
+    [mbOk], 0)
+ 
+end {DoNothing};
+ 
+function TDosEnvironment.GetDosEnvCount: Word;
+{ Возвращает количество переменных окружения.
+}
+begin
+  if Assigned(FDosEnvList) then {!!}
+    Result := FDosEnvList.Count
+  else
+    Result := 0;
+end {GetDosEnvCount};
+ 
+function TDosEnvironment.GetDosEnvStr(const Name: string): string;
+{ Данная функция является измененной версией функции GetEnvVar,
+присутствующей в поставляемом с Delphi модуле WinDos. Она
+использует паскалевские строки вместо строк с терминирующим нулем.
+}
+var
+  i: Integer;
+  Tmp: string;
+  Len: Byte absolute Name;
+begin
+  i := 0;
+  Result := '';
+  if Assigned(FDosEnvList) then {!!}
+    while i &lt; FDosEnvList.Count do
+    begin
+      Tmp := FDosEnvList[i];
+      Inc(i);
+      if Pos(Name, Tmp) = 1 then
+      begin
+        Delete(Tmp, 1, Len);
+        if Tmp[1] = '=' then
+        begin
+          Delete(Tmp, 1, 1);
+          Result := Tmp;
+          i := FDosEnvList.Count { конец while-цикла }
+        end
+      end
+    end
+end {GetDosEnvStr};
+ 
+procedure Register;
+begin
+  RegisterComponents('Dr.Bob', [TDosEnvironment]);
+end {Register};
+ 
+end.
+</pre>
+<a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<html>
+<head>
+  <title>TDBGrid &ndash; сохранение конфигурации</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TDBGrid &ndash; сохранение конфигурации</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Нижеописанный код создает, сохраняет и загружает конфигурационный файл и изменяет размеры столбцов таблицы DBGRID </p>
+<pre name="code" class="delphi">
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, Grids, DBGrids, Db, DBTables, StdCtrls, IniFiles;
+...
+ 
+procedure TMainForm.NewIni(const NomeIni: string);
+var
+  F: System.Text;
+  i: Byte;
+begin
+  System.Assign(F, NomeIni);
+  System.ReWrite(F);
+  System.WriteLn(F, '[Campi_Ordine]');
+  for i:=1 to Table1.FieldCount do
+    System.WriteLn(F, 'Campo',i,'=',Table1.Fields[i-1].FieldName);
+  System.WriteLn(F, '');
+  System.WriteLn(F, '[Campi_Size]');
+  for i:=1 to Table1.FieldCount do
+    System.WriteLn(F, 'Campo',i,'=',Table1.Fields[i-1].DisplayWidth);
+  System.Close(F);
+end;
+ 
+procedure TMainForm.SaveIni(const FN: string);
+var
+  Ini: TIniFile;
+  i: Integer;
+  S : string;
+begin
+  NewIni(FN);
+  Ini := TIniFile.Create(FN);
+  with Ini do begin
+    for i:=1 to Table1.FieldCount do
+    begin
+      S:= Table1.Fields[i-1].FieldName;
+      WriteString('Campi_Ordine', 'Campo'+IntToStr(i),
+      Table1.Fields[i-1].FieldName);
+      WriteInteger('Campi_Size', 'Campo'+IntToStr(i),
+      Table1.Fields[i-1].DisplayWidth);
+    end;
+  end;
+  Ini.Free;
+end;
+ 
+procedure TMainForm.LoadIni(const FN: string);
+var
+  Ini: TIniFile;
+  i: Integer;
+  j: Longint;
+  S: string;
+ 
+  function MyReadInteger(const Section, Ident: string): Longint;
+  begin
+    result := Ini.ReadInteger(Section, Ident, -1);
+    if result=-1 then
+      raise Exception.Create('Errore nel file di configurazione.');
+  end;
+ 
+  function MyReadString(const Section, Ident: string): string;
+  begin
+    result := Ini.ReadString(Section, Ident, '');
+    if result='' then
+      raise Exception.Create('Errore nel file di configurazione.');
+  end;
+ 
+begin
+  Ini := TIniFile.Create(FN);
+  try
+    with Ini do
+    begin
+      for i:=1 to Table1.FieldCount do
+      begin
+        S:= MyReadString('Campi_Ordine', 'Campo'+IntToStr(i));
+        j:= MyReadInteger('Campi_Size', 'Campo'+IntToStr(i));
+        Table1.FieldByName(S).index := i-1;
+        Table1.FieldByName(S).DisplayWidth := j;
+      end;
+    end;
+  finally
+    Ini.Free;
+  end;
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

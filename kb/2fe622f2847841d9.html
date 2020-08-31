@@ -1,0 +1,96 @@
+<html>
+<head>
+  <title>BMP &gt; WMF</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">BMP &gt; WMF</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure ConvertBMP2WMF
+(const BMPFileName, WMFFileName: TFileName); 
+var 
+  MetaFile : TMetafile; 
+  Bitmap : TBitmap; 
+begin 
+  Metafile := TMetaFile.Create; 
+  Bitmap := TBitmap.Create; 
+  try 
+    Bitmap.LoadFromFile(BMPFileName); 
+    with MetaFile do 
+    begin 
+      Height := Bitmap.Height; 
+      Width  := Bitmap.Width; 
+      Canvas.Draw(0, 0, Bitmap); 
+      SaveToFile(WMFFileName); 
+    end; 
+  finally
+                Bitmap.Free; 
+    MetaFile.Free; 
+  end; 
+end;
+</pre>
+
+<p>Использование:</p>
+
+<pre name="code" class="delphi">
+ConvertBMP2WMF('c:\mypic.bmp','c:\mypic.wmf')
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+<hr />
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  m : TmetaFile;
+  mc : TmetaFileCanvas;
+  b : tbitmap;
+begin
+  m := TMetaFile.Create;
+  b := TBitmap.create;
+  b.LoadFromFile('C:.bmp');
+  m.Height := b.Height;
+  m.Width := b.Width;
+  mc := TMetafileCanvas.Create(m, 0);
+  mc.Draw(0, 0, b);
+  mc.Free;
+  b.Free;
+  m.SaveToFile('C:.emf');
+  m.Free;
+  Image1.Picture.LoadFromFile('C:.emf');
+end;
+</pre>
+<a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

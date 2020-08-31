@@ -1,0 +1,141 @@
+<html>
+<head>
+  <title>Как найти наибольший общий делитель?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как найти наибольший общий делитель?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{  The greatest common factor, or GCF, is the greatest factor 
+  that divides two numbers. 
+} 
+ 
+ 
+uses 
+  math; 
+ 
+// Find the greatest common factor of two integers 
+ 
+function TForm1.GCF(A, B: Integer): Integer; 
+var 
+  Lfactor: Integer; 
+begin 
+  // Return -1 if either value is zero or negative 
+  if (A &lt; 1) or (B &lt; 1) then  
+  begin 
+    Result := -1; 
+    Exit; 
+  end; 
+  // if A = B then this is the GCF 
+  if A = B then  
+  begin 
+    Result := A; 
+    Exit; 
+  end; 
+  Result := 1; 
+  for Lfactor := trunc(max(A, B) / 2) downto 2 do  
+  begin 
+    if (frac(A / Lfactor) = 0) and (frac(B / Lfactor) = 0) then  
+    begin 
+      Result := Lfactor; 
+      Exit; // GCF has been found. No need to continue 
+    end; 
+  end; 
+end; 
+ 
+// Example: 
+procedure TForm1.Button1Click(Sender: TObject); 
+var 
+ Res: Integer; 
+begin 
+  Res := GCF(120, 30); 
+  ShowMessage(Inttostr(Res)); 
+end; 
+ 
+{******************} 
+ 
+// Find the greatest common factor of an array of integers 
+function TForm1.GCFarray(A: array of Integer): Integer; 
+var 
+  Llength, Lindex, Lfactor: Integer; 
+begin 
+  Llength := Length(A); 
+ 
+  // Return -1 if any value is zero or negative 
+  for Lindex := 0 to Llength - 1 do  
+  begin 
+    if A[Lindex] &lt; 1 then  
+    begin 
+      Result := -1; 
+      Exit; 
+    end; 
+  end; 
+ 
+  // if all elements are equal then this is the GCF 
+  Lindex := 1; 
+  while (Lindex &lt; Llength) and (A[Lindex] = A[0]) do Inc(Lindex); 
+  if Lindex = Llength then  
+  begin 
+    Result := A[0]; 
+    Exit; 
+  end; 
+ 
+  Result := 1; 
+ 
+  for Lfactor := trunc(ArrayMax(A) / 2) downto 2 do  
+  begin 
+    Lindex := 0; 
+    while (Lindex &lt; Llength) and 
+      (frac(A[Lindex] / Lfactor) = 0) do Inc(Lindex); 
+    if Lindex = Llength then  
+    begin 
+      Result := Lfactor; 
+      Exit; // GCF has been found. No need to continue 
+    end; 
+  end; 
+end; 
+ 
+// find the maximum value in an array of integers 
+function TForm1.ArrayMax(Aarray: array of Integer): Integer; 
+var 
+  Lpos: Integer; 
+begin 
+  Result := 0; 
+  for Lpos := 0 to Length(Aarray) - 1 do 
+    if Aarray[Lpos] &gt; Result then 
+      Result := Aarray[Lpos]; 
+end; 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

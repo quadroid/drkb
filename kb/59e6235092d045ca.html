@@ -1,0 +1,99 @@
+<html>
+<head>
+  <title>Область диаграммы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Область диаграммы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Область диаграммы</p>
+Если диаграмма расположена на одном листе с данными, то можно изменять координаты и размеры области диаграммы. Диаграмма может быть размещена также на отдельном листе, тогда ее размеры совпадают с размером листа. Для доступа к координатам и размерам этой области используем объект ChartArea (область диаграммы). Функция PositionChart изменяет ее координаты и размеры. Аналогично мы можем получить координаты и размеры диаграммы. Для этого достаточно считать значения Left, Top, Width и Height объекта ChartArea. </p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 0px;"><pre name="code" class="delphi">Function PositionChart(Name:variant;
+  Left,Top,Width,Height:real):boolean;
+begin
+ PositionChart:=true;
+ try
+  E.Charts.Item[name].ChartArea.Left:=Left;
+  E.Charts.Item[name].ChartArea.Top:=Top;
+  E.Charts.Item[name].ChartArea.Width:=Width;
+  E.Charts.Item[name].ChartArea.Height:=Height;
+ except
+  PositionChart:=false;
+ end;
+End;
+</pre>
+&nbsp;</p>
+Кроме размеров и координат, область диаграммы имеет свойства, которые определяют стиль, цвет, толщину рамки окаймления, а также рисунок и цвет самой области. Свойства рамки содержатся в объекте Border области ChartArea. Цвет рамки может быть представлен как комбинация из трех цветов RGB или выбран из палитры. Толщина и стиль выбираются из конечного, определенного списка значений (смотрите исходный текст). Используем функцию BorderChartArea для установки типа и цвета рамки из приложений Delphi.</p>
+<pre name="code" class="delphi">
+Function BorderChartArea(Name:variant;
+  Color,LineStyle,Weight:integer):boolean;
+begin
+ BorderChartArea:=true;
+ try
+  E.Charts.Item[name].ChartArea.Border.Color:=Color;
+  E.Charts.Item[name].ChartArea.Border.Weight:=Weight;
+  E.Charts.Item[name].ChartArea.Border.LineStyle:=LineStyle;
+ except
+  BorderChartArea:=false;
+ end;
+End;
+</pre>
+&nbsp;</p>
+Свойства области диаграммы содержатся в объекте Interior. Цвет области и рисунка заполнения может быть представлен как комбинация из трех цветов RGB или выбран из палитры. Вид рисунка заполнения выбирается из конечного, определенного списка значений (смотрите исходный текст). Функция BrushChartArea устанавливает цветовые параметры области диаграммы.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 0px;"><pre name="code" class="delphi">Function BrushChartArea(Name:variant;
+  Color,Pattern,PatternColor:integer):boolean;
+begin
+ BrushChartArea:=true;
+ try
+  E.Charts.Item[name].ChartArea.Interior.Color:=Color;
+  E.Charts.Item[name].ChartArea.Interior.Pattern:=Pattern;
+  E.Charts.Item[name].ChartArea.Interior.PatternColor:=PatternColor;
+ except
+  BrushChartArea:=false;
+ end;
+End;
+</pre>
+&nbsp;</p>
+Для установки фона области диаграммы также можно использовать рисунок, загруженный из файла в графическом формате. Для этого используется метод UserPicture объекта Fill области ChartArea.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 0px;"><pre name="code" class="delphi">Function BrushChartAreaFromFile(Name:variant;File_:string):boolean;
+begin
+ BrushChartAreaFromFile:=true;
+ try
+  E.Charts.Item[name].ChartArea.Fill.UserPicture(PictureFile:=File_);
+  E.Charts.Item[name].ChartArea.Fill.Visible:=True;
+ except
+  BrushChartAreaFromFile:=false;
+ end;
+End;
+</pre>
+&nbsp;</p>
+Область диаграммы - это область, которая содержит все остальные объекты диаграммы. Рассмотрим остальные компоненты, расположенные на этой области.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

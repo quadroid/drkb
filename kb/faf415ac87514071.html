@@ -1,0 +1,110 @@
+<html>
+<head>
+  <title>Как заполнить форму и отправить на сервер?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushXml.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как заполнить форму и отправить на сервер?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Для того, чтобы отправить форму на сервер, необходимо:<br>
+&nbsp;<br>
+1. Найти форму в исходном тексте страницы.<br>
+Для этога найти в исходном тексте страницы теги &lt;form&gt;...&lt;/form&gt;<br>
+&nbsp;<br>
+<p>Например:</p>
+<pre name="code" class="html">
+&lt;form method=GET action=http://localhost/cgi-bin/mget?&gt;
+&lt;input type=text name=name1 value="имя" size="40" maxlength="20"&gt;&lt;br&gt;
+&lt;input type=text name=name2 value="фамилия" size="40" maxlength="20"&gt;&lt;br&gt;
+&lt;input type=submit&gt;
+&lt;/form&gt;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+2. Определить метод, который используется для отправки данных. В указанном выше примере это "GET" - form method=GET<br>
+&nbsp;<br>
+3. Найти поля, которые необходимо заполнить.<br>
+&nbsp;<br>
+<p>В примере это:</p>
+<pre name="code" class="html">
+&lt;input type=text name=name1 value="имя" size="40" maxlength="20"&gt;&lt;br&gt;
+&lt;input type=text name=name2 value="фамилия" size="40" maxlength="20"&gt;&lt;br&gt;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+4. Используя компоненты для работы с протоколом TCP/IP, сформировать строку запроса.<br>
+Для определенности пусть это будет компонент TIdHTTP из пакета Indy, входящий в стандартный набор компонент Delphi.<br>
+--------------<br>
+&nbsp;<br>
+Сформируем строку для отправки на сервер для нашего примера:<br>
+&nbsp;<br>
+Пусть нам нужно отправить значениядля полей: имя=Vasya, фамилия=Pupkin.<br>
+&nbsp;<br>
+<p>В этом случае запрос будет выглядеть так:</p>
+<pre name="code" class="delphi">
+var
+  s: String;
+begin
+  s := IdHTTP1.Get('http://localhost/cgi-bin/mget?name1=Vasya&amp;name2=Pupkin')
+</pre>
+
+<p>&nbsp;<br>
+<p>В случае, если форма использует метод POST:</p>
+<pre name="code" class="html">
+&lt;form method=POST action=http://localhost/cgi-bin/mget?&gt;
+&lt;input type=text name=name1 value="имя" size="40" maxlength="20"&gt;&lt;br&gt;
+&lt;input type=text name=name2 value="фамилия" size="40" maxlength="20"&gt;&lt;br&gt;
+&lt;input type=submit&gt;
+&lt;/form&gt;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+<p>формируем запрос для отправки несколько по-другому:</p>
+<pre name="code" class="delphi">
+var
+  tL: TStringList;
+  s: String;
+begin
+  tL := TStringList.Create;
+  tL.Add('name1=Vasya');
+  tL.Add('name2=Pupkin');
+  try
+    s := IdHTTP1.Post('http://localhost/cgi-bin/mget',tL);
+  finally
+    tL.Free;
+  end;
+</pre>
+
+<p>&nbsp;<br>
+<p>&nbsp;</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: Демо</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

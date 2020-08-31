@@ -1,0 +1,50 @@
+<html>
+<head>
+  <title>PChar &gt; Integer</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">PChar &gt; Integer</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Many Windows functions claim to want PChar parameters in the documentation, but they are defined as requiring LongInts. </p>
+<p>Is this a bug? </p>
+<p>No, this is where "typecasting" is used. Typecasting allows you to fool the compiler into thinking that one type of variable is of another type for the ultimate in flexibility. The last parameter of&nbsp; the Windows API function SendMessage() is a good example. It is </p>
+<p>documented as requiring a long integer, but commonly requires a PChar for some messages (WM_WININICHANGE). Generally, the variable you are typecasting from must be the same size as the variable type you are casting it to. In the SendMessage example, you could typecast a PChar as a longint, since both occupy 4 bytes of memory: </p>
+<pre name="code" class="delphi">var 
+   s : array[0..64] of char; 
+begin 
+  StrCopy(S, 'windows'); 
+  SendMessage(HWND_BROADCAST, WM_WININICHANGE, 0, LongInt(@S)); 
+end; 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<html>
+<head>
+  <title>Как пересоздать индексы?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как пересоздать индексы?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TForm1.Button4Click(Sender: TObject);
+var
+  aExclusive, aActive: Boolean;
+begin
+  with Table1 do
+  begin
+    aActive := Active;
+    Close;
+    aExclusive := Exclusive;
+    Exclusive := True;
+    Open;
+    Check(DbiRegenIndexes(Table1.Handle));
+    Close;
+    Exclusive := aExclusive;
+    Active := aActive;
+    Check(DbiSaveChanges(Table1.Handle));
+  end;
+end;
+</pre>
+
+<p>As when calling any BDE API function, the BDE API wrapper unit BDE (for Delphi 1, the units DbiTypes, DbiErrs, and DbiProcs) must be referenced in the Uses section of the unit from which the call is to be made. The BDE API function DbiSaveChanges, used here, forces any data changes in memory buffer to be written to disk at that point.</p>
+
+<p>Another way to handle this situation -- if you know at design-time all the indexes that will exist for the table -- would be to iterate through the items in the TIndexDefs object of the TTable component, delete each index (DeleteIndex method), and then add all needed indexes back (AddIndex method).</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button3Click(Sender: TObject);
+var
+  aName: string;
+  i: Byte;
+  aExclusive, aActive: Boolean;
+begin
+  with Table1 do
+  begin
+    aActive := Active;
+    Close;
+    aExclusive := Exclusive;
+    Exclusive := True;
+    IndexDefs.Update;
+    i := IndexDefs.Count;
+    while i &gt; 0 do
+    begin
+      aName := IndexDefs.Items[i - 1].Name;
+      DeleteIndex(aName);
+      Dec(i);
+    end;
+    AddIndex('', 'MainField', [ixPrimary]);
+    AddIndex('Field1', 'Field1', []);
+    AddIndex('Field2', 'Field2', []);
+    IndexDefs.Update;
+    Exclusive := aExclusive;
+    Active := aActive;
+    Check(DbiSaveChanges(Table1.Handle));
+  end;
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

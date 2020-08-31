@@ -1,0 +1,48 @@
+<html>
+<head>
+  <title>Через DAO/ODBC/ADO</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Через DAO/ODBC/ADO</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Чтобы использовать только стандартные компоненты давайте попробуем работать с Excel через ADO. Это не самый быстрый и далеко не первый по возможностям метод (DAO работает на порядок быстрее и предоставляет куда больше возможностей), но ADO компоненты входят в стандартную поставку 5 и 6 Дельфи. Итак заходим в Панель управления Windows, идем в свойства ODBC, делаем DSN используя Excel драйвер, не забываем указать в свойствах на файл Excel. Закрываем ODBC, открываем Дельфи. Ставим на форму ADOConnection. Идем в ConnectionString - строим строку подключения - надо выбрать только ODBC провайдер и на следующей вкладке указать сделанный DSN, остальные опции в большинстве случаев можно оставить как есть. Строка получена. Кстати ее можно вообще упростить до вида: "DSN=MyDsn". Теперь вам доступны листы файла как таблицы а весь файл как база данных. Подключаем ADOQuery к ADOConnection. Cоздаем таблицу, т.е. новый лист - путем запуска следующей квери:</p>
+<pre name="code" class="sql">
+Create Table MyTable1 (
+Field1 varchar(20),
+Field2 varchar(10) )
+</pre>
+<p>Снова переходим в дизайн - ставим на форму ADOTable, указываем как Connection наш компонент с ADOConnection, теперь если кликнуть на свойстве TableName - вы сможете увидеть в списке сделанную нами таблицу "MyTable1". Соедините таблицу с DBGrid - убедитесь что работа с таблицей в Excel мало отличается от работы с другими базами данных. </p>
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

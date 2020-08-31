@@ -1,0 +1,182 @@
+<html>
+<head>
+  <title>Описание протокола POP3</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Описание протокола POP3</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Описание протокола POP3</p>
+<p>Введение</p>
+<p>Перед работой через протокол POP3 сервер прослушивает порт 110. Когда клиент хочет использовать этот протокол, он должен создать TCP соединение с сервером. Когда соединение установлено, сервер отправляет приглашение. Затем клиент и POP3 сервер обмениваются информацией пока соединение не будет закрыто или прервано. </p>
+<p>Команды POP3 состоят из ключевых слов, за некоторыми следует один или более аргументов. Все команды заканчиваются парой CRLF (в Visual Basic константа vbCrLf). Ключевые слова и аргументы состоят из печатаемых ASCII символов. Ключевое слово и аргументы разделены одиночным пробелом. Ключевое слово состоит от 3-х до 4-х символов, а аргумент может быть длиной до 40-ка символов. </p>
+<p>Ответы в POP3 состоят из индикатора состояния и ключевого слова, за которым может следовать дополнительная информация. Ответ заканчивается парой CRLF. Существует только два индикатора состояния: "+OK" - положительный и "-ERR" - отрицательный. </p>
+<p>Ответы на некоторые команды могут состоять из нескольких строк. В этих случаях каждая строка разделена парой CRLF, а конец ответа заканчивается ASCII символом 46 (".") и парой CRLF. </p>
+<p>POP3 сессия состоит из нескольких режимов. Как только соединение с сервером было установлено и сервер отправил приглашение, то сессия переходит в режим AUTHORIZATION (Авторизация). В этом режиме клиент должен идентифицировать себя на сервере. После успешной идентификации сессия переходит в режим TRANSACTION (Передача). В этом режиме клиент запрашивает сервер выполнить определённые команды. Когда клиент отправляет команду QUIT, сессия переходит в режим UPDATE. В этом режиме POP3 сервер освобождает все занятые ресурсы и завершает работу. После этого TCP соединение закрывается. </p>
+<p>У POP3 сервера может быть INACTIVITY AUTOLOGOUT таймер. Этот таймер должен быт, по крайней мере, с интервалом 10 минут. Это значит, что если клиент и сервер не взаимодействуют друг с другом, сервер автоматически прерывает соединение и при этом не переходит в режим UPDATE. </p>
+<p id="author">Авторизация</p>
+<p>Как только будет установлено TCP соединение с POP3 сервером, он отправляет приглашение, заканчивающееся парой CRLF, например: </p>
+<p>S: +OK POP3 server ready</p>
+<p>Теперь POP3 сессия находится в режиме AUTHORIZATION. Клиент должен идентифицировать себя на сервере, используя команды USER и PASS. Сначала надо отправить команду USER, после которой в качестве аргумента следует имя пользователя. Если сервер отвечает положительно, то теперь необходимо отправить команду PASS, за которой следует пароль. Если после отправки команды USER или PASS сервер отвечает негативно, то можно поробовать авторизироваться снова или выйти из сесси с помощью команды QUIT. После успешной авторизации сервер открывает и блокирует maildrop (почтовый ящик). В ответе на команду PASS сервер сообщает сколько сообщений находится в почтовом ящике и передаёт их общий размер. Теперь сессия находится в режиме TRANSACTION. Подведём итоги с командами: </p>
+<p>Команда: USER [имя] </p>
+<p>Аргументы: [имя] - строка, указывающая имя почтового ящика </p>
+<p>Описание: Передаёт серверу имя пользователя. </p>
+<p>Возможные ответы: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>+OK name is a valid mailbox </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>-ERR never heard of mailbox name </td></tr></table></div><p>Примеры: </p>
+<p>C: USER MonstrVB</p>
+<p>S: +OK MonstrVB is a real hoopy frood</p>
+<p>...</p>
+<p>C: USER MonstrVB</p>
+<p>S: -ERR sorry, no mailbox for frated here</p>
+
+<p>Команда: PASS [пароль] </p>
+<p>Аргументы: [пароль] - пароль для почтового ящика </p>
+<p>Описание: Передаёт серверу пароль почтового ящика. </p>
+<p>Возможные ответы: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>+OK maildrop locked and ready </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>-ERR invalid password </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>-ERR unable to lock maildrop </td></tr></table></div><p>Примеры: </p>
+<p>C: USER MonstrVB</p>
+<p>S: +OK MonstrVB is a real hoopy frood</p>
+<p>C: PASS mymail</p>
+<p>S: +OK MonstrVB's maildrop has 2 messages (320 octets)</p>
+<p>...</p>
+<p>C: USER MonstrVB</p>
+<p>S: +OK MonstrVB is a real hoopy frood</p>
+<p>C: PASS mymail</p>
+<p>S: -ERR maildrop already locked</p>
+
+<p>Команда: QUIT </p>
+<p>Аргументы: нет </p>
+<p>Описание: Сервер завершает POP3 сессию и переходит в режим UPDATE. </p>
+<p>Возможные ответы: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>+OK</td></tr></table></div><p>Примеры: </p>
+<p>C: QUIT</p>
+<p>S: +OK dewey POP3 server signing off</p>
+
+<p>Основные команды (Transaction)</p>
+<p>После успешной идентификации пользователя на сервере POP3 сессия переходит в режим TRANSACTION, где пользователь может передавать ниже следующие команды. После каждой из таких команд следут ответ сервера. Вот доступные команды в этом режиме: </p>
+<p>Команда: STAT </p>
+<p>Аргументы: нет </p>
+<p>Описание: В ответ на вызов команды сервер выдаёт положительный ответ "+OK", за которым следует количество сообщений в почтовом ящике и их общий размер в символах. Сообщения, которые помечены для удаления не учитываются в ответе сервера. </p>
+<p>Возможные ответы: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>+OK n s </td></tr></table></div><p>Примеры: </p>
+<p>C: STAT</p>
+<p>S: +OK 2 320</p>
+
+<p>Команда: LIST [сообщение] </p>
+<p>Аргументы: [сообщение] - номер сообщения (необязательный аргумент) </p>
+<p>Описание: Если был передан аргумент, то сервер выдаёт информацию о указанном сообщении. Если аргумент не был передан, то сервер выдаёт информацию о всех сообщениях, находящихся в почтовом ящике. Сообщения, помеченные для удаления не перечисляются. </p>
+<p>Возможные ответы: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>+OK scan listing follows </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>-ERR no such message </td></tr></table></div><p>Примеры: </p>
+<p>C: LIST</p>
+<p>S: +OK 2 messages (320 octets)</p>
+<p>S: 1 120</p>
+<p>S: 2 200</p>
+<p>S: .</p>
+<p>...</p>
+<p>C: LIST 2</p>
+<p>S: +OK 2 200</p>
+<p>...</p>
+<p>C: LIST 3</p>
+<p>S: -ERR no such message, only 2 messages in maildrop</p>
+
+<p>Команда:RETR [сообщение] </p>
+<p>Аргументы: [сообщение] - номер сообщения </p>
+<p>Описание: После положительного ответа сервер передаёт содержание сообщения. </p>
+<p>Возможные ответы: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>+OK message follows </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>-ERR no such message </td></tr></table></div><p>Примеры: </p>
+<p>C: RETR 1</p>
+<p>S: +OK 120 octets</p>
+<p>S: </p>
+<p>S: .</p>
+
+<p>Команда: DELE [ообщение] </p>
+<p>Аргументы: [ообщение] - номер сообщения </p>
+<p>Описание: POP3 сервер помечает указанное сообщение как удалённое, но не удалет его, пока сессия не перейдёт в редим UPDATE. </p>
+<p>Возможные ответы: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>+OK message deleted </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>-ERR no such message </td></tr></table></div><p>Примеры: </p>
+<p>C: DELE 1</p>
+<p>S: +OK message 1 deleted</p>
+<p>...</p>
+<p>C: DELE 2</p>
+<p>S: -ERR message 2 already deleted</p>
+
+<p>Команда: NOOP </p>
+<p>Аргументы: нет </p>
+<p>Описание: POP3 сервер ничего не делает и вседа отвечает полжительно. </p>
+<p>Возможные ответы: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>+OK </td></tr></table></div><p>Примеры: </p>
+<p>C: NOOP</p>
+<p>S: +OK</p>
+
+<p>Команда: RSET </p>
+<p>Аргументы: нет </p>
+<p>Описание: Если какие - то сообщения были помечены для удаления, то с них снимается эта метка. </p>
+<p>Возможные ответы: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>+OK </td></tr></table></div><p>Примеры: </p>
+<p>C: RSET</p>
+<p>S: +OK maildrop has 2 messages (320 octets)</p>
+
+<p>Обновление</p>
+<p>Когда клиент передаёт команду QUIT в режиме TRANSACTION, то сессия переходит в режим UPDATE. В этом режиме сервер удаляет все сообщения, помеченные для удаления. После этого TCP соединение закрывается. </p>
+<p>Дополнительные POP3 команды</p>
+<p>Следующие дополнительные команды дают вам большую свободу при работе с сообщениями: Команда: TOP [сообщение] [n] Аргументы: [сообщение] - номер сообщения [n] - положительное число (обязательный аргумент) Описание: Если ответ сервера положительный, то после него он передаёт заголовки сообщения и указанное кол - во строк из тела сообщения. Возможные ответы: +OK top of message follows -ERR no such message Примеры: C: TOP 1 10 S: +OK S: &lt;здесь POP3 сервер передаёт заголовки первого сообщения и первые 10-ть строк из тела сообщения.&gt; S: . ... C: TOP 100 3 S: -ERR no such message Команда: UIDL [сообщение] Аргументы: [сообщение] - номер сообщения (необязательный аргумент). Описание: Если был указан номер сообщения, то сервер выдаёт уникальный идентификатор для этого сообщения. Если аргумент не был передан, то идентификаторы перечисляются для всех сообщений, кроме помеченных для удаления. Возможные ответы: +OK unique-id listing follows -ERR no such message Примеры: C: UIDL S: +OK S: 1 whqtswO00WBw418f9t5JxYwZ S: 2 QhdPYR:00WBw1Ph7x7 S: . ... C: UIDL 2 S: +OK 2 QhdPYR:00WBw1Ph7x7 ... C: UIDL 3 S: -ERR no such message, only 2 messages in maildrop </p>
+<p>Заключение</p>
+<p>Вот пример простого сеанса с POP3 сервером: </p>
+<p>S: &lt;создаём новое TCP соединение c POP3 сервером через порт 110&gt;</p>
+<p>S: +OK POP3 server ready</p>
+<p>C: USER MonstrVB</p>
+<p>S: +OK User MonstrVB is exists</p>
+<p>C: PASS mymail</p>
+<p>S: +OK MonsrVB's maildrop has 2 messages (320 octets)</p>
+<p>C: STAT</p>
+<p>S: +OK 2 320</p>
+<p>C: LIST</p>
+<p>S: +OK 2 messages (320 octets)</p>
+<p>S: 1 120</p>
+<p>S: 2 200</p>
+<p>S: .</p>
+<p>C: RETR 1</p>
+<p>S: +OK 120 octets</p>
+<p>S: </p>
+<p>S: .</p>
+<p>C: DELE 1</p>
+<p>S: +OK message 1 deleted</p>
+<p>C: RETR 2</p>
+<p>S: +OK 200 octets</p>
+<p>S: </p>
+<p>S: .</p>
+<p>C: DELE 2</p>
+<p>S: +OK message 2 deleted</p>
+<p>C: QUIT</p>
+<p>S: +OK dewey POP3 server signing off (maildrop empty)</p>
+<p>C: &lt;закрываем соединение&gt;</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<html>
+<head>
+  <title>Ограничить подвижность формы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Ограничить подвижность формы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>For some reason messages.pas declares no message record for this message</p>
+<pre name="code" class="delphi">
+type
+  TWmMoving = record
+    Msg: Cardinal;
+    fwSide: Cardinal;
+    lpRect: PRect;
+    Result: Integer;
+  end;
+ 
+// Add a handler to your forms private section:
+ 
+procedure WMMoving(var msg: TWMMoving); message WM_MOVING;
+ 
+// Implement it as
+ 
+  procedure TFormX.WMMoving(var msg: TWMMoving);
+  var
+    r: TRect;
+  begin
+    r := Screen.WorkareaRect;
+   // compare the new form bounds in msg.lpRect^ with r and modify it if
+   // necessary
+    if msg.lprect^.left &lt; r.left then
+      OffsetRect(msg.lprect^, r.left - msg.lprect^.left, 0);
+    if msg.lprect^.top &lt; r.top then
+      OffsetRect(msg.lprect^, 0, r.top - msg.lprect^.top);
+    if msg.lprect^.right &gt; r.right then
+      OffsetRect(msg.lprect^, r.right - msg.lprect^.right, 0);
+    if msg.lprect^.bottom &gt; r.bottom then
+      OffsetRect(msg.lprect^, 0, r.bottom - msg.lprect^.bottom);
+    inherited;
+  end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

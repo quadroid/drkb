@@ -1,0 +1,158 @@
+<html>
+<head>
+  <title>TOpenDialog, TSaveDialog, TOpenPictureDialog и TSavePictureDialog</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TOpenDialog, TSaveDialog, TOpenPictureDialog и TSavePictureDialog</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Перевод одноимённой статьи с сайта delphi.about.com )</p>
+
+<p>  Стандарные диалоговые окошки</p>
+<p>Практически любое приложение Windows использует стандартные диалоги, встроенные в операционную систему, для открытия и сохранения файлов, поиска текста, печати, выбора шрифта или установки цвета.</p>
+<p>В этой статье мы рассмотрим основные свойства и методы этих диалогов и, особенно, сфокусируем внимание на диалогах Open и Save.</p>
+
+<p>Стандартные диалоговые окошки можно найти на панели компонентов в закладке Dialogs. Для того, чтобы начать использовать определённое диалоговое окошко, его достаточно поместить на форму. Компоненты стандартных диалогов являются невидимыми, поэтому Вы не сможете изменить дизайн такого диалога во время разработки приложения.</p>
+
+<p> &nbsp; TOpenDialog и TSaveDialog   </p>
+<p>Диалоговые окошки File Open и File Save имеют несколько общих свойств. File Open в основном используется для выбора и открытия файлов, в то время как диалог File Save (так же используется как диалоговое окошко Save As) используется для получения от пользователя имени файла, чтобы сохранить файл. Далее мы рассмотрим некоторые важные свойства TOpenDialog и TSaveDialog:</p>
+
+<p>Свойство Options предназначено для задания конечного вида окна. Например, при помощи следующего кода:</p>
+
+<p>with OpenDialog1 do</p>
+<p> Options := Options +</p>
+<p> &nbsp; [ofAllowMultiSelect, ofFileMustExist]; </p>
+
+<p>мы позволим пользователю выбирать несколько файлов, а так же заставим генерироваться сообщение об ошибке, если пользователь выберет несуществующий файл. </p>
+
+<p>Свойство InitialDir используется для указания директории, которая будет показана при создании диалога. Следующий код установит начальную директорию, из которой было запущено приложение:</p>
+
+<p>  SaveDialog1.InitialDir :=</p>
+<p> &nbsp;&nbsp; ExtractFilePath(Application.ExeName);</p>
+
+<p>Свойство Filter содержит список типов файлов, которые сможет выбирать пользователь. Когда пользователь выберет тип файлов, то в диалоговом окне будут отображаться только файлы данного расширения. Фильтр можно легко установить на стадии создания приложения при помощи диалога редактора фильтра (Filter Editor):&nbsp; </p>
+
+<p>Так же фильтр можно задать программно. Строка фильтра должна содержать описание и расширение для данного типа файлов, разделённые вертикальной чертой:</p>
+
+<p>OpenDialog1.Filter :=</p>
+<p>  'Text files (*.txt)|*.txt|All files (*.*)|*.*';</p>
+
+<p>Свойство FileName. Когда пользователь нажмёт на диалоге кнопку OK, то это свойство будет содержать полный путь и имя выбранного файла.</p>
+<p> &nbsp; Вызов диалогового окошка</p>
+<p>Для создания и отображения стандартного диалога необходимо выполнить метод Execute для нужного диалога. За исключением диалогов TFindDialog и TReplaceDialog, все остальные диалоги отображаются модально.</p>
+
+<p>Все стандартные диалоговые окошки позволяют определить нажал ли пользователь кнопку "Отмена" (Cancel) (или нажал ESC). Если метод Execute вернул True значит пользователь нажал OK или сделал двойной щелчёк по файлу либо нажал Enter на клавиатуре, иначе, если&nbsp; была нажата кнопка Cancel, клавиша Esc или Alt-F4, будет возвращено значение False.</p>
+
+<p>if OpenDialog1.Execute then </p>
+<p>  ShowMessage(OpenDialog1.FileName);</p>
+
+<p>Этот код показывает диалог File Open и, если пользователь нажал "Открыть" (Open), то будет показано имя выбранного файла.</p>
+
+<p>Использование только кода</p>
+<p>Чтобы работать диалогом Open (или любым другим) не помещая при этом на форму компонент OpenDialog, можно воспользоваться следующим кодом:</p>
+<pre name="code" class="delphi">
+procedure TForm1.btnFromCodeClick(Sender: TObject);
+var OpenDlg : TOpenDialog; 
+begin OpenDlg := TOpenDialog.Create(Self); 
+ {здесь устанавливаем опции...}
+ if OpenDlg.Execute then begin 
+  {здесь что-нибудь делаем} 
+ end; 
+ OpenDlg.Free; 
+end;
+</pre>
+
+<p>Обратите внимание, что перед вызовом Execute, можно установить различные свойства компонента OpenDialog.</p>
+
+<p> &nbsp; TOpenPictureDialog и TSavePictureDialog &nbsp; </p>
+<p>Эти два диалога есть ничто иное как обычные File Open и File Save с дополнительной возможностью предварительного просмотра выбранной картинки.</p>
+
+<p> &nbsp; Мой Блокнот</p>
+<p>А теперь предлагаю применить теорию на практике. Создадим простейший блокнот, и посмотрим как работают диалоговые окошки Open и Save:</p>
+
+
+<p>Для создания блокнота проделаем следующее:</p>
+<p>. Запустите Delphi и выберите в меню File-New Application.</p>
+<p>. Поместите на форму Memo, OpenDialog, SaveDialog и две кнопки.</p>
+<p>. Переименуйте Button1 в btnOpen, а Button2 в btnSave.</p>
+
+<p> &nbsp; Код</p>
+<p>1. Поместите в событие формы FormCreate следующий код:</p>
+
+<pre name="code" class="delphi">
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+ with OpenDialog1 do begin
+  Options:=Options+[ofPathMustExist,ofFileMustExist];
+  InitialDir:=ExtractFilePath(Application.ExeName);
+  Filter:='Text files (*.txt)|*.txt';
+ end;
+ with SaveDialog1 do begin
+  InitialDir:=ExtractFilePath(Application.ExeName);
+  Filter:='Text files (*.txt)|*.txt';
+ end;
+ Memo1.ScrollBars := ssBoth;
+end;
+</pre>
+
+<p>Этот код устанавливает некоторые свойства диалога Open как было описано в начале статьи. </p>
+
+<p>2. Добавьте следующий код в событие Onclick для кнопок btnOpen и btnSave:</p>
+<pre name="code" class="delphi">
+procedure TForm1.btnOpenClick(Sender: TObject);
+begin
+ if OpenDialog1.Execute then begin
+  Form1.Caption := OpenDialog1.FileName;
+  Memo1.Lines.LoadFromFile
+    (OpenDialog1.FileName);
+  Memo1.SelStart := 0;
+ end;
+end;
+ 
+ 
+procedure TForm1.btnSaveClick(Sender: TObject);
+begin
+ SaveDialog1.FileName := Form1.Caption;
+ if SaveDialog1.Execute then begin
+   Memo1.Lines.SaveToFile
+     (SaveDialog1.FileName + '.txt');
+   Form1.Caption:=SaveDialog1.FileName;
+ end;
+end;
+</pre>
+
+
+<p>Теперь можно смело запускать проект</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

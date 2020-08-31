@@ -1,0 +1,114 @@
+<html>
+<head>
+  <title>Загрузка файлов в THTMLViewer и TFrameBrowser</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Загрузка файлов в THTMLViewer и TFrameBrowser</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, Readhtml, FramView, FramBrwz, HtmlView;
+ 
+type
+  TForm1 = class(TForm)
+    FrameBrowser1: TFrameBrowser;
+    procedure FormCreate(Sender: TObject);
+    procedure FrameBrowser1GetPostRequest(Sender: TObject; IsGet: Boolean;
+      const URL, Query: String; Reload: Boolean; var NewURL: String;
+      var DocType: ThtmlFileType; var Stream: TMemoryStream);
+    procedure FrameBrowser1ImageRequest(Sender: TObject; const SRC: String;
+      var Stream: TMemoryStream);
+  public
+    BaseDir: string;
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  BaseDir := 'F:\Download\';
+  FrameBrowser1.LoadURL('file://F:\Download\index.htm');
+end;
+ 
+procedure TForm1.FrameBrowser1GetPostRequest(Sender: TObject;
+  IsGet: Boolean; const URL, Query: String; Reload: Boolean;
+  var NewURL: String; var DocType: ThtmlFileType;
+  var Stream: TMemoryStream);
+var
+  S, sType: string;
+  F: TFileStream;
+  P: Integer;
+begin
+  S := StringReplace(URL, '|', ':', [rfReplaceAll]);
+ 
+  P := Pos(':', S) + 2;
+  sType := Copy(S, 1, P);
+ 
+  Stream := TMemoryStream.Create;
+ 
+  if AnsiLowerCase(sType) = 'file://' then
+  begin
+    S := StringReplace(Copy(S, P + 1, MaxInt), '/', '\', [rfReplaceAll]);
+ 
+    F := TFileStream.Create(S, fmOpenRead);
+    try
+      Stream.CopyFrom(F, F.Size);
+    finally
+      F.Free;
+    end;
+  end;
+end;
+ 
+procedure TForm1.FrameBrowser1ImageRequest(Sender: TObject;
+  const SRC: String; var Stream: TMemoryStream);
+begin
+{}
+end;
+ 
+end.
+</pre>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: Smike</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

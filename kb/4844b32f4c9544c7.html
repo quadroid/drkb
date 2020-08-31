@@ -1,0 +1,70 @@
+<html>
+<head>
+  <title>Как получить дату по Юлианскому календарю?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить дату по Юлианскому календарю?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<pre name="code" class="delphi">
+function julian(year, month, day: Integer): real;
+var
+  yr, mth: Integer;
+  noleap, leap, days, yrs: Real;
+begin
+  if year &lt; 0 then yr := year + 1 else yr := year;
+  mth := month;
+  if (month &lt; 3) then
+    begin
+      mth := mth + 12;
+      yr := yr - 1;
+    end;
+  yrs := 365.25 * yr;
+  if ((yrs &lt; 0) and (frac(yrs) &lt;&gt; 0)) then yrs := int(yrs) - 1 else yrs := int(yrs);
+  days := int(yrs) + int(30.6001 * (mth + 1)) + day - 723244.0;
+  if days &lt; -145068.0 then julian := days
+  else
+  begin
+    yrs := yr / 100.0;
+    if ((yrs &lt; 0) and (frac(yrs) &lt;&gt; 0)) then yrs := int(yrs) - 1;
+    noleap := int(yrs);
+    yrs := noleap / 4.0;
+    if ((yrs &lt; 0) and (frac(yrs) &lt;&gt; 0)) then yrs := int(yrs) - 1;
+    leap := 2 - noleap + int(yrs);
+    julian := days + leap;
+  end;
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

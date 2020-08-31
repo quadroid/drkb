@@ -1,0 +1,57 @@
+<html>
+<head>
+  <title>Регистрация редактора свойства</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Регистрация редактора свойства</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Скажем, вы имеете компонент TContainer, содержащий TContainedClass в свойстве с именем 'Contained' - попробуйте добавить следующую строку к процедуре Register вашего компонента:</p>
+
+<pre name="code" class="delphi">
+RegisterPropertyEditor(TypeInfo(TContainedClass),
+  TContainer,
+  'Contained',
+  TClassProperty);
+</pre>
+
+<p>Не забудьте добавить TypInfo и DsgnIntf в список используемых модулей.</p>
+
+<p>Все это задокументировано в справке помощи. Первым параметром всегда идет TypeInfo() с "коллекционируемым" классом в качестве параметра, затем контейнерный класс или NIL, если он должен работать для всех экземпляров контейнерного класса с заданным свойством, затем идет имя контейнерного свойства или '', если редактор должен работать для всех свойств, и завершает славную четверку параметров класс TClassProperty, расширяющий классовое свойство, т.е. "создающий" знак "+" в Инспекторе Объектов, позволяющий редактировать вложенные свойства (щелчок на плюсике раскрывает список вложенных свойств описываемого контейнерного класса).</p>
+
+<p>Mike Scott</p>
+<p>Mobius Ltd. </p>
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

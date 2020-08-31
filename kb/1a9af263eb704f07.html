@@ -1,0 +1,87 @@
+<html>
+<head>
+  <title>Проверка правильности даты</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Проверка правильности даты</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<pre name="code" class="delphi">
+function DateExists(Date: string; Separator: char): Boolean;
+var
+  OldDateSeparator: Char;
+begin
+  Result := True;
+  OldDateSeparator := DateSeparator;
+  DateSeparator := Separator;
+  try
+    try
+      StrToDate(Date);
+    except
+      Result := False;
+    end;
+  finally
+    DateSeparator := OldDateSeparator;
+  end;
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  if DateExists('35.3.2001', '.') then
+  begin
+    {your code}
+  end;
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+
+<hr />
+<pre name="code" class="delphi">
+function ValidDate(const S: String): Boolean;
+BEGIN
+  Result := True;
+  try
+    StrToDate(S);
+  except
+    ON EConvertError DO
+      Result := False;
+  end;
+END
+ 
+</pre>
+<a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

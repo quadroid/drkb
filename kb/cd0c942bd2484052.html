@@ -1,0 +1,85 @@
+<html>
+<head>
+  <title>Алгоритм 4. Сортировка слиянием</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Алгоритм 4. Сортировка слиянием</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Алгоритм 4. Сортировка слиянием. </p>
+<p>Эта сортировка использует следующую подзадачу: есть два отсортированных массива, нужно сделать (слить) из них один отсортированный. Алгоритм сортировки работает по такому принципу: разбить массив на две части, отсортировать каждую из них, а потом слить обе части в одну отсортированную. Корректность данного метода практически очевидна, поэтому перейдем к реализации.</p>
+<pre name="code" class="delphi">
+Program SlivSort;
+Var A,B : array[1..1000] of integer;
+    N  : integer; 
+Procedure Sliv(p,q : integer); {процедура сливающая массивы}
+Var r,i,j,k : integer;
+Begin
+ r:=(p+q) div 2;
+ i:=p;
+ j:=r+1;
+ for k:=p to q do
+ if (i&lt;=r) and ((j&gt;q) or (a[i]&lt;a[j])) then
+  begin 
+   b[k]:=a[i];
+   i:=i+1;
+  end
+ else
+  begin
+   b[k]:=a[j];
+   j:=j+1;
+  end ;
+ for k:=p to q do
+  a[k]:=b[k];
+End;
+Procedure Sort(p,q : integer); {p,q — индексы начала и конца сортируемой части массива}
+Begin
+ if p&lt;q then {массив из одного элемента тривиально упорядочен}
+ begin
+  Sort(p,(p+q) div 2);
+  Sort((p+q) div 2 + 1,q);
+  Sliv(p,q);
+ end;
+End;
+Begin
+ {Определение размера массива A — N) и его заполнение}
+ …
+ {запуск сортирующей процедуры}
+ Sort(1,N);
+ {Вывод отсортированного массива A}
+  …
+End.
+</pre>
+
+<p>Чтобы оценить время работы этого алгоритма, составим рекуррентное соотношение. Пускай T(n) &#8212; время сортировки массива длины n, тогда для сортировки слиянием справедливо T(n)=2T(n/2)+O(n) (O(n) &#8212; это время, необходимое на то, чтобы слить два массива). Распишем это соотношение: </p>
+<p>T(n)=2T(n/2)+O(n)=4T(n/4)+2O(n/2)+O(n)=4T(n/4)+2O(n)= … = 2kT(1)+kO(n) </p>
+<p>Осталось оценить k. Мы знаем, что 2k=n, а значит k=log2n. Уравнение примет вид T(n)=nT(1)+ log2nO(n). Так как T(1) &#8212; константа, то T(n)=O(n)+log2nO(n)=O(nlog2n). То есть, оценка времени работы сортировки слиянием меньше, чем у первых трех алгоритмов (я прошу прощения у тех, кто не понял мои рассуждения или не согласен с ними, &#8212; просто поверьте мне на слово). Перед тем как объяснить, чем этот метод лучше, рассмотрим еще один алгоритм. </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

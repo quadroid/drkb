@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Найти позицию каретки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Найти позицию каретки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function GetCaretPosition(var APoint: TPoint): Boolean;
+ var w: HWND;
+   aID, mID: DWORD;
+ begin
+   Result:= False;
+   w:= GetForegroundWindow;
+   if w &lt;&gt; 0 then
+   begin
+     aID:= GetWindowThreadProcessId(w, nil);
+     mID:= GetCurrentThreadid;
+     if aID &lt;&gt; mID then
+     begin
+       if AttachThreadInput(mID, aID, True) then
+       begin
+         w:= GetFocus;
+         if w &lt;&gt; 0 then
+         begin
+           Result:= GetCaretPos(APoint);
+           Windows.ClientToScreen(w, APoint);
+         end;
+         AttachThreadInput(mID, aID, False);
+       end;
+     end;
+   end;
+ end;
+ 
+ 
+ //Small demo: set cursor to active caret position 
+procedure TForm1.Timer1Timer(Sender: TObject);
+ var
+   Pt: TPoint;
+ begin
+   if GetCaretPosition(Pt) then
+   begin
+     ListBox1.Items.Add(Format('Caret position is %d %d', [Pt.x, Pt.y]));
+     SetCursorPos(Pt.X, Pt.Y);
+   end;
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

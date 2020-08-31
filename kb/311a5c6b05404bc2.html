@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>Как запустить консольное приложение и перехватить вывод?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как запустить консольное приложение и перехватить вывод?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure ExecCmdine(const CmdLine: string; CmdResult: TStrings);
+var
+  Output: PIOFile;
+  Buffer: PChar;
+  TempString: string;
+  Line: string;
+  BytesRead: Integer;
+ 
+const
+  BufferSize: Integer = 1000;
+ 
+begin
+  Output := popen(PChar(CmdLine), 'r');
+  GetMem(Buffer, BufferSize);
+  if Assigned(Output) then
+  try
+    while feof(Output) = 0 do
+    begin
+      BytesRead := Libc.fread(Buffer, 1, BufferSize, Output);
+      SetLength(TempString, Length(TempString)+BytesRead);
+      memcpy(@TempString[length(TempString)-(BytesRead-1)], Buffer, BytesRead);
+      while Pos(#10, TempString) &gt; 0 do
+      begin
+        Line := Copy(TempString, 1, Pos(#10, TempString)-1);
+        if CmdResult&lt;&gt;nil then CmdResult.Add(Line);
+        TempString := copy(TempString, Pos(#10, TempString)+1, Length(TempString));
+      end;
+    end;
+  finally
+    Libc.pclose(output);
+    wait(nil);
+    FreeMem(Buffer,BufferSize);
+  end;
+end;
+</pre>
+<p id="note">Примечание</p>
+<p>Под отладчиком Kylix код может не работать. Надо запускать приложение не под Kylix для того чтобы удостовериться что код работает. Кроме того некоторые консольные приложения, типа top не совсем стандартно используют консоль, поэтому я наблюдала такое явление, что&nbsp; top можно запустить только если запускать готовое приложение в терминале.</p>
+<p id="author">Автор: Vit</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

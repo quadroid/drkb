@@ -1,0 +1,85 @@
+<html>
+<head>
+  <title>Как узнать серийный номер Audio CD?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать серийный номер Audio CD?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>CD может иметь или не иметь серийный номер и/или универсальный код продукта (Universal Product Code). MCI-расширение Windows предоставляет эту информации с помощью комманды MCI_INFO_MEDIA_IDENTITY command. Эта команда возвращает уникальную ID-строку. </p>
+<p>Пример:</p>
+<pre name="code" class="delphi">
+uses MMSystem, MPlayer;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+        mp : TMediaPlayer;
+        msp : TMCI_INFO_PARMS;
+        MediaString : array[0..255] of char;
+        ret : longint;
+begin
+        mp := TMediaPlayer.Create(nil);
+        mp.Visible := false;
+        mp.Parent := Application.MainForm;
+        mp.Shareable := true;
+        mp.DeviceType := dtCDAudio;
+        mp.FileName := 'D:';
+        mp.Open;
+        Application.ProcessMessages;
+        FillChar(MediaString, sizeof(MediaString), #0);
+        FillChar(msp, sizeof(msp), #0);
+        msp.lpstrReturn := @MediaString;
+        msp.dwRetSize := 255;
+        ret := mciSendCommand(Mp.DeviceId, MCI_INFO, MCI_INFO_MEDIA_IDENTITY,
+                        longint(@msp));
+        if Ret &lt;&gt; 0 then
+                begin
+                        MciGetErrorString(ret, @MediaString, sizeof(MediaString));
+                        Memo1.Lines.Add(StrPas(MediaString));
+                end
+        else
+                Memo1.Lines.Add(StrPas(MediaString));
+        mp.Close;
+        Application.ProcessMessages;
+        mp.free;
+end;
+end.
+</pre>
+
+<p>Взято из </p>
+DELPHI VCL FAQ Перевод с английского &nbsp; &nbsp; &nbsp; 
+<p>Подборку, перевод и адаптацию материала подготовил Aziz(JINX)</p>
+<p>специально для <a href="http://delphi.vitpc.com/" target="_blank">Королевства Дельфи</a></p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

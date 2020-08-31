@@ -1,0 +1,150 @@
+<html>
+<head>
+  <title>Как перетащить целую колонку из StringGrid в ListBox?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как перетащить целую колонку из StringGrid в ListBox?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+В Object Inspector установите свойство dragmode у StringGrid в dmAutomatic. </p>
+<p>Ниже приведён полный код: </p>
+<pre name="code" class="delphi">
+type
+  TForm1 = class(TForm)
+    StringGrid1: TStringGrid;
+    ListBox1: TListBox;
+    procedure ListBox1DragOver(Sender, Source: TObject; X, Y: Integer;
+      State: TDragState; var Accept: Boolean);
+    procedure ListBox1DragDrop(Sender, Source: TObject; X, Y: Integer);
+    procedure FormCreate(Sender: TObject);
+    procedure StringGrid1DragOver(Sender, Source: TObject; X, Y: Integer;
+      State: TDragState; var Accept: Boolean);
+    procedure StringGrid1DragDrop(Sender, Source: TObject; X, Y: Integer);
+  private
+    { Private declarations }
+    XMouseCord: Integer;
+    StartDrag: Boolean;
+  public
+    { Public declarations }
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TForm1.ListBox1DragOver(Sender, Source: TObject; X, Y: Integer;
+  State: TDragState; var Accept: Boolean);
+begin
+  Accept := Source is TStringGrid;
+end;
+ 
+procedure TForm1.ListBox1DragDrop(Sender, Source: TObject; X, Y: Integer);
+var
+  i: integer;
+  ColumVal, CurrentCol: Integer;
+begin
+  if Source is TStringGrid then
+  begin
+    //Вычисляем колонку
+    ColumVal := 0;
+    CurrentCol := 0;
+    for i := 0 to TStringGrid(Source).ColCount - 1 do
+    begin
+      ColumVal := ColumVal + TStringGrid(Source).ColWidths[i];
+      if XMouseCord &lt;= ColumVal then
+      begin
+        CurrentCol := i;
+        break;
+      end;
+    end;
+    //Убеждаемся, что это не первая колонка, которая не содержит данных
+    if CurrentCol &lt;&gt; 0 then
+    begin
+      for i := 1 to TStringGrid(Source).RowCount - 1 do
+      begin
+        ListBox1.items.Add(TStringGrid(Source).Cells[CurrentCol, i]);
+      end;
+    end;
+    StartDrag := True;
+  end;
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+//Для демонстрационных целей
+  with StringGrid1 do
+  begin
+    Cells[1, 1] := 'T1';
+    Cells[1, 2] := 'T2';
+    Cells[1, 3] := 'T3';
+    Cells[1, 4] := 'T4';
+    Cells[2, 1] := 'T5';
+    Cells[2, 2] := 'T6';
+    Cells[2, 3] := 'T7';
+    Cells[2, 4] := 'T8';
+    Cells[3, 1] := 'T9';
+    Cells[3, 2] := 'T10';
+    Cells[3, 3] := 'T11';
+    Cells[3, 4] := 'T12';
+    Cells[4, 1] := 'T13';
+    Cells[4, 2] := 'T14';
+    Cells[4, 3] := 'T15';
+    Cells[4, 4] := 'T16';
+  end;
+  StartDrag := True;
+end;
+ 
+procedure TForm1.StringGrid1DragOver(Sender, Source: TObject; X,
+  Y: Integer; State: TDragState; var Accept: Boolean);
+begin
+  //Сохраняем колонку, когда начинается перетаскивание.
+  if StartDrag then
+  begin
+    XMouseCord := X;
+    StartDrag := False;
+  end;
+end;
+ 
+procedure TForm1.StringGrid1DragDrop(Sender, Source: TObject; X,
+  Y: Integer);
+begin
+  //В данном случае помещаем е? на грид
+  StartDrag := True;
+end;
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

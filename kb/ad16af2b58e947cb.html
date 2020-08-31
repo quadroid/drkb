@@ -1,0 +1,82 @@
+<html>
+<head>
+  <title>Функция набора номера модемом</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Функция набора номера модемом</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+var
+hCommFile : THandle;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+PhoneNumber : string;
+CommPort : string;
+NumberWritten : LongInt;
+begin
+PhoneNumber := 'ATDT 1-555-555-1212' + #13 + #10;
+CommPort := 'COM2';
+{Open the comm port}
+hCommFile := CreateFile(PChar(CommPort),
+GENERIC_WRITE,
+0,
+nil,
+OPEN_EXISTING,
+FILE_ATTRIBUTE_NORMAL,
+0);
+if hCommFile=INVALID_HANDLE_VALUE then
+begin
+ShowMessage('Unable to open '+ CommPort);
+exit;
+end;
+NumberWritten:=0;
+if WriteFile(hCommFile,
+PChar(PhoneNumber)^,
+Length(PhoneNumber),
+NumberWritten,
+nil) = false then 
+begin
+     ShowMessage('Unable to write to ' + CommPort);
+    end;
+end;
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+{Close the port}
+CloseHandle(hCommFile);
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

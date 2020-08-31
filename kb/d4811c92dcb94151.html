@@ -1,0 +1,110 @@
+<html>
+<head>
+  <title>TCheckListBox: использование методов LoadFromFile / SaveToFile</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TCheckListBox: использование методов LoadFromFile / SaveToFile</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Bjarne Winkler </p>
+
+<p>Пример показывает как можно сохранять в файл содержимое TCheckListBox и соответственно восстанавливать из файла ранее сохранённые состояния Чекбоксов.</p>
+
+<p>На самом деле всё просто. Метод SaveToFile просто напросто сохраняет в обычном текстовом виде значения чекбоксов. Но предварительно нам нужно преобразовать состояния чекбоксов в текстовый вид, соответственно "1" или "0".</p>
+<p>Далее задача метода LoadFromFile считать эти значения и преобразовать сначало в числовой вид, а затем в логический (true или false). </p>
+<pre name="code" class="delphi">
+{====================================} 
+Procedure TFrameRuleEngine.SaveRules; 
+{====================================} 
+Var 
+  i: Integer; 
+ 
+begin 
+  i := 0; 
+  While i &lt; CheckListBoxRule.Items.Count Do 
+  Begin 
+    If CheckListBoxRule.Items[i] = '' Then 
+    Begin 
+      // Если ячейка пустая, то удаляем её 
+      CheckListBoxRule.Items.Delete(i); 
+    End 
+    Else 
+    Begin 
+      // Добавляем 1 или 0 соответственно checked или not checked 
+      CheckListBoxRule.Items[i] := IntToStr(Integer(CheckListBoxRule.Checked[i])) + CheckListBoxRule.Items[i]; 
+      Inc(i); 
+    End; 
+  End; 
+  // Сохраняем весь список 
+  CheckListBoxRule.Items.SaveToFile(ExtractFilePath(Application.ExeName) + 'Rule.Txt'); 
+end; 
+ 
+{===================================} 
+Procedure TFrameRuleEngine.LoadRules; 
+{===================================} 
+Var 
+  sChecked: String; 
+  i: Integer; 
+ 
+begin 
+  If FileExists(ExtractFilePath(Application.ExeName) + 'Rule.Txt') Then 
+  Begin 
+    // Считываем файл 
+    CheckListBoxRule.Items.LoadFromFile(ExtractFilePath(Application.ExeName) + 'Rule.Txt'); 
+    i := 0; 
+    While i &lt; CheckListBoxRule.Items.Count Do 
+    Begin 
+      If CheckListBoxRule.Items[i] = '' Then 
+      Begin 
+        // Удаляем пустую ячейку 
+        CheckListBoxRule.Items.Delete(i); 
+      End 
+      Else 
+      Begin 
+        // получаем состояние чекбокса 
+        sChecked := Copy(CheckListBoxRule.Items[i], 1, 1); 
+        CheckListBoxRule.Items[i] := Copy(CheckListBoxRule.Items[i], 2, Length(CheckListBoxRule.Items[i])); 
+        // Обновляем свойство Checked 
+        CheckListBoxRule.Checked[i] := Boolean(StrToInt(sChecked)); 
+        Inc(i); 
+      End; 
+    End; 
+  End; 
+end; 
+</pre>
+
+
+<p>Bjarne \v/ </p>
+<p>http://www.go2NTS.com </p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

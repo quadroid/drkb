@@ -1,0 +1,88 @@
+<html>
+<head>
+  <title>Как добавлять в TListView полноцветные иконки?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как добавлять в TListView полноцветные иконки?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  SysIL   : THandle;
+  SysSIL  : THandle;
+  SFI     : TSHFileInfo;
+begin
+  SysImageList1 := TImageList.Create(self);
+  with SysImageList1 do begin
+      Width  := 16;
+      Height := 16;
+      SysSIL := SHGetFileInfo('', 0, SFI, SizeOf(SFI),
+        SHGFI_SYSICONINDEX or SHGFI_SMALLICON);
+      if SysSIL &lt;&gt; 0 then begin
+        SysImageList1.Handle := SysSIL;
+        ShareImages := True;
+      end;
+    end;
+  SysImageList2 := TImageList.Create(self);
+  with SysImageList2 do begin
+      Width := 32;
+      Height := 32;
+      SysIL := SHGetFileInfo('', 0, SFI, SizeOf(SFI),
+        SHGFI_SYSICONINDEX or SHGFI_LARGEICON);
+      if SysIL &lt;&gt; 0 then begin
+        SysImageList2.Handle := SysIL;
+        ShareImages := True;
+      end;
+    end;
+end;
+ 
+function GetIconIndex(const AFile: string; Attrs: DWORD): integer;
+var
+  SFI: TSHFileInfo;
+begin
+  SHGetFileInfo(PChar(AFile), Attrs, SFI, SizeOf(TSHFileInfo),
+    SHGFI_SYSICONINDEX or SHGFI_USEFILEATTRIBUTES);
+  Result := SFI.iIcon;
+end;
+....
+with ListView.Items.Add do begin
+  Caption := FName;
+  ImageIndex := GetIconIndex(Caption, FILE_ATTRIBUTE_NORMAL);
+  SubItems.Add(FSize);  
+  SubItems.Add(FType);
+  SubItems.Add(FDateTime);
+end;
+</pre>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: alexanderm</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

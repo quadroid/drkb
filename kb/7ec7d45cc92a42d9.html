@@ -1,0 +1,83 @@
+<html>
+<head>
+  <title>Назначение цвета для каждой строки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Назначение цвета для каждой строки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TFormHistory.ListHistoryDrawCell(Sender: TObject; Col, Row: Integer;
+          Rect: TRect; State: TGridDrawState);
+var
+  S: string;
+  DrawRect: TRect;
+  CurrentColor: TColor;
+begin
+  // Определяем цвет строки в зависимости типа Imcoming
+  if (Sender as TStrinGgrid).Cells[COLUMN_INCOMING , Row ] = '1' then
+    CurrentColor:=clBlue
+  else
+    CurrentColor:=clMaroon;
+ 
+  if (Sender as TStrinGgrid).Row = Row then
+    CurrentColor := clHighlightText;
+ 
+  (Sender as TStrinGgrid).Canvas.font.color := CurrentColor;
+  S:= (Sender as TStrinGgrid).Cells[ Col, Row ];
+  if (Col = COLUMN_MESSAGE ) and (Row &lt;&gt; ROW_HEADER) then
+  begin
+    if Length(S) &gt; 0 then
+    begin
+      DrawRect:=Rect;
+      DrawText((Sender as TStrinGgrid).Canvas.Handle, Pchar(S), Length(S),
+      DrawRect, dt_calcrect or dt_wordbreak or dt_left );
+      if (DrawRect.bottom - DrawRect.top) &gt; (Sender as TStrinGgrid).RowHeights[Row] then
+        (Sender as TStrinGgrid).RowHeights[row] :=(DrawRect.bottom - DrawRect.top)
+      else
+      begin
+        DrawRect.Right:=Rect.Right;
+        (Sender as TStrinGgrid).Canvas.FillRect( DrawRect );
+        DrawText((Sender as TStrinGgrid).Canvas.Handle, Pchar(S),
+                  Length(S), DrawRect, dt_wordbreak or dt_left);
+      end;
+    end;
+  end
+  else
+    if Row &lt;&gt; ROW_HEADER then
+      (Sender as TStrinGgrid).Canvas.Textout(rect.left+3, rect.top+3 , S );
+end;
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<html>
+<head>
+  <title>Запись файла</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Запись файла</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Пример простейшей процедуры на Transact-SQL, создающей файл и </p>
+<p>записывающий в неё что нибудь. Для этого используется WindowsScripting.</p>
+<p>WindowsScripting - если грубо - это набор OLE-объектов, которые можно использовать для целей управления системой. Их удобно использовать там, где невозможно достучаться к функциям Win32 API напрямую, например, в SQL Server-е.</p>
+<p>Ниже приводится исходник на Transact-SQL с комментариями, как это сделать</p>
+<p>Надеюсь, что он достаточно хорошо прокомментирован.</p>
+<pre name="code" class="sql">
+DECLARE @FileName varchar(255), 
+----текст, который необходимо записать в файл---
+@sFileText varchar(8000),
+----директория файла---
+@sFileDir varchar(8000),
+----имя файла----------
+@sFileName varchar(8000),
+@FS int, 
+@FileID int, 
+@hr int,
+@OLEResult int, 
+@source varchar(30), 
+@desc varchar (200),
+@bFolder bit
+--функция sp_OACreate создаёт OLE объект 'Scripting.FileSystemObject'----
+EXECUTE @OLEResult = sp_OACreate 'Scripting.FileSystemObject', @FS OUTPUT
+--обязательно обработать ошибочные ситуации---
+IF @OLEResult &lt;&gt; 0 
+BEGIN
+GOTO Error_Handler
+END
+select @sFileDir = 'c:\'
+select @sFileName = @sFileDir + '123.log'
+/*
+у Scripting.FileSystemObject есть много интересных методов для работы с файлами 
+и директориями, подробнее их можно подсмотреть, например, в MSDN.
+*/
+--проверить - существует ли заданная директория, для этого вызовем функцию 'FolderExists'
+--ранее созданого OLE объекта---
+execute @OLEResult = sp_OAMethod @FS,'FolderExists',@bFolder OUT, @sFileDir
+IF @OLEResult &lt;&gt; 0 Or @bFolder = 0
+BEGIN
+  --а если не существует - то создать её----
+  execute @OLEResult = sp_OAMethod @FS,'CreateFolder',@bFolder OUT, @sFileDir
+  IF @OLEResult &lt;&gt; 0 And @bFolder = 0
+  BEGIN
+ &nbsp;&nbsp; GOTO Error_Handler&nbsp;&nbsp;&nbsp; 
+  END
+END
+--создать файл---
+execute @OLEResult = sp_OAMethod @FS,'CreateTextFile',@FileID OUTPUT,@FileName
+IF @OLEResult &lt;&gt; 0 
+BEGIN
+  GOTO Error_Handler
+END
+--создадим строку, которую будем записывать в файл---
+set @sFileText = 'Hello first file!' + char(0)
+-----------------записать строку в файл---
+execute @OLEResult = sp_OAMethod @FileID, 'WriteLine', NULL, @sFileText
+IF @OLEResult &lt;&gt; 0 
+BEGIN
+  GOTO Error_Handler
+END
+goto Done
+Error_Handler:&nbsp; --обработаем ошибку---
+EXEC @hr = sp_OAGetErrorInfo null, @source OUT, @desc OUT
+Done:&nbsp;&nbsp;&nbsp; 
+--очистим за собой всяческий OLE-мусор----
+EXECUTE @OLEResult = sp_OADestroy @FileID
+EXECUTE @OLEResult = sp_OADestr 
+</pre>
+
+<p id="author">Автор AQL</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

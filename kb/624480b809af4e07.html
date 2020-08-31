@@ -1,0 +1,78 @@
+<html>
+<head>
+  <title>Как заставить дополнительную клавиатуру всегда работать в режиме цифр?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как заставить дополнительную клавиатуру всегда работать в режиме цифр?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для этого необходимо написать процедуру-обработчик для Application.OnMessage:</p>
+<pre name="code" class="delphi">
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  Application.OnMessage := AppOnMessage;
+end;
+ 
+procedure TForm1.AppOnMessage(var Msg: TMsg; var Handled: Boolean);
+var  ccode: Word;
+begin
+  case Msg.Message of
+    WM_KEYDOWN, WM_KEYUP:
+    begin 
+      If (GetKeyState( VK_NUMLOCK ) &gt;= 0)  //NumLock не включён
+          and ((Msg.lparam and  $1000000) = 0)
+      then
+      begin
+        ccode := 0;
+        case Msg.wparam of
+          VK_HOME:  ccode := VK_NUMPAD7;
+          VK_UP  :  ccode := VK_NUMPAD8;
+          VK_PRIOR: ccode := VK_NUMPAD9;
+          VK_LEFT:  ccode := VK_NUMPAD4;
+          VK_CLEAR: ccode := VK_NUMPAD5;
+          VK_RIGHT: ccode := VK_NUMPAD6;
+          VK_END  : ccode := VK_NUMPAD1;
+          VK_DOWN : ccode := VK_NUMPAD2;
+          VK_NEXT : ccode := VK_NUMPAD3;
+          VK_INSERT:ccode := VK_NUMPAD0;
+          VK_DELETE:ccode := VK_DECIMAL;
+        end;
+        If ccode &lt;&gt; 0 then Msg.Wparam := ccode;
+      end;
+    end;
+  end;
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

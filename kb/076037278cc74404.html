@@ -1,0 +1,130 @@
+<html>
+<head>
+  <title>SELECT</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+  <script language="javascript" src="js/shBrushXml.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">SELECT</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В ранних версиях внешнее объединение таблиц задавалось выражением *= и =* во фразе WHERE. Этот синтаксис поддерживается, но не рекомендуется и будет исключен в будущих версиях. Начиная с версии 6.5, сервер поддерживает стандартный синтаксис {LEFT|RIGHT|FULL} [OUTER] JOIN.</p>
+<p>Функция IDENTITY(data_type[, seed, increment]) позволяет при выполнении SELECT в таблицу (SELECT INTO) создать в этой таблице автоинкрементное поле IDENTITY и заполнить его. При помощи этой функции и временных таблиц можно пронумеровать результаты запроса.</p>
+
+<pre name="code" class="sql">
+SELECT IDENTITY(INTEGER, 1, 1) AS Counter, Name
+INTO #Temp</p>
+FROM MyTable
+ORDER BY Name<
+
+SELECT * FROM #Temp
+</pre>
+
+<p>Начиная с версии 7.0, оператор SELECT имеет модификаторы TOP n [PERSENT] [WITH TIES], позволяющие вывести первые n записей или n процентов записей. Указав WITH TIES можно заставить сервер включить в результат все записи с таким же значением сортируемого поля, как и у последней из n записи. Если SELECT не имеет фразы ORDER BY, то набор записей не обязательно будет один и тот же.</p>
+<p>В качестве одной из таблиц в запросе можно использовать вложенный запрос:</p>
+<pre name="code" class="sql">
+SELECT A.Name, A.Population, B.AvgPop
+  FROM City A INNER JOIN
+   (SELECT Country, AVG(Population) AS AvgPop 
+      FROM City GROUP BY Country ) AS B
+    ON A.Country = B.Country
+</pre>
+
+
+<p>Этот запрос для каждого города выведет его название, количество жителей и среднее количество жителей на город в стране, в которой он находится.</p>
+<p>Функции OPENQUERY и OPENROWSET позволяют использовать в качестве одной из таблиц в запросе выборку из любого OLE DB совместимого источника данных.</p>
+<p>В MSSQL 2000 можно в запросе указать выражение FOR XML, в результате чего будет возвращена строка, содержащая XML представление выборки. Например, запрос:</p>
+<pre name="code" class="sql">
+SELECT O.OrderID, O.CustomerID, O.OrderDate, 
+  O.ShipName, O.ShipAddress, O.ShipCity, O.ShipRegion, 
+  P.ProductName, OD.UnitPrice, OD.Quantity
+  FROM Orders O
+    INNER JOIN [Order Details] OD ON O.OrderId = OD.OrderId
+    INNER JOIN Products P ON OD.ProductId = P.ProductId
+WHERE O.OrderId = '10248' 
+FOR XML AUTO
+</pre>
+
+
+<p>Вернет результат:</p>
+<pre name="code" class="xml">
+&lt;O OrderID="10248" 
+   CustomerID="VINET" 
+   OrderDate="1996-07-04T00:00:00" 
+   ShipName="Vins et alcools Chevalier" 
+   ShipAddress="59 rue de l&amp;apos;Abbaye" 
+   ShipCity="Reims"&gt;
+   &lt;P ProductName="Queso Cabrales"&gt;
+     &lt;OD UnitPrice="14.0000" Quantity="12"/&gt;
+   &lt;/P&gt;
+   &lt;P ProductName="Singaporean Hokkien Fried Mee"&gt;
+     &lt;OD UnitPrice="9.8000" Quantity="10"/&gt;
+   &lt;/P&gt;
+   &lt;P ProductName="Mozzarella di Giovanni"&gt;
+     &lt;OD UnitPrice="34.8000" Quantity="5"/&gt;
+   &lt;/P&gt;
+&lt;/O&gt;
+</pre>
+
+
+<p>Возможно как автоматическое форматирование XML результатов запроса, так и задание способа форматирования программистом.</p>
+<p>Кроме этого возможно использование XML данных в качестве таблицы в запросе. В качестве примера рассмотрим хранимую процедуру, выдающую данные по заранее неизвестному количеству записей. Идентификаторы записей передаются в неё в виде XML-документа</p>
+<pre name="code" class="sql">
+CREATE PROCEDURE XMLParam 
+ @Ids VARCHAR(8000)
+AS
+ DECLARE @idoc int
+ EXEC sp_xml_preparedocument @idoc OUTPUT, @Ids
+ SELECT O.* 
+   FROM Orders O
+    INNER JOIN OPENXML (@idoc, '/ROOT/Ids', 1) WITH (ID INT) AS T ON 
+ .OrderId = T.Id
+ EXEC sp_xml_removedocument @idoc
+GO
+</pre>
+
+
+<p>Вызов этой процедуры выглядит следующим образом:</p>
+<pre name="code" class="sql">
+DECLARE @S VARCHAR(8000)
+
+SET @S = '&lt;ROOT&gt;
+&lt;Ids ID="10250"/&gt;
+&lt;Ids ID="10257"/&gt;
+&lt;Ids ID="10258"/&gt;
+&lt;/ROOT&gt;'
+
+EXECUTE XMLParam @S
+</pre>
+
+<p>Очевидно, что соответствующая строка параметров может быть легко построена и клиентским приложением.</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

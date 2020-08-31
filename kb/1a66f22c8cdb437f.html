@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>Как работать с объектом Excel вставленном в Word документ?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как работать с объектом Excel вставленном в Word документ?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ ... }
+var
+  AWordApplication: WordApplication;
+  AWordDocument: WordDocument;
+  AWorkBook: ExcelWorkBook;
+  AWorkSheet: ExcelWorkSheet;
+  AInlineShape: InlineShape;
+  AFileName: OleVariant;
+  TrueParam: OleVariant;
+begin
+  AWordApplication := CoWordApplication.Create;
+  try
+    FalseParam := False;
+    AFileName := 'c:\wordexcel.doc';
+    AWordDocument := AWordApplication.Documents.Open(AFileName, EmptyParam,
+      EmptyParam,
+      EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam,
+      EmptyParam, EmptyParam, EmptyParam, EmptyParam);
+    AInlineShape := AWordDocument.InlineShapes.Item(1);
+    AInlineShape.Activate;
+    AWorkBook := AWordDocument.InlineShapes.Item(1).OLEFormat.Object_ as
+      ExcelWorkBook;
+    AWorkSheet := AWorkBook.ActiveSheet as ExcelWorkSheet;
+    ShowMessage(AWorkSheet.Cells.Item[2, 1].Text);
+  finally
+    AWordApplication.Quit(FalseParam, EmptyParam, EmptyParam);
+    AWordApplication := nil;
+    AWordDocument := nil;
+  end;
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

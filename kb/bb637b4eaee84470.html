@@ -1,0 +1,105 @@
+<html>
+<head>
+  <title>Как получить список всех расширений и их ассоциаций?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить список всех расширений и их ассоциаций?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<pre name="code" class="delphi">
+{
+ This Code will return the programs associated with each extension.
+ You can obviously modify it to search for a specific extension.
+}
+ 
+uses Registry;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  reg: TRegistry;
+  keys: TStringList;
+  i: Integer;
+  typename, displayname, server: string;
+begin
+  memo1.Clear;
+  reg := TRegistry.Create;
+  try
+    reg.rootkey := HKEY_CLASSES_ROOT;
+    if reg.OpenKey('', False) then
+    begin
+      keys := TStringList.Create;
+      try
+        reg.GetKeyNames(keys);
+        reg.CloseKey;
+        {memo1.lines.addstrings(keys);}
+        for i := 0 to keys.Count - 1 do
+        begin
+          if keys[i][1] = '.' then
+          begin
+            {this is an extension, get its typename}
+            if reg.OpenKey(keys[i], False) then
+            begin
+              typename := reg.ReadString('');
+              reg.CloseKey;
+              if typename &lt;&gt; '' then
+              begin
+                if reg.OpenKey(typename, False) then
+                begin
+                  displayname := reg.ReadString('');
+                  reg.CloseKey;
+                end;
+                if reg.OpenKey(typename + '\shell\open\command', False) then
+                begin
+                  server := reg.ReadString('');
+                  memo1.Lines.Add(Format('Extension: "%s", Typename: "%s", Displayname:"%s"' +
+                                         #13#10'  Server: %s',
+                                         [keys[i], typename, displayname, server]));
+                  reg.CloseKey;
+                end;
+              end;
+            end;
+          end;
+        end;
+      finally
+        keys.Free;
+      end;
+    end;
+  finally
+    reg.Free
+  end;
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<html>
+<head>
+  <title>Настройка монитора</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Настройка монитора</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Иногда требуется, чтобы программа работала при чётко заданных параметрах монитора: разрешение, глубина цвета, частота обновления… Определить текущее разрешение просто, достаточно обратиться к объекту TScreen и посмотреть значения его полей Width и Height. А вот чтобы установить свои значения требуется обратиться к функции Api: ChangeDisplaySettings. Если мы хотим вернуть текущие настройки по завершении работы программы, то перед вызовом изменений надо запомнить эти настройки например таким образом: </p>
+
+<pre name="code" class="delphi">
+uses ShellApi;
+var
+  DefWidth, DefHeight, BPP: word;
+...
+ 
+procedure SaveSettings;
+var
+  DC: hDC;
+begin
+  DefWidth := Screen.Width;
+  DefHeight := Screen.Height;
+  DC := CreateDC('DISPLAY', nil, nil, nil);
+  BPP := GetDeviceCaps(DC, BITSPIXEL);
+end;
+</pre>
+
+
+<p>После этого можно устанавливать свои параметры. Для упрощения собственной жизни я написал небольшую процедуру, которой надо только передать желаемые параметры и она их либо установит, либо сообщит о невозможности их установки. </p>
+
+<pre name="code" class="delphi">
+procedure SetScreen(BPP:byte;width,height,FR:integer);
+var
+  D: TDevMode;
+  h: HWND;
+begin
+  h:=0;
+  D.dmDeviceName:='DISPLAY';
+  D.dmBitsPerPel:=BPP;
+  D.dmDisplayFrequency:=FR;
+  D.dmPelsWidth:=Width;
+  D.dmPelsHeight:=Height;
+  D.dmFields:=DM_BITSPERPEL+DM_PELSWIDTH+DM_PELSHEIGHT+DM_DISPLAYFREQUENCY;
+  D.dmSize:=SizeOf(D);
+  if ChangeDisplaySettings(D,CDS_TEST)=DISP_CHANGE_SUCCESSFUL then
+    ChangeDisplaySettings(D,CDS_UPDATEREGISTRY)
+  else
+    MessageBox(h,'This mode is not supported by your video.',
+    'Failed to change mode', MB_ICONWarning);
+end;
+</pre>
+
+<p>Вызывается так: SetScreen(глубина цвета, разрешение по горизонтали, разрешение по вертикали, частота в герцах); Например: </p>
+
+<pre name="code" class="delphi">
+SetScreen(16,800,600,80); {16 бит цвет, 800х600, 80Гц.}
+</pre>
+
+<p>При завершении программы для восстановления старых параметров вызываем эту процедуру с сохраненными ранее значениями: </p>
+<pre name="code" class="delphi">
+SetScreen(BPP,DefWidth,DefHeight,80);
+</pre>
+
+<p>Я не стал здесь беспокоиться о сохранении/возвращении частоты обновления, а сразу установил 80Гц, но если кто желает, может сохранить и этот параметр при запуске </p>
+<pre name="code" class="delphi">
+DefFR:=GetDeviceCaps(DC, VREFRESH);
+</pre>
+<p>и восстановить при закрытии программы: </p>
+<pre name="code" class="delphi">
+SetScreen(BPP,DefWidth,DefHeight,DefFR);
+</pre>
+
+<p>Пример применения этой возможности можно посмотреть в моей программе SDisplay, которая вешается в трей и позволяет быстро изменить параметры экрана. </p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

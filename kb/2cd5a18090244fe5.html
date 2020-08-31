@@ -1,0 +1,117 @@
+<html>
+<head>
+  <title>TStringGrid, выделить фиксированные строки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TStringGrid, выделить фиксированные строки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, Grids;
+ 
+type
+  TForm1 = class(TForm)
+    StringGrid1: TStringGrid;
+    procedure FormCreate(Sender: TObject);
+    procedure StringGrid1DrawCell(Sender: TObject; ACol, ARow: Integer;
+      Rect: TRect; State: TGridDrawState);
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  C, R: Integer;
+begin
+  for C := 0 to StringGrid1.ColCount - 1 do
+  begin
+    for R := 0 to StringGrid1.RowCount - 1 do
+    begin
+      if (C &lt; StringGrid1.FixedCols) or
+         (R &lt; StringGrid1.FixedRows) then
+        StringGrid1.Cells[C, R] := Format('Fixed Cell (%dx%xd)', [C, R])
+      else
+        StringGrid1.Cells[C, R] := Format('Cell (%dx%d)', [C, R]);
+    end;
+  end;
+end;
+ 
+procedure TForm1.StringGrid1DrawCell(Sender: TObject; ACol, ARow: Integer;
+  Rect: TRect; State: TGridDrawState);
+var
+  I: Integer;
+begin
+  with StringGrid1 do
+    if gdFixed in State then
+    begin
+      Canvas.FillRect(Rect);
+      InflateRect(Rect, -2, 0);
+      if (ACol = Col) or (ARow = Row) then
+        Canvas.Font.Style := [fsBold]
+      else
+        Canvas.Font.Style := [];
+      DrawText(Canvas.Handle,
+        PChar(Cells[ACol, ARow]), -1, Rect,
+        DT_SINGLELINE or DT_VCENTER);
+    end else begin
+      Rect := CellRect(ACol, 0);
+      for I := 1 to FixedRows - 1 do
+        with CellRect(ACol, I) do
+          Inc(Rect.Bottom, Bottom - Top);
+      InvalidateRect(Handle, @Rect, True);
+ 
+      Rect := CellRect(0, ARow);
+      for I := 1 to FixedCols - 1 do
+        with CellRect(I, ARow) do
+          Inc(Rect.Right, Right - Left);
+      InvalidateRect(Handle, @Rect, True);
+    end;
+end;
+ 
+end.
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: Smike</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

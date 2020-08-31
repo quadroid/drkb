@@ -1,0 +1,118 @@
+<html>
+<head>
+  <title>Обработка событий клавиш в DelphiX</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Обработка событий клавиш в DelphiX</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Этот урок не совсем посвящен ДельфИксу. Сейчас вы научитесь обрабатывать такие события, как, например, нажатия клавиш. Но делать мы это будем не при помощи DXInput, так как я все ещё не знаю как с ним работать, делать мы это будем при помощи трех обычных событий: onKeyDown, onKeyUp и onKeyPreesed. Эти свойства есть и у формы и у DXDraw. Я буду работать с формой, кому больше нравится - могут работать с DXDraw, это ничего не меняет. Итак, в прошлый раз у нас была тарелка, летящая по уже заданной траектории. Теперь, я думаю было бы неплохо сделать спрайт стенки квадратным и небольшим, размножить их и добавить гравитацию, чтобы можно было летать по лабиринту и избегать столкновения со стенкой. Теперь стенка будет такой: </p>
+<img src="pic/clip0025.png" width="25" height="25" border="0" alt="clip0025"></p>
+<p>Можно будет размножить её, зная, что её размеры 23х23 и выстроить лабиринт. Кроме того не помешает создать спрайт "посадочной площадки", чтобы в лабиринте была цель. У меня она будет такой: </p>
+<img src="pic/clip0026.png" width="75" height="25" border="0" alt="clip0026"></p>
+<p>Теперь о том, как мы будем изменять координаты спрайта при создании. Конструктор Twall.Create теперь будет выглядеть так:(wx и wy - переменные типа Integer) </p>
+<pre name="code" class="delphi">constructor Twall.Create(AParent: TSprite);
+begin
+  inherited Create(AParent);
+  Image := Form1.ImageList.Items.Find('wall');
+  X := wx;
+  Y := wy;
+  Z := 0;
+  Width := Image.Width;
+  Height := Image.Height;
+  PixelCheck := True;
+end;
+</pre>
+<p>Как вы уже наверно догадались, мы будем менять wx и wy для изменения координат стенки. Для того, чтобы построить вертикальную или горизнтальную линии мы будем использовать цикл for чтобы не мучиться. Привожу листинг стенки(сами разберетесь, листинг совсем несложный). </p>
+<pre name="code" class="delphi">
+wy:=100;wx:=0;tx:=0;ty:=0;
+for i:=1 to 20 do
+begin
+  Twall.create(SpriteEngine.Engine);
+  wx:=wx+22;
+end;
+wy:=100;wx:=525;
+for i:=1 to 12 do
+begin
+  Twall.create(SpriteEngine.Engine);
+  wx:=wx+22;
+end;
+wy:=-20;wx:=0;
+for i:=1 to 36 do
+begin
+  Twall.create(SpriteEngine.Engine);
+  wx:=wx+22;
+end;
+wy:=597;wx:=0;
+for i:=1 to 32 do
+begin
+  Twall.create(SpriteEngine.Engine);
+  wx:=wx+22;
+end;
+wy:=0;wx:=-18;
+for i:=1 to 36 do
+begin
+  Twall.create(SpriteEngine.Engine);
+  wy:=wy+22;
+end;
+wy:=0;wx:=795;
+for i:=1 to 36 do
+begin
+  Twall.create(SpriteEngine.Engine);
+  wy:=wy+22;
+end;
+</pre>
+<p>После всего этого должна получиться примерно такая картинка </p>
+<img src="pic/clip0027.png" width="800" height="600" border="0" alt="clip0027"></p>
+<p>Теперь главное: заставить тарелку двигаться в зависимости от того, какие клаишы нажаты. "Раскладка" будет простой: W A S D, по их расположению, то есть W-вверх S-вниз А-влево D-вправо. Теперь о том, как мы это будем делать: мы будем менять две переменные, tx и ty(по аналогии с wx и wy). Менять мы их будем так: нажали W - ty увеличилась на 1, отпустили - уменьшилась. Создадим обработчики двух процедур: onKeyUp и onKeyDown. В onKeyDown'е пишем: </p>
+<pre name="code" class="delphi">
+case chr(ord(Key)) of
+  'W','Ц': ty := -1;
+  'S','Ы': ty := 1;
+  'D','А': tx := 1;
+  'A','Ф': tx := -1;
+end;
+</pre>
+<p>Разбираем: case ... of ... end; - обычный оператор перебора вариантов, в вариантах стоят две буквы для того, чтобы программа не зависела от того, какой язык включен - русский или английский. В onKeyUp'е пишем(разбора не будет): </p>
+<pre name="code" class="delphi">
+case chr(ord(Key)) of
+  'W','Ц': ty := 0;
+  'S','Ы': ty := 0;
+  'D','А': tx := 0;
+  'A','Ф': tx := 0;
+end;
+</pre>
+<p>Теперь добавляем гравитацию(в Ttarelka.Move вместо Y:=Y+ty пишем Y:=Y+ty+1) и этот урок закончен! </p>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

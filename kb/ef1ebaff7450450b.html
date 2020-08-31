@@ -1,0 +1,86 @@
+<html>
+<head>
+  <title>Работа с Word через OLE</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Работа с Word через OLE</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit Unit1; 
+interface
+uses Windows, Messages, SysUtils, Classes, Graphics,      Controls, Forms,      Dialogs, Buttons,ComCtrls, ExtCtrls, OleCtnrs;
+ 
+type TForm1 = class(TForm)
+    OleContainer1: TOleContainer;
+    Panel1: TPanel;
+    StatusBar1: TStatusBar;
+    mbLoad: TSpeedButton;
+    mbPrint: TSpeedButton;
+    OpenDialog1: TOpenDialog;
+    procedure mbLoadClick(Sender: TObject);
+    procedure mbPrintClick(Sender: TObject);
+  private
+ { Private declarations }
+  public
+{ Public declarations }
+  end;
+var Form1: TForm1; i
+  mplementation{$R *.DFM}
+ 
+procedure TForm1.mbLoadClick(Sender: TObject);
+begin
+  // Покажем диалог, и если он отработал, то загрузим в контейнер
+  if OpenDialog1.Execute and (OpenDialog1.FileName &lt;&gt; '') then
+    OleContainer1.CreateObjectFromFile(OpenDialog1.FileName, false);
+  / Если загрузилось что - нибудь, то покажем
+    if OleContainer1.State &lt;&gt; osEmpty then OleContainer1.DoVerb(ovShow);
+end;
+ 
+procedure TForm1.mbPrintClick(Sender: TObject);
+var V: Variant;
+begin
+  if OleContainer1.State = osEmpty then
+    begin
+      MessageDlg('OLE не загружен !!', mtError, [mbOk], 0);
+      exit;
+    end;
+// Получаем объект, который воплощает в себе WordBasic интерфейс
+  V := OleContainer1.OleObject.Application.WordBasic;
+// Командуем до одурения ....
+  V.FilePrint; end; end.
+</pre>
+
+
+<p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

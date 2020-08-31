@@ -1,0 +1,97 @@
+<html>
+<head>
+  <title>Конвертировать результат запроса в XML и обратно</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Конвертировать результат запроса в XML и обратно</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit ADOXMLUnit;
+ 
+interface
+ 
+uses
+  Classes, ADOInt;
+ 
+function RecordsetToXML(const Recordset: _Recordset): string;
+function RecordsetFromXML(const XML: string): _Recordset;
+ 
+implementation
+ 
+uses
+  ComObj;
+ 
+function RecordsetToXML(const Recordset: _Recordset): string;
+var
+  RS: Variant;
+  Stream: TStringStream;
+begin
+  Result := '';
+  if Recordset = nil then
+    Exit;
+  Stream := TStringStream.Create('');
+  try
+    RS := CreateOleObject('ADODB.Recordset');
+    RS := Recordset;
+    RS.Save(TStreamAdapter.Create(stream) as IUnknown, adPersistXML);
+    Stream.Position := 0;
+    Result := Stream.DataString;
+  finally
+    Stream.Free;
+  end;
+end;
+ 
+function RecordsetFromXML(const XML: string): _Recordset;
+var
+  RS: Variant;
+  Stream: TStringStream;
+begin
+  Result := nil;
+  if XML = '' then
+    Exit;
+  try
+    Stream := TStringStream.Create(XML);
+    Stream.Position := 0;
+    RS := CreateOleObject('ADODB.Recordset');
+    RS.Open(TStreamAdapter.Create(Stream) as IUnknown);
+    Result := IUnknown(RS) as _Recordset;
+  finally
+    Stream.Free;
+  end;
+end;
+ 
+end.
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

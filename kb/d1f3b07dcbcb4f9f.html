@@ -1,0 +1,303 @@
+<html>
+<head>
+  <title>DirectX (Игровой SDK) 4</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">DirectX (Игровой SDK) 4</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Использование класса DDCanvas. </p>
+
+<p>Для того, чтобы использопать этот класс, следует скопировать модуль DDCanvas.pas ц каталог Lib, который находится в каталоге Delphi 3.0, или и другой каталог, обозначенный в пути поиска библиотеки. </p>
+
+<p>Помните ли вы злополучное взаимное исключение Win, которое приостанаилипает многозадачную работу? Хорошо, я еще раз подчеркну необходимость освобождения DC. Класс TDDCanvas имеет и использует в своих целях метод Release. Всегда заворачивайте любой доступ к полотну в блок try..finally, например: </p>
+
+<pre name="code" class="delphi">
+try
+  DDCanvas.TextOut(0, 0, 'Hello Flipping World!');
+  {и т.д. }
+finally
+  DDCanvas.Release;
+end;
+</pre>
+
+<p>Или, как я часто делаю, используйте конструкцию with для того, чтобы сэкономить время набора:</p>
+<pre name="code" class="delphi">
+with DDCanvas do
+  try
+    TextOuK 0, 0, 'Hello Withering World!');
+    {и т.д. }
+  finally
+    Release;
+  end;
+</pre>
+
+
+<p>Итак, теперь вы можете добавить пару таких полотен в объявления формы, создавая их в FormShow, например:</p>
+<pre name="code" class="delphi">
+{ создать два TDDCanvas для наших двух поверхностей }
+PrimaryCanvas := TDDCanvas.Create(PrimarySurface);
+BackCanvas := TDDCanvas, Create(BackBuffer);
+ 
+Освободите их в FormDestroy перед тем, как освободить поверхности:
+ 
+{ освободить объекты TDDCanvas перед освобождением поверхностей }
+PrimaryCanvas.Free;
+BackCanvas.Free;
+</pre>
+
+
+<p>Теперь можно осуществлять вывод либо на основную поверхность, либо на фоновый буфер, просто применяя эти полотна. Таким образом, вы изменяете DrawSurfacesдля их использования, значительно упрощая код, что продемонстрировано в листинге 16. </p>
+
+<p>Листинг 16 DrawSurfaces использует объекты TDDCanvas. </p>
+<pre name="code" class="delphi">
+procedure TFormI.DrawSurfaces;
+var
+  ARect: TRect;
+  ATopPos: integer;
+begin
+ 
+  // вначале выводить на основную поверхность.
+  ARect := Rect(0, 0, 640, 480);
+  with PrimaryCanvas do
+  try
+    Brush.Color;
+    = cIRed;
+    FillRect(ARect);
+    Brush.Style: &lt;= bsClear;
+    Font.Name: = ' Arial ';
+    Font.Size := 24;
+    Font.Color := clWhite;
+ 
+    ATopPos := (480 - TextHeight('A')) div 2;
+    Text0ut(10, ATopPos, 'Primary surface');
+  finally
+ 
+    // убедиться, что мы сразу же освободили DC,
+    // поскольку Windows замораживается, пока мы владеем DC.
+    Release;
+  end;
+ 
+  // теперь работаем с фоновым буфером
+  with .BackCanvas do
+  try
+    Brush.Color: = clBlue;
+    FillRecK ARect);
+    Brush, Style := bsClear;
+    Font.Name := 'Arial';
+    Font.Size. = 24;
+    Font.Color := clWhite;
+ 
+    Text0ut(630 - TextWidth('Back buffer'), ATopPos, 'Back buffer');
+ 
+  finally
+    // убедиться, что DC освобожден
+    Release;
+  end;
+end;
+</pre>
+
+
+<p>Заметьте блоки try...finally с вызовом Release. Помимо этого, теперь пы добрались до этапа, на котором уже можно рисовать на поверхностях DirectDraw, не используя скверные коды DirectDraw, а просто приятные методы полотна Delphi! </p>
+
+<p>Улучшение нашего изображения </p>
+
+<p>Теперь, когда у вас прекрасно работает смена страниц, самое время научиться загружать растровое изображение на поверхность отображения. Процесс загрузки растрового изображения значительно упрощен по сравнению с тем, как это происходило в Windows 3.х, за счет введения функций Loadimage и CreateDIBSection а WIN32 API. В Windows 95 вы можете использовать Loadimage для загрузки растрового изображения либо с дискового файла, либо из ресурса. В окончательном приложении вы несомненно встроите свои изображения в ЕХЕ-файл в виде ресурсов. Однако, полезно иметь возможность загружать их из файла во время разработки. </p>
+
+<p>Первой из них, на которую следует обратить внимание, является DDReLoadBitmap. Вы можете смело использовать ее без понимания того, что она делает, но с целью обучения полезно немного заглянуть в этот код. Бывают моменты, когда вам может понадобиться самостоятельно написать специализированный код по обслуживанию растровых изображений. Это даст вам определенное понимание того, как это сделать. Листинг 17 представляет эту процедуру. </p>
+
+<p>Листинг 17 Сервисная процедура DDReLoadBitmap для загрузки изображений. </p>
+<pre name="code" class="delphi">
+procedure DDReLoadBitmap(Surface: IDirectDrawSurface; const BitmapName: string);
+var
+  Bitmap: HBitmap;
+begin
+  // попытаться загрузить изображение как ресурс;
+  // если это не удается, то как файл
+  Bitmap := Loadimage(GetModuleHandle(nil), PChar(BitmapName),
+    IMAGE__BITMAP, 0, 0, LR_CREATEDIBSECTION);
+  try
+    if Bitmap = 0 then
+      Bitmap := Loadimage(0, PChar(BitmapName), IMA.GE_BITMAP,
+        0, 0, LR_LOADFROMFILE or LR_CREATEDIBSECTION);
+    if Bitmap = 0 then
+      raise Exception.CreateFmt('Unable to load bitmap Is', [BitmapName]);
+    DDCopyBitmap(Surface, Bitmap, 0, 0, 0, 0);
+  finally
+    DeleteObject(Bitmap);
+  end;
+end;
+</pre>
+
+
+<p>Вы указываете в DDReLoadBitmap поверхность DirectDraw и имя растрового изображения, которое вы хотите загрузить в поверхность. Процедура сначала попытается произвести загрузку из ресурса, предполагая, что BitmapName является именем ресурса. Если это не удается, она предполагает, что вы указали имя файла и попытается загрузить его из файла. На самом деле в этом случае при помощи Loadimage создается секция DIB. Это Hbitmap из Windows с форматом аппаратно независимого растрового изображения (DIB). Вы можете использовать DIB-секцию как обычный Hbitmap, например, выбрав ее для DC и вызвав стандартную функцию GDI BitBIt. </p>
+
+<p>DDReLoadBitmap вызывает другую сервисную программу - DDCopyBitmap, которая копирует изображение секции DIB на поверхность DirectDraw. Затем блок try...finally избавляется от секции DIB, поскольку она больше не нужна. В отличие от кода обеспечения растровых изображений Windows 3.х, эта процедура достаточно проста. Теперь, как по поводу DDCopyBitmap? Как показано в листинге 18, это не намного сложнее. </p>
+
+<p>Листинг 18 Сервисная процедура для копирования растрового изображения на поверхность. </p>
+<pre name="code" class="delphi">
+procedure DDCopyBitmap(Surface: IDirectDrawSurface; Bitmap: HBITMAP;
+  х, y.Width, Height: integer);
+var
+  ImageDC: HDC;
+  DC: HDC;
+  BM;
+  Windows.TBitmap;
+  SurfaceDesc: TDDSurfaceDesc;
+begin
+  if (Surface = nil) or (Bitmap = = 0) then
+    raise Exception.Create('Invalid parameters for DDCopyBitmap');
+  // убедиться, что поверхность восстановлена.
+  Surfасе.Restore;
+  // выбрать изображение для memoryDC, чтобы его использовать.
+  ImageDC: = CreateCompatibleDC(0);
+  try
+    Select0bject(ImageDC, Bitmap);
+    // получить размер изображения.
+    Get0bject(Bitinap, Size0f(BM), @BM);
+    if Width = 0 then
+      Width := = BM.bmWidth;
+    if Height = = 0 then
+      Height := = BM.bmHeight;
+    // получить размер поверхости.
+    SurfaceDesc.dwSize := SizeOfC SurfaceDesc);
+    SurfaceDesc.dwFlags := DDSD_HEIGHT or DDSDJWIDTH;
+    Surf ace.GetSurfaceDesc(SurfaceDesc);
+    if Surf ace.GetDC(DC) &lt;&gt; DD_OK then
+      raise Exception.Create('GetDC failed for DirectDraw surface' )
+    try
+      StretchBlt(DC, 0, 0, SurfaceDesc.dwWidth, SurfaceDesc.dwHeight,
+      ImageDC, x, y.Width, Height, SRCCOPY);
+    finally
+      Surface.ReleaseDC(DC);
+    end;
+  finally
+    DeleteDC(ImageDC);
+  end;
+end;
+</pre>
+
+<p>После проверки некоторых параметров DDCopyBitmap вызывает Restore, чтобы обеспечить корректность память поверхности, Затем она обращается к обычной программе Windows для копирования растрового изображения с одного DC на другой. Исходное растровое изображение выбирается для первого DC, стандартная память DC обеспечивается вызовом CreateCompatibleDC. Передача нулевых параметров ширины и высоты в программу заставляет использовать фактическую ширину и высоту растрового изображения. Для того, чтобы получить эту информацию, программа использует функцию GetObject </p>
+
+<p>Затем заготавливается запись SurfaceDesc путем включения флажков DDSD_HEIGHT и DDSD_WIDTH. Это передает ся в GetSurfaceDesc, которое реагирует путем заполнения полей dwHeight и dwWidth дескриптора. Программа получает второй DC из поверхности, используя вызов GetDC и осуществляя простое StretchBIt Как обычно, блоки try..-Anally используются для обязательного освобождения DC. Все это довольно простые вещи. Это развеивает по ветру устаревшую истину о том, что код обработки растровых изображений для Windows тяжело писать. К счастью, теперь вы сможете прибегнуть к сочинению подобного кода без чувства опасения за будущее! </p>
+
+<p>Kод DrawSurface упрощается еще больше, потому что фоновый буфер теперь можно загружать где угодно, используя DDReLoaBitmap. Упрощенный DrawSurface представлен в листинге 19. </p>
+
+<p>Листинг 19 DrawSurface без кода отрисовки фоновой поверхности. </p>
+<pre name="code" class="delphi">
+procedure TFormI DrawSurfaces;
+var
+  ARect: TRect;
+  ATopPos: integer;
+begin
+  // вывод на основное полотно.
+  ARect := Rect(0, 0, 640, 480);
+  with PrimaryCanvas do
+  try
+    Brush.Color := clBlue;
+    FiliRect(ARect);
+    Brush.Style := = bsClear;
+    Font.Name := = 'Arial';
+    Font.Size := = 24;
+    Font.Color := clWhite;
+    ATopPos: ^(480 - TextHeight('A' ) ) div 2 ;
+    Text0ut(10, ATopPos, 'Primary surface');
+  finally
+    // убедиться, что мы сразу же освободили DC,
+    // поскольку Windows замораживается, пока мы владеем DC.
+    Release;
+  end;
+  { загрузить изображение в фоновый буфер }
+  DDReloadBitmap(BackBuffer, GetBitiilapName);
+end;
+</pre>
+
+
+
+<p>А что по поводу палитр? </p>
+
+<p>Я знал, что об этом вы обязательно бы меня спросили! Хорошо, мы все еще вынуждены работать с палитрами. Настало время представить еще один СОМ-объект DirectDraw, На этот раз это lDirectDrawPalette. Этот маленький полезный объект обслужит большинство компонент палитры, нс утруждая этим нас с вами. Для того, чтобы использовать IDirectDraw, высоздаете его с IDirectDraw.CreatePalette, которая устанавливает указатель на массив вводимых данных палитры, который использовался для инициализации объекта палитры. Затем вы присоединяете ее к поверхности DrawSurface и она станет использоваться автоматически для всех последующих операций. Конечно же, прекрасно. </p>
+
+<p>Итак, как же получить эти значения цветов? Хорошо, я написал еще одну небольшую функцию для их загрузки из растрового изображения или создания цветов по умолчанию, и для создания и возврата объекта IDirectDrawPalette. Она также находится в DDUtils.pas и называется DDLoadPalette. Вы просто передайте ей имя вашего объекта IDirectDraw либо с именем растрового изображения, либо (если вы хотите палитру по умолчанию) с пустой строкой. (Как и другие программы, DDLoadPalette сначала пытается загрузить растровое изображение из ресурса приложения. Если это не удается, она пытается загрузить растровое изображение из файла. Я не повторяю здесь код, поскольку он несколько длиннее других функций. Он главным образом имеет дело с проверкой наличия у DIB таблицы цветов, которую он затем копирует в массив вводимыхданных палитры). </p>
+
+<p>Я добавил объект палитры к объявлению формы, загрузил его в FormShow и присоединил объект палитры к основной поверхности следующим образом: </p>
+
+<pre name="code" class="delphi">
+ 
+{ загрузить палитку иэ растрового изображения
+и присоединить ее к основной поверхности }
+DDPalette := DDLoadPalette(DirectDraw, GetBitmapName);
+PrimarySurface, SatPalette(DDPalette);
+ 
+Создав, вы должны освободить его из основной поверхности в FormDestroy:
+ 
+{ освободить DD-палитру }
+if Assigned(DDPalette) then
+  DDPalette.Release;
+</pre>
+
+
+<p>Проделав все изменения, вы можете теперь приступить к проверке. DDDemoS содержит все изменения, обозначенные до настоящего момента. </p>
+
+<p>Объединение всего вместе </p>
+
+<p>В настоящий момент вы можете составить DirectDraw-приложсние со сменой страниц, а также загрузить растровое изображение и палитру. У вас имеется все необходимое для создания смены страниц и причем на полной скорости! Для того, чтобы было еще интересней, как насчет анимации? DirectDraw в одной из демонстрационных программ использует файл с именем ALL.BMP. Вы также скачать его вместе с примером DDDenno5. В ней содержится еще одно более интересное фоновое изображение и набор анимационных кадров с красным вращающимся трехмерным тором. </p>
+
+<p>Перед очередной сменой страницы вы захотите отобразить фоновое изображение и затем текущий анимационный кадр с тором. Вы создаете три тора в разных позициях на экране, которые будут вращаться с разной скоростью. Ввиду того, что фоновый буфер будет непрерывно перерисовываться, вы должны хранить где-нибудь еще исходное изображение, загруженное из ALL.BMP. Поэтому создайте для него еще одну поверхность DirectDraw. Это внеэкранная плоскость и она не имеет отношения к смене страниц; на ней мы будем хранить изображение. </p>
+
+<p>Существенно важно отметить, что по умолчанию DirectDraw создает исходное изображение в экранной памяти. Это означает, что когда вы используете изображение для обновления фонового буфера, любой производимый битовый перенос использует аппаратный перенос битов, если таковой имеется на графической карте. Практически все персональные компьютеры в настоящее время оснащены ускоренной графической картой, которую как раз и использует DirectDraw. Ввиду того, что это аппаратное обеспечение работает намного быстрее, чем процессор во время битового переноса, игры DirectDraw должны иметь большую эффективность по отношению к играм DOS, где процессор делает все. </p>
+
+<p>Битовый перенос (bit-blitting) - термин, используемый для описания переноса областей растровых изображений в, из или в пределах других растровых изображений. Термин иногда записывается более точно как bitblting, но он сложен для чтения, поэтому вы часто найдете его в расчлененным в виде двух слов bit-blitting. BitBIt - краткое описание термина BITmap Block Transfer (перенос блока растрового изображения). </p>
+
+<p>Итак, за работу. Создайте эту дополнительную поверхность и назовите ее Image (изображение). Добавьте ее в объявление формы. Это как раз и есть IDirectDrawSurface, поэтому нет необходимости представлять здесь эту тривиальную строку кода. Затем добавьте код в FormShow, который создает растровое изображение. Используйте DDLoadBitmap, это только одна строка! Вот она: </p>
+
+<p>Image := DDLoadBitmap (Directdraw, GetBitmapName, О, О);</p>
+
+<p>Помните, что вам необходимо пополнить метод RestoreSurfaces и тогда вы получите новую неявную поверхность. Если восстановление основной памяти поверхности пройдет нормально, попытайтесь восстановить поверхностную память Image. Если оба типа восстановлений будут иметь место, вызовите DrawSurfaces, как показано в листинге 20. </p>
+
+<p>Листинг 20 Восстановление всех поверхностей. </p>
+<pre name="code" class="delphi">
+function TFormI.RestoreSurfaces: HResult;
+begin
+  Result := primarySurface.Restore;
+  if Result = DD OK then
+  begin
+    Result := Image - Restore;
+    if Result = DD_OK then
+      DrawSurfaces
+  end;
+end;
+</pre>
+
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

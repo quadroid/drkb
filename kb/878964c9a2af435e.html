@@ -1,0 +1,84 @@
+<html>
+<head>
+  <title>Создание и удаление полей во время выполнения программы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создание и удаление полей во время выполнения программы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>TField-компоненты (или, точнее, потомки компонента TField с соответствующим типом поля) могут создаваться во время проектирования программы с помощью Fields Editor (редактора полей). Fields Editor вызывается двойным щелчком на иконке компонента TTable или TQuery. Но потомки TField могут быть созданы и удалены и в режиме выполнения программы. </p>
+
+<p>Потомки компонента TField (такие как, например, TStringField, TIntegerField и др.) создаются методом Create для того типа потомка TField, который подходит к соответствующему полю набора данных. Другими словами, для поля строкового типа текущего набора данных необходимо вызвать метод Create класса TStringField, являющегося потомком TField. Методу Create необходим один параметр - владелец потомка TField, расположенный на TForm. После создания компонента наследника TField для того, чтобы новый экземпляр объекта мог установить связь с необходимым полем набора данных, необходимо установить несколько ключевых свойств. Вот их список: </p>
+
+<p>FieldName: имя поля в таблице </p>
+<p>Name: уникальный идентификатор компонента-потомка TField. </p>
+<p>Index: позиция компонента-потомка TField в массиве TFields (свойство Fields компонента TTable или TQuery, с которым будет связан TField). </p>
+<p>DataSet: компонент TTable или TQuery, с которым будет связан TField. </p>
+<p>Приведенный ниже код демонстрирует способ создания TStringField. TForm названа Form1 (здесь ссылка на переменную Self), активный набор данных TQuery имеет имя Query1 и поле, для которого создается компонент TStringField, расположено в таблице dBASE с именем CO_NAME. Новый потомок TField будет вторым TField в свойстве-массиве Fields компонента Query1. Имейте в виду, что набор данных, связанный с новым потомком TField (в нашем случае Query1), перед добавлением TField должен быть закрыт, а после добавления вновь открыт. </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button2Click(Sender: TOObject);
+var
+  T: TStringField;
+begin
+  Query1.Close;
+  T := TStringField.Create(Self);
+  T.FieldName := 'CO_NAME';
+  T.Name := Query1.Name + T.FieldName;
+  T.Index := Query1.FieldCount;
+  T.DataSet := Query1;
+  Query1.FieldDefs.UpDate;
+  Query1.Open;
+end;
+</pre>
+
+<p>Вышеприведенный пример создает новый TStringField с именем Query1CO_NAME. </p>
+
+<p>Для удаления существующего потомка TField достаточно вызова метода Free данного компонента. В примере, приведенном ниже, метод TForm FindComponent используется для получения указателя на компонент TStringField с именем Query1CO_NAME. Возвращаемая функцией FindComponent величина в случае успешного завершения будет иметь тип TComponent или nil в противном случае. Возвращаемое значение может использоваться для того, чтобы определить, действительно ли существует компонент до того, как будет применен метод Free.</p>
+
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  TC: TComponent;
+begin
+  TC := FindComponent('Query1CO_NAME');
+  if not (TC = nil) then 
+  begin
+    Query1.Close;
+    TC.Free;
+    Query1.Open;
+  end;
+end; 
+</pre>
+
+<p>Как и при создании TField, набор данных, связанный с потомком TField и активный в настоящий момент, перед вызовом данного метода должен быть закрыт и впоследствии вновь активирован. </p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

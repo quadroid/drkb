@@ -1,0 +1,111 @@
+<html>
+<head>
+  <title>Как написать DLL, которую можно было бы выполнить с помощью RunDll, RunDll32?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushCpp.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как написать DLL, которую можно было бы выполнить с помощью RunDll, RunDll32?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Вы должны определить в программе вызываемую снаружи функцию. </p>
+<p>Функция должна быть __stdcall (или WINAPI, что то же самое ;)) и иметь </p>
+<p>четыре аргумента. Первый - HWND окна, порождаемого rundll32 (можно </p>
+<p>использовать в качестве owner'а своих dialog box'ов), второй - HINSTANCE </p>
+<p>задачи, третий - остаток командной строки (LPCSTR, даже под NT), </p>
+<p>четвертый - не знаю ;). Hапример, </p>
+<pre name="code" class="cpp">
+int __stdcall __declspec(dllexport) Test 
+
+( 
+  HWND hWnd, 
+  HINSTANCE hInstance, 
+  LPCSTR lpCmdLine, 
+  DWORD dummy 
+  ) 
+{ 
+MessageBox(hWnd, lpCmdLine, "Command Line", MB_OK); 
+return 0; 
+} 
+</pre>
+
+
+<p>rundll32 test.dll,_Test@16 this is a command line </p>
+
+<p>выдаст message box со строкой "this is a command line". </p>
+
+<p>Oleg Moroz </p>
+<p>(2:5020/701.22) </p>
+
+<pre name="code" class="delphi">
+function Test(
+  hWnd: Integer;
+  hInstance: Integer;
+  lpCmdLine: PChar;
+  dummy: Longint
+  ): Integer; stdcall; export;
+begin
+  Windows.MessageBox(hWnd, lpCmdLine, 'Command Line', MB_OK);
+  Result := 0;
+end;
+</pre>
+
+
+<p>Akzhan Abdulin </p>
+<p>(2:5040/55) </p>
+
+<p> &nbsp;&nbsp; Давненько я ждал эту инфоpмацию! Сел пpовеpять и наткнулся на очень </p>
+<p>забавную вещь. А именно -- пусть у нас есть исходник на Си пpимеpно такого </p>
+<p>вида: </p>
+
+<p>int WINAPI RunDll( HWND hWnd, HINSTANCE hInstance, LPCSTR lpszCmdLine, DWORD </p>
+<p>dummy ) </p>
+<p>...... </p>
+<p>int WINAPI RunDllW( HWND hWnd, HINSTANCE hInstance, LPCWSTR lpszCmdLine, DWORD </p>
+<p>dummy ) </p>
+<p>...... </p>
+
+<p> &nbsp;&nbsp; и .def-файл пpимеpно такого вида: </p>
+
+<p>EXPORTS </p>
+<p> &nbsp;&nbsp; RunDll </p>
+<p> &nbsp;&nbsp; RunDllA=RunDll </p>
+
+<p> &nbsp;&nbsp; RunDllW </p>
+
+<p> &nbsp;&nbsp; то rundll32 становится pазбоpчивой -- под HТ вызывает UNICODE-веpсию. Под </p>
+<p>95, pазумеется, ANSI. Rulez. </p>
+
+<p>Alexey A Popoff </p>
+<p>pvax@glas.apc.org, posp@ccas.ru </p>
+<p>http://www.ccas.ru/~posp/popov/pvax.html </p>
+<p>(2:5020/487.26)Администрирование </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

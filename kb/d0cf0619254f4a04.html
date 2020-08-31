@@ -1,0 +1,69 @@
+<html>
+<head>
+  <title>Табуляция в графическом TListBox</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Табуляция в графическом TListBox</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Использование табуляции в ListBox'е когда компонент находится в стандартном режиме не составляет труда. Но что делать если надо использовать графическое отображение элементов списка? Ведь при этом надо самому писать обработчик отрисовки элементов с разбиением на колонки. Элементарное решение - использование API функции TabbedTextOut, однако результаты работы этой функции меня явно не удовлетворили. Пришлось-таки "выкручиваться"... Символ-разделитель можно использовать любой. Например, будем использовать символ "|", тогда обработчик OnDrawItem может выглядеть следующим образом:</p>
+<pre name="code" class="delphi">
+procedure TBrowser.ListBox1DrawItem(Control: TWinControl; Index: Integer;
+  Rect: TRect; State: TOwnerDrawState);
+var
+  S, Ss: string;
+  P: Integer; // Флаг символа-разделителя
+begin
+  ListBox1.Canvas.FillRect(Rect);
+  //Отрисовка графики
+  ...
+    //
+  S := ListBox1.Items.Strings[Index];
+  P := Pos('|', S);
+  if P = 0 then
+    Ss := S
+  else
+    // Если нет табуляции, то пишем всю строку,
+    // иначе отрезаем кусок до разделителя
+    Ss := Copy(S, 1, P - 1);
+  ListBox1.Canvas.TextOut(Rect.Left + 20, Rect.Top + 2, Ss);
+  if P &gt; 0 then
+    ListBox1.Canvas.TextOut(ListBox1.TabWidth, Rect.Top + 2, Copy(S, P + 1,
+      Length(S) - P + 2));
+end;
+</pre>
+
+<p>Не забудьте перед запуском поставить нужное значение TabWidth.</p>
+<p id="author">Автор: <a href="mailto:virty1k@mail.ru">Virtualik</a></p>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

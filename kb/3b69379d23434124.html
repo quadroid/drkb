@@ -1,0 +1,141 @@
+<html>
+<head>
+  <title>Как изменить значение свойства компонента по имени?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как изменить значение свойства компонента по имени?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<pre name="code" class="delphi">
+function GetProperty(AControl: TPersistent; AProperty: String): PPropInfo;
+var
+  i: Integer;
+  props: PPropList;
+  typeData: PTypeData;
+begin
+  Result := nil;
+  if (AControl = nil) or (AControl.ClassInfo = nil) then
+    Exit;
+  typeData := GetTypeData(AControl.ClassInfo);
+  if (typeData = nil) or (typeData^.PropCount = 0) then
+    Exit;
+  GetMem(props, typeData^.PropCount * SizeOf(Pointer));
+  try
+    GetPropInfos(AControl.ClassInfo, props);
+    for i := 0 to typeData^.PropCount - 1 do
+    begin
+      with Props^[i]^ do
+        if (Name = AProperty) then
+          result := Props^[i];
+    end;
+  finally
+    FreeMem(props);
+  end;
+end;
+ 
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  propInfo: PPropInfo;
+begin
+  PropInfo := GetProperty(Button1.Font, 'Name');
+  if PropInfo &lt;&gt; nil then
+    SetStrProp(Button1.Font, PropInfo, 'Arial');
+end;
+</pre>
+
+<p>Взято из <a href="http://www.lmc-mediaagentur.de/dpool" target="_blank">http://www.lmc-mediaagentur.de/dpool</a></p>
+<hr />You can use RTTI to do this. Here is how to change a particular component:</p>
+
+<pre name="code" class="delphi">
+procedure TForm1.BtnClick(Sender: TObject);
+var
+  p: PPropInfo;
+  f: TFont;
+begin
+  f := TFont.Create;
+  {Setup the font properties}
+  f.Name := 'Arial';
+  p := GetPropInfo(Sender.ClassInfo, 'Font');
+  if Assigned(p) then
+    SetOrdProp(Sender, p, Integer(f));
+  f.Free;
+end;
+</pre>
+
+<p>To get at all the forms loop through the Screen global variable. For each form loop through its Components list calling the above procedure (or something close). If you only create your components at design time that is it. If you create some at runtime and the owner is not the form, then for each component loop through its Components list recursively to get at all the owned components.</p>
+
+
+<p>Tip by Jeff Overcash</p>
+<p>Взято из <a href="http://www.lmc-mediaagentur.de/dpool" target="_blank">http://www.lmc-mediaagentur.de/dpool</a></p>
+<hr />I am building a routine that checks our forms for validity before deploying them. I would like to use some kind of structure that tests if a component type has access to a certain property, something like: " if (self.Controls[b] has Tag) then ...". Can anyone offer suggestions?</p>
+<p>Here's an example of setting a string property for a component if it exists and another for an integer property:</p>
+
+<pre name="code" class="delphi">
+{
+Copyright © 1999 by Delphi 5 Developer's Guide - Xavier Pacheco and Steve Teixeira
+}
+procedure SetStringPropertyIfExists(AComp: TComponent; APropName: String;
+AValue: String);
+var
+  PropInfo: PPropInfo;
+  TK: TTypeKind;
+begin
+  PropInfo := GetPropInfo(AComp.ClassInfo, APropName);
+  if PropInfo &lt;&gt; nil then
+  begin
+    TK := PropInfo^.PropType^.Kind;
+    if (TK = tkString) or (TK = tkLString) or (TK = tkWString) then
+      SetStrProp(AComp, PropInfo, AValue);
+  end;
+end;
+ 
+ 
+procedure SetIntegerPropertyIfExists(AComp: TComponent; APropName: String;
+AValue: Integer);
+var
+  PropInfo: PPropInfo;
+begin
+  PropInfo := GetPropInfo(AComp.ClassInfo, APropName);
+  if PropInfo &lt;&gt; nil then
+  begin
+    if PropInfo^.PropType^.Kind = tkInteger then
+      SetOrdProp(AComp, PropInfo, AValue);
+  end;
+end;
+</pre>
+
+
+<p>Tip by Xavier Pacheco</p>
+<p>Взято из <a href="http://www.lmc-mediaagentur.de/dpool" target="_blank">http://www.lmc-mediaagentur.de/dpool</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

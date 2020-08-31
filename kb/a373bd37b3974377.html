@@ -1,0 +1,102 @@
+<html>
+<head>
+  <title>Вычисление простого хеш-кода для блока данных</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Вычисление простого хеш-кода для блока данных</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Вычисление простого хеш-кода для блока данных
+ 
+Вычисляет значение простой хеш-функции (xor + циклический сдвиг) для блока 
+данных.
+ 
+Описание параметров:
+Data - указатель на блок данных
+ 
+DataSize - размер блока
+ 
+Возвращаемое значение - значение хеш-функции
+ 
+Зависимости: нет
+Автор:       vuk, vuk@fcenter.ru
+Copyright:   Алексей Вуколов
+Дата:        18 апреля 2002 г.
+********************************************** }
+ 
+function CalcHash(Data : pointer; DataSize : integer) : integer; register;
+asm
+  push ebx
+  push esi
+  push edi
+  mov esi, Data
+  xor ebx, ebx
+  or esi, esi
+  jz @@Exit
+  mov edx, DataSize
+  or edx,edx
+  jz @@Exit
+  xor ecx,ecx
+ 
+@@Cycle:
+  xor eax,eax
+  mov al,[esi]
+  inc esi
+  rol eax,cl
+  xor ebx,eax
+  inc ecx
+  dec edx
+  jnz @@Cycle
+ 
+@@Exit:
+  mov eax,ebx
+  pop edi
+  pop esi
+  pop ebx
+end; 
+</pre>
+
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+//вычисление хеш-кода для строки
+ 
+var
+   i : integer;
+   s : string;
+...
+s := 'test';
+i := CalcHash(pointer(S), length(S)); 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

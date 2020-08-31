@@ -1,0 +1,153 @@
+<html>
+<head>
+  <title>Об ускорении работы с графикой</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Об ускорении работы с графикой</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Сегодня поговорим о том, как по-другому можно ускорить работу с графикой. </p>
+<p>Иногда нужные точки изображения не находятся в одной строке, например, при повороте. Для увеличения скорости в этом случае выгодно поместить всю картинку в доступную память. Для этого используется функция GetDIB. Она копирует изображение в выделенную для этого память. А дальше, чтобы узнать цвет точки (x,y) изображения WxH нужно воспользоваться следующей "формулой":</p>
+<p>PRGBTriple(integer(p) + (H - y - 1) * (3 * W + dw) + x * 3)^</p>
+<p>Эта "формула" возвращает цвет в формате TRGBTriple. TRGBTriple - это запись с тремя полями: красная, зеленая и синяя составляющие цвета. dw - это </p>
+<p>w mod 4</p>
+<p>и нужен он для того, чтобы создавать сдвиг, связанный с шириной изображения. </p>
+<p>Эта программа "размывает" изображение, просто находя среднее арифметическое для каждой составляющей цвета близлежащих точек. При нажатии на Button1 изображение "размывается" с использованием GetDIB, а при нажатии на Button2 используется свойство Pixels. Время работы алгоритма в миллисекундах выводится в заголовок окна. </p>
+<pre name="code" class="delphi">const
+  d = 5;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+type
+  PRGBTripleArray = ^TRGBTripleArray;
+  TRGBTripleArray = array [0..0] of TRGBTriple;
+var
+  bi: PBitmapInfo;
+  InfoSize, ImageSize: cardinal;
+  bmS, bmD: TBitmap;
+  p: pointer;
+  line: PRGBTripleArray;
+  t: cardinal;
+  r, g, b: integer;
+  w, h, x, y, x1, y1: integer;
+  left, right, top, bottom: integer;
+  dw, norm: integer;
+begin
+  bmS := TBitmap.Create;
+  bmS.LoadFromFile('ex.bmp');
+  bmS.PixelFormat := pf24bit;
+  w := bmS.Width; h := bmS.Height;
+  bmD := TBitmap.Create;
+  bmD.Width := w; bmD.Height := h;
+  bmD.PixelFormat := pf24bit;
+  t := GetTickCount;
+  dw := w mod 4;
+  GetDIBSizes(bmS.Handle, InfoSize, ImageSize);
+  GetMem(p, ImageSize);
+  GetMem(bi, InfoSize);
+  GetDIB(bmS.Handle, 0, bi^, p^);
+  for y := 0 to h - 1 do begin
+    line := bmD.ScanLine[y];
+    if y &gt; d then top := y - d else top := 0;
+    if y + d &lt; h - 1 then bottom := y + d else bottom := h - 1;
+    for x := 0 to w - 1 do begin
+      r := 0; g := 0; b := 0;
+      if x &gt; d then left := x - d else left := 0;
+      if x + d &lt; w - 1 then right := x + d else right := w - 1;
+      for y1 := top to bottom do
+        for x1 := left to right do with PRGBTriple(integer(p) +
+          (h - y1 - 1) * (3 * w + dw) + x1 * 3)^ do begin
+          r := r + rgbtRed;
+          g := g + rgbtGreen;
+          b := b + rgbtBlue;
+        end;
+      norm := (bottom - top + 1) * (right - left + 1);
+      with line^[x] do begin
+        rgbtRed := r div norm;
+        rgbtGreen := g div norm;
+        rgbtBlue := b div norm;
+      end;
+    end;
+  end;
+  Form1.Caption := IntToStr(GetTickCount - t);
+  Form1.Canvas.Draw(0, 0, bmS);
+  Form1.Canvas.Draw(0, h + 5, bmD);
+  bmS.Destroy; bmD.Destroy;
+  FreeMem(p, ImageSize);
+  FreeMem(bi, InfoSize);
+end;
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+type
+  PRGBTripleArray = ^TRGBTripleArray;
+  TRGBTripleArray = array [0..0] of TRGBTriple;
+var
+  bmS, bmD: TBitmap;
+  t: cardinal;
+  r, g, b: integer;
+  w, h, x, y, x1, y1: integer;
+  left, right, top, bottom: integer;
+  norm: integer;
+  c: TColor;
+begin
+  bmS := TBitmap.Create;
+  bmS.LoadFromFile('ex.bmp');
+  bmS.PixelFormat := pf24bit;
+  w := bmS.Width; h := bmS.Height;
+  bmD := TBitmap.Create;
+  bmD.Width := w; bmD.Height := h;
+  bmD.PixelFormat := pf24bit;
+  t := GetTickCount;
+  for y := 0 to h - 1 do begin
+    if y &gt; d then top := y - d else top := 0;
+    if y + d &lt; h - 1 then bottom := y + d else bottom := h - 1;
+    for x := 0 to w - 1 do begin
+      r := 0; g := 0; b := 0;
+      if x &gt; d then left := x - d else left := 0;
+      if x + d &lt; w - 1 then right := x + d else right := w - 1;
+      for y1 := top to bottom do
+        for x1 := left to right do begin
+          c := bmS.Canvas.Pixels[x1,y1];
+          r := r + GetRValue(c);
+          g := g + GetGValue(c);
+          b := b + GetBValue(c);
+        end;
+      norm := (bottom - top + 1) * (right - left + 1);
+      bmD.Canvas.Pixels[x,y] := rgb(r div norm, g div norm, b div norm);
+    end;
+  end;
+  Form1.Caption := IntToStr(GetTickCount - t);
+  Form1.Canvas.Draw(0, 0, bmS);
+  Form1.Canvas.Draw(0, h + 5, bmD);
+  bmS.Destroy; bmD.Destroy;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

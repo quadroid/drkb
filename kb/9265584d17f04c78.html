@@ -1,0 +1,57 @@
+<html>
+<head>
+  <title>Как увеличить процессорное время, выделяемого программе?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как увеличить процессорное время, выделяемого программе?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Следующий пример изменяет приоритет приложения. Изменение приоритета следует использовать</p>
+<p> с осторожностью - т.к. присвоение слишком высокого приоритета может привети к </p>
+<p>медленной работе остальных программ и системы в целом. См. Win32 help for SetThreadPriority() function. </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);  
+  var    ProcessID : DWORD;   
+   ProcessHandle : THandle;
+   ThreadHandle : THandle;  
+begin
+  ProcessID := GetCurrentProcessID; 
+  ProcessHandle := OpenProcess(PROCESS_SET_INFORMATION, false,  ProcessID); 
+  SetPriorityClass(ProcessHandle, REALTIME_PRIORITY_CLASS);  
+  ThreadHandle := GetCurrentThread;
+  SetThreadPriority(ThreadHandle, THREAD_PRIORITY_TIME_CRITICAL);
+end;
+</pre>
+
+
+<p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

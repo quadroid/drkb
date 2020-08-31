@@ -1,0 +1,61 @@
+<html>
+<head>
+  <title>Пишем программу мониторинга за памятью</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Пишем программу мониторинга за памятью</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Сегодня мы попытаемся написать программу, которая будет показывать состояние памяти компа. Для начала определим что она будет делать. Ну самое главное что нам нужно, это сотояние физической памяти и загруженность ее в %. А дальше, по своему вкусу, добавим еще состояние виртуальной и страничной памяти. Начнем. Создай новый проект на Делфи ( File-&gt;New-&gt;Application). Теперь подумай, как тебе удобней отображать состояние памяти. Для меня лучше в Label, но можно и Edit. Ну это на твое усмотрение. Кидай на форму 7 компонентов Label (в них будет отображаться значение) и еще 7 (это будут пояснения: загруженность, всего физической, использовано физической, всего страничной, использовано страничной, всего виртуальной, использовано виртуальной). Какие не нужны, те отбрось ;) . Теперь кинь таймер (из вкладки System). Это будет наш главный элемент., поэтому поставь интервал по своему усмотрению (у меня он 400). Этот интервал будет отвечать за частоту обновления полей. Ну и для красоты брось ProgressBar ( из вкладки Win32). У тебя должно получиться что-то типа этого: Теперь приступим непосредственно к кодингу. Весь код мы будем писать в процедуру запуска таймера. А вот и код: </p>
+<pre name="code" class="delphi">
+procedure TForm1.Timer1Timer(Sender: TObject); 
+var m: TMemoryStatus; temp: integer; 
+begin m.dwLength:=sizeof(m); 
+GlobalMemoryStatus(m); 
+with m do begin //Загруженность памяти 
+label1.caption:=IntToStr (dwMemoryLoad)+' %'; // Всего физической 
+label2.caption:=IntToStr (dwTotalPhys)+' байт'; // Свободно физической 
+label3.caption:=IntToStr (dwAvailPhys)+' байт'; // Всего страничной 
+label4.caption:=IntToStr (dwTotalPageFile)+' байт'; // Свободно страничной 
+label5.caption:=IntToStr (dwAvailPageFile)+' байт'; // Всего выиртуальной 
+label6.caption:=IntToStr (dwTotalVirtual)+' байт'; //Свободно виртуальной 
+label7.caption:=IntToStr (dwAvailVirtual)+' байт'; //Загруженность на ProgressBar1 
+progressbar1.Max:= dwTotalPhys; 
+progressbar1.Position:=dwTotalPhys-dwAvailPhys; 
+end; 
+end; 
+</pre>
+
+Вот в принципе и все. Если ты используешь Edit, то вместо labelX.caption пиши EditX.text , где х-номер компонента. И последнее, чтобы pogressBar выглядела лучше, измени свойство Smooth равным True. Если у тебя возникнут какие-либо вопросы, предложения, пожелания, прошу отправлять их мне по адресу: crazy_script@mail.ru </p>
+Источник: http://delphi.dax.ru </p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

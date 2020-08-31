@@ -1,0 +1,493 @@
+<html>
+<head>
+  <title>VirtualTreeView, FAQ по компоненту</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">VirtualTreeView, FAQ по компоненту</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Что такое VirtualTreeView?<br>
+Это компонент, заменяющий стандартные TTreeView, TStringGrid, TListView, отличается высокой скоростью и удобством работы, а также имеет много расширений.<br>
+&nbsp;<br>
+Найти сам компонент можно на сайте:<br>
+http://delphi-gems.com/VirtualTreeview/<br>
+&nbsp;<br>
+Существует хорошее расширение компонента для работы отображения файлов, аналогично Windows Explorer:<br>
+<p>http://www.mustangpeak.net/ </p>
+
+<p>Основы работы с компонентом<br>
+Рассмотрим пример простейшего приложения с использованием этого компонента, где он будет использоваться только для отображения данных. Думаю, он будет полезен тем, кто начинает работу с этим компонентом.<br>
+&nbsp;<br>
+Если компоненты правильно установлены в среде Дельфи, то для начала нужно найти в палитре компонентов найти вкладку VirtualControls, а в ней компонент VirtualStringTree и положить его на форму. Назовем его VST.<br>
+&nbsp;<br>
+<p>Компонент не хранит названий элементов дерева. Но зато каждому элементу можно сопоставить указатель на любую структуру данных, где можно хранить название элемента и не только. В связи с этим создадим простую запись, где будет храниться название элемента и его порядковый номер:</p>
+<pre name="code" class="delphi">
+type
+  PVSTRecord = ^TVSTRecord;
+  TVSTRecord = record
+    ElementName: string;
+    ElementNumber: Integer;
+  end;
+</pre>
+<p>&nbsp;<br>
+<p>Теперь укажем компоненту, с каким размером данных он будет работать:</p>
+<pre name="code" class="delphi">
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  VST.NodeDataSize := SizeOf(TVSTRecord);
+end;
+</pre>
+
+<p>&nbsp;<br>
+<p>И, наконец, займемся самым главным - заполним дерево:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+
+var
+  RootNode, ChildNode: PVirtualNode;
+  I: Integer;
+  Data: PVSTRecord;
+begin
+  RootNode := VST.AddChild(VST.RootNode);
+  if not (vsInitialized in RootNode.States) then
+    VST.ReinitNode(RootNode, False);
+  Data := VST.GetNodeData(RootNode);
+  Data.ElementName := 'Корневой элемент';
+  Data.ElementNumber := 0;
+  for I := 1 to 10 do
+  begin
+    ChildNode := VST.AddChild(RootNode);
+    if not (vsInitialized in ChildNode.States) then
+       VST.ReinitNode(ChildNode, False);
+    Data := VST.GetNodeData(ChildNode);
+    Data.ElementName := 'Дочерний элемент';
+    Data.ElementNumber := I;
+  end;
+end;
+</pre>
+
+<p>&nbsp;<br>
+<p>Естественно названия элементов отображаться не будут. Для отображения названий элементов нужно создать обработчик события OnGetText:</p>
+<pre name="code" class="delphi">
+procedure TForm1.VSTGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
+  Column: TColumnIndex; TextType: TVSTTextType; var CellText: WideString);
+
+var
+  Data: PVSTRecord;
+begin
+  Data := Sender.GetNodeData(Node);
+  if Assigned(Data) then
+    CellText := Data.ElementName;
+end;
+</pre>
+
+<p>&nbsp;<br>
+<p>А теперь немного расширим функциональность нашего приложения: добавим возможность отображения порядковых номеров элементов, которые хранятся в TVSTRecord.ElementNumber:</p>
+<pre name="code" class="delphi">
+procedure TForm1.VSTGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
+  Column: TColumnIndex; TextType: TVSTTextType; var CellText: WideString);
+
+var
+  Data: PVSTRecord;
+begin
+  Data := Sender.GetNodeData(Node);
+  if Assigned(Data) then
+    CellText := Data.ElementName + #32 + IntToStr(Data.ElementNumber);
+end;
+</pre>
+
+<p>&nbsp;<br>
+<p>И в завершение необходимо создать обработчик события OnFreeNode, где должна освобождаться память, выделенная под TVSTRecord или любые другие данные, связанные с деревом:</p>
+<pre name="code" class="delphi">
+procedure TForm1.VSTFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
+
+var
+  Data: PVSTRecord;
+begin
+  Data := Sender.GetNodeData(Node);
+  if Assigned(Data) then
+    Finalize(Data^);
+end;
+</pre>
+
+<p>&nbsp;<br>
+<p>Освобождение элементов особенно актуально, если в дереве будут динамически создаваться и удаляться элементы. </p>
+
+<p>Создание многострочного дерева<br>
+<p>Одним из преимуществ компонента является возможность создавать деревья с многострочными элементами. Теперь рассмотрим, как можно создать такое дерево. За основу возьмем пример из поста #2. Но для того чтобы получить многострочные названия элементов немного подправим процедуру занесения данных в дерево:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+
+var
+  RootNode, ChildNode: PVirtualNode;
+  I: Integer;
+  Data: PVSTRecord;
+begin
+  RootNode := VST.AddChild(VST.RootNode);
+  if not (vsInitialized in RootNode.States) then
+    VST.ReinitNode(RootNode, False);
+  Data := VST.GetNodeData(RootNode);
+  Data.ElementName := 'Корневой элемент с очень, очень, очень, очень, очень, очень, очень длинным названием';
+  Data.ElementNumber := 0;
+  for I := 1 to 10 do
+  begin
+    ChildNode := VST.AddChild(RootNode);
+    if not (vsInitialized in ChildNode.States) then
+      VST.ReinitNode(ChildNode, False);
+ 
+    Data := VST.GetNodeData(ChildNode);
+    Data.ElementName := 'Дочерний элемент с очень, очень, очень, очень, очень, очень, очень длинным названием';
+    Data.ElementNumber := I;
+  end;
+end;
+</pre>
+
+<p>&nbsp;<br>
+Следующим шагом нужно добавить хотя бы одну колонку в дерево, причем желательно выставить опцию hoAutoResize в True в VST.Header.Options.<br>
+<p>И наконец создаем обработчики двух событий - OnInitNode и OnMeasureItem:</p>
+<pre name="code" class="delphi">
+
+ 
+procedure TForm1.VSTInitNode(Sender: TBaseVirtualTree; ParentNode,
+  Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
+begin
+  Include(InitialStates, ivsMultiline);
+end;
+ 
+procedure TForm1.VSTMeasureItem(Sender: TBaseVirtualTree;
+  TargetCanvas: TCanvas; Node: PVirtualNode; var NodeHeight: Integer);
+begin
+  if Sender.MultiLine[Node] then
+  begin
+    TargetCanvas.Font := Sender.Font;
+    NodeHeight := VST.ComputeNodeHeight(TargetCanvas, Node, 0) + 10;
+  end;
+end;
+</pre>
+
+<p>&nbsp;<br>
+<p>Что приведет к отображению дерева с многострочными элементами. </p>
+
+<p>Многострочные деревья в Win9x<br>
+<p>В AdvancedDemo компонента на странице демонстрации многострочных элементов встречаем следующую огорчающую надпись:</p>
+<p>Цитата </p>
+<p>Since Virtual Treeview uses Unicode for text display it is not easy to provide multiline support on Windows 9x/Me systems. Under Windows NT (4.0, 2000, XP) there is support by the operation system and so full word breaking is possible there. Otherwise you have to insert line breaks manually to have multiline captions. Of course there is no difference in handling between multiline and single line nodes (except for the vertical alignment of the latter).<br>
+<p>Но не все так страшно, если не рассчитывать на отображение юникода, а только, скажем, английского или русского текста. Для этого достаточно только поменять в файле VirtualTrees.pas текст процедуры DrawTextW на:</p>
+<pre name="code" class="delphi">
+
+ 
+procedure DrawTextW(DC: HDC; lpString: PWideChar; nCount: Integer; var lpRect: TRect; uFormat: Cardinal;
+  AdjustRight: Boolean);
+begin
+  Windows.DrawText(DC, PChar(String(lpString)), nCount, lpRect, uFormat);
+end;
+</pre>
+
+<p>&nbsp;<br>
+<p>После этого VirtualTreeView будет нормально переносить текст под Win9x, а не только под 2000/XP. </p>
+
+<p>Сортировка VirtualStringTree<br>
+<p>Нужно написать обработчики событий OnCompareNodes и OnHeaderClick:</p>
+<pre name="code" class="delphi">
+{.$DEFINE SortMainColumnOnly} // Для разрешения сортировки только первого столбца
+ 
+procedure TForm1.VSTHeaderClick(Sender: TVTHeader; Column: TColumnIndex;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+
+begin
+  if Button = mbLeft then
+  begin
+    with Sender do
+    begin
+      {$IFDEF SortMainColumnOnly}
+      if Column &lt;&gt; MainColumn then
+        SortColumn := NoColumn
+      else
+      begin
+        if SortColumn = NoColumn then
+        begin
+          SortColumn := Column;
+          SortDirection := sdAscending;
+        end
+        else
+      {$ELSE}
+        SortColumn := Column;
+      {$ENDIF}
+          if SortDirection = sdAscending then
+            SortDirection := sdDescending
+          else
+            SortDirection := sdAscending;
+        Treeview.SortTree(SortColumn, SortDirection, False);
+      {$IFDEF SortMainColumnOnly}
+      end;
+      {$ENDIF}
+    end;
+  end;
+end;
+ 
+procedure TForm1.VSTCompareNodes(Sender: TBaseVirtualTree; Node1,
+  Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
+begin
+  with TVirtualStringTree(Sender) do
+    Result := AnsiCompareText(Text[Node1, Column], Text[Node2, Column]);
+end;
+</pre>
+
+<p>&nbsp;<br>
+<p>Перемещение узлов в VirtualTree с помощью Drag&amp;Drop </p>
+<pre name="code" class="delphi">
+
+ 
+procedure TForm1.VSTDragOver(Sender: TBaseVirtualTree; Source: TObject;
+  Shift: TShiftState; State: TDragState; Pt: TPoint; Mode: TDropMode;
+  var Effect: Integer; var Accept: Boolean);
+begin
+  Accept := Sender.DropTargetNode  &lt;&gt; Sender.FocusedNode; // Drop'ать узел сам на себя нельзя
+end;
+ 
+procedure TForm1.VSTDragDrop(Sender: TBaseVirtualTree; Source: TObject;
+  DataObject: IDataObject; Formats: TFormatArray; Shift: TShiftState;
+  Pt: TPoint; var Effect: Integer; Mode: TDropMode);
+begin
+  if Sender.DropTargetNode = nil then Exit;
+  Sender.MoveTo(Sender.FocusedNode, Sender.DropTargetNode, amInsertAfter, False); // перемещаем узел
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  VST.DragType := dtVCL; // VirtualTree поддерживает так же и OLE Drag&amp;Drop, поэтому явно указываем, что будем использовать механизм, реализованный в VCL
+  VST.DragMode := dmAutomatic;
+  VST.NodeDataSize := SizeOf(Integer);
+  VST.RootNodeCount := 10;
+  Randomize;
+end;
+ 
+procedure TForm1.VSTInitNode(Sender: TBaseVirtualTree; ParentNode,
+  Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
+begin
+  PInteger(Sender.GetNodeData(Node))^ := Random(100);
+end;
+ 
+procedure TForm1.VSTGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
+  Column: TColumnIndex; TextType: TVSTTextType; var CellText: WideString);
+begin
+  CellText := 'Node# ' + IntToStr(PInteger(Sender.GetNodeData(Node))^)
+end;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+Также нужно отметить событие OnDragAllowed, в котором можно указать какие узлы можно перемещать, а какие нет. Это событие вызывается только при ручном режиме Drag&amp;Drop'а <br>
+<p>&nbsp;</p>
+<pre name="code" class="delphi">
+procedure TForm1.FormCreate(Sender: TObject);
+
+begin
+  VST.DragType := dtVCL; // VirtualTree поддерживает так же и OLE Drag&amp;Drop, поэтому явно указываем, что будем использовать механизм, реализованный в VCL
+  VST.DragMode := dmManual;
+  VST.NodeDataSize := SizeOf(Integer);
+  VST.RootNodeCount := 10;
+  Randomize;
+end;
+ 
+procedure TForm1.VSTDragAllowed(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean);
+begin
+  Allowed := (Node.Index mod 2) = 0; // Указываем, что данный узел можно drag'ать
+end;
+</pre>
+
+<p>Предыдущий пример был для случая TreeOptions.SelectionOptions := TreeOptions.SelectionOptions - [toMultiSelect]<br>
+&nbsp;<br>
+В случае мультивыделения код изменяется следующим образом<br>
+<p>&nbsp;</p>
+<pre name="code" class="delphi">
+procedure TForm1.VSTInitNode(Sender: TBaseVirtualTree; ParentNode,
+  Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
+begin
+
+  PInteger(Sender.GetNodeData(Node))^ := Random(100);
+  if Sender.GetNodeLevel(Node) &lt; 2 then
+    include(InitialStates, ivsHasChildren);
+end;
+ 
+procedure TForm1.VSTInitChildren(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; var ChildCount: Cardinal);
+begin
+  ChildCount := 10;
+end;
+ 
+procedure TForm1.VSTDragOver(Sender: TBaseVirtualTree; Source: TObject;
+  Shift: TShiftState; State: TDragState; Pt: TPoint; Mode: TDropMode;
+  var Effect: Integer; var Accept: Boolean);
+var
+  i: Integer;
+  SelectNodes: TNodeArray;
+begin
+  Accept := True;
+  SelectNodes := Sender.GetSortedSelection(True);
+  for i := low(SelectNodes) to high(SelectNodes) do
+    if Sender.HasAsParent(Sender.DropTargetNode, SelectNodes[i]) then
+    begin
+      Accept := False;
+      Exit;
+    end;
+end;
+ 
+procedure TForm1.VSTDragDrop(Sender: TBaseVirtualTree; Source: TObject;
+  DataObject: IDataObject; Formats: TFormatArray; Shift: TShiftState;
+  Pt: TPoint; var Effect: Integer; Mode: TDropMode);
+var
+  SelectNodes: TNodeArray;
+  PredNode: PVirtualNode;
+  i: Integer;
+begin
+  if Sender.DropTargetNode = nil then Exit;
+  SelectNodes := Sender.GetSortedSelection(True);
+  PredNode := Sender.DropTargetNode;
+  for i := low(SelectNodes) to high(SelectNodes) do
+  begin
+    Sender.MoveTo(SelectNodes[i], PredNode, amInsertAfter, False); // перемещаем узлы
+    PredNode := SelectNodes[i]
+  end;
+end;
+</pre>
+
+<p>Запретить скроллинг, когда строка шире, чем дерево<br>
+Если название узла очень длинное и не влезает по ширине в дерево, то появляется горизонтальный скроллбар. И когда выделяешь такой узел то он центруется по горизонтали.<br>
+&nbsp;<br>
+В стандартном дереве с этим сталкиваться не приходилось никому. Поскольку это поведение является достаточно необычным, то возникает вопрос, как это побороть.<br>
+&nbsp;<br>
+Отключить это можно опцией TreeOptions.AutoOptions -&gt; toDisableAutoscrollOnFocus = True (см. скриншот) <br>
+&nbsp;<br>
+
+<p>Сохранение и загрузка</p>
+<pre name="code" class="delphi">
+procedure WriteString(Stream: TStream; const S: string);
+
+var
+  SavePos: Integer;
+  Len: Integer;
+begin
+  SavePos := Stream.Position;
+  try
+    Len := Length(s);
+    Stream.WriteBuffer(Len, SizeOf(Len));
+    Stream.WriteBuffer(PChar(s)^, Len);
+  except
+    Stream.Position := SavePos;
+    raise;
+  end;
+end;
+ 
+function ReadString(Stream: TStream): string;
+var
+  SavePos: Integer;
+  Len: Integer;
+begin
+  SavePos := Stream.Position;
+  try
+    Stream.ReadBuffer(Len, SizeOf(Len));
+    SetLength(Result, Len);
+    Stream.ReadBuffer(PChar(Result)^, Len);
+  except
+    Stream.Position := SavePos;
+    raise;
+  end;
+end;
+</pre>
+
+<p>Глюк при отображении многострочного текста<br>
+<p>В VirtualTreeView 4.3.1 допущена досадная ошибка при вычислении высоты многострочного текста, что приводит к тому, что текст отображается частично, с 3-мя точками в конце. Все дело в том, что в функции вычисления высоты строки ComputeNodeHeight не вычитается размер границы текста (TextMargin). Для того, чтобы эта функция работала правильно, ее нужно изменить следующим образом:</p>
+<pre name="code" class="delphi">
+function TCustomVirtualStringTree.ComputeNodeHeight(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+  S: WideString): Integer;
+
+ 
+// Default node height calculation for multi line nodes. This method can be used by the application to delegate the
+// computation to the string tree.
+// Canvas is used to compute that value by using its current font settings.
+// Node and Column describe the cell to be used for the computation.
+// S is the string for which the height must be computed. If this string is empty the cell text is used instead.
+ 
+var
+  R: TRect;
+  DrawFormat: Cardinal;
+  BidiMode: TBidiMode;
+  Alignment: TAlignment;
+  PaintInfo: TVTPaintInfo;
+  Dummy: TColumnIndex;
+ 
+begin
+  if Length(S) = 0 then
+    S := Text[Node, Column];
+  R := GetDisplayRect(Node, Column, True);
+  DrawFormat := DT_TOP or DT_NOPREFIX or DT_CALCRECT or DT_WORDBREAK;
+  if Column &lt;= NoColumn then
+  begin
+    BidiMode := Self.BidiMode;
+    Alignment := Self.Alignment;
+  end
+  else
+  begin
+    BidiMode := Header.Columns[Column].BidiMode;
+    Alignment := Header.Columns[Column].Alignment;
+  end;
+ 
+  if BidiMode &lt;&gt; bdLeftToRight then
+    ChangeBidiModeAlignment(Alignment);
+ 
+  InflateRect(R, -FTextMargin, 0);
+ 
+  // Allow for autospanning.
+  PaintInfo.Node := Node;
+  PaintInfo.BidiMode := BidiMode;
+  PaintInfo.Column := Column;
+  PaintInfo.CellRect := R;
+  AdjustPaintCellRect(PaintInfo, Dummy);
+ 
+  if BidiMode &lt;&gt; bdLeftToRight then
+    DrawFormat := DrawFormat or DT_RIGHT or DT_RTLREADING
+  else
+    DrawFormat := DrawFormat or DT_LEFT;
+  if IsWinNT then
+    Windows.DrawTextW(Canvas.Handle, PWideChar(S), Length(S), PaintInfo.CellRect, DrawFormat)
+  else
+    DrawTextW(Canvas.Handle, PWideChar(S), Length(S), PaintInfo.CellRect, DrawFormat, False);
+  Result := PaintInfo.CellRect.Bottom - PaintInfo.CellRect.Top;
+end;
+</pre>
+<p>&nbsp;<br>
+<p>&nbsp;</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Авторы: Smike and Jack128<br>
+<p>&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

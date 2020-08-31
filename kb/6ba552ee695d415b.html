@@ -1,0 +1,131 @@
+<html>
+<head>
+  <title>Split / merge files</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Split / merge files</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{
+  Parameters:
+ 
+  FileToSplit: Specify a file to split.
+  SizeofFiles: Specify the size of the files you want to split to (in bytes)
+  Progressbar: Specify a TProgressBar to show the splitting progress
+ 
+  Result:
+  SplitFile() will create files  FileName.001, FileName.002, FileName.003 and so on
+  that are SizeofFiles bytes in size.
+ }
+ 
+function SplitFile(FileName : TFileName; SizeofFiles : Integer; ProgressBar : TProgressBar) : Boolean;
+var
+  i : Word;
+  fs, sStream: TFileStream;
+  SplitFileName: String;
+begin
+  ProgressBar.Position := 0;
+  fs := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
+  try
+    for i := 1 to Trunc(fs.Size / SizeofFiles) + 1 do
+    begin
+      SplitFileName := ChangeFileExt(FileName, '.'+ FormatFloat('000', i));
+      sStream := TFileStream.Create(SplitFileName, fmCreate or fmShareExclusive);
+      try
+        if fs.Size - fs.Position &lt; SizeofFiles then
+          SizeofFiles := fs.Size - fs.Position;
+        sStream.CopyFrom(fs, SizeofFiles);
+        ProgressBar.Position := Round((fs.Position / fs.Size) * 100);
+      finally
+        sStream.Free;
+      end;
+    end;
+  finally
+    fs.Free;
+  end;
+ 
+end;
+ 
+// Combine files / Dateien zusammenfuhren
+ 
+{
+  Parameters:
+ 
+  FileName: Specify the first piece of the splitted files
+  CombinedFileName: Specify the combined file name. (the output file)
+ 
+  Result:
+  CombineFiles() will create one large file from the pieces
+ }
+ 
+function CombineFiles(FileName, CombinedFileName : TFileName) : Boolean;
+var
+  i: integer;
+  fs, sStream: TFileStream;
+  filenameOrg: String;
+begin
+  i := 1;
+  fs := TFileStream.Create(CombinedFileName, fmCreate or fmShareExclusive);
+  try
+    while FileExists(FileName) do
+    begin
+      sStream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
+      try
+        fs.CopyFrom(sStream, 0);
+      finally
+        sStream.Free;
+      end;
+      Inc(i);
+      FileName := ChangeFileExt(FileName, '.'+ FormatFloat('000', i));
+    end;
+  finally
+    fs.Free;
+  end;
+end;
+</pre>
+<pre name="code" class="delphi">
+// Examples:
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  SplitFile('C:\temp\FileToSplit.chm',1000000, ProgressBar1);
+end;
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  CombineFiles('C:\temp\FileToSplit.001','H:\temp\FileToSplit.chm');
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<html>
+<head>
+  <title>Как при выполнении долгой операции в Oracle показать прогресс бар?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как при выполнении долгой операции в Oracle показать прогресс бар?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Philip A. Milovanov&nbsp;&nbsp; ( http://korys.chat.ru )</p>
+
+<p>Ниже приведен пример, как это сделать при помощи Direct Oracle Access, надеюсь этот кусок кода несложно запустить в отдельном процессе, а в другом можно запустить перемесчатель прогресс бара. Есть готовая компонента, могу поделиться.</p>
+
+<pre name="code" class="delphi">
+//на создании потока вставим то, что будет выбирать необходимую информацию
+ 
+Self.fods.SQL.Text:='SELECT SOFAR FROM V$SESSION_LONGOPS WHERE CONTEXT=:FK_ID';
+Self.fods.DeclareVariable('FK_ID',otInteger);
+Self.fods.SetVariable('FK_ID',ID);
+ 
+//На выполнение потока вешаем открытие/закрытие TOracleDataSet
+while (Terminated = false) do
+  begin
+    Self.fods.Close;
+    Self.fods.Open;
+    Self.fpb.Progress := Self.fods.FieldByName('SOFAR').AsInteger;
+//^^^^Эта строчка как раз и устанавливает нужный прогрессбар в нужную позицию...
+  end;
+</pre>
+
+
+<p>Ну и соответсвенно перед выполнением всего этого дела необходимо выставить максимальное число (100%) :</p>
+<p>PROCEDURE SETMaxValue(nVal IN NUMBER); </p>
+<p>Минимальное:</p>
+<p>PROCEDURE SETMinValue(nVal IN NUMBER); </p>
+<p>Значение шага:</p>
+<p>PROCEDURE SetStepValue(nValue IN NUMBER); </p>
+
+<p>Вышеприведенный кусок кода - клиентская часть, но есть и "подводный камень" - серверная часть... Данный метотод подкодит только для функций, процедур и пактеов, в которых вы можете написать вставить следущую строчку:</p>
+<p>PROGRESS_BAR.STEPIT;</p>
+
+<p>Код пакета PROGRESS_BAR приведен ниже:</p>
+<pre name="code" class="sql">
+create or replace package PROGRESS_BAR 
+IS 
+-- Wrote by Philip A. Milovanov 
+nMaxValue NUMBER:=0; 
+nMinValue NUMBER:=0; 
+nCurrentValue NUMBER:=0; 
+nStepValue NUMBER:=1; 
+nID PLS_INTEGER; 
+slno PLS_INTEGER; 
+target PLS_INTEGER; 
+PROCEDURE SETMaxValue(nVal IN NUMBER); 
+PROCEDURE SETMinValue(nVal IN NUMBER); 
+FUNCTION INIT RETURN NUMBER; 
+PROCEDURE StepIt; 
+PROCEDURE SetStepValue(nValue IN NUMBER); 
+PROCEDURE StepIt(C IN NUMBER);
+END; -- Package Specification PROGRESS_BAR 
+/
+--Сам пакет:
+Create or Replace Package Body PROGRESS_BAR 
+IS 
+-- Wrote by Philip A. Milovanov 
+PROCEDURE SETMaxValue(nVal IN NUMBER) IS 
+BEGIN 
+if nVal&lt;nMinValue THEN 
+RAISE_APPLICATION_ERROR(-20001,'&amp;Igrave;&amp;egrave;&amp;iacute;&amp;egrave;&amp;igrave;&amp;agrave;&amp;euml;&amp;uuml;&amp;iacute;&amp;icirc;&amp;aring; &amp;ccedil;&amp;iacute;&amp;agrave;&amp;divide;&amp;aring;&amp;iacute;&amp;egrave;&amp;aring; &amp;iacute;&amp;aring; &amp;auml;&amp;icirc;&amp;euml;&amp;aelig;&amp;iacute;&amp;icirc; &amp;aacute;&amp;ucirc;&amp;ograve;&amp;uuml; &amp;aacute;&amp;icirc;&amp;euml;&amp;uuml;&amp;oslash;&amp;aring; &amp;igrave;&amp;agrave;&amp;ecirc;&amp;ntilde;&amp;egrave;&amp;igrave;&amp;agrave;&amp;euml;&amp;uuml;&amp;iacute;&amp;icirc;&amp;atilde;&amp;icirc; &amp;igrave;&amp;egrave;&amp;iacute;:'||nMinValue||' ,&amp;igrave;&amp;agrave;&amp;ecirc;&amp;ntilde;:'||nVal); 
+END IF; 
+nMaxValue:=nVal; 
+END; 
+PROCEDURE SETMinValue(nVal IN NUMBER) IS 
+BEGIN 
+if nVal&gt;nMaxValue THEN 
+RAISE_APPLICATION_ERROR(-20001,'&amp;Igrave;&amp;egrave;&amp;iacute;&amp;egrave;&amp;igrave;&amp;agrave;&amp;euml;&amp;uuml;&amp;iacute;&amp;icirc;&amp;aring; &amp;ccedil;&amp;iacute;&amp;agrave;&amp;divide;&amp;aring;&amp;iacute;&amp;egrave;&amp;aring; &amp;iacute;&amp;aring; &amp;auml;&amp;icirc;&amp;euml;&amp;aelig;&amp;iacute;&amp;icirc; &amp;aacute;&amp;ucirc;&amp;ograve;&amp;uuml; &amp;aacute;&amp;icirc;&amp;euml;&amp;uuml;&amp;oslash;&amp;aring; &amp;igrave;&amp;agrave;&amp;ecirc;&amp;ntilde;&amp;egrave;&amp;igrave;&amp;agrave;&amp;euml;&amp;uuml;&amp;iacute;&amp;icirc;&amp;atilde;&amp;icirc; &amp;igrave;&amp;egrave;&amp;iacute;:'||nVal||' ,&amp;igrave;&amp;agrave;&amp;ecirc;&amp;ntilde;:'||nMaxValue); 
+END IF; 
+nMinValue:=nVal; 
+END; 
+FUNCTION INIT RETURN NUMBER IS 
+CURSOR c IS SELECT OBJECT_ID FROM ALL_OBJECTS WHERE OBJECT_NAME='PROGRESS_BAR'; 
+i NUMBER; 
+BEGIN 
+OPEN c; 
+FETCH c INTO target; 
+CLOSE c; 
+SELECT SEQ_TPROCESS_BAR.NEXTVAL INTO i FROM DUAL; 
+nCurrentValue:=nMinValue; 
+nID:=DBMS_APPLICATION_INFO.set_session_longops_nohint; 
+DBMS_APPLICATION_INFO.SET_SESSION_LONGOPS(nID,slno,'CALCULATING REPORT',target,i,nCurrentValue,nMaxValue,'PROGRESS BAR INFO',NULL); 
+RETURN i; 
+END; 
+PROCEDURE StepIt IS 
+BEGIN 
+nCurrentValue:=nCurrentValue+nStepValue; 
+DBMS_APPLICATION_INFO.SET_SESSION_LONGOPS(nID,slno,'CALCULATING REPORT',target,nMinValue,nCurrentValue,nMaxValue,'PROGRESS BAR INFO',NULL); 
+END; 
+PROCEDURE SetStepValue(nValue IN NUMBER) IS 
+BEGIN 
+nStepValue:=nValue; 
+END; 
+PROCEDURE StepIt(C IN NUMBER) IS 
+BEGIN 
+nCurrentValue:=nCurrentValue+c; 
+DBMS_APPLICATION_INFO.SET_SESSION_LONGOPS(nID,slno,'CALCULATING REPORT',target,nMinValue,nCurrentValue,nMaxValue,'PROGRESS BAR INFO',NULL); 
+END; 
+END; 
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

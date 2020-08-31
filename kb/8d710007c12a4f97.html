@@ -1,0 +1,91 @@
+<html>
+<head>
+  <title>Удаление каталога с подкаталогами</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Удаление каталога с подкаталогами</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Способ 1: проход по дереву каталогов (Функция для удаления каталогов, взята из рассылки "Мастера DELPHI. Новости мира компонент, FAQ, статьи..." - собственно код аналогичен написанному мной коду по рекурсивному проходу каталогов <a href="b81.htm">здесь</a>) </p>
+<pre name="code" class="delphi">
+Function MyRemoveDir(sDir : String) : Boolean;
+var
+iIndex : Integer;
+SearchRec : TSearchRec; 
+sFileName : String; 
+<p>begin 
+Result := False; 
+sDir := sDir + '\*.*'; 
+iIndex := FindFirst(sDir, faAnyFile, SearchRec); 
+while iIndex = 0 do 
+begin 
+sFileName := ExtractFileDir(sDir)+'\'+SearchRec.Name; 
+if SearchRec.Attr = faDirectory then 
+begin 
+if (SearchRec.Name &lt;&gt; '' ) and (SearchRec.Name &lt;&gt; '.') and (SearchRec.Name &lt;&gt; '..') then MyRemoveDir(sFileName); 
+end 
+else 
+begin 
+if SearchRec.Attr &lt;&gt; faArchive then FileSetAttr(sFileName, faArchive); 
+if NOT DeleteFile(sFileName) then ShowMessage('Could NOT delete ' + sFileName); 
+end; 
+iIndex := FindNext(SearchRec); 
+end; 
+FindClose(SearchRec); 
+RemoveDir(ExtractFileDir(sDir)); 
+Result := True; 
+end;
+</pre>
+
+<p>Способ 2: Использование ShellApi</p>
+<pre name="code" class="delphi">uses ShellApi;
+...
+var sh : SHFILEOPSTRUCT;
+begin
+...
+sh.Wnd := Application.Handle;
+sh.wFunc := FO_DELETE;
+sh.pFrom := 'c:\\test\0';
+sh.pTo := nil;
+sh.fFlags := FOF_NOCONFIRMATION or FOF_SILENT;
+sh.hNameMappings := nil;
+sh.lpszProgressTitle := nil;
+ 
+SHFileOperation (sh);
+... 
+ 
+</pre>
+<p>Надо путь писать : c:\\test\dfg</p>
+<p>Чтобы вначале "\\" было...иначе не будет удалять диры из корня </p>
+<p id="author">Автор ответа: Baa </p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

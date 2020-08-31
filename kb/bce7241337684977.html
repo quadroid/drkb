@@ -1,0 +1,62 @@
+<html>
+<head>
+  <title>Как вместо печати графики использовать резидентный шрифт принтера?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как вместо печати графики использовать резидентный шрифт принтера?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Используте функцию Windows API - GetStockObject() чтобы получить дескриптор (handle) шрифта по умолчанию устройства (DEVICE_DEFAULT_FONT) и передайте его Printer.Font.Handle. </p>
+<pre name="code" class="delphi">
+uses Printers;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  tm: TTextMetric;
+  i: integer;
+begin
+  if PrintDialog1.Execute then
+    begin
+      Printer.BeginDoc;
+      Printer.Canvas.Font.Handle := GetStockObject(DEVICE_DEFAULT_FONT);
+      GetTextMetrics(Printer.Canvas.Handle, tm);
+      for i := 1 to 10 do
+        begin
+          Printer.Canvas.TextOut(100, i * tm.tmHeight +
+            tm.tmExternalLeading, 'Test');
+        end;
+      Printer.EndDoc;
+    end;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

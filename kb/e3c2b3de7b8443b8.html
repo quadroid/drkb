@@ -1,0 +1,185 @@
+<html>
+<head>
+  <title>Эффект плавного перехода</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Эффект плавного перехода</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: David C. Ullrich </p>
+<p>...существует ли для этого эффекта какой-либо алгоритм генерации изображений вместо использования кисточки? </p>
+
+<p>Я был скептически настроен к механизму использования кистей, чтобы получить что-либо похожее на эффект перехода/ухода ("fade") по сравнению со стеркой ("wipe"), но вчера вечером я нашел следующее решение, которое делает невероятное - осуществляет плавный переход от одного изображения к другому:</p>
+
+<pre name="code" class="delphi">
+procedure WaitAWhile(n: longint);
+var
+  StartTime: longint;
+begin
+  StartTime := timeGetTime;
+  while timeGetTime &lt; StartTime + n do
+    ;
+end;
+ 
+procedure TForm1.Image1Click(Sender: TObject);
+var
+  BrushBmp, BufferBmp, Buffer2Bmp, ImageBmp, Image2Bmp: TBitmap;
+  j, k, row, col: longint;
+begin
+  row := 0;
+  col := 0;
+  BrushBmp := TBitmap.Create;
+  with BrushBmp do
+  begin
+    Monochrome := false;
+    Width := 8;
+    Height := 8;
+  end;
+  imageBmp := TBitmap.create;
+  imagebmp.loadfromfile('c:\huh.bmp');
+  image2bmp := TBitmap.Create;
+  image2bmp.LoadFromFile('c:\whatsis.bmp');
+  {При 256 цветах лучше иметь ту же самую палитру!}
+  BufferBmp := TBitmap.Create;
+  with BufferBmp do
+  begin
+    Height := 200;
+    Width := 200;
+    canvas.brush.bitmap := TBitmap.Create;
+  end;
+  Buffer2Bmp := TBitmap.Create;
+  with Buffer2Bmp do
+  begin
+    Height := 200;
+    Width := 200;
+    canvas.brush.bitmap := TBitmap.Create;
+  end;
+  for k := 1 to 16 do
+  begin
+    WaitAWhile(0); {Для пентиума необходимо добавить задержку}
+    for j := 0 to 3 do
+    begin
+      row := (row + 5) mod 8;
+      col := (col + 1) mod 8;
+      if row = 0 then
+        col := (col + 1) mod 8;
+      BrushBmp.canvas.Pixels[row, col] := clBlack;
+    end;
+    with BufferBmp do
+    begin
+      canvas.copymode := cmSrcCopy;
+      canvas.brush.bitmap.free;
+      canvas.brush.style := bsClear;
+      canvas.brush.bitmap := TBitmap.Create;
+      canvas.brush.bitmap.Assign(BrushBmp);
+      canvas.Rectangle(0, 0, 200, 200);
+      canvas.CopyMode := cmMergeCopy;
+      canvas.copyrect(rect(0, 0, 200, 200), imageBmp.canvas,
+        rect(0, 0, 200, 200));
+    end;
+    with Buffer2Bmp do
+    begin
+      canvas.copymode := cmSrcCopy;
+      canvas.brush.bitmap.free;
+      canvas.brush.style := bsClear;
+      canvas.brush.bitmap := TBitmap.Create;
+      canvas.brush.bitmap.Assign(BrushBmp);
+      canvas.Rectangle(0, 0, 200, 200);
+      canvas.copymode := cmSrcErase;
+      canvas.copyrect(rect(0, 0, 200, 200), image2bmp.canvas,
+        rect(0, 0, 200, 200));
+    end;
+    BufferBmp.Canvas.CopyMode := cmSrcPaint;
+    BufferBmp.Canvas.Copyrect(rect(0, 0, 200, 200),
+      Buffer2Bmp.Canvas, rect(0, 0, 200, 200));
+    canvas.copymode := cmSrcCopy;
+    canvas.copyrect(rect(0, 0, 200, 200), BufferBmp.Canvas,
+      rect(0, 0, 200, 200));
+  end;
+ 
+  BufferBmp.canvas.brush.bitmap.free;
+  Buffer2Bmp.canvas.brush.bitmap.free;
+  BrushBmp.Free;
+  BufferBmp.Free;
+  Buffer2Bmp.Free;
+  ImageBmp.Free;
+  image2Bmp.Free;
+end;
+</pre>
+
+
+
+
+<p>Комментарии: На Pentium I я реально использую 64 кисточки, изменив приведенные выше строки на следующие:</p>
+
+<pre name="code" class="delphi">
+for k:= 1 to 64 do
+begin
+  WaitAWhile(50);
+  for j:=0 to 0 do
+</pre>
+
+
+
+
+<p>При организации указанной задержки возможно получение плавного перехода. </p>
+
+<p>Заполняя кисть в другом порядке, вы можете получить ряд других эффектов, но приведенная выше версия единственная, которую мне удалось получить максимально похожей на эффект перехода, но вы можете, скажем, написать:</p>
+
+<pre name="code" class="delphi">
+begin
+  row:=(row+1) mod 8;
+  (*col:=(col+1) mod 8;*)
+  if row=0 then
+    col:=(col+1) mod 8;
+</pre>
+
+
+
+
+<p>и получить своего рода эффект перехода типа "venetian-blind wipe" (дословно - стерка венецианского хрусталя). </p>
+
+<p>Вопрос: Я чуствую, что я делаю что-то неправильно, существует какая-то хитрость с кистью. Мне нужно все четыре строчки:</p>
+
+<pre name="code" class="delphi">
+canvas.brush.bitmap.free;
+canvas.brush.style:=bsClear;
+canvas.brush.bitmap:=TBitmap.Create;
+canvas.brush.bitmap.Assign(BrushBmp);
+</pre>
+
+
+
+
+<p>чтобы все работало правильно; но я совсем не понимаю, почему первые три строки являются обязательными, но если я их выкидываю, Assign сработывает только один раз(!?!?!). Это реально работает? Есть способ другого быстрого назначения brush.bitmaps? (В документации в качестве примера указано на Brush.Bitmap.LoadFromFile, но должно быть лучшее решение. Хорошо, допустим приведенный способ лучший, но он кажется неправильным...)</p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

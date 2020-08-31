@@ -1,0 +1,64 @@
+<html>
+<head>
+  <title>Для чего нужен WinAPI</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Для чего нужен WinAPI</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Иногда требуется работать с объектами WINDOWS не используя VCL. Где это может пригодиться?</p>
+<p>Например:</p>
+<p>При отсутствии у приложения окна - консольный проект. </p>
+<p>Если нужно работать быстро, а известно, что функции WinApi работают на порядок быстрее, чем стандартные классы Delphi. </p>
+<p>Работа с устройствами ввода - вывода. Многие вещи в Дельфи можно делать через только через дескриптор, например чтение сообщений из MailSlot, работа с процессами и thread и т.д. </p>
+<p>Что это такое? </p>
+<p>WINAPI - это набор фунций WINDOWS предоставляемый нам через стандартные библиотеки (kernel32.dll gdi.exe и т.д.). Раз эти библиотеки распространяются вместе с WINDOWS, следовательно их можно использовать на любых машинах (с этой платформой).</p>
+<p>Хотя, следует оговориться, что та или иная библиотека может иметь различную версию. Но нам програмистам на Delphi по большей части это не важно.</p>
+<p>Использование </p>
+<p>Для использования нужно в разделе uses добавить модуль windows. Внем то и описано большинство функций.</p>
+<p>Создадим проект.</p>
+<p>На форме разместим кнопку и поле ввода TEdit</p>
+<p>В обработчике события кнопки onClick запишем следующий код:</p>
+<pre name="code" class="delphi">
+procedure Tform1.Button1onClick(Sender: TTobject);
+var
+  h: cardinal;
+begin
+  h := FindWindow(Edit1.Text, nil);
+  ShowWindow(h,
+    SW_MINIMIZE);
+end;
+</pre>
+<p>Теперь откомпилируйте и запустите его. В поле ввода введите заголовок любого окна которое открыто у вас на рабочем столе (например "(Безимени) - Блокнот"). Нажмите кнопку и окно минимизируется.</p>
+<p>Этот простой проет демонстрирует принцип работы с дескрипторами. Сначало его нужно получить у функции FindWindow, которая ищет окно по заголовку и возвращает его дескриптор. А потом следует передать его функции ShowWindow котрая с параметром SW_MINIMIZE минимизирует окно.</p>
+<p>Краткий обзор завершен. Из всего вышеперечисленного следует, что WINAPI это не монстр, а обычная техника работы с фунциями, правда несколько специфическая.</p>
+<p>Успешной работы.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

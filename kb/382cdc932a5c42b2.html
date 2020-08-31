@@ -1,0 +1,114 @@
+<html>
+<head>
+  <title>Поток с доступом к глобальной переменной основной программы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Поток с доступом к глобальной переменной основной программы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Xavier Pacheco</p>
+<pre name="code" class="delphi">
+unit Main;
+ 
+interface
+ 
+uses
+ Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+ StdCtrls;
+ 
+type
+ TMainForm = class(TForm)
+   Button1: TButton;
+   procedure Button1Click(Sender: TObject);
+ private
+   { Private declarations }
+ public
+   { Public declarations }
+ end;
+ 
+var
+ MainForm: TMainForm;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+{ NOTE: Change GlobalStr from var to threadvar to see difference }
+var
+ //threadvar
+ GlobalStr: string;
+ 
+type
+ TTLSThread = class(TThread)
+ private
+   FNewStr: string;
+ protected
+   procedure Execute; override;
+ public
+   constructor Create(const ANewStr: string);
+ end;
+ 
+procedure SetShowStr(const S: string);
+begin
+ if S = '' then
+   MessageBox(0, PChar(GlobalStr), 'The string is...', MB_OK)
+ else
+   GlobalStr := S;
+end;
+ 
+constructor TTLSThread.Create(const ANewStr: string);
+begin
+ FNewStr := ANewStr;
+ inherited Create(False);
+end;
+ 
+procedure TTLSThread.Execute;
+begin
+ FreeOnTerminate := True;
+ SetShowStr(FNewStr);
+ SetShowStr('');
+end;
+ 
+procedure TMainForm.Button1Click(Sender: TObject);
+begin
+ SetShowStr('Hello world');
+ SetShowStr('');
+ TTLSThread.Create('Dilbert');
+ Sleep(100);
+ SetShowStr('');
+end;
+ 
+end.
+</pre>
+
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

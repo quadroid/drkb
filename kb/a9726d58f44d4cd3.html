@@ -1,0 +1,348 @@
+<html>
+<head>
+  <title>Обмен информацией по TCP/IP-протоколу</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Обмен информацией по TCP/IP-протоколу</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Обмен информацией по TCP/IP-протоколу</p>
+&#169; 2004 Рудюк С.А.<br>
+<p>rudjuk.kiev.ua</p>
+<p>Часто возникает необходимость обмениваться данными между программами на разных компьютерах. Например, это необходимо в чатах, или в программах, которые должны реагировать одновременно на одно и то же событие.</p>
+<p>Обмен информации между компьютерами можно реализовать большим количеством способов. В данной статье я рассмотрю обмен данными по протоколу TCP/IP.</p>
+<p>Компоненты для обмена данными по TCP/IP</p>
+<p>Для обмена данными по протоколу TCP/IP будем использовать три Indy-компоненты: </p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>TIdTCPServer</p>
+</td>
+<td ><p><img src="pic/embim1778.png" width="33" height="44" vspace="1" hspace="1" border="0" alt=""></p>
+</td>
+</tr>
+<tr >
+<td ><p>TIdTCPClient</p>
+</td>
+<td ><p><img src="pic/embim1779.png" width="29" height="41" vspace="1" hspace="1" border="0" alt=""></p>
+</td>
+</tr>
+<tr >
+<td ><p>TIdThreadMgrDefault</p>
+</td>
+<td ><p><img src="pic/embim1780.png" width="100" height="51" vspace="1" hspace="1" border="0" alt="">
+</td>
+</tr>
+</table>
+<p>Клиентская компонента предназначена для посылки и приёма сообщений, а серверная компонента - для приёма сообщения и рассылки клиентским компонентам. </p>
+<p>&lt;&gt; </p>
+<p>Программа состоит из двех частей: серверная, на которой стоит серверная компонента, можно на неё ещё поставить и клиентскую компоненту - для тестирования клиентской части и возможности генерации сообщений с серверной программы. На клиентской части - стоит только клиентская компонента. Эта часть предназначена только для посылки и приёма сообщений.</p>
+<p>Серверная часть</p>
+<p>Установим на форму в программе серверной части компоненты TIdTCPServer <img src="pic/embim1781.png" width="33" height="44" vspace="1" hspace="1" border="0" alt="">, TIdThreadMgrDefault <img src="pic/embim1782.png" width="100" height="51" vspace="1" hspace="1" border="0" alt="">. </p>
+<p>Свяжите свойство ThreadMgr компоненты TIdTCPServer с компонентой TIdThreadMgrDefault. </p>
+<p>Для запуска сервера хватит установить свойство компоненты в True:</p>
+<pre name="code" class="delphi">
+Server.Active := True;
+Protocol.Lines.Add('=== Запуск сервера ====');
+</pre>
+<p>Для остановки сервера - в False:</p>
+<pre name="code" class="delphi">
+Server.Active := False;
+Protocol.Lines.Add('=== Сервер остановлен====');
+</pre>
+<p>Для регистрагистрации подключенного компьютера следует определить событие OnConnect в компоненте TIdTCPServer.</p>
+<pre name="code" class="delphi">var
+NewClient: PClient;
+begin
+GetMem(NewClient, SizeOf(TClient));
+NewClient.DNS := AThread.Connection.LocalName;
+NewClient.Connected := Now;
+NewClient.LastAction := NewClient.Connected;
+NewClient.Thread := AThread;
+AThread.Data:=TObject(NewClient);
+try
+Clients.LockList.Add(NewClient);
+finally
+Clients.UnlockList;
+end;
+Protocol.Lines.Add(TimeToStr(Time)+' Соединение компьютера: "'+NewClient.DNS+'"');
+end;
+</pre>
+<p>Для регистрации отключения клиента необходимо определить событие ServerDisconnect.</p>
+<pre name="code" class="delphi">
+var
+ActClient: PClient;
+ConnN: integer;
+ 
+begin
+ActClient := PClient(AThread.Data);
+Protocol.Lines.Add (TimeToStr(Time)+' Отсоединение компьютера: "'+ActClient^.DNS+'"');
+try
+Clients.LockList.Remove(ActClient);
+finally
+Clients.UnlockList;
+end;
+FreeMem(ActClient);
+AThread.Data := nil;
+end;
+</pre>
+<p>Обработка команд (рассылка) на серверной части осуществляется с помощью события OnExecute. </p>
+<pre name="code" class="delphi">var
+ActClient, RecClient: PClient;
+CommBlock, NewCommBlock: TCommBlock;
+RecThread: TIdPeerThread;
+i, ConnN: Integer;
+itmp: integer;
+&nbsp;
+begin
+if not AThread.Terminated and AThread.Connection.Connected then
+begin
+&nbsp;
+AThread.Connection.ReadBuffer (CommBlock, SizeOf (CommBlock));
+ActClient := PClient(AThread.Data);
+ActClient.LastAction := Now; // update the time of last action
+// Регистрация компьютера
+if (RusUpperCase(CommBlock.Command) = RusUpperCase(cmRegisterComp)) then
+begin
+Protocol.Lines.Add(' Регистрация компьютера: '+RusUpperCase(CommBlock.ComputerName));
+meConnected.Lines.Add(RusUpperCase(CommBlock.ComputerName));
+RefreshConnected;
+RefreshConnectedComps;
+RefreshGolosProcess;
+// AThread.Connection.WriteBuffer (NewCommBlock, SizeOf (NewCommBlock), true); // and there it goes...
+end
+// Удаление компьютера
+else if (RusUpperCase(CommBlock.Command) = RusUpperCase(cmUnRegisterComp)) then
+begin
+Protocol.Lines.Add(' Удаление компьютера: '+RusUpperCase(CommBlock.ComputerName));ConnN
+:=FindConnComp(RusUpperCase(CommBlock.ComputerName));
+if ConnN&lt;&gt;-1
+then meConnected.Lines.Delete(ConnN);
+RefreshConnected;
+RefreshConnectedComps;
+RefreshGolosProcess;
+// AThread.Connection.WriteBuffer (NewCommBlock, SizeOf (NewCommBlock), true); // and there it goes...
+end
+// Регистрация ответов
+else if (RusUpperCase(CommBlock.Command) = RusUpperCase(cmAnswerQuest)) then
+begin
+if mdGolos.Locate('CompName',RusUpperCase(CommBlock.Msg),[loCaseInsensitive]) then
+begin
+mdGolos.Edit;
+mdGolosCONN.Value:=True;
+mdGolos.Post;
+end;
+RefreshGolosProcess;
+// AThread.Connection.WriteBuffer (NewCommBlock, SizeOf (NewCommBlock), true); // and there it goes...
+end
+// Различные сообщения
+else if (CommBlock.Command = {'MESSAGE'}cmMess) or (CommBlock.Command = 'DIALOG') then
+begin // 'MESSAGE': A message was send - forward or broadcast it
+// 'DIALOG': A dialog-window shall popup on the recipient's screen
+// it's the same code for both commands...
+if CommBlock.ReceiverName = '' then
+begin // no recipient given - broadcast
+Protocol.Lines.Add (TimeToStr(Time)+' Получение сообщения от '
++CommBlock.MyUserName+' '+CommBlock.Command+': "'+CommBlock.Msg+'"');
+NewCommBlock := CommBlock; // nothing to change ;-))
+with Clients.LockList do
+try
+for i := 0 to Count-1 do // iterate through client-list
+begin
+RecClient := Items[i]; // get client-object
+RecThread := RecClient.Thread; // get client-thread out of it
+RecThread.Connection.WriteBuffer(NewCommBlock, SizeOf(NewCommBlock), True); // send the stuff
+end;
+finally
+Clients.UnlockList;
+end;
+end
+else
+begin // receiver given - search him and send it to him
+NewCommBlock := CommBlock; // again: nothing to change ;-))
+Protocol.Lines.Add(TimeToStr(Time)+' Посылка '+CommBlock.Command+' к "'+CommBlock.ReceiverName+'": "'+CommBlock.Msg+'"');
+with Clients.LockList do
+try
+for i := 0 to Count-1 do
+begin
+RecClient:=Items[i];
+if RecClient.DNS=CommBlock.ReceiverName then // we don't have a login function so we have to use the DNS (Hostname)
+begin
+RecThread:=RecClient.Thread;
+RecThread.Connection.WriteBuffer(NewCommBlock, SizeOf(NewCommBlock), True);
+end;
+end;
+finally
+Clients.UnlockList;
+end;
+end;
+end
+else
+begin // unknown command given
+Protocol.Lines.Add (TimeToStr(Time)+' Unknown command from "'+CommBlock.MyUserName+'": '+CommBlock.Command);
+NewCommBlock.Command := 'DIALOG'; // the message should popup on the client's screen
+NewCommBlock.MyUserName := '[Server]'; // the server's username
+NewCommBlock.Msg := 'I dont understand your command: "'+CommBlock.Command+'"'; // the message to show
+NewCommBlock.ReceiverName := '[return-to-sender]'; // unnecessary
+AThread.Connection.WriteBuffer (NewCommBlock, SizeOf (NewCommBlock), true); // and there it goes...
+end;
+end;
+end;
+</pre>
+<p>Здесь я реализовал дополнительную регистрацию компьютера с помощью команды cmRegisterComp='REGISTER', и дополнительно посылку сообщения, что компьютер отключился: cmUnRegisterComp='UNREGISTER'.</p>
+<p>При передаче сообщения передаётся сообщения типа TCommBlock. Это тип данных мы можем изменять по необходимости. В данном блоке я объявил переменную для идентификации ComputerName компьютера. </p>
+<pre name="code" class="delphi">TCommBlock = record // the Communication Block used in both parts (Server+Client)
+Command,
+MyUserName, // the sender of the message
+Msg, // the message itself
+ReceiverName: string[100]; // name of receiver
+ComputerName: String[100]; // Название компьютера, посылающего сообщение
+end;
+</pre>
+<p>Поле Command - команда, котора посылается с клиентского места. <br>
+MyUserName - имя пользователя, который посылает сообщение.<br>
+Msg - Текст сообщения.<br>
+<p>ReceiverName - название компьютера-получателя сообщения, если это поле будет пустым, то сообщение будет отправляться всем компьютерам.</p>
+<p>Клиентская часть</p>
+<p>Через клиентскую компоненту мы можем отправлять сообщения, а так же получать сообщения от других сообщений.</p>
+<p>Установим на форму клиентского приложения компоненту TIdTCPClient <img src="pic/embim1783.png" width="29" height="41" vspace="1" hspace="1" border="0" alt="">.</p>
+<p>Установим на форму кнопки Подключиться и Отключиться. </p>
+<p>Обработчик кнопки Подключиться:</p>
+<pre name="code" class="delphi">IncomingMessages.Lines.Add('===Подключение к серверу===');
+Client.Host:=DBInfo.IBaseServerName;
+Client.Connect(10000); // in Indy &lt; 8.1 leave the parameter away
+ClientHandleThread := TClientHandleThread.Create(True);
+ClientHandleThread.Cli:=Client;
+ClientHandleThread.EventMest:=FEventMess;
+ClientHandleThread.Str:=IncomingMessages.Lines;
+ClientHandleThread.FreeOnTerminate:=True;
+ClientHandleThread.Resume;
+RegComp;
+except
+on E: Exception do MessageDlg ('Ошибка подключения:'+#13+E.Message, mtError, [mbOk], 0);
+end; 
+</pre>
+<p>В кнопке Отключиться прописываем: </p>
+<pre name="code" class="delphi">if Client.Connected then
+begin
+ClientHandleThread.Terminate;
+Client.Disconnect;
+end;
+</pre>
+<p>Тип TClientHandleThread предназначен для обработки команд с клиентской стороны. </p>
+<pre name="code" class="delphi">TEvent_Mesto = procedure(Sender: TObject) of object;
+.... 
+TClientHandleThread = class(TThread)
+private
+procedure HandleInput;
+public
+Str: TStrings;
+Cli: TIdTCPClient;
+protected
+procedure Execute; override;
+public
+CB: TCommBlock;
+FEventMest: TEvent_Mesto;
+published
+property EventMest: TEvent_Mesto read FEventMest write FEventMest;
+end;
+.... 
+var
+ClientHandleThread: TClientHandleThread; // variable (type see above)
+....
+procedure TClientHandleThread.Execute;
+begin
+while not Terminated do
+begin
+if not Cli.Connected then
+Terminate
+else
+try
+Cli.ReadBuffer(CB, SizeOf (CB));
+Synchronize(HandleInput);
+except
+end;
+end;
+end;
+....
+procedure TClientHandleThread.HandleInput;
+begin
+if Assigned(EventMest) then EventMest(Self);
+// Обработка команд 
+if RusCompare(CB.Command,'MESSAGE') Or (RusCompare(CB.Command,cmdSendPrav)) or (RusCompare(CB.Command, cmdAskPrav)) or
+(RusCompare(CB.Command,cmdNewGame)) or (RusCompare(CB.Command,cmdEndGame)) or
+(RusCompare(CB.Command,cmdNewTur)) or (RusCompare(CB.Command,cmdEndTur)) or
+(RusCompare(CB.Command,cmdRunShellAll)) or (RusCompare(CB.Command,cmdRunShell)) or
+(RusCompare(CB.Command,cmdSendActiveWinAll)) or (RusCompare(CB.Command,cmdSendActiveWin)) or
+(RusCompare(CB.Command,cmdMinimizeWin)) or (RusCompare(CB.Command,cmdMinimizeWinAll)) or
+(RusCompare(CB.Command,cmdCloseWin)) or (RusCompare(CB.Command,cmdCloseWinAll)) or
+(RusCompare(CB.Command,cmdSendUserName)) or (RusCompare(CB.Command,cmdSendPassword)) or
+(RusCompare(CB.Command,cmdNextGolos)) or (RusCompare(CB.Command,cmdGolosSended)) or
+(RusCompare(CB.Command,cmdGolosEkspert)) or (RusCompare(CB.Command,cmdRefreshInfo)) or
+(RusCompare(CB.Command,cmdRefreshInfoAll)) or (RusCompare(CB.Command,cmdSendMessage)) or
+(RusCompare(CB.Command,cmdSendMessageAll)) or (RusCompare(CB.Command,cmdSendMessageAdmin)) or
+(RusCompare(CB.Command,cmdClearMessages)) or (RusCompare(CB.Command,cmdClearMessgesAll)) or
+(RusCompare(CB.Command,cmdReconnected)) or (RusCompare(CB.Command,cmdReconnectedAll))
+or (RusCompare(CB.Command,cmdSetOcenk))
+or RusCompare(CB.Command, cmdRegComp)
+&nbsp;
+then Str.Add (CB.MyUserName + ': ' + CB.Msg)
+else
+if RusCompare(CB.Command,'DIALOG') then
+MessageDlg ('"'+CB.MyUserName+'" посылаем сообение:'+#13+CB.Msg, mtInformation, [mbOk], 0)
+else // unknown command
+MessageDlg('Команда "'+CB.Command+'" содержит это сообщение:'+#13+CB.Msg, mtError, [mbOk], 0);
+end;
+... 
+</pre>
+<p>В процедуре HandleInput перхватываются сообщения. В событии EventMest мы можем определить процедуру, которая будет выполняться при получении сообщения. </p>
+<p>Помещаем на форму кнопку Послать, поле ввода Сообщение, и список Команда, где будут перечислены все доступные команды. </p>
+<p>В обработчике щелчка кнопки опишем команду посылки сообщения:</p>
+<pre name="code" class="delphi">var
+CommBlock : TCommBlock;
+&nbsp;
+begin
+inherited;
+// Команда, которую мы посылаем
+CommBlock.Command := RusUpperCase(EditCommand.Text); 
+// Названеи компьютера 
+CommBlock.MyUserName := Client.LocalName; 
+// Текст сообщения 
+CommBlock.Msg := EditMessage.Text;
+// Название компьютера, которому мы посылаем сообщение 
+CommBlock.ReceiverName := EditRecipient.Text;
+// Название компьютера, который посылает сообщение 
+CommBlock.ComputerName := RusUpperCase(Client.LocalName);
+&nbsp;
+Client.WriteBuffer (CommBlock, SizeOf (CommBlock), true);
+end; 
+</pre>
+<p>Copyright&#169; 2004 Рудюк С.А.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

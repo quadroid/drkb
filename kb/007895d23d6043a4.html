@@ -1,0 +1,125 @@
+<html>
+<head>
+  <title>Пример шифрования данных</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Пример шифрования данных</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure DoEncode(var Source:String; const Key:string);
+
+asm
+Push ESI
+Push EDI
+Push EBX
+Or EAX,EAX
+Jz @Done
+Push EAX
+Push EDX
+Call UniqueString
+Pop EDX
+Pop EAX
+Mov EDI,[EAX]
+Or EDI,EDI
+Jz @Done
+Mov ECX,[EDI-4]
+Jecxz @Done
+Mov ESI,EDX
+Or ESI,ESI
+Jz @Done
+Mov EDX,[ESI-4]
+Dec EDX
+Js @Done
+Mov EBX,EDX
+Mov AH,DL
+Cld
+@L1:
+Test AH,8
+Jnz @L3
+Xor AH,1
+@L3:
+Not AH
+Ror AH,1
+Mov AL,[ESI+EBX]
+Xor AL,AH
+Xor AL,[EDI]
+Stosb
+Dec EBX
+Jns @L2
+Mov EBX,EDX
+@L2:
+Dec ECX
+Jnz @L1
+@Done:
+Pop EBX
+Pop EDI
+Pop ESI
+end;
+</pre>
+
+<p id="author">Автор ответа:Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<p>Комментарий от Chingachguk'a:</p>
+<p>Мне кажется, у этого алгоритма есть два недостатка:</p>
+<p>1) Код, сильно зависимый от компилятора. Далеко не всегда</p>
+<p>регистр EAX будет указывать на ячейку с адресом Source,</p>
+<p>а регистр EDX - на пароль(Key). Но это мелочь.</p>
+<p>2) Единственный байт гаммы(или ксорирующей последовательности),</p>
+<p>который меняется при шифровании - это длина пароля. Остальные</p>
+<p>символы пароля НИКАК НЕ ПЕРЕМЕШИВАЮТСЯ в ходе шифрования. Алгоритм</p>
+<p>шифрования примерно такой:</p>
+<pre name="code" class="delphi">
+Len:=Lengh(Key);
+Index:=Lengh(Key)-1;
+i:=1;
+repeat
+Len:=func1(Len);
+Source[i]:=(Key[Index] xor Len) xor Source[i];
+dec(Index);
+if Index:=0 then Index:=Lengh(Key)-1;
+until i&lt;Lenght(Source);
+</pre>
+
+<p>Нетрудно видеть, что основной для тупого подбора является </p>
+<p>длина пароля. Пусть она равна 10. Очевидно, что 1-ый,11,21..</p>
+<p>символы будут зашифрованы ОДИНАКОВЫМ значением Key[Index],</p>
+<p>но разными значениями Len. Казалось бы, Len для 1,11,21...</p>
+<p>будет разным, но это ерунда - ведь Len вычисляется однозначно</p>
+<p>на ЛЮБОМ шаге через реккурентный закон func1 !</p>
+<p>И это - фатальный недостаток.</p>
+<hr /><p>Информацию по шифрованию можно найти на </p>
+<p><a href="http://www.cryptography.ru/" target="_blank">http://www.cryptography.ru/</a></p>
+Автор ответа: Shaman</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

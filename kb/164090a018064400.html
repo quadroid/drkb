@@ -1,0 +1,57 @@
+<html>
+<head>
+  <title>Экспортировать таблицу или результат запроса в файл</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Экспортировать таблицу или результат запроса в файл</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>@DataSource - хранит имя таблицы или sql запрос который надо сохранить</p>
+<p>@UserName - имя пользователя для подсоединения к серверу</p>
+<p>@Password - пароль пользователя для подсоединения к серверу</p>
+
+<pre name="code" class="sql">
+Declare @sql varchar(8000), @out varchar(20)
+ 
+if PatIndex('%Select %', @DataSource)&gt;0 Set @out='" queryout "' else Set @out='" out "'
+ 
+Set @sql='bcp "'+@DataSource+@out+' c:\MyFile.txt " -S'+@@servername+' -U'+@UserName+' -P'+@Password+' -c -t"," -r\n -k'
+ 
+Exec master..xp_cmdshell @sql
+</pre>
+
+<p id="note">Примечание</p>
+<p>Путь локален для серверного компьютера, не для клиента!</p>
+
+<p id="author">Автор: Vit</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

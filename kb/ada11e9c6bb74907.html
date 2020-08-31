@@ -1,0 +1,150 @@
+<html>
+<head>
+  <title>Отображать элементы TListView как группу XP</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Отображать элементы TListView как группу XP</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// declarations from commctrl.h 
+type
+   TLVGROUP = record
+     cbSize: UINT;
+     mask: UINT;
+     pszHeader: LPWSTR;
+     cchHeader: Integer;
+     pszFooter: LPWSTR;
+     cchFooter: Integer;
+     iGroupIdL: Integer;
+     stateMask: UINT;
+     state: UINT;
+     uAlign: UINT;
+   end;
+ 
+   tagLVITEMA = packed record
+     mask: UINT;
+     iItem: Integer;
+     iSubItem: Integer;
+     state: UINT;
+     stateMask: UINT;
+     pszText: PAnsiChar;
+     cchTextMax: Integer;
+     iImage: Integer;
+     lParam: lParam;
+     iIndent: Integer;
+     iGroupId: Integer;
+     cColumns: UINT;
+     puColumns: PUINT;
+   end;
+   TLVITEMA = tagLVITEMA;
+ 
+ const
+   LVM_ENABLEGROUPVIEW = LVM_FIRST + 157;
+   LVM_MOVEITEMTOGROUP = LVM_FIRST + 154;
+   LVM_INSERTGROUP     = LVM_FIRST + 145;
+ 
+   LVIF_GROUPID = $0100;
+ 
+   LVGF_HEADER  = $00000001;
+   LVGF_ALIGN   = $00000008;
+   LVGF_GROUPID = $00000010;
+ 
+   LVGA_HEADER_LEFT   = $00000001;
+   LVGA_HEADER_CENTER = $00000002;
+   LVGA_HEADER_RIGHT  = $00000004;
+ 
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ var
+   LvGroup: TLVGROUP;
+   LvItemA: TLVITEMA;
+   ListItem: TListItem;
+   I: Byte;
+ begin
+   // Fill listview with random data 
+  Randomize;
+   for i := 1 to 10 do
+   begin
+     ListItem := ListView1.Items.Add;
+     ListItem.Caption := IntToStr(Random(100));
+   end;
+ 
+   SendMessage(ListView1.Handle, LVM_ENABLEGROUPVIEW, 1, 0);
+ 
+   // Create Group1 
+  FillChar(LvGroup, SizeOf(TLVGROUP), 0);
+   with LvGroup do
+   begin
+     cbSize := SizeOf(TLVGROUP);
+     mask := LVGF_HEADER or LVGF_ALIGN or LVGF_GROUPID;
+     pszHeader := 'Group 1';
+     cchHeader := Length(LvGroup.pszHeader);
+     iGroupIdL := 0;
+     uAlign := LVGA_HEADER_CENTER;
+   end;
+   SendMessage(ListView1.Handle, LVM_INSERTGROUP, 0, Longint(@LvGroup));
+ 
+   // Create Group2 
+  FillChar(LvGroup, SizeOf(LvGroup), 0);
+   with LvGroup do
+   begin
+     cbSize := SizeOf(TLVGROUP);
+     mask := LVGF_HEADER or LVGF_ALIGN or LVGF_GROUPID;
+     pszHeader := 'Group 2';
+     cchHeader := Length(LvGroup.pszHeader);
+     iGroupIdL := 1;
+     uAlign := LVGA_HEADER_LEFT
+   end;
+   SendMessage(ListView1.Handle, LVM_INSERTGROUP, 1, Longint(@LvGroup));
+ 
+   // Assign items to the groups 
+  for I := 0 to ListView1.Items.Count - 1 do
+   begin
+     with LvItemA do
+     begin
+       FillChar(LvItemA, SizeOf(TLvItemA), 0);
+       mask := LVIF_GROUPID;
+       iItem := I;
+       iGroupId := Random(2);
+     end;
+     SendMessage(ListView1.Handle, LVM_SETITEM, 0, Longint(@LvItemA))
+   end;
+ end;
+ 
+ 
+ 
+ // XPManifest needed! 
+</pre>
+
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

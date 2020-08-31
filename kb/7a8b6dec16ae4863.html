@@ -1,0 +1,123 @@
+<html>
+<head>
+  <title>Способы редактирования данных</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Способы редактирования данных</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Несмотря на декларированные недостатки технологии dbExpress &#8212; однонаправленные курсоры и невозможность редактирования &#8212; существуют программные способы уменьшить масштаб проблемы или даже решить ее. </p>
+<p>Во-первых, в нашем распоряжении имеется компонент TSimpleDataSet, который реализует двунаправленный курсор и обеспечивает редактирование данных путем их кэширования на клиентской стороне. </p>
+<p>Во-вторых, редактирование можно обеспечить настройкой и выполнением запросов SQL INSERT, UPDATE и DELETE. </p>
+<p>У каждого способа есть свои преимущества и недостатки. </p>
+<p>Компонент TSimpleDataSet безусловно хорош. Он технологичен, относительно прост в использовании и, главное, прячет всю функциональность за несколькими свойствами и методами. Но локальное кэширование изменений подходит далеко не для всех приложений. </p>
+<p>Например, при многопользовательском интенсивном доступе к данным с их редактированием при локальном кэшировании могут возникнуть проблемы с целостностью и адекватностью данных. Самый распространенный пример: продавец в строительном супермаркете, обслуживая покупателя в пик летних ремонтов, резервирует несколько наименований ходовых товаров. Но покупатель замешкался, выбирая обои и плитку. А за это время другой продавец уже продал другому покупателю (заказ первого покупателя еще находится в локальном кэше!) часть его товаров. </p>
+<p>Конечно, фиксацию изменений на сервере можно выполнять после локального сохранения каждой записи, но это приведет к загрузке соединения и снижению эффективности системы. </p>
+<p>Использование модифицирующих запросов, с одной стороны, позволяет оперативно вносить изменения в данные на сервере, а с другой &#8212; требует больших затрат на программирование и отладку. Сложность кода в этом случае существенно выше. </p>
+<p>Рассмотрим небольшой пример реализации обоих способов. Приложение Demo DBX использует соединение с сервером InterBase. Подключена тестовая база данных \Borland Shared\Data\MastSQL.gdb. </p>
+<p>Пример приложения dbExpress с редактируемыми наборами данных </p>
+<pre name="code" class="delphi">
+implementation 
+ {$R *.dfm} 
+procedure TfmDemoDBX.FormCreate(Sender: TObj ect); 
+ begin 
+   tblVens.Open; 
+   cdsGusts.Open; 
+ end; 
+ 
+procedure TfmDemoDBX.FormDestroy(Sender: TObject); 
+ begin 
+  tblVens.Close; 
+  cdsCusts.Close; 
+ end; 
+ 
+{Editing feature with updating query} 
+procedure TfmDemoDBX.tblVensAfterScroll(DataSet: TDataSet); 
+ begin 
+  edVenNo.Text := tblVens.FieldByName('VENDORNO').AsString;  
+  edVenName.Text := tblVens.FieldByName('VENDORNAME').AsString;   
+  edVenAdr.Text := tblVens.FieldByName('ADDRESS1')AsString; 
+  edVenCity.Text := tblVens.FieldByName('CITY').AsString;  
+  edVenPhone.Text := tblVens.FieldByName('PHONE').AsString;  
+end; 
+ 
+procedure TfmDemoDBX.sbCancelClick(Sender: TObject); 
+begin 
+  tblVens.First;  
+end; 
+ 
+procedure TfmDemoDBX.sbNextClick(Sender: TObject); 
+begin 
+  tblVens.Next; 
+end; 
+ 
+procedure TfmDemoDBX.sbPostClick(Sender: TObject); 
+begin 
+  with quUpdate do 
+  try 
+    ParamByName('4dx').Aslnteger :=
+ tblVens.FieldByName('VENDORNO').Aslnteger;  
+    ParamByName('No').AsString := edVenNo.Text;  
+    ParamByName('Name').AsString := edVenName.Text; 
+    ParamByName('Adr').AsString := edVenAdr.Text; 
+    ParamByName('City').AsString := edVenCity.Text; 
+    ParamByName('Phone1').AsString := edVenPhone.Text;  
+    ExecSQL; 
+  except 
+    MessageDlg('Vendors info post error', mtError, [mbOK], 0); 
+    tblVens.First; 
+  end; 
+end; 
+ 
+{Editing feature with cached updates} 
+procedure TfmDemoDBX.cdsCustsAfterPost(DataSet: TDataSet); 
+begin 
+  cdsCusts.ApplyUpdates(-1); 
+end; 
+ 
+procedure TfmDemoDBX.cdsCustsReconcileError(DataSet:TCustomClientDataSet; 
+E: EReconcileError; UpdateKind: TUpdateKind; var Action: TReconcileAction); 
+begin 
+  MessageDlg('Customers info post error', mtError, [mbOK], 0); 
+  cdsCusts.CancelUpdates; 
+end; 
+ 
+end. 
+</pre>
+
+<p>Для просмотра и редактирования выбраны таблицы Vendors и Customers. Первая таблица подключена через настроенное соединение (компонент cnMast) к компоненту tbivens типа TSQLTable. Значение пяти полей отображается в обычных компонентах TEdit, т. к. компоненты отображения данных, связанные с компонентом dbExpress через компонент TDataSource, работают только в режиме просмотра, не позволяя редактировать данные </p>
+<p>Использование метода-обработчика AfterScroll позволило легко решить проблему заполнения компонентов TEdit при навигации по набору данных. Для сохранения сделанных изменений (нажатие на кнопку sbPost) используется компонент quupdate типа TSQLQuery. В параметрах запроса передаются текущие значения полей из компонентов TEdit. Так как в этом случае работает однонаправленный курсор, проблема обновления набора данных после выполнения модифицирующего запроса не возникает и набор данных обновляется только при вызове метода First компонента tbivens. </p>
+<p>Вторая таблица подключена через тот же компонент cnMast к компоненту cdsCusts типа TSimpleDataSet. Он работает в табличном режиме. Данные отображаются в обычном компоненте TDBGrid. </p>
+<p>Для сохранения сделанных изменений здесь использован метод Appiyupdates, размещенный в методе-обработчике AfterPost, когда изменения уже попали в локальный кэш. Метод-обработчик вызывается каждый раз при переходе в компонент TDBGrid на новую строку. </p>
+<p>Для компонента cdscusts также предусмотрена простейшая обработка исключительных ситуаций, возникающих на сервере. Обратите также внимание на настройку компонента cnMast типа TSQLConnection. Свойства KeepConnection И LoginPrompt со значениями False обеспечивают открытие наборов данных при создании формы и автоматическое закрытие соединения при закрытии приложения с минимальным исходным кодом. </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

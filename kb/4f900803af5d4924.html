@@ -1,0 +1,147 @@
+<html>
+<head>
+  <title>DLL!</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">DLL!</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Ура. До нас и за нас все уже стандатизировали. Давайте этим воспользуемся и напишим теперь наш модуль в постандарту. Напишим dll.</p>
+<pre name="code" class="delphi">library CalcDll;
+uses SysUtils, Classes;
+type
+MyCalc=class
+fx,fy:integer;
+public
+procedure SetOperands(x,y:integer);
+function Sum:integer;
+function Diff:integer;
+end;
+var Calc:MyCalc;
+procedure MyCalc.SetOperands(x,y:integer);
+begin
+fx:=x; fy:=y;
+end;
+function MyCalc.Sum:integer;
+begin
+result:=fx+fy;
+end;
+function MyCalc.Diff:integer;
+begin
+result:=fx-fy;
+end;
+procedure SetOperands(x,y:integer);
+begin
+Calc.SetOperands(x,y);
+end;
+function Sum:integer;
+begin
+result:=Calc.Sum;
+end;
+function Diff:integer;
+begin
+result:=Calc.Diff;
+end;
+procedure CreateObject;
+begin
+Calc:=MyCalc.Create;
+end;
+procedure ReleaseObject;
+begin
+Calc.Free;
+end;
+exports //Вот эта секция и указывает компилятору что записать в таблицу экспорта
+SetOperands,
+Sum,
+Diff,
+CreateObject,
+ReleaseObject;
+begin
+end.
+</pre>
+
+<p>Напишим программку - протестировать наш модуль.</p>
+<pre name="code" class="delphi">unit tstcl;
+interface
+uses Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls;
+type
+TForm1 = class(TForm)
+Button1: TButton;
+Button2: TButton;
+procedure FormCreate(Sender: TObject);
+procedure FormDestroy(Sender: TObject);
+procedure Button1Click(Sender: TObject);
+procedure Button2Click(Sender: TObject);
+end;
+var Form1: TForm1;
+_Mod:Integer; //индефикатор модуля
+SetOpers:procedure(x,y:integer); //Это все указатели на функции,
+diff,sum:function:integer; //которые мы собираемся получить
+CreateObj,ReleaseObj:procedure; //из нашего модуля
+implementation
+{$R *.DFM}
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+//загружаем наш модуль в память
+_Mod:=LoadLibrary('CalcDll.dll'); 
+ 
+//получаем адреса функций по именам 
+CreateObj:=GetProcAddress(_Mod,'CreateObject');
+ReleaseObj:=GetProcAddress(_Mod,'ReleaseObject');
+sum:=GetProcAddress(_Mod,'Sum');
+diff:=GetProcAddress(_Mod,'Diff');
+SetOpers:=GetProcAddress(_Mod,'SetOperands');
+ 
+CreateObj; //вызываем функцию по адресу
+SetOpers(13,10); //вызываем функцию по адресу
+end;
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+ReleaseObj; //опять вызываем функцию по адресу
+FreeLibrary(_Mod); //выгружаем модуль из памяти
+end;
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+ShowMessage(IntToStr(diff)); //вычисляем разницу
+end;
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+ShowMessage(IntToStr(sum)); //вычисляем сумму
+end;
+end.
+</pre>
+
+<p>Классно! Теперь каждый программирующий в системе Windows на любом языке может использовать наш калькулятор! Что? Разочарованны? Такое ощущение что COM тут и не пахнет?</p>
+<p>Правильно, ибо про СОМ я пока ничего и не сказал, но</p>
+<p>Продолжение следует! </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

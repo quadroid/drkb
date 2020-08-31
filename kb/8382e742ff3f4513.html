@@ -1,0 +1,84 @@
+<html>
+<head>
+  <title>Как определить, имеет ли файл ASCII-формат</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как определить, имеет ли файл ASCII-формат</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function isAscii(NomeFile: string): Boolean;
+ const
+   SETT = 2048;
+ var
+   i: Integer;
+   F: file;
+   a: Boolean;
+   TotSize, IncSize, ReadSize: Integer;
+   c: array[0..Sett] of Byte;
+ begin
+   if FileExists(NomeFile) then
+   begin
+     {$I-}
+     AssignFile(F, NomeFile);
+     Reset(F, 1);
+     TotSize := FileSize(F);
+     IncSize := 0;
+     a       := True;
+     while (IncSize &lt; TotSize) and (a = True) do
+     begin
+       ReadSize := SETT;
+       if IncSize + ReadSize &gt; TotSize then ReadSize := TotSize - IncSize;
+       IncSize := IncSize + ReadSize;
+       BlockRead(F, c, ReadSize);
+       // Iterate 
+      for i := 0 to ReadSize - 1 do
+         if (c[i] &lt; 32) and (not (c[i] in [9, 10, 13, 26])) then a := False;
+     end; { while }
+     CloseFile(F);
+     {$I+}
+     if IOResult &lt;&gt; 0 then Result := False
+     else
+        Result := a;
+   end;
+ end;
+ 
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   if OpenDialog1.Execute then
+     if isAscii(OpenDialog1.FileName) then
+       ShowMessage('ASCII File');
+ end;
+</pre>
+Автор: http://www.swissdelphicenter.ch </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

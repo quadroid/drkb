@@ -1,0 +1,520 @@
+<html>
+<head>
+  <title>Создание модулей расширения Microsoft Office</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создание модулей расширения Microsoft Office</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Анатолий Тенцер</p>
+
+<p>Модель модулей расширения Microsoft Office 2000 </p>
+
+<p>В Office 2000 Microsoft ввела единый API для написания подключаемых модулей, расширяющих функциональные возможности пакета. Теперь стало возможно написание модулей, которые интегрируются с любым из приложений пакета. Разработанный набор интерфейсов упрощает создание расширений, позволяя программисту сконцентрироваться на функциональности, а не на изучении особенности каждого из приложений. </p>
+<p>Новая модель подключаемых модулей была названа COM Add-Ins. Как следует из названия, модуль расширения (Add-In) представляет собой COM-сервер, который специальным образом зарегистрирован в операционной системе. При загрузке приложение пакета Office загружает зарегистрированные расширения и вызывает их методы, позволяя установить обработчики на необходимые для их дальнейшего функционирования события. По завершении работы приложение Office извещает об этом модули расширения, позволяя последним корректно освобождать ресурсы. </p>
+<p>Общение модулей расширения с загрузившим их приложением происходит с помощью объектной модели Microsoft Office. </p>
+<p>Использование COM Add-In позволяет в корне изменить подходы к интеграции приложений с Microsoft Office. Например, вместо того чтобы вызывать Word для генерации отчетов, можно, наоборот, встроить в него меню со списком отчетов, а по выбору пользователем нужного отчета &#8212; запросить данные из базы данных и сформировать по ним документ. </p>
+
+<p>Интерфейс IDTExtensibility2 </p>
+
+<p>Ключевым моментом в написании COM Add-In является реализация им интерфейса IDTExtensibility2, определенного следующим образом: </p>
+<pre name="code" class="delphi">
+type
+   IDTExtensibility2 = interface(IDispatch)
+     ['{B65AD801-ABAF-11D0-BB8B-00A0C90F2744}']
+     procedure OnConnection(const HostApp: IDispatch;
+       ext_ConnectMode: Integer; const AddInInst: IDispatch;
+       var custom: PSafeArray); safecall;
+     procedure OnDisconnection(ext_DisconnectMode: Integer;
+       var custom: PSafeArray); safecall;
+     procedure OnAddInsUpdate(var custom: PSafeArray); safecall;
+     procedure OnStartupComplete(var custom: PSafeArray); safecall;
+     procedure BeginShutdown(var custom: PSafeArray); safecall;
+   end; 
+</pre>
+
+
+<p>После загрузки зарегистрированного в качестве расширения COM-сервера Office запрашивает у него этот интерфейс и, если он реализован, вызывает соответствующие методы, позволяя расширению реализовать свою функциональность. </p>
+<p>Рассмотрим методы IDTExtensibility2 подробнее: </p>
+<pre name="code" class="delphi">
+procedure OnConnection(
+   const HostApp: IDispatch;  
+   ext_ConnectMode: Integer;
+   const AddInInst: IDispatch;
+   var custom: PSafeArray
+ ); safecall;  
+</pre>
+
+
+<p>Вызывается при загрузке модуля расширения. В этот момент можно произвести требуемую инициализацию, добавить или удалить необходимые интерфейсные элементы, установить обработчики событий и т.п. </p>
+
+<p>Параметры, передаваемые методу: </p>
+HostApp  &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на интерфейс IDispatch вызывающего приложения. Если модуль расширения планирует в дальнейшем обращаться к его объектной модели, он должен сохранить ссылку в переменной  &nbsp; &nbsp; &nbsp; 
+ext_ConnectMode  &nbsp; &nbsp; &nbsp; &nbsp;Константа, информирующая о том, по какой причине производится загрузка:&nbsp; ext_cm_AfterStartup &#8212; модуль расширения загружен после загрузки хотя бы одного документа Office&nbsp; ext_cm_External &#8212; модуль расширения загружен другим компонентом&nbsp; ext_cm_Startup &#8212; модуль расширения загружен до загрузки хотя бы одного документа Office&nbsp; ext_cm_CommandLine &#8212; не используется в Office 2000  &nbsp; &nbsp; &nbsp; 
+AddinInst  &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на интерфейс IDispatch загружаемого модуля расширения  &nbsp; &nbsp; &nbsp; 
+Custom  &nbsp; &nbsp; &nbsp; &nbsp;Здесь и далее &#8212; в Microsoft Office не используется  &nbsp; &nbsp; &nbsp; 
+<p>procedure OnDisconnection(ext_DisconnectMode: Integer;</p>
+<p> &nbsp; var custom: PSafeArray); safecall;&nbsp; </p>
+
+<p>Вызывается при выгрузке модуля расширения. Этот метод должен произвести освобождение занятых ресурсов и прочие процедуры по завершении работы COM-сервера. </p>
+<p>Параметр ext_DisconnectMode информирует о причине выгрузки COM-сервера и может принимать следующие значения: </p>
+<p>ext_dm_HostShutdown &#8211; приложение завершает работу; </p>
+<p>ext_dm_UserClosed &#8211; модуль расширения выгружен пользователем. </p>
+
+<p>procedure OnAddInsUpdate(var custom: PSafeArray); safecall;&nbsp; </p>
+
+<p>Вызывается при изменении списка загруженных модулей расширений. COM-сервер может проанализировать коллекцию расширений приложения и предпринять необходимые действия, требующие взаимодействия с другими модулями расширений. </p>
+
+<p>procedure OnStartupComplete(var custom: PSafeArray); safecall; </p>
+
+<p>Вызывается по завершении инициализации приложения. Те модули расширений, которые должны предоставлять интерфейс пользователя при запуске приложения, должны делать это в методе OnStartupComplete, когда приложение полностью завершило этап инициализации. </p>
+
+<p>procedure BeginShutdown(var custom: PSafeArray); safecall; </p>
+
+<p>Вызывается в начале процесса завершения приложения, позволяя расширениям предпринять в этот момент какие-либо действия. </p>
+<p>Внедрение в объектную модель Office </p>
+<p>Как было показано в предыдущем разделе, расширению доступен интерфейс IDispatch вызывающего приложения. Таким образом, оно может модифицировать интерфейс этого приложения, добавляя и удаляя необходимые интерфейсные элементы, создавать документы, вызывать различные методы для работы с ними. Однако, как правило, помимо этого необходимо обеспечить реакцию на различные события в вызывающем приложении (такие как изменение документа или нажатие кнопки на панели инструментов). Для этого Add-In должен установить обработчик соответствующего события. Прежде чем перейти к вопросам реализации, совершим небольшой экскурс по событиям COM и их обработчикам. </p>
+<p>COM Events </p>
+
+<p>Введение </p>
+<p>Если COM-объект хочет получать информацию о событиях в другом COM-объекте, то он должен уведомить об этом объект-источник событий, зарегистрировав себя в списке объектов-получателей уведомлений о событиях. Модель COM предоставляет для этого стандартный механизм. </p>
+<p>Объект-источник событий (в нашем случае &#8211; приложение Office, документ, кнопка на панели инструментов и т.п.) реализует интерфейс IConnectionPointContainer. Объект, нуждающийся в оповещении о событиях, должен запросить у источника этот интерфейс, затем при помощи метода FindConnectionPoint получить «точку подключения» &#8211; интерфейс IConnectionPoint и посредством вызова метода Advise зарегистрировать в этой точке подключения ссылку на свою реализацию интерфейса IDispatch, методы которого будут вызываться при возникновении тех или иных событий в источнике событий. </p>
+<p>Различные объекты Office определяют интерфейсы, которым должны соответствовать обработчики их событий. Так, например, для объекта CommandBarButton (кнопка на панели инструментов) определен интерфейс обработчика &#8211; </p>
+<pre name="code" class="delphi">
+type
+     _CommandBarButtonEvents = dispinterface
+       ['{000C0351-0000-0000-C000-000000000046}']
+       procedure Click(const Ctrl: CommandBarButton;
+         var CancelDefault: WordBool); dispid 1;
+     end; 
+</pre>
+
+
+<p>Это означает, что при нажатии кнопки будет вызван метод Invoke зарегистрированного интерфейса-обработчика, с параметром DispId, равным 1. При этом параметр pDispIds будет содержать указатель на вариантный массив из двух параметров &#8212; соответственно типов CommandBarButton и WordBool. </p>
+<p>Базовый класс обработчика COM-событий </p>
+
+<p>Реализуем базовый класс обработчика COM-событий. Реализация взята из модуля SinkObject.pas, написанного Бином Ли (Binh Ly, http://www.techvanguards.com/). </p>
+<pre name="code" class="delphi">
+type
+     TBaseSink = class(TObject, IUnknown, IDispatch)
+     protected
+       { методы IUnknown }
+       function QueryInterface(const IID: TGUID; out Obj): HResult;
+         stdcall;
+       function _AddRef: Integer; stdcall;
+       function _Release: Integer; stdcall;
+       { методы IDispatch }
+       function GetIDsOfNames(const IID: TGUID; Names: Pointer;
+         NameCount, LocaleID: Integer; DispIDs: Pointer):    HResult;
+         virtual; stdcall;
+       function GetTypeInfo(Index, LocaleID: Integer;
+         out TypeInfo): HResult; virtual; stdcall;
+       function GetTypeInfoCount(out Count: Integer): HResult;
+         virtual; stdcall;
+       function Invoke(DispID: Integer; const IID: TGUID;
+         LocaleID: Integer; Flags: Word; var Params;
+         VarResult, ExcepInfo, ArgErr: Pointer): HResult;
+         virtual; stdcall; 
+  private
+     FCookie: Integer;
+     FCP: IConnectionPoint;
+     FSinkIID: TGuid;
+     FSource: IUnknown;
+     function DoInvoke(DispID: Integer; const IID: TGUID;
+       LocaleID: Integer;  Flags: Word; var dps: TDispParams;
+       pDispIds: PDispIdList;  VarResult, ExcepInfo,
+       ArgErr: Pointer): HResult; virtual; abstract;  
+  public
+     destructor Destroy; override;
+     procedure Connect(pSource : IUnknown);
+     procedure Disconnect;
+     property SinkIID: TGuid read FSinkIID;
+     property Source: IUnknown read FSource;
+   end;  
+</pre>
+
+<p>Рассмотрим реализацию ключевых методов этого класса. Метод QueryInterface в дополнение к стандартной реализации проверяет, нет ли попыток запросить интерфейс обработчика событий. В этом случае возвращается IDispatch, позволяющий объекту-источнику событий вызвать метод Invoke: </p>
+<pre name="code" class="delphi">
+function TBaseSink.QueryInterface(const IID: TGUID;
+     out Obj): HResult;
+   begin
+     Result := E_NOINTERFACE;
+     Pointer(Obj) := NIL;
+     if GetInterface(IID, Obj) then
+       Result := S_OK;
+     // если запрашивается интерфейс SinkIID -
+     // возвращаем свой IDispatch
+     if not Succeeded(Result) then
+       if IsEqualIID(IID, FSinkIID) then
+         if GetInterface(IDispatch, Obj) then
+           Result := S_OK;
+   end; 
+</pre>
+
+
+<p>Метод Connect регистрирует COM-объект в качестве обработчика событий COM-объекта pSource. Обращаю внимание, что переменная FCP объявлена как поле класса, поскольку он должен удерживать счетчик ссылок на «точку подключения», пока она используется. Если объявить FCP как локальную переменную &#8212; по завершении метода Connect произойдет неявный вызов FCP._Release, что приведет к неправильной работе. </p>
+<pre name="code" class="delphi">
+procedure TBaseSink.Connect(pSource: IUnknown);
+   var
+     pcpc: IConnectionPointContainer;
+   begin
+     Disconnect;
+     try
+       // Запрашиваем интерфейс IConnectionPointContainer у объекта-
+       // источника событий
+       OleCheck(pSource.QueryInterface(IConnectionPointContainer,
+         pcpc));
+       // Запрашиваем интерфейс IConnectionPoint.
+       OleCheck(pcpc.FindConnectionPoint(FSinkIID, FCP));
+       // Подключаемся к обработчику событий
+       OleCheck(FCP.Advise(Self, FCookie));
+       // Все прошло успешно - устанавливаем свойство Source
+       FSource := pSource;
+     except
+       raise Exception.Create(Format('Unable to connect %s.'#13'%s',
+         [ClassName, Exception(ExceptObject).Message]));
+     end;
+   end; 
+</pre>
+
+
+<p>Метод Disconnect отключает обработчик событий от объекта-источника. </p>
+<pre name="code" class="delphi">
+procedure TBaseSink.Disconnect;
+   begin
+     if FSource = NIL then
+       Exit;
+     try
+       OleCheck(FCP.Unadvise(FCookie));
+       FCP := NIL;
+       FSource := NIL;
+     except
+       Pointer(FCP) := NIL;
+       Pointer(FSource) := NIL;
+     end;
+   end; 
+</pre>
+
+
+<p>Метод Invoke вызывается при возникновении события в объекте-источнике. Он осуществляет предварительную обработку параметров и вызывает абстрактный метод DoInvoke, который должен быть перекрыт в наследниках, реализующих конкретные интерфейсы обработчиков событий. Реализация такого наследника будет рассмотрена ниже. </p>
+<p>Обработчик событий от CommandBarButton </p>
+<p>Наследуя функциональность от базового класса TBaseSink, обработчики событий конкретных COM-объектов реализуются перекрытием методов Create и DoInvoke. Создадим такой обработчик для кнопки на панели инструментов Office. Он должен реализовать интерфейс _CommandBarButtonEvents &#8211; </p>
+<pre name="code" class="delphi">
+ 
+type
+     _CommandBarButtonEvents = dispinterface
+       ['{000C0351-0000-0000-C000-000000000046}']
+       procedure Click(const Ctrl: CommandBarButton;
+         var CancelDefault: WordBool); dispid 1;
+     end; 
+</pre>
+
+<p>Объявим класс: </p>
+<pre name="code" class="delphi">
+type
+   // Обработчик события нажатия на кнопку
+   TOnCommandButtonClick = procedure (Button: CommandBarButton;
+      var CancelDefault: WordBool) of object;
+  TCommandButtonEventSink = class(TBaseSink)
+   private
+     FOnClick: TOnCommandButtonClick;
+   protected
+     procedure DoClick(Button: CommandBarButton;
+       var CancelDefault: WordBool); virtual;
+     function DoInvoke (DispID: Integer; const IID: TGUID;
+       LocaleID: Integer; Flags: Word; var dps : TDispParams;
+       pDispIds : PDispIdList; VarResult, ExcepInfo,
+       ArgErr: Pointer): HResult; override;
+   public
+     constructor Create; virtual;
+     property OnClick: TOnCommandButtonClick
+       read FOnClick write FOnClick;
+   end;
+</pre>
+
+
+<p>В конструкторе установим идентификатор интерфейса обработчика событий, который мы реализуем. </p>
+<pre name="code" class="delphi">
+   constructor TCommandButtonEventSink.Create;
+   begin
+     inherited;
+     FSinkIID := _CommandBarButtonEvents;
+   end; 
+</pre>
+
+<p>Метод DoClick просто вызывает назначенный классу обработчик события и нужен для более удобной работы с ним из Delphi. </p>
+<pre name="code" class="delphi">
+ 
+procedure TCommandButtonEventSink.DoClick(Button: CommandBarButton;
+     var CancelDefault: WordBool);
+   begin
+     if Assigned(FOnClick) then
+       FOnClick(Button, CancelDefault);
+   end; 
+</pre>
+
+<p>Ключевым методом является DoInvoke, который для каждого DispId, объявленного в интерфейсе _CommandBarButtonEvents, должен выполнить соответствующие действия. </p>
+<pre name="code" class="delphi">
+function TCommandButtonEventSink.DoInvoke(DispID: Integer;
+     const IID: TGUID; LocaleID: Integer; Flags: Word;
+     var dps: TDispParams; pDispIds: PDispIdList;
+     VarResult, ExcepInfo, ArgErr: Pointer): HResult;
+   begin
+     Result := S_OK;
+     case DispID of
+       // Для этого DispId передаются 2 параметра – CommandBarButton
+       // и WordBool
+       1 : DoClick(IUnknown(dps.rgvarg^[pDispIds^[0]].unkval)
+             as CommandBarButton,    dps.rgvarg^[pDispIds^[1]].pbool^);
+     else
+       Result := DISP_E_MEMBERNOTFOUND;
+     end;
+   end; 
+</pre>
+
+
+<p>Как видим, реализация конкретного обработчика является практически механической задачей и не должна вызвать проблем. Если в интерфейсе предусмотрено несколько методов, то следует подставить в оператор case все их DispId. От программиста требуется лишь аккуратность при отображении массива dps на параметры соответствующих обработчиков. </p>
+
+<p>Регистрация модулей </p>
+
+<p>COM Add-In &#8212; это COM-сервер, который должен быть зарегистрирован в системе, например, при помощи TRegSvr.exe или RegSvr32.exe. Однако требуется еще один шаг &#8212; регистрация его в Microsoft Office. Для этого необходимо создать в реестре раздел с именем. </p>
+<img src="pic/clip0051.png" width="619" height="262" border="0" alt="clip0051"></p>
+<p>HKEY_CURRENT_USER\Software\Microsoft\Office\&lt;Имя приложения&gt;\AddIns\&lt;Имя&gt; </p>
+<p>Здесь: </p>
+<p>&lt;Имя приложения&gt; &#8212; название приложения, к которому подключается Add-In </p>
+<p>&lt;Имя&gt; &#8212; имя, под которым зарегистрирован COM-сервер (название_проекта.имя_класса) </p>
+<p>В этом разделе необходимо создать два параметра: </p>
+FriendlyName  &nbsp; &nbsp; &nbsp; &nbsp;Строковый параметр, определяющий имя, под которым наше расширение будет видно в менеджере расширений приложений Microsoft Office  &nbsp; &nbsp; &nbsp; 
+LoadBehavior  &nbsp; &nbsp; &nbsp; &nbsp;Параметр типа DWORD, определяющий, когда должен загружаться Add-In  &nbsp; &nbsp; &nbsp; 
+<p>Параметр LoadBehavior может принимать одно из следующих значений: </p>
+3  &nbsp; &nbsp; &nbsp; &nbsp;Add-In загружается при старте приложения  &nbsp; &nbsp; &nbsp; 
+9  &nbsp; &nbsp; &nbsp; &nbsp;Add-In загружается по требованию (когда его свойство Connected в колекции AddIns приложения будет установлено в TRUE)  &nbsp; &nbsp; &nbsp; 
+16  &nbsp; &nbsp; &nbsp; &nbsp;Add-In загружается один раз при следующем запуске приложения  &nbsp; &nbsp; &nbsp; 
+<p>Пишем COM Add-In </p>
+<p>Библиотеки типов Office 2000 </p>
+<p>Для работы с объектной моделью Microsoft Office 2000 нам понадобятся библиотеки типов, описывающие доступные интерфейсы. Поскольку Delphi 5 поставляется с библиотеками типов от Office 97, необходимо импортировать нужные модули. В любом случае понадобится библиотека Office_TLB, остальные (Word_TLB, Excel_TLB и т.п.) могут потребоваться в зависимости от того, к какому приложению будет писаться модуль расширения. </p>
+<img src="pic/clip0052.png" width="477" height="579" border="0" alt="clip0052"></p>
+<p>Для импорта воспользуемся меню Import TypeLibrary. </p>
+<p>После создания модулей с описаниями интерфейсов рекомендую вручную удалить из них ссылки на модули Graphics и OleCtrls, которые приводят к подключению к проекту модуля Forms, а при компиляции не нужны. </p>
+
+<p>Создаем COM-сервер </p>
+
+<p>Поскольку COM Add-In является COM-сервером, воспользуемся мастерами Delphi для его создания. Выберем команду New... -&gt; ActiveX -&gt; ActiveX Library. </p>
+<img src="pic/clip0053.png" width="543" height="445" border="0" alt="clip0053"></p>
+<p>Затем добавим в созданную библиотеку Automation Object при помощи мастера New... -&gt; ActiveX -&gt; Automation Object. </p>
+<img src="pic/clip0054.png" width="464" height="279" border="0" alt="clip0054"></p>
+<p>В поле CoClassName введем имя реализуемого интерфейса (DTExtensibility2). В принципе, можно ввести любое имя, требуется только, чтобы этот интерфейс имел тот же GUID, что и IDTExtensibility, и аналогичный набор методов. </p>
+<p>После того как Delphi создаст новый объект автоматизации, запустим редактор библиотеки типов. Вначале мы имеем описание интерфейса без методов и со сгенерированным Delphi значением GUID. </p>
+<img src="pic/clip0055.png" width="600" height="400" border="0" alt="clip0055"></p>
+<p>Перейдем на вкладку Text созданного интерфейса и введем там следующий текст: </p>
+
+<p>[</p>
+<p> &nbsp; uuid(B65AD801-ABAF-11D0-BB8B-00A0C90F2744),</p>
+<p> &nbsp; version(1.0),</p>
+<p> &nbsp; helpstring("Dispatch interface for Office2000ComAddIn Object"),</p>
+<p> &nbsp; dual,</p>
+<p> &nbsp; oleautomation</p>
+<p> ] </p>
+
+<p>interface IDTExtensibility2: IDispatch</p>
+<p> {</p>
+<p> &nbsp; [id(0x00000001)]</p>
+<p> &nbsp; HRESULT _stdcall OnConnection(</p>
+<p> &nbsp;&nbsp;&nbsp; [in] IDispatch * HostApp,</p>
+<p> &nbsp;&nbsp;&nbsp; [in] long ext_ConnectMode,</p>
+<p> &nbsp;&nbsp;&nbsp; [in] IDispatch * AddInInst,</p>
+<p> &nbsp;&nbsp;&nbsp; [in] SAFEARRAY(VARIANT) * custom );</p>
+<p> &nbsp; [id(0x00000002)]</p>
+<p> &nbsp; HRESULT _stdcall OnDisconnection([in] long ext_DisconnectMode,</p>
+<p> &nbsp;&nbsp;&nbsp; [in] SAFEARRAY(VARIANT) * custom );</p>
+<p> &nbsp; [id(0x00000003)]</p>
+<p> &nbsp; HRESULT _stdcall OnAddInsUpdate(</p>
+<p> &nbsp;&nbsp;&nbsp; [in] SAFEARRAY(VARIANT) * custom );</p>
+<p> &nbsp; [id(0x00000004)]</p>
+<p> &nbsp; HRESULT _stdcall OnStartupComplete(</p>
+<p> &nbsp;&nbsp;&nbsp; [in] SAFEARRAY(VARIANT) * custom );</p>
+<p> &nbsp; [id(0x00000005)]</p>
+<p> &nbsp; HRESULT _stdcall BeginShutdown(</p>
+<p> &nbsp;&nbsp;&nbsp; [in] SAFEARRAY(VARIANT) * custom );</p>
+<p> };&nbsp; </p>
+
+<p>Если вы назвали свой класс не DTExtensibility2, а как-то иначе &#8212; скорректируйте название интерфейса. Все остальное, включая uuid, должно быть введено точно так, как это было описано выше. </p>
+<p>Если все введено правильно &#8212; в окне Type Library Editor вы должны увидеть пять методов созданного интерфейса. </p>
+<img src="pic/clip0056.png" width="600" height="400" border="0" alt="clip0056"></p>
+<p>Нажмите кнопку «Обновить» и закройте редактор библиотеки типов &#8212; больше он нам не понадобится. Теперь откомпилируйте полученный проект и зарегистрируйте его в Windows при помощи меню Run-&gt;Register COM Server. </p>
+<p>При помощи редактора реестра создайте в реестре Windows запись для регистрации Add-In с приложением Microsoft Office. COM Add-In готов! </p>
+
+<p>Отладка модулей расширения </p>
+
+<p>Для работы с модулями расширения необходимо добавить в меню Microsoft Office команду для вызова диспетчера дополнений. Для этого (на примере Word): </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>В меню Сервис выберите команду Настройка, а затем &#8212; вкладку Команды. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>В списке Категории выберите категорию Сервис. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Перетащите команду Надстройки для модели COM... из списка Команды в меню Сервис. Когда в меню Сервис раскроется список команд, укажите, где в этом меню должна располагаться команда Надстройки для модели COM..., после чего отпустите кнопку мыши. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Нажмите кнопку «Закрыть». </td></tr></table></div>При помощи этой команды вызывается окно диспетчера дополнений. Загруженные дополнения помечены в списке галочкой. Чтобы загрузить надстройку &#8212; отметьте ее и нажмите OK, чтобы выгрузить &#8212; снимите отметку. </p>
+<p>!Если во время загрузки Add-In произошла ошибка &#8212; Office не будет загружать его при следующем запуске приложения автоматически. Чтобы надстройка снова начала загружаться &#8212; загрузите ее через диспетчер. </p>
+<p>Для отладки Com Add-Ins установите в качестве Host Application (меню Run - &gt; Parameters) приложение Office, к которому подключена надстройка, например WinWord.exe. После этого установите точку прерывания в одном из методов своего объекта и запустите приложение. Загрузится Word, и при попадании на точку прерывания вы окажетесь в отладчике Delphi. </p>
+<p>Реализуем функциональность </p>
+
+<p>В настоящий момент наш Add In умеет только загружаться, но не может сделать ничего полезного. Для примера реализации функциональности добавим на панель инструментов Office кнопку, по нажатии которой в текущую позицию курсора будет вставляться список файлов выбранной папки. </p>
+<p>Для этого дополним наш объект автоматизации несколькими полями и методами.</p>
+
+<pre name="code" class="delphi">
+type
+     TDirectoryList = class(TAutoObject, IDTExtensibility2)
+     private
+       Host: WordApplication;
+       FButtonEventsSink: TCommandButtonEventSink;
+       procedure ButtonClick(Button: CommandBarButton;
+         var CancelDefault: WordBool);
+     protected
+       // Реализация IDTExtensibility2
+       procedure BeginShutdown(var custom: PSafeArray); safecall;
+       procedure OnAddInsUpdate(var custom: PSafeArray); safecall;
+       procedure OnConnection(const HostApp: IDispatch;
+         ext_ConnectMode: Integer; const AddInInst: IDispatch;
+         var custom: PSafeArray); safecall;
+       procedure OnDisconnection(ext_DisconnectMode: Integer;
+         var custom: PSafeArray); safecall;
+       procedure OnStartupComplete(var custom: PSafeArray); safecall;
+     end; 
+</pre>
+
+
+<p>Поле Host будет хранить ссылку на интерфейс WordApplication, необходимый для работы с объектной моделью Word, поле FButtonEventsSink &#8212; ссылку на объект-обработчик событий от кнопки, реализация которого была рассмотрена в разделе «Обработчик событий от CommandBarButton», а метод ButtonClick будет вызываться для обработки нажатия на кнопку. </p>
+<p>Реализуем необходимую функциональность в методах класса TDirectoryList. </p>
+<pre name="code" class="delphi">
+const
+     // Уникальный идентификатор кнопки. Можно задать любую уникальную
+     // строку. Для ее генерации удобно воспользоваться средствами
+     // Delphi по генерации GUID (Ctrl+Shift+G)
+     // Этот идентификатор понадобится нам для того, чтобы после
+     // создания кнопки иметь возможность ее найти.
+     BUTTON_TAG = '{1A1552DC-9286-11D3-BCA0-00902759A497}';
+ 
+ 
+procedure TDirectoryList.OnConnection(const HostApp: IDispatch;
+   ext_ConnectMode: Integer; const AddInInst: IDispatch;
+   var custom: PSafeArray);
+ var
+   Bar: CommandBar;
+   Button: CommandBarButton;
+ begin
+   // Сохраняем ссылку на WordApplication для
+   // последующей работы с ней
+   Host := HostApp as WordApplication;
+   // Создаем обработчик событий для кнопки
+   FButtonEventsSink := TCommandButtonEventSink.Create;
+   FButtonEventsSink.OnClick := ButtonClick;
+   // Получаем интерфейс панели инструментов "Форматирование"
+   Bar := Host.CommandBars.Get_Item('Formatting');
+   // Проверяем наличие на ней нашей кнопки
+   Button := Bar.FindControl(msoControlButton, EmptyParam, BUTTON_TAG,
+     EmptyParam, msoFalse) as CommandBarButton;;
+   if not Assigned(Button) then
+     // Если ее нет – создаем
+     Button := Bar.Controls.Add(msoControlButton, EmptyParam,
+       BUTTON_TAG, 1, EmptyParam) as CommandBarButton;
+   // Подключаем обработчик и устанавливаем свойства кнопки
+   FButtonEventsSink.Connect(Button);
+   Button.Set_Style(msoButtonCaption);
+   Button.Set_Tag(BUTTON_TAG);
+   Button.Set_Caption('Dir');
+ end;  
+ 
+procedure TDirectoryList.OnDisconnection(ext_DisconnectMode: Integer;
+   var custom: PSafeArray);
+ var
+   Bar: CommandBar;
+   B: CommandBarControl;
+ begin
+   // Уничтожаем обработчик событий кнопки
+   FreeAndNil(FButtonEventsSink);
+   // Ищем свою кнопку
+   Bar := Host.CommandBars.Get_Item('Formatting');
+   B := Bar.FindControl(msoControlButton, EmptyParam, BUTTON_TAG,
+     EmptyParam, msoFalse) as CommandBarButton;
+   // И удаляем ее
+   if Assigned(B) then
+     B.Delete(msoFalse);
+ end;  
+ 
+procedure TDirectoryList.ButtonClick(Button: CommandBarButton;
+   var CancelDefault: WordBool);
+ var
+   S: String;
+   SR: TSearchRec;
+   D: WordDocument;
+   FindStatus: Integer;
+ begin
+   // Эта процедура вызывается при нажатии на созданную нами кнопку
+   D := Host.ActiveDocument;
+   // Проверяем наличие активного документа
+   if Assigned(D) then begin
+     // Функция BrowseForFolder возвращает путь к выбранной
+     // в диалоге папке. Код функции приведен в модуле с примером
+     // на сопровождающем диске. От использования аналогичной
+     // функции VCL SelectDirectory пришлось отказаться, так как
+     // модуль, в котором она находится, использует Forms
+     if BrowseForFolder(S) then begin
+       with TStringList.Create do
+       try
+         // Получаем список файлов
+         FindStatus := FindFirst(S + '\*.*', 0, SR);
+         while FindStatus = 0 do begin
+           Add(SR.Name);
+           FindStatus := FindNext(SR);
+         end;
+         FindClose(SR);
+         // И вставляем его в документ
+         D.ActiveWindow.Selection.InsertAfter(S+#13#13+Text);
+       finally
+         // Освобождаем TStringList
+         Free;
+       end;
+     end;
+   end;
+ end; 
+</pre>
+
+<img src="pic/clip0057.png" width="592" height="550" border="0" alt="clip0057"></p>
+<p>Пример работы этой надстройки изображен на рисунке. </p>
+<p>Написание надстроек, работающих с несколькими приложениями Office </p>
+<p>Поскольку все приложения Office реализуют одну и ту же модель COM Add-Ins, одно и то же расширение может быть зарегистрировано одновременно для нескольких приложений. В этом случае оно должно определять, из какого приложения оно загружено, и использовать соответствующую объектную модель. Определить приложение-владельца можно, запросив у него соответствующий интерфейс: </p>
+<pre name="code" class="delphi">
+ 
+procedure TDirectoryList.OnConnection(const HostApp: IDispatch;
+   ext_ConnectMode: Integer; const AddInInst: IDispatch;
+   var custom: PSafeArray);
+ begin
+   if HostApp is WordApplication then
+   // Это Microsoft Word  
+</pre>
+
+<p>Также возможно сохранение HostApp в переменной типа Variant и использование позднего связывания. В этом случае надстройка будет работать с любым приложением Office, имеющим подходящие по именам методы.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

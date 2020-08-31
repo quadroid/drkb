@@ -1,0 +1,120 @@
+<html>
+<head>
+  <title>Как преобразовать цвета RGB в CMYK и обратно?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как преобразовать цвета RGB в CMYK и обратно?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>The following functions RGBTOCMYK() and CMYKTORGB() </p>
+<p>demonstrate how to convert between RGB and CMYK color </p>
+<p>spaces. Note: There is a direct relationship between RGB </p>
+<p>colors and CMY colors. In a CMY color, black tones are </p>
+<p>achieved by printing equal amounts of Cyan, Magenta, and </p>
+<p>Yellow ink. The black component in a CMY color is achieved </p>
+<p>by reducing the CMY components by the minimum of (C, M, </p>
+<p>and Y) and substituting pure black in its place producing a </p>
+<p>sharper print and using less ink. Since it is possible for a user </p>
+<p>to boost the C,M and Y components where boosting the black </p>
+<p>component would have been preferable, a ColorCorrectCMYK() </p>
+<p>function is provided to achieve the same color by reducing the </p>
+<p>C, M and Y components, and boosting the K component.</p>
+
+<p>Example:</p>
+
+<pre name="code" class="delphi">
+procedure RGBTOCMYK(R : byte;
+                   G : byte;
+                   B : byte;
+                   var C : byte;
+                   var M : byte;
+                   var Y : byte;
+                   var K : byte);
+begin
+ C := 255 - R;
+ M := 255 - G;
+ Y := 255 - B;
+ if C &lt; M then
+   K := C else
+   K := M;
+ if Y &lt; K then
+   K := Y;
+ if k &gt; 0 then begin
+   c := c - k;
+   m := m - k;
+   y := y - k;
+ end;
+end;
+ 
+procedure CMYKTORGB(C : byte;
+                   M: byte;
+                   Y : byte;
+                   K : byte;
+                   var R : byte;
+                   var G : byte;
+                   var B : byte);
+begin
+  if (Integer(C) + Integer(K)) &lt; 255 then
+    R := 255 - (C + K) else
+    R := 0;
+  if (Integer(M) + Integer(K)) &lt; 255 then
+    G := 255 - (M + K) else
+    G := 0;
+  if (Integer(Y) + Integer(K)) &lt; 255 then
+    B := 255 - (Y + K) else
+    B := 0;
+end;
+ 
+procedure ColorCorrectCMYK(var C : byte;
+                          var M : byte;
+                          var Y : byte;
+                          var K : byte);
+var
+ MinColor : byte;
+begin
+ if C &lt; M then
+   MinColor := C else
+   MinColor := M;
+ if Y &lt; MinColor  then
+   MinColor := Y;
+ if MinColor + K &gt; 255 then
+   MinColor := 255 - K;
+ C := C - MinColor;
+ M := M - MinColor;
+ Y := Y - MinColor;
+ K := K + MinColor;
+end;
+</pre>
+
+
+<p id="author">Автор: p0s0l</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

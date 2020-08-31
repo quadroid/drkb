@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>Позиция ячейки в TDBGrid</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Позиция ячейки в TDBGrid</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В TCustomGrid определен метод CellRect, который, к сожалению, защищен. Это означает, что даный метод доступен только для TCustomGrid и его наследников. Но все-таки существует немного мудреное решение вызова данного метода:</p>
+<pre name="code" class="delphi">
+type
+  TMyDBGrid = class(TDBGrid)
+    public
+      function CellRect(ACol, ARow: Longint): TRect;
+  end;
+ 
+function TMyDBGrid.CellRect(ACol, ARow: Longint): TRect;
+begin
+  Result := inherited CellRect(ACol, ARow);
+end;
+ 
+Вы можете сделать приведение типа вашего DBGrid к TMyDBGrid (это возможно, поскольку CellRect статический метод) и вызвать CellRect:
+ 
+Rectangle := TMyDBGrid(SomeDBGrid).CellRect(SomeColumn, SomeRow);
+ 
+procedure TfmLoadIn.DBGrid1DrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+const
+  Disp = 2; //Правильно выравниваем компонент
+begin
+  inherited;
+  if (gdFocused in State) then
+  begin
+    if (Column.FieldName = 'TYPEDescription') then
+    begin
+      dlTYPEDescription.Left := Rect.Left + DBGrid1.Left + Disp;
+      dlTYPEDescription.Top := Rect.Top + DBGrid1.top + Disp;
+      dlTYPEDescription.Width := Rect.Right - Rect.Left;
+      dlTYPEDescription.Height := Rect.Bottom - Rect.Top;
+      dlTYPEDescription.Visible := True;
+    end;
+  end;
+end;
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<html>
+<head>
+  <title>TCustomADODataSet</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TCustomADODataSet</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Класс TCustomADODataSet инкапсулирует механизм доступа к хранилищу данных через ADO. Этот класс наполняет абстрактные методы общего предка TDataSet функциями конкретного механизма доступа к данным. </p>
+<p>Поэтому здесь мы рассмотрим только уникальные свойства и методы класса TCustomADODataSet, обеспечивающие работу с ADO. </p>
+<p>Соединение набора данных с хранилищем данных ADO осуществляется через компонент TADOConnection (свойство connection) или путем задания параметров соединения через свойство connectionstring </p>
+<p>Набор данных </p>
+<p>Перед открытием набора данных необходимо установить тип используемой при редактировании записей блокировки. Для этого применяется свойство </p>
+<p>type TADOLockType = (ItUnspecified, ItReadOnly, ItPessimistic, ItOptimistic, ItBatchOptimistic); property LockType: TADOLockType; </p>
+<p>ItUnspecified &#8212; блокировка задается источником данных, а не компонентом;&nbsp; </p>
+<p>ItReadOnly &#8212; набор данных откроется в режиме только для чтения; </p>
+<p>ItPessimistic &#8212; редактируемая запись блокируется на все время редактирования до момента сохранения в хранилище данных; </p>
+<p>ItOptimistic &#8212; запись блокируется только на время сохранения изменений в хранилище данных; </p>
+<p>ItBatchOptimistic &#8212; запись блокируется на время сохранения в хранилище данных при вызове метода updateBatch. </p>
+<p> Примечание&nbsp; </p>
+<p>Для того чтобы установка блокировки сработала, свойство LockType должно быть обязательно модифицировано до открытия набора данных. </p>
+<p>Набор данных открывается методом Open и закрывается методом close. Также можно использовать свойство </p>
+<p>property Active: Boolean; </p>
+<p>Текущее состояние набора данных можно определить свойством </p>
+<p>type </p>
+<p>  TObjectState = (stClosed, stOpen, stConnecting, stExecuting, stretching); </p>
+<p>  TObjectStates = set of TObjectState; </p>
+<p>property RecordsetState: TObjectStates; </p>
+<p>Набор данных в компонентах ADO основан на использовании объекта набора записей ADO, прямой доступ к этому объекту возможен при помощи свойства </p>
+<p>property Recordset: _Recordset; </p>
+<p>Но поскольку все основные методы интерфейсов объекта набора записей ADO перекрыты методами класса, в обычных случаях прямой доступ к объекту вам не понадобится. После обновления набора данных вызывается метод-обработчик </p>
+<p>TRecordsetEvent = procedure(DataSet: TCustomADODataSet; const Error: Error; </p>
+<p>  var EventStatus: TEventStatus) of object; property OnFetchComplete:   TRecordsetEvent; </p>
+<p>где Error &#8212; ссылка на объект ошибки ADO, если она возникла. </p>
+<p>Если же набор данных работает в асинхронном режиме, при обновлении вызывается метод-обработчик </p>
+<p>TFetchProgressEvent = procedure(DataSet: TCustomADODataSet; Progress, MaxProgress: Integer; var EventStatus: TEventStatus) of object;&nbsp; </p>
+<p>property OnFetchProgress: TFetchProgressEvent; </p>
+<p>где параметр Progress показывает долю выполнения операции. </p>
+<p>Курсор набора данных </p>
+<p>Для набора данных ADO в зависимости от его назначения можно выбрать тип и местоположение используемого курсора. Местоположение курсора задается свойством </p>
+<p>type TCursorLocation = (clUseServer, clUseClient); property CursorLocation: TCursorLocation; </p>
+<p>Курсор может находиться на сервере (CIUseServer) или на клиенте (CIUseClient). </p>
+<p> Серверный курсор используется при работе с большими наборами данных, которые нецелесообразно пересылать клиенту целиком. При этом несколько снижается скорость работы клиентского набора данных. </p>
+<p> Клиентский курсор обеспечивает передачу набора данных клиенту. Это положительно сказывается на быстродействии, но такой курсор разумно использовать только для небольших наборов данных, не загружающих канал связи с сервером. </p>
+<p>При использовании клиентского курсора необходимо дополнительно установить свойство </p>
+<p>TMarshalOption = (moMarshalAll, moMarshalModifiedOnly); </p>
+<p>property MarshalOptions: TmarshalOption </p>
+<p>которое управляет обменом данных клиента с сервером. Если соединение с сервером быстрое, можно использовать значение moMarshalAll, разрешающее возврат серверу всех записей набора данных. В противном случае для ускорения работы компонента можно применить свойство moMarshalModifiedOnly, обеспечивающее возврат только модифицированных клиентом записей. </p>
+<p>Тип курсора определяется свойством </p>
+<p>TCursorType = (ctUnspecified, CtOpenForwardOnly, ctKeyset, ctDynamic, ctStatic); </p>
+<p>property CursorType: TCursorType; </p>
+<p>ctunspecified &#8212; курсор не задан, тип курсора определяется возможностями источника данных; </p>
+<p>ctOpenForwardOnly &#8212; однонаправленный курсор, допускающий перемещение только вперед; используется при необходимости быстрого одиночного прохода по всем записям набора данных; </p>
+<p>ctKeyset &#8212; двунаправленный локальный курсор, не обеспечивающий просмотр добавленных и удаленных другими пользователями записей; </p>
+<p> ctDynamic &#8212; двунаправленный курсор, отображает все изменения, требует наибольших затрат ресурсов; </p>
+<p>ctStatic &#8212; двунаправленный курсор, полностью игнорирует изменения, внесенные другими пользователями. </p>
+<p id="note">Примечание </p>
+<p>Если курсор расположен на клиенте (CursorType = ciusedient), то для него доступен только один тип &#8212; ctStatic. </p>
+<p>Соответственно до и после каждого перемещения курсора в наборе данных вызываются методы - обработчики: </p>
+<p>TRecordsetReasonEvent = procedure(DataSet: TCustomADODataSet; </p>
+<p>  const Reason: TEventReason;&nbsp; </p>
+<p>  var EventStatus: TEventStatus) of object; </p>
+<p>property OnWillMove: TRecordsetReasonEvent; </p>
+<p>и </p>
+<p>TPRecordsetErrorEvent = procedure(DataSet: TCustomADODataSet; const --eason: TEventReason; const Error: Error; var EventStatus: TEventStatus) if object;&nbsp; </p>
+<p>property OnMoveComplete: TRecordsetErrorEvent; </p>
+<p>где параметр Reason позволяет узнать, какой метод вызвал это перемещение. </p>
+<p>Локальный буфер </p>
+<p>После передачи клиенту записи набора данных размещаются в локальном буфере, размер которого определяется свойством </p>
+<p>property CacheSize: Integer; </p>
+<p>Значение свойства есть число записей, помещаемых в локальный буфер, и оно не может быть меньше 1. Очевидно, что при достаточно большом размере буфера компонент будет обращаться к источнику данных не так часто, но при этом большой буфер заметно замедлит открытие набора данных. Кроме этого, при выборе размера локального буфера необходимо учитывать доступную компоненту память. Это можно сделать путем несложных вычислений: </p>
+<p>CacheSizelnMem := ADODataSet.CacheSize * ADODataSet.RecordSize; </p>
+<p>где RecordSize &#8212; свойство </p>
+<p>property RecordSize: Word; </p>
+<p>возвращающее размер одной записи в байтах. </p>
+<p>Как видите, компоненты ADO не избежали общей проблемы клиентских данных &#8212; при плохом качестве соединения работа приложения замедляется. Однако кое-что все-таки сделать можно. Если при навигации по записям вам не требуется отображать данные в визуальных компонентах пользовательского интерфейса, свойство property BlockReadSize: Integer; </p>
+<p>позволяет организовать блочную пересылку данных. Оно задает число записей, помещаемых в один блок. При этом набор данных переходит в состояние dsBlockRead. По умолчанию блочная пересылка не используется и значение свойства равно 0. Также можно ограничить максимальный размер набора данных. Свойство </p>
+<p>property MaxRecords: Integer </p>
+<p>задает максимальное число записей набора данных. По умолчанию свойство имеет значение 0 и набор данных не ограничен. </p>
+<p>Общее число записей набора данных на этот момент возвращает свойство только для чтения </p>
+<p>property RecordCount: Integer; </p>
+<p>При достижении последней записи набора данных вызывается метод-обработчик </p>
+<p>TEndOfRecordsetEvent = procedure (DataSet: TCustomADODataSet; var MoreData: WordBool; var EventStatus: TEventStatus) of object; </p>
+<p>property OnEndOfRecordset: TEndOfRecordsetEvent; </p>
+<p>При этом параметр MoreData показывает, действительно ли достигнут конец набора данных. Если MoreData = True, то это означает, что в хранилище данных еще имеются записи, не переданные клиенту. </p>
+<p>Состояние записи </p>
+<p>Класс TCustomADODataSet обладает дополнительными возможностями, которые позволяют отслеживать состояние каждой записи. </p>
+<p>Для текущей записи набора данных можно определить ее состояние. Для этого предназначено свойство </p>
+<p>TRecordStatus = (rsOK, rsNew, rsModified, rsDeleted, rsUnmodified, rslnvalid, rsMultipleChanges, rsPendingChanges, rsCanceled, rsCantRelease, rsConcurrencyViolation, rsIntegrityViolation, rsMaxChangesExceeded, rsObjectOpen, rsOutOfMemory, rsPermissionDenied, rsSchemaViolation, rsDBDeleted); </p>
+<p>property RecordStatus: TRecordStatusSet; </p>
+<p>где </p>
+<p>rsOK &#8212; запись успешно сохранена;</p>
+<p>rsNew &#8212; запись добавлена; </p>
+<p>rsModified &#8212; запись была изменена; </p>
+<p>rsDeleted &#8212; запись удалена; </p>
+<p>rsUnmodified &#8212; запись без изменений; </p>
+<p>rslnvalid &#8212; запись не может быть сохранена из-за неверной закладки; </p>
+<p>rsMultipleChanges &#8212; запись не может быть сохранена из-за множественных изменений;</p>
+<p>rsPendingChanges &#8212; запись не может быть сохранена из-за ссылки на несохраненные изменения; </p>
+<p>rsCanceled &#8212; операция с записью была отменена;</p>
+<p>rsCantRelease &#8212; запись заблокирована;</p>
+<p>rsConcurrencyViolation &#8212; запись не может быть сохранена из-за типа блокировки;</p>
+<p>rsintegrityvioiation &#8212; нарушена ссылочная целостность;</p>
+<p>rsMaxChangesExceeded &#8212; слишком много изменений; </p>
+<p>rsObjectOpen &#8212; конфликт с объектом базы данных; </p>
+<p>rsoutofMemory &#8212; недостаток памяти,</p>
+<p>rsPermissionDenied &#8212; нет доступа; </p>
+<p>rsSchemaViolation &#8212; нарушение структуры данных; </p>
+<p>rsDBDeleted &#8212; запись удалена в БД. </p>
+<p>Как видите, благодаря этому свойству состояние отдельной записи может быть определено очень точно. </p>
+<p>Кроме этого, метод </p>
+<p>type </p>
+<p>TUpdateStatus = (usUnmodified, usModifled, uslnserted, usDeleted); </p>
+<p>function UpdateStatus: TUpdateStatus; override; </p>
+<p>возвращает информацию о состоянии текущей записи. </p>
+<p>Соответственно до и после изменения записи вызываются методы-обработчики </p>
+<p>TWillChangeRecordEvent = procedure(DataSet: TCustomADODataSet; const Reason: TEventReason;&nbsp; const RecordCount: Integer; var EventStatus: TEventStatus) of object; </p>
+<p>property OnWillChangeRecord: TWillChangeRecordEvent; </p>
+<p>И </p>
+<p>TRecordChangeCompleteEvent = procedure(DataSet: TCustomADODataSet; const Reason: TEventReason; const RecordCount: Integer; const Error: Error;&nbsp; </p>
+<p>var EventStatus: TEventStatus) of object; </p>
+<p>property OnRecordChangeComplete: TrecordChangeCompleteEvent; </p>
+<p>где параметр Reason позволяет узнать, какой метод изменил записи, а параметр RecordCount возвращает число измененных записей. </p>
+<p>Фильтрация </p>
+<p>Помимо обычной фильтрации , основанной на свойствах Filter, Filtered и методе-обработчике onFilterRecord, класс TCustomADODataSet предоставляет разработчику дополнительные возможности. </p>
+<p>Свойство </p>
+<p>TFilterGroup = (fgUnassigned, fgNone, fgPendingRecords, fgAffectedRecords, fgFetchedRecords, fgPredicate, fgConflictingRecords);&nbsp; </p>
+<p>property FilterGroup: TFilterGroup; </p>
+<p>задает групповой фильтр для записей, основываясь на информации о состоянии каждой записи набора данных, подобно рассмотренному выше свойству RecordStatus. </p>
+<p>Фильтрация возможна по следующим параметрам: </p>
+<p> fgUnassigned.&#8212; фильтр не задан; </p>
+<p> fgNone &#8212; все ограничения, заданные фильтром, снимаются, отображаются все записи набора данных; </p>
+<p> fgPendingRecords &#8212; отображаются измененные записи, несохраненные в хранилище данных при вызове метода updateBatch или cancelBatch; </p>
+<p> fgAffectedRecords &#8212; показываются записи, обработанные при последнем сохранении в хранилище данных; </p>
+<p> fgFetchedRecords &#8212; имеем записи, полученные при последнем обновлении из источника данных; </p>
+<p> fgPredicate &#8212; видны только удаленные записи; </p>
+<p> fgConfiictingRecords &#8212; отображаются модифицированные записи, при сохранении которых в хранилище данных возникла ошибка. </p>
+<p>Для того чтобы групповая фильтрация заработала, необходимы два дополнительных условия. Во-первых, фильтрация должна быть включена &#8212; свойство Filtered должно иметь Значение True.&nbsp; </p>
+<p>Во- вторых , свойство LockType должно иметь значение ItBatchOptimistic. </p>
+<p>with ADODataSet do </p>
+<p>  begin </p>
+<p> &nbsp;&nbsp; Close; </p>
+<p> &nbsp;&nbsp; LockType := ItbatchOptimistic; </p>
+<p> &nbsp;&nbsp; Filtered := True; </p>
+<p> &nbsp;&nbsp; FilterGroup := fgFetchedRecords; </p>
+<p> &nbsp;&nbsp; Open; </p>
+<p>  end; </p>
+<p>Метод </p>
+<p>procedure FilterOnBookmarks(Bookmarks: array of const); </p>
+<p>включает фильтрацию по существующим закладкам. Для этого предварительно необходимо при помощи метода GetBookmark установить закладки на интересующих записях. При вызове метода FilterOnBookmarks автоматически очищается свойство Filter, а свойству FilterGroup присваивается значение gUnassigned. </p>
+<p>Поиск </p>
+<p>Быстрый и гибкий поиск по полям текущего индекса набора данных обеспечивает метод </p>
+<p>SeekOption = (soFirstEQ, soLastEQ, soAfterEQ, soAfter, soBeforeEQ, soBefore); </p>
+<p>function Seek(const KeyValues: Variant; SeekOption: TSeekOption = soFirstEQ): Boolean; </p>
+<p>В параметре KeyValues должны быть перечислены необходимые значения полей индекса. Параметр SeekOption управляет процессом поиска: </p>
+<p> soFirstEQ &#8212; курсор устанавливается на первую найденную запись; </p>
+<p> soLastEQ &#8212; курсор устанавливается на последнюю найденную запись; </p>
+<p> soAfterEQ &#8212; курсор устанавливается на найденную запись или, если запись не найдена, сразу после того места, где она могла находиться; </p>
+<p> soAfter &#8212; курсор устанавливается сразу после найденной записи; </p>
+<p> soBeforeEQ &#8212; курсор устанавливается на найденную запись или, если запись не найдена, перед тем местом, где она могла находиться; </p>
+<p> soBefore &#8212; курсор устанавливается перед найденной записью. </p>
+<p>Свойство </p>
+<p>property Sort: WideString; </p>
+<p>предоставляет простой способ сортировки по произвольному сочетанию полей. Оно должно включать через запятую имена нужных полей и признак прямого или обратного порядка сортировки: </p>
+<p>ADODataSet.Sort := 'FirstField DESC'; </p>
+<p>Если порядок сортировки не указан, по умолчанию задается прямой порядок. </p>
+<p>Команда ADO </p>
+<p>Для выполнения запросов к источнику данных любой компонент ADO инкапсулирует специальный объект команды ADO. </p>
+<p>При использовании компонентов-потомков класса TCustomADODataSet обычно нет необходимости применять объект команды напрямую. И хотя все реальное взаимодействие объекта набора данных ADO с источником данных осуществляется через объект команды, настройка и выполнение команды скрыты в свойствах и методах компонентов ADO. Тем не менее в классе TCustomADODataSet доступ к объекту команды можно получить при помощи свойства&nbsp; </p>
+<p>property Command: TADOCommand; </p>
+<p>При необходимости выполнить команду ADO, не связанную с конкретным набором данных, разработчик может использовать отдельный компонент TADOCommand, также расположенный на странице ADO Палитры компонентов. </p>
+<p>Тип команды задается свойством </p>
+<p>type </p>
+<p>  TCommandType = (cmdUnknown, cmdText, cmdTable, cmdStoredProc, cmdFile, cmdTableDirect); </p>
+<p> property CommandType: TCommandType; </p>
+<p>cmdunknown &#8212; тип команды неизвестен и будет определен источником данных; </p>
+<p>cmdText &#8212; текстовая команда, интерпретируемая источником данных (например запрос SQL); текст должен быть составлен с учетом правил для конкретного источника данных; </p>
+<p>cmdTable &#8212; команда на получение набора данных таблицы из хранилища данных; </p>
+<p>cmdstoredProc &#8212; команда на выполнение хранимой процедуры; </p>
+<p>cmdFile &#8212; команда на получение набора данных, сохраненного в файле в формате, используемым конкретным источником данных; </p>
+<p>cmdTableoirect &#8212; команда на получение набора данных таблицы напрямую, например из файла таблицы. </p>
+<p>Текст команды, представленный свойством </p>
+<p>property CommandText: WideString; </p>
+<p>обязательно должен быть согласован с ее типом. </p>
+<p>Для ограничения времени ожидания выполнения команды используется свойство </p>
+<p>property CommandTimeout: Integer; </p>
+<p>В компонентах наборов данных ADO команды выполняется при выполнении следующих операций: </p>
+<table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td> открытие и закрытие набора данных; </td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td> выполнение запросов и хранимых процедур; </td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td> обновление набора данных; </td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td> сохранение изменений; </td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td> групповые операции. </td></tr></table><p>Разработчик может повлиять на способ выполнения команды. Для этого он может изменить свойство </p>
+<p>type </p>
+<p>  TExecuteOption = (eoAsyncExecute, eoAsyncFetch, eoAsyncFetchNonBlocking, eoExecuteNoRecords); </p>
+<p>  TExecuteOptions = set of TExecuteOption; </p>
+<p>property ExecuteOptions: TExecuteOptions; </p>
+<p>eoAsyncExecute &#8212; асинхронное выполнение команды; </p>
+<p>eoAsyncFetch &#8212; асинхронное выполнение команды на обновление набора данных; </p>
+<p>eoAsyncFetchNonBlocking &#8212; асинхронное выполнение команды на обновление набора данных без установки блокировки; </p>
+<p>eoExecuteNoRecords &#8212; выполнение команды не требует возвращения набора данных. </p>
+<p>Групповые операции </p>
+<p>Как уже рассказывалось выше, наборы данных ADO используют на клиентской стороне локальный кэш для хранения данных и сделанных изменений. Благодаря наличию этого кэша и появилась возможность реализовать групповые операции. В этом режиме все сделанные изменения не передаются немедленно источнику данных, а накапливаются в локальном кэше. Это повышает скорость работы и позволяет сохранять сразу группу модифицированных записей. </p>
+<p>Из отрицательных сторон этого метода стоит отметить, что пока изменения находятся на клиенте, они недоступны другим пользователям. В данной ситуации могут возникать потери данных. </p>
+<p>Для перевода набора данных в режим групповых операций необходимо выполнить следующие условия. </p>
+<p> Набор данных должен использовать клиентский курсор: </p>
+<p>ADODataSet.CursorLocation := clUseClient; </p>
+<p> Курсор должен иметь тип ctstatic: </p>
+<p>ADODataSet.CursorType := ctstatic; </p>
+<p>Блокировка должна иметь значение itBatchoptimistic: </p>
+<p>ADODataSet.LockType := ItBatchOptimistic; </p>
+<p>Для передачи сделанных изменений в хранилище данных в компонентах ADO используется метод </p>
+<p>procedure UpdateBatch(AffectRecords: TAffectRecords = arAll); </p>
+<p>Для отмены всех сделанных, но не сохраненных методом UpdateBatch изменений применяется метод </p>
+<p>procedure CancelBatch(AffectRecords: TAffectRecords = arAll); </p>
+<p>Используемый в методах тип TAffectRecords позволяет задать тип записей, к которым применяется данная операция: </p>
+<p>TAffectRecords = (arCurrent, arFiltered, arAll, arAHChapters); </p>
+<p>arCurrent &#8212; операция выполняется только для текущей записи; </p>
+<p>arFiltered &#8212; операция выполняется для записей из работающего фильтра; </p>
+<p>arAll &#8212; операция выполняется для всех записей; </p>
+<p>arAllchapters &#8212; операция выполняется для всех записей текущего набора данных (включая невидимые из-за включенного фильтра), а также для всех вложенных наборов данных. </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

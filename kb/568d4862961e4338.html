@@ -1,0 +1,197 @@
+<html>
+<head>
+  <title>Как загрузить файл?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как загрузить файл?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  The following function shows how to connect to a ftp server 
+  and download a file. 
+  It uses the functions from wininet.dll. 
+ 
+  You need a ProgressBar to show the progress and a Label to show progress informations. 
+} 
+ 
+uses 
+  WinInet, ComCtrls; 
+ 
+function FtpDownloadFile(strHost, strUser, strPwd: string; 
+  Port: Integer; ftpDir, ftpFile, TargetFile: string; ProgressBar: TProgressBar): Boolean; 
+ 
+  function FmtFileSize(Size: Integer): string; 
+  begin 
+    if Size &gt;= $F4240 then 
+      Result := Format('%.2f', [Size / $F4240]) + ' Mb' 
+    else 
+    if Size &lt; 1000 then 
+      Result := IntToStr(Size) + ' bytes' 
+    else 
+      Result := Format('%.2f', [Size / 1000]) + ' Kb'; 
+  end; 
+ 
+const 
+  READ_BUFFERSIZE = 4096;  // or 256, 512, ... 
+var 
+  hNet, hFTP, hFile: HINTERNET; 
+  buffer: array[0..READ_BUFFERSIZE - 1] of Char; 
+  bufsize, dwBytesRead, fileSize: DWORD; 
+  sRec: TWin32FindData; 
+  strStatus: string; 
+  LocalFile: file; 
+  bSuccess: Boolean; 
+begin 
+  Result := False; 
+ 
+  { Open an internet session } 
+  hNet := InternetOpen('Program_Name', // Agent 
+                        INTERNET_OPEN_TYPE_PRECONFIG, // AccessType 
+                        nil,  // ProxyName 
+                        nil, // ProxyBypass 
+                        0); // or INTERNET_FLAG_ASYNC / INTERNET_FLAG_OFFLINE 
+ 
+  { 
+    Agent contains the name of the application or 
+    entity calling the Internet functions 
+  } 
+ 
+ 
+  { See if connection handle is valid } 
+  if hNet = nil then 
+  begin 
+    ShowMessage('Unable to get access to WinInet.Dll'); 
+    Exit; 
+  end; 
+ 
+  { Connect to the FTP Server } 
+  hFTP := InternetConnect(hNet, // Handle from InternetOpen 
+                          PChar(strHost), // FTP server 
+                          port, // (INTERNET_DEFAULT_FTP_PORT), 
+                          PChar(StrUser), // username 
+                          PChar(strPwd),  // password 
+                          INTERNET_SERVICE_FTP, // FTP, HTTP, or Gopher? 
+                          0, // flag: 0 or INTERNET_FLAG_PASSIVE 
+                          0);// User defined number for callback 
+ 
+  if hFTP = nil then 
+  begin 
+    InternetCloseHandle(hNet); 
+    ShowMessage(Format('Host "%s" is not available',[strHost])); 
+    Exit; 
+  end; 
+ 
+  { Change directory } 
+  bSuccess := FtpSetCurrentDirectory(hFTP, PChar(ftpDir)); 
+ 
+  if not bSuccess then 
+  begin 
+    InternetCloseHandle(hFTP); 
+    InternetCloseHandle(hNet); 
+    ShowMessage(Format('Cannot set directory to %s.',[ftpDir])); 
+    Exit; 
+  end; 
+ 
+  { Read size of file } 
+  if FtpFindFirstFile(hFTP, PChar(ftpFile), sRec, 0, 0) &lt;&gt; nil then 
+  begin 
+    fileSize := sRec.nFileSizeLow; 
+    // fileLastWritetime := sRec.lastWriteTime 
+  end else 
+  begin 
+    InternetCloseHandle(hFTP); 
+    InternetCloseHandle(hNet); 
+    ShowMessage(Format('Cannot find file ',[ftpFile])); 
+    Exit; 
+  end; 
+ 
+  { Open the file } 
+  hFile := FtpOpenFile(hFTP, // Handle to the ftp session 
+                       PChar(ftpFile), // filename 
+                       GENERIC_READ, // dwAccess 
+                       FTP_TRANSFER_TYPE_BINARY, // dwFlags 
+                       0); // This is the context used for callbacks. 
+ 
+  if hFile = nil then 
+  begin 
+    InternetCloseHandle(hFTP); 
+    InternetCloseHandle(hNet); 
+    Exit; 
+  end; 
+ 
+  { Create a new local file } 
+  AssignFile(LocalFile, TargetFile); 
+  {$i-} 
+  Rewrite(LocalFile, 1); 
+  {$i+} 
+ 
+  if IOResult &lt;&gt; 0 then 
+  begin 
+    InternetCloseHandle(hFile); 
+    InternetCloseHandle(hFTP); 
+    InternetCloseHandle(hNet); 
+    Exit; 
+  end; 
+ 
+  dwBytesRead := 0; 
+  bufsize := READ_BUFFERSIZE; 
+ 
+  while (bufsize &gt; 0) do 
+  begin 
+    Application.ProcessMessages; 
+ 
+    if not InternetReadFile(hFile, 
+                            @buffer, // address of a buffer that receives the data 
+                            READ_BUFFERSIZE, // number of bytes to read from the file 
+                            bufsize) then Break; // receives the actual number of bytes read 
+ 
+    if (bufsize &gt; 0) and (bufsize &lt;= READ_BUFFERSIZE) then 
+      BlockWrite(LocalFile, buffer, bufsize); 
+    dwBytesRead := dwBytesRead + bufsize; 
+ 
+    { Show Progress } 
+    ProgressBar.Position := Round(dwBytesRead * 100 / fileSize); 
+    Form1.Label1.Caption := Format('%s of %s / %d %%',[FmtFileSize(dwBytesRead),FmtFileSize(fileSize) ,ProgressBar.Position]); 
+  end; 
+ 
+  CloseFile(LocalFile); 
+ 
+  InternetCloseHandle(hFile); 
+  InternetCloseHandle(hFTP); 
+  InternetCloseHandle(hNet); 
+  Result := True; 
+end; 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

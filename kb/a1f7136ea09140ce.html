@@ -1,0 +1,91 @@
+<html>
+<head>
+  <title>Как работать с буфером обмена (clipboard)?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как работать с буфером обмена (clipboard)?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Этот пример использует картинку, кнопку и компонент shape на форме. Когда пользователь кликает по кнопке, то изображение формы сохраняется в в переменной FormImage и копируется в буфер обмена (Clipboard). Затем изображение формы копируется обратно в компонент картинки, тем самым создавая интересный эффект, особенно, если кнопку понажимать несколько раз.</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject); 
+var 
+  FormImage: TBitmap; 
+begin 
+  FormImage := GetFormImage; 
+  try 
+    Clipboard.Assign(FormImage); 
+    Image1.Picture.Assign(Clipboard); 
+  finally 
+    FormImage.Free; 
+  end; 
+end; 
+ 
+procedure TForm1.FormCreate(Sender: TObject); 
+begin 
+  Shape1.Shape := stEllipse; 
+  Shape1.Brush.Color := clLime; 
+  Image1.Stretch := True; 
+end;
+</pre>
+
+
+<p>Следующий пример копирует содержимое экрана в буфер обмена:</p>
+<pre name="code" class="delphi">
+procedure CopyScreenToClipboard; 
+var dx,dy : integer;           
+    hSourcDC,hDestDC,         
+    hBM, hbmOld : THandle;     
+ 
+begin 
+  dx := screen.width;              
+  dy := screen.height;              
+  hSourcDC := CreateDC('DISPLAY',nil,nil,nil); 
+  hDestDC  := CreateCompatibleDC(hSourcDC); 
+  hBM := CreateCompatibleBitmap(hSourcDC, dx, dy); 
+  hbmold:= SelectObject(hDestDC, hBM); 
+  BitBlt(hDestDC, 0, 0, dx, dy, hSourcDC, 0, 0, SRCCopy); 
+  OpenClipBoard(form1.handle); 
+  EmptyClipBoard; 
+  SetClipBoardData(CF_Bitmap, hBM); 
+  CloseClipBoard; 
+  SelectObject(hDestDC,hbmold); 
+  DeleteObject(hbm); 
+  DeleteDC(hDestDC); 
+  DeleteDC(hSourcDC); 
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

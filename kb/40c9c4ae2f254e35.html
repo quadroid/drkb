@@ -1,0 +1,137 @@
+<html>
+<head>
+  <title>Shell Extensions и как с ними бороться  (статья)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Shell Extensions и как с ними бороться  (статья)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Shell Extensions и как с ними бороться </p>
+<p>Думаю, вы замечали, что некоторые программы добавляют собственные пункты в системное контекстное меню. Например, WinRAR добавляет "Сжать" и "Распаковать в&#8230;", ICQ - "Переслать пользователю" и пр. Механизм, с помощью которого ваш код "внедряется" в оболочку Windows, называется Shell Extensions - именно о нем пойдет речь&#8230;</p>
+<p>Определения</p>
+<p>В дальнейшем, говоря "программист среднего уровня", мы будем подразумевать человека, который уже написал свой первый текстовый редактор и знаком с практикой создания собственных компонент.</p>
+<p><img src="pic/clip0244.gif" width="140" height="146" border="0" alt="clip0244"></p>
+<p>Shell Extensions - набор сервисных функций Windows API, призванный обеспечить расширение базовых функций оболочки Windows Explorer за счет наших надстроек. В числе основных функций Shell Extensions:</p>
+<table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>работа с системными контекстными меню; </td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>работа с папками и объектами из пространства имен оболочки Windows (Мои Документы, Принтеры, Панель управления&#8230;); </td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>использование механизма Drag&amp;Drop; </td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>создание и использование ярлыков.</td></tr></table>
+<p>Итак&#8230;</p>
+<p>Для реализации задуманного нам понадобятся интерфейсы IContextMenu и IShellFolder. Указатель на главный интерфейс IshellFolder, соответствующий "Рабочему столу" оболочки, можно получить, используя функцию SHGetDesktopFolder, объявление которой выглядит так:</p>
+<pre name="code" class="delphi">
+function SHGetDesktopFolder (var ppshf: IShellFolder): HResult; stdcall; 
+</pre>
+
+<p>&nbsp;<br>
+<p>Эта функция возвращает нам указатель на интерфейс IShellFolder, который возвращается в переменной ppshf. Далее допустим, что у нас в компоненте имеется поле под названием ShellObject типа String, в котором хранится путь к необходимому объекту (к примеру - C:\Windows\NotePad.exe), и что нам нужно получить его контекстное меню (рис. 2). </p>
+<p><img src="pic/clip0245.gif" width="120" height="207" border="0" alt="clip0245"></p>
+<p>Для этого сначала используем метод из интерфейса IShellFolder:</p>
+<pre name="code" class="delphi">function GetUIObjectOf (hwndOwner: HWND; cidl: UINT; var apidl: PItemIDList;const riid: TIID; prgfInOut: Pointer; out ppvOut): HResult; stdcall; 
+</pre>
+<p>Параметры:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>hwndOwner - дескриптор родительского окна (0); </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>cidl - количество элементов, на которое указывает значение apidl (1); </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>apidl - параметр, представляющий собой уникальный идентификатор объекта; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>riid - глобальный уникальный идентификатор системы Windows (IID_IContextMenu из файла ShlObj.pas); </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>prgfInOut - зарезервировано, должно быть nil; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>ppvOut - переменная, которая получит указатель на "заказанный" интерфейс.</td></tr></table></div><p>После использования этого оператора нам понадобится обратиться к функциям WinAPI - для работы с контекстными меню. Это, в первую очередь:</p>
+<pre name="code" class="delphi">
+Function CreatePopupMenu: HMENU; stdcall; 
+Function TrackPopupMenu (hMenu: HMENU; uFlags: UINT; x, y, nReserved: Integer;hWnd: HWND; prcRect: PRect): BOOL; stdcall; 
+Function DestroyMenu (Menu:HMENU):LogBool; stdcall; 
+</pre>
+<p>Синтаксис первой и последней функции, я думаю, понятен и без разъяснений. Функция TrackPopupMenu, собственно, и выводит на экран контекстное меню. Параметры этой функции принимают значения:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>hMenu - дескриптор контекстного меню. Это тот самый Menu, который мы создали с помощью CreatePopupMenu; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>uFlags - выравнивание относительно координат. Возможные значения: TPM_CENTERALIGN, TPM_LEFTALIGN, TPM_RIGHTALIGN, TPM_LEFTBUTTON, TPM_RIGHTBUTTON, TPM_RETURNCMD. Этот параметр используется для возврата команды (как будет показано ниже); </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>x, y - координаты, по которым будем "впрыгивать" наше меню; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>nReserved - соответственно, приравниваем к нулю; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>hWnd - дескриптор родительского окна; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>prcRect - указатель на структуру TRect, которая задает "окно" в экранных координатах в пределах которого пользователь может щелкать без каких-либо исчезновений контекстного меню. Если = nil, то при нажатии мышкой за пределами контекстного меню оное исчезнет.</td></tr></table></div><p>Возвращаемое значение показывает наличие команды или ее отсутствие. Если True - пользователь выбрал пункт; False - соответственно, не выбрал.</p>
+<p>А теперь - самое главное</p>
+<p>Ну что ж, сделали мы Menu - остается наполнить его содержимым, соответствующим нашему ShellObject. Для этого узнаем сначала его идентификатор (PItemIDList) - сделаем это при помощи метода ParseDisplayName из интерфейса IshellFolder. Этот метод объявлен следующим образом:</p>
+<pre name="code" class="delphi">function ParseDisplayName (hwndOwner: HWND;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pbcReserved: Pointer; 
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lpszDisplayName: POLESTR; 
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; out pchEaten: ULONG;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; out ppidl: PItemIDList; 
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var dwAttributes: ULONG): HResult; stdcall; 
+</pre>
+
+<p>Расклад такой:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>lpszDisplayName - имя объекта, для которого надо найти PItemIDList; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>pchEaten - возвращает символы, которые были правильно разобраны; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>ppidl - как раз то, что нам нужно (сохраняем в FItemIDList); </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>dwAttributes - атрибуты для только что найденного FItemIDList.</td></tr></table></div><p>Но здесь следует проявлять осторожность. Как вы помните, нам нужно вывести контекстное меню для C:\Windows\NotePad.exe. Но сделать это прямо нельзя. Поэтому найдем сначала PItemIDList для папки C:\Windows - контейнера нашего NotePad.exe. Пишем:</p>
+<pre name="code" class="delphi">OleCheck (ShellFolder.ParseDisplayName (Handle,nil,StringToOleStr (ExtractFileDir (ShellObject)), FEaten,FItemIDList,FAtt)); 
+</pre>
+<p>где:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>ShellFolder - значение, которое мы получили из SHGetDesktopFolder; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>FEaten,FAtt - как я уже говорил, мне они не пригодились - но, чем черт не шутит, лучше их все-таки придержать; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>FItemIDList - сохраняем, он нам еще понадобится.</td></tr></table></div><p>После удачного завершения надо бы перейти к классу родителя нашего NotePad.exe. Воспользуемся для этого функцией IShellFolder.BindToObject, объявленной следующим образом:</p>
+<pre name="code" class="delphi">Function BindToObject (pidl: PItemIDList; pbcReserved: Pointer;const riid: TIID; out ppvOut): HResult; stdcall; 
+</pre>
+<p>Тут:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>pidl - наш FItemIDList; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>riid - в этом случае указывает на экземпляр IID_IshellFolder; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>ppvOut - указывает, куда нам его запихнут (скажем, ShellFolder1).</td></tr></table></div><p>И после очередной строчки кода:</p>
+<pre name="code" class="delphi">OleCheck (ShellFolder.BindToObject (FItemIDList,nil,IID_IShellFolder,ShellFolder0));
+</pre>
+
+<p>мы получим в переменной ShellFolder0 указатель на интерфейс IShellFolder, соответствующий папке C:\Windows. Теперь мы можем узнать PItemIDList нашего NotePad:</p>
+<pre name="code" class="delphi">OleCheck (ShellFolder0.ParseDisplayName (Handle,nil,StringToOleStr (ExtractFileName (ShellObject)),FEaten,FItemIDList,FAtt)); 
+</pre>
+
+<p>Для чего все это было написано?</p>
+<p>Теперь мы без зазрений совести можем приступать к выводу нашего контекстного меню:</p>
+<pre name="code" class="delphi">
+OleCheck (ShellFolder0.GetUIObjectOf
+(Handle,1,FItemIDList,IID_IContextMenu,nil,ICM));
+Menu:=CreatePopupMenu;
+Try
+ICM.QueryContextMenu (Menu,1,$7FFF,CMF_EXPLORE
+or CMF_CANRENAME);
+Command:=TrackPopupMenu (Menu, TPM_LEFTALIGN or
+TPM_LEFTBUTTON or TPM_RETURNCMD,100,100,0,Handle,nil);
+If Command then
+Begin
+ICmd:=Longint (Command)-1;
+OleCheck (ICM.GetCommandString
+(ICmd,GCS_VERBA,nil,CommandStr,SizeOf (CommandStr)));
+CHandled:=False;
+DoCommandEvent (StrPas (CommandStr),CHandled);
+if not CHandled then
+begin
+FillChar (ICI,SizeOf (ICI),#0);
+ICI.cbSize:=SizeOf (ICI);
+ICI.hwnd:=Handle;
+ICI.lpVerb:=MakeIntResource (ICmd);
+ICI.nShow:=SW_SHOWNORMAL;
+OleCheck (ICM.InvokeCommand (ICI));
+end;
+End;
+Finally
+ICM:=nil;
+End;
+</pre>
+
+<p>Что тут написано. Во-первых - вызов интерфейса IcontextMenu, сопряженного с объектом FItemIDList папки ShellFolder0. Во-вторых, создание дескриптора пустого контекстного меню; заполнение контекстного QueryContextMenu; использование команды TrackPopupMenu для вывода контекстного меню в точку (100, 100).</p>
+<p>Обработка результата команды TrackPopupMenu:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>переменная Command типа LongBool преобразуется в тип Longint; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>CommandStr - переменная, в которую заносится название команды; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>DoCommandEvent - процедура обработки события; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>структура ICI типа _CMINVOKECOMMANDINFO задает параметры, необходимые для запуска на исполнение кода, приписанного выбранному пункту меню по умолчанию; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>InvokeCommand (ICI) - запуск кода по умолчанию.</td></tr></table></div><p>Недоработки&#8230;</p>
+<p>&#8230;а где их нет? То есть, конечно, этот компонент работает, я его использую, но в нем (пока) отсутствуют некоторые полезные функции. К примеру, если вы заглянете в файл ShlObj.pas, то обнаружите, что там, помимо использованного нами интерфейса IcontextMenu, объявлены также интерфейсы IContextMenu2 и IContextMenu3, которые используются для расширения базовых функций интерфейса (к примеру, IContextMenu2 используется для работы с элементами подменю). Кроме того, небольшая доработка компонента даст возможность включать в него свои собственные пункты меню (сравните рис. 3 и рис. 4).</p>
+<p><img src="pic/clip0247.gif" width="120" height="204" border="0" alt="clip0247"><img src="pic/clip0246.gif" width="120" height="251" border="0" alt="clip0246"></p>
+<p>Так что не стоит рассматривать эту статью как исчерпывающее руководство по Shell Extensions - она призвана всего лишь пробудить в вас аппетит к дальнейшим исследованиям.</p>
+<p>&nbsp;<br>
+2004.05.07 Автор: Михаил Продан <br>
+<a href="http://www.cpp.com.ua" target="_blank">http://www.cpp.com.ua</a></p>
+&nbsp;<br>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

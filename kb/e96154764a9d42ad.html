@@ -1,0 +1,109 @@
+<html>
+<head>
+  <title>Расшифровка строки, ранее зашифрованной фукцией UBPFD.Encrypt</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Расшифровка строки, ранее зашифрованной фукцией UBPFD.Encrypt</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Расшифровка строки
+ 
+Предназначена для расшифровки строки, ранее зашифрованной фукцией UBPFD.Encrypt
+ 
+Зависимости: UBPFD.Encrypt
+Автор:       Anatoly Podgoretsky, anatoly@podgoretsky.com, Johvi
+Copyright:   (c) Anatoly Podgoretsky, 1996
+Дата:        26 апреля 2002 г.
+********************************************** }
+ 
+const
+  StartKey = 471; // Start default key
+  MultKey = 62142; // Mult default key
+  AddKey = 11719; // Add default key
+// обязательно смените ключи до использования
+ 
+{$R-}
+{$Q-}
+function Decrypt(const InString:string; StartKey,MultKey,AddKey:Integer): string;
+var
+  I : Byte;
+//Если поменять тип переменной I на Integer, то будет возможно шифрование 
+//текста длиной более 255 символом - VID.
+begin
+  Result := '';
+  for I := 1 to Length(InString) do
+  begin
+    Result := Result + CHAR(Byte(InString[I]) xor (StartKey shr 8));
+    StartKey := (Byte(InString[I]) + StartKey) * MultKey + AddKey;
+  end;
+end;
+{$R+}
+{$Q+} 
+</pre>
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+S := 'Ваш старый пароль: &lt;' + Decrypt(S, StartKey, MultKey, AddKey) + '&gt;'; 
+</pre>
+<hr /><br>
+&nbsp;
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Расшифровка строки InString, зашифрованной с помощью функции EncryptEX
+ 
+Функция является модификацией UBPFD.Decrypt. Отличие в том, что UBPFD.DecryptEX расшифровывает шифр-текст, зашифрованный с помощью функции UBPFD.EncryptEX
+ 
+Зависимости: UBPFD.Decrypt, UBPFD.AsсiiToStr
+Автор:       VID, vidsnap@mail.ru, ICQ:132234868, Махачкала
+Copyright:   VID
+Дата:        30 апреля 2002 г.
+********************************************** }
+ 
+Function DecryptEX(const InString:string; StartKey,MultKey,AddKey:Integer): string;
+Begin
+Result := Decrypt(AsciiToStr(InString), StartKey, MultKey, AddKey);
+END; 
+</pre>
+
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+var S : String;
+begin
+  S := UBPFD.EncryptEX ('String', 1,1,1);
+//S является источником данных для функции UBPFD.DecryptEX
+  ShowMessage ('Расшифровка: '+UBPFD.DecryptEX (S, 1,1,1));
+end; 
+</pre>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

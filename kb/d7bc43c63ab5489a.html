@@ -1,0 +1,60 @@
+<html>
+<head>
+  <title>Частичный показ DateTime</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Частичный показ DateTime</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>При отображении TDateTimeField в DBGrid с форматированием hh:mm (для показа только времени), любая попытка изменения времени приводит (при передаче данных) к ошибке примерно такого содержания: "'07:00 is not a valid DateTime" (07:00 - неверный DateTime). Я хотел бы посылать данные приблизительно в таком виде "trunc(oldDateTimevalue)+strtoTime(displaytext)" </p>
+<p>Следующий обработчик события TDateTimeField OnSetText не слишком элегантен, но он работает! </p>
+<pre name="code" class="delphi">
+procedure TForm1.Table1Date1SetText(Sender: TField; const Text: String);
+var
+  d: TDateTime;
+  t: string;
+begin
+  t := Text;
+  with Sender as TDateTimeField do 
+  begin
+    if IsNull then 
+      d := SysUtils.Date
+    else 
+      d := AsDateTime;
+    AsDateTime := StrToDateTime(Copy(DateToStr(d),1,8)+' '+t);
+  end;
+end;
+</pre>
+<p>Здесь мы исходим из предположения, что у вас имеется маска редактирования, допускающая формат hh:mm или hh:mm:ss. </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

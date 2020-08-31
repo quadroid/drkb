@@ -1,0 +1,81 @@
+<html>
+<head>
+  <title>Вставить Bitmap</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Вставить Bitmap</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function InvertBmp1(SourceBmp: TBitmap): TBitMap;
+ var
+   i, j: Longint;
+   tmp: TBitMap;
+   red, green, blue: Byte;
+   PixelColor: Longint;
+ begin
+   tmp := TBitmap.Create;
+   tmp.Width  := SourceBmp.Width;
+   tmp.Height := SourceBmp.Height;
+   for i := 0 to SourceBmp.Width - 1 do
+   begin
+     for j := 0 to SourceBmp.Height - 1 do
+     begin
+       PixelColor := ColorToRGB(SourceBmp.Canvas.Pixels[i, j]);
+       red := PixelColor;
+       green := PixelColor shr 8;
+       blue := PixelColor shr 16;
+       red  := 255 - red;
+       green := 255 - green;
+       blue := 255 - blue;
+       tmp.Canvas.pixels[i, j] := (red shl 8 + green) shl 8 + blue;
+     end;
+   end;
+   Result := tmp;
+ end;
+ 
+ function InvertBmp2(ABitmap : TBitmap) : TBitmap;
+ var
+   l_bmp : TBitmap;
+ begin
+   l_bmp := TBitmap.Create;
+   l_bmp.Width := ABitmap.Width;
+   l_bmp.Height := ABitmap.Height;
+   l_bmp.PixelFormat := ABitmap.PixelFormat;
+   BitBlt( l_bmp.Canvas.Handle, 0, 0, l_bmp.Width, l_bmp.Height,
+     ABitmap.Canvas.Handle, 0, 0, SRCINVERT );
+   result := l_bmp;
+ end;
+</pre>
+
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>Как запустить DTS из StoredProcedure</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как запустить DTS из StoredProcedure</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="sql">
+use master
+exec xp_cmdshell "DTSRun /S servername /U username /P password /N packagename"
+</pre>
+
+<p id="author">Автор Akim </p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>1.</p>
+<pre name="code" class="sql">
+--©Drkb v.3(2007): www.drkb.ru
+
+Exec master..xp_cmdshell '"C:\Program Files\Microsoft SQL Server\80\Tools\Binn\dtsrun.exe" /S'+@ServerName+' /U'+@SQLUserName+' /P'+@SQLPassword+' /N'+@DTSPackageName
+</pre>
+
+<p>2.</p>
+<pre name="code" class="sql">
+--©Drkb v.3(2007): www.drkb.ru
+ 
+  Declare @retval int,
+          @package int,
+          @ServerName char(20),
+          @LoadString varchar(8000)
+ 
+ 
+  Set @ServerName=CONVERT(char(20), SERVERPROPERTY('servername'))
+  Set @LoadString='LoadFromSQLServer("'+@ServerName+'", "'+@ServerLogin+'", "'+@ServerPassword+'", 256, , , ,"'+@DTSPackageName+'")'
+ 
+  EXEC @retval = sp_OACreate 'DTS.Package', @package OUTPUT
+  EXEC @retval = sp_OAMethod @package,@LoadString,NULL
+  EXEC @retval = sp_OAMethod @package, 'Execute'
+</pre>
+
+<p id="author">Автор: Vit</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<html>
+<head>
+  <title>Формат и размер dBase-поля</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Формат и размер dBase-поля</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure GetdBaseFieldTypes(t: TTable; var l: TStringList);
+var
+  pF: pFLDDesc;
+  cProps: CURProps;
+  p: pFLDDesc;
+  i: Byte;
+  w: Word;
+  s: string;
+  oldmode: LongInt;
+begin
+  Check(DbiGetCursorProps(t.Handle, cProps));
+  Check(DbiGetProp(hDBIObj(t.Handle), curXLTMODE, oldmode, SizeOf(LongInt), w));
+  Check(DbiSetProp(hDBIObj(t.Handle), curXLTMODE, LongInt(xltNONE)));
+  try
+    if MaxAvail &lt; (cProps.iFields * SizeOf(FLDDesc)) then
+      raise EOutofMemory.Create('Недостаточно памяти для процесса');
+    GetMem(pF, (cProps.iFields * SizeOf(FLDDesc)));
+    Check(DbiGetFieldDescs(t.Handle, pF));
+    p := pF;
+    for i := 1 to cProps.iFields do
+      begin
+        with p^ do
+          begin
+            s := IntToStr(iFldNum) + ' : ' + StrPas(szName) + ' : ';
+            case iFldType of
+              fldDBCHAR:
+                begin { Char string, строка символов }
+                  s := s + 'CHARACTER(' + IntToStr(iUnits1) + ')';
+                end;
+              fldDBNUM:
+                begin { Number, число }
+                  s := s + 'NUMBER(' + IntToStr(iUnits1) + ',' + InttoStr(iUnits2) + ')';
+                end;
+              fldDBMEMO:
+                begin { Memo (blob), МEMO-BLOB-поле }
+                  s := s + 'MEMO';
+                end;
+              fldDBBOOL:
+                begin { Logical, лочическая величина }
+                  s := s + 'LOGICAL';
+                end;
+              fldDBDATE:
+                begin { Date, поле даты }
+                  s := s + 'DATE';
+                end;
+              fldDBFLOAT:
+                begin { Float, числа с плавающей точкой }
+                  s := s + 'FLOAT(' + IntToStr(iUnits1) + ',' + InttoStr(iUnits2) + ')';
+                end;
+              fldDBLOCK:
+                begin { Логический тип LOCKINFO }
+                  s := s + 'LOCKINFO';
+                end;
+              fldDBOLEBLOB:
+                begin { OLE object (blob), OLE-объект, BLOB-поле }
+                  s := s + 'OLE';
+                end;
+              fldDBBINARY:
+                begin { Binary data (blob), двоичные данные, BLOB-поле }
+                  s := s + 'BINARY';
+                end;
+            else
+              s := s + 'НЕИЗВЕСТНО';
+            end;
+          end;
+        l.Add(s);
+        Inc(p);
+      end;
+  finally
+    Check(DbiSetProp(hDBIObj(t.Handle), curXLTMODE, oldmode));
+    FreeMem(pF, (cProps.iFields * SizeOf(FLDDesc)));
+  end;
+end;
+</pre>
+
+
+<p>-Eryk Bottomley</p>
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

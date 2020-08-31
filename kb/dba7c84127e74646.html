@@ -1,0 +1,61 @@
+<html>
+<head>
+  <title>Использование табличных переменных</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Использование табличных переменных</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Табличные переменные объявляются очень похоже на запрос по созданию таблиц и могут использоваться как обычные таблицы</p>
+
+<pre name="code" class="sql">
+Declare @MyMemoryTable Table (id int, Field1 varchar(30))
+ 
+Insert into @MyMemoryTable
+Select ID, Field1 From MyTable Where Field2=0
+ 
+Select * From @MyMemoryTable
+</pre>
+
+<p>Примечания:</p>
+<p>1. Табличные переменные чрезвычайно эффективны как временное хранилище данных небольшого размера, они более эффективны чем временные таблицы. Следует их использовать везде где только можно вместо временных таблиц</p>
+<p>2. Не следует использовать табличные переменные при количестве записей больше нескольких тысяч</p>
+<p>3. Табличные переменные нельзя передавать как параметры в процедуры и функции</p>
+<p>4. Табличные переменные не поддерживают вставку из Select ... Into.... Следующий код работать не будет: 
+
+<pre name="code" class="sql">
+Select * into @MyTempTable From MyTable
+</pre>
+
+<p id="author">Автор: Vit</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

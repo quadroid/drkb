@@ -1,0 +1,104 @@
+<html>
+<head>
+  <title>Как выводить hint при движении мыши над списком</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как выводить hint при движении мыши над списком</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В Windows, в частности в Delphi, используются Hint для полного отображения не умещающихся строк. Достаточно к такой строке поднести мышь, и всплывает подсказка с полным текстом на том же месте. Как это реализовать показано ниже. </p>
+<pre name="code" class="delphi">
+...
+public
+  HintRow: Integer;
+  HintString: String;
+  procedure OnShowHint(var HintStr: string;
+    var CanShow: Boolean; var HintInfo: THintInfo);
+...
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  Application.HintPause := 100;
+  Application.HintHidePause := 30000;
+ 
+  ListBox1.Items.Add('It is a long row');
+  ListBox1.Items.Add('It is a very long row');
+  ListBox1.Items.Add('And it is a very very long row');
+ 
+  ListBox1.Items.Add('But this row if longer then other rows');
+  ListBox1.Items.Add('It was not truth, because this row is so long, that I do not know, what' + #13#10 +
+    'will do the program with this row. Do You know it? I think that it will be' + #13#10 +
+    'very interesting to look at this row. But if it will be longer and longer,' + #13#10 +
+    'what will be? Look!!!');
+  ListBox1.Items.Add('Short row');
+  ListBox1.Items.Add('123');
+ 
+  HintRow := -1;
+  Application.OnShowHint := OnShowHint;
+ 
+  ListBox1.ShowHint := true;
+end;
+ 
+procedure TForm1.ListBox1MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+var
+  ItemNum: Integer;
+begin
+  ItemNum := ListBox1.ItemAtPos(Point(X, Y), True);
+  if (ItemNum &lt;&gt; HintRow) then begin
+    HintRow := ItemNum;
+    Application.CancelHint;
+    if HintRow &gt; -1 then begin
+      HintString := ListBox1.Items[ItemNum];
+      if (ListBox1.Canvas.TextWidth(HintString) &lt;= ListBox1.ClientWidth)
+ 
+        then HintString := '';
+    end else HintString := '';
+  end;
+end;
+ 
+procedure TForm1.OnShowHint(var HintStr: string;
+  var CanShow: Boolean; var HintInfo: THintInfo);
+begin
+  if not (HintInfo.HintControl is TListBox) then Exit;
+  with HintInfo.HintControl as TListBox do begin
+    HintInfo.HintPos := ListBox1.ClientToScreen(Point(-1,
+ 
+      ListBox1.ItemRect(HintRow).Top - 3));
+    HintStr := HintString;
+  end;
+end;
+</pre>
+
+<p id="author">Автор советов: Даниил Карапетян</p>
+<p>e-mail: delphi4all@narod.ru</p>
+<p id="author">Автор справки: Алексей Денисов</p>
+<p>e-mail: aleksey@sch103.krasnoyarsk.su</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<html>
+<head>
+  <title>Число украинской строкой</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Число украинской строкой</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<pre name="code" class="delphi">
+unit UkrRecog;
+{копирайт непомню чей. Был для русских циферок, а я переделал под
+украинские}
+{если кто что найдет пришлите
+ 
+}
+{by Andrew Tkachenko, proektwo@netcity.ru, Ukraine,
+ 
+}
+interface
+ 
+const
+ 
+  UkrMonthString: array[1..12] of string[9] = (
+    'січня', 'лютого', 'березня', 'квiтня', 'травня',
+    'червня', 'липня', 'серпня', 'вересня', 'жовтня',
+    'листопада', 'грудня');
+ 
+function UkrRecognizeAmount(Amount: real;
+  CurrName, CurrSubname: string): string;
+ 
+implementation
+uses Sysutils;
+ 
+function UkrRecognizeAmount(Amount: real;
+  CurrName, CurrSubname: string): string;
+{* CurrName in [грн.]
+ 
+CurrSubName in [коп.]
+Распознается число &lt;= 999 999 999 999.99*}
+const suffBL: string = ' ';
+ 
+  suffDCT: string = 'дцять';
+  suffNA: string = 'надцять ';
+  suffDCM: string = 'десят';
+  suffMZ: string = 'ь';
+  sot: string = 'сот';
+  st: string = 'ст';
+  aa: string = 'а';
+  ee: string = 'и'; {e}
+  ii: string = 'і'; {и}
+  oo: string = 'о';
+  ov: string = 'ів'; {ов}
+  C2: string = 'дв';
+  C3: string = 'тpи';
+  C4: string = 'чотир';
+  C5: string = 'п''ят';
+  C6: string = 'шіст';
+  C7: string = 'сім';
+  C8: string = 'вісім';
+  C9: string = 'дев''ят';
+var
+ 
+  i: byte;
+  sAmount, sdInt, sdDec: string;
+  IsMln, IsTha {,IsDcm}, IsRange1019: boolean;
+  currNum, endMlx, sResult: string;
+begin
+ 
+  if (amount &lt;= 0) or (amount &gt; 999999999999.99) then
+    begin
+      Result := '&lt;&lt;&lt;&lt; Ошибка в диапазоне &gt;&gt;&gt;&gt;';
+      Exit;
+    end;
+  STR(Amount: 16: 2, sAmount);
+  sdInt := Copy(sAmount, 1, 13);
+  sdDec := Copy(sAmount, 15, 2);
+  IsMln := false;
+//IsDcm:=false;
+  IsTha := false;
+  IsRange1019 := false;
+  sResult := '';
+  for i := 1 to 13 do
+    begin
+      currNum := Copy(sdInt, i, 1);
+ 
+      if currNum &lt;&gt; suffBL then
+        begin
+          case i of
+            5, 6, 7: if currNum &lt;&gt; '0' then IsMln := true;
+            8, 9, 10: if currNum &lt;&gt; '0' then IsTha := true;
+          end;
+ 
+          if i in [2, 5, 8, 11] then {сотни}
+            begin
+              if currNum = '1' then sResult := sResult + st + oo + suffBL;
+              if currNum = '2' then sResult := sResult + C2 + ii + st + ii + suffBL;
+              if currNum = '3' then sResult := sResult + C3 + st + aa + suffBL;
+              if currNum = '4' then sResult := sResult + C4 + ee + st + aa + suffBL;
+              if currNum = '5' then sResult := sResult + C5 + sot + suffBL;
+              if currNum = '6' then sResult := sResult + C6 + sot + suffBL;
+              if currNum = '7' then sResult := sResult + C7 + sot + suffBL;
+              if currNum = '8' then sResult := sResult + C8 + sot + suffBL;
+              if currNum = '9' then sResult := sResult + C9 + sot + suffBL;
+            end;
+          if i in [3, 6, 9, 12] then {десятки}
+            begin
+              if currNum = '1' then IsRange1019 := true;
+              if currNum = '2' then sResult := sResult + C2 + aa + suffDCT + suffBL;
+              if currNum = '3' then sResult := sResult + C3 + suffDCT + suffBL;
+              if currNum = '4' then sResult := sResult + 'соpок ';
+              if currNum = '5' then
+                sResult := sResult + C5 + suffMZ + suffDCM + suffBL;
+ 
+              if currNum = '6' then
+                sResult := sResult + C6 + suffMZ + suffDCM + suffBL;
+ 
+              if currNum = '7' then
+                sResult := sResult + C7 + suffMZ + suffDCM + suffBL;
+ 
+              if currNum = '8' then
+                sResult := sResult + C8 + suffMZ + suffDCM + suffBL;
+ 
+              if currNum = '9' then
+                sResult := sResult + 'дев''ян' + oo + st + oo + suffBL;
+ 
+            end;
+          if i in [4, 7, 10, 13] then {единицы}
+            begin
+              if (currNum = '0') then
+                if IsRange1019 then sResult := sResult + suffDCM + suffMZ + suffBL;
+              if (currNum = '1') then
+                begin
+                  if (i = 13) and (not IsRange1019) then
+                    sResult := sResult + 'одна '
+                  else
+                    begin
+                      if (i = 10) and (IsRange1019) then
+                        sResult := sResult + 'оди'
+                      else if (i = 10) and (not IsRange1019) then
+                        sResult := sResult + 'одна '
+                      else
+                        sResult := sResult + 'один' {ин};
+ 
+                      if IsRange1019 and (i = 13) then
+                        sResult := sResult + 'адцять' + suffBL
+                      else if IsRange1019 then
+                        sResult := sResult + suffNA
+                      else
+                        sResult := sResult + suffBL;
+                    end;
+                end;
+              if (currNum = '2') then
+                begin
+                  sResult := sResult + C2;
+                  if (i = 10) and (IsRange1019 = False) then
+                    sResult := sResult + ii
+                  else if (i = 10) or (IsRange1019) then
+                    sResult := sResult + aa
+                  else
+                    sResult := sResult + {aa} ii;
+                  if IsRange1019 then
+                    sResult := sResult + suffNA
+                  else
+                    sResult := sResult + suffBL;
+                end;
+              if (currNum = '3') then
+                begin
+                  sResult := sResult + C3;
+                  if IsRange1019 then
+                    sResult := sResult + suffNA
+                  else
+                    sResult := sResult + suffBL;
+                end;
+              if (currNum = '4') then
+                begin
+                  sResult := sResult + C4;
+                  if IsRange1019 then
+                    sResult := sResult + suffNA
+                  else
+                    sResult := sResult + ee + suffBL;
+                end;
+              if (currNum = '5') then
+                begin
+                  sResult := sResult + C5;
+                  if IsRange1019 then
+                    sResult := sResult + suffNA
+                  else
+                    sResult := sResult + suffMZ + suffBL;
+                end;
+              if (currNum = '6') then
+                begin
+                  sResult := sResult + C6;
+                  if IsRange1019 then
+                    sResult := sResult + suffNA
+                  else
+                    sResult := sResult + suffMZ + suffBL;
+                end;
+              if (currNum = '7') then
+                begin
+                  sResult := sResult + C7;
+                  if IsRange1019 then
+                    sResult := sResult + suffNA
+                  else
+                    sResult := sResult + suffBL;
+                end;              if (currNum = '8') then
+                begin
+                  sResult := sResult + C8;
+                  if IsRange1019 then
+                    sResult := sResult + suffNA
+                  else
+                    sResult := sResult + suffBL;
+                end;              if (currNum = '9') then
+                begin
+                  sResult := sResult + C9;
+                  if IsRange1019 then
+                    sResult := sResult + suffNA
+                  else
+                    sResult := sResult + suffMZ + suffBL;
+                end;
+            end;
+ 
+          endMlx := '';
+          case i of
+            4:
+              begin
+                if IsRange1019 then
+                  endMlx := ov + suffBL
+                else if currNum = '1' then
+                  endMlx := suffBL
+                else if (currNum = '2') or (currNum = '3') or (currNum = '4') then
+                  endMlx := aa + suffBL
+                else
+                  endMlx := ov + suffBL;
+                sResult := sResult + 'мiльярд' + endMlx;
+              end;
+            7: if IsMln then
+                begin
+                  if IsRange1019 then
+                    endMlx := ov + suffBL
+                  else if currNum = '1' then
+                    endMlx := suffBL
+                  else if (currNum = '2') or (currNum = '3') or (currNum = '4') then
+                    endMlx := aa + suffBL
+                  else
+                    endMlx := ov + suffBL;
+                  sResult := sResult + 'мiльйон' + endMlx;
+                end;
+            10: if IsTha then
+                begin
+                  if IsRange1019 then
+                    endMlx := suffBL
+                  else if currNum = '1' then
+                    endMlx := aa + suffBL
+                  else if (currNum = '2') or (currNum = '3') or (currNum = '4') then
+                    endMlx := ii + suffBL
+                  else
+                    endMlx := suffBL;
+                  sResult := sResult + 'тисяч' + endMlx;
+                end;
+          end; {case}
+          if i in [4, 7, 10, 13] then IsRange1019 := false;
+        end; {IF}
+    end; {FOR}
+ 
+  sResult := sResult + CurrName + ',' + suffBL + sdDec + suffBL + CurrSubname;
+  sResult := AnsiUpperCase(sResult[1]) + Copy(sResult, 2, length(sResult) - 1);
+  Result := sResult;
+end;
+ 
+end.
+</pre>
+
+<p>С уважением,</p>
+
+<p>Andrew Tkachenko</p>
+
+<p>ООО "Проект ВО"</p>
+<p>Украина, г.Харьков</p>
+
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

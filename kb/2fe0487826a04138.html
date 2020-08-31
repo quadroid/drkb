@@ -1,0 +1,99 @@
+<html>
+<head>
+  <title>Решение проблемы передачи фокуса TDBGrid</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Решение проблемы передачи фокуса TDBGrid</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В данном документе содержится решение проблемы невозможности получения DBGrid-ом фокуса после щелчка на каком-либо элементе управления родительской формы, в то время, как DBGrid находится на ее дочерней MDI-форме. </p>
+
+<p>Относится ко всем версиям Delphi </p>
+
+<p>Очевидно, DBGrid имеет некоторые проблемы с управлением фокусом, если он находится на дочерней MDI-форме. Эта проблема решена в приведенном ниже наследнике TDBGrid, в котором обрабатываются мышиные сообщения и выясняется когда фокус должен быть передан сетке. Наследник создан в виде компонента, который легко устанавливается в Палитру Компонентов. Примечание: код адаптирован для всех версий Delphi. Проблемы могут быть в Delphi 2 и 3, если вы забудете заменить устаревшие в этих версиях модули "winprocs" и "wintypes" на "windows."</p>
+<pre name="code" class="delphi">
+unit FixedDBGrid;
+ 
+interface
+ 
+uses
+ 
+  Winprocs, wintypes, Messages, SysUtils, Classes, Graphics,
+  Controls, Forms, Dialogs, Grids, DBGrids;
+ 
+type
+ 
+  TFixedDBGrid = class(TDBGrid)
+  private
+    { Private declarations }
+  protected
+    { Protected declarations }
+  public
+    { Public declarations }
+    procedure WMRButtonDown(var Message: TWMRButtonDown); message
+      WM_RBUTTONDOWN;
+    procedure WMLButtonDown(var Message: TWMLButtonDown); message
+      WM_LBUTTONDOWN;
+  published
+    { Published declarations }
+  end;
+ 
+procedure Register;
+ 
+implementation
+ 
+procedure TFixedDBGrid.WMRButtonDown(var Message: TWMRButtonDown);
+begin
+ 
+  winprocs.SetFocus(handle); {помните, что winprocs относится только к Delphi 1!}
+  inherited;
+end;
+ 
+procedure TFixedDBGrid.WMLButtonDown(var Message: TWMLButtonDown);
+begin
+ 
+  winprocs.SetFocus(handle); {помните, что winprocs относится только к Delphi 1!}
+  inherited;
+end;
+ 
+procedure Register;
+begin
+ 
+  RegisterComponents('Samples', [TFixedDBGrid]);
+end;
+ 
+end.
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

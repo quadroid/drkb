@@ -1,0 +1,99 @@
+<html>
+<head>
+  <title>Имитация ввода с клавиатуры для консоли</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Имитация ввода с клавиатуры для консоли</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Nomadic  </p>
+<pre name="code" class="delphi">
+const
+ 
+  ExtendedKeys: set of Byte = [ // incomplete list
+  VK_INSERT, VK_DELETE, VK_HOME, VK_END, VK_PRIOR, VK_NEXT,
+    VK_LEFT, VK_UP, VK_RIGHT, VK_DOWN, VK_NUMLOCK
+    ];
+ 
+procedure SimulateKeyDown(Key: byte);
+var
+ 
+  flags: DWORD;
+begin
+ 
+  if Key in ExtendedKeys then
+    flags := KEYEVENTF_EXTENDEDKEY
+  else
+    flags := 0;
+  keybd_event(Key, MapVirtualKey(Key, 0), flags, 0);
+end;
+ 
+procedure SimulateKeyUp(Key: byte);
+var
+ 
+  flags: DWORD;
+begin
+ 
+  if Key in ExtendedKeys then
+    flags := KEYEVENTF_EXTENDEDKEY
+  else
+    flags := 0;
+  keybd_event(Key, MapVirtualKey(Key, 0), KEYEVENTF_KEYUP or flags, 0);
+end;
+ 
+procedure SimulateKeystroke(Key: byte);
+var
+ 
+  flags: DWORD;
+  scancode: BYTE;
+begin
+ 
+  if Key in ExtendedKeys then
+    flags := KEYEVENTF_EXTENDEDKEY
+  else
+    flags := 0;
+  scancode := MapVirtualKey(Key, 0);
+  keybd_event(Key,
+    scancode,
+    flags,
+    0);
+  keybd_event(Key,
+    scancode,
+    KEYEVENTF_KEYUP or flags,
+    0);
+end;
+ 
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

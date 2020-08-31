@@ -1,0 +1,113 @@
+<html>
+<head>
+  <title>Функция замены в строке всех вхождений одной подстроки на другую</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Функция замены в строке всех вхождений одной подстроки на другую</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Функция замены в строке всех вхождений одной подстроки на другую
+ 
+В отличие от других подобных функций, эта - не зависнет, если в строке нужно 
+заменить не только одно слово совершенно другим,
+но и допустим, слово "Штаны" на "-Штаны-"
+(Т.е. начальное слово после замены остается, но к нему добавляется какой нибудь 
+символ справа, или слева. В данном случае по краям слова добавлен знак минуса).
+ 
+Я пересмотрел много примеров, и ни один из них не справился с этой задачей.
+(Может я плохо искал?).
+ 
+Зависимости: Windows, SysUtils
+Автор:       Матюшкин Сергей, seregam@ua.fm, ICQ:162733776, Днепропетровск
+Copyright:   Sergey_M
+Дата:        26 мая 2003 г.
+***************************************************** }
+ 
+function Replace(Str, X, Y: string): string;
+{Str - строка, в которой будет производиться замена.
+ X - подстрока, которая должна быть заменена.
+ Y - подстрока, на которую будет произведена заменена}
+ 
+var
+  buf1, buf2, buffer: string;
+  i: Integer;
+ 
+begin
+  buf1 := '';
+  buf2 := Str;
+  Buffer := Str;
+ 
+  while Pos(X, buf2) &gt; 0 do
+  begin
+    buf2 := Copy(buf2, Pos(X, buf2), (Length(buf2) - Pos(X, buf2)) + 1);
+    buf1 := Copy(Buffer, 1, Length(Buffer) - Length(buf2)) + Y;
+    Delete(buf2, Pos(X, buf2), Length(X));
+    Buffer := buf1 + buf2;
+  end;
+ 
+  Replace := Buffer;
+end;
+Пример использования: 
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  a: Integer;
+begin
+  for a := 0 to Memo1.Lines.Count do
+    Memo1.Lines[a] := Replace(Memo1.Lines[a], 'Штаны', '-Штаны-');
+end;
+</pre>
+&nbsp;</p>
+<hr />
+<p class="p_Heading1">Всё значительно проще! В Борланд уже всё сделали до нас:</p>
+<pre name="code" class="delphi">
+//заменить первое вхождение подстроки с учётом регистра
+S:=StringReplace(ИсходнаяСтрока, ЧтоЗаменять, НаЧтоЗаменять, []) 
+ 
+ 
+//заменить все вхождения подстроки с учётом регистра
+S:=StringReplace(ИсходнаяСтрока, ЧтоЗаменять, НаЧтоЗаменять, [rfReplaceAll]) 
+ 
+ 
+//заменить первое вхождение подстроки без учёта регистра
+S:=StringReplace(ИсходнаяСтрока, ЧтоЗаменять, НаЧтоЗаменять, [rfIgnoreCase]) 
+ 
+ 
+//заменить все вхождения подстроки без учёта регистра
+S:=StringReplace(ИсходнаяСтрока, ЧтоЗаменять, НаЧтоЗаменять, [rfReplaceAll, rfIgnoreCase]) 
+ 
+</pre>
+<p id="author">Автор: Vit</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<html>
+<head>
+  <title>Поместить/получить строку из буфера обмена (Заплатка к стандартным)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Поместить/получить строку из буфера обмена (Заплатка к стандартным)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Поместить/получить строку из буфера обмена (Заплатка к стандартным)
+ 
+Под Win2k попытка вставить русскую строку в Clipboard 
+ClipBoard.AsText:='Проба' с последующей вставкой в Word'е 
+показывает кракозябрики.. Расследование показало, что виноваты 
+мелкомягкие (как обычно :) ) С целью нивелирования различий между 
+всеми Win-платформами были написаны эти 2 ф-ции..
+Принимают на вход/возвращают строку в Unicode - WideString.. 
+но не надо беспокоиться, Дельфи сам вставит при необходимости 
+конвертацию в/из AnsiString.
+ 
+Если платформа поддерживает уникод (NT), то используется этот формат, 
+иначе вызываются стандартные процедуры/ф-ции.
+Удачи!
+ 
+Зависимости: ClipBrd
+Автор:       Shaman_Naydak, shanturov@pisem.net
+Copyright:   Shaman_Naydak
+Дата:        26 июня 2002 г.
+********************************************** }
+ 
+procedure PutStringIntoClipBoard(const Str: WideString);
+var
+  Size: Integer;
+  Data: THandle;
+  DataPtr: Pointer;
+begin
+  Size:=Length(Str);
+  if Size = 0 then exit;
+  if not IsClipboardFormatAvailable(CF_UNICODETEXT) then
+    Clipboard.AsText:=Str
+  else
+  begin
+    Size:=Size shl 1 + 2;
+    Data := GlobalAlloc(GMEM_MOVEABLE+GMEM_DDESHARE, Size);
+    try
+      DataPtr := GlobalLock(Data);
+      try
+        Move(Pointer(Str)^, DataPtr^, Size);
+        Clipboard.SetAsHandle(CF_UNICODETEXT, Data);
+      finally
+        GlobalUnlock(Data);
+      end;
+    except
+      GlobalFree(Data);
+      raise;
+    end;
+  end;
+end;
+ 
+function GetStringFromClipboard: WideString;
+var
+  Data: THandle;
+begin
+  if not IsClipboardFormatAvailable(CF_UNICODETEXT) then
+    Result:=Clipboard.AsText
+  else
+  begin
+    Clipboard.Open;
+    Data := GetClipboardData(CF_UNICODETEXT);
+    try
+      if Data &lt;&gt; 0 then
+        Result := PWideChar(GlobalLock(Data))
+      else
+        Result := '';
+    finally
+      if Data &lt;&gt; 0 then GlobalUnlock(Data);
+      Clipboard.Close;
+    end;
+  end;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

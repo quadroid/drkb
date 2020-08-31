@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>Integer &gt; Bin</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Integer &gt; Bin</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function IntToBin1(Value: Longint; Digits: Integer): string;
+ var
+   i: Integer;
+ begin
+   Result := '';
+   for i := Digits downto 0 do
+     if Value and (1 shl i) &lt;&gt; 0 then
+       Result := Result + '1'
+   else
+     Result := Result + '0';
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+<hr />
+<pre name="code" class="delphi">
+ function IntToBin2(d: Longint): string;
+ var
+   x, p: Integer;
+   bin: string;
+ begin
+   bin := '';
+   for x := 1 to 8 * SizeOf(d) do
+   begin
+     if Odd(d) then bin := '1' + bin
+     else
+       bin := '0' + bin;
+     d := d shr 1;
+   end;
+   Delete(bin, 1, 8 * ((Pos('1', bin) - 1) div 8));
+   Result := bin;
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

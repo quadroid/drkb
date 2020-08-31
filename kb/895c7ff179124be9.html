@@ -1,0 +1,107 @@
+<html>
+<head>
+  <title>Запись массива на диск</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Запись массива на диск</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Скажем, ваша структура данных выглядит следующим образом:</p>
+
+<pre name="code" class="delphi">
+type
+  TMyRec = record
+    SomeField: Integer;
+    SomeOtherField: Double;
+    TheRest: array[0..99] of Single;
+  end;
+</pre>
+
+<p>и TBlobField имеет имя MyBlobField. TMyRec назван как MyRec. Для копирования содержимого MyRec в MyBlobField необходимо сделать следующее:</p>
+
+<pre name="code" class="delphi">
+var
+  Stream: TBlobStream;
+begin
+  Stream := TBlobStream.Create(MyBlobField, bmWrite);
+  Stream.Write(MyRec, SizeOf(MyRec));
+  Stream.Free;
+end;
+</pre>
+
+<p>Есть другой путь:</p>
+
+<pre name="code" class="delphi">
+var
+  Stream: TBlobStream;
+begin
+  Stream := TBlobStream.Create(MyBlobField, bmRead);
+  Stream.Read(MyRec, SizeOf(MyRec));
+  Stream.Free;
+end;
+</pre>
+
+
+<p>- Steve Schafer </p>
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+
+<hr />
+<pre name="code" class="delphi">
+type
+  TCharArray = array[500] of Char;
+ 
+procedure WriteToFile(var aArray: TCharArray; sFileName: string); {Примечание:
+Объявление массива как параметр Var позволяет передавать только ссылку на массив,
+а не копировать его целиком в стек, если же вам нужна безопасная работа с массивом,
+то вам не следует передавать его как var-параметр. }
+var
+  nArrayIndex: Word;
+  fFileHandle: TextFile;
+begin
+  AssignFile(fFileHandle, sFileName);
+  Rewrite(fFileHandle);
+ 
+  for nArrayIndex := 1 to 500 do
+  begin
+    Write(fFileHandle, aArray[nArrayIndex]);
+  end;
+ 
+  CloseFile(fFileHandle);
+end; {end Procedure, WriteToFile()}
+ 
+</pre>
+<a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

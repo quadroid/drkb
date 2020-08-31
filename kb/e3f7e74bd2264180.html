@@ -1,0 +1,103 @@
+<html>
+<head>
+  <title>Фильтрованный поиск в строке</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Фильтрованный поиск в строке</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p id="author">Автор: David Stidolph </p>
+<p>Есть множество задач, где необходимо использование так называемой "дикой карты", то есть поиск в строке по фильтру, когда в качестве поиска используется подстрока с символом "*" (звездочка). Например, если необходимо выяснить наличие подстроки 'St' с какими-либо символами перед ней, то в качестве параметра для поиска задается подстрока вида '*St'. Звездочка может присутствовать как в начале/конце подстроки, так и по обеим ее сторонам. Также при составлении фильтра вместо любого одиночного символа возможна подстановка знака вопроса. </p>
+<p>Пока функция может только сообщать о наличии необходимых вложений, но было бы интересно получить ваши примеры, которые могли бы и возвращать искомую подстроку.</p>
+<pre name="code" class="delphi">{
+Данная функция осуществляет сравнение двух строк. Первая строка
+может быть любой, но она не должна содержать символов соответствия (* и ?).
+Строка поиска (искомый образ) может содержать абсолютно любые символы.
+Для примера: MatchStrings('David Stidolph','*St*') возвратит True.
+ 
+Автор оригинального C-кода Sean Stanley
+Автор портации на Delphi David Stidolph
+}
+ 
+function MatchStrings(source, pattern: string): Boolean;
+var
+  pSource: array[0..255] of Char;
+  pPattern: array[0..255] of Char;
+ 
+  function MatchPattern(element, pattern: PChar): Boolean;
+ 
+    function IsPatternWild(pattern: PChar): Boolean;
+    var
+      t: Integer;
+    begin
+      Result := StrScan(pattern, '*') &lt;&gt; nil;
+      if not Result then
+        Result := StrScan(pattern, '?') &lt;&gt; nil;
+    end;
+ 
+  begin
+    if 0 = StrComp(pattern, '*') then
+      Result := True
+    else if (element^ = Chr(0)) and (pattern^ &lt;&gt; Chr(0)) then
+      Result := False
+    else if element^ = Chr(0) then
+      Result := True
+    else
+    begin
+      case pattern^ of
+        '*': if MatchPattern(element, @pattern[1]) then
+            Result := True
+          else
+            Result := MatchPattern(@element[1], pattern);
+        '?': Result := MatchPattern(@element[1], @pattern[1]);
+      else
+        if element^ = pattern^ then
+          Result := MatchPattern(@element[1], @pattern[1])
+        else
+          Result := False;
+      end;
+    end;
+  end;
+ 
+begin
+  StrPCopy(pSource, source);
+  StrPCopy(pPattern, pattern);
+  Result := MatchPattern(pSource, pPattern);
+end;
+ 
+ 
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

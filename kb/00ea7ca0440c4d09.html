@@ -1,0 +1,93 @@
+<html>
+<head>
+  <title>TSimpleDataSet</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TSimpleDataSet</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Компонент TSimpleDataSet обеспечивает кэширование полученных данных и сделанных изменений на стороне клиента и последующую передачу их на сервер для фиксации. В отличие от компонента TClientDataSet, основным назначением которого является обслуживание набора данных, полученного от удаленного сервера при помощи серверных компонентов DataSnap, компонент TSimpleDataSet призван быть лишь средством редактирования набора данных в технологии dbExpress. </p>
+<p>Компонент использует двунаправленный курсор и позволяет редактировать данные, правда только в режиме кэширования (см. гл. 22). </p>
+<p>Таким образом, компонент TSimpleDataSet позволяет исправить основные недостатки технологии dbExpress. </p>
+<p>Для подключения к источнику данных компонент использует свойство </p>
+<p>property DBConnection: TSQLConnection; </p>
+<p>которое позволяет связать его с соединением TSQLConnection (см. выше). или свойство </p>
+<p>property ConnectionName: string; </p>
+<p>которое позволяет выбрать тип соединения dbExpress напрямую. </p>
+<p>При этом у компонента отсутствует механизм создания удаленного доступа к данным, представленный у компонента TclientDataSet свойствами RemoteServer И ProviderName. </p>
+<p>После создания соединения с сервером БД можно определить тип используемой команды, подобно компоненту TSQLDataSet. </p>
+<p>Тип команды определяется свойством </p>
+<p>TSQLCommandType = (ctQuery, ctTable, ctStoredProc);&nbsp; </p>
+<p>property CommandType: TSQLCommandType; </p>
+<p>А содержание команды задает свойство </p>
+<p>property CoinmandText: string; </p>
+<p>После этого компонент можно связывать с компонентами отображения данных, просматривать и редактировать данные. </p>
+<p>Для передачи на сервер сделанных и сохраненных в локальном кэше изменений используется метод </p>
+<p>function ApplyUpdates(MaxErrors: Integer); Integer; virtual; </p>
+<p>где параметр MaxErrors определяет максимально возможное число ошибок при сохранении. Обычно этому параметру присваивается -1, что снимает ограничение на число ошибок. Метод </p>
+<p>function Reconcile(const Results: OleVariant): Boolean; </p>
+<p>очищает локальный кэш компонента от записей, которые успешно сохранены на сервере. </p>
+<p>Отменить локальные изменения можно методом </p>
+<p>procedure CancelUpdates; </p>
+<p>Обратите внимание, что в компоненте действуют традиционные методы набора данных Edit, Post, Cancel, Apply, Insert, Delete. Но они оказывают влияние только на записи, кэшированные локально. Вы можете сколько угодно редактировать набор данных при помощи перечисленных методов, но они будут изменять только содержимое кэша. Настоящее сохранение на сервере осуществляется методом Appiyupdates. </p>
+<p>Данные между сервером и компонентом пересылаются пакетами. Доступ к текущему пакету возможен при помощи свойства </p>
+<p>property Data: OleVariant; </p>
+<p>Сделанные изменения содержатся в свойстве </p>
+<p>property Delta: OleVariant; </p>
+<p>При этом разработчик может регулировать размер пакетов. Например, при ухудшении соединения можно уменьшить размер пакетов. Размер пакета определяется свойством </p>
+<p>property PacketRecords: Integer; </p>
+<p>которое задает число записей в пакете. Автоматическое назначение пакетов включается </p>
+<p>PacketRecords := -1 </p>
+<p>Если значение PacketRecords равно 0, между клиентом и сервером пересылаются только метаданные. </p>
+<p>Если свойство PacketRecords больше нуля, то необходимо вручную организовывать подкачку данных с сервера. Для этого используется метод </p>
+<p>function GetNextPacket: Integer; </p>
+<p>Для организации такой подкачки вполне подойдут методы-обработчики событий </p>
+<p>property BeforeGetRecords: TRemoteEvent; </p>
+<p>property AfterGetRecords: TRemoteEvent; </p>
+<p>В компоненте TSimpleDataSet развиты средства работы с одиночными записями. Можно просмотреть общее число записей </p>
+<p>property RecordCount: Integer; </p>
+<p>и номер текущей записи </p>
+<p>property RecNo: Integer; </p>
+<p>Размер одной записи сохраняется в свойстве </p>
+<p>property RecordSize: Word; </p>
+<p>Все изменения, сделанные в текущей записи, отменяются методом </p>
+<p>procedure RevertRecord; </p>
+<p>Обновить значение полей для текущей записи с сервера можно методом </p>
+<p>procedure RefreshRecord; </p>
+<p>Обработка исключительных ситуаций для компонента TSimpleDataSet состоит из двух этапов. </p>
+<p>Во-первых, необходимо отслеживать ошибки на стороне клиента &#8212; это могут быть некорректный ввод данных, ошибки кэширования и т. д. В этом случае подходят все стандартные способы, применяемые для наборов данных. </p>
+<p>Во-вторых, ошибки могут возникнуть при сохранении изменений на сервере. И поскольку само событие, приведшее к исключительной ситуации, возникает на другом компьютере или в другом процессе, для отслеживания таких ошибок используется специальный метод-обработчик </p>
+<p>TReconcileErrorEvent = procedure(DataSet: TCustomClientDataSet; E: EReconcileError; UpdateKind: TUpdateKind; var Action: TReconcileAction) of object; </p>
+<p>property OnReconcileError: TReconcileErrorEvent; </p>
+<p>который срабатывает, если с сервера пересылается сообщение об ошибке. Информация об ошибке находится в параметре E: EReconcileError. </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

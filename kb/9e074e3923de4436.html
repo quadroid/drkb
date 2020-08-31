@@ -1,0 +1,80 @@
+<html>
+<head>
+  <title>Как добавить кнопку в панель инструментов IE?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как добавить кнопку в панель инструментов IE?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>1. ButtonText = Всплывающая подсказка к кнопке</p>
+<p>2. MenuText = Текст, который будет использован для пункта в меню "Сервис"</p>
+<p>3. MenuStatusbar = *Ignore*</p>
+<p>4. CLSID = Ваш уникальный classID. Для создания нового CLSID (для каждой кнопки) можно использовать GUIDTOSTRING.</p>
+<p>5. Default Visible := Показать ей.</p>
+<p>6. Exec := Путь к Вашей программе.</p>
+<p>7. Hoticon := иконка из shell32.dll когда мышка находится над кнопкой</p>
+<p>8. Icon := иконка из shell32.dll</p>
+<pre name="code" class="delphi">
+procedure CreateExplorerButton;
+const
+  TagID = '\{10954C80-4F0F-11d3-B17C-00C0DFE39736}\';
+var
+  Reg: TRegistry;
+        ProgramPath: string;
+  RegKeyPath: string;
+begin
+ ProgramPath := 'c:\folder\exename.exe';
+ Reg := TRegistry.Create;
+ try
+  with Reg do begin
+   RootKey := HKEY_LOCAL_MACHINE;
+   RegKeyPath := 'Software\Microsoft\Internet Explorer\Extensions';
+   OpenKey(RegKeyPath + TagID, True);
+   WriteString('ButtonText', 'Your program Button text');
+   WriteString('MenuText', 'Your program Menu text');
+   WriteString('MenuStatusBar', 'Run Script');
+   WriteString('ClSid', '{1FBA04EE-3024-11d2-8F1F-0000F87ABD16}');
+   WriteString('Default Visible', 'Yes'); 
+   WriteString('Exec', ProgramPath);
+   WriteString('HotIcon', ',4');
+   WriteString('Icon', ',4');
+  end
+ finally
+  Reg.CloseKey;
+  Reg.Free;
+ end;
+end;
+</pre>
+<p>После выполнения этого кода достаточно просто запустить IE.</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

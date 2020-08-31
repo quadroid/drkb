@@ -1,0 +1,139 @@
+<html>
+<head>
+  <title>Допустимые периоды истечения времени</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Допустимые периоды истечения времени</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  Retrieves information about the time-out period associated 
+  with the accessibility features. 
+  The pvParam parameter must point to an ACCESSTIMEOUT 
+  structure that receives the information. 
+  Set the cbSize member of this structure and the 
+  uiParam parameter to SizeOf(ACCESSTIMEOUT). 
+}
+ 
+ 
+ // ACCESSTIMEOUT structure 
+type
+   TAccessTimeOut = record
+     cbSize: UINT;
+     dwFlags: DWORD;
+     iTimeOutMSec: DWORD;
+   end;
+ 
+ procedure GetAccessTimeOut(var bTimeOut: Boolean; var bFeedBack: Boolean;
+   var iTimeOutTime: Integer);
+   // bTimeOut: the time-out period for accessibility features. 
+  // bFeedBack: the operating system plays a descending 
+  //            siren sound when the time-out period elapses and the 
+  //            Accessibility features are turned off. 
+  // iTimeOutTime: Timeout in ms 
+var
+   AccessTimeOut: TAccessTimeOut;
+ begin
+   ZeroMemory(@AccessTimeOut, SizeOf(TAccessTimeOut));
+   AccessTimeOut.cbSize := SizeOf(TAccessTimeOut);
+ 
+   SystemParametersInfo(SPI_GETACCESSTIMEOUT, SizeOf(AccessTimeOut), @AccessTimeOut, 0);
+ 
+   bTimeOut := (AccessTimeOut.dwFlags and ATF_TIMEOUTON) = ATF_TIMEOUTON;
+   bFeedBack := (AccessTimeOut.dwFlags and ATF_ONOFFFEEDBACK) = ATF_ONOFFFEEDBACK;
+   iTimeOutTime := AccessTimeOut.iTimeOutMSec;
+ end;
+ 
+ // Test it: 
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+ var
+   bTimeOut, bFeedBack: Boolean;
+   iTimeOutTime: Integer;
+ begin
+   GetAccessTimeOut(bTimeOut, bFeedBack, iTimeOutTime);
+   label1.Caption := IntToStr(Ord(bTimeOut));
+   Label2.Caption := IntToStr(Ord(bFeedBack));
+   Label3.Caption := IntToStr(iTimeOutTime);
+ end;
+ 
+ { 
+  Sets the time-out period associated with the accessibility features. 
+  The pvParam parameter must point to anACCESSTIMEOUT structure that 
+  contains the new parameters. 
+  Set the cbSize member of this structure and the uiParam 
+  parameter to sizeof(ACCESSTIMEOUT). 
+}
+ 
+ { 
+  Setzt Informationen zu den ACCESSEDTIMEOUT-Eigenschaften. 
+  "uiParam" erwartet die Gro?e der ACCESSEDTIMEOUT-Struktur, 
+  die in "pvParam" ubergeben werden muss. 
+}
+ 
+ procedure SetAccessTimeOut(bTimeOut, bFeedBack: Boolean; iTimeOutTime: Integer);
+   // bTimeOut: If true, a time-out period has been set for accessibility features. 
+  // bFeedBack: If true, the operating system plays a descending 
+  //                    siren sound when the time-out period elapses and the 
+  //                    accessibility features are turned off. 
+  // iTimeOutTime: Timeout in ms 
+var
+   AccessTimeOut: TAccessTimeOut;
+ begin
+   ZeroMemory(@AccessTimeOut, SizeOf(TAccessTimeOut));
+   AccessTimeOut.cbSize := SizeOf(TAccessTimeOut);
+ 
+   case bTimeOut of
+     True: AccessTimeOut.dwFlags  := ATF_TIMEOUTON;
+     False: AccessTimeOut.dwFlags := 0;
+   end;
+ 
+   if bFeedBack then
+     AccessTimeOut.dwFlags := AccessTimeOut.dwFlags or ATF_ONOFFFEEDBACK;
+ 
+   AccessTimeOut.iTimeOutMSec := iTimeOutTime;
+ 
+   SystemParametersInfo(SPI_SETACCESSTIMEOUT, SizeOf(AccessTimeOut),
+     @AccessTimeOut, SPIF_UPDATEINIFILE or SPIF_SENDWININICHANGE);
+ end;
+ 
+ // Test it: 
+procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   SetAccessTimeOut(True, True, 600000); // 10 min. timeout 
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<html>
+<head>
+  <title>Получение количества тактов процессора с момента перезагрузки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получение количества тактов процессора с момента перезагрузки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Получение количества тактов процессора с момента перезагрузки
+ 
+Получение количества тактов процессора с момента перезагрузки.
+ 
+Производится вызов команды RDTSC x86 процессора.
+Имеются во всех процах начиная с Pentium/586.
+Подходит для всех версий Дельфи, где есть тип Int64.
+Для остальных можно переписать слегка -
+результат перекладывать в две переменные Integer.
+ 
+Я ее использую для определения кол-ва
+процессорного времени на выполнение куска кода.
+ 
+Зависимости: можно использовать на всех процах, начиная с Pentium
+Автор:       Григорьев Павел, xli@rambler.ru, Щёлково-4
+Copyright:   справочник по командам процессора Pentium
+Дата:        17 декабря 2003 г.
+***************************************************** }
+ 
+function RDTSC: int64; assembler;
+asm
+  db $0F,$31 // RDTSC
+end;
+Пример использования: 
+ 
+var
+  TimePeriod: int64;
+  ...
+begin
+  ...
+  TimePeriod := RDTSC;
+  {кусок анализируемого кода}
+  TimePeriod := RDTSC - TimePeriod;
+  {полученное значение TimePeriod можно анализировать}
+  ...
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<html>
+<head>
+  <title>Топологическая сортировка</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Топологическая сортировка</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Нерекурсивный алгоритм топологической сортировки ориентированного графа без циклов.</p>
+<p>Предположим, что граф имеет вершины с номерами 1..n, для каждой вершины i известно число num[i] выходящих из нее ребер и номера вершин dest[i][1],..., dest[i][num[i]], в которые эти ребра ведут. Будем условно считать, что ребра перечислены 'слева направо': левее то ребро, у которого номер меньше. Нам надо напечатать все вершины в таком порядке, чтобы конец любого ребра был напечатан перед его началом. Мы предполагаем, что в графе нет ориентированных циклов - иначе такое невозможно. </p>
+<p>Для начала добавим к графу вершину 0, из которой ребра ведут в вершины 1,...,n. Если ее удастся напечатать с соблюдением правил, то тем самым все вершины будут напечатаны.</p>
+<p>Алгоритм хранит путь, выходящий из нулевой вершины и идущий по ребрам графа. Переменная l отводится для длины этого пути. Путь образован вершинами vert[1],..., vert[l] и ребрами, имеющими номера edge[1]...edge[l]. Номер edge[s] относится к нумерации ребер, выходящих из вершины vert[s]. Тем самым для всех s должны выполняться неравенство</p>
+edge[s] &lt;= num[vert[s]]и равенство </p>
+vert[s+1] = dest [vert[s]] [edge[s]] </p>
+<p>Впрочем, для последнего ребра мы сделаем исключение, разрешив ему указывать 'в пустоту', т.е. разрешим edge[l] равняться num[vert[l]]+1.</p>
+<p>В процессе работы алгоритм будет печатать номера вершин, при этом соблюдая требование 'вершина напечатана только после тех вершин, в которые из нее ведут ребра'. Наконец, будет выполняться такое требование:</p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>(И) </p>
+</td>
+<td ><p>вершины пути, кроме последней (т.е. vert[1]..vert[l]) не напечатаны, но свернув с пути налево, мы немедленно упираемся в напечатанную вершину
+</td></tr></table>
+<p>Вот что получается:</p>
+<pre name="code" class="delphi">
+        l:=1; vert[1]:=0; edge[1]:=1;
+        while not( (l=1) and (edge[1]=n+1)) do begin
+         if edge[l]=num[vert[l]]+1 then begin
+          {путь кончается в пустоте, поэтому все вершины,
+              следующие за vert[l], напечатаны - можно
+              печатать vert[l]}
+          writeln (vert[l]);
+          l:=l-1; edge[l]:=egde[l]+1;
+         end else begin
+           {edge[l] &lt;= num[vert[l]], путь кончается в
+              вершине}
+           lastvert:= dest[vert[l]][edge[l]]; {последняя}
+           if lastvert напечатана then begin
+            edge[l]:=edge[l]+1;
+           end else begin
+            l:=l+1; vert[l]:=lastvert; edge[l]:=1;
+           end;
+         end;
+        end;
+        {путь сразу же ведет в пустоту, поэтому все вершины
+         левее, то есть 1..n, напечатаны}
+</pre>
+<p>Доказательство, что если в графе нет циклов, то этот алгоритм заканчивает работу:</p>
+<p>Пусть это не так. Каждая вершина может печататься только один раз, тако что с некоторого момента вершины не печатаются. В графе без циклов длина пути ограничена (вершина не может входить дважды), поэтому подождав еще, мы можем дождаться момента, после которого путь не удлиняется. После этого может разве что увеличиваться edge[l] - но и это не беспредельно.</p>
+
+
+<p><a href="http://algolist.manual.ru" target="_blank">http://algolist.manual.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

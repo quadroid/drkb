@@ -1,0 +1,153 @@
+<html>
+<head>
+  <title>Работа с Microsoft Speech API в Delphi</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Работа с Microsoft Speech API в Delphi</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Работа с Microsoft Speech API в Delphi</p>
+Альберт Мамедов</p>
+В ходе создания программного обеспечения возникает желание дополнить возможности создаваемого приложения голосовым интерфейсом.</p>
+Если возможности распознания голоса ещё далеки от совершенства и простому программисту не по силам, то заставить ваше приложение весьма сносно заговорить может любой программист.</p>
+Об этом позаботились специалисты Microsoft выпустив на рынок бесплатный ActiveX компонент TextToSpeech входящий в стандартную комплектацию WinMe и Win 2x. </p>
+Если у Вас этого компонента нет Вам необходимо скачать и установить Microsoft Speech API 4.0 825 Кб и Lernout &amp;Hauspie Text-To-Speech 2.9 Мб (русский мужской и женский голос.)</p>
+Применение этого компонента позволяет значительно расширить функциональные возможности интерфейса создаваемой программы. Приятно когда программа говорит &#171;человеческим голосом&#187;. Как пример моя программа общения по сети. Исходный текст прилагаю..</p>
+Рассмотрим пример применения Microsoft Speech API. </p>
+Используем позднее связывание освобождающее программиста от написания лишнего кода и облегчающего в дальнейшем модификацию приложения.</p>
+Для размещения ActiveX компонентов будем использовать универсальный класс-контейнер TAxControl, подробно описанный в книге &#171;Delphi для профессионалов&#187; авторы Александровский А.Д., Шубин В.В.</p>
+<pre name="code" class="delphi">unit axControl;
+{ Класс-контейнер для ActiveX (компонента управления). }
+interface
+uses
+Windows, Messages, Classes, Controls,
+ActiveX, OleCtrls,StdCtrls; //
+///********************************************************************
+type
+TAxControl = class(TOleControl)//
+private
+CControlData : TControlData2; // Информация об ActiveX.
+protected
+procedure InitControlData; override;
+public
+property CData : TControlData2 read CControlData;
+constructor Create (AOwn : TComponent;AGUID : TGUID);
+end;
+implementation
+//////////////////////////////////////////////////////////////////////////////
+constructor TAxControl. Create (AOwn : TComponent ;AGUID : TGUID);
+begin
+FillChar(CControlData,sizeof(CControlData),0); // Обнуляете поле с информацией об Active
+CControlData.ClassID :=AGUID; // Указываете QUID компонента,который будет создаваться.
+inherited Create (AOwn); // Вызываете конструктор предка.
+ControlStyle := ControlStyle + [csClickEvents]; // Стиль отображения
+end ;
+///////////////////////////////////////////////////////////////////////////////////
+procedure TAxControl. InitControlData;
+begin
+ControlData := @CControlData; // Указываете адрес, где находится информация об ActiveX.
+end;
+&nbsp;
+//////////////////////////////////////////////////////////////////////////////////////
+end.
+</pre>
+&nbsp;</p>
+Размещаем TextToSpeech на Delphi компонент Panel и устанавливаем стандартные свойства.</p>
+В случае отсутствия данного компонента на Вашем компьютере, обрабатываем исключение связыванием с компонентом WebBrowser и запускаем скачивание данного компонента с http://activex.microsoft.com/activex/controls/sapi/spchapi.exe.</p>
+Если же на вашем компьютере уже установлены компоненты, произойдёт инициализация TextToSpeech, который озвучит текущее время.</p>
+<pre name="code" class="delphi">var compon:TAxControl;
+&nbsp;
+ procedure TForm1.FormCreate(Sender: TObject); 
+&nbsp;
+begin 
+&nbsp;
+try compon:=TAxControl.Create(self,stringtoguid('{EEE78591-FE22-11D0-8BEF-0060081841DE}')); 
+compon.Parent:=panel1; 
+compon.Visible:=true;
+compon.Top:=10; 
+compon.Left:=10;
+compon.Width:=100;
+compon.Height:=100; 
+compon.OleObject.Speak(timetostr(time));
+ except form1.Caption:='установка SpeechAPI';
+ &nbsp; messagebox(form1.Handle,'установи Speech API','ошибка',0);
+ &nbsp; panel1.Width:=300; 
+ &nbsp; panel1.Height:=250; 
+// компонент WebBrowser
+ &nbsp; compon:=TAxControl.Create(self,stringtoguid('{8856F961-340A-11D0-A96B-00C04FD705A2}'));
+ &nbsp; compon.Parent:=panel1; 
+ &nbsp; compon.Visible:=true; 
+ &nbsp; compon.Top:=20;
+ &nbsp; compon.Left:=0; compon.OleObject.Navigate2('http://activex.microsoft.com/activex/controls/sapi/spchapi.exe.',0,0,00); 
+ end; 
+end; 
+</pre>
+&nbsp;</p>
+Рассмотрим более подробно наиболее общие свойства и методы TextToSpeech: </p>
+<pre name="code" class="delphi">
+var Text:string;
+...
+compon.OleObject.Speak(Text); //Произнести текст.  
+ 
+compon.OleObject.AboutDlg(form1.Handle,'о голосовом движке');// Выводит информацию о компоненте.  
+ 
+compon.OleObject.GeneralDlg(form1.Handle,'настройка'); // Выводит окно настройки компонента.
+ 
+compon.OleObject.LexiconDlg(form1.Handle,'пользовательский');//Окно подключения пользовательских словарей.
+ 
+compon.OleObject.Speed:=X; //Скорость речи. X=от 80 до 210.
+ 
+compon.OleObject.pitch:=X;// Тональность речи X=от 125 до 200.
+ 
+compon.OleObject.Select(X);//персоанаж X=1(Светлана) X=2(Борис)
+ 
+compon.OleObject.LipTension:=X;//визуальное положение губ X:= 0..255; 
+</pre>
+В большинстве программ хватает этих свойств и методов. Но SpeechToText некоторые слова произносит некорректно.</p>
+Для решения этой проблемы существует несколько путей: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 24px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>- Подключение пользовательских словарей; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 24px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>- Создание своих обработчиков; </td></tr></table></div>Подключение словарей через вызов LexiconDlg, вручную, неудобно &#8211; библиотеку типов этого модуля, лично я, не нашел.</p>
+Остаётся создание своего обработчика с вызовом методов:</p>
+<pre name="code" class="delphi">procedure TForm1.Button5Click(Sender: TObject); 
+begin 
+ compon.OleObject.TextData(2,0,edit2.Text);//произнести фонемный код 
+end; 
+&nbsp;
+procedure TForm1.Button6Click(Sender: TObject);
+ begin 
+ edit2.Text:=compon.OleObject.Phonemes(2,10,edit1.Text);//преобразовать в фонемный код 
+end;
+</pre>
+&nbsp;</p>
+Используя фонетический алфавит Вы можете в широких пределах изменять произношение. SpeechAPI компонент удобен для любителей Web-программирования, так как поддерживает интерфейс IObjectSefety и соответственно безопасен для использования в сценариях JavaScript и VbScript. Пример использования в Web на сайте magdelphi.boom.ru</p>
+Автор статьи: Альберт Мамедов </p>
+&nbsp;</p>
+<p>http://www.delphimaster.ru</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

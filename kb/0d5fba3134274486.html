@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>Генерация GUID как строки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Генерация GUID как строки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Как в Run-time сгененрировать строку типа </p>
+'{821AB2C7-559D-48E0-A3EE-6DD50E83234C}'</p>
+<p>Типа как в среде при нажатии Ctrl-Shift-G. Функция CoCreateGuid выводит значение типа TGUID, я нигде не нашёл функции конвертации TGUID -&gt; String. Может кто знает такую функцию? </p>
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<p>Есть такая функция. Как ни странно называется она GUIDToString, и живет в SysUtils. </p>
+<p id="author">Автор: Fantasist</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr /><p>Можно GUIDToString написать и вручную, будет выглядеть примерно так:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  G: TGUID;
+  S: string;
+  i: Integer;
+begin
+  CoCreateGuid(G);
+  S := '{' + IntToHex(G.D1, 8) + '-' + IntToHex(G.D2, 4) + '-' + IntToHex(G.D3, 4) + '-';
+  for i := 0 to 7 do
+    begin
+      S := S + IntToHex(G.D4[i], 2);
+      if i = 1 then S := S + '-'
+    end;
+  S := S + '}';
+  ShowMessage(GUIDToString(G) + #13 + S)
+end;
+</pre>
+
+<p id="author">Автор: Jin X</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<html>
+<head>
+  <title>Форма окна по bitmap</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Форма окна по bitmap</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+ interface
+ 
+ uses
+   Windows, Classes, SysUtils, Graphics, Forms;
+ 
+ type
+   TRGBArray = array[0..32767] of TRGBTriple;
+   PRGBArray = ^TRGBArray;
+ 
+ type
+   TForm1 = class(TForm)
+     procedure FormCreate(Sender: TObject);
+     procedure FormDestroy(Sender: TObject);
+   private
+     { Private declarations }
+     FRegion: THandle;
+     function CreateRegion(Bmp: TBitmap): THandle;
+   end;
+ 
+ var
+   Form1: TForm1;
+ 
+ implementation
+ 
+ {$R *.dfm}
+ 
+ function TForm1.CreateRegion(Bmp: TBitmap): THandle;
+ var
+   X, Y, StartX: Integer;
+   Excl: THandle;
+   Row: PRGBArray;
+   TransparentColor: TRGBTriple;
+ begin
+   Bmp.PixelFormat := pf24Bit;
+ 
+   Result := CreateRectRGN(0, 0, Bmp.Width, Bmp.Height);
+ 
+   for Y := 0 to Bmp.Height - 1 do
+   begin
+     Row := Bmp.Scanline[Y];
+ 
+     StartX := -1;
+ 
+     if Y = 0 then
+       TransparentColor := Row[0];
+ 
+     for X := 0 to Bmp.Width - 1 do
+     begin
+       if (Row[X].rgbtRed = TransparentColor.rgbtRed) and
+         (Row[X].rgbtGreen = TransparentColor.rgbtGreen) and
+         (Row[X].rgbtBlue = TransparentColor.rgbtBlue) then
+       begin
+         if StartX = -1 then StartX := X;
+       end
+       else
+       begin
+         if StartX &gt; -1 then
+         begin
+           Excl := CreateRectRGN(StartX, Y, X + 1, Y + 1);
+           try
+             CombineRGN(Result, Result, Excl, RGN_DIFF);
+             StartX := -1;
+           finally
+             DeleteObject(Excl);
+           end;
+         end;
+       end;
+     end;
+ 
+     if StartX &gt; -1 then
+     begin
+       Excl := CreateRectRGN(StartX, Y, Bmp.Width, Y + 1);
+       try
+         CombineRGN(Result, Result, Excl, RGN_DIFF);
+       finally
+         DeleteObject(Excl);
+       end;
+     end;
+   end;
+ end;
+ 
+ procedure TForm1.FormCreate(Sender: TObject);
+ var
+   Bmp: TBitmap;
+ begin
+   Bmp := TBitmap.Create;
+   try
+     Bmp.LoadFromFile('C:\YourBitmap.bmp');
+     FRegion := CreateRegion(Bmp);
+     SetWindowRGN(Handle, FRegion, True);
+   finally
+     Bmp.Free;
+   end;
+ end;
+ 
+ procedure TForm1.FormDestroy(Sender: TObject);
+ begin
+   DeleteObject(FRegion);
+ end;
+ 
+ end.
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

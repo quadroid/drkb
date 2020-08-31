@@ -1,0 +1,74 @@
+<html>
+<head>
+  <title>Пример работы с Flash</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Пример работы с Flash</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>The example of a simple movie creating which shows rectangle moving and circle transforming is below</p>
+<pre name="code" class="delphi">
+Procedure MakeSWF;
+ var Movie: TFlashMovie;
+     Shape1, Shape2: TFlashShape;
+begin
+  Movie := TFlashMovie.Create(0, 0, 400 * twips, 400 * twips, 12);
+  Movie.Compressed := true;
+  Movie.SystemCoord := scPix;
+  Shape1 := Movie.AddCircle(0, 0, 50);
+  Shape1.SetRadialGragient(cswfWhite, SWFRGBA(clNavy), 35, 35);
+  Shape2 := Movie.AddRectangle(0, 0, 150, 50);
+  Shape2.SetSolidColor(SWFRGBA(clRed, $cc));
+ 
+  For il := 0 to 20 do
+    begin
+     With Movie.PlaceObject(Shape1, 1) do
+      begin
+        SetScale(1+il / 10, 1+il / 20);
+        SetTranslate(200, 200);
+        if il&gt;0 then RemoveDepth := true;
+      end;
+     With Movie.PlaceObject(Shape2, 2) do
+       begin
+         SetTranslate(20+il, il*6);
+         if il&gt;0 then RemoveDepth := true;
+       end;
+     Movie.ShowFrame;
+    end;
+  ...      
+  Movie.MakeStream;
+  Movie.SaveToFile('demo.swf');
+  Movie.Free;
+end;
+ 
+</pre>
+<p>http://www.delphiflash.com</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

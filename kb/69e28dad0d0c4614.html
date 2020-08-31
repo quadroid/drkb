@@ -1,0 +1,125 @@
+<html>
+<head>
+  <title>Добавить HTML к TWebBrowser Document</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Добавить HTML к TWebBrowser Document</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses
+  MSHTML;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  Range: IHTMLTxtRange;
+begin
+  Range := ((WebBrowser1.Document as IHTMLDocument2).body as
+    IHTMLBodyElement).createTextRange;
+  Range.collapse(False);
+  Range.pasteHTML('&lt;br&gt;&lt;b&gt;Hello!&lt;/b&gt;');
+end;
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  Webbrowser1.Navigate('www.google.ch');
+end;
+</pre>
+<pre name="code" class="delphi">
+unit Unit1;
+// by Sprint
+ 
+interface
+ 
+ 
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, OleCtrls, SHDocVw, MSHTML, StdCtrls;
+ 
+ 
+type
+  TForm1 = class(TForm)
+    WebBrowser1: TWebBrowser;
+    procedure FormCreate(Sender: TObject);
+    procedure WebBrowser1DocumentComplete(Sender: TObject;
+      const pDisp: IDispatch; var URL: OleVariant);
+  private
+    { Private-Deklarationen }
+    FirstRun: Boolean;
+  public
+    { Public-Deklarationen }
+  end;
+ 
+ 
+var
+  Form1: TForm1;
+ 
+ 
+implementation
+ 
+ 
+{$R *.dfm}
+{----------------------------------------------------------------}
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  FirstRun := True;
+  WebBrowser1.Navigate('about:blank');
+end;
+ 
+{----------------------------------------------------------------}
+ 
+ 
+procedure TForm1.WebBrowser1DocumentComplete(Sender: TObject;
+  const pDisp: IDispatch; var URL: OleVariant);
+var
+  WebDoc: HTMLDocument;
+  WebBody: HTMLBody;
+begin
+  if FirstRun then
+    if pDisp = WebBrowser1.Application then
+    begin
+      FirstRun := False;
+      WebDoc := WebBrowser1.Document as HTMLDocument;
+      WebBody := WebDoc.body as HTMLBody;
+      WebBody.insertAdjacentHTML('BeforeEnd', '&lt;h1&gt;Hello World!&lt;/h1&gt;');
+    end;
+end;
+ 
+{----------------------------------------------------------------}
+ 
+end.
+</pre>
+
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

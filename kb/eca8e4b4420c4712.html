@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>Как поместить в буфер файл с помощью File Mapping?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как поместить в буфер файл с помощью File Mapping?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>1.</p>
+<p>В файлике Delphi5\Demos\Resxplor\exeimage.pas ищи слово CreateFileMapping</p>
+<p>2.</p>
+<p>идея простая открываешь файл .. (или создаешь)</p>
+<p>создаешь Mapping ... CreateFileMapping</p>
+<p>отображаешь Mapping в свой процесс MapViewOfFile</p>
+<p>и всё</p>
+<pre name="code" class="delphi">
+var
+  SharedHandle: THandle;
+  FileView: Pointer;
+  MyFile: HFILE;
+begin
+  MyFile := OpenFile('c:\1.txt', // pointer to filename
+    ..., // pointer to buffer for file information
+    ... // action and attributes
+    );
+  SharedHandle := CreateFileMapping(MyFile, nil, PAGE_READWRITE, 0,
+    size {размер файла}, PChar('MyFile'));
+  FileView := MapViewOfFile(SharedHandle, FILE_MAP_WRITE, 0, 0, size {размер файла});
+  ...
+    ...
+    ...
+    ...
+// потом
+  UnmapViewOfFile(FileView);
+</pre>
+
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

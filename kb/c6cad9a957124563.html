@@ -1,0 +1,135 @@
+<html>
+<head>
+  <title>Пример работы чтения и сохранении wav-файлов</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Пример работы чтения и сохранении wav-файлов</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Сразу оговорюсь, что рассматривать я буду только PCM формат - самый простой. Wav-файл состоит из заголовка и собственно информации. В заголовке находится информация о типе файла, частоте, каналах и т.д. Сама информация состоит из массива чисел по 8 или 16 бит. Если в файле 2 канала, то значения левого и правого каналов записываются поочередно.</p>
+<p>Для работы с заголовком удобнее всего использовать запись, расположение полей в которой будет повторять расположение информации в файле. Например, первая запись в wav-файле - это символы "RIFF". Соответственно, первое поле в записи должно быть массивом из четырех элементов типа char. Вторая запись - длина файла без 8 байт (без первых двух записей). Длина записана в четырех байтах целым числом. Поэтому взят тип longint. Так составляется эта запись. Когда нужно целое число длиной 2 байта - берется smallint.</p>
+<p>О создании wav-файлов и хранении самой информации я расскажу в следующем выпуске.</p>
+<p>Эта программа выводит в Memo длину wav-файла, количество каналов, частоту и количество бит на запись.</p>
+<p>Скачать необходимые для компиляции файлы проекта можно на <a href="http://program.dax.ru" target="_blank">program.dax.ru</a>.</p>
+<pre name="code" class="delphi">
+type
+  TWaveHeader = record
+    idRiff: array[0..3] of char;
+    RiffLen: longint;
+    idWave: array[0..3] of char;
+    idFmt: array[0..3] of char;
+    InfoLen: longint;
+    WaveType: smallint;
+    Ch: smallint;
+    Freq: longint;
+    BytesPerSec: longint;
+    align: smallint;
+    Bits: smallint;
+  end;
+ 
+  TDataHeader = record
+    idData: array[0..3] of char;
+    DataLen: longint;
+  end;
+ 
+// Процедура ?тения заголовка wav-файлов
+ 
+procedure ReadWaveHeader(Stream: TStream;
+  var SampleCount, SamplesPerSec: integer;
+  var BitsPerSample, Channeles: smallint);
+var
+  WaveHeader: TWaveHeader;
+  DataHeader: TDataHeader;
+begin
+  Stream.Read(WaveHeader, sizeof(TWaveHeader));
+  with WaveHeader do
+    begin
+      if idRiff &lt;&gt; 'RIFF' then raise EReadError.Create('Wrong idRIFF');
+      if idWave &lt;&gt; 'WAVE' then raise EReadError.Create('Wrong idWAVE');
+      if idFmt &lt;&gt; 'fmt ' then raise EReadError.Create('Wrong idFmt');
+      if WaveType &lt;&gt; 1 then raise EReadError.Create('Unknown format');
+      Channeles := Ch;
+      SamplesPerSec := Freq;
+      BitsPerSample := Bits;
+      Stream.Seek(InfoLen - 16, soFromCurrent);
+    end;
+  Stream.Read(DataHeader, sizeof(TDataHeader));
+  if DataHeader.idData = 'fact' then
+    begin
+      Stream.Seek(4, soFromCurrent);
+      Stream.Read(DataHeader, sizeof(TDataHeader));
+    end;
+  with DataHeader do
+    begin
+      if idData &lt;&gt; 'data' then raise EReadError.Create('Wrong idData');
+      SampleCount := DataLen div (Channeles * BitsPerSample div 8)
+    end;
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  OpenDialog1.Filter := 'Wave files|*.wav';
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  F: TFileStream;
+  SampleCount, SamplesPerSec: integer;
+  BitsPerSample, Channeles: smallint;
+begin
+// Вызов OpenDialog1:
+  if not OpenDialog1.Execute then Exit;
+  try
+// Открытие файла:
+    F := TFileStream.Create(OpenDialog1.FileName, fmOpenRead);
+// Чтение заголовка:
+    ReadWaveHeader(F, SampleCount, SamplesPerSec,
+      BitsPerSample, Channeles);
+    F.Free;
+    Memo1.Clear;
+// Заполнение Memo информацией о файле:
+    Memo1.Lines.Add('SampleCount: ' + IntToStr(SampleCount));
+    Memo1.Lines.Add(Format('Length: %5.3f sec', [SampleCount / SamplesPerSec]));
+    Memo1.Lines.Add('Channeles: ' + IntToStr(Channeles));
+    Memo1.Lines.Add('Freq: ' + IntToStr(SamplesPerSec));
+    Memo1.Lines.Add('Bits: ' + IntToStr(BitsPerSample));
+  except
+    raise Exception.Create('Problems with file reading');
+  end;
+end;
+</pre>
+
+<p>Даниил Карапетян.</p>
+<p>На сайте <a href="http://delphi4all.narod.ru" target="_blank">http://delphi4all.narod.ru</a> Вы найдете еще более 100 советов по Delphi.</p>
+<p>Email: <a href="mailto:delphi4all@narod.ru" target="_blank">delphi4all@narod.ru</a></p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

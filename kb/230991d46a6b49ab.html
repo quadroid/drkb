@@ -1,0 +1,109 @@
+<html>
+<head>
+  <title>Просто и ясно о PageMaker и Delphi</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Просто и ясно о PageMaker и Delphi</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Дорогие коллеги, данной статьей я хочу показать вам основные принципы работы с Adobe Pagemaker из Delphi. </p>
+<p>Итак небольшой экскурс -</p>
+<p>Adobe Pagemaker - довольно распространенный в нашей стране пакет издательской верстки, в основном он применяется в газетах и журналах для подготовки материала к отпечатке в типографию. Данный пакет имеет в свое роде некоторые преимущества перед например Microsoft Word - ом при подготовке журнальных полос или верстке книг. На примере компонента TKDPageMaker я хочу показать вам возможность управления данной программой из Delphi. </p>
+<p>Возможная область применения данного пакета - по работе мне приходилось создавать отчеты в виде брошюр </p>
+<p>Итак начнем.</p>
+<p>В документации поставляемой фирмой Adobe к данному пакету написано что PageMaker поддерживает динамический обмен данными (DDE) с любыми приложениями. </p>
+<p>В данном компоненте реализована 3 основных метода , это - </p>
+<pre name="code" class="delphi">Property PathPageMaker : String Read FPathPageMaker Write SetPathPageMaker;
+</pre>
+
+метод служащий для указания пути к исполняемому файлу Pagemaker, используется для того что-бы TDDEClientConv запустил данное приложение в виде DDE сервера </p>
+<pre name="code" class="delphi">Property Enable : Boolean Read FEnable Write SetEnable; 
+</pre>
+
+метод используется для запуска Adobe PageMaker , т.е фактически для установки DDE соединения </p>
+<pre name="code" class="delphi">Property UnitMeasurement : TUnitMeasurement Read FunitMeasurement Write SetUnitMeasurement; 
+</pre>
+
+метод определяет единицы измерения которыми будет оперировать PageMaker при передаче команд. Например команда PageMaker Script Language PageSize позволяет установить размер страницы как в миллиметрах так и в дюймах - что бы не заботится об установки единиц измерения в командах и создан этот метод позволяющий гибко реализовать задание размеров в той форме в какой установил программист. </p>
+<p class="p_Heading1">Реализация передач команд серверу </p>
+<p>Для этого в компоненте в разделе реализована функция </p>
+<pre name="code" class="delphi">Procedure ExecuteMacroPM(Str:String); // Выполнить макрос
+</pre>
+<p>Которая в свою очередь вызывает метод TDDEClientConv. </p>
+<p>К сожалению разработчики немного запутали передачу логических данных в процедуры и функции Script Language и в разные функциях булевые значения могут передаваться в виде '0' -логического "НЕТ" , так и в виде строкового ".F." , "OFF" или "False" </p>
+<p>В общем для обработки преобразования реализовано несколько функций </p>
+<pre name="code" class="delphi">
+// вернуть строковый On Off
+Function  ReturnOnOffStr(Value: Boolean) : String;
+ 
+// вернуть строковый .T..F.
+Function  ReturnTrueFalseStr(Value: Boolean) : String;
+ 
+// вернуть строковый 0 , 1
+Function  Return0_1Str(Value: Boolean) : String; 
+ 
+// более подробно смотрите в компоненте…
+</pre>
+<p>Реализация приема данных из DDE сервера </p>
+<p>Запрос данных с сервера в компоненте к сожалению не реализован функцией т.к. компонент в свое время был написан за два часа в очень скоростном режиме, если вы обратите внимание на некоторые функции то запрос данных с DDE сервера в них реализован примерно так </p>
+<pre name="code" class="delphi">var
+PcharReply : Array[0..1023] of char;
+begin
+PcharReply := DDE.RequestData('GetPMState');
+</pre>
+<p>В основе вызывается стандартная функция RequestData TDDEClientConv.Для более подробной информацие обратитесь в справку по TDDEClientConv. </p>
+<p class="p_Heading1">Обработка поступивших данных</p>
+<p>Данные, поступившие от DDE сервера представляют собой строку параметров заключенную в апострофы где передаваемые данные разделены запятыми. </p>
+<p>Число параметров может колебаться в произвольной степени в зависимости от функции Script Language.</p>
+<p>Для чтение параметров создана функция </p>
+<pre name="code" class="delphi">// получить параметр вернутый PM по порядковому значению
+Function  EncodeParams(Value : PChar; NN : Integer) : String;
+</pre>
+<p>возвращающая параметр в виде строки, причем NN - является номером параметра в переданном списке (причем для чтения самого первого параметра нужно указать NN равным 0) </p>
+<p class="p_Heading1">Команды и функции Script Language.</p>
+<p>Основные команды и функции в компоненте реализованы с префиксом "PM_"<br>
+<p>Например </p>
+<pre name="code" class="delphi">// Установить текущую страницу публикации
+procedure PM_Page(const nPages  : Integer);  virtual;
+// Получить текущуу страницу в публикации
+Function  PM_GetPageNumber : TPageNumber;  virtual;
+// Получить количество страниц
+Function  PM_GetPages : Integer;   virtual;
+</pre>
+<p>В компоненте я постарался сохранить синтаксис команд Script Language т.е команде Page Script Language соответствует PM_Page компонента. Да и еще более детальную информацию по Script Language можно прочитать в Slguide.hlp. Это позволит вам написать функции и процедуры не реализованные в этом компоненте, а может и создать свой. </p>
+<p>Вот в принципе то и все. Удачи вам.</p>
+<p>P.S. Хочу напоследок заметить что данный компонент не претендует на завершенность и полную функциональность , многое в нем реализовано не очень хорошо , но учитывая что он был создан для обкатки в короткие сроки то для основ работы он подойдет.Так что критика приниматься не будет. </p>
+
+<p><a href="http://delphi.mtu-net.ru/zip/pagemaker.zip" target="_blank">http://delphi.mtu-net.ru/zip/pagemaker.zip</a></p>
+Дмитрий Кузан</p>
+
+<p><a href="http://www.delphikingdom.com" target="_blank">http://www.delphikingdom.com</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

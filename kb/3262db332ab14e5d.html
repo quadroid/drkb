@@ -1,0 +1,63 @@
+<html>
+<head>
+  <title>Уменьшение мерцания TListBox в обработчике OwnerDraw</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Уменьшение мерцания TListBox в обработчике OwnerDraw</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Предположим ListBox имеет в своем списке два элемента, элемент 0 имеет фокус, активен другой компонент и вы щелкаете на элементе 1. При этом происходит *ПЯТИКРАТНЫЙ* вызов OnDrawItem, смотрите сами изменения состояний двух элементов: </p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Index&nbsp;&nbsp; State</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [odSelected, odFocused]</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [odSelected]</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; []</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [odSelected]</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [odSelected, odFocused]</p>
+<p>В случае единственного элемента в списке ListBox получается конфуз, поскольку при щелчке на нем вы получаете тот же самый сценарий, только вместо двух индексов присутствует один, нулевой. </p>
+<p>Имея эту информацию, вы можете минимизировать количество вызовов процедуры отрисовки. Для примера, в не-multi-select ListBox, элемент не нужно отрисовывать, если его состояние = [odSelected], поскольку это состояние всегда сопровождается НЕ selected НЕ focused, или ОДНОВРЕМЕННО selected и focused. В этом вам поможет технология отслеживания в обработчике OnDrawItem предыдущего отрисованного элемента, и если предыдущий запомненный элемент равен текущему, то отрисовывать его необязательно, например:</p>
+<pre name="code" class="delphi">
+...
+const 
+  LastIndex: LongInt = -1;
+begin
+  IF Index = LastIndex THEN
+    ...
+  ELSE
+    ...
+  LastIndex := Index;
+end;
+</pre>
+
+<p id="author">Автор: Neil </p>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

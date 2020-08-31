@@ -1,0 +1,141 @@
+<html>
+<head>
+  <title>Как выключить удаленный компьютер?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как выключить удаленный компьютер?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{-----------------------------------------------------------------------------
+ Unit Name:     formClient
+ Author:        Stewart Moss
+ 
+ Creation Date: 27 February, 2002 (16:30)
+ Documentation Date: 27 February, 2002 (16:30)
+ 
+ Version 1.0
+ -----------------------------------------------------------------------------
+ 
+ Description:
+ 
+  This is to demonstrate shutting down a machine over the network.
+ 
+  ** Tobias R. requests the article "How to send a shutdown command in a network?" **
+ 
+  This is not really what you want. I think you are looking for some kind
+  of IPC or RPC command. But this will work. Each machine needs to run
+  a copy of this server.
+ 
+  It uses the standard delphi ServerSocket found in the "ScktComp" unit.
+ 
+  Create a form (name frmClient) with a TServerSocket on it (name ServerSocket)
+  set the Port property of ServerSocket to 5555. Add a TMemo called Memo1.
+ 
+  It listens on port 5555 using TCP/IP.
+ 
+  It has a very simple protocol.
+  Z = Show message with "Z"
+  B = Beep
+  S = Shutdown windows
+ 
+  Run the program.. Then from the command prompt type in
+  "telnet localhost 5555". Type in one of the three commands above
+  (all in uppercase) and the server will respond.
+ 
+ Copyright 2002 by Stewart Moss. All rights reserved.
+-----------------------------------------------------------------------------}
+ 
+unit formClient;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  ScktComp, StdCtrls;
+ 
+type
+  TfrmClient = class(TForm)
+    ServerSocket: TServerSocket;
+    Memo1: TMemo;
+    procedure ServerSocketClientRead(Sender: TObject;
+      Socket: TCustomWinSocket);
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+ 
+var
+  frmClient: TfrmClient;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TfrmClient.ServerSocketClientRead(Sender: TObject;
+  Socket: TCustomWinSocket);
+var
+  Incomming: string;
+begin
+  // read off the socket
+  Incomming := Socket.ReceiveText;
+ 
+  memo1.Lines.Add(incomming);
+ 
+  if Incomming = 'S' then // Shutdown Protocol
+    ExitWindowsEx(EWX_FORCE or EWX_SHUTDOWN, 0);
+ 
+  if Incomming = 'B' then // Beep Protocol
+    Beep;
+ 
+  if Incomming = 'Z' then // Z protocol
+    showmessage('Z');
+end;
+ 
+procedure TfrmClient.FormCreate(Sender: TObject);
+begin
+  ServerSocket.Active := true;
+end;
+ 
+procedure TfrmClient.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  ServerSocket.Active := false;
+end;
+ 
+end.
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

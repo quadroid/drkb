@@ -1,0 +1,103 @@
+<html>
+<head>
+  <title>Как избавиться от ошибки multiple rows in singleton select?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как избавиться от ошибки multiple rows in singleton select?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Очевидно что данная ошибка происходит в вашем триггере или хранимой процедуре. Обычный SELECT внутри триггера или процедуры должен возвращать одну строку (row), т.к. при двух и более строках IB не знает куда поместить значения полей этих строк. Если ваш SELECT возвращает несколько записей, то нужно пользоваться конструкцией FOR SELECT ... INTO ... DO ... которая производит обработку возвращаемого набора записей в цикле. </p>
+
+<p>Если-же вы уверены, что ваш SELECT должен вернуть только одну запись, а ошибка все-таки возникает, то давайте рассмотрим следующую ситуацию: </p>
+
+<p>существуют таблицы ORDERS (заказы) и CLIENTS (клиенты). </p>
+<p>обе эти таблицы имеют поле связи CLIENT_ID INTEGER. </p>
+<p>для того чтобы вытащить информацию о клиенте используется запрос: </p>
+
+<pre name="code" class="sql">
+SELECT CLIENT_ID, CLIENT_NAME 
+FROM CLIENTS 
+WHERE CLIENT_ID = ? 
+</pre>
+
+<p>где ? - либо значение либо переменная. </p>
+
+<p>Теперь представим себе, что этот запрос должен выполняться в триггере при вставке записи в таблицу ORDERS </p>
+<pre name="code" class="sql">CREATE TRIGGER TI_ORDERS FOR ORDERS 
+ACTIVE AFTER INSERT POSITION 0 
+AS 
+DECLARE VARIABLE CID INTEGER; 
+DECLARE VARIABLE CNAME CHAR(30); 
+BEGIN 
+    SELECT C.CLIENT_ID, C.CLIENT_NAME 
+    FROM CLIENTS C 
+    WHERE C.CLIENT_ID = CLIENT_ID 
+    INTO :CID, :CNAME; 
+    ... 
+</pre>
+
+
+<p>Итак, поскольку в запросе использован псевдоним C (FROM CLIENTS C), то якобы существует гарантия что в предложении WHERE будут сравниваться поле C.CLIENT_ID из таблицы CLIENTS и поле CLIENT_ID из таблицы ORDERS (в триггере доступны имена полей собственной таблицы). На самом деле даже использование псевдонимов не дает гарантии что переменные будут разичаться, и получается что в предложении WHERE сравнивается само с собой поле таблицы CLIENTS.CLIENT_ID, и в запросе возвращается ВСЯ таблица CLIENTS. </p>
+
+<p>Вот почему возникает вышеупомянутое сообщение об ошибке. </p>
+
+<p>Избавиться от него можно несколькими путями: </p>
+
+<p>Использовать разные имена полей для связи между CLIENTS и ORDERS. например OCLIENT_ID и CCLIENT_ID. </p>
+<p>Использовать уточнитель new.CLIENT_ID, несмотря на то что в документации указано что для триггеров последействия (AFTER) он не имеет смысла. </p>
+<pre name="code" class="sql">SELECT C.CLIENT_ID, C.CLIENT_NAME 
+FROM CLIENTS C 
+WHERE C.CLIENT_ID = new.CLIENT_ID 
+... 
+</pre>
+
+<p>Перед запросом поместить CLIENT_ID в локальную переменную, и в запросе использовать сравнение не с полем, а с этой локальной&nbsp; переменной. </p>
+<pre name="code" class="sql">CID=CLIENT_ID; 
+SELECT C.CLIENT_ID, C.CLIENT_NAME 
+FROM CLIENTS C 
+WHERE C.CLIENT_ID = :CID 
+...
+</pre>
+
+<p>Borland Interbase / Firebird FAQ </p>
+<p>Borland Interbase / Firebird Q&amp;A, версия 2.02 от 31 мая 1999</p>
+<p>последняя редакция от 17 ноября 1999 года.</p>
+<p>Часто задаваемые вопросы и ответы по Borland Interbase / Firebird</p>
+<p>Материал подготовлен в Демо-центре клиент-серверных технологий. (Epsylon Technologies)</p>
+<p>Материал не является официальной информацией компании Borland. </p>
+<p>E-mail mailto:delphi@demo.ru </p>
+<p>www: http://www.ibase.ru/</p>
+<p>Телефоны: 953-13-34</p>
+<p>источники: Borland International, Борланд АО, релиз Interbase 4.0, 4.1, 4.2, 5.0, 5.1, 5.5, 5.6, различные источники на WWW-серверах, текущая переписка, московский семинар по Delphi и конференции, листсервер ESUNIX1, листсервер mers.com. </p>
+<p>Cоставитель: Дмитрий Кузьменко </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

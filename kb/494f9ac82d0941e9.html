@@ -1,0 +1,67 @@
+<html>
+<head>
+  <title>Как получить UNC-путь к файлу?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить UNC-путь к файлу?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function GetUNCName(PathStr: string): string;
+var
+  bufSize: DWord;
+  buf: TUniversalNameInfo;
+  msg: string;
+begin
+  bufSize := SizeOf(TUniversalNameInfo);
+  if (WNetGetUniversalName(PChar(PathStr), UNIVERSAL_NAME_INFO_LEVEL,
+    buf, bufSize) &gt; 0) then
+    case GetLastError of
+      ERROR_BAD_DEVICE: msg := 'ERROR_BAD_DEVICE';
+      ERROR_CONNECTION_UNAVAIL: msg := 'ERROR_CONNECTION_UNAVAIL';
+      ERROR_EXTENDED_ERROR: msg := 'ERROR_EXTENDED_ERROR';
+      ERROR_MORE_DATA: msg := 'ERROR_MORE_DATA';
+      ERROR_NOT_SUPPORTED: msg := 'ERROR_NOT_SUPPORTED';
+      ERROR_NO_NET_OR_BAD_PATH: msg := 'ERROR_NO_NET_OR_BAD_PATH';
+      ERROR_NO_NETWORK: msg := 'ERROR_NO_NETWORK';
+      ERROR_NOT_CONNECTED: msg := 'ERROR_NOT_CONNECTED';
+    end
+  else
+    msg := buf.lpUniversalName;
+ 
+  Result := msg;
+end;
+</pre>
+
+<p>Работает только на NT/2000/XP</p>
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

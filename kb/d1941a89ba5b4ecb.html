@@ -1,0 +1,109 @@
+<html>
+<head>
+  <title>Функции преобразования чисел с плавающей точкой</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Функции преобразования чисел с плавающей точкой</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Преобразование числа с плавающей точкой (далее в этом разделе просто числа) в текстовую строку и обратно всегда было достаточно сложной задачей. Для ее решения в Delphi есть функции сразу трех уровней сложности.</p>
+<p>Первый &#8212; самый простой &#8212; представлен функцией FloatToStr:</p>
+<pre name="code" class="delphi">
+function FloatToStr( Value : Extended): string;
+</pre>
+<p>Число, заданное параметром Value, преобразуется в возвращаемую функцией строку. Формат преобразования соответствует типу преобразования g функции Format, причем длина выходной строки принимается равной 15 символам.</p>
+<p>Больше возможностей для управления форматом вывода дает функция:</p>
+<pre name="code" class="delphi">
+function PloatToStrF(Value: Extended; Format: TFloatFormat; Precision, Digits: Integer): string;
+</pre>
+<p>Здесь Value &#8212;  преобразуемое значение, Format &#8212; один из предопределенных форматов. Хотя этот параметр имеет тип TFloatFormat, он имеет очень много общего с типами преобразований в функции Format (ссылки на них есть в предлагаемой таблице). Параметр Precision задает общее число символов в выходной строке и не должен превышать 7 для фактического параметра типа Single, 15 &#8212; для Double и 18 &#8212; для Extended. Digits &#8212; это параметр, интерпретируемый в зависимости от значения параметра Format:</p>
+<p>ffExponent &nbsp; &nbsp; &nbsp; &nbsp;Научный формат, соответствует типу е. Precision задает общее число символов, Digits &#8212; число знаков в показателе экспоненты {0-4). &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>ffFixed &nbsp; &nbsp; &nbsp; &nbsp;Формат с фиксированной точкой; соответствует типу f. Precision задает общее число символов, Digits &#8212; число знаков после запятой (0-18). Если значение Precision мало для представления числа, используется научный формат. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>ffGeneral &nbsp; &nbsp; &nbsp; &nbsp;Обобщенный формат, соответствует типу д (см. описание функции Format). &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>ffNumber &nbsp; &nbsp; &nbsp; &nbsp;Отличается от fTFixed наличием символов-разделителей тысяч (см. тип преобразования п). &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>ffCurrency &nbsp; &nbsp; &nbsp; &nbsp;Соответствует типу преобразования т. Параметр Digits задает число символов после десятичной точки в выходной строке (0-18). &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>В случае, когда в функцию переданы значения Value, соответствующие особым случаям сопроцессора ("не-число", плюс и минус бесконечность), она возвращает соответственно строки 'NAN', 'INF' и '-INF'.</p>
+<p>Наконец, возможность полного управления форматом предоставляет функция FormatFloat:</p>
+<p>function FormatFloat(const Format: string; Value: Extended): string;</p>
+<p>Она преобразует число в строку в соответствии со спецификатором формата, содержащимся в параметре Format. Правила его задания следующие:</p>
+<p>0 &nbsp; &nbsp; &nbsp; &nbsp;Поле для цифры. Если форматируемая величина имеет в этой позиции цифру, то вставляется она, в противном случае вставляется 0. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p># &nbsp; &nbsp; &nbsp; &nbsp;Поле для цифры. Если форматируемая величина имеет в этой позиции цифру, то вставляется она, в противном случае ничего не вставляется. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>  &nbsp; &nbsp; &nbsp; &nbsp;Поле для десятичной точки. Сюда вставляется символ, определенный константой DecimalSeparator. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>; &nbsp; &nbsp; &nbsp; &nbsp;Поле для разделителя тысяч. Оно означает, что группы по три цифры, считая влево от десятичной точки, будут разделяться специальным символом (он задан константой ThousandSeparator). Местоположение поля может быть произвольным. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>Е+, Е-, е+, е- &nbsp; &nbsp; &nbsp; &nbsp;Признаки представления числа в научном формате. Появление любого из этих аргументов означает, что число будет преобразовано с характеристикой и мантиссой. Вставка нулей после такого аргумента позволяет определить ширину мантиссы. Разница между Е+, е+ и Е-, е-в том, что в первых двух случаях ставится "+" при выводе положительных чисел. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>'хх' "хх" &nbsp; &nbsp; &nbsp; &nbsp;Символы, заключенные в обычные или двойные кавычки, напрямую включаются в выходную строку. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>; &nbsp; &nbsp; &nbsp; &nbsp;Разделяет спецификаторы формата для положительных, отрицательных и нулевых чисел. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>Примечания:</p>
+<p>1. Число всегда округляется до той точности, которую позволяет заданное программистом количество полей для размещения цифр ('0' и '#').</p>
+<p>2. Если у преобразуемого числа слева от десятичной точки получается больше значащих цифр, чем задано полей для их размещения, то цифры все равно добавляются в строку. Если полей недостаточно справа от точки, происходит округление.</p>
+<p>3. Символ ';' позволяет задать три разных формата вывода для чисел с разным знаком. При различном количестве форматов они применяются следующим образом:</p>
+<p>• один: применяется для всех чисел;</p>
+<p>• два: первый применяется для чисел, больших или равных нулю, второй &#8212; для отрицательных;</p>
+<p>• три: первьш применяется для положительных, второй &#8212; для отрицательных чисел, третий &#8212; для нуля.</p>
+<p>Если форматы для отрицательных чисел или нуля пусты, применяется формат для положительных чисел.</p>
+<p>Если пуст формат для положительных чисел или спецификатор формата вообще не задан (пустая строка), то числа форматируются согласно обобщенному формату (как в функции FloatToStr). Такое форматирование применяется также в случае, если число значащих цифр слева от десятичной точки превысило 18 и не задан научный формат.</p>
+<p>Применение спецификатора иллюстрируется в таблице на примере преобразования четырех чисел:</p>
+<p>Спецификатор</p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;1234 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;-1234 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0.5 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0 &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;1234 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;-1234 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;1 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0 &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>0.00 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;1234.00 &nbsp; &nbsp; &nbsp; &nbsp;-1234.00 &nbsp; &nbsp; &nbsp; &nbsp;0.50 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0.00 &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>#.## &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;1234 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;-1234 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;.5 &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>#.##0.00 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;1,234.00 &nbsp; &nbsp; &nbsp; &nbsp;-1,234.00 &nbsp; &nbsp; &nbsp; &nbsp;0.50 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0.00 &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>#,##0.00;(#,##0.00) &nbsp; &nbsp; &nbsp; &nbsp;1,234.00 &nbsp; &nbsp; &nbsp; &nbsp;(1,234.00) &nbsp; &nbsp; &nbsp; &nbsp;0.50 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0.00 &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>#,##0.00;;Zero &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;1,234.00 &nbsp; &nbsp; &nbsp; &nbsp;-1,234.00 &nbsp; &nbsp; &nbsp; &nbsp;0.50 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Zero &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>О.ОООЕ+00 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;1.234Е+03 &nbsp; &nbsp; &nbsp; &nbsp;-1.234Е+03 &nbsp; &nbsp; &nbsp; &nbsp;5.000Е-01 &nbsp; &nbsp; &nbsp; &nbsp;О.ОООЕ+00 &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>#.###Е-0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;1.234ЕЗ &nbsp; &nbsp; &nbsp; &nbsp;-1.234ЕЗ &nbsp; &nbsp; &nbsp; &nbsp;5Е-1 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;ОЕО &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>Две следующие функции применяют те же правила, что и рассмотренные выше функции, но отличаются параметрами:</p>
+<pre name="code" class="delphi">
+function FloatToText(Buffer: PChar; Value: Extended; Format: TFloatFormat; Precision, Digits: Integer) : Integer;        
+</pre>
+<p>Соответствует FloatToStrF, но выходная строка помещается в буфер Buffer (без начальной длины!), а число символов в ней возвращается самой функцией. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<pre name="code" class="delphi">
+function FloatToTextFmt(Buffer: PChar; Value: Extended; Format: PChar): Integer;
+</pre>
+<p> &nbsp; &nbsp; &nbsp; &nbsp;Соответствует FormatFloat, но выходная строка помещается в буфер Buffer (без начальной длины!), а число символов в ней возвращается самой функцией. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>Наконец, процедура:</p>
+<pre name="code" class="delphi">
+procedure FloatToDecimal(var Result: TFloatRec; Value: Extended; Precision, Decimals: Integer);
+</pre>
+<p> &nbsp; &nbsp; &nbsp; &nbsp;Производит подготовительный анализ преобразуемого числа, занося в поля записи Result различные его характеристики. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>Перейдем к рассмотрению функций преобразования текстовой строки в число. Их две &#8212; соответственно для строк типа string и PChar:</p>
+<pre name="code" class="delphi">
+function StrToPloat(const S: string): Extended;
+function TextToFloat(Buffer: PChar; var Value: Extended): Boolean;
+</pre>
+<p>Общие правила для передаваемой в функцию строки таковы:</p>
+<p>• допускаются как научный, так и фиксированный форматы;</p>
+<p>• в качестве десятичной точки должен выступать символ, который содержится в DecimalSeparator;</p>
+<p>• не допускаются символы-разделители тысяч (ThousandSeparator), а также символы обозначения денежньк единиц.</p>
+<p>В случае ошибки преобразования функция StrToFloat генерирует исключительную ситуацию EConvertError, a TextToFloat &#8212; возвращает значение False.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

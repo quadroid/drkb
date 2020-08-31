@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>Как найти пароль к базе данных?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как найти пароль к базе данных?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>I know there that there are many utilities out there costing $$ for removing the password of an access database. Here's how to implement it in Delphi.Please note that this method is not meant for a database with user-level security and work group information file. The idea is based on the file format of an access db. </p>
+
+<p>The password is stored from location $42 and encrypted using simple xoring. The following function does decryption. </p>
+<pre name="code" class="delphi">
+function GetPassword(filename: string): string;
+var
+  Stream: TFilestream;
+  buffer: array[0..12] of char;
+  str: string;
+begin
+  try
+    stream := TFileStream.Create(filename, fmOpenRead);
+  except
+    ShowMessage('Could not open the file.Make sure that the file is not in use.');
+    exit;
+  end;
+  stream.Seek($42, soFromBeginning);
+  stream.Read(buffer, 13);
+  stream.Destroy;
+ 
+  str := chr(Ord(buffer[0]) xor $86);
+  str := str + chr(Ord(buffer[1]) xor $FB);
+  str := str + chr(Ord(buffer[2]) xor $EC);
+  str := str + chr(Ord(buffer[3]) xor $37);
+  str := str + chr(Ord(buffer[4]) xor $5D);
+  str := str + chr(Ord(buffer[5]) xor $44);
+  str := str + chr(Ord(buffer[6]) xor $9C);
+  str := str + chr(Ord(buffer[7]) xor $FA);
+  str := str + chr(Ord(buffer[8]) xor $C6);
+  str := str + chr(Ord(buffer[9]) xor $5E);
+  str := str + chr(Ord(buffer[10]) xor $28);
+  str := str + chr(Ord(buffer[11]) xor $E6);
+  str := str + chr(Ord(buffer[12]) xor $13);
+  Result := str;
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

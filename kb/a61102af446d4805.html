@@ -1,0 +1,74 @@
+<html>
+<head>
+  <title>Печать текста в обход Windows</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Печать текста в обход Windows</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Откройте файл типа TextFile и пишите в него напрямую:</p>
+<pre name="code" class="delphi">
+var
+  Lst: TextFile;
+ 
+begin
+  AssignFile(Lst, 'LPT1');
+  Rewrite(Lst);
+  WriteLn(Lst, 'Здравствуй, мир!');
+  Close(Lst);
+end.
+</pre>
+
+<p>При этом вы должны помнить, что при данной технологии вы не можете в это же время печатать из другой программы, иначе наступит конец света, а ваша распечатка будет похожа на "запутанный беспорядк".</p>
+
+<p>Если вы планируете посылать на принтер управляющие коды, вызывайте следующую функцию немедленно после перезаписи файла:</p>
+
+<pre name="code" class="delphi">
+procedure SetBinaryMode(var F: Text); assembler;
+asm
+mov ax,$4400
+les di,F
+mov bx,word ptr es:[di]
+int $21
+or dl,$20
+xor dh,dh
+mov ax,$4401
+int $21
+end;
+</pre>
+
+
+<p>-Steve</p>
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<html>
+<head>
+  <title>Как показать окно свойств экрана?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как показать окно свойств экрана?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для этого воспользуемся 'Rundll32.exe' и запустим её в 'shellexecute'. Не забудьте добавить 'shellapi' в Ваш список uses.</p>
+<pre name="code" class="delphi">function GetSystemDir: TFileName;
+var
+  SysDir: array[0..MAX_PATH - 1] of char;
+begin
+  SetString(Result, SysDir, GetSystemDirectory(SysDir, MAX_PATH));
+  if Result = '' then
+    raise Exception.Create(SysErrorMessage(GetLastError));
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  x: Tfilename;
+begin
+  x := getsystemdir;
+  ShellExecute(Form11.Handle, 'open', Pchar('rundll32.exe'), 'shell32.dll,Control_RunDLL Desk.cpl,@0,3', Pchar(X), SW_normal);
+end;
+ 
+//getsystemdir это функция, которая совместима со всеми версиями windows.
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

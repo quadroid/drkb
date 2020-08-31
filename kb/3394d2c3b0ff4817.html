@@ -1,0 +1,89 @@
+<html>
+<head>
+  <title>Создание форм с закругленными краями</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создание форм с закругленными краями</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  Die CreateRoundRectRgn lasst eine Form mit abgerundeten Ecken erscheinen. 
+ 
+  The CreateRoundRectRgn function creates a rectangular 
+  region with rounded corners 
+}
+ 
+ procedure TForm1.FormCreate(Sender: TObject);
+ var
+   rgn: HRGN;
+ begin
+   Form1.Borderstyle := bsNone;
+   rgn := CreateRoundRectRgn(0,// x-coordinate of the region's upper-left corner 
+    0,            // y-coordinate of the region's upper-left corner 
+    ClientWidth,  // x-coordinate of the region's lower-right corner 
+    ClientHeight, // y-coordinate of the region's lower-right corner 
+    40,           // height of ellipse for rounded corners 
+    40);          // width of ellipse for rounded corners 
+  SetWindowRgn(Handle, rgn, True);
+ end
+ 
+ 
+ { The CreatePolygonRgn function creates a polygonal region. }
+ 
+ 
+ procedure TForm1.FormCreate(Sender: TObject);
+ const
+   C = 20;
+ var
+   Points: array [0..7] of TPoint;
+   h, w: Integer;
+ begin
+   h := Form1.Height;
+   w := Form1.Width;
+   Points[0].X := C;     Points[0].Y := 0;
+   Points[1].X := 0;     Points[1].Y := C;
+   Points[2].X := 0;     Points[2].Y := h - c;
+   Points[3].X := C;     Points[3].Y := h;
+ 
+   Points[4].X := w - c; Points[4].Y := h;
+   Points[5].X := w;     Points[5].Y := h - c;
+ 
+   Points[6].X := w;     Points[6].Y := C;
+   Points[7].X := w - C; Points[7].Y := 0;
+ 
+   SetWindowRgn(Form1.Handle, CreatePolygonRgn(Points, 8, WINDING), True);
+ end;
+</pre>
+<p id="author">Автор: winsoft</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<html>
+<head>
+  <title>Визуальные компоненты для DB</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Визуальные компоненты для DB</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Итак, мы не написав ни строчки кода получили простейшее приложение, работающее с базой данных. С помощью него мы можем просматривать и редактировать содержимое таблицы. Давайте теперь сделаем эту процедуру немного удобнее, на закладке "Data Control" есть компонент TDBNavigator. Положим его на форму и в инспекторе объектов поставим его свойство DataSource указывающим на тот же DataSource1, что и для DBGrid - собственно, теперь оба визуальных контрола(DBGrid и DBNavigator) привязаны к одному и тому же DataSource и через него к одной и той же таблицы. DBNavigator имеет несколько кнопок (вы можете настроить какие именно вы хотите видеть) дающие лёгкий контроль над следующими операциями:</p>
+<p>(перечисление в порядке расположения кнопок)</p>
+<table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="27">1)</td><td>Переход на первую запись</td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="27">2)</td><td>Переход на предыдущую запись</td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="27">3)</td><td>Переход на следующую запись</td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="27">4)</td><td>Переход на последнюю запись</td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="27">5)</td><td>Добавить запись</td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="27">6)</td><td>Удалить запись</td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="27">7)</td><td>Редактировать запись</td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="27">8)</td><td>Сохранить изменения</td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="27">9)</td><td>Отменить изменения</td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="27">10)</td><td>Перечитать таблицу</td></tr></table>&nbsp;</p>
+<p>Обратите внимание, что запись (строка) таблицы есть как бы неделимый квант информации - т.е. отменяются действия произведенные для всей записи целиком, добавляется или удаляется тоже строка целиком. </p>
+<p>Разберём ещё несколько визуальных компонентов, чтобы покончить с визуализацией данных и перейти собственно к программированию.</p>
+<p>На закладке Data Controls есть ещё несколько важных компонентов, давайте поставим их на нашу форму: DBLabel, DBEdit, DBMemo и DBImage. Все их так же как и DBGrid соединим с DataSource1. Однако здесь мы обнаружим что этого недостаточно, эти компоненты работают с отдельной ячейкой в таблице, поэтому мы должны указать ещё поле (столбец) который они будут показывать. </p>
+<p>Давайте сделаем следуюшие - для каждого из этих компонентов укажем свойство DataField, например следующим образом:</p>
+<p>DBLabel - ассоциируем с полем Category</p>
+<p>DBEdit - ассоциируем с полем Common_name</p>
+<p>DBMemo - ассоциируем с полем Notes</p>
+<p>DBImage - ассоциируем с полем Graphic</p>
+<p>Можно откомпилировать программу и немного поиграться с ней. Итак что мы можем здесь увидеть? Что в каждый данный момент времени из всей таблицы у нас есть запись которая активная (текущая) - в DBGrid она показывается треугольничком слева. Именно с этой единственной записью мы и можем оперировать - удалять, добавлять, редактировать, именно её содержимое отображается в DBLabel, DBEdit, DBMemo, DBImage и именно она может быть изменена при помощи этих компонентов. Описанная только что структура позволяет работать только с одной записью в определённый момент времени, если вы переходите на другую запись то все изменения должны быть либо запомнены либо отменены! По умолчанию они запоминаются без всяких запросов, в чём вы можете убедиться меняя значения и переходя на другую запись.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<html>
+<head>
+  <title>Как удалить строку из TStringGrid в runtime?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как удалить строку из TStringGrid в runtime?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Можно сделать наследника от TCustomGrid. А у последнего есть метод - DeleteRow.</p>
+<p id="author">Автор: Song</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr /><p>Например удаление текущей строки:</p>
+<pre name="code" class="delphi">
+Type TFakeGrid=class(TCustomGrid);
+
+ 
+procedure TForm1.MyDelete(Sender: TObject);
+begin
+  TFakeGrid(Grid).DeleteRow(Grid.row);
+end;
+</pre>
+
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<p id="note">Примечание от bur80 (Sources.ru):</p>
+<p>Предлагаю в разделе VCL -&gt; StringGrid внести корректировочку в статью "Как удалить строку в StringGrid в run-time", что данный метод(!) будет работать только в случае если форма создаётся вот так:</p>
+<pre name="code" class="delphi">
+...
+Form1.ShowModal;
+...
+</pre>
+<p>&nbsp;<br>
+<p>а не так:</p>
+<pre name="code" class="delphi">
+...
+var
+fr1 : TForm1;
+begin
+fr1 := Tform1.Create(Application);
+fr1.Show;
+...
+</pre>
+&nbsp;<br>
+
+<hr />
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Удаление строки из StringGrid
+ 
+Удаляет из StringGrid указанную строку, сдвигая остальные.
+ 
+Зависимости: Grids
+Автор:       Борис Новгородов (MBo), mbo@mail.ru, Новосибирск
+Copyright:   MBo
+Дата:        27 апреля 2002 г.
+***************************************************** }
+ 
+procedure SGDeleteRow(SG: TStringGrid; RowToDelete: Integer);
+var
+  i: Integer;
+begin
+  with SG do
+  begin
+    if (RowToDelete &gt;= 0) and (RowToDelete &lt; RowCount) then
+    begin
+      for i := RowToDelete to RowCount - 2 do
+        Rows[i].Assign(Rows[i + 1]);
+      RowCount := RowCount - 1;
+    end;
+  end;
+end;
+ 
+</pre>
+&nbsp;</p>
+<hr />
+<pre name="code" class="delphi">
+procedure GridDeleteRow(RowNumber: Integer; Grid: TstringGrid);
+ var
+   i: Integer;
+ begin
+   Grid.Row := RowNumber;
+   if (Grid.Row = Grid.RowCount - 1) then
+     { On the last row}
+     Grid.RowCount := Grid.RowCount - 1
+   else
+   begin
+     { Not the last row}
+     for i := RowNumber to Grid.RowCount - 1 do
+       Grid.Rows[i] := Grid.Rows[i + 1];
+     Grid.RowCount := Grid.RowCount - 1;
+   end;
+ end;
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   GridDeleteRow(3, stringGrid1);
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

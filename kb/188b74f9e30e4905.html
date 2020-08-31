@@ -1,0 +1,70 @@
+<html>
+<head>
+  <title>Как найти размер записи?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как найти размер записи?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TMainFrm.CalculateRecordSizeClick(Sender: TObject);
+var
+  MaxRecs, RecSize, RecsPerBlock, FreeSpace: Longint;
+  i: Integer;
+begin
+  RecSize := 0;
+  with StrucGrid do
+  begin
+    for i := 0 to pred(RowCount) do
+    begin
+      case Cells[1, i][1] of
+        'A': RecSize := RecSize + StrToInt(Cells[2, i]);
+        'D', 'T', 'I', '+': RecSize := RecSize + 4;
+        'N', '$', 'Y', '@': RecSize := RecSize + 8;
+        'M', 'B', 'F', 'O', 'G': RecSize := RecSize + 10 + StrToInt(Cells[2, i]);
+        'S': RecSize := RecSize + 2;
+        'L': RecSize := RecSize + 1;
+      end;
+    end;
+  end;
+  RecsPerBlock := (SpinEdit2.Value - 6) div RecSize;
+  FreeSpace := (SpinEdit2.Value - 6) - (RecSize * RecsPerBlock);
+  MaxRecs := 65536 * RecsPerBlock;
+  ShowMessage('Record Size is: ' + IntToStr(RecSize) + ' bytes' + #13#10
+    + 'Records per Block: ' + IntToStr(RecsPerBlock) + #13#10
+    + 'Unused Space per Block: ' + IntToStr(FreeSpace) + ' bytes' + #13#10
+    + 'Max No of Records in Table: ' + FormatFloat('###############,', MaxRecs));
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

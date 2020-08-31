@@ -1,0 +1,162 @@
+<html>
+<head>
+  <title>Интерполяция изображений</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Интерполяция изображений</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Поговорим о том, как качественно увеличить изображение при помощи билинейной интерполяции. </p>
+<p>При увеличении изображения нужно находить цвет точек, находящимися между точками исходного изображения. Функция CopyRect, встроенная в Delphi берет для этого цвет ближайшей точки. Увеличенное изображение получается некрасивым. Чтобы избежать этого, используют интерполяцию. Существует несколько видов интерполяции изображения. Наиболее простой из них - билинейный. </p>
+<p>Изображение рассматривается как поверхность, цвет - третье измерение. Если изображение цветное, то интерполяция проводится отдельно для трех цветов. Для каждой точки нового изображения с координатами (xo,yo) нужно найти четыре ближайшие точки исходного изображения. Эти точки образуют квадрат. Через две верхние точки проводится прямая f1(x), через две нижние - f2(x). Дальше находятся координаты для точек f1(xo) и f2(xo), через которые проводится третья прямая f3(y). Цвет искомой точки - это f3(yo). </p>
+<p>Этот алгоритм хорошо работает при целых или больших коэффициентах увеличения. Но резкие границы размываются. Для уменьшения изображения этот алгоритм также не подходит. Эта программа при нажатии на Button1 увеличивает часть изображения на экране, а при нажатии на Button2 увеличивает открытое изображение. </p>
+<pre name="code" class="delphi">
+procedure Interpolate(var bm: TBitMap; dx, dy: single);
+var
+  bm1: TBitMap;
+  z1, z2: single;
+  k, k1, k2: single;
+  x1, y1: integer;
+  c: array [0..1, 0..1, 0..2] of byte;
+  res: array [0..2] of byte;
+  x, y: integer;
+  xp, yp: integer;
+  xo, yo: integer;
+  col: integer;
+  pix: TColor;
+begin
+  bm1 := TBitMap.Create;
+  bm1.Width := round(bm.Width * dx);
+  bm1.Height := round(bm.Height * dy);
+  for y := 0 to bm1.Height - 1 do begin
+    for x := 0 to bm1.Width - 1 do begin
+      xo := trunc(x / dx);
+      yo := trunc(y / dy);
+      x1 := round(xo * dx);
+      y1 := round(yo * dy);
+ 
+      for yp := 0 to 1 do
+        for xp := 0 to 1 do begin
+          pix := bm.Canvas.Pixels[xo + xp, yo + yp];
+          c[xp, yp, 0] := GetRValue(pix);
+          c[xp, yp, 1] := GetGValue(pix);
+          c[xp, yp, 2] := GetBValue(pix);
+        end;
+ 
+      for col := 0 to 2 do begin
+        k1 := (c[1,0,col] - c[0,0,col]) / dx;
+        z1 := x * k1 + c[0,0,col] - x1 * k1;
+        k2 := (c[1,1,col] - c[0,1,col]) / dx;
+        z2 := x * k2 + c[0,1,col] - x1 * k2;
+        k := (z2 - z1) / dy;
+        res[col] := round(y * k + z1 - y1 * k);
+      end;
+      bm1.Canvas.Pixels[x,y] := RGB(res[0], res[1], res[2]);
+    end;
+    Form1.Caption := IntToStr(round(100 * y / bm1.Height)) + '%';
+    Application.ProcessMessages;
+    if Application.Terminated then Exit;
+  end;
+  bm := bm1;
+end;
+ 
+const
+  dx = 5.5;
+  dy = 5.5;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+const
+  w = 50;
+  h = 50;
+var
+  bm: TBitMap;
+  can: TCanvas;
+begin
+  bm := TBitMap.Create;
+  can := TCanvas.Create;
+  can.Handle := GetDC(0);
+  bm.Width := w;
+  bm.Height := h;
+  bm.Canvas.CopyRect(Bounds(0, 0, w, h), can, Bounds(0, 0, w, h));
+  ReleaseDC(0, can.Handle);
+  Interpolate(bm, dx, dy);
+  Form1.Canvas.Draw(0, 0, bm);
+  Form1.Caption := 'x: ' + FloatToStr(dx) +
+    ' y: ' + FloatToStr(dy) +
+    ' width: ' + IntToStr(w) +
+    ' height: ' + IntToStr(h);
+end;
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+var
+  bm: TBitMap;
+begin
+  if OpenDialog1.Execute then
+    bm.LoadFromFile(OpenDialog1.FileName);
+  Interpolate(bm, dx, dy);
+  Form1.Canvas.Draw(0, 0, bm);
+  Form1.Caption := 'x: ' + FloatToStr(dx) +
+    ' y: ' + FloatToStr(dy) +
+    ' width: ' + IntToStr(bm.Width) +
+    ' height: ' + IntToStr(bm.Height);
+end;
+</pre>
+
+<p>Эта программа строит заданные графики, используя модуль Recognition. От констант left и right зависит диапазон x, от YScale зависит масштаб по y, а от k зависит качество прорисовки. </p>
+<pre name="code" class="delphi">
+uses Recognition;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+const
+  left = -10;
+  right = 10;
+  YScale = 50;
+  k = 10;
+var
+  i: integer;
+  Num: extended;
+  s: String;
+  XScale: single;
+  col: TColor;
+begin
+  s := Edit1.Text;
+  preparation(s, ['x']);
+  XScale := PaintBox1.Width / (right - left);
+  randomize;
+  col := RGB(random(100), random(100), random(100));
+  for i := round(left * XScale * k) to round(right * XScale * k) do
+    if recogn(ChangeVar(s, 'x', i / XScale / k), Num) then
+      PaintBox1.Canvas.Pixels[round(i / k - left * XScale),
+        round(PaintBox1.Height / 2 - Num * YScale)] := col;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

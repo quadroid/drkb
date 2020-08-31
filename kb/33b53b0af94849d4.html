@@ -1,0 +1,101 @@
+<html>
+<head>
+  <title>Как очистить Canvas?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как очистить Canvas?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  PatBlt(Form1.Canvas.Handle,0,0,Form1.ClientWidth,Form1.ClientHeight,WHITENESS);
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+<hr />
+<pre name="code" class="delphi">
+Canvas.Brush.Color := ClWhite;
+Canvas.FillRect(Canvas.ClipRect);
+</pre>
+
+<hr />
+<pre name="code" class="delphi">
+InValidateRect(Canvas.handle,NIL,True);
+</pre>
+
+<p>(или взамен передать дескриптор компонента) </p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+<hr />Есть два хороших способа очистить Canvas. Их скорости очень близки. В первом способе используются возможности Delphi, во втором &#8211; WinAPI. Первый способ удобнее тем, что позволяет закрашивать Canvas любым цветом.</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  Form1.Canvas.Brush.Color := clRed;
+  Form1.Canvas.FillRect(Form1.ClientRect);
+  PatBlt(Form1.Canvas.Handle, 0, 0,
+    Form1.ClientWidth, Form1.ClientHeight, WHITENESS);
+end;
+</pre>
+
+<p id="author">Автор советов: Даниил Карапетян</p>
+<p>e-mail: delphi4all@narod.ru</p>
+
+<p id="author">Автор справки: Алексей Денисов</p>
+<p>e-mail: aleksey@sch103.krasnoyarsk.su</p>
+
+<hr />
+<pre name="code" class="delphi">
+InValidateRect(Canvas.handle,NIL,True);
+</pre>
+
+<p>Если вы используете холст формы, то попробуйте следующее: </p>
+<pre name="code" class="delphi">
+ 
+InValidateRect(form1.handle,NIL,True); 
+</pre>
+
+<p>(или взамен передать дескриптор компонента) </p>
+
+<p>Это очистит хост: </p>
+
+<pre name="code" class="delphi">
+canvas.fillrect(canvas.cliprect);
+</pre>
+<a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

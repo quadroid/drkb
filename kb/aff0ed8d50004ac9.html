@@ -1,0 +1,57 @@
+<html>
+<head>
+  <title>Анимированная иконка приложения</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Анимированная иконка приложения</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Увидев анимацию на форме, мы не удивимся, но сейчас нам предстоит освоить более сложную технологию: мы попытаемся анимировать иконку приложения, ту самую, которая находится на панели задач на кнопке нашего exe-файла! </p>
+<p>Сначала нужно будет создать каждый кадр потенциального анимационного клипа. Для этого запустим утилиту "Image Editor", которая в ходит в стандартный пакет Delphi. Запустить её можно одноимённой командой из меню Tools[инструменты]. Там создаём несколько bmp-файлов размером 16х16. </p>
+<p>После чего возвращаемся в Delphi и выносим на форму компонент класса TImageList, дважды щёлкаем на нём и с помощью кнопки Add последовательно добавляем созданные кадры. В каком порядке изображения будут добавляться, в таком же порядке они затем будут выводится. </p>
+<p>Далее выносим таймер[Timer], его свойство Interval устанавливаем в нужное значение[например - 5], и именно через заданное здесь количество миллисекунд будут меняться кадры. По событию OnTimer пишем такой код: </p>
+<pre name="code" class="delphi">
+ImageList1.GetIcon(iconindex, Application.Icon);
+iconindex := iconindex + 1;
+if iconindex &gt; 5 then
+  iconindex := 0;
+</pre>
+<p>В строке [if iconindex&gt;5 then iconindex:=0;] число 5 замените на индекс последней иконки в вашем ImageList'e[это количество иконок -1] </p>
+<p>Не забудьте объявить глобальную переменную iconindex, которая должна быть целочисленного типа[integer] </p>
+<p>А по созданию окна инициализируйте иконку приложения первым изображением в списке </p>
+<pre name="code" class="delphi">
+iconindex := 0;
+ImageList1.GetIcon(iconindex, Application.Icon);
+</pre>
+<p>&nbsp;<br>
+<p>&nbsp;</p>
+<p>Посмотрите на иконку программы ACDSee, которая показана в левом верхнем углу. На ней изображён глаз. По-моему, было бы довольно эффектно, если бы время от времени он подмигивал пользователю! </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

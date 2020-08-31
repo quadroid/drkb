@@ -1,0 +1,81 @@
+<html>
+<head>
+  <title>Как забыть о необходимости разрушать объекты?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как забыть о необходимости разрушать объекты?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+type
+  ISelfDestroy = interface;
+  //forget about GUID, if you are not using COM
+ 
+  TSelfDestroy = class(TInterfacedObject, ISelfDestroy)
+  private
+    FObject: TObject;
+  public
+    constructor Create(AObject: TObject);
+    destructor Destroy; override;
+  end;
+ 
+implementation
+ 
+constructor TSelfDestroy.Create(AObject: TObject);
+begin
+  FObject := AObject;
+end;
+ 
+destructor TSelfDestroy.Destroy;
+begin
+  FreeAndNil(FObject);
+  inherited;
+end;
+ 
+ 
+// So when you use, just do like this...
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  MyObject: TMyObject;
+  SelfDestroy: TSelfDestroy;
+  begin
+  MyObject    := TMyObject.Create;
+  SelfDestroy := TSelfDestroy.Create(MyObject);
+  // The MyObject will free automatically as soon as TSelfDestroy
+  // goes out of scope.
+  // Carry on your code here...
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

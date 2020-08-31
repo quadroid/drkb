@@ -1,0 +1,119 @@
+<html>
+<head>
+  <title>Как распечатать BMP?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как распечатать BMP?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure StretchPrint(R: TRect; ABitmap: Graphics.TBitmap);
+var
+  dc: HDC;
+  isDcPalDevice: Bool;
+  hDibHeader: THandle;
+  pDibHeader: pointer;
+  hBits: THandle;
+  pBits: pointer;
+  ppal: PLOGPALETTE;
+  pal: hPalette;
+  Oldpal: hPalette;
+  i: integer;
+begin
+  pal := 0;
+  OldPal := 0;
+  {Get the screen dc}
+  dc := GetDc(0);
+  {Allocate memory for a DIB structure}
+  hDibHeader := GlobalAlloc(GHND, sizeof(TBITMAPINFO) + (sizeof(TRGBQUAD) * 256));
+  {get a pointer to the alloced memory}
+  pDibHeader := GlobalLock(hDibHeader);
+  {fill in the dib structure with info on the way we want the DIB}
+  FillChar(pDibHeader^, sizeof(TBITMAPINFO) + (sizeof(TRGBQUAD) * 256), #0);
+  PBITMAPINFOHEADER(pDibHeader)^.biSize := sizeof(TBITMAPINFOHEADER);
+  PBITMAPINFOHEADER(pDibHeader)^.biPlanes := 1;
+  PBITMAPINFOHEADER(pDibHeader)^.biBitCount := 8;
+  PBITMAPINFOHEADER(pDibHeader)^.biWidth := ABitmap.width;
+  PBITMAPINFOHEADER(pDibHeader)^.biHeight := ABitmap.height;
+  PBITMAPINFOHEADER(pDibHeader)^.biCompression := BI_RGB;
+  {find out how much memory for the bits}
+  GetDIBits(dc, ABitmap.Handle, 0, ABitmap.height, nil, TBitmapInfo(pDibHeader^),
+    DIB_RGB_COLORS);
+  {Alloc memory for the bits}
+  hBits := GlobalAlloc(GHND, PBitmapInfoHeader(pDibHeader)^.BiSizeImage);
+  {Get a pointer to the bits}
+  pBits := GlobalLock(hBits);
+  {Call fn again, but this time give us the bits!}
+  GetDIBits(dc, ABitmap.Handle, 0, ABitmap.height, pBits, PBitmapInfo(pDibHeader)^,
+    DIB_RGB_COLORS);
+  {Release the screen dc}
+  ReleaseDc(0, dc);
+  {Just incase the printer drver is a palette device}
+  isDcPalDevice := false;
+  if GetDeviceCaps(Printer.Canvas.Handle, RASTERCAPS) and RC_PALETTE = RC_PALETTE then
+  begin
+    {Create palette from dib}
+    GetMem(pPal, sizeof(TLOGPALETTE) + (255 * sizeof(TPALETTEENTRY)));
+    FillChar(pPal^, sizeof(TLOGPALETTE) + (255 * sizeof(TPALETTEENTRY)), #0);
+    pPal^.palVersion := $300;
+    pPal^.palNumEntries := 256;
+    for i := 0 to (pPal^.PalNumEntries - 1) do
+    begin
+      pPal^.palPalEntry[i].peRed := PBitmapInfo(pDibHeader)^.bmiColors[i].rgbRed;
+      pPal^.palPalEntry[i].peGreen := PBitmapInfo(pDibHeader)^.bmiColors[i].rgbGreen;
+      pPal^.palPalEntry[i].peBlue := PBitmapInfo(pDibHeader)^.bmiColors[i].rgbBlue;
+    end;
+    pal := CreatePalette(pPal^);
+    FreeMem(pPal, sizeof(TLOGPALETTE) + (255 * sizeof(TPALETTEENTRY)));
+    oldPal := SelectPalette(Printer.Canvas.Handle, Pal, false);
+    isDcPalDevice := true
+  end;
+  {send the bits to the printer}
+  StretchDiBits(Printer.Canvas.Handle, R.Left, R.Top, R.Right - R.Left,
+    R.Bottom - R.Top, 0, 0, ABitmap.Width, ABitmap.Height, pBits,
+    PBitmapInfo(pDibHeader)^, DIB_RGB_COLORS, SRCCOPY);
+  {Just incase you printer drver is a palette device}
+  if isDcPalDevice = true then
+  begin
+    SelectPalette(Printer.Canvas.Handle, oldPal, false);
+    DeleteObject(Pal);
+  end;
+  {Clean up allocated memory}
+  GlobalUnlock(hBits);
+  GlobalFree(hBits);
+  GlobalUnlock(hDibHeader);
+  GlobalFree(hDibHeader);
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

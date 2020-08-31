@@ -1,0 +1,80 @@
+<html>
+<head>
+  <title>Использование обработчика OnHint при наличии нескольких форм</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Использование обработчика OnHint при наличии нескольких форм</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В Online Help и в Visual Component Library Reference описан пример обработчика</p>
+<p>события OnHint объекта TApplication. Пример показывает, как можно использовать</p>
+<p>панель для отображения подсказок (hint), связанных с другими компонентами. В</p>
+<p>примере обработчик OnHint устанавливается во время обработки события OnCreate</p>
+<p>для формы; в программе, включающей более чем одну форму, будет трудно</p>
+<p>использовать эту технику.</p>
+
+<p>Перемещение присваивания обработчика OnHint из события OnCreate формы в</p>
+<p>событие OnActivate позволит различным формам данного приложения работать с</p>
+<p>подсказками, как им нужно.</p>
+
+<p>Ниже приведен измененный пример из OnLine Help и VCL Reference.</p>
+<pre name="code" class="delphi">
+type
+  TForm1 = class(TForm)
+    Button1: TButton;
+    Panel1: TPanel;
+    Edit1: TEdit;
+    procedure FormActivate(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    procedure DisplayHint(Sender: TObject);
+  end;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TForm1.DisplayHint(Sender: TObject);
+begin
+  Panel1.Caption := Application.Hint;
+end;
+ 
+procedure TForm1.FormActivate(Sender: TObject);
+begin
+  Application.OnHint := DisplayHint;
+end;
+</pre>
+
+
+<p>Источник: <a href="http://dmitry9.nm.ru/info/" target="_blank">http://dmitry9.nm.ru/info/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

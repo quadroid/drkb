@@ -1,0 +1,108 @@
+<html>
+<head>
+  <title>Как по Alias узнать физический путь к базе данных?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как по Alias узнать физический путь к базе данных?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function GetAliasDir(alias: PChar): PChar;
+var
+  s: TStringList;
+  i: integer;
+  t: string;
+  res: array[0..255] of char;
+begin
+  res := '';
+  if Session.IsAlias(alias) then
+  begin {Check if alias exists}
+    s := TStringList.Create;
+    try
+      Session.GetAliasParams(Alias, s);
+      t := '';
+      if s.count &gt; 0 then
+      begin
+        i := 0;
+        while (i &lt; s.count) and (Copy(s.Strings[i], 1, 5) &lt;&gt; 'PATH=') do
+          inc(i);
+        if (i &lt; s.count) and (Copy(s.Strings[i], 1, 5) = 'PATH =') then
+        begin
+          t := Copy(s.Strings[i], 6, Length(s.Strings[i]) - 4);
+          if t[length(t)] &lt;&gt; '\' then
+            t := t + '\';
+        end;
+      end;
+      StrPCopy(res, t);
+    except
+      StrPCopy(res, '');
+    end;
+    s.Free;
+  end;
+  result := res;
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+<hr />Если ссылка на таблицу получена через псевдоним, получить физический путь к ней не так просто. Для получения этого пути необходимо использовать функцию BDE DbiGetDatabaseDesc. Данной функции в качестве параметров передаются имя псевдонима и указатель на структуру DBDesc. Структура DBDesc будет заполнена информацией, относящейся к этому псевдониму. Определение структуры:</p>
+
+
+<p>pDBDesc = ^DBDesc;</p>
+<p>DBDesc = packed record &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { Описание данной базы данных }</p>
+<p>szName&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : DBINAME;&nbsp;&nbsp;&nbsp; { Логическое имя (или псевдоним) }</p>
+<p>szText&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : DBINAME;&nbsp;&nbsp;&nbsp; { Описательный текст }</p>
+<p>szPhyName&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : DBIPATH;&nbsp;&nbsp;&nbsp; { Физическое имя/путь }</p>
+<p>szDbType&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : DBINAME;&nbsp;&nbsp;&nbsp; { Тип базы данных }</p>
+<p>end;</p>
+
+<p>Физическое имя/путь будет содержаться в поле szPhyName структуры DBDesc. </p>
+
+<p>Возможные значения, возвращаемые функцией DBIGetDatbaseDesc:</p>
+
+<p>DBIERR_NONE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Описание базы данных для pszName было успешно извлечено.</p>
+<p>DBIERR_OBJNOTFOUND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; База данных, указанная в pszName, не была обнаружена.</p>
+<p>Приведенный ниже пример кода показывает как можно получить физический путь для компонента TTable, использующего псевдоним DBDemos:</p>
+
+<pre name="code" class="delphi">
+var
+  vDBDesc: DBDesc;
+  DirTable: String;
+begin
+  Check(DbiGetDatabaseDesc(PChar(Table1.DatabaseName), @vDBDesc));
+  DirTable := Format('%s\%s', [vDBDesc.szPhyName, Table1.TableName]);
+  ShowMessage(DirTable);
+end;
+</pre>
+
+
+<p id="author">Автор: Xavier Pacheco </p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

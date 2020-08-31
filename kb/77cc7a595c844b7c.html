@@ -1,0 +1,322 @@
+<html>
+<head>
+  <title>Качественно уменьшить изображение</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Качественно уменьшить изображение</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В Delphi изменять размеры изображения очень просто, используя CopyRect: </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  Form1.Canvas.Font.Size := 24;
+  Form1.Canvas.TextOut(0, 0, 'Text');
+  Form1.Canvas.CopyRect(Bounds(0, 50, 25, 10), Form1.Canvas,
+  Bounds(0, 0, 100, 40));
+end;
+</pre>
+
+<p>Но этот способ не очень хорош для уменьшения не маленьких картинок &#8211; мелкие детали сливаются. Для частичного устранения этого недостатка при уменьшении изображения в четыре раза я беру средний цвет в каждом квадратике 4X4. К чему это приводит, посмотрите сами. </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  x, y: integer;
+  i, j: integer;
+  r, g, b: integer;
+begin
+  Form1.Canvas.Font.Size := 24;
+  Form1.Canvas.TextOut(0, 0, 'Text');
+  for y := 0 to 10 do
+  begin
+    for x := 0 to 25 do
+    begin
+      r := 0;
+      for i := 0 to 3 do
+        for j := 0 to 3 do
+          r := r + GetRValue(Form1.Canvas.Pixels[4*x+i, 4*y+j]);
+      r := round(r / 16);
+      g := 0;
+      for i := 0 to 3 do
+        for j := 0 to 3 do
+          g := g + GetGValue(Form1.Canvas.Pixels[4*x+i, 4*y+j]);
+      g := round(g / 16);
+      b := 0;
+      for i := 0 to 3 do
+        for j := 0 to 3 do
+          b := b + GetBValue(Form1.Canvas.Pixels[4*x+i, 4*y+j]);
+      b := round(b / 16);
+      Form1.Canvas.Pixels[x,y+50] := RGB(r, g, b)
+    end;
+    Application.ProcessMessages;
+  end;
+end;
+</pre>
+
+<hr />
+<pre name="code" class="delphi">
+unit ProjetoX_Screen;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  ExtCtrls, StdCtrls, DBCtrls;
+ 
+type
+  TFormScreen = class(TForm)
+    ImgFundo: TImage;
+    procedure FormCreate(Sender: TObject);
+  public
+    MyRegion : HRGN;
+    function BitmapToRegion(hBmp: TBitmap; TransColor: TColor): HRGN;
+  end;
+ 
+var
+  FormScreen: TFormScreen;
+ 
+implementation
+ 
+{$R *.DFM}
+function TFormScreen.BitmapToRegion(hBmp: TBitmap; TransColor: TColor): HRGN;
+ 
+const
+  ALLOC_UNIT = 100;
+ 
+var
+  MemDC, DC: HDC;
+  BitmapInfo: TBitmapInfo;
+  hbm32, holdBmp, holdMemBmp: HBitmap;
+  pbits32 : Pointer;
+  bm32 : BITMAP;
+  maxRects: DWORD;
+  hData: HGLOBAL;
+  pData: PRgnData;
+  b, CR, CG, CB : Byte;
+  p32: pByte;
+  x, x0, y: integer;
+  p: pLongInt;
+  pr: PRect;
+  h: HRGN;
+ 
+begin
+  Result := 0;
+  if hBmp &lt;&gt; nil then
+  begin
+    MemDC := CreateCompatibleDC(0);
+    if MemDC &lt;&gt; 0 then
+    begin
+      with BitmapInfo.bmiHeader do
+      begin
+        biSize          := sizeof(TBitmapInfoHeader);
+        biWidth         := hBmp.Width;
+        biHeight        := hBmp.Height;
+        biPlanes        := 1;
+        biBitCount      := 32;
+        biCompression   := BI_RGB;
+        biSizeImage     := 0;
+        biXPelsPerMeter := 0;
+        biYPelsPerMeter := 0;
+        biClrUsed       := 0;
+        biClrImportant  := 0;
+      end;
+      hbm32 := CreateDIBSection(MemDC, BitmapInfo, DIB_RGB_COLORS, pbits32,0, 0);
+      if hbm32 &lt;&gt; 0 then
+      begin
+        holdMemBmp := SelectObject(MemDC, hbm32);
+        GetObject(hbm32, SizeOf(bm32), @bm32);
+        while (bm32.bmWidthBytes mod 4) &gt; 0 do
+          inc(bm32.bmWidthBytes);
+        DC := CreateCompatibleDC(MemDC);
+        holdBmp := SelectObject(DC, hBmp.Handle);
+        BitBlt(MemDC, 0, 0, hBmp.Width, hBmp.Height, DC, 0, 0, SRCCOPY);
+        maxRects := ALLOC_UNIT;
+        hData := GlobalAlloc(GMEM_MOVEABLE, sizeof(TRgnDataHeader) +
+           SizeOf(TRect) * maxRects);
+        pData := GlobalLock(hData);
+        pData^.rdh.dwSize := SizeOf(TRgnDataHeader);
+        pData^.rdh.iType := RDH_RECTANGLES;
+        pData^.rdh.nCount := 0;
+        pData^.rdh.nRgnSize := 0;
+        SetRect(pData^.rdh.rcBound, MaxInt, MaxInt, 0, 0);
+        CR := GetRValue(ColorToRGB(TransColor));
+        CG := GetGValue(ColorToRGB(TransColor));
+        CB := GetBValue(ColorToRGB(TransColor));
+        p32 := bm32.bmBits;
+        inc(PChar(p32), (bm32.bmHeight - 1) * bm32.bmWidthBytes);
+        for y := 0 to hBmp.Height-1 do
+        begin
+          x := -1;
+          while x+1 &lt; hBmp.Width do
+          begin
+            inc(x);
+            x0 := x;
+            p := PLongInt(p32);
+            inc(PChar(p), x * SizeOf(LongInt));
+            while x &lt; hBmp.Width do
+            begin
+              b := GetBValue(p^);
+              if (b = CR) then
+              begin
+                b := GetGValue(p^);
+                if (b = CG) then
+                begin
+                  b := GetRValue(p^);
+                  if (b = CB) then
+                    break;
+                end;
+              end;
+              inc(PChar(p), SizeOf(LongInt));
+              inc(x);
+            end;
+            if x &gt; x0 then
+            begin
+              if pData^.rdh.nCount &gt;= maxRects then
+              begin
+                GlobalUnlock(hData);
+                inc(maxRects, ALLOC_UNIT);
+                hData := GlobalReAlloc(hData, SizeOf(TRgnDataHeader) +
+                   SizeOf(TRect) * maxRects, GMEM_MOVEABLE);
+                pData := GlobalLock(hData);
+                Assert(pData &lt;&gt; NIL);
+              end;
+              pr := @pData^.Buffer[pData^.rdh.nCount * SizeOf(TRect)];
+              SetRect(pr^, x0, y, x, y+1);
+              if x0 &lt; pData^.rdh.rcBound.Left then
+                pData^.rdh.rcBound.Left := x0;
+              if y &lt; pData^.rdh.rcBound.Top then
+                pData^.rdh.rcBound.Top := y;
+              if x &gt; pData^.rdh.rcBound.Right then
+                pData^.rdh.rcBound.Left := x;
+              if y+1 &gt; pData^.rdh.rcBound.Bottom then
+                pData^.rdh.rcBound.Bottom := y+1;
+              inc(pData^.rdh.nCount);
+              if pData^.rdh.nCount = 2000 then
+              begin
+                h := ExtCreateRegion(NIL, SizeOf(TRgnDataHeader) +
+                   (SizeOf(TRect) * maxRects), pData^);
+                Assert(h &lt;&gt; 0);
+                if Result &lt;&gt; 0 then
+                begin
+                  CombineRgn(Result, Result, h, RGN_OR);
+                  DeleteObject(h);
+                end else
+                  Result := h;
+                pData^.rdh.nCount := 0;
+                SetRect(pData^.rdh.rcBound, MaxInt, MaxInt, 0, 0);
+              end;
+            end;
+          end;
+          Dec(PChar(p32), bm32.bmWidthBytes);
+        end;
+        h := ExtCreateRegion(NIL, SizeOf(TRgnDataHeader) +
+           (SizeOf(TRect) * maxRects), pData^);
+        Assert(h &lt;&gt; 0);
+        if Result &lt;&gt; 0 then
+        begin
+          CombineRgn(Result, Result, h, RGN_OR);
+          DeleteObject(h);
+        end else
+          Result := h;
+        GlobalFree(hData);
+        SelectObject(DC, holdBmp);
+        DeleteDC(DC);
+        DeleteObject(SelectObject(MemDC, holdMemBmp));
+      end;
+    end;
+    DeleteDC(MemDC);
+  end;
+end;
+ 
+procedure TFormScreen.FormCreate(Sender: TObject);
+begin
+        MyRegion := BitmapToRegion(imgFundo.Picture.Bitmap,imgFundo.Canvas.Pixels[0,0]);
+        SetWindowRgn(Handle,MyRegion,True);
+end;
+ 
+ 
+ 
+ 
+ 
+procedure TFormXXXXXX.FormCreate(Sender: TObject);
+begin
+        FormScreen.MyRegion := FormScreen.BitmapToRegion(imgFundo.Picture.Bitmap,
+          imgFundo.Canvas.Pixels[0,0]);
+        SetWindowRgn(Handle,FormScreen.MyRegion,True);
+end;
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+<pre name="code" class="delphi">
+procedure ShrinkPic(Big:TBitmap;Small:TBitmap;xscale:integer=0;yscale:integer=0);
+//Из уже созданной картинки Big заполняет уже созданную картинку Small
+var
+x, y: integer;
+i, j: integer;
+r, g, b: integer;
+begin
+//Если указан фактор сжатия по ширине, то устанавливаем правильный размер, иначе вычисляем фактор
+if xscale=0
+then xscale:=Big.Width div Small.Width
+else Small.Width:=Big.Width div xscale;
+//Если указан фактор сжатия по высоте, то устанавливаем правильный размер, иначе вычисляем фактор
+if yscale=0
+then yscale:=Big.Height div Small.Height
+else Small.Height:=Big.Height div yscale;
+for y := 0 to Small.Height-1 do
+for x := 0 to Small.Width-1 do
+begin
+r := 0;
+g := 0;
+b := 0;
+for i := 0 to xscale-1 do 
+for j := 0 to yscale-1 do 
+begin
+r := r + GetRValue(Big.Canvas.Pixels[xscale*x+i, yscale*y+j]);
+g := g + GetGValue(Big.Canvas.Pixels[xscale*x+i, yscale*y+j]);
+b := b + GetBValue(Big.Canvas.Pixels[xscale*x+i, yscale*y+j]);
+end;//for, for
+r := round(r/xscale/yscale);
+g := round(g/xscale/yscale);
+b := round(b/xscale/yscale);
+Small.Canvas.Pixels[x,y]:=RGB(r,g,b)
+end;//for y, x
+end;//ShrinkPic
+</pre>
+<p>Замечания.<br>
+1. В двух вложенных форах можно xscale-1 или yscale-1 заменить константой, в зависимости от области использования. Мой пример соптимизирован для соотношения 4:1.<br>
+2. Процедура медленная. Даже использование scanline'ов не спасает ситуацию кардинально, поэтому я не стал приводить более быстродействующий вариант, так как он более запутан. Для продвинутого преобразования я использую отдельную библиотеку. <br>
+
+<p id="author">Автор: December</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

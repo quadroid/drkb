@@ -1,0 +1,87 @@
+<html>
+<head>
+  <title>Многострочность в заголовках колонок TStringGrid</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Многострочность в заголовках колонок TStringGrid</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Rick Rogers </p>
+<p>У меня есть StringGrid, который выглядит очень красивым, за исключением заголовков колонок, где я хотел бы иметь их размер равным 1 ячейке, но с заголовком, размещенным в нескольких строках, например,</p>
+<p>Индекс Фондовой Биржи</p>
+<p>показывалось бы как</p>
+<p>  &nbsp;Индекс</p>
+<p>  &nbsp;Фондовой</p>
+<p>  &nbsp;Биржи</p>
+<p>было бы классно, если можно было этот заголовок размещать еще и по центру. </p>
+<p>Рисовать сами ячейки вы можете в обработчике события OnDrawCell. Для определения ячейки (заголовок?), обрабатываемой в текущий момент, используйте параметр GridState. </p>
+<p>Я выводил тест с помощью обычных методов рисования (которые хорошо "приживаются" в данном компоненте), с поддержкой вертикального выравнивания, полей и переноса слов. Вот сам код:</p>
+<pre name="code" class="delphi">
+TFTVerticalAlignment = (vaTop, vaMiddle, vaBottom);
+ 
+procedure DrawTextAligned(const Text: string; Canvas: TCanvas; ъ
+  var Rect: TRect; Alignment: TAlignment; VerticalAlignment:
+  TFTVerticalAlignment; WordWrap: Boolean);
+var
+  P: array[0..255] of Char;
+  H: Integer;
+  T: TRect;
+  F: Word;
+begin
+  StrPCopy(P, Text);
+  T := Rect;
+  with Canvas, Rect do
+  begin
+    F := DT_CALCRECT or DT_EXPANDTABS or DT_VCENTER or
+      TextAlignments[Alignment];
+    if WordWrap then
+      F := F or DT_WORDBREAK;
+    H := DrawText(Handle, P, -1, T, F);
+    H := MinInt(H, Rect.Bottom - Rect.Top);
+    if VerticalAlignment = vaMiddle then
+    begin
+      Top := ((Bottom + Top) - H) div 2;
+      Bottom := Top + H;
+    end
+    else if VerticalAlignment = vaBottom then
+      Top := Bottom - H - 1;
+    F := DT_EXPANDTABS or DT_VCENTER or TextAlignments[Alignment];
+    if WordWrap then
+      F := F or DT_WORDBREAK;
+    DrawText(Handle, P, -1, Rect, F);
+  end;
+end;
+ 
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

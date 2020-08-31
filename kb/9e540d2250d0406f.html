@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Кросс-таблица через pivot-таблицу</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Кросс-таблица через pivot-таблицу</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Мне нужна помощь по реализации запроса кросс-таблицы в Delphi. У кого-нибудь имеется соответствующий опыт? </p>
+
+<p>Использовать pivot-таблицу должен все тот-же общий механизм (относительно к любой базе данных SQL). </p>
+
+<p>Предположим, что у нас есть данные продаж в таблице с полями Store, Product, Month, Sales, и вам необходимо отображать данные по продуктам за каждый месяц. (Примем, что поле 'month' для простоты имеет значения 1..12.) </p>
+
+<p>Оригинальные данные примера:</p>
+
+<p>  Store&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Product&nbsp;&nbsp;&nbsp; Month&nbsp;&nbsp; Sales</p>
+<p> &nbsp;&nbsp; #1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Toys&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 100</p>
+<p> &nbsp;&nbsp; #2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Toys&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 68</p>
+<p> &nbsp;&nbsp; #1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Toys&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 150</p>
+<p> &nbsp;&nbsp; #1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Books&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 75</p>
+<p> &nbsp;&nbsp; ...</p>
+<p>Желаемый отчет должен выглядеть похожим на этот:</p>
+
+<p> &nbsp;&nbsp;&nbsp;&nbsp; Product&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; January&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; February&nbsp;&nbsp;&nbsp; March&nbsp; .....</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Toys&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 168&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 150</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Books&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 75&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .....</p>
+
+<p>Установите pivot-таблицу с именем tblPivot и 12 строками:</p>
+
+<p> &nbsp; pvtMonth&nbsp;&nbsp; pvtJan&nbsp; pvtFeb&nbsp;&nbsp; pvtMar&nbsp; pvtApr&nbsp;&nbsp; ....</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ....</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1</p>
+<p> &nbsp;&nbsp;&nbsp; .....</p>
+<p>Теперь запрос, выполненный в виде:</p>
+<pre name="code" class="delphi">  select Product, January=sum(Sales*pvtJan), 
+                           February=sum(Sales*pvtFeb),
+                          March=sum(Sales*pvtMar), 
+                          April=sum(Sales*pvtApr),...
+  where Month = pvtMonth
+  group by Product
+</pre>
+
+
+<p>даст вам информацию, опубликованную выше. </p>
+<p>Поскольку pivot-таблица имеет только 12 строк, большинство SQL-движков сохранят результат в кэшовой памяти, так что скорость выполнения запроса весьма велика.</p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

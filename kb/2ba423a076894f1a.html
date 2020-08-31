@@ -1,0 +1,74 @@
+<html>
+<head>
+  <title>Как сделать procedure / function с переменным числом параметров?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как сделать procedure / function с переменным числом параметров?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ .... }
+ 
+type
+  VA_FN = function(const par1, par2{, ...}: Pointer): Boolean;
+                   cdecl varargs;
+ 
+{ .... }
+ 
+//
+// varargs without "external" keyword
+//
+function fn(const par1, par2{, ...}: Pointer): Boolean; cdecl;
+var
+  last_arg: Pointer absolute par2;
+  ptr_args: array[0..MAXLONG shr 2] of Pointer absolute last_arg;
+  dw_args: array[0..MAXLONG shr 2] of Cardinal absolute last_arg;
+  s_args: array[0..MAXLONG shr 2] of PChar absolute last_arg;
+  w_args: array[0..MAXLONG shr 2] of WideString absolute last_arg;
+begin
+  // ptr_args[1] is first optional argument
+  Result := (ptr_args[1] {par3} = Pointer(1)) and
+    (dw_args[2] {par4} = 2) and
+    (string(ptr_args[3]) = 'CHAR') and
+    (w_args[4] = 'WCHAR');
+end;
+ 
+procedure test_fn;
+begin
+  // VA_FN typecast
+  VA_FN(@fn)({par1}nil, {par2}nil, {par3}Pointer(1), {par4}2, {par5}'CHAR',
+    {par6}WideString('WCHAR'));
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

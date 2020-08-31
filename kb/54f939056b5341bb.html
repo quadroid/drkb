@@ -1,0 +1,218 @@
+<html>
+<head>
+  <title>Быстрые функции сжатия пробелов и управляющих символов в строке</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Быстрые функции сжатия пробелов и управляющих символов в строке</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Быстрые функции сжатия пробелов и управляющих символов в строке.
+ 
+Функции удаляют из строки начальные и конечные пробелы и управляющие
+символы (меньшие пробела). Идущие подряд пробелы и управляющие символы
+в середине строки заменяются одним пробелом.
+ 
+Зависимости: нет
+Автор:       Александр Шарахов, alsha@mailru.com, Москва
+Copyright:   Александр Шарахов
+Дата:        2 февраля 2003 г.
+***************************************************** }
+ 
+// Sha_SpaceCompress удаляет из Ansi-строки начальные и конечные пробелы
+// и управляющие символы (меньшие пробела). Идущие подряд пробелы
+// и управляющие символы в середине строки заменяются одним пробелом.
+// Исходная строка при этом не изменяется. Эта функция работает
+// медленнее, чем Sha_SpaceCompressInplace. С целью ускорения работы
+// освобождение неиспользуемой памяти за пределами строки не производится.
+// Если это критично, после вызова данной функции можно освободить память
+// следующим образом: s2:=Sha_SpaceCompress(s1); SetLength(s2,Length(s2));
+// Функция не работает, если нарушен формат Ansi-строки, в частности,
+// если в конце строки отсутствует терминатор.
+ 
+function Sha_SpaceCompress(const s: string): string;
+var
+  p, q, t: pchar;
+  ch: char;
+label
+  rt;
+begin
+  ;
+  p := pointer(s);
+  q := nil;
+  if p &lt;&gt; nil then
+  begin
+    ;
+    t := p + (pinteger(p - 4))^;
+    if p &lt; t then
+    begin
+      ;
+      repeat;
+        dec(t);
+        if p &gt; t then
+          goto rt;
+      until (t^ &gt; ' ');
+      SetString(Result, nil, (t - p) + 1);
+      q := pchar(pointer(Result));
+      repeat;
+        repeat;
+          ch := p^;
+          inc(p);
+        until ch &gt; ' ';
+        repeat;
+          q^ := ch;
+          ch := p^;
+          inc(q);
+          inc(p);
+        until ch &lt;= ' ';
+        q^ := ' ';
+        inc(q);
+      until p &gt; t;
+    end;
+  end;
+  rt:
+  if q &lt;&gt; nil then
+  begin
+    ;
+    dec(q);
+    q^ := #0;
+    (pinteger(pchar(pointer(Result)) - 4))^ := q - pointer(Result);
+  end
+  else
+    Result := '';
+end;
+ 
+// Sha_SpaceCompressInplace удаляет из Ansi-строки начальные и конечные пробелы
+// и управляющие символы (меньшие пробела). Идущие подряд пробелы
+// и управляющие символы в середине строки заменяются одним пробелом.
+// Результат замещает исходную строку. С целью ускорения работы
+// освобождение неиспользуемой памяти за пределами строки не производится.
+// Если это критично, после вызова данной функции можно освободить память
+// следующим образом: Sha_SpaceCompressInpace(s); SetLength(s,Length(s));
+// Процедура не работает, если нарушен формат Ansi-строки, в частности,
+// если в конце строки отсутствует терминатор.
+ 
+procedure Sha_SpaceCompressInplace(var s: string);
+var
+  p, q, t: pchar;
+  ch: char;
+label
+  rt;
+begin
+  ;
+  UniqueString(s);
+  p := pointer(s);
+  if p &lt;&gt; nil then
+  begin
+    ;
+    t := p + (pinteger(p - 4))^;
+    if p &lt; t then
+    begin
+      ;
+      q := p;
+      repeat;
+        dec(t);
+        if p &gt; t then
+          goto rt;
+      until (t^ &gt; ' ');
+      repeat;
+        repeat;
+          ch := p^;
+          inc(p);
+        until ch &gt; ' ';
+        repeat;
+          q^ := ch;
+          ch := p^;
+          inc(q);
+          inc(p);
+        until ch &lt;= ' ';
+        q^ := ' ';
+        inc(q);
+      until p &gt; t;
+      dec(q);
+      rt: q^ := #0;
+      (pinteger(pchar(pointer(s)) - 4))^ := q - pointer(s);
+    end;
+  end;
+end;
+ 
+// Sha_SpaceCompressPChar удаляет из null-terminated строки начальные
+// и конечные пробелы и управляющие символы (меньшие пробела), за исключением
+// терминатора. Идущие подряд пробелы и управляющие символы в середине строки
+// заменяются одним пробелом. Результат замещает исходную строку.
+// Никакое перераспределения памяти не производится.
+// Функция не работает с read-only строкой.
+ 
+function Sha_SpaceCompressPChar(p: pchar): pchar;
+var
+  q: pchar;
+  ch: char;
+label
+  rt;
+begin
+  ;
+  Result := p;
+  if (p &lt;&gt; nil) and (p^ &lt;&gt; #0) then
+  begin
+    ;
+    q := p - 1;
+    repeat;
+      repeat;
+        ch := p^;
+        inc(p);
+        if ch = #0 then
+          goto rt;
+      until ch &gt; ' ';
+      inc(q);
+      repeat;
+        q^ := ch;
+        ch := p^;
+        inc(q);
+        inc(p);
+      until ch &lt;= ' ';
+      q^ := ' ';
+    until ch = #0;
+    rt: if q &lt; Result then
+      inc(q);
+    q^ := #0;
+  end;
+end;
+Пример использования: 
+ 
+s2 := Sha_SpaceCompress(s1);
+Sha_SpaceCompressInpace(s);
+Sha_SpaceCompressPChar(pch); 
+ 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

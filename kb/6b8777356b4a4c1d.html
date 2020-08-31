@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>Загрузить файл в BLOB-поле</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Загрузить файл в BLOB-поле</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="sql">
+  DECLARE @HR [int]
+  DECLARE @Stream [int]
+  DECLARE @Buffer [varbinary](4096)
+  DECLARE @Size [int]
+  DECLARE @Pos [int] SET @Pos = 0
+  DECLARE @BufSize [int] SET @BufSize = 4096
+  DECLARE @Image [binary](16)
+ 
+  EXEC @HR = sp_OACreate 'ADODB.Stream',@Stream OUT 
+  EXEC @HR = sp_OASetProperty @Stream,'Type',1
+  EXEC @HR = sp_OAMethod @Stream,'Open' 
+  EXEC @HR = sp_OAMethod @Stream,'LoadFromFile',null, @Filename
+  EXEC @HR = sp_OAMethod @Stream,'Size',@Size OUTPUT
+ 
+  if not exists(SELECT * FROM MyTable WHERE SomeField=SomeID)
+    INSERT INTO MyTable VALUES(SomeID,'')
+ 
+  SELECT top 1 @Image = TEXTPTR(MyField) FROM MyTable WHERE SomeField=SomeID
+ 
+  Set @Pos=0
+ 
+  WHILE @Pos &lt; @Size BEGIN
+    SET @BufSize = CASE WHEN @Size - @Pos &lt; 4096 THEN @Size - @Pos ELSE 4096 END
+    EXEC @HR = sp_OAMethod @Stream,'Read',@Buffer OUTPUT,@BufSize
+ 
+    UPDATETEXT MyTable.MyField @Image @Pos 0 @Buffer
+    SET @Pos = @Pos + @BufSize
+  END
+ 
+  EXEC @HR = sp_OAMethod @Stream, 'Close'
+  EXEC @HR = sp_OADestroy @Stream
+</pre>
+<p id="author">Автор: Vit</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

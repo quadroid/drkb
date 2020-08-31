@@ -1,0 +1,51 @@
+<html>
+<head>
+  <title>Как хранятся строки?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как хранятся строки?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Тип String:</p>
+<p>по смещению -4 храниться длина строки</p>
+<p>по смещению -8 храниться счётчик ссылок на строку (когда он обнуляется строка уничтожается)</p>
+<p>Сама строка располагается в памяти как есть - каждая буква занимает 1 байт.</p>
+<p>При копировании строки:</p>
+<p>s1:=s2 - реального копирования не происходит, увеличивается только счётчик ссылок, но если после этого изменить одну из строк:</p>
+<p>s1:=s1+'a';</p>
+<p>то произойдёт физическое копирование содержимого строк, и теперь s1 и s2 будут показывать на разные адреса памяти.</p>
+<p>PChar - длина строки определяется от начала до #0 байта, по сути это чистой воды pointer, так что все действия по отслеживанию распределения памяти лежат на программисте - сами заботьтесь о том чтобы хватило места для распределения памяти и освобождении после использования. Тоже одна буква = 1 байт Для хранения unicode (т.е. 2х байтовых символов) используйте соответствующие символы с приставкой Wide... </p>
+<p id="author">Автор: Vit</p>
+<p id="note">Примечание Fantasist'a:</p>
+<p>Это верно только если s1 - локальная переменная, или s1 и s2 - обе не локальные. Если s1 не локальная(глобальная или член класса), а s2 - локальная происходит копирование. </p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

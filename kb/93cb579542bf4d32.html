@@ -1,0 +1,144 @@
+<html>
+<head>
+  <title>Извлечение данных индекса таблицы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Извлечение данных индекса таблицы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Получить во время выполнения приложения список индексов, ассоциированных с таблицей также просто, как вызвать метод GetIndexNames для компонентов TTable, TQuery или TStoredProc. Метод GetIndexNames возвращает список, доступный в наборе данных для компонента TStrignList, установленного на форме (для нашего примера), или других визуальных компонентов, таких как TListBox, через свойство Items:</p>
+<pre name="code" class="delphi">
+ListBox1.Clear;
+Table1.GetIndexNames(ListBox1.Items);
+</pre>
+<p>Естественно, список TStrings, возвращаемый методом GetIndexNames, не должен использоваться визуальным компонентом. Он может представлять собой массив имен индексов, храниться в памяти и использоваться в качестве списка или массива. </p>
+<p>Но существует возможность получения дополнительной информации об индексах таблицы, а не только их имена. Другие описываемые атрибуты представляют собой имя каждого индекса, имена полей, включающие каждый индекс и опции индекса, используемые при их создании. Получение этих величин немного труднее, чем простое использование GetIndexNames. В основном, данные значения можно получить с помощью простой итерации свойства IndexDefs компонента TTable, TQuery или TStoredProc. Свойство IndexDefs по существу является массивом записей, по одной записи на каждый индекс таблицы. </p>
+<p>Каждая индексная запись (index record) содержит информацию об индексе. Процесс получения массива записей, содержащих информацию отдельно о каждом индексе, достаточно прост в реализации. </p>
+<p>Свойство IndexDefs компонента TTable содержит информацию об индексах таблицы, используемой компонентом TTable, TQuery или TStoredProc. Само свойство IndexDefs в свою очередь также имеет различные свойства, содержащие специфическую информацию об извлекаемых индексах. Объект IndexDefs содержит два свойства:</p>
+<p> &nbsp;&nbsp; Count: type Integer;</p>
+<p>доступно только во время выполнения программы и имеет флаг только для чтения; указывает на количество элементов в свойстве Items (например, количество индексов в таблице).</p>
+<p>  Items: type TIndexDef;</p>
+<p>доступно только во время выполнения программы и имеет флаг только для чтения; массив объектов TIndexDef, каждый объект описывает один индекс таблицы. </p>
+<p>Свойство Count объекта IndexDefs является основой для создания счетчика цикла, в теле которого с помощью элементов свойства Items извлекается информация о каждом индексе таблицы. Каждый объект IndexDef, содержащийся в свойстве Items, состоит из множества свойств, описывающих характеристики каждого индекса в отдельности. Все свойства объекта IndexDef доступны только во время выполнения программы и имеют флаг "только для чтения". Вот эти свойства:</p>
+<p>  Expression: type String; содержит выражение, использующееся </p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; для dBASE multi-field индексов </p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (индексов для нескольких полей).</p>
+<p>  Fields:&nbsp;&nbsp;&nbsp;&nbsp; type String; содержит поле или несколько полей, </p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; на основе которых создан индекс.</p>
+<p>  Name:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type String; имя индекса.</p>
+<p>  Options:&nbsp;&nbsp;&nbsp; type TIndexOptions; характеристики индекса </p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (ixPrimary,&nbsp; ixUnique и др.).</p>
+<p>Перед получением любой информации об индексе (Count или Items) необходимо вызвать метод Update объекта IndexDefs. Это обновляет (или инициализирует) набор индексов для объектов IndexDef. </p>
+<p>Примеры </p>
+<p>Вот пример простого For-цикла, использующего в качестве счетчика свойство Count объекта IndexDefs, и извлекающего имя каждого индекса (если какой-либо существует) таблицы, представленной компонентом TTable с именем Table1:</p>
+<pre name="code" class="delphi">
+procedure TForm1.ListBtnClick(Sender: TObject);
+var
+  i: Integer;
+begin
+  ListBox1.Items.Clear;
+  with Table1 do
+  begin
+    if IndexDefs.Count &gt; 0 then
+    begin
+      for i := 0 to IndexDefs.Count - 1 do
+        ListBox1.Items.Add(IndexDefs.Items[i].Name)
+    end;
+  end;
+end;
+</pre>
+<p>Ниже приведен пример, показывающий как можно извлечь информацию об индексах во время выполнения программы с выводом ее в компонент TStringGrid (с именем SG1).</p>
+<pre name="code" class="delphi">
+procedure TForm1.FormShow(Sender: TObject);
+var
+  i: Integer;
+  S: string;
+begin
+  with Table1 do
+  begin
+    Open;
+    {Обновляем объект IndexDefs}
+    IndexDefs.Update;
+    if IndexDefs.Count &gt; 0 then
+    begin
+      {Устанавливаем колонки и строки сетки для соответствия элементам IndexDefs}
+      SG1.ColCount := 4;
+      SG1.RowCount := IndexDefs.Count + 1;
+      {Устанавливаем заголовки колонок сетки согласно именам свойств TIndexDef}
+      SG1.Cells[0, 0] := 'Name';
+      SG1.ColWidths[0] := 200;
+      SG1.Cells[1, 0] := 'Fields';
+      SG1.ColWidths[1] := 200;
+      SG1.Cells[2, 0] := 'Expression';
+      SG1.ColWidths[2] := 200;
+      SG1.Cells[3, 0] := 'Options';
+      SG1.ColWidths[3] := 300;
+      {Цикл с опросом IndexDefs.Items}
+      for i := 0 to IndexDefs.Count - 1 do
+      begin
+        {Заполняем ячейки сетки в текущей колонке}
+        SG1.Cells[0, i + 1] := IndexDefs.Items[i].Name;
+        SG1.Cells[1, i + 1] := IndexDefs.Items[i].Fields;
+        SG1.Cells[2, i + 1] := IndexDefs.Items[i].Expression;
+        if ixPrimary in IndexDefs.Items[i].Options then
+          S := 'ixPrimary, ';
+        if ixUnique in IndexDefs.Items[i].Options then
+          S := S + 'ixUnique, ';
+        if ixDescending in IndexDefs.Items[i].Options then
+          S := S + 'ixDescending, ';
+        if ixCaseInsensitive in IndexDefs.Items[i].Options then
+          S := S + 'ixCaseInsensitive, ';
+        if ixExpression in IndexDefs.Items[i].Options then
+          S := S + 'ixExpression, ';
+        if S &gt; ' ' then
+        begin
+          {Отфильтровываем ", "}
+          System.Delete(S, Length(S) - 1, 2);
+          SG1.Cells[3, i + 1] := S;
+        end;
+      end;
+    end;
+  end;
+end;
+</pre>
+<p>Специфичные особенности </p>
+<p>При работе с таблицами различных типов при необходимо учитывать их особенности. Посредством Delphi можно получить доступ к нескольким типам таблиц, и у каждой имеются свои специфические особенности, связанные с извлекаемой информацией об индексах. </p>
+<p>Таблицы dBASE </p>
+<p>При работе с индексами dBASE, свойства Fields и Expression заполняются в зависимости от типа индекса, который может быть как простым (основанным на одном поле), так и сложным (базирующимся на нескольких полях или dBASE-выражениях). Если индекс является простым, свойство Fields будет содержать имя поля таблицы, на основе которого построен индекс, а свойство Expression будет пустым. Если индекс сложный, свойство Expression будет содержать выражение, на основе которого был построен индекс (например, "Field1+Field2"), а свойство Fields будет пустым. </p>
+<p>Таблицы Paradox </p>
+<p>При работе с первичными индексами Paradox, свойство Name будет пустым, свойство Fields будет содержать поле(я), на основе которых создан индекс, а свойство Options будет содержать ixPrimary. При работе со вторичными индексами, свойство Name будет содержать имя вторичного индекса, свойство Fields будет содержать поле(я), на основе которых создан индекс, а свойство Options может как содержать какое-либо значение, так и быть пустым. </p>
+<p>Свойство Fields у индексов, основанных более чем на одном поле, содержит имена полей, разделенных точкой с запятой. Индексы, основанные только на одном поле, в свойстве Fields содержат имя только данного поля. </p>
+<p>Таблицы InterBase </p>
+<p>Для обоих типов индексов, построенных как на основе одного, так и нескольких полей, свойство Expression будет пустым. Для индексов, построенных на основе одного поля, свойство Fields будет содержать имя поля, на основе которого был создан индекс. Свойство Fields у индексов, основанных более чем на одном поле, содержит имена полей, разделенных точкой с запятой. </p>
+<p>Индексы, определенные в команде CREATE TABLE как PRIMARY, в свойстве Name будут содержать значение "RDB$PRIMARYn", где n - порядковый номер символа, однозначно определяющий первичный индекс в пределах метаданных БД. Вторичные индексы содержат фактическое имя индекса. </p>
+<p>Внешние ключи также содержат индексы, созданные системой. Такие индексы будут содержаться в свойстве IndexDefs и иметь имя "RDB$FOREIGNn", где n - порядковый номер символа, однозначно определяющий индекс в пределах метаданных БД. </p>
+<p>Свойство Fields у индексов, основанных более чем на одном поле, содержит имена полей, разделенных точкой с запятой. Индексы, основанные только на одном поле, в свойстве Fields содержат имя только данного поля. </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

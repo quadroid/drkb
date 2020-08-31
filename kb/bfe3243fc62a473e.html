@@ -1,0 +1,130 @@
+<html>
+<head>
+  <title>Как найти окно по неполному названию?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как найти окно по неполному названию?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Код не мой, взят где-то из интернета, авторство не помню, я его работоспособность проверял, но почему-то работает не в 100% случаев, копать дальше не было времени, но может кому пригодится и в таком варианте. </p>
+<pre name="code" class="delphi">
+type
+  PFindWindowStruct = ^TFindWindowStruct;
+  TFindWindowStruct = record
+    Caption: string;
+    ClassName: string;
+    WindowHandle: THandle;
+  end;
+ 
+function EnumWindowsProc(hWindow: hWnd; lParam: LongInt): Bool; stdcall;
+var
+  lpBuffer: PChar;
+  WindowCaptionFound: bool;
+  ClassNameFound: bool;
+begin
+  GetMem(lpBuffer, 255);
+  Result := True;
+  WindowCaptionFound := False;
+  ClassNameFound := False;
+  try
+    if GetWindowText(hWindow, lpBuffer, 255) &gt; 0 then
+      if Pos(PFindWindowStruct(lParam).Caption, StrPas(lpBuffer)) &gt; 0 then WindowCaptionFound := true;
+    if PFindWindowStruct(lParam).ClassName = '' then
+      ClassNameFound := True
+    else if GetClassName(hWindow, lpBuffer, 255) &gt; 0 then
+      if Pos(PFindWindowStruct(lParam).ClassName, StrPas(lpBuffer)) &gt; 0 then ClassNameFound := True;
+    if (WindowCaptionFound and ClassNameFound) then
+      begin
+        PFindWindowStruct(lParam).WindowHandle := hWindow;
+        Result := False;
+      end;
+  finally
+    FreeMem(lpBuffer, sizeof(lpBuffer^));
+  end;
+end;
+ 
+function FindAWindow(Caption: string; ClassName: string): THandle;
+var WindowInfo: TFindWindowStruct;
+begin
+  WindowInfo.Caption := Caption;
+  WindowInfo.ClassName := ClassName;
+  WindowInfo.WindowHandle := 0;
+  EnumWindows(@EnumWindowsProc, LongInt(@WindowInfo));
+  FindAWindow := WindowInfo.WindowHandle;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var TheWindowHandle: THandle;
+begin
+  TheWindowHandle := FindAWindow('Opera', '');
+  if TheWindowHandle &lt;&gt; 0 then
+    begin
+      Showwindow(TheWindowHandle, sw_restore);
+      BringWindowToTop(TheWindowHandle);
+    end
+  else
+    ShowMessage('Window Not Found!');
+end;
+</pre>
+
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<pre name="code" class="delphi">
+function TForm1.Find(s: string): hWnd;
+var Wnd: hWnd;
+  buff: array[0..127] of Char;
+begin
+  Find := 0;
+  Wnd := GetWindow(Handle, gw_HWndFirst);
+  while Wnd &lt;&gt; 0 do
+    begin
+      if (Wnd &lt;&gt; Application.Handle) and
+        IsWindowVisible(Wnd) and
+        (GetWindow(Wnd, gw_Owner) = 0) and
+        (GetWindowText(Wnd, buff, sizeof(buff)) &lt;&gt; 0) then
+        begin
+          GetWindowText(Wnd, buff, sizeof(buff));
+          if pos(s, StrPas(buff)) &gt; 0 then
+            begin
+              Find := Wnd;
+              Break;
+            end;
+        end;
+      Wnd := GetWindow(Wnd, gw_hWndNext);
+    end;
+end;
+</pre>
+
+<p id="author">Автор ответа: Mikel</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

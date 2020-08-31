@@ -1,0 +1,129 @@
+<html>
+<head>
+  <title>Как поменять цвет Header'а в TListView</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как поменять цвет Header'а в TListView</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для этого нужно в оконной процедуре ListView обработать сообщение WM_NOTIFY с кодом NM_CUSTOMDRAW. И в обработчике этого сообщения назначить цвета фона и текста (можно назначить и шрифт). Но при этом правая часть header'а (область заголовка ListView, находящаяся справа от колонок) закрашиваться не будет. Чтобы закрасить и её, надо в оконной процедуре header'а обработать сообщение WM_ERASEBKGND, в котором и залить нужным цветом эту область. Ниже - небольшой примерчик с сабклассингом.</p>
+<pre name="code" class="delphi">
+uses CommCtrl;
+ 
+var
+  BkBrush:HBRUSH; // тут сохраняем brush для фона
+ 
+// процедура header'а
+function NewHeaderProc(wnd: HWND; Msg: Cardinal; wParam: wParam; 
+                          lParam: lParam): Longint; stdcall;
+var
+ BrushOld: HBRUSH;
+ ClientRect:TRect;
+begin
+ Result := CallWindowProc(Pointer(GetWindowLong(wnd, GWL_USERDATA)),
+                          wnd, Msg, wParam, lParam);
+ 
+  if Msg=WM_ERASEBKGND then  // закрашиваем область справа от колонок
+  begin
+   GetClientRect(wnd,ClientRect);
+   BrushOld := SelectObject(wParam, BkBrush);
+   FillRect(wParam, ClientRect, BkBrush);
+   SelectObject(wParam, BrushOld);
+   Result := 1;
+  end
+end;
+ 
+// процедура ListView
+function NewListProc(wnd:HWND; uMsg:UINT; wParam:WPARAM; 
+                     lParam:LPARAM):integer; stdcall;
+var
+  nmlvcd:PNMLVCUSTOMDRAW;
+begin
+   result:=CallWindowProc(Pointer(GetWindowLong(wnd,GWL_USERDATA)),wnd,
+                          uMsg,wParam,lParam);
+   if uMsg=WM_NOTIFY then
+    if PNMLISTVIEW(lParam)^.hdr.code=NM_CUSTOMDRAW then
+    begin
+     nmlvcd:=PNMLVCUSTOMDRAW(lparam);
+     case nmlvcd.nmcd.dwDrawStage of
+       CDDS_PREPAINT:  result:=CDRF_NOTIFYITEMDRAW;
+       CDDS_ITEMPREPAINT:
+                   begin
+                     SetTextColor(nmlvcd.nmcd.hdc,clRed);    // цвет текста
+                     SetBkColor(nmlvcd.nmcd.hdc,clYellow);   // цвет фона
+                     result:=CDRF_DODEFAULT;
+                   end;
+      CDDS_ITEMPOSTPAINT: result := CDRF_DODEFAULT;
+     end
+    end;
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+var
+ i,j:integer;
+ lit:TListItem;
+begin
+ with ListView1 do
+ begin
+  ViewStyle := vsReport; // стиль, естественно vsReport
+  GridLines:=true;
+ 
+// заполним ListView чем-нибудь
+  for i:=0 to 2 do
+  begin
+     Columns.Add.Caption:='Column'+IntToStr(i);
+     Columns[i].Width:=70;
+     lit:=Items.Add;
+     lit.Caption:='Item'+IntToStr(i);
+     for j:=1 to 2 do lit.SubItems.Add('SubItem'+IntToStr(j)+IntToStr(i))
+  end
+end;
+ 
+//меняем процедуру у ListView
+ SetWindowLong(ListView1.Handle,GWL_USERDATA,SetWindowLong(ListView1.Handle, 
+                   GWL_WNDPROC, LPARAM(@NewListProc)));
+ 
+//тоже самое у Header'а
+ SetWindowLong(GetWindow(ListView1.Handle, GW_CHILD),GWL_USERDATA,
+              SetWindowLong(GetWindow(ListView1.Handle, GW_CHILD), 
+              GWL_WNDPROC, LPARAM(@NewHeaderProc)));
+ 
+ BkBrush := CreateSolidBrush(clYellow); // цвет фона
+ 
+end;
+</pre>
+<p>Ещё вариант: для каждого элемента header'а установить флаг HDF_OWNERDRAW и в оконной процедуре ListView обрабатывать WM_DRAWITEM, где так же назначать цвета для элементов заголовка ListView. <br>
+<p>&nbsp;</p>
+<p>&nbsp;<br>
+<p id="author">Автор: Krid </p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

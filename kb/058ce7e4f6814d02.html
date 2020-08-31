@@ -1,0 +1,70 @@
+<html>
+<head>
+  <title>Является ли шрифт шрифтом с фиксированной шириной?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Является ли шрифт шрифтом с фиксированной шириной?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<pre name="code" class="delphi">
+procedure TConsole.FontChanged(Sender: TObject);
+var
+  DC: HDC;
+  Save: THandle;
+  Metrics: TTextMetric;
+  Temp: string;
+begin
+  if Font.Handle &lt;&gt; FOldFont.Handle then
+  begin
+    DC := GetDC(0);
+    Save := SelectObject(DC, Font.Handle);
+    GetTextMetrics(DC, Metrics);
+    SelectObject(DC, Save);
+    ReleaseDC(0, DC);
+    if not (((Metrics.tmPitchAndFamily and ff_Modern) &lt;&gt; 0) and
+      ((Metrics.tmPitchAndFamily and $01) = 0)) then
+    begin
+      Temp := 'TConsole: ' + Font.Name +
+        ' не является шрифтом с фиксированной шириной';
+      Font.Name := FOldFont.Name; { Возвращаем предыдущие атрибуты шрифта }
+      raise EInvalidFont.Create(Temp);
+    end;
+    SetMetrics(Metrics);
+  end;
+  FOldFont.Assign(Font);
+  if csDesigning in ComponentState then
+    InternalClrScr;
+end;
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

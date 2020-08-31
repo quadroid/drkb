@@ -1,0 +1,75 @@
+<html>
+<head>
+  <title>Конвертация римских цифр в арабские</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Конвертация римских цифр в арабские</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function RomanToDec(const Value: string): integer;
+var
+  i, lastValue, curValue: integer;
+begin
+  Result := 0;
+  lastValue := 0;
+  for i := Length(Value) downto 1 do
+  begin
+    case UpCase(Value[i]) of
+      'C':
+        curValue := 100;
+      'D':
+        curValue := 500;
+      'I':
+        curValue := 1;
+      'L':
+        curValue := 50;
+      'M':
+        curValue := 1000;
+      'V':
+        curValue := 5;
+      'X':
+        curValue := 10;
+    else
+      raise Exception.CreateFmt('Invalid character: %s', [Value[i]]);
+    end;
+    if curValue &lt; lastValue then
+      Dec(Result, curValue)
+    else
+      Inc(Result, curValue);
+    lastValue := curValue;
+  end;
+end;
+</pre>
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<html>
+<head>
+  <title>Как назначить пароль на таблицу?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как назначить пароль на таблицу?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses Unit2;
+// ..
+TablePasswort(Table1, 'secret');
+ 
+unit Unit2;
+ 
+interface
+ 
+uses
+  BDE, SysUtils, DBTables, Windows;
+ 
+function TablePasswort(var table: TTable; password: string): Boolean;
+ 
+implementation
+ 
+function StrToOem(const AnsiStr: string): string;
+begin
+  SetLength(result, Length(AnsiStr));
+  if Length(result) &gt; 0 then
+    CharToOem(PChar(AnsiStr), PChar(result))
+end;
+ 
+function TablePasswort(var table: ttable; password: string): Boolean;
+var
+  pTblDesc: pCRTblDesc;
+  hDb: hDBIDb;
+begin
+  result := false;
+  with table do
+  begin
+    if Active and (not Exclusive) then
+      Close;
+    if (not Exclusive) then
+      Exclusive := true;
+    if (not Active) then
+      Open;
+    hDb := DBHandle;
+    Close
+  end;
+  GetMem(pTblDesc, sizeof(CRTblDesc));
+  FillChar(pTblDesc^, sizeof(CRTblDesc), 0);
+  with pTblDesc^ do
+  begin
+    StrPCopy(szTblName, StrToOem(table.tablename));
+    szTblType := szParadox;
+    StrPCopy(szPassword, StrToOem(password));
+    bPack := true;
+    bProtected := true
+  end;
+  if DbiDoRestructure(hDb, 1, pTblDesc, nil, nil, nil, false) &lt;&gt; DBIERR_NONE then
+    exit;
+  if pTblDesc &lt;&gt; nil then
+    FreeMem(pTblDesc, sizeof(CRTblDesc));
+  result := true
+end;
+ 
+end.
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

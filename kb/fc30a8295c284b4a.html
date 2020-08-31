@@ -1,0 +1,76 @@
+<html>
+<head>
+  <title>Как выводить элементы списка разными шрифтами?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как выводить элементы списка разными шрифтами?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Очень удобно выбирать шрифты, когда в списке каждый шрифт написан собой. Например, "Arial" будет написано шрифтом Arial, а "Times" - Times. Список шрифтов лежит в свойстве Fonts объекта Screen. </p>
+<pre name="code" class="delphi">
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  ListBox1.Items := Screen.Fonts;
+  ListBox1.Style := lbOwnerDrawVariable;
+end;
+ 
+// Определение высоты элемента списка
+procedure TForm1.ListBox1MeasureItem(Control: TWinControl; Index: Integer;
+  var Height: Integer);
+begin
+  with ListBox1.Canvas do begin
+    Font.Name := ListBox1.Items.Strings[index];
+    Font.Size := 0; // Размер шрифта – по умолчанию
+ 
+    Height := TextHeight(ListBox1.Items.Strings[index]) + 2;
+  end;
+end;
+ 
+// Вывод названия шрифта
+procedure TForm1.ListBox1DrawItem(Control: TWinControl; Index: Integer;
+  Rect: TRect; State: TOwnerDrawState);
+begin
+  with ListBox1.Canvas do begin
+    Font.Name := ListBox1.Items.Strings[index];
+    Font.Size := 0; // Размер шрифта – по умолчанию
+    TextOut(Rect.Left + 1, Rect.Top + 1,
+ 
+      ListBox1.Items.Strings[index]);
+  end;
+end;
+</pre>
+<p id="author">Автор советов: Даниил Карапетян</p>
+<p>e-mail: delphi4all@narod.ru</p>
+<p id="author">Автор справки: Алексей Денисов</p>
+<p>e-mail: aleksey@sch103.krasnoyarsk.su</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

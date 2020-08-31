@@ -1,0 +1,125 @@
+<html>
+<head>
+  <title>Получить дескриптор текущего курсора</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получить дескриптор текущего курсора</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  The GetCursor() API is limited in that it does not, by default, return a handle to the current 
+  cursor when that cursor is owned by another thread. This article demonstrates a way to retrieve 
+  the current cursor regardless of what thread owns it. 
+  For example, when you wish to include the image of the cursor in a screen capture. 
+}
+ 
+ 
+ function GetCursorHandle: HCURSOR;
+ var
+   hWindow: HWND;
+   pt: TPoint;
+   pIconInfo: TIconInfo;
+   dwThreadID, dwCurrentThreadID: DWORD;
+ begin
+   // Find out which window owns the cursor 
+  // Das zum Mauszeiger zugehцrige Fenster finden 
+  GetCursorPos(pt);
+   hWindow := WindowFromPoint(pt);
+ 
+   // Get the thread ID for the cursor owner. 
+  // Thread ID des Fensters ermitteln 
+  dwThreadID := GetWindowThreadProcessId(hWindow, nil);
+ 
+   // Get the thread ID for the current thread 
+  // Thread ID fьr den aktuellen Thread ermitteln 
+  dwCurrentThreadID := GetCurrentThreadId;
+ 
+   // If the cursor owner is not us then we must attach to 
+  // the other thread in so that we can use GetCursor() to 
+  // return the correct hCursor 
+ 
+  // Wenn der Mauszeiger zu einem anderen Thread gehцrt, mьssen wir 
+  // an den anderen Thread anhдngen. 
+ 
+  if (dwCurrentThreadID &lt;&gt; dwThreadID) then
+   begin
+     if AttachThreadInput(dwCurrentThreadID, dwThreadID, True) then
+     begin
+       // Das Handle des Mauszeigers ermitteln 
+      // Get the handle to the cursor 
+      Result := GetCursor;
+       AttachThreadInput(dwCurrentThreadID, dwThreadID, False);
+     end;
+   end else
+   begin
+     Result := GetCursor;
+   end;
+ end;
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ var
+   CurPosX, CurPoxY: Integer;
+   MyCursor: TIcon;
+   pIconInfo: TIconInfo;
+ begin
+   MyCursor := TIcon.Create;
+   try
+     MyCursor.Handle := GetCursorHandle;
+     // Retrieves information about the specified cursor. 
+    // Informationen ьber den Mauszeiger auslesen 
+    GetIconInfo(MyCursor.Handle, pIconInfo);
+     CurPosX := pIconInfo.xHotspot;
+     CurPoxY := pIconInfo.yHotspot;
+     // Draw the Cursor on the form 
+    // Den Mauszeiger auf die Form zeichnen 
+    Canvas.Draw(CurPoxY, CurPoxY, MyCursor);
+   finally
+     MyCursor.ReleaseHandle;
+     MyCursor.Free;
+   end;
+ end;
+ 
+ // Another Solution: 
+// Andere Mцglichkeit: 
+ 
+procedure TForm1.Timer1Timer(Sender: TObject);
+ var
+   CI: TCursorInfo;
+ begin
+   CI.cbSize := SizeOf(CI);
+   GetCursorInfo(CI);
+   Image1.Picture.Icon.Handle := CI.hCursor;
+ end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

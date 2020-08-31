@@ -1,0 +1,91 @@
+<html>
+<head>
+  <title>Дайте теоретическое объяснение типу IDispatch</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Дайте теоретическое объяснение типу IDispatch</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Идентификатор интерфейса тип IDispatch, используемый для связи с объектом. Для создания объектов COM, не использующих интерфейс IDispatch, надо использовать функцию CreateComObject.</p>
+<p>Руксскими словами: varDispatch &nbsp; &nbsp; &nbsp; &nbsp;$0009 &nbsp; &nbsp; &nbsp; &nbsp;ссылка на автоматический объект (указатель на интерфейс IDispatch)</p>
+<p id="author">Автор ответа: Snick_Y2K&nbsp; </p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<p>"Тип IDispatch" - не звучит. Ты бы сказал, в каком контексте.</p>
+<p>Вообще, IDispatch - это интерфейс. Если ты заглянешь в System.pas, ты найдешь его делфийское описание:</p>
+<pre name="code" class="delphi">
+ IDispatch=interface
+  .....
+ end;
+</pre>
+
+<p>Это интерфейс используется для обеспечения "позднего связывания" в COM, то есть вызовов методов(и использования property) когда на момент компиляции их имена не известны. Например:</p>
+<pre name="code" class="delphi">
+var
+  v:variant;
+begin
+  v:=CreateOleObject("Excel.Appication");
+  v.Quit;
+end;
+</pre>
+
+<p>  Как тут вызывается метод Quit? Ведь компилятор совершенно ничего не знает об этом методе, ровно как и о том, что содержится в переменно v. На самом деле, одна эта строчка транслируется компилятором в набор примерно таких вызовов:</p>
+<pre name="code" class="delphi">
+var
+  v:variant;
+begin
+  v:=CreateOleObject("Excel.Appication");
+  if TVarData(v).vtType=vtIDispatch then
+  begin
+     pseudo_compiler_generated_IDispatch:IDispatch=TVarData(v).varIDispatch //указатель на интерфейс IDispatch
+     cpl_gen_DispID:integer;
+     pseudo_compiler_generated_IDispatch.GetIDsOfNames('Quit',1,cpl_gen_DispID);  //получаем числовой индефикатор имени "Quit"
+     pseudo_compiler_generated_IDispatch.Invoke(cpl_gen_DispID,....); //вызывает метод по индификатору.
+  end;
+end;
+</pre>
+
+<p>Если использоват IDispatch вместо variant, то все это можно написать самому:</p>
+<pre name="code" class="delphi">
+var
+  Disp:IDispatch;
+  DispID:integer;
+begin
+  Disp:=CreateOleObject("Excel.Appication");
+  Disp.GetIDsOfNames('Quit',1,DispID);  //получаем числовой индефикатор имени "Quit"
+  Disp.Invoke(DispID,....); //вызывает метод по индификатору.
+end;
+</pre>
+
+<p id="author">Автор: Fantasist</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

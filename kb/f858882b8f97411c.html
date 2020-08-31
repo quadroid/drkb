@@ -1,0 +1,161 @@
+<html>
+<head>
+  <title>Как экстрагировать аудиодорожку из AVI файла?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как экстрагировать аудиодорожку из AVI файла?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses 
+{...}, vfw; 
+ 
+var 
+  abort: Boolean; 
+ 
+  {$R *.DFM} 
+ 
+{Special thanks to Jailbird, who developed a big part of this Code 
+<a href="vfw_pas.htm">Please download th vfw.pas first</a> } 
+{The 'SaveCallback' function allows the user to get the 
+ process status and abort the save progress. This function 
+ needn't to call by the user.} 
+ 
+function SaveCallback(nPercent: Int): Bool; pascal; 
+begin 
+  Application.ProcessMessages; 
+ 
+  Form1.Progressbar1.Position := nPercent; 
+  //Save Status in Percent 
+  if abort = True then 
+    Result := True    
+  else                //If then function returns "True", the Process will continue 
+    Result := False;  
+end;                  //If it returns "False" the process will abort 
+ 
+{The following function needs two parameters: 
+ 
+ InputFile: PChar 
+  Enter a Dir + Filename of a AVI File. 
+ 
+ OutputFile: PChar 
+  Enter a Dir + Filename of a WAVE File where do you want to 
+  put the audiodata of the movie. 
+ 
+  TIP: 
+  Enter jus a Filename of a WAVE File if the audiodata of the 
+  movie is in uncompressed PCM Format. 
+ 
+ ########################################################### 
+ 
+ IMPORTANT: 
+  Before calling the 'ExtractAVISound' function be sure that the 
+  Inputfile has a audiotrace. 
+ } 
+ 
+function TForm1.ExtractAVISound(InputFile, Outputfile: PChar): Boolean; 
+var 
+  PFile: IAviFile; 
+  PAvi: IAviStream; 
+  plpOptions: PAviCompressOptions; 
+begin 
+  Abort := False; 
+ 
+  if Fileexists(StrPas(Outputfile)) then  
+  begin 
+    case MessageDlg('Ausgabedatei existiert bereits. Ьberschreiben?', 
+      mtWarning, [mbYes, mbNo], 0) of 
+      mrYes:  
+        begin 
+          DeleteFile(StrPas(Outputfile)); 
+        end;                             
+      //Important because the function overwrite just 
+      //the part of the file which is needed. 
+      mrNo:  
+        begin 
+          Exit; 
+        end; 
+    end; 
+  end; 
+ 
+  try            
+    AviFileInit;  //Init the API 
+    if AviFileOpen(PFile, Inputfile, 0, nil) &lt;&gt; 0 then  
+    begin                                               //Opens a AVI File 
+      MessageDlg('Fehler beim laden des Videos. 
+      Mцglicherweise wird die Datei von einem anderen Prozess verwendet.' 
+        + #13#10 + 
+        'SchlieЯen Sie alle in Frage kommenden Anwendungen und versuchen Sie es erneut.', 
+        mtError, [mbOK], 0); 
+      Result := False; 
+      Exit; 
+    end; 
+    if AviFileGetStream(PFile, PAvi, StreamTypeAudio, 0) &lt;&gt; 0 then 
+    begin 
+      MessageDlg( 
+        'Fehler beim laden des AudioStreams. Bitte ьberprьfen Sie, ob dieses Video ьber einen AudioStream verfьgt.', 
+        mtError, [mbOK], 0); 
+      AviFileExit; 
+      Result := False; 
+      Exit; 
+    end; 
+    //Saves the AudioStream 
+    if AviSaveV(Outputfile, nil, @SaveCallback, 1, PAvi, plpOptions) &lt;&gt; 0 then 
+    begin 
+      MessageDlg('Fehler beim Speichern des AudioStreams oder Sie haben den Speichervorgang abgebrochen.', 
+        mtError, [mbOK], 0); 
+      AviStreamRelease(PAvi); 
+      AviFileExit; 
+      Result := False; 
+      Exit; 
+    end; 
+  finally 
+    AviStreamRelease(PAvi); 
+    AviFileExit; 
+  end; 
+  Result := True;  
+  //return 'TRUE' if all right 
+end; 
+ 
+//Example how to call the function: 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  if ExtractAVISound(PChar('D:\test.avi'), PChar('D:\test.wav')) = True then 
+    ShowMessage('Audio sucessfully saved'); 
+  else 
+    ShowMessage('Error while saving...'); 
+end; 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

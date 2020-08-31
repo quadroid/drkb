@@ -1,0 +1,114 @@
+<html>
+<head>
+  <title>Удаление HTML элементов из текста</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Удаление HTML элементов из текста</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Как-то раз пришлось решить задачу удаления из файла элементов HTML таких, как, например, ненужные ссылки, и в то эе время преобразования возврата каретки в HTML параграфы, знаков табуляции в пробелы и т.д. В результате соответственно должен был получиться новый HTML документ.</p>
+<p>Следующие две процедуры показывают, как это можно сделать: </p>
+<pre name="code" class="delphi">
+procedure TMainForm.LoadFileIntoList(TextFileName:String; AWebPage:TStringList; WithFilter:Boolean); 
+var CurrentFile : TStringList; 
+begin 
+   CurrentFile := TStringList.Create; 
+   CurrentFile.LoadFromFile(TextFileName); 
+   if WithFilter then 
+      FilterHTML(CurrentFile,AWebPage) 
+   else 
+      with AWebPage do AddStrings(CurrentFile); 
+   CurrentFile.Free; 
+end; 
+ 
+procedure TMainForm.FilterHTML(FilterInput, AWebPage:TStringList); 
+var 
+   i,j : LongInt; 
+   S   : String; 
+begin 
+   FilterMemo.Lines.Clear; 
+   FilterMemo.Lines := FilterInput; 
+ 
+   with AWebPage do 
+   begin 
+      FilterMemo.SelectAll; 
+      j := FilterMemo.SelLength; 
+ 
+      if j &gt; 0 then 
+      begin 
+         i := 0; 
+         repeat 
+            if FilterMemo.Lines.GetText[i] = Char(VK_RETURN)      // ищем cr 
+            then S := S+'
+' 
+            else if FilterMemo.Lines.GetText[i] = '&lt;' 
+                 then repeat 
+                         inc(i); 
+                      until FilterMemo.Lines.GetText[i] = '&gt;' 
+                 else if FilterMemo.Lines.GetText[i] = Char(VK_TAB)   // ищем tab 
+                      then S := S+'    ' 
+                      else S := S+ FilterMemo.Lines.GetText[i];     // добавляем текст 
+            inc(i); 
+         until i = j+1; 
+         Add(S);     // добавляем строку в WebPage 
+      end else Add('No data entered into field.');   // no data in text file 
+   end; 
+end; 
+</pre>
+
+<p>Применение функции: </p>
+<p>Всё, что нужно сделать - это вызвать : </p>
+<p>LoadFileIntoList("filename.txt",Webpage, True); </p>
+<p>Где filename - это имя файла, который вы хотите обработать. </p>
+<p>"WebPage" - это TStringList </p>
+<p>последний параметр в функции указывает, применять или нет HTML-фильтр. </p>
+<p>PS: В этом примере объект TMemo (который вызывается из "FilterMemo") лежит на форме и поэтому не видим. </p>
+<pre name="code" class="delphi">WebPage := TStringList.Create; 
+   try 
+      Screen.Cursor := crHourGlass; 
+      AddHeader(WebPage); 
+      with WebPage do 
+      begin 
+         Add('Personal Details');         
+         LoadFileIntoList("filename.txt",Webpage, True); 
+      end; 
+      AddFooter(WebPage); 
+   finally 
+      WebPage.SaveToFile(HTMLFileName); 
+      WebPage.Free; 
+      Screen.Cursor := crDefault; 
+   end; 
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

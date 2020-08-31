@@ -1,0 +1,104 @@
+<html>
+<head>
+  <title>Как найти системные папки Windows?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как найти системные папки Windows?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+Type TSystemPath=(Desktop,StartMenu,Programs,Startup,Personal, winroot, winsys);
+
+ 
+...
+Function GetSystemPath(SystemPath:TSystemPath):string;
+var p:pchar;
+begin
+with TRegistry.Create do
+try
+RootKey := HKEY_CURRENT_USER;
+OpenKey('\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders', True);
+case SystemPath of
+Desktop: Result:=ReadString('Desktop');
+StartMenu:Result:=ReadString('Start Menu');
+Programs:Result:=ReadString('Programs');
+Startup:Result:=ReadString('Startup');
+Personal:Result:=ReadString('Personal');
+Winroot:begin
+GetMem(p,255);
+GetWindowsDirectory(p,254);
+result:=Strpas(p);
+Freemem(p);
+end;
+WinSys:begin
+GetMem(p,255);
+GetSystemDirectory(p,254);
+result:=Strpas(p);
+Freemem(p);
+end;
+end;
+finally
+CloseKey;
+free;
+end;
+if (result&lt;&gt;'') and (result[length(result)]&lt;&gt;'\') then result:=result+'\';
+end;
+</pre>
+
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<pre name="code" class="delphi">
+uses Registry;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  reg : TRegistry;
+  ts : TStrings;
+  i : integer;
+begin
+  reg := TRegistry.Create;
+  reg.RootKey := HKEY_CURRENT_USER;
+  reg.LazyWrite := false;
+  reg.OpenKey('Software\Microsoft\Windows\CurrentVersion\Explorer\ShellFolders', false);
+  ts := TStringList.Create;
+  reg.GetValueNames(ts);
+  for i := 0 to ts.Count -1 do
+    Memo1.Lines.Add(ts.Strings[i] + ' = ' + reg.ReadString(ts.Strings[i]));
+  ts.Free;
+  reg.CloseKey;
+  reg.free;
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

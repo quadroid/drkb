@@ -1,0 +1,121 @@
+<html>
+<head>
+  <title>Функция, которая нарисует на форме сетку и сделает форму похожей на дизайнер форм Delphi</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Функция, которая нарисует на форме сетку и сделает форму похожей на дизайнер форм Delphi</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Функция, которая нарисует на форме сетку и сделает форму похожей на дизайнер форм Delphi. По умолчанию в дизайнере Delphi отступы равны 8 пикселям </p>
+
+<pre name="code" class="delphi">
+procedure TForm1.DrawGrid;
+var
+  TmpBmp: TBitmap;
+begin
+  TmpBmp := TBitmap.Create;
+  try
+    with TmpBmp do
+    begin
+      Width := 8;
+      Height := 8;
+      Canvas.Brush.Color := clBtnFace;
+      Canvas.FillRect(TmpBmp.Canvas.ClipRect);
+      Canvas.Pixels[0, 0] := clBlack;
+      Canvas.Pixels[0, Height] := clBlack;
+      Canvas.Pixels[Width, 0] := clBlack;
+      Canvas.Pixels[Width, Height] := clBlack;
+    end;
+    with Canvas, Brush do
+    begin
+      Bitmap := TBitmap.Create;
+      try
+        Bitmap.Assign(TmpBmp);
+        Canvas.FillRect(Canvas.ClipRect);
+      finally
+        Bitmap.Free;
+      end;
+    end;
+  finally
+    TmpBmp.Free;
+  end;
+end;
+ 
+{ Использование }
+procedure TForm1.FormPaint(Sender: TObject);
+begin
+  DrawGrid; 
+end;
+</pre>
+<p>Ещё способ, рисует сетку либо линии на компоненте AObject цветом FGridColor, в параметре ACanvas нужно передать холст компонента, FSizeX и FSizeY определяют размер сетки либо линий:</p>
+<pre name="code" class="delphi">
+...
+  TGridType = (gtDots, gtLines);
+...
+procedure Draw(AObject: TControl; ACanvas: TCanvas; FGridType: TGridType; FGridColor: TColor;
+  FSizeX, FSizeY: Integer);
+var
+  ColorRGB, X, Y, MaxX, MaxY: Integer;
+  DC: HDC;
+begin
+  MaxX := AObject.ClientWidth Div FSizeX;
+  MaxY := AObject.ClientHeight Div FSizeY;
+  case FGridType of
+    gtDots:
+      begin
+        ColorRGB := ColorToRGB(FGridColor);
+        DC := ACanvas.Handle;
+        For X := 0 To MaxX Do
+          For Y := 0 To MaxY Do
+          SetPixel(DC, X * FSizeX, Y * FSizeY, ColorRGB);
+      End;
+    gtLines:
+      begin
+        ACanvas.Pen.Color := FGridColor;
+        for X := 0 to MaxX do
+        Begin
+          ACanvas.MoveTo(X * FSizeX, 0);
+          ACanvas.LineTo(X * FSizeY, AObject.ClientHeight);
+        end;
+        for Y := 0 to MaxY do
+        begin
+          ACanvas.MoveTo(0, Y * FSizeY);
+          ACanvas.LineTo(AObject.ClientWidth, Y * FSizeY);
+        end;
+      end;
+  end;
+end;
+</pre>
+
+<p id="author">Автор: Rrader</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

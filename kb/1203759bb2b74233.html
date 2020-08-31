@@ -1,0 +1,107 @@
+<html>
+<head>
+  <title>Как экспортировать таблицу базы данных в ASCII-файл?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как экспортировать таблицу базы данных в ASCII-файл?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TMyTable.ExportToASCII;
+ 
+var
+  I: Integer;
+  Dlg: TSaveDialog;
+  ASCIIFile: TextFile;
+  Res: Boolean;
+ 
+begin
+  if Active then
+    if (FieldCount &gt; 0) and (RecordCount &gt; 0) then
+      begin
+        Dlg := TSaveDialog.Create(Application);
+        Dlg.FileName := FASCIIFileName;
+        Dlg.Filter := 'ASCII-Fiels (*.asc)|*.asc';
+        Dlg.Options := Dlg.Options+[ofPathMustExist, 
+          ofOverwritePrompt, ofHideReadOnly];
+        Dlg.Title := 'Экспоритровать данные в ASCII-файл';
+        try
+          Res := Dlg.Execute;
+          if Res then
+            FASCIIFileName := Dlg.FileName;
+        finally
+          Dlg.Free;
+        end;
+        if Res then
+          begin
+            AssignFile(ASCIIFile, FASCIIFileName);
+            Rewrite(ASCIIFile);
+            First;
+            if FASCIIFieldNames then
+              begin
+                for I := 0 to FieldCount-1 do
+                  begin
+                    Write(ASCIIFile, Fields[I].FieldName);
+                    if I &lt;&gt; FieldCount-1 then
+                      Write(ASCIIFile, FASCIISeparator);
+                  end;
+                Write(ASCIIFile, #13#10);
+              end;
+            while not EOF do
+              begin
+                for I := 0 to FieldCount-1 do
+                  begin
+                    Write(ASCIIFile, Fields[I].Text);
+                    if I &lt;&gt; FieldCount-1 then
+                      Write(ASCIIFile, FASCIISeparator);
+                  end;
+                Next;
+                if not EOF then
+                  Write(ASCIIFile, #13#10);
+              end;
+            CloseFile(ASCIIFile);
+            if IOResult &lt;&gt; 0 then
+              MessageDlg('Ошибка при создании или переписывании '+
+                'в ASCII-файл', mtError, [mbOK], 0);
+          end;
+      end
+    else
+      MessageDlg('Нет данных для экспортирования.',
+        mtInformation, [mbOK], 0)
+  else
+    MessageDlg('Таблица должна быть открытой, чтобы данные '+
+      'можно было экспортировать в ASCII-формат.', mtError,
+      [mbOK], 0);
+  end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

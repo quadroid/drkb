@@ -1,0 +1,165 @@
+<html>
+<head>
+  <title>Пасхальные яйца в Delphi</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Пасхальные яйца в Delphi</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Пасхальные яйца были придуманы самими разработчиками программного продукта, чтобы хранить в них информацию о себе. Однако потом пасхальные яйца стали использоваться для небольших игрушек или смешных надписей. </p>
+<p>Чтобы увидеть пасхальное яйцо, пользователь должен знать специальную команду или последовательность нажатия клавиш; например, нажать в нужном месте или отредактировать секретный файл. Другими словами, пасхальные яйца существуют в виде недокументированного кода, скрытого внутри операционной системы, приложения, Web-браузера, игры, и т.д. </p>
+<p>Компилятор Delphi в данном случае не является исключением и каждая его версия содержит скрытые сообщения. Как правило, это список разработчиков, но есть и исключения из правил. Чтобы определить, какого рода яйцо скрывается в Delphi, можно покликать по ссылкам в окошке "Elsewhere on the Web". </p>
+<p>Создание Пасхального яйца </p>
+<p>Нередко, идею пасхального яйца, применяют в качестве точки входа в секретные настройки программы, в которые обычному пользователю заглядывать не положено. Однако, для начала, мы займёмся другим типом пасхального яйца, это скрытые (весёлые) сообщения, которые будут появляться при нажатии пользователем определённой комбинации клавиш. Этот же код можно будет использовать как для показа плавно скроллирующегося текста, так и для запуска небольшой презентации или даже мини-игры. </p>
+<p>Итак, проделаем следующее: </p>
+<p>Выберите форму, которая будет использоваться для запуска яйца. </p>
+<p>Объявите целую (integer) переменную (с именем: icnt, в секции private): </p>
+<p>private</p>
+<p>  icnt: integer;</p>
+
+<p>Добавьте две константы (в секции interface): </p>
+<pre name="code" class="delphi">
+const
+  sEgg = 'ADPRULEZ';
+  iEggLen = Length(sEgg); 
+</pre>
+
+<p>Добавьте следующий код в обработчик события OnCreate: </p>
+<pre name="code" class="delphi">
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  KeyPreview := True;
+  icnt := 1;
+end;
+</pre>
+
+<p>Допустим, наше пасхальное яйцо будет запускаться, когда пользователь наберёт ADPRULEZ, при нажатой клавише CTRL key. Тогда событие OnKeyDown будет выглядеть следующим образом: </p>
+<pre name="code" class="delphi">
+procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word;
+Shift: TShiftState);
+begin
+  if ssCtrl in Shift then
+  begin
+    if Key = Ord(sEGG[icnt]) then
+    begin
+      if icnt = iEggLen then
+      begin
+        ShowMessage('About Delphi Programming Easter Egg!');
+        icnt := 1;
+      end
+      else
+        icnt := icnt + 1;
+    end
+    else
+      icnt := 1;
+  end;
+end;
+</pre>
+
+<p>Как это работает? </p>
+<p>Секретное слово, которое активизируейт пасхальное яйцо хранится в константе sEgg (ADPRULEZ). Целая переменная icnt служит для подсчёта комбинаций клавиш. В обработчике события OnCreate свойство KeyPreview устанавливается в True. Таким образом Форма начинает получать события от клавиатуры до того, как появится. Основной код находится в событии OnKeyPress. Сперва проверяется - была ли нажата клавиша Ctrl. Если так, то проверяется последняя комбинация клавиш в той последовательности, в которой мы её задали. Если "секретная" комбинация была набрана, то появится диалоговое окошко с надписью: 'About Delphi Programming Easter Egg!' </p>
+<p>Если Вам лениво набирать коды, то можно просто разместить на форме секретную область. Теперь достаточно будет кликнуть мышкой в это крохотное место на форме и наш скрытый код запустится. Для этого поместим код в обработчик события OnMouseDown. Главное, чтобы это место на форме не заслоняли никакие визуальные компоненты! </p>
+<pre name="code" class="delphi">
+procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
+Shift: TShiftState; X, Y: Integer);
+var
+  SecretSpot: TPoint;
+begin
+  SecretSpot.x := 1; {наш секретный пиксель находится}
+  SecretSpot.y := 1; {в вехнем левом углу формы}
+ 
+  if (X=SecretSpot.x) and (Y=SecretSpot.y) then
+    ShowMessage('Secret place!')
+end;
+</pre>
+
+
+<p>Конечно же, ничего нового и сверхсекретного в этой статье не описывается, однако пользователи любят охотиться за всевозможными недокументированными возможностями той или иной программы, так почему бы не удовлетворить их желание? </p>
+<hr />
+Автор: Матвеев Игорь<br>
+<p>&nbsp;</p>
+<p>Недавно я прочитал где-то о проекте JEDI и о том, что если в Delphi версии 6.0 (В остальных не знаю) в окне "О Delphi..." (Помошь-&gt;О Delphi...) при нажатой клавише Alt нажать последовательно J E D I - симпатично проплывет объявление об этом проекте. Сегодня я установил себе C++Builder и совершенно случайно заметил, что там все в том же диалоговом окне "About" при нажатой клавише Alt нажать T - показывается "C++Builder Team". Вот я и заинтересовался подобными штучками в продуктах Borland. </p>
+<p>Итак, после определенного ряда испытаний удалось выяснить: </p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td colspan="2" ><p>Delphi 6.0: (При нажатой клавише Alt)</p>
+</td>
+</tr>
+<tr >
+<td ><p>1: J E D I</p>
+</td>
+<td ><p>Информация о пректе JEDI.</p>
+</td>
+</tr>
+<tr >
+<td ><p>2: T E A M</p>
+</td>
+<td ><p>Команда разработчиков Delphi.</p>
+</td>
+</tr>
+<tr >
+<td ><p>3: Q U A L I T Y</p>
+</td>
+<td ><p>Информация о Delphi QA Staff.</p>
+</td>
+</tr>
+<tr >
+<td ><p>4: D E V E L O P E R S</p>
+</td>
+<td ><p>Информация о Delphi R&amp;D Staff.</p>
+</td>
+</tr>
+<tr >
+<td colspan="2" ><p>C++Builder 4.253 (При нажатой клавише Alt)</p>
+</td>
+</tr>
+<tr >
+<td ><p>1: T</p>
+</td>
+<td ><p>Команда разработчиков C++Builder.</p>
+</td>
+</tr>
+<tr >
+<td ><p>2: D</p>
+</td>
+<td ><p>Информация о C++Builder R&amp;D Staff.</p>
+</td>
+</tr>
+<tr >
+<td ><p>3: V E R S I O N</p>
+</td>
+<td ><p>Информация о версии.</p>
+</td>
+</tr>
+</table>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

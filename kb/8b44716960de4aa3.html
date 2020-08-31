@@ -1,0 +1,167 @@
+<html>
+<head>
+  <title>Вывод строковой информации</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Вывод строковой информации</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Xavier Pacheco </p>
+<pre name="code" class="delphi">
+{
+Copyright © 1999 by Delphi 5 Developer's Guide - Xavier Pacheco and Steve Teixeira
+}
+ 
+unit MainFrm;
+ 
+interface
+ 
+uses
+  SysUtils, Windows, Messages, Classes, Graphics, Controls,
+  Forms, Dialogs, Menus;
+ 
+const
+  DString = 'Delphi 5 YES!';
+  DString2 = 'Delphi 5 Rocks!';
+ 
+type
+ 
+  TMainForm = class(TForm)
+    mmMain: TMainMenu;
+    mmiText: TMenuItem;
+    mmiTextRect: TMenuItem;
+    mmiTextSize: TMenuItem;
+    mmiDrawTextCenter: TMenuItem;
+    mmiDrawTextRight: TMenuItem;
+    mmiDrawTextLeft: TMenuItem;
+    procedure mmiTextRectClick(Sender: TObject);
+    procedure mmiTextSizeClick(Sender: TObject);
+    procedure mmiDrawTextCenterClick(Sender: TObject);
+    procedure mmiDrawTextRightClick(Sender: TObject);
+    procedure mmiDrawTextLeftClick(Sender: TObject);
+  public
+    procedure ClearCanvas;
+  end;
+ 
+var
+  MainForm: TMainForm;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TMainForm.ClearCanvas;
+begin
+  with Canvas do
+  begin
+    Brush.Style := bsSolid;
+    Brush.Color := clWhite;
+    FillRect(ClipRect);
+  end;
+end;
+ 
+procedure TMainForm.mmiTextRectClick(Sender: TObject);
+var
+  R: TRect;
+  TWidth, THeight: integer;
+begin
+  ClearCanvas;
+  Canvas.Font.Size := 18;
+  // Calculate the width/height of the text string
+  TWidth := Canvas.TextWidth(DString);
+  THeight := Canvas.TextHeight(DString);
+ 
+  { Initialize a TRect structure. The height of this rectangle will
+    be 1/2 the height of the text string height. This is to
+    illustrate clipping the text by the rectangle drawn }
+  R := Rect(1, THeight div 2, TWidth + 1, THeight + (THeight div 2));
+  // Draw a rectangle based on the text sizes
+  Canvas.Rectangle(R.Left - 1, R.Top - 1, R.Right + 1, R.Bottom + 1);
+  // Draw the Text within the rectangle
+  Canvas.TextRect(R, 0, 0, DString);
+end;
+ 
+procedure TMainForm.mmiTextSizeClick(Sender: TObject);
+begin
+  ClearCanvas;
+  with Canvas do
+  begin
+    Font.Size := 18;
+    TextOut(10, 10, DString);
+    TextOut(50, 50, 'TextWidth = ' + IntToStr(TextWidth(DString)));
+    TextOut(100, 100, 'TextHeight = ' + IntToStr(TextHeight(DString)));
+  end;
+end;
+ 
+procedure TMainForm.mmiDrawTextCenterClick(Sender: TObject);
+var
+  R: TRect;
+begin
+  ClearCanvas;
+  Canvas.Font.Size := 10;
+  R := Rect(10, 10, 80, 100);
+  // Draw a rectangle to surround the TRect boundaries by 2 pixels }
+  Canvas.Rectangle(R.Left - 2, R.Top - 2, R.Right + 2, R.Bottom + 2);
+  // Draw text centered by specifying the dt_Center option
+  DrawText(Canvas.Handle, PChar(DString2), -1, R, dt_WordBreak or dt_Center);
+end;
+ 
+procedure TMainForm.mmiDrawTextRightClick(Sender: TObject);
+var
+  R: TRect;
+begin
+  ClearCanvas;
+  Canvas.Font.Size := 10;
+  R := Rect(10, 10, 80, 100);
+  // Draw a rectangle to surround the TRect boundaries by 2 pixels
+  Canvas.Rectangle(R.Left - 2, R.Top - 2, R.Right + 2, R.Bottom + 2);
+  // Draw text right-aligned by specifying the dt_Right option
+  DrawText(Canvas.Handle, PChar(DString2), -1, R, dt_WordBreak or dt_Right);
+end;
+ 
+procedure TMainForm.mmiDrawTextLeftClick(Sender: TObject);
+var
+  R: TRect;
+begin
+  ClearCanvas;
+  Canvas.Font.Size := 10;
+  R := Rect(10, 10, 80, 100);
+  // Draw a rectangle to surround the TRect boudries by 2 pixels
+  Canvas.Rectangle(R.Left - 2, R.Top - 2, R.Right + 2, R.Bottom + 2);
+  // Draw text left-aligned by specifying the dt_Left option
+  DrawText(Canvas.Handle, PChar(DString2), -1, R, dt_WordBreak or dt_Left);
+end;
+ 
+end.
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

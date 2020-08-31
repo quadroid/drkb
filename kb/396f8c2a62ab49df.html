@@ -1,0 +1,64 @@
+<html>
+<head>
+  <title>Как удалить файл из самого себя?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как удалить файл из самого себя?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Очевидно что под Win32 удаление работающего кода невозможно. На время выполнения он просто добавляется к swap файлу - т.е. винды при нехватки памяти данные программы (массив переменных) сбрасывают в Swap (Page) файл, а сам код программы просто уничтожается из памяти, при возобновлении процесса, недостающие куски кода опять считываются из исходного файла. Понятно, что изменение файла пока его код выполняется будет иметь катастрофичные последствия, поэтому винды при запуске программы считают DLL или EXE файл по сути куском файла подкачки и запрещают любые манипуляции над ним. Кстати именно по этой причине все инсталляторы начинают свою работу с операции "Preparing to install", которая делает очень простую вещь - сам инсталлятор копируется во временную папку и перезапускает себя уже с винта, чтоб предотвратить крах системы при смене дискетты или CD. По этой же причине программы упакованные любыми EXE упаковщиками требуют больше памяти для запуска - так как загружается в память и исходный компрессированный код и декомпрессированный поток... Но несмотря на все сказанное можно удалить файл из "самого себя" при помощи маленькой хитрости: мы создаем и запускаем BAT файл - который и удалит программу, а саму программу закрываем, как только система "отпустит" файл - файл будет удален и затем BAT файл удалит самого себя. Пользователь всего этого не заметит - он увидит, что после завершении работы файла программы уже нет.</p>
+<pre name="code" class="delphi">
+uses ShellApi;
+ 
+procedure TForm1.FormDestroy(Sender: TObject);
+ 
+
+ 
+var f: textFile;
+  FileName: string;
+begin
+  FileName := changefileext(paramstr(0), '.bat');
+  assignFile(f, FileName);
+  rewrite(f);
+  writeln(f, ':1');
+  writeln(f, format('Erase "%s"', [paramstr(0)]));
+  writeln(f, format('If exist "%s" Goto 1', [paramstr(0)]));
+  writeln(f, format('Erase "%s"', [FileName]));
+  closefile(f);
+  ShellExecute(Handle, 'Open', PChar(FileName), nil, nil, sw_hide);
+end;
+</pre>
+
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

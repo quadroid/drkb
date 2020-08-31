@@ -1,0 +1,70 @@
+<html>
+<head>
+  <title>Сложение времени</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сложение времени</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Если Вы создаёте приложение, в котором пользователь вводит значения времени, то стандартные вычисления не подойдут. Проблема в том, что нужно сделать так, чтобы выражение 1.20 + 1.70 было равно НЕ 2.90 а 3.10. </p>
+<p>Здесь представлены три функции, которые решают эту проблему. Они работают только с часами и минутами, потому что пользователь очень редко используют секунды, но если Вам потребуются секунды, то Вы без труда сможете доработать эти функции по своему желаню. Вторая и третья функции позволяют преобразовать реальное значение времени в десятичный эквивалент и обратно. Все поля на форме будут в формате hh.mm. </p>
+<pre name="code" class="delphi">
+function sumhhmm(a, b: double): double;
+var
+  h1: double;
+begin
+  h1 := (INT(A) + INT(B)) * 60 + (frac(a) + frac(b)) * 100;
+  result := int(h1 / 60) + (h1 - int(h1 / 60) * 60) / 100;
+end;
+ 
+function hhmm2hhdd(const hhmm: double): double;
+begin
+  result := int(hhmm) + (frac(hhmm) / 0.6);
+end;
+ 
+function hhdd2hhmm(const hhdd: double): double;
+begin
+  result := int(hhdd) + (frac(hhdd) * 0.6);
+end;
+ 
+// ************************************** //
+//             Использование:             //
+// ************************************** //
+// sumtime(1.20,1.50) =&gt; 3.10             //
+// sumtime(1.20,- 0.50) =&gt; 0.30           //
+// hhmm2hhdd(1.30) =&gt; 1.5 (1h.30m = 1.5h) //
+// hhdd2hhmm(1.50) =&gt; 1.30 (1.5h = 1h30m) //
+// ************************************** // 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

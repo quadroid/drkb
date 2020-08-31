@@ -1,0 +1,81 @@
+<html>
+<head>
+  <title>Сохранение и чтение файлов в BLOB-полях</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сохранение и чтение файлов в BLOB-полях</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// Сохраняем
+procedure TForm1.Button1Click(Sender: TObject); 
+var 
+  blob: TBlobStream; 
+begin 
+  blob := yourDataset.CreateBlobStream(yourDataset.FieldByName('YOUR_BLOB'), bmWrite); 
+  try 
+    blob.Seek(0, soFromBeginning); 
+    fs := TFileStream.Create('c:\your_name.doc', fmOpenRead or 
+      fmShareDenyWrite); 
+    try 
+      blob.CopyFrom(fs, fs.Size) 
+    finally 
+      fs.Free 
+    end; 
+  finally 
+    blob.Free 
+  end; 
+end;
+ 
+// Загружаем
+procedure TForm1.Button1Click(Sender: TObject); 
+var 
+  blob: TBlobStream; 
+begin 
+  blob := yourDataset.CreateBlobStream(yourDataset.FieldByName('YOUR_BLOB'), bmRead); 
+  try 
+    blob.Seek(0, soFromBeginning); 
+ 
+    with TFileStream.Create('c:\your_name.doc', fmCreate) do 
+      try 
+        CopyFrom(blob, blob.Size) 
+      finally 
+        Free 
+      end; 
+  finally 
+    blob.Free 
+  end; 
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

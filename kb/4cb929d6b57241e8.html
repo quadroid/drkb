@@ -1,0 +1,95 @@
+<html>
+<head>
+  <title>Как узнать минимальные поля для принтера?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать минимальные поля для принтера?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses 
+  Printers; 
+ 
+type 
+  TMargins = record 
+    Left, 
+    Top, 
+    Right, 
+    Bottom: Double 
+end; 
+ 
+procedure GetPrinterMargins(var Margins: TMargins); 
+var 
+  PixelsPerInch: TPoint; 
+  PhysPageSize: TPoint; 
+  OffsetStart: TPoint; 
+  PageRes: TPoint; 
+begin 
+  PixelsPerInch.y := GetDeviceCaps(Printer.Handle, LOGPIXELSY); 
+  PixelsPerInch.x := GetDeviceCaps(Printer.Handle, LOGPIXELSX); 
+  Escape(Printer.Handle, GETPHYSPAGESIZE, 0, nil, @PhysPageSize); 
+  Escape(Printer.Handle, GETPRINTINGOFFSET, 0, nil, @OffsetStart); 
+  PageRes.y := GetDeviceCaps(Printer.Handle, VERTRES); 
+  PageRes.x := GetDeviceCaps(Printer.Handle, HORZRES); 
+  // Top Margin 
+  Margins.Top := OffsetStart.y / PixelsPerInch.y; 
+  // Left Margin 
+  Margins.Left := OffsetStart.x / PixelsPerInch.x; 
+  // Bottom Margin 
+  Margins.Bottom := ((PhysPageSize.y - PageRes.y) / PixelsPerInch.y) - 
+    (OffsetStart.y / PixelsPerInch.y); 
+  // Right Margin 
+  Margins.Right := ((PhysPageSize.x - PageRes.x) / PixelsPerInch.x) - 
+    (OffsetStart.x / PixelsPerInch.x); 
+end; 
+ 
+function InchToCm(Pixel: Single): Single; 
+// Convert inch to Centimeter 
+begin 
+  Result := Pixel * 2.54 
+end; 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+var 
+  Margins: TMargins; 
+begin 
+ GetPrinterMargins(Margins); 
+ ShowMessage(Format('Margins: (Left: %1.3f, Top: %1.3f, Right: %1.3f, Bottom: %1.3f)', 
+  [InchToCm(Margins.Left), 
+   InchToCm(Margins.Top), 
+   InchToCm(Margins.Right), 
+   InchToCm(Margins.Bottom)])); 
+end; 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

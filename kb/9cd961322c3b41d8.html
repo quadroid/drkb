@@ -1,0 +1,709 @@
+<html>
+<head>
+  <title>Пример приложений на чистом API</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Пример приложений на чистом API</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+program SmallPrg;
+ 
+uses
+  Windows, Messages;
+ 
+const
+  WinName = 'MainWClass';
+ 
+function MainWndProc(Window: HWnd; AMessage, WParam, LParam: Longint): Longint; stdcall;
+begin
+  //подпрограмма обработки сообщений
+  case AMessage of
+    WM_DESTROY:
+    begin
+      PostQuitMessage(0);
+      Result := 0;
+      Exit;
+    end;
+    else
+      Result := DefWindowProc(Window, AMessage, WParam, LParam);
+  end;
+end;
+ 
+function InitApplication: Boolean;
+var
+  wcx: TWndClass;
+begin
+  //Заполняем структуру TWndClass
+  // перерисовываем, если размер изменяется
+  wcx.style := CS_HREDRAW or CS_VREDRAW;
+  // адрес оконной процедуры
+  wcx.lpfnWndProc := @MainWndProc;
+  wcx.cbClsExtra := 0;
+  wcx.cbWndExtra := 0;
+  // handle to instance
+  wcx.hInstance := hInstance;
+  // загружаем стандандартную иконку
+  wcx.hIcon := LoadIcon(0, IDI_APPLICATION);
+  // загружаем стандартный курсор
+  wcx.hCursor := LoadCursor(0, IDC_ARROW);
+  // делаем светло-cерый фон
+  wcx.hbrBackground := COLOR_WINDOW;
+  // пока нет главного меню
+  wcx.lpszMenuName := nil;
+  // имя класса окна
+  wcx.lpszClassName := PChar(WinName);
+ 
+  // Регистрируем наш класс окна.
+  Result := RegisterClass(wcx) &lt;&gt; 0;
+end;
+ 
+function InitInstance: HWND;
+begin
+  // Создаем главное окно.
+  Result := CreateWindow(
+  // имя класса окна
+  PChar(WinName),
+  // заголовок
+  'Small program',
+  // стандартный стиль окна
+  WS_OVERLAPPEDWINDOW,
+  // стандартные горизонтальное, вертикальное положение, ширина и высота
+  Integer(CW_USEDEFAULT),
+  Integer(CW_USEDEFAULT),
+  Integer(CW_USEDEFAULT),
+  Integer(CW_USEDEFAULT),
+  0,//нет родительского окна
+  0,//нет меню
+  hInstance, // handle to application instance
+  nil); // no window-creation data
+end;
+ 
+var
+  hwndMain: HWND;
+  AMessage: msg;
+begin
+  if (not InitApplication) then
+    MessageBox(0, 'Ошибка регистрации окна', nil, mb_Ok)
+  else
+  begin
+    hwndMain := InitInstance;
+    if (hwndMain = 0) then
+      MessageBox(0, 'Ошибка создания окна', nil, mb_Ok)
+    else
+    begin
+      // Показываем окно и посылаем сообщение WM_PAINT оконной процедуре
+      ShowWindow(hwndMain, CmdShow);
+      UpdateWindow(hwndMain);
+      while (GetMessage(AMessage, 0, 0, 0)) do
+      begin
+        TranslateMessage(AMessage);
+        DispatchMessage(AMessage);
+      end;
+    end;
+  end;
+ 
+end.
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr />
+<pre name="code" class="delphi">
+program WinMin;
+uses Windows, Messages;
+const AppName = 'WinMin';
+Var 
+Window : HWnd; 
+Message : TMsg; 
+WindowClass : TWndClass; 
+function WindowProc (Window : HWnd; Message, WParam : Word; LParam : LongInt) : LongInt; stdcall;
+begin
+WindowProc := 0;
+case Message of
+wm_Destroy :begin 
+PostQuitMessage (0); 
+Exit; 
+end;
+end; // case
+WindowProc := DefWindowProc (Window, Message, WParam, LParam); 
+end;
+begin
+with WindowClass do 
+begin
+Style := cs_HRedraw or cs_VRedraw; 
+lpfnWndProc := @WindowProc; 
+cbClsExtra := 0; 
+cbWndExtra := 0; 
+hInstance := 0; 
+hIcon := LoadIcon (0, idi_Application);
+hCursor := LoadCursor (0, idc_Arrow); 
+hbrBackground := GetStockObject (White_Brush); 
+lpszMenuName := ''; 
+lpszClassName := AppName; 
+end;
+If RegisterClass (WindowClass) = 0 then Halt (255); 
+Window := CreateWindow(AppName, 
+'Win_Min', 
+ws_OverlappedWindow, 
+cw_UseDefault, 
+cw_UseDefault, 
+cw_UseDefault, 
+cw_UseDefault, 
+0, 
+0, 
+HInstance, 
+nil); 
+ShowWindow (Window, CmdShow); 
+UpdateWindow (Window); 
+while GetMessage (Message, 0, 0, 0) do 
+begin
+TranslateMessage (Message); 
+DispatchMessage (Message); 
+end;
+Halt 
+end.
+</pre>
+
+<p>М. Краснов. "OpenGL и графика в проектах Delphi".</p>
+<p>Пример прислан Spawn</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr /><p>В этом выпуске мы попробуем написать с Вами программу, которая не будет пользоваться VCL, а будет использовать вызовы функций Windows API. Приложения такого типа нужны, когда размер исполняемого файла является критичным. Например, в инсталяторах, деинсталяторах, самораспаковывающихся архивах и т.п. В крайнем случае, для того чтобы посмотреть какую работу выполняет за нас VCL, и что из себя представляет Windows-программа. На самом деле все очень просто... </p>
+<p>Для этого нам необходимо: </p>
+<pre name="code" class="delphi">
+// 1. Зарегистрировать класс окна для окна главной формы.
+ 
+function InitApplication: Boolean;
+var
+  wcx: TWndClass;
+begin
+//Заполняем структуру TWndClass
+    // перерисовываем, если размер изменяется
+    wcx.style := CS_HREDRAW or CS_VREDRAW;
+    // адрес оконной процедуры
+    wcx.lpfnWndProc := @MainWndProc;
+    wcx.cbClsExtra := 0;
+    wcx.cbWndExtra := 0;
+    // handle to instance
+    wcx.hInstance := hInstance;
+    // загружаем стандандартную иконку
+    wcx.hIcon := LoadIcon(0, IDI_APPLICATION);
+    // загружаем стандартный курсор
+    wcx.hCursor := LoadCursor(0, IDC_ARROW);
+    // делаем светло-cерый фон
+    wcx.hbrBackground := COLOR_WINDOW;
+    // пока нет главного меню
+    wcx.lpszMenuName :=  nil;
+    // имя класса окна
+    wcx.lpszClassName := PChar(WinName);
+ 
+    // Регистрируем наш класс окна.
+    Result := RegisterClass(wcx) &lt;&gt; 0;
+end;
+</pre>
+<pre name="code" class="delphi">
+// 2. Написать подпрограмму обработки оконных сообщений.
+ 
+function MainWndProc(Window: HWnd; AMessage, WParam,
+                    LParam: Longint): Longint; stdcall; export;
+begin
+  //подпрограмма обработки сообщений
+  case AMessage of
+    WM_DESTROY: begin
+      PostQuitMessage(0);
+      Exit;
+    end;
+    else
+       Result := DefWindowProc(Window, AMessage, WParam, LParam);
+  end;
+end;
+</pre>
+
+<pre name="code" class="delphi">
+// 3. Создать главное окно приложения.
+ 
+function InitInstance: HWND;
+begin
+  // Создаем главное окно.
+  Result := CreateWindow(
+   // имя класса окна
+   PChar(WinName),
+   // заголовок
+   'Small program',
+   // стандартный стиль окна
+   WS_OVERLAPPEDWINDOW,
+   // стандартные горизонтальное, вертикальное положение, ширина и высота
+   Integer(CW_USEDEFAULT),
+   Integer(CW_USEDEFAULT),
+   Integer(CW_USEDEFAULT),
+   Integer(CW_USEDEFAULT),
+   0,//нет родительского окна
+   0,//нет меню
+   hInstance, // handle to application instance
+   nil);      // no window-creation data
+end;
+</pre>
+
+<pre name="code" class="delphi">
+// 4. Написать тело программы.
+ 
+var
+  hwndMain: HWND;
+  AMessage: msg;
+begin
+    if (not InitApplication) then
+    begin
+      MessageBox(0, 'Ошибка регистрации окна', nil, mb_Ok);
+      Exit;
+    end;
+    hwndMain := InitInstance;
+    if (hwndMain = 0) then
+    begin
+      MessageBox(0, 'Ошибка создания окна', nil, mb_Ok);
+      Exit;
+    end
+    else
+    begin
+      // Показываем окно и посылаем сообщение WM_PAINT оконной процедуре
+      ShowWindow(hwndMain, CmdShow);
+      UpdateWindow(hwndMain);
+    end;
+    while (GetMessage(AMessage, 0, 0, 0)) do
+    begin
+      //Запускаем цикл обработки сообщений
+      TranslateMessage(AMessage);
+      DispatchMessage(AMessage);
+    end;
+    Halt(AMessage.wParam);
+end.
+// 5. Запустить программу на исполнение. ;)
+</pre>
+
+<p>Наша программа пока только может немногое - отображать форму, и закрываться после нажатия на кнопку закрытия формы... Но посмотрите на размер исполняемого файла - он больше чем на порядок меньше созданного с использованием VCL. Кроме того теперь у нас есть скелет приложения, возможности которого мы будем расширять в следующих выпусках. </p>
+<p>Здесь находится полный текст программы. </p>
+<pre name="code" class="delphi">
+program SmallPrg;
+ 
+uses Windows,  Messages;
+ 
+const
+  WinName = 'MainWClass';
+ 
+function MainWndProc(Window: HWnd; AMessage, WParam,
+                    LParam: Longint): Longint; stdcall; export;
+begin
+  //подпрограмма обработки сообщений
+  case AMessage of
+    WM_DESTROY: begin
+      PostQuitMessage(0);
+      Exit;
+    end;
+    else
+       Result := DefWindowProc(Window, AMessage, WParam, LParam);
+  end;
+end;
+ 
+function InitApplication: Boolean;
+var
+  wcx: TWndClass;
+begin
+//Заполняем структуру TWndClass
+    // перерисовываем, если размер изменяется
+    wcx.style := CS_HREDRAW or CS_VREDRAW;
+    // адрес оконной процедуры
+    wcx.lpfnWndProc := @MainWndProc;
+    wcx.cbClsExtra := 0;
+    wcx.cbWndExtra := 0;
+    // handle to instance
+    wcx.hInstance := hInstance;
+    // загружаем стандандартную иконку
+    wcx.hIcon := LoadIcon(0, IDI_APPLICATION);
+    // загружаем стандартный курсор
+    wcx.hCursor := LoadCursor(0, IDC_ARROW);
+    // делаем светло-cерый фон
+    wcx.hbrBackground := COLOR_WINDOW;
+    // пока нет главного меню
+    wcx.lpszMenuName :=  nil;
+    // имя класса окна
+    wcx.lpszClassName := PChar(WinName);
+ 
+    // Регистрируем наш класс окна.
+    Result := RegisterClass(wcx) &lt;&gt; 0;
+end;
+ 
+function InitInstance: HWND;
+begin
+  // Создаем главное окно.
+  Result := CreateWindow(
+   // имя класса окна
+   PChar(WinName),
+   // заголовок
+   'Small program',
+   // стандартный стиль окна
+   WS_OVERLAPPEDWINDOW,
+   // стандартные горизонтальное, вертикальное положение, ширина и высота
+   Integer(CW_USEDEFAULT),
+   Integer(CW_USEDEFAULT),
+   Integer(CW_USEDEFAULT),
+   Integer(CW_USEDEFAULT),
+   0,//нет родительского окна
+   0,//нет меню
+   hInstance, // handle to application instance
+   nil);      // no window-creation data
+end;
+ 
+var
+  hwndMain: HWND;
+  AMessage: msg;
+begin
+    if (not InitApplication) then
+    begin
+      MessageBox(0, 'Ошибка регистрации окна', nil, mb_Ok);
+      Exit;
+    end;
+    hwndMain := InitInstance;
+    if (hwndMain = 0) then
+    begin
+      MessageBox(0, 'Ошибка создания окна', nil, mb_Ok);
+      Exit;
+    end
+    else
+    begin
+      // Показываем окно и посылаем сообщение WM_PAINT оконной процедуре
+      ShowWindow(hwndMain, CmdShow);
+      UpdateWindow(hwndMain);
+    end;
+    while (GetMessage(AMessage, 0, 0, 0)) do
+    begin
+      //Запускаем цикл обработки сообщений
+      TranslateMessage(AMessage);
+      DispatchMessage(AMessage);
+    end;
+    Halt(AMessage.wParam);
+end.
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr />
+<p>Построение формы на чистом API </p>
+<pre name="code" class="delphi">
+program PlainAPI;
+&nbsp;
+uses
+  Windows,
+  Messages;
+&nbsp;
+{$R *.res}
+&nbsp;
+function PlainWinProc (hWnd: THandle; nMsg: UINT;
+  wParam, lParam: Cardinal): Cardinal; export; stdcall;
+var
+  hdc: THandle;
+  ps: TPaintStruct;
+begin
+  Result := 0;
+  case nMsg of
+ &nbsp;&nbsp; wm_lButtonDown:
+ &nbsp;&nbsp;&nbsp;&nbsp; MessageBox (hWnd, 'Mouse Clicked',
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'Plain API', MB_OK);
+ &nbsp;&nbsp; wm_Paint:
+ &nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp; hdc := BeginPaint (hWnd, ps);
+ &nbsp;&nbsp;&nbsp;&nbsp; Ellipse (hdc, 100, 100, 300, 300);
+ &nbsp;&nbsp;&nbsp;&nbsp; EndPaint (hWnd, ps);
+ &nbsp;&nbsp; end;
+ &nbsp;&nbsp; wm_Destroy:
+ &nbsp;&nbsp;&nbsp;&nbsp; PostQuitMessage (0);
+ &nbsp;&nbsp; else
+ &nbsp;&nbsp;&nbsp;&nbsp; Result := DefWindowProc (hWnd, nMsg, wParam, lParam);
+  end;
+end;
+&nbsp;
+procedure WinMain;
+var
+  hWnd: THandle;
+  Msg: TMsg;
+  WndClassEx: TWndClassEx;
+begin
+  // initialize the window class structure
+  WndClassEx.cbSize := sizeOf (TWndClassEx);
+  WndClassEx.lpszClassName := 'PlainWindow';
+  WndClassEx.style := cs_VRedraw or cs_HRedraw;
+  WndClassEx.hInstance := HInstance;
+  WndClassEx.lpfnWndProc := @PlainWinProc;
+  WndClassEx.cbClsExtra := 0;
+  WndClassEx.cbWndExtra := 0;
+  WndClassEx.hIcon := LoadIcon (hInstance,
+ &nbsp;&nbsp; MakeIntResource ('MAINICON'));
+  WndClassEx.hIconSm&nbsp; := LoadIcon (hInstance,
+ &nbsp;&nbsp; MakeIntResource ('MAINICON'));
+  WndClassEx.hCursor := LoadCursor (0, idc_Arrow);;
+  WndClassEx.hbrBackground := GetStockObject (white_Brush);
+  WndClassEx.lpszMenuName := nil;
+  // register the class
+  if RegisterClassEx (WndClassEx) = 0 then
+ &nbsp;&nbsp; MessageBox (0, 'Invalid class registration',
+ &nbsp;&nbsp;&nbsp;&nbsp; 'Plain API', MB_OK)
+  else
+  begin
+ &nbsp;&nbsp; hWnd := CreateWindowEx (
+ &nbsp;&nbsp;&nbsp;&nbsp; ws_Ex_OverlappedWindow, // extended styles
+ &nbsp;&nbsp;&nbsp;&nbsp; WndClassEx.lpszClassName, // class name
+ &nbsp;&nbsp;&nbsp;&nbsp; 'Plain API Demo', // title
+ &nbsp;&nbsp;&nbsp;&nbsp; ws_OverlappedWindow, // styles
+ &nbsp;&nbsp;&nbsp;&nbsp; cw_UseDefault, 0, // position
+ &nbsp;&nbsp;&nbsp;&nbsp; cw_UseDefault, 0, // size
+ &nbsp;&nbsp;&nbsp;&nbsp; 0, // parent window
+ &nbsp;&nbsp;&nbsp;&nbsp; 0, // menu
+ &nbsp;&nbsp;&nbsp;&nbsp; HInstance, // instance handle
+ &nbsp;&nbsp;&nbsp;&nbsp; nil); // initial parameters
+ &nbsp;&nbsp; if hWnd = 0 then
+ &nbsp;&nbsp;&nbsp;&nbsp; MessageBox (0, 'Window not created',
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'Plain API', MB_OK)
+ &nbsp;&nbsp; else
+ &nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp; ShowWindow (hWnd, sw_ShowNormal);
+ &nbsp;&nbsp;&nbsp;&nbsp; while GetMessage (Msg, 0, 0, 0) do
+ &nbsp;&nbsp;&nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; TranslateMessage (Msg);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DispatchMessage (Msg);
+ &nbsp;&nbsp;&nbsp;&nbsp; end;
+ &nbsp;&nbsp; end;
+  end;
+end;
+&nbsp;
+begin
+  WinMain;
+end. 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+<hr />
+<pre name="code" class="delphi">
+// Put this code in your Project file (*.dpr). 
+ 
+program Project1;
+ 
+ uses
+   windows, messages;
+ 
+ 
+ // Main Window Procedure 
+ 
+function MainWndProc(hWindow: HWND; Msg: UINT; wParam: wParam;
+   lParam: lParam): LRESULT; stdcall; export;
+ var
+   ps: TPaintStruct;
+ begin
+   Result := 0;
+   case Msg of
+     WM_PAINT:
+       begin
+         BeginPaint(hWindow, ps);
+         SetBkMode(ps.hdc, TRANSPARENT);
+         TextOut(ps.hdc, 10, 10, 'Hello, World!', 13);
+         EndPaint(hWindow, ps);
+       end;
+     WM_DESTROY: PostQuitMessage(0);
+     else
+       begin
+         Result := DefWindowProc(hWindow, Msg, wParam, lParam);
+         Exit;
+       end;
+   end;
+ end;
+ 
+ // Main Procedure 
+ 
+var
+   wc: TWndClass;
+   hWindow: HWND;
+   Msg: TMsg;
+ begin
+   wc.lpszClassName := 'YourAppClass';
+   wc.lpfnWndProc   := @MainWndProc;
+   wc.Style         := CS_VREDRAW or CS_HREDRAW;
+   wc.hInstance     := hInstance;
+   wc.hIcon         := LoadIcon(0, IDI_APPLICATION);
+   wc.hCursor       := LoadCursor(0, IDC_ARROW);
+   wc.hbrBackground := (COLOR_WINDOW + 1);
+   wc.lpszMenuName  := nil;
+   wc.cbClsExtra    := 0;
+   wc.cbWndExtra    := 0;
+   RegisterClass(wc);
+   hWindow := CreateWindowEx(WS_EX_CONTROLPARENT or WS_EX_WINDOWEDGE,
+     'YourAppClass',
+     'API',
+     WS_VISIBLE or WS_CLIPSIBLINGS or
+     WS_CLIPCHILDREN or WS_OVERLAPPEDWINDOW,
+     CW_USEDEFAULT, 0,
+     400, 300,
+     0,
+     0,
+     hInstance,
+     nil);
+ 
+   ShowWindow(hWindow, CmdShow);
+   UpDateWindow(hWindow);
+ 
+   while GetMessage(Msg, 0, 0, 0) do
+   begin
+     TranslateMessage(Msg);
+     DispatchMessage(Msg);
+   end;
+   Halt(Msg.wParam);
+ end.
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr />
+<p>Создание формы и кнопки на чистом API </p>
+<pre name="code" class="delphi">
+program Plain2;
+&nbsp;
+uses
+  Windows,
+  Messages;
+&nbsp;
+const
+  id_Button = 100;
+&nbsp;
+function PlainWinProc (hWnd: THandle; nMsg: UINT;
+  wParam, lParam: Cardinal): Cardinal; export; stdcall;
+var
+  Rect: TRect;
+begin
+  Result := 0;
+  case nMsg of
+ &nbsp;&nbsp; wm_Create:
+ &nbsp;&nbsp;&nbsp;&nbsp; // create button
+ &nbsp;&nbsp;&nbsp;&nbsp; CreateWindowEx (0, // extended styles
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'BUTTON', // predefined class
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; '&amp;Click here', // caption
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ws_Child or ws_Visible or ws_Border
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; or bs_PushButton, // styles
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0, 0, // position: see wm_Size
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 200, 80, // size
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; hwnd, // parent
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id_Button, // identifier (not a menu handle)
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; hInstance, // application id
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; nil); // init info pointer
+ &nbsp;&nbsp; wm_Size:
+ &nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp; // get the size of the client window
+ &nbsp;&nbsp;&nbsp;&nbsp; GetClientRect (hWnd, Rect);
+ &nbsp;&nbsp;&nbsp;&nbsp; // move the button window
+ &nbsp;&nbsp;&nbsp;&nbsp; SetWindowPos (
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GetDlgItem (hWnd, id_Button), // button handle
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0, // zOrder
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Rect.Right div 2 - 100,
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Rect.Bottom div 2 - 40,
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0, 0, // new size
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; swp_NoZOrder or swp_NoSize);
+ &nbsp;&nbsp; end;
+ &nbsp;&nbsp; wm_Command:
+ &nbsp;&nbsp;&nbsp;&nbsp; // if it comes from the button
+ &nbsp;&nbsp;&nbsp;&nbsp; if LoWord (wParam) = id_Button then
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // if it is a click
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if HiWord (wParam) = bn_Clicked then
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MessageBox (hWnd, 'Button Clicked',
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'Plain API 2', MB_OK);
+ &nbsp;&nbsp; wm_Destroy:
+ &nbsp;&nbsp;&nbsp;&nbsp; PostQuitMessage (0);
+ &nbsp;&nbsp; else
+ &nbsp;&nbsp;&nbsp;&nbsp; Result := DefWindowProc (hWnd, nMsg, wParam, lParam);
+  end;
+end;
+&nbsp;
+procedure WinMain;
+var
+  hWnd: THandle;
+  Msg: TMsg;
+  WndClassEx: TWndClassEx;
+begin
+  // initialize the window class structure
+  WndClassEx.cbSize := sizeOf (TWndClassEx);
+  WndClassEx.lpszClassName := 'PlainWindow';
+  WndClassEx.style := cs_VRedraw or cs_HRedraw;
+  WndClassEx.hInstance := HInstance;
+  WndClassEx.lpfnWndProc := @PlainWinProc;
+  WndClassEx.cbClsExtra := 0;
+  WndClassEx.cbWndExtra := 0;
+  WndClassEx.hIcon := LoadIcon (hInstance,
+ &nbsp;&nbsp; MakeIntResource ('MAINICON'));
+  WndClassEx.hIconSm&nbsp; := LoadIcon (hInstance,
+ &nbsp;&nbsp; MakeIntResource ('MAINICON'));
+  WndClassEx.hCursor := LoadCursor (0, idc_Arrow);;
+  WndClassEx.hbrBackground := GetStockObject (white_Brush);
+  WndClassEx.lpszMenuName := nil;
+  // register the class
+  if RegisterClassEx (WndClassEx) = 0 then
+ &nbsp;&nbsp; MessageBox (0, 'Invalid class registration',
+ &nbsp;&nbsp;&nbsp;&nbsp; 'Plain API', MB_OK)
+  else
+  begin
+ &nbsp;&nbsp; hWnd := CreateWindowEx (
+ &nbsp;&nbsp;&nbsp;&nbsp; ws_Ex_OverlappedWindow, // extended styles
+ &nbsp;&nbsp;&nbsp;&nbsp; WndClassEx.lpszClassName, // class name
+ &nbsp;&nbsp;&nbsp;&nbsp; 'Plain API Demo', // title
+ &nbsp;&nbsp;&nbsp;&nbsp; ws_OverlappedWindow, // styles
+ &nbsp;&nbsp;&nbsp;&nbsp; cw_UseDefault, 0, // position
+ &nbsp;&nbsp;&nbsp;&nbsp; cw_UseDefault, 0, // size
+ &nbsp;&nbsp;&nbsp;&nbsp; 0, // parent window
+ &nbsp;&nbsp;&nbsp;&nbsp; 0, // menu
+ &nbsp;&nbsp;&nbsp;&nbsp; HInstance, // instance handle
+ &nbsp;&nbsp;&nbsp;&nbsp; nil); // initial parameters
+ &nbsp;&nbsp; if hWnd = 0 then
+ &nbsp;&nbsp;&nbsp;&nbsp; MessageBox (0, 'Window not created',
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'Plain API', MB_OK)
+ &nbsp;&nbsp; else
+ &nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp; ShowWindow (hWnd, sw_ShowNormal);
+ &nbsp;&nbsp;&nbsp;&nbsp; while GetMessage (Msg, 0, 0, 0) do
+ &nbsp;&nbsp;&nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; TranslateMessage (Msg);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DispatchMessage (Msg);
+ &nbsp;&nbsp;&nbsp;&nbsp; end;
+ &nbsp;&nbsp; end;
+  end;
+end;
+&nbsp;
+begin
+  WinMain;
+end.
+&nbsp;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

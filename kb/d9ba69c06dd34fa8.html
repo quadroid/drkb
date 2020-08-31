@@ -1,0 +1,73 @@
+<html>
+<head>
+  <title>Выравнивание текста в TRichEdit</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Выравнивание текста в TRichEdit</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses
+   RichEdit;
+ 
+ // Using the Paragraph property 
+procedure RE_AlignText1(ARichEdit: TRichEdit; alignment: TAlignment);
+ begin
+   ARichEdit.Paragraph.Alignment := alignment;
+ end;
+ 
+ // Using PARAFORMAT2; nonVCL 
+procedure RE_AlignText2(ARichEdit: TRichEdit; alignment: TAlignment);
+ var
+   pf2: PARAFORMAT2;
+ begin
+   FillChar(pf2, SizeOf(pf2), 0);
+   pf2.cbSize := SizeOf(PARAFORMAT2);
+   SendMessage(ARichEdit.Handle, EM_GETPARAFORMAT, 0, Longint(@pf2));
+   pf2.dwMask := PFM_ALIGNMENT;
+   case alignment of
+     taLeftJustify: pf2.wAlignment := PFA_LEFT;
+     taCenter: pf2.wAlignment := PFA_CENTER;
+     taRightJustify: pf2.wAlignment := PFA_RIGHT;
+   end;
+   SendMessage(ARichEdit.Handle, EM_SETPARAFORMAT, 0, Longint(@pf2));
+ end;
+ 
+ // Example: Right align text 
+// Beispiel: Text rechtsbundig ausrichten 
+procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   RE_AlignText2(RichEdit1, taRightJustify);
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

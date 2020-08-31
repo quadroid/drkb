@@ -1,0 +1,285 @@
+<html>
+<head>
+  <title>Автозапуск Windows: помещение и удаление програм из автозапуска</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Автозапуск Windows: помещение и удаление програм из автозапуска</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для этого надо добавить ключ в реестр:</p>
+<pre name="code" class="delphi">
+procedure SetAutorun(aProgTitle,aCmdLine: string; aRunOnce: boolean ); 
+var 
+  hKey: string; 
+  hReg: TRegIniFile; 
+begin 
+  if aRunOnce then hKey := 'Once' 
+  else 
+    hKey := ''; 
+ 
+  hReg := TRegIniFile.Create( '' ); 
+  hReg.RootKey := HKEY_LOCAL_MACHINE; 
+  hReg.WriteString('Software\Microsoft\Windows\CurrentVersion\Run' 
+                  + hKey + #0, 
+                  aProgTitle, 
+                  aCmdLine ); 
+  hReg.destroy; 
+end;
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+<hr />
+<pre name="code" class="delphi">
+{ 
+ There's a RunOnce key in the registry. 
+ When a user logs on, the programs in the run-once list are run just once, 
+ and then the entries will be removed. 
+ The "runonce" key is normally used by setup programs to install 
+ software after a machine has been rebooted. 
+}
+ 
+ { 
+ Jede Anwendung, die im Schlьssel RunOnce aufgefьhrt ist, wird 
+ beim nдchsten Windowsstart ausgefьhrt und anschlieЯend wieder 
+ aus der Registry entfernt. Betrifft Anwendungen, die nur einmal 
+ mit Windows gestartet werden sollen. Normalerweise wird dieser Schlьssel 
+ von Setup Programmen genutzt, um nach einem Neustart mit der Installation 
+ fortzufahren. 
+}
+ 
+ 
+ // Add the application to the registry... 
+// Anwendung in die Registry aufnehmen... 
+ 
+procedure DoAppToRunOnce(RunName, AppName: string);
+ var
+   Reg: TRegistry;
+ begin
+   Reg := TRegistry.Create;
+   with Reg do
+   begin
+     RootKey := HKEY_LOCAL_MACHINE;
+     OpenKey('Software\Microsoft\Windows\CurrentVersion\RunOnce', True);
+     WriteString(RunName, AppName);
+     CloseKey;
+     Free;
+   end;
+ end;
+ 
+ // Check if the application is in the registry... 
+// Prьfen, ob Anwendung in der Registry vorhanden ist... 
+ 
+function IsAppInRunOnce(RunName: string): Boolean;
+ var
+   Reg: TRegistry;
+ begin
+   Reg := TRegistry.Create;
+   with Reg do
+   begin
+     RootKey := HKEY_LOCAL_MACHINE;
+     OpenKey('Software\Microsoft\Windows\CurrentVersion\RunOnce', False);
+     Result := ValueExists(RunName);
+     CloseKey;
+     Free;
+   end;
+ end;
+ 
+ // Remove the application from the registry... 
+// Anwendung aus der Registry entfernen... 
+ 
+procedure DelAppFromRunOnce(RunName: string);
+ var
+   Reg: TRegistry;
+ begin
+   Reg := TRegistry.Create;
+   with Reg do
+   begin
+     RootKey := HKEY_LOCAL_MACHINE;
+     OpenKey('Software\Microsoft\Windows\CurrentVersion\RunOnce', True);
+     if ValueExists(RunName) then DeleteValue(RunName);
+     CloseKey;
+     Free;
+   end;
+ end;
+ 
+ { 
+  Applications under the key "Run" will be executed 
+  each time the user logs on. 
+{ 
+ 
+{ 
+  Jede Anwendung, die im Schlьssel Run aufgefьhrt ist, wird beim 
+  jedem Windowsstart ausgefьhrt. Betrifft Anwendungen, die immer 
+  mit Windows gestartet werden sollen... 
+}
+ 
+ 
+ // Add the application to the registry... 
+// Anwendung in die Registry aufnehmen... 
+ 
+procedure DoAppToRun(RunName, AppName: string);
+ var
+   Reg: TRegistry;
+ begin
+   Reg := TRegistry.Create;
+   with Reg do
+   begin
+     RootKey := HKEY_LOCAL_MACHINE;
+     OpenKey('Software\Microsoft\Windows\CurrentVersion\Run', True);
+     WriteString(RunName, AppName);
+     CloseKey;
+     Free;
+   end;
+ end;
+ 
+ // Check if the application is in the registry... 
+// Prьfen, ob Anwendung in der Registry vorhanden ist... 
+ 
+function IsAppInRun(RunName: string): Boolean;
+ var
+   Reg: TRegistry;
+ begin
+   Reg := TRegistry.Create;
+   with Reg do
+   begin
+     RootKey := HKEY_LOCAL_MACHINE;
+     OpenKey('Software\Microsoft\Windows\CurrentVersion\Run', False);
+     Result := ValueExists(RunName);
+     CloseKey;
+     Free;
+   end;
+ end;
+ 
+ // Remove the application from the registry... 
+// Anwendung aus der Registry entfernen... 
+ 
+procedure DelAppFromRun(RunName: string);
+ var
+   Reg: TRegistry;
+ begin
+   Reg := TRegistry.Create;
+   with Reg do
+   begin
+     RootKey := HKEY_LOCAL_MACHINE;
+     OpenKey('Software\Microsoft\Windows\CurrentVersion\Run', True);
+     if ValueExists(RunName) then DeleteValue(RunName);
+     CloseKey;
+     Free;
+   end;
+ end;
+ 
+ // Examples, Beispiele 
+ 
+// Add app, Anwendung aufnehmen... 
+DoAppToRun('Programm', 'C:\Programs\XYZ\Program.exe');
+ 
+ // Is app there ? Ist Anwendung vorhanden? 
+if IsAppInRun('Programm') then...
+ 
+ // Remove app, Anwendung entfernen 
+DelAppFromRun('Programm');
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+
+<hr />
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Помещение записи в одну из секций автозапуска реестра
+ 
+Функция помещает параметр Name и значение параметра Data, в одну из секций
+автозапуска, выбранного раздела реестра.
+ 
+HkeyTarget:THkeyTarget - указываете раздел реестра, в одну из секций
+автозапуска которого должна быть помещена запись:
+htLocalMachine - раздел HKEY_LOCAL_MACHINE
+htCurrentUser - раздел HKEY_CURRENT_USER
+ 
+SectionTarget:TSectionTarget - указываете одну из секций автозапуска,
+в которую должна быть помещена запись:
+stRun - секция RUN
+stRunOnce - секция RunOnce
+stRunOnceEx - секция RunOnceEx
+ 
+Name:String - имя параметра (например, 'myApplication')
+ 
+Data:String - значение параметра (например, Application.Exename)
+ 
+Зависимости: windows, registry
+Автор:       VID, vidsnap@mail.ru, ICQ:132234868, Махачкала
+Copyright:   VID
+Дата:        23 мая 2002 г.
+***************************************************** }
+ 
+type
+  THKEYTarget = (htLocalMachine, htCurrentUser);
+type
+  TSectionTarget = (stRun, stRunOnce, stRunOnceEx);
+ 
+function StoreToRunSection(HKEYTarget: THKEYTarget;
+  SectionTarget: TSectionTarget; Name, Data: string): boolean;
+var
+  Reg: TRegistry;
+  Section: string;
+begin
+  Result := TRUE;
+  try
+    reg := TRegistry.Create;
+    if HKEYTarget = htLocalMachine then
+      reg.RootKey := HKEY_LOCAL_MACHINE;
+    if HKEYTarget = htCurrentUser then
+      reg.RootKey := HKEY_CURRENT_USER;
+    if SectionTarget = stRun then
+      Section := 'Run';
+    if SectionTarget = stRunOnce then
+      Section := 'RunOnce';
+    if SectionTarget = stRunOnceEx then
+      Section := 'RunOnceEx';
+    reg.LazyWrite := false;
+    reg.OpenKey('Software\Microsoft\Windows\CurrentVersion\' + Section, false);
+    reg.WriteString(Name, Data);
+    reg.CloseKey;
+    reg.free;
+  except RESULT := FALSE;
+  end;
+end;
+ 
+// Пример использования:
+ 
+begin
+  StoreToRunSection(htLocalMachine, stRun, 'Имя программы',
+    application.exename);
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

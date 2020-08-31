@@ -1,0 +1,350 @@
+<html>
+<head>
+  <title>Печать в порт принтера</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Печать в порт принтера</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>{1.}</p>
+
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  port, prnfile: file;
+  buffer: array [1..128] of Char;
+  Read: Integer;
+begin
+  // Specify a file to print
+  AssignFile(prnfile, 'filetoprint');
+  Reset(prnfile, 1);
+  // specify printer port
+  AssignFile(port, 'LPT1');
+  Rewrite(port, 1);
+  repeat
+    BlockRead(prnfile, buffer, SizeOf(buffer), Read);
+    BlockWrite(port, buffer, Read);
+    // Application.ProcessMessages;
+  until EOF(prnfile) or (Read &lt;&gt; SizeOf(buffer));
+  CloseFile(prnfile);
+  CloseFile(port);
+end;
+</pre>
+
+<p>{2.}</p>
+<pre name="code" class="delphi">
+{
+  Question:
+  How do I write a raw string of a data to the printer?
+ 
+  The following unit "PrtRaw.pas" demonstrates a 16/32 bit
+  raw printing unit for Delphi and Borland C Builder.
+ 
+  Following the unit, is an exmaple on using the
+  PrtRaw unit.
+ 
+  Notes:
+ 
+  1) You are responsible for embedding all necessary
+  control codes that the printer may require (including
+  form feed codes).
+ 
+  2) You must specify a valid printer and port name.
+ 
+}
+ 
+unit PrtRaw;
+ 
+{Copyright (c) 1998 by Joe C. Hecht - All rights Reserved}
+{joehecht@gte.net You may use and share this unit}
+{providing my name and the copyright notice stays intact.}
+ 
+interface
+ 
+uses
+  WinTypes;
+ 
+{$IFDEF WIN32}
+ type SpoolInt = DWORD;
+{$ELSE}
+ type SpoolInt = integer;
+{$ENDIF}
+ 
+function StartRawPrintJob(PrinterName : pChar;
+                          Port : pChar;
+                          DocName : pChar) : THandle;
+ 
+function StartRawPrintPage(hPrn : THandle) : integer;
+ 
+function PrintRawData(hPrn : THandle;
+                      Buffer : pointer;
+                      NumBytes : SpoolInt) : integer;
+ 
+function EndRawPrintPage(hPrn : THandle) : integer;
+ 
+function EndRawPrintJob(hPrn : THandle) : integer;
+ 
+ 
+implementation
+ uses
+   WinProcs,
+{$IFDEF WIN32}
+ WinSpool;
+{$ELSE}
+ Print;
+{$ENDIF}
+ 
+ 
+function StartRawPrintJob(PrinterName : pChar;
+                          Port : pChar;
+                          DocName : pChar) : THandle;
+{$IFDEF WIN32}
+ var
+   hPrn : THandle;
+   DocInfo1 : TDocInfo1;
+{$ENDIF}
+begin
+ {$IFDEF WIN32}
+   if (OpenPrinter(PChar(PrinterName),
+                   hPrn,
+                   nil) = FALSE)  then
+   begin
+     Result := THandle(-1);
+     Exit;
+   end;
+   DocInfo1.pDocName := DocName;
+   DocInfo1.pOutputFile := Port;
+   DocInfo1.pDataType := 'RAW';
+   if (StartDocPrinter(hPrn,
+                       1,
+                       @DocInfo1) = 0) then
+   begin
+     Result := THandle(-1);
+     Exit;
+   end;
+   Result := hPrn;
+ {$ELSE}
+  result := OpenJob(Port,
+                    DocName,
+                    0);
+ {$ENDIF}
+end;
+ 
+function StartRawPrintPage(hPrn : THandle) : integer;
+begin
+ {$IFDEF WIN32}
+   if (StartPagePrinter(hPrn) = FALSE) then
+   begin
+     Result := -1;
+     Exit;
+   end;
+   result := 1;
+ {$ELSE}
+  result := StartSpoolPage(hPrn);
+ {$ENDIF}
+end;
+ 
+ 
+function PrintRawData(hPrn : THandle;
+                      Buffer : pointer;
+                      NumBytes : SpoolInt) : integer;
+{$IFDEF WIN32}
+var
+  BytesWritten : DWORD;
+ {$ENDIF}
+begin
+  if (NumBytes = 0) then
+  begin
+    Result := 1;
+    Exit;
+  end;
+ {$IFDEF WIN32}
+   if (WritePrinter(hPrn,
+                    Buffer,
+                    NumBytes,
+                    BytesWritten) = FALSE) then
+   begin
+     Result := -1;
+     Exit;
+   end;
+   if (NumBytes &lt;&gt; BytesWritten) then
+   begin
+     Result := -1;
+     Exit;
+   end;
+   Result := 1;
+ {$ELSE}
+  result := WriteSpool(hPrn,
+                       Buffer,
+                       NumBytes);
+ {$ENDIF}
+end;
+ 
+ 
+function EndRawPrintPage(hPrn : THandle) : integer;
+begin
+ {$IFDEF WIN32}
+   if (EndPagePrinter(hPrn) = FALSE) then
+   begin
+     Result := -1;
+     Exit;
+   end;
+   Result := 1;
+ {$ELSE}
+  result := EndSpoolPage(hPrn);
+ {$ENDIF}
+end;
+ 
+ 
+function EndRawPrintJob(hPrn : THandle) : integer;
+begin
+ {$IFDEF WIN32}
+   if (EndDocPrinter(hPrn) = FALSE) then
+   begin
+     Result := -1;
+     Exit;
+   end;
+   if (ClosePrinter(hPrn) = FALSE) then
+   begin
+     Result := -1;
+     Exit;
+   end;
+   Result := 1;
+ {$ELSE}
+  result := CloseJob(hPrn);
+ {$ENDIF}
+end;
+ 
+ 
+end.
+</pre>
+
+<p>// Example of use:</p>
+<pre name="code" class="delphi">
+uses
+  PrtRaw;
+ 
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  hPrn : THandle;
+  Data : array[0..31] of char;
+begin
+ 
+  hPrn := StartRawPrintJob('Generic / Text Only',
+                           'LPT1:',
+                           'My Document');
+  if (integer(hPrn) &lt; 0) then
+  begin
+    ShowMessage('StartRawPrintJob Failed');
+    Exit;
+  end;
+ 
+  if (StartRawPrintPage(hPrn) &lt; 0) then
+  begin
+    ShowMessage('StartRawPrintPage Failed');
+    EndRawPrintJob(hPrn);
+    Exit;
+  end;
+ 
+  Data[0] := 'P';
+  Data[1] := 'a';
+  Data[2] := 'g';
+  Data[3] := 'e';
+  Data[4] := #32;
+  Data[5] := '1';
+  Data[6] := #13;
+  Data[7] := #10;
+ 
+  if (PrintRawData(hPrn,
+                   @data,
+                   8) &lt; 0) then
+  begin
+    ShowMessage('PrintRawData Failed');
+    EndRawPrintPage(hPrn);
+    EndRawPrintJob(hPrn);
+    Exit;
+  end;
+ 
+  if (EndRawPrintPage(hPrn) &lt; 0) then
+  begin
+    ShowMessage('EndRawPrintPage Failed');
+    EndRawPrintJob(hPrn);
+    Exit;
+  end;
+ 
+  if (StartRawPrintPage(hPrn) &lt; 0) then
+  begin
+    ShowMessage('StartRawPrintPage Failed');
+    EndRawPrintJob(hPrn);
+    Exit;
+  end;
+  Data[0] := 'P';
+  Data[1] := 'a';
+  Data[2] := 'g';
+  Data[3] := 'e';
+  Data[4] := #32;
+  Data[5] := '2';
+  Data[6] := #13;
+  Data[7] := #10;
+ 
+  if (PrintRawData(hPrn,
+                   @data,
+                   8) &lt; 0) then
+                   begin
+    ShowMessage('PrintRawData Failed');
+    EndRawPrintPage(hPrn);
+    EndRawPrintJob(hPrn);
+    Exit;
+  end;
+ 
+  if (EndRawPrintPage(hPrn) &lt; 0) then
+  begin
+    ShowMessage('EndRawPrintPage Failed');
+    EndRawPrintJob(hPrn);
+    Exit;
+  end;
+ 
+  if (EndRawPrintJob(hPrn) &lt; 0) then
+  begin
+    ShowMessage('EndRawPrintJob Failed');
+    Exit;
+  end;
+ 
+end;
+ 
+end.
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<html>
+<head>
+  <title>Расстояние (разность) между двумя строками. Функция Левенштейна</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Расстояние (разность) между двумя строками. Функция Левенштейна</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Расстояние (разность) между двумя строками. Функция Левенштейна
+ 
+Зависимости: System
+Автор:       Андрей aka wicked, wilk@ua.fm, ICQ:92356239, Тернополь
+Copyright:   описание алгоритма взято с http://www.merriampark.com/ld.htm, реализация моя
+Дата:        10 августа 2002 г.
+********************************************** }
+ 
+const cuthalf = 100; // константа, ограничивающая макс. длину 
+                     // обрабатываемых строк
+ 
+var buf: array [0..((cuthalf * 2) - 1)] of integer; // рабочий буффер, заменяет 
+                                                    // матрицу, представленную
+                                                    // в описании
+ 
+function min3(a, b, c: integer): integer; // вспомогательная функция
+begin
+  Result := a;
+  if b &lt; Result then Result := b;
+  if c &lt; Result then Result := c;
+end;
+ 
+// реализация функции в принципе соответствует описанию с одной оговоркой:
+// матрица из описания заменена статическим буффером, длина которого 
+// равна удвоенной максимальной длине строк
+// это сделано для 1) экономии памяти и во избежание её перераспределений
+// 2) повышения быстродействия (у меня функция работает 
+// в обработчике onfilterRecord)
+// таким образом, в реализации половинами буффера представлены только 
+// две последние строки матрицы, которые меняются местами каждую 
+// итерацию внешнего цикла (по i)... для определения того, какая из половин 
+// буффера является "нижней строкой", служит переменная flip
+// т. е. при flip = false первая половина буффера является предпоследней
+// строкой, а вторая - последней; при flip = true наоборот, 
+// первая половина - последняя строка, вторая половина - предпоследняя
+ 
+function LeveDist(s, t: string): integer; 
+var i, j, m, n: integer;
+    cost: integer;
+    flip: boolean; 
+begin
+  s := copy(s, 1, cuthalf - 1);
+  t := copy(t, 1, cuthalf - 1);
+  m := length(s);
+  n := length(t);
+  if m = 0 then Result := n
+  else if n = 0 then Result := m
+  else begin
+    flip := false;
+    for i := 0 to n do buf[i] := i;
+    for i := 1 to m do begin
+      if flip then buf[0] := i
+      else buf[cuthalf] := i;
+      for j := 1 to n do begin
+        if s[i] = t[j] then cost := 0
+        else cost := 1;
+        if flip then
+          buf[j] := min3((buf[cuthalf + j] + 1), 
+                         (buf[j - 1] + 1), 
+                         (buf[cuthalf + j - 1] + cost))
+        else
+          buf[cuthalf + j] := min3((buf[j] + 1), 
+                                   (buf[cuthalf + j - 1] + 1), 
+                                   (buf[j - 1] + cost));
+      end;
+      flip := not flip;
+    end;
+    if flip then Result := buf[cuthalf + n]
+    else Result := buf[n];
+  end;
+end; 
+</pre>
+
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+// на форме имеются поля Edit1 и Edit2, метка Label1
+.....
+Label1.Caption := IntToStr(LeveDist(Edit1.Text, Edit2.Text));
+..... 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

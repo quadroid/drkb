@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>Как получить список часовых поясов?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить список часовых поясов?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses
+  Registry;
+ 
+...
+ 
+var
+  reg : TRegistry;
+  ts : TStrings;
+  i : integer;
+begin
+  reg := TRegistry.Create;
+  reg.RootKey := HKEY_LOCAL_MACHINE;
+  reg.OpenKey('SOFTWARE\Microsoft\Windows\CurrentVersion\Time Zones', false);
+  if reg.HasSubKeys then
+  begin
+    ts := TStringList.Create;
+    reg.GetKeyNames(ts);
+    reg.CloseKey;
+    for i := 0 to ts.Count -1 do
+    begin
+      reg.OpenKey('SOFTWARE\Microsoft\Windows\CurrentVersion\Time Zones\' + ts.Strings[i], false);
+      Memo1.Lines.Add(ts.Strings[i]);
+      Memo1.Lines.Add(reg.ReadString('Display'));
+      Memo1.Lines.Add(reg.ReadString('Std'));
+      Memo1.Lines.Add(reg.ReadString('Dlt'));
+      Memo1.Lines.Add('----------------------');
+      reg.CloseKey;
+    end;
+    ts.Free;
+  end
+  else
+    reg.CloseKey;
+  reg.free;
+end;
+</pre>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

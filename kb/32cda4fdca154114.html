@@ -1,0 +1,174 @@
+<html>
+<head>
+  <title>Как сделать, чтобы запускалась только одна копия приложения?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как сделать, чтобы запускалась только одна копия приложения?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+var AtomText: array[0..31] of Char; 
+ 
+ 
+procedure LookForPreviousInstance; 
+var 
+  PreviousInstanceWindow : hWnd; 
+  AppName : array[0..30] of char; 
+  FoundAtom : TAtom; 
+begin 
+  // помещаем имя приложения в AtomText 
+  StrFmt(AtomText, 'OnlyOne%s', [Copy(Application.Title,1,20)]); 
+  // Проверяем, не создано ли уже атома с таким именем приложения
+  FoundAtom := GlobalFindAtom(AtomText); 
+  if FoundAtom &lt;&gt; 0 then      // эта копия приложения уже запущена
+  begin 
+    StrFmt(AppName,'%s', [Application.Title]); 
+    // изменяем текущий заголовок, чтобы FindWindow не видела его
+    Application.ShowMainForm := false; 
+    Application.Title := 'destroy me'; 
+    // ищем предыдущую копию приложения
+    PreviousInstanceWindow := FindWindow(nil,AppName); 
+    // Передаём фокус на предыдущую копию приложения
+    // завершаем текущую копию
+    Application.Terminate; 
+ 
+    if PreviousInstanceWindow &lt;&gt; 0 then 
+      if IsIconic(PreviousInstanceWindow) then 
+           ShowWindow(PreviousInstanceWindow,SW_RESTORE) 
+      else SetForegroundWindow(PreviousInstanceWindow); 
+  end; 
+  // создаём глобальный атом, чтобы предотвратить запуск другой копии приложения
+  FoundAtom := GlobalAddAtom(AtomText); 
+end; 
+ 
+ 
+ 
+ 
+constructor TForm.Create(AOwner: TComponent); 
+begin 
+  inherited; 
+ 
+  LookForPreviousInstance; 
+  ... 
+end; 
+ 
+ 
+destructor TForm.Destroy; 
+var 
+  FoundAtom : TAtom; 
+  ValueReturned : word; 
+begin 
+  // не забудьте удалить глобальный атом
+  FoundAtom := GlobalFindAtom(AtomText); 
+  if FoundAtom &lt;&gt; 0 then ValueReturned := GlobalDeleteAtom(FoundAtom); 
+ 
+  inherited Destroy; 
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+<hr />
+<p>В блоке begin..end модуля .dpr:</p>
+
+<pre name="code" class="delphi">
+begin
+  if HPrevInst &lt;&gt; 0 then
+    begin
+      ActivatePreviousInstance;
+      Halt;
+    end;
+end;
+</pre>
+
+<p>Реализация:</p>
+
+<pre name="code" class="delphi">
+unit PrevInst;
+ 
+interface
+ 
+uses
+ 
+  WinProcs,
+  WinTypes,
+  SysUtils;
+ 
+type
+  PHWnd = ^HWnd;
+ 
+function EnumApps(Wnd: HWnd; TargetWindow: PHWnd): bool; export;
+ 
+procedure ActivatePreviousInstance;
+ 
+implementation
+ 
+function EnumApps(Wnd: HWnd; TargetWindow: PHWnd): bool;
+var
+ 
+  ClassName: array[0..30] of char;
+begin
+ 
+  Result := true;
+  if GetWindowWord(Wnd, GWW_HINSTANCE) = HPrevInst then
+    begin
+      GetClassName(Wnd, ClassName, 30);
+      if STRIComp(ClassName, 'TApplication') = 0 then
+        begin
+          TargetWindow^ := Wnd;
+          Result := false;
+        end;
+    end;
+end;
+ 
+procedure ActivatePreviousInstance;
+var
+ 
+  PrevInstWnd: HWnd;
+begin
+ 
+  PrevInstWnd := 0;
+  EnumWindows(@EnumApps, LongInt(@PrevInstWnd));
+  if PrevInstWnd &lt;&gt; 0 then
+    if IsIconic(PrevInstWnd) then
+      ShowWindow(PrevInstWnd, SW_Restore)
+    else
+      BringWindowToTop(PrevInstWnd);
+end;
+ 
+end.
+</pre>
+
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<html>
+<head>
+  <title>Как из HBitmap получить адрес bitmap в памяти?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как из HBitmap получить адрес bitmap в памяти?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Вот кусок одного моего класса, в котором есть две интересные вещицы - </p>
+<p>проецирование файлов в память и работа с битмэпом в памяти через указатель. </p>
+<p>Сразу оговорюсь, что все это работает только Delphi 2 и Win95/NT. </p>
+
+<pre name="code" class="delphi">
+type 
+   TarrRGBTriple=array[byte] of TRGBTriple; 
+   ParrRGBTriple=^TarrRGBTriple; 
+ 
+{организует битмэп размером SX,SY;true_color} 
+procedure TMBitmap.Allocate(SX,SY:integer); 
+var DC:HDC; 
+begin 
+  if BM&lt;&gt;0 then DeleteObject(BM);   {удаляем старый битмэп, если был} 
+  BM:=0;  PB:=nil; 
+  fillchar(BI,sizeof(BI),0); 
+  with BI.bmiHeader do        {заполняем структуру с параметрами битмэпа} 
+  begin 
+    biSize:=sizeof(BI.bmiHeader); 
+    biWidth:=SX;  biHeight:=SY; 
+    biPlanes:=1;  biBitCount:=24; 
+    biCompression:=BI_RGB; 
+    biSizeImage:=0; 
+    biXPelsPerMeter:=0;  biYPelsPerMeter:=0; 
+    biClrUsed:=0;        biClrImportant:=0; 
+ 
+    FLineSize:=(biWidth+1)*3 and (-1 shl 2); {размер строки(кратна 4 байтам)} 
+ 
+    if (biWidth or biHeight)&lt;&gt;0 then 
+     begin 
+       DC:=CreateDC('DISPLAY',nil,nil,nil); 
+{замечательная функция (см.HELP), возвращает HBITMAP, позволяет сразу 
+ разместить выделяемый битмэп в спроецированном файле, что позволяет 
+ ускорять работу и экономить память при генерировании большого битмэпа} 
+{!}      BM:=CreateDIBSection(DC,BI, DIB_RGB_COLORS, pointer(PB), nil, 0); 
+       DeleteDC(DC);  {в PB получаем указатель на битмэп-----^^} 
+       if BM=0 then Error('error creating DIB'); 
+     end; 
+  end; 
+end; 
+ 
+{эта процедура загружает из файла true-color'ный битмэп} 
+procedure TMBitmap.LoadFromFile(const FileName:string); 
+var HF:integer; {file handle} 
+    HM:THandle; {file-mapping handle} 
+    PF:pchar;   {pointer to file view in memory} 
+    i,j:integer; 
+    Ofs:integer; 
+begin 
+{открываем файл} 
+  HF:=FileOpen(FileName,fmOpenRead or fmShareDenyWrite); 
+  if HF&lt;0 then Error('open file '''+FileName+''''); 
+  try 
+{создаем объект-проецируемый файл} 
+    HM:=CreateFileMapping(HF,nil,PAGE_READONLY,0,0,nil); 
+    if HM=0 then Error('cant create file mapping'); 
+   try 
+{собственно проецируем объект в адресное } 
+       PF:=MapViewOfFile(HM,FILE_MAP_READ,0,0,0); 
+{получаем указатель на область памяти, в которую спроецирован файл} 
+       if PF=nil then Error('cant create map view of file'); 
+      try 
+{работаем с файлом как с областью памяти через указатель PF} 
+         if PBitmapFileHeader(PF)^.bfType&lt;&gt;$4D42 then  Error('file format'); 
+         Ofs:=PBitmapFileHeader(PF)^.bfOffBits; 
+         with PBitmapInfo(PF+sizeof(TBitmapFileHeader))^.bmiHeader do 
+         begin 
+           if (biSize&lt;&gt;40) or (biPlanes&lt;&gt;1) then Error('file format'); 
+           if (biCompression&lt;&gt;BI_RGB) or 
+              (biBitCount&lt;&gt;24) then Error('only true-color BMP supported'); 
+{выделяем память под битмэп} 
+           Allocate(biWidth,biHeight); 
+         end; 
+ 
+         for j:=0 to BI.bmiHeader.biHeight-1 do 
+           for i:=0 to BI.bmiHeader.biWidth-1 do 
+{Pixels - это property, возвр. указатель на соотв. RGBTriple в битмэпе} 
+              Pixels[i,j]^.Tr:=ParrRGBTriple(PF+j*FLineSize+Ofs)^[i]; 
+      finally 
+        UnmapViewOfFile(PF); 
+      end; 
+   finally 
+     CloseHandle(HM); 
+   end; 
+  finally 
+    FileClose(HF); 
+  end; 
+end; 
+ 
+{эта функция - реализация Pixels read} 
+function TMBitmap.GetPixel(X,Y:integer):PRGB; 
+begin 
+  if (X&gt;=0) and (Xand 
+     (Y&gt;=0) and (Ythen Result:=PRGB(PB+(Y)*FLineSize+X*3) 
+  else Result:=PRGB(PB); 
+end; 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

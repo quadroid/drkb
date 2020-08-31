@@ -1,0 +1,136 @@
+<html>
+<head>
+  <title>Анимация без DirectX</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Анимация без DirectX</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: http://sunsb.dax.ru </p>
+
+<p>При попытке изобразить некую анимацию использую только средства TCanvas, на экране получается черте-чего. Все мельтешит, дергается, одним словом - не годится. </p>
+
+<p>Для получения " гладкой" ( не мельтешащей ) анимация в программах не использующих DirectX, я обычно использую следующую технику. </p>
+
+<p>Узким местом в процессе является момент изменения картинки на экране, поэтому рисование нужно проводить на невидимом для пользователя канвасе, и только подготовив там обновляемые участки выводить их на видимый экран. </p>
+
+<p>Для того, чтобы стереть кртинку в том месте где ее уже нет, нужно помнить позицию в которой она была выведена в прошлый раз. Обзовем эту позицию Old: TRect, текущую позицию запомним в New: TRect. </p>
+
+<p>TRect я использую, на сучай если размер отображаемой картинки может изменяться. </p>
+
+<p>Стандартным подходом является написание двух процедур - Hide и Show, одна из которых прячет картинку в старой позиции, выводя участок фона поверх нее, а вторая выводит в новой позиции. </p>
+
+<p>Такой вариант не проходит и приводит к мерцанию изображения. </p>
+
+<p>Я предлагаю оставить процедуру Hide в покое, и пользоваться ей только если картинку нужно совсем убрать с экрана. </p>
+
+<p>Процедура Show будет выполнять обе нужные функции. Для обновления экрана нам нужно погасить картинку в старой позиции и показать в новой. </p>
+
+<p>Тут возможны два варианта. </p>
+
+<p>Первый - старый и новый прямоугольники пересекаются. В этом случае мы создаем временный TBItmap - tmp с размером их объединения, заполняем его требуемым участком фона, и рисуем на нем картинку. После такой подготовки выводим tmp в нужной позиции экрана. </p>
+
+<p>Второй - старый и новый прямоугольники не пересекаются. В этом случае мы просто копируем прямоугольник old с невидимой копии фона на экран ( процедура Hide ), и рисуем нужную картинку в прямоугольнике new. </p>
+
+<p>При таком подходе мы избегаем двойной перерисовки экрана, что исключает мерцание. </p>
+
+<p>Ниже программа которая все это делает. </p>
+
+<pre name="code" class="delphi">
+var wsrf: TPaintBox; // видимый экран
+var ssrf: TBitmap;   // скрытый неизменяемый фон
+var bmp : TBitmap;   // картинка для анимации
+var tmp : TBitmap;   // временное хранилище
+ 
+function hasIntersect( const A,B : TRect): boolean;
+var R: trect; // пересекаются ли прямоугольники
+begin
+   result  := false;
+   R.Left  := max( A.Left,   B.Left   );
+   R.Right := min( A.Right,  B.Right  );
+   if R.Left &gt; = R.Right then exit;
+   R.Top   := max( A.Top,    B.Top    );
+   R.Bottom:= min( A.Bottom, B.Bottom );
+   if R.Top  &gt; = R.Bottom then exit;
+   result := true;
+end;
+ 
+function Union( A, B: TRect ):TRect;
+begin // результат - объединение
+   if EmptyRect( A ) then result := B
+   else if EmptyRect( B ) then result := A
+        else begin
+         Result.Left  := min( A.Left,   B.Left   );
+         Result.Top   := min( A.Top,    B.Top    );
+         Result.Right := max( A.Right,  B.Right  );
+         Result.Bottom:= max( A.Bottom, B.Bottom );
+      end;
+end;
+ 
+procedure TOneTooth.Hide;
+begin
+  tmp.Width := bmp.Width;
+  tmp.Height:= bmp.Height;
+  tmp.Canvas.CopyRect( bmpRect(tmp), ssrf.Canvas, old );
+  wsrf.Canvas.Draw( old.Left, old.Top, tmp );
+end;
+ 
+procedure TOneTooth.Show;
+var R, R1 : TRect;
+begin
+  now.Right  := now.Left + bmp.Width ; 
+         //корректировка now на случай
+  now.Bottom := now.Top  + bmp.Height; 
+         //изменения размеров bmp
+  if hasIntersect( old, now ) then begin
+    R := Union( old, now );
+    tmp.Width := R.Right-R.Left;
+    tmp.Height:= R.Bottom-R.Top;
+    tmp.Canvas.CopyRect( bmpRect(tmp), ssrf.Canvas, R );   
+       // фон
+    tmp.Canvas.Draw( now.left-r.left, now.Top-r.top, bmp ) 
+       // фон + картинка
+  end else begin
+    Hide;
+    tmp.Canvas.CopyRect( bmpRect(bmp), ssrf.Canvas, now ); 
+       // фон
+    tmp.Canvas.Draw( 0, 0, bmp ); // фон + картинка
+    R:=now;
+  end;
+  wsrf.Canvas.Draw( R.Left, R.Top, tmp );
+  old := now;
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<html>
+<head>
+  <title>Как сделать форму активной (форма находится в DLL)?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как сделать форму активной (форма находится в DLL)?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure ShowMainForm;
+
+var
+  hWnd, hCurWnd, dwThreadID, dwCurThreadID: THandle;
+  OldTimeOut: DWORD;
+  AResult: Boolean;
+begin
+  ShowWindow(Application.Handle, SW_RESTORE);
+  Application.MainForm.Visible := True;   // Показываем главную форму
+ 
+  // Ставим нашу форму впереди всех окон
+  hWnd := Application.Handle;
+  SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, @OldTimeOut, 0);
+  SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, Pointer(0), 0);
+  SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE);
+  hCurWnd := GetForegroundWindow;
+  AResult := False;
+  while not AResult do
+  begin
+    dwThreadID := GetCurrentThreadId;
+    dwCurThreadID := GetWindowThreadProcessId(hCurWnd);
+    AttachThreadInput(dwThreadID, dwCurThreadID, True);
+    AResult := SetForegroundWindow(hWnd);
+    AttachThreadInput(dwThreadID, dwCurThreadID, False);
+  end;
+  SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE);
+  SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, Pointer(OldTimeOut), 0); 
+end;
+</pre>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: Rouse_</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

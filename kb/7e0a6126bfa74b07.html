@@ -1,0 +1,86 @@
+<html>
+<head>
+  <title>ADO.OLEDB.JET &ndash; Access Violation при передаче неполного параметра</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">ADO.OLEDB.JET &ndash; Access Violation при передаче неполного параметра</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Дмитрий Померанцев </p>
+<p>Проблема обнаружена под операционной системой Windows 2000 SP3, в среде Delphi6, Delphi7 (скорее всего не зависит от версии Delphi) с использованием Microsoft Jet DB Engine версия 4, SP3. </p>
+<p>Некоторый, вполне типичный, код заполнения запроса в процессе выполнения вызывает Access Violation, притом, что согласно документации все должно работать корректно. </p>
+<p>Пример кода: </p>
+<p>Допустим, есть база данных в MS Access 2000, имеющая таблицу main и в ней целочисленное (INT) поле id в качестве главного ключа. Так же есть компонент ADOQuery1: TADOQuery, для доступа к базе данных. Максимальное значение поля id может быть получено следующим кодом: </p>
+<pre name="code" class="delphi">
+ADOQuery1.Active := false;
+ADOQuery1.SQL.Clear;
+ADOQuery1.SQL.Add('SELECT max(id)'); // -- Сбой здесь !!!
+ADOQuery1.SQL.Add('AS idmax');
+ADOQuery1.SQL.Add('FROM main');
+ADOQuery1.Active := true;
+</pre>
+<p>Как было показано в комментарии, исключение возникает в процессе добавления текста в запрос, но при этом в сообщении об ошибке указывалось, что исключение произошло внутри библиотеки Jet. </p>
+<p>Исследование исходных текстов компонента TADOQuery показало следущее: свойство SQL, типа TStrings связано с полем FSQL: TStrings, создаваемого как экземляр класса TStringList, при этом объекту FSQL назначается обработчик события OnChange &#8212; метод QueryChanged (protected, статический), что исключает его возможную перегрузку. </p>
+<p>Этот метод устанавливает свойство Active в False и присваивает содержимое FSQL.Text полю CommandText объекта ADO. </p>
+<p>За отсутствием исходных текстов библиотеки Jet, дальнейшее исследование пришлось прекратить, но можно сделать несколько выводов: </p>
+<p>Корни проблемы в невполне корректном поведении как кода от Borland, так и от Microsoft. Компонент TADOQuery передает в ADO неоконченный SQL-запрос, а Jet начинает анализировать этот запрос до того, как он полностью поступит. Возможно, Microsoft пытался реализовать упреждающее выполнение запросов, чтобы снизить время обработки запроса после получения команды на выполнение. </p>
+<p>Теоретически и другие драйвера баз данных могут быть чувствительны к неполным запросам, так что данная ошибка может появляться и при работе с другими СУБД. </p>
+<p>При дополнительном исследовании были выяснены интересные подробности: </p>
+<p>Данный код не прерывает выполнения при возникновении exception, т.е. теоретически даже try..except не нужен. Похоже, это происходит из-за того, что jet является COM-объектом, а их методы вызываются как safecall. Дальнейшие тесты подтвердили это предположение &#8212; при снятии галочки Stop on Delphi Exceptions и в варианте exe-файла ошибка не проявлялась. Таким образом, ситуация несколько меняется &#8212; исключение возникает только в среде разработки, что, правда, является слабым утешением, т.к. многие програмисты работают с настройками по-умолчанию, и в случае его возникновения могут долго ломать голову, ища свою ошибку там где ее нет. </p>
+<p>ТИПОВЫЕ РЕШЕНИЯ </p>
+<p>1. Передавать запрос целиком &#8212; одной строкой. Пример: </p>
+<pre name="code" class="delphi">
+ADOQuery1.Active := false;
+ADOQuery1.SQL.Text := 'SELECT max(id) AS idmax FROM main;';
+ADOQuery1.Active := true;
+</pre>
+
+<p>2. Отключить галочку Tools-&gt;Debugger Options-&gt;Language Exceptions-&gt;Stop on Delphi Exceptions </p>
+<p>3. Просто игнорировать это исключение (в этом случае в процессе разработки придется периодически несколько раз нажимать OK, что, конечно, менее удобно) </p>
+<p>Напоследок: Небольшое исследование исходного кода компонент данных BDE и dbExpress показало, что в них передача SQL-запроса происходит через промежуточное текстовое поле, что, на мой взгляд, исключает в них возможность появления аналогичной ошибки. </p>
+<p>КОММЕНТАРИЙ: </p>
+<p>Компонент TADOQuery от Delphi 5 содержит аналогичный код (метод QueryChanged), приводящий к ошибке. </p>
+<p>Еще один вариант решения - использовать стандартные возможности TStrings по управлению обновлением: </p>
+<pre name="code" class="delphi">
+ADOQuery1.SQL.BeginUpdate;
+try
+  ADOQuery1.SQL.Clear;
+  ADOQuery1.SQL.Add('SELECT max(id)');
+  ADOQuery1.SQL.Add('AS idmax');
+  ADOQuery1.SQL.Add('FROM main');
+finally
+  ADOQuery1.SQL.EndUpdate;
+end;
+</pre>
+<p>В этом случае событие OnChange произойдет только при выполнении EndUpdate. </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

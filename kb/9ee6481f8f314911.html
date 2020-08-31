@@ -1,0 +1,236 @@
+<html>
+<head>
+  <title>Как работать с анимированными курсорами?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как работать с анимированными курсорами?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Answer:</p>
+<p>To use an animated cursor you have several options: load it from a file (using LoadImage or LoadCursorFromFile), load it from a resource (using LoadCursor) or even creating the cursor at runtime (using CreateCursor).</p>
+<p>Note:</p>
+<p>You should implement custom cursors as resources. Rather than create the cursors at run time, use the LoadCursor, LoadCursorFromFile, or LoadImage function to avoid device dependence, to simplify localization, and to enable applications to share cursor designs. </p>
+
+<table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Loading a cursor from a file</td></tr></table>
+<p>The easiest way to load a cursor from a file is by using LoadCursorFromFile.</p>
+<p>This functions returns a handle to the loaded cursor that you should assign to your application Cursors array.</p>
+<pre name="code" class="delphi">
+var
+  hCur: HCURSOR;
+ 
+begin
+  // Load the cursor from file
+  hCur := LoadCursorFromFile(PChar('path_to_my_cursor'));
+  // Assign the loaded cursor to application Cursors array. (This cursor will ave the
+  // number 1 assigned to it
+  // Remember that predefined cursors start at a negative index, and user defined
+  // custom cursors are assigned positive indexes.
+  Screen.Cursors[1] := hCur;
+ 
+  // Use the cursor as you would use a built-in cursor.
+  Screen.Cursor := 1;
+end;
+</pre>
+
+
+<p>You can also use LoadImage instead of LoadCursorFromFile like this:&nbsp; </p>
+
+<p>  hCur := LoadImage(0, PChar(PChar('path_to_my_cursor')), IMAGE_CURSOR, 0, 0,</p>
+<p>  LR_DEFAULTSIZE or LR_LOADFROMFILE);</p>
+    </p>
+<table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Loading a cursor from a resource</td></tr></table>
+<p>Before loading a cursor from a resource it's necessary to create the resource file with the cursor to be loaded.</p>
+
+<p>To do this create a file myResources.rc where you'll put the following</p>
+
+<p>#define ANICURSOR 21</p>
+<p>myCursor ANICURSOR "path_to_my_cursor"</p>
+
+<p>Because Borland's resource compiler does not understand the ANICURSOR resource type, so you have to use the numeric id (21).</p>
+<p>Compile your resource file using "brcc32 myResources.rc" and include in the unit where you'll be loading the cursor, using {$R myResources.res}</p>
+
+<p>Now, you just have to load the cursor from the resource instead of loading it from a file, using:</p>
+
+<p>hCur := LoadCursor(HInstance, PChar('myCursor'));</p>
+
+<p>Remember that HInstance contains the instance handle of the application or library as provided by Windows. This variable it's very importante because it's the one used with many Windows API that work with current application resources.</p>
+
+<table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Creating a cursor at runtime</td></tr></table>
+<p>Another way to use a cursor it's creating one at runtime. Why would you do that?</p>
+<p>I don't know, it's your choice. I doubt you ever will create your cursors at runtime, anyway here it's way how to do it.</p>
+
+<p>Define the cursor map</p>
+<pre name="code" class="delphi">
+const
+  // Yin cursor AND bitmask
+  ANDmaskCursor: array[0..127] of byte = (
+    $FF, $FC, $3F, $FF, $FF, $C0, $1F, $FF,
+    $FF, $00, $3F, $FF, $FE, $00, $FF, $FF,
+    $F7, $01, $FF, $FF, $F0, $03, $FF, $FF,
+    $F0, $03, $FF, $FF, $E0, $07, $FF, $FF,
+    $C0, $07, $FF, $FF, $C0, $0F, $FF, $FF,
+    $80, $0F, $FF, $FF, $80, $0F, $FF, $FF,
+    $80, $07, $FF, $FF, $00, $07, $FF, $FF,
+    $00, $03, $FF, $FF, $00, $00, $FF, $FF,
+    $00, $00, $7F, $FF, $00, $00, $1F, $FF,
+    $00, $00, $0F, $FF, $80, $00, $0F, $FF,
+    $80, $00, $07, $FF, $80, $00, $07, $FF,
+    $C0, $00, $07, $FF, $C0, $00, $0F, $FF,
+    $E0, $00, $0F, $FF, $F0, $00, $1F, $FF,
+    $F0, $00, $1F, $FF, $F8, $00, $3F, $FF,
+    $FE, $00, $7F, $FF, $FF, $00, $FF, $FF,
+    $FF, $C3, $FF, $FF, $FF, $FF, $FF, $FF
+    );
+ 
+  // Yin cursor XOR bitmask
+  XORmaskCursor: array[0..127] of byte = (
+    $00, $00, $00, $00, $00, $03, $C0, $00,
+    $00, $3F, $00, $00, $00, $FE, $00, $00,
+    $0E, $FC, $00, $00, $07, $F8, $00, $00,
+    $07, $F8, $00, $00, $0F, $F0, $00, $00,
+    $1F, $F0, $00, $00, $1F, $E0, $00, $00,
+    $3F, $E0, $00, $00, $3F, $E0, $00, $00,
+    $3F, $F0, $00, $00, $7F, $F0, $00, $00,
+    $7F, $F8, $00, $00, $7F, $FC, $00, $00,
+    $7F, $FF, $00, $00, $7F, $FF, $80, $00,
+    $7F, $FF, $E0, $00, $3F, $FF, $E0, $00,
+    $3F, $C7, $F0, $00, $3F, $83, $F0, $00,
+    $1F, $83, $F0, $00, $1F, $83, $E0, $00,
+    $0F, $C7, $E0, $00, $07, $FF, $C0, $00,
+    $07, $FF, $C0, $00, $01, $FF, $80, $00,
+    $00, $FF, $00, $00, $00, $3C, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00
+    );    
+ 
+</pre>
+
+<p>then create the cursor</p>
+
+<p>hCur := CreateCursor(HInstance, 19, 2, 32, 32, @ANDmaskCursor, @XORmaskCursor);</p>
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+<hr />Во первых необходимо получит handle курсора, а затем определить его в массиве курсоров компонента TScreen. Индексы предопределенных курсоров системы отрицательны, пользователь может определить курсор, индекс которого положителен. </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  h: THandle;
+begin
+  h := LoadImage(0, 'C:\TheWall\Magic.ani', IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE or LR_LOADFROMFILE);
+  if h = 0 then
+    ShowMessage('Cursor not loaded')
+  else
+    begin
+      Screen.Cursors[1] := h;
+      Form1.Cursor := 1;
+    end;
+end;
+</pre>
+<hr />
+<p id="author">Автор: Nomadic&nbsp; </p>
+
+<pre name="code" class="delphi">
+const
+  crMyCursor = 1;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  // Загружаем курсор. Единственный способ для этого
+  Screen.Cursors[crMyCursor] :=
+    LoadCursorFromFile('c:\mystuff\mycursor.ani');
+ 
+  // Используем курсор на форме
+  Cursor := crMyCursor;
+end;
+ 
+ 
+</pre>
+<a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr />
+<pre name="code" class="delphi">
+{1.}
+ 
+ procedure TForm1.FormCreate(Sender: TObject);
+ begin
+   Screen.Cursors[crMyCursor] := LoadCursorFromFile('c:\mystuff\mycursor.ani');
+   Cursor := crMyCursor;
+ end;
+ 
+ 
+ {*****************************************************************}
+ {2.}
+ { by Blodgett}
+ 
+ Const
+   CURSOR_HOURGLASS = 1;
+ {...}
+ 
+ procedure TForm1.LoadCursors;
+ var
+   h : THandle;
+ begin
+   if FileExists('..\Images\YourAnimagedCursor.ani') then
+   begin
+     h := LoadImage(0,
+            '..\Images\YourAnimatedCursor.ani',
+            IMAGE_CURSOR,
+            0,
+            0,
+            LR_DEFAULTSIZE or
+            LR_LOADFROMFILE);
+ 
+     if h &lt;&gt; 0 then
+       Screen.Cursors[1] := h;
+   end;
+ end;
+ 
+ procedure TForm1.BitBtn1Click(Sender: TObject);
+ var
+  FCurrentCursor: Integer;
+ begin
+   //1st - Load Cursors Information 
+  LoadCursors;
+   //2nd - Set FCurrentCursor variable 
+  //      to current screen cursor. 
+  FCurrentCursor := Screen.Cursor;
+   //3rd - Set Screen.Cursor to your CONST Value. 
+  //      this is your animated cursor. 
+  Screen.Cursor := CURSOR_HOURGLASS;
+   //4th - Do something ... 
+  sleep(2000);
+   //5th - Set Screen.Cursor to original cursor. 
+  Screen.Cursor := FCurrentCursor;
+ end;
+ 
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

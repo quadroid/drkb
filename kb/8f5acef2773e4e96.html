@@ -1,0 +1,105 @@
+<html>
+<head>
+  <title>Ярлычки и оперативная подсказка</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Ярлычки и оперативная подсказка</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Ярлычки и оперативная подсказка</p>
+<p>С легкой руки Microsoft, признание получили ярлычки с оперативной подсказкой (Hints). Если задержать курсор, например, над кнопкой или компонентом палитры самой среды Delphi, появляется маленький прямоугольник яркого цвета (окно подсказки), в котором одной строкой сказано о названии этого элемента или связанном с ним действии. Delphi поддерживает механизмы создания и отображения таких ярлычков в создаваемых программах.</p>
+<p>Свойство, определяющее активность системы подсказки у элемента управления:</p>
+<p>property ShowHint: Boolean;</p>
+<p>Если свойство ShowHint установлено в True, и во время выполнения курсор задержался над компонентом на некоторое время, в окне подсказки высвечивается текстовая строка с подсказкой:</p>
+<p>property Hint: string;</p>
+<p>Подсказка компонента может быть пустой строкой &#8212; в этом случае система ищет в цепочке первый родительский компонент с непустой подсказкой. Если в строке Hint встречается специальный символ-разделитель '|', то часть строки до него ("короткая") передается в окно подсказки, а после ("длинная") &#8212; присваивается свойству Hint объекта Application. Ее можно использовать, например, в строке состояния внизу главной формы приложения (см. пример ниже).</p>
+<p>Система оперативных подсказок имеет свойства и методы, общие для всех форм в приложении. Неудивительно, что они сосредоточены в Application &#8212; глобальном объекте, соответствующем работающему приложению. Все описанные ниже в этом разделе свойства относятся не к компоненту, показывающему подсказку, а именно к Application.</p>
+<p>Цвет окна подсказки можно изменить посредством свойства:</p>
+<p>property HintColor: TColor;</p>
+<p>У объекта Application значение свойства ShowHint нужно устанавливать во время выполнения, например, в обработчике OnCreate главной формы приложения. Оно является главенствующим для всей системы подсказок: если оно установлено в False, ярлычки не возникают.</p>
+<p>Есть еще один способ получения подсказки. При смене текста в свойстве Hint, т. е. при смене текущего элемента управления, у Application возникает событие:</p>
+<p>property OnHint: TNotifyEvent;</p>
+<pre name="code" class="delphi">
+procedure TFormI.AppHint(Sender: TObject);
+begin
+  Pane 11.Caption:= Application.Hint ;
+end;
+ 
+procedure TFormI.FormCreate(Sender: TObject);
+begin
+  Application.OnHint := AppHint;
+end;
+</pre>
+
+<p>В этом примере текст подсказки будет отображаться в строке состояния Panel 1 независимо от значения ShowHint у любого объекта &#8212; лишь бы этот текст был в наличии. Для этого разделяйте подсказку у элементов управления вашего приложения на две части при помощи символа '|' &#8212; краткая информация появится рядом с элементом, а более полная &#8212; в строке состояния.</p>
+<p>У других компонентов свойство ShowHint интерпретируется системой так:</p>
+<p>когда курсор мыши останавливается над элементом управления или пунктом меню, и приложение не занято обработкой сообщения, происходит проверка, и если ShowHint у элемента или у одного из его родительских элементов в иерархии равно True, то запускается специальный таймер на интервал времени HintPause:</p>
+<p>property HintPause: Integer;</p>
+<p>Интервал времени по умолчанию равен 800 мс. После истечения времени таймера, если мышь осталась над тем же элементом, наступает момент инициализации окна подсказки. При этом программист может получить управление, предусмотрев обработчик события</p>
+<pre name="code" class="delphi">
+property OnShowHint: TShowHintEvent ;
+TShowHintEvent = procedure (var HintStr: string;        var CanShow:
+Boolean; var Hintlnfo: THintInfo) of object;
+</pre>
+<p>с параметрами:</p>
+<p>HintStr &#8212; отображаемый текст;</p>
+<p>CanShow &#8212; необходимость (возможность) появления подсказки. Если в переменной CanShow обработчик вернет False, то окно подсказки высвечиваться не будет;</p>
+<p>Hintlnfo &#8212; структура, несущая всю информацию о том, какой элемент управления, где и как собирается показать подсказку. Ее тип:</p>
+<pre name="code" class="delphi">
+THintInfo = record
+  HintControl: TControl;
+  HintPos: TPoint;
+  HintMaxWidth: Integer;
+  HintColor: TColor;
+  CursorRect: TRect;
+  CursorPos: TPoint;
+end;
+</pre>
+
+<p>Для показа окна подсказки необходимо еще, чтобы у элемента управления или у его предков в цепочке строка Hint была непустой. Впрочем, это можно исправить в обработчике OnShowHint, пример:</p>
+<pre name="code" class="delphi">
+procedure TFormI.AppShowHint(var HintStr: string; var CanShow:
+Boolean; var Hintlnfo: THintInfo);
+begin 
+  if HintStr='' then
+    begin
+      HintStr := Hintlnfo.HintControl.Name;
+      Hintlnfo.HintColor := ciRed;
+      CanShow := True ;
+    end;
+end;
+</pre>
+<p>Присвоив этот метод обработчику Application.OnShowHint, установив Forml.ShowHint:=True и очистив все строки Hint, получим в качестве подсказки имя каждого элемента.</p>
+<p>"Спрятать" окно подсказки можно с помощью метода:</p>
+<p>procedure CancelHint;</p>
+<p>Без повторного перемещения мыши на текущий элемент оно более не возникнет.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

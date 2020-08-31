@@ -1,0 +1,80 @@
+<html>
+<head>
+  <title>Как сохранить исходник HTML из TWebBrowser.Document на диск?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как сохранить исходник HTML из TWebBrowser.Document на диск?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>TWebBrowser.Document включает в себя IPersistStreamInit который содержит метод Save(). Всё, что нам нужно знать, это как использовать данный метод с объектом, который включён в IStream. Для этого мы просто воспользуемся TStreamAdapter.</p>
+<p>Обратите внимание, что интерфейсы IPersistStreamInit и IStream объявлены внутри ActiveX unit.</p>
+<p>Итак, вот так это выглядит.</p>
+<pre name="code" class="delphi">
+procedure TForm1.SaveHTMLSourceToFile(const FileName: string; 
+  WB: TWebBrowser); 
+var 
+  PersistStream: IPersistStreamInit; 
+  FileStream: TFileStream; 
+  Stream: IStream; 
+  SaveResult: HRESULT; 
+begin 
+  PersistStream := WB.Document as IPersistStreamInit; 
+  FileStream := TFileStream.Create(FileName, fmCreate); 
+  try 
+    Stream := TStreamAdapter.Create(FileStream, soReference) as IStream; 
+    SaveResult := PersistStream.Save(Stream, True); 
+    if FAILED(SaveResult) then 
+      MessageBox(Handle, 'Fail to save HTML source', 'Error', 0); 
+  finally 
+    { В ответ на уничтожение объекта TFileStream, передаём
+      soReference в конструктор TStreamAdapter. } 
+    FileStream.Free; 
+  end; 
+end; 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  if SaveDialog1.Execute then 
+    SaveHTMLSourceToFile(SaveDialog1.FileName, WebBrowser1); 
+end; 
+</pre>
+
+<p>А как сохранить вместе с исходником все файлы (.CSS, JPG, GIF Etc..) ?</p>
+<pre name="code" class="delphi">try 
+  WebBrowser1.ExecWB(4, 0); 
+except 
+  on E: Exception do  msError:=true; 
+end; 
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

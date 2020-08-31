@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>AllocateUserPhysicalPages</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">AllocateUserPhysicalPages</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Функция AllocateUserPhysicalPages выделяет страницы физической памяти, которые могут быть впоследствии спроецированы или переспроецированы в любой регион {расширения адресной оболочки Windows} (AWE-регион) указанного процесса.</p>
+<pre name="code" class="delphi">
+function AllocateUserPhysicalPages(
+  hProcess: THandle, // дескриптор процесса
+  var NumberOfPages: Cardinal, // число страниц
+  var UserPfnArray: Pointer&nbsp;&nbsp;&nbsp; // адрес хранилища
+): Boolean; stdcall;
+</pre>
+<p><b>Параметры</b></p>
+<p>hProcess [in]</p>
+<p>Дескриптор процесса. Функция выделяет память в виртуальном адресном пространстве этого процесса. Пользователь, запускающий вызывающее приложение, должен иметь привелегию фиксирования страниц памяти (Lock Pages in Memory) для данного процесса. Если это не выполнено, вызов функции завершится неудачно. </p>
+<p>NumberOfPages [in/out]</p>
+<p>Указывает размер (в страницах) физической памяти, которая будет выделена. Используйте функцию GetSysInfo для того, чтобы определить размер страницы на вашем компьютере. В этом параметре также возвращается число страниц, которые были действительно выделены. Это число может быть меньше запрашиваемого. </p>
+<p>UserPfnArray [out]</p>
+<p>Задает виртуальный адрес, по которому будут сохранены номера фреймов страниц выделенной памяти. Размер памяти, выделенной по данному указателю, должен по меньшей мере вместить NumberOfPages элементов типа Cardinal. </p>
+<p>Важно! Не пытайтесь модифицировать содержимое этого буфера. Он содержит данные, принадлежащие операционной системе, повреждение которых можт повлечь за собой катастрофические последствия. В этом буфере не содержиться никакой информации, необходимой вашему приложению. </p>
+<p><b>Возвращаемое значение</b></p>
+<p>В случае успешного завершения функция возвращает True. В результате были выделены несколько страниц физической памяти. Это число может быть меньше запрашиваемого, поэтому вы должны всегда проверять значение NumberOfPages для того, чтобы узнать, какое именно количество страниц было выделено. Фреймы всех выделенных страниц последовательно помещаются в память на которую указывает параметр UserPfnArray.</p>
+<p>В случае ошибки функция вернет False. Для получения расширенной информации об ошибке следует сделать вызов GetLastError.</p>
+<p><b>Описание</b></p>
+<p>Функция AllocateUserPhysicalPages используется для выделения физической памяти. Память, выделяемая этой функцией, должна физически присутствовать в системе. Выделенная однажды, она фиксирует свое расположение в памяти и более не управляется менеджером памяти Windows 2000.</p>
+<p>Физическая страница памяти не может быть спроецирована по более чем одному виртуальному адресу.</p>
+<p>Физическая страница может находиться по любому физическому адресу. Вы не должны делать никаких предположений относительно смежности физических страниц.</p>
+<p>Используйте функцию GetSystemInfo для того, чтобы определить размер страницы на вашем компьютере.</p>
+<p><b>Требования</b></p>
+<p>Windows NT/2000: Требуется Windows 2000 или более поздняя версия </p>
+<p>Windows 95/98: Не поддерживается </p>
+<p>Бибиотека: Kernel32.dll </p>
+<p>Подключаемый модуль: Не описана </p>
+<p>© <a href="mailto:mystic2000@newmail.ru" target="_blank">Mystic</a>, 2002</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

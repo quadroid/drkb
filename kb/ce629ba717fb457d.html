@@ -1,0 +1,122 @@
+<html>
+<head>
+  <title>Не работает кнопка &lt;Enter&gt; в WebBrowser</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Не работает кнопка &lt;Enter&gt; в WebBrowser</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Html страницы, отображаемые в TWebBrowser часто имеют кнопки "Submit", и нажатие &lt;Enter&gt; не воспринимается непосредственно этой кнопкой.</p>
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, OleCtrls, SHDocVw_TLB, ActiveX, StdCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    WebBrowser1: TWebBrowser;
+    Button1: TButton;
+    Button2: TButton;
+    procedure FormDestroy(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+  private
+    { Private declarations }
+    FOleInPlaceActiveObject: IOleInPlaceActiveObject;
+    procedure MsgHandler(var Msg: TMsg; var Handled: Boolean);
+  public
+    { Public declarations }
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+  FOleInPlaceActiveObject := nil;
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  Application.OnMessage := MsgHandler;
+end;
+ 
+procedure TForm1.MsgHandler(var Msg: TMsg; var Handled: Boolean);
+var
+  iOIPAO: IOleInPlaceActiveObject;
+  Dispatch: IDispatch;
+begin
+  if not Assigned(WebBrowser1) then
+  begin
+    Handled := False;
+    Exit;
+  end;
+ 
+  Handled := (IsDialogMessage(WebBrowser1.Handle, Msg) = True);
+ 
+  if (Handled) and (not WebBrowser1.Busy) then
+  begin
+    if FOleInPlaceActiveObject = nil then
+    begin
+      Dispatch := WebBrowser1.Application;
+      if Dispatch &lt;&gt; nil then
+      begin
+        Dispatch.QueryInterface(IOleInPlaceActiveObject, iOIPAO);
+        if iOIPAO &lt;&gt; nil then
+          FOleInPlaceActiveObject := iOIPAO;
+      end;
+    end;
+ 
+    if FOleInPlaceActiveObject &lt;&gt; nil then
+      if ((Msg.message = WM_KEYDOWN) or (Msg.message = WM_KEYUP)) and
+        ((Msg.wParam = VK_BACK) or (Msg.wParam = VK_LEFT) or (Msg.wParam = VK_RIGHT)) then
+        //nothing - do not pass on Backspace, Left or Right arrows
+      else
+        FOleInPlaceActiveObject.TranslateAccelerator(Msg);
+  end;
+end;
+</pre>
+
+<p id="author">Автор: Song</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

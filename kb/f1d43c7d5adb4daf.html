@@ -1,0 +1,75 @@
+<html>
+<head>
+  <title>Как получить информацию о системе?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить информацию о системе?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{
+  The SYSTEM_INFO structure contains information about the current computer
+  system. This includes the architecture and type of the processor, the number of
+  processors in the system, the page size, and other such information.
+}
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  SysInfo: TSystemInfo;
+begin
+  GetSystemInfo(SysInfo);
+  with ListBox1.Items, SysInfo do
+  begin
+    Add('ProcessorArchitecture:' + IntToStr(wProcessorArchitecture));
+    Add(FloatToStr(dwPageSize) + ' Kb page size');
+    Add(Format('Lowest memory address accessible to applications and DLL - %p',
+      [lpMinimumApplicationAddress]));
+    Add(Format('Highest memory address accessible to applications and DLL - %p',
+      [lpMaximumApplicationAddress]));
+    Add('OEMID:' + IntToStr(dwOemId));
+    Add('ActiveProcessorMask:' + IntToStr(dwActiveProcessorMask));
+    Add(IntToStr(dwNumberOfProcessors) + ' - number of processors');
+    Add('ProcessorType:' + IntToStr(dwProcessorType));
+    case wProcessorLevel of
+      3: Add('Intel 80386 processor level');
+      4: Add('Intel 80486 processor level');
+      5: Add('Intel Pentium processor level');
+    end;
+    Add(FloatToStr(dwAllocationGranularity / 1024) +
+      ' Kb - granularity with which virtual memory is allocated');
+    Add('ProcessorRevision:' + IntToStr(wProcessorRevision));
+  end;
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

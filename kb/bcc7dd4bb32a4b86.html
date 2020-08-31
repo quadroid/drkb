@@ -1,0 +1,69 @@
+<html>
+<head>
+  <title>Назначение палитры bitmap</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Назначение палитры bitmap</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Если вы рисуете на TImage.... </p>
+
+<p>Во-первых, вам нужно использовать Image1.Picture.bitmap, а не Image.Canvas. Причина кроется в том, что Image1.Picture.Bitmap имеет палитру, в Timage нет. Затем палитру необходимо назначить. Вот пример:</p>
+
+<pre name="code" class="delphi">
+// Устанавливаем Width и Height перед использованием
+// Image1.Picture c Bitmap Canvasvar
+ 
+Bitmap: TBitmap;
+begin
+  Bitmap:=TBitmap.Create;
+  Bitmap.LoadfromFile({'Whatever.bmp'});
+ 
+  With Image2.Picture.bitmap do
+  Begin
+    Width:=Bitmap.Width;
+    height:=Bitmap.Height;
+    Palette:=Bitmap.Palette;
+    Canvas.draw(0,0,bitmap);
+    Refresh;
+  end;
+end;
+</pre>
+
+<p>Если вы рисуете на канве формы...</p>
+<pre name="code" class="delphi">
+Canvas.Draw(0,0,Bitmap);
+SelectPalette(Form1.Canvas.handle,Bitmap.Palette,True);
+RealizePalette(Form1.Canvas.Handle);
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

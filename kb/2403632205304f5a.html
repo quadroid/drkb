@@ -1,0 +1,91 @@
+<html>
+<head>
+  <title>Поиск значения при вводе</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Поиск значения при вводе</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Каким способом можно производить поиск подходящих величин в момент ввода? Табличный курсор (визуально) должен перемещаться к наиболее подходящему значению при добавлении пользователем новых символов водимой величины. </p>
+
+<p>Первоначально код писался под Delphi 1. Это может и не лучшее решение, но это работает. </p>
+
+<p>Для поиска величины таблица держится открытой. Индекс должен, естественно, принадлежать полю, используемому элементом управления EditBox. В случае изменения содержимого EditBox, новое значение используется для вызова стандартной функции FindNearest таблицы TTable. Возвращаемая величина снова присваивается свойcтву Text элемента EditBox. </p>
+
+<p>Я привел лишь общее решение задачи. Фактически во время изменения значения я включал таймер на период 1/3 секунды и в обработчике события OnTimer проводил операцию поиска (с выключением таймера). Это позволяло пользователю набирать без задержки нужный текст без необходимости производить поиск в расчете на вновь введенный символ (поиск проводился только при возникновении задержки в 1/3 секунды). </p>
+
+<p>Вам также может понадобиться специальный обработчик нажатия клавиши backspace или добавления символа в любое место строки. </p>
+
+<p>Вместо возвращения результатов элементу EditBox (который перезаписывает введенное пользователем значение), вы можете передавать результаты другому элементу управления, например компоненту ListBox. Вы также можете отобразить несколько наиболее подходящих значений, к примеру так:</p>
+
+<pre name="code" class="delphi">
+procedure Edit1OnChange(...);
+var
+  i: integer;
+begin
+  if not updating then
+    exit;
+  {сделайте обновление где-нибудь еще -
+  например при срабатывании таймера}
+  updating := false;
+  Table1.FindNearest([Edit1.text]);
+  ListBox1.clear;
+  i := 0;
+  while (i &lt; 5) and (not (table1.eof)) do
+  begin
+    listbox.items.add(Table1.fields[0].asString);
+    inc(i);
+    table1.next;
+  end;
+  listbox1.itemindex := 0;
+end;
+</pre>
+
+
+<p id="author">Автор: Bob</p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+<hr />Каким способом можно производить поиск подходящих величин в момент ввода? Табличный курсор (визуально) должен перемещаться к наиболее подходящему значению при добавлении пользователем новых символов водимой величины. </p>
+
+<p>Это просто. Вот что я написал в обработчике события OnChange редактора.</p>
+<pre name="code" class="delphi">
+with MainForm.PatientTable do
+begin
+  { начинаем поиск имени }
+  IndexName := 'Name';
+  FindNearest([SearchFor.Text]);
+end;
+</pre>
+
+
+<p>Код подразумевает, что имя индекса, по которому производится поиск - Name. Свяжите этот код с табличной сеткой и курсор будет перескакивать на ближайшую запись, удовлетворяющую введенной пользователем информации. </p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

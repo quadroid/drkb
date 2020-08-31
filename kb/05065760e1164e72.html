@@ -1,0 +1,214 @@
+<html>
+<head>
+  <title>URL кодирование строки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+<h1 id="title">URL кодирование строки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; URL кодирование строки
+&nbsp;
+Функция производит так назваемое URL кодирование строк для использования
+в http запросах. Т.е. все алфавитно-цифровые символы и знак подчёикивания
+'_' остаются неизменными, пробел заменяется на '+', а все остальные символы
+на знак процента '%' с двумя шестнадцатеричными цифрами.
+&nbsp;
+Зависимости: Windows
+Автор:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dimka Maslov, mainbox@endimus.ru, ICQ:148442121, Санкт-Петербург
+Copyright:&nbsp;&nbsp; Dimka Maslov
+Дата:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 27 мая 2002 г.
+***************************************************** }
+&nbsp;
+function UrlEncode(Str: string): string;
+&nbsp;
+  function CharToHex(Ch: Char): Integer;
+  asm
+ &nbsp;&nbsp; and eax, 0FFh
+ &nbsp;&nbsp; mov ah, al
+ &nbsp;&nbsp; shr al, 4
+ &nbsp;&nbsp; and ah, 00fh
+ &nbsp;&nbsp; cmp al, 00ah
+ &nbsp;&nbsp; jl @@10
+ &nbsp;&nbsp; sub al, 00ah
+ &nbsp;&nbsp; add al, 041h
+ &nbsp;&nbsp; jmp @@20
+@@10:
+ &nbsp;&nbsp; add al, 030h
+@@20:
+ &nbsp;&nbsp; cmp ah, 00ah
+ &nbsp;&nbsp; jl @@30
+ &nbsp;&nbsp; sub ah, 00ah
+ &nbsp;&nbsp; add ah, 041h
+ &nbsp;&nbsp; jmp @@40
+@@30:
+ &nbsp;&nbsp; add ah, 030h
+@@40:
+ &nbsp;&nbsp; shl eax, 8
+ &nbsp;&nbsp; mov al, '%'
+  end;
+&nbsp;
+var
+  i, Len: Integer;
+  Ch: Char;
+  N: Integer;
+  P: PChar;
+begin
+  Result := '';
+  Len := Length(Str);
+  P := PChar(@N);
+  for i := 1 to Len do
+  begin
+ &nbsp;&nbsp; Ch := Str[i];
+ &nbsp;&nbsp; if Ch in ['0'..'9', 'A'..'Z', 'a'..'z', '_'] then
+ &nbsp;&nbsp;&nbsp;&nbsp; Result := Result + Ch
+ &nbsp;&nbsp; else
+ &nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp; if Ch = ' ' then
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Result := Result + '+'
+ &nbsp;&nbsp;&nbsp;&nbsp; else
+ &nbsp;&nbsp;&nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; N := CharToHex(Ch);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Result := Result + P;
+ &nbsp;&nbsp;&nbsp;&nbsp; end;
+ &nbsp;&nbsp; end;
+  end;
+end;
+Пример использования: 
+&nbsp;
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  S: string;
+begin
+  S := UrlEncode('Delphi World');
+  ShellExecute(Handle, 'open',
+ &nbsp;&nbsp; PChar('http://www.yandex.ru/yandsearch?text=' + S), '', '', SW_SHOWNORMAL);
+end;
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; URL декодирование строки
+&nbsp;
+Функция выполняет URL декодирование строки, заменяя все подстроки вида
+'%HH', где 'HH' - шестнадцатеричные цифры, на соответствующие символы.
+&nbsp;
+Зависимости: Windows
+Автор:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dimka Maslov, mainbox@endimus.ru, ICQ:148442121, Санкт-Петербург
+Copyright:&nbsp;&nbsp; Dimka Maslov
+Дата:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 27 мая 2002 г.
+***************************************************** }
+&nbsp;
+function UrlDecode(Str: string): string;
+&nbsp;
+  function HexToChar(W: word): Char;
+  asm
+ &nbsp; cmp ah, 030h
+ &nbsp; jl @@error
+ &nbsp; cmp ah, 039h
+ &nbsp; jg @@10
+ &nbsp; sub ah, 30h
+ &nbsp; jmp @@30
+@@10:
+ &nbsp; cmp ah, 041h
+ &nbsp; jl @@error
+ &nbsp; cmp ah, 046h
+ &nbsp; jg @@20
+ &nbsp; sub ah, 041h
+ &nbsp; add ah, 00Ah
+ &nbsp; jmp @@30
+@@20:
+ &nbsp; cmp ah, 061h
+ &nbsp; jl @@error
+ &nbsp; cmp al, 066h
+ &nbsp; jg @@error
+ &nbsp; sub ah, 061h
+ &nbsp; add ah, 00Ah
+@@30:
+ &nbsp; cmp al, 030h
+ &nbsp; jl @@error
+ &nbsp; cmp al, 039h
+ &nbsp; jg @@40
+ &nbsp; sub al, 030h
+ &nbsp; jmp @@60
+@@40:
+ &nbsp; cmp al, 041h
+ &nbsp; jl @@error
+ &nbsp; cmp al, 046h
+ &nbsp; jg @@50
+ &nbsp; sub al, 041h
+ &nbsp; add al, 00Ah
+ &nbsp; jmp @@60
+@@50:
+ &nbsp; cmp al, 061h
+ &nbsp; jl @@error
+ &nbsp; cmp al, 066h
+ &nbsp; jg @@error
+ &nbsp; sub al, 061h
+ &nbsp; add al, 00Ah
+@@60:
+ &nbsp; shl al, 4
+ &nbsp; or al, ah
+ &nbsp; ret
+@@error:
+ &nbsp; xor al, al
+  end;
+&nbsp;
+  function GetCh(P: PChar; var Ch: Char): Char;
+  begin
+ &nbsp;&nbsp; Ch := P^;
+ &nbsp;&nbsp; Result := Ch;
+  end;
+&nbsp;
+var
+  P: PChar;
+  Ch: Char;
+begin
+  Result := '';
+  P := @Str[1];
+  while GetCh(P, Ch) &lt;&gt; #0 do
+  begin
+ &nbsp;&nbsp; case Ch of
+ &nbsp;&nbsp;&nbsp;&nbsp; '+': Result := Result + ' ';
+ &nbsp;&nbsp;&nbsp;&nbsp; '%':
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Inc(P);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Result := Result + HexToChar(PWord(P)^);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Inc(P);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; end;
+ &nbsp;&nbsp; else
+ &nbsp;&nbsp;&nbsp;&nbsp; Result := Result + Ch;
+ &nbsp;&nbsp; end;
+ &nbsp;&nbsp; Inc(P);
+  end;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

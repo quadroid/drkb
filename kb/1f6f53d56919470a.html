@@ -1,0 +1,92 @@
+<html>
+<head>
+  <title>Как программно установить конфигурацию COM-порта в Windows 95?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как программно установить конфигурацию COM-порта в Windows 95?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject); 
+var 
+  CommPort : string; 
+  hCommFile : THandle; 
+  Buffer : PCommConfig; 
+  size : DWORD; 
+begin 
+  CommPort := 'COM1'; 
+{Открываем Com-порт} 
+  hCommFile := CreateFile(PChar(CommPort), 
+                          GENERIC_WRITE, 
+                          0, 
+                          nil, 
+                          OPEN_EXISTING, 
+                          FILE_ATTRIBUTE_NORMAL, 
+                          0); 
+  if hCommFile=INVALID_HANDLE_VALUE then 
+  begin 
+    ShowMessage('Unable to open '+ CommPort); 
+    exit; 
+  end; 
+{Выделяем временный буфер} 
+  GetMem(Buffer, sizeof(TCommConfig)); 
+ 
+{Получаем размер структуры CommConfig}
+  size := 0; 
+  GetCommConfig(hCommFile, Buffer^, size); 
+ 
+{Освобождаем временный буфер} 
+  FreeMem(Buffer, sizeof(TCommConfig)); 
+ 
+{Выделяем память для структуры CommConfig} 
+  GetMem(Buffer, size); 
+  GetCommConfig(hCommFile, Buffer^, size); 
+ 
+{Изменяем скорость передачи} 
+  Buffer^.dcb.BaudRate := 1200; 
+ 
+{Устанавливаем новую конфигурацию для COM-порта} 
+  SetCommConfig(hCommFile, Buffer^, size); 
+ 
+{Освобождаем буфер} 
+  FreeMem(Buffer, size); 
+ 
+{Закрываем COM-порт}
+  CloseHandle(hCommFile); 
+end;
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<html>
+<head>
+  <title>Переход в ждущий режим под Windows NT</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Переход в ждущий режим под Windows NT</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Переход в ждущий режим под WinNT
+ 
+Зависимости: Windows
+Автор:       DeMoN-777, DeMoN-777@yandex.ru, Санкт-Петербург
+Copyright:   @
+Дата:        21 июня 2002 г.
+***************************************************** }
+ 
+procedure NTWait;
+var
+  hToken: THandle;
+  tkp: TTokenPrivileges;
+  ReturnLength: Cardinal;
+begin
+  if OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES or
+    TOKEN_QUERY, hToken) then
+  begin
+    LookupPrivilegeValue(nil, 'SeShutdownPrivilege', tkp.Privileges[0].Luid);
+    tkp.PrivilegeCount := 1;
+    tkp.Privileges[0].Attributes := SE_PRIVILEGE_ENABLED;
+    if AdjustTokenPrivileges(hToken, False, tkp, 0, nil, ReturnLength) then
+      SetSystemPowerState(true, true);
+  end;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

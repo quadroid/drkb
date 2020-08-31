@@ -1,0 +1,105 @@
+<html>
+<head>
+  <title>Как можно узнать, что было изменениие, например сдвиг мыши или нажатие клавиши?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как можно узнать, что было изменениие, например сдвиг мыши или нажатие клавиши?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit Unit1;
+
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    Memo1: TMemo;
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+var
+  MouseHook: HHOOK;
+ 
+function LowLevelMouseProc(nCode: Integer; WParam: WPARAM; LParam: LPARAM): LRESULT; stdcall;
+begin
+  Result := CallNextHookEx(MouseHook, nCode, WParam, LParam);
+  case WParam of
+    WM_LBUTTONDOWN: Form1.Memo1.Lines.Add('Мыша вдавилась левой кнопкой.');
+    WM_LBUTTONUP: Form1.Memo1.Lines.Add('Мыша отдавилась левой кнопкой.');
+    WM_LBUTTONDBLCLK: Form1.Memo1.Lines.Add('Мыша дважды клацнулась левой кнопкой.');
+    WM_RBUTTONDOWN: Form1.Memo1.Lines.Add('Мыша вдавилась правой кнопкой.');
+    WM_RBUTTONUP: Form1.Memo1.Lines.Add('Мыша отдавилась правой кнопкой.');
+    WM_RBUTTONDBLCLK: Form1.Memo1.Lines.Add('Мыша дважды клацнулась правой кнопкой.');
+    WM_MBUTTONDOWN: Form1.Memo1.Lines.Add('Мыша вдавилась средней кнопкой.');
+    WM_MBUTTONUP: Form1.Memo1.Lines.Add('Мыша отдавилась средней кнопкой.');
+    WM_MBUTTONDBLCLK: Form1.Memo1.Lines.Add('Мыша дважды клацнулась средней кнопкой.');
+    WM_MOUSEMOVE: Form1.Memo1.Lines.Add('Мыша побежала.');
+    WM_MOUSEWHEEL: Form1.Memo1.Lines.Add('Мыша тащиться.');
+  else
+    Form1.Memo1.Lines.Add('Мыша сошла с ума, купите новую мышу.');
+  end;
+end;
+ 
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+const
+  WH_MOUSE_LL = 14;
+begin
+  MouseHook := SetWindowsHookEx(WH_MOUSE_LL, @LowLevelMouseProc, HInstance, 0);
+end;
+ 
+procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  UnhookWindowsHookEx(MouseHook);
+end;
+ 
+end.
+</pre>
+<p>&nbsp;<br>
+Тож самое и на клавиатуру, код хука - Цифра 13 Соответственно принимай уже мессаги от клавиатуры...<br>
+<p>Только начиная с Win 2000 </p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: Rouse_</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

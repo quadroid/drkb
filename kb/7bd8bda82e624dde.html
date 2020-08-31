@@ -1,0 +1,119 @@
+<html>
+<head>
+  <title>Для своего браузера, как мне сохранить свои cookies?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Для своего браузера, как мне сохранить свои cookies?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, HTTPApp, WebUtils;
+ 
+type
+  TWebModule1 = class(TWebModule)
+    procedure WebModule1WebActionItem1Action(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure WebModule1WebActionItem2Action(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+ 
+var
+  WebModule1: TWebModule1;  
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+ 
+procedure TWebModule1.WebModule1WebActionItem1Action(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  List: TStringList;
+begin
+  List := TStringList.Create;
+  try
+     List.Add('LastVisit=' + FormatDateTime('mm/dd/yyyy hh:mm:ss', Now));
+     Response.SetCookieField(List, '', '', Now + 10, False);
+     Response.Content := 'Cookie set -- ' + Response.Cookies[0].Name;
+  finally
+    List.Free;
+  end;
+  Handled := True;
+end;
+ 
+procedure TWebModule1.WebModule1WebActionItem2Action(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  Params: TParamsList;
+begin
+     Params := TParamsList.Create;
+     try
+       Params.AddParameters(Request.CookieFields);
+       Response.Content := 'You last set the cookie on ' + Params['LastVisit'];
+     finally
+       Params.Free;
+     end;
+end;
+ 
+end.
+</pre>
+<p>&nbsp;<br>
+<p>А вот пример странички:</p>
+<pre name="code" class="delphi">&lt;!-- This document was created with HomeSite v2.0 --&gt;
+&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN"&gt;
+&lt;HTML&gt;
+&lt;HEAD&gt;
+   &lt;TITLE&gt;Delphi 4 Developer's Guide Cookie Setting and Retreiving Example&lt;/TITLE&gt;
+&lt;/HEAD&gt;
+&lt;BODY BGCOLOR="Silver"&gt;
+&lt;FONT SIZE="+1"&gt;&lt;FONT SIZE="+1"&gt;&lt;FONT COLOR="Red"&gt;&lt;B&gt;Delphi 4 Developer's Guide - Cookie Example&lt;/B&gt;&lt;/FONT&gt;&lt;/FONT&gt;&lt;/FONT&gt;
+&lt;P&gt;
+The following links set and get a cookie onto your browser&lt;P&gt;
+&lt;A HREF="../bin/cookie.dll/cookie"&gt;Click Here&lt;/A&gt; to set the cookies
+&lt;P&gt;
+&lt;A HREF="../bin/cookie.dll/getcookie"&gt;Click Here&lt;/A&gt; to get cookie.
+&lt;/BODY&gt;
+&lt;/HTML&gt;
+</pre>
+<p>&nbsp;<br>
+<p>&#169; Delphi 4 Developer's Guide </p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

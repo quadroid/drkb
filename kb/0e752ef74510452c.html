@@ -1,0 +1,80 @@
+<html>
+<head>
+  <title>Определить нажатие на CheckBox в TListView</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Определить нажатие на CheckBox в TListView</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TForm1.ListView1MouseUp(Sender: TObject; Button: TMouseButton;
+   Shift: TShiftState; X, Y: Integer);
+ var
+   Item: TListItem;
+   HitTest: THitTests;
+ begin
+   // Welchem Item gehцrt die CheckBox 
+  // Which item belongs to the checkbox 
+  Item := ListView1.GetItemAt(x, y);
+ 
+   // Was wurde vom Item genau angeklickt 
+  // What kind of thing was hit on the item 
+  HitTest := ListView1.GetHitTestInfoAt(x, y);
+ 
+   // Falls ein Item angeklickt wurde und davon die Checkbox 
+  // If an Item was hit and exactly his checkbox 
+  if (Item &lt;&gt; nil) and (HitTest = [htOnStateIcon]) then
+   begin
+     //////////////////////////////// 
+    // Hier das OnCheck behandeln // 
+    // Handle OnCheck here        // 
+    //////////////////////////////// 
+    // Beispiel 
+    // Example 
+    // 
+    //  if Item.Checked = False then 
+    //  begin 
+    //    if (Item.Index = 0) or (ListView1.Items.Item[Item.Index - 1].Checked = True) then 
+    //      Item.Checked := True else Item.Checked := False; 
+    //  end else 
+    //    begin 
+    //    if (Item.Index = ListView1.Items.Count - 1) or (ListView1.Items.Item[Item.Index + 1].Checked = False) then Item.Checked := False else 
+    //      Item.Checked := True; 
+    //  end; 
+  end;
+ end;
+</pre>
+
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+&nbsp;</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<html>
+<head>
+  <title>Перетасовка строк в списке</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Перетасовка строк в списке</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Перетасовка строк в списке
+ 
+Процедура тасует строки в списке.
+List - Список строк
+MoveCount - необязательный параметр, задающий количество перестановок, 
+если этот параметр опущен, либо меньше или равен нулю, его значение 
+принимается равным C*C-C, где C - количество строк в списке.
+ 
+Зависимости: SysUtils, Classes
+Автор:       Dimka Maslov, mainbox@endimus.ru, ICQ:148442121, Санкт-Петербург
+Copyright:   Dimka Maslov
+Дата:        18 ноября 2002 г.
+********************************************** }
+ 
+procedure ShuffleStrings(List: TStrings; MoveCount: Integer = 0);
+var
+ i, N, C: Integer;
+ Index1, Index2: Integer;
+ Str: string;
+ Obj: TObject;
+begin
+ List.BeginUpdate;
+ try
+  C:=List.Count;
+  N:=MoveCount;
+  if N &lt;= 0 then N:=C*C-C;
+  for i:=0 to N do begin
+   Index1:=Random(C);
+   Index2:=Random(C);
+   Str:=List.Strings[Index1];
+   Obj:=List.Objects[Index1];
+   List.Strings[Index1]:=List.Strings[Index2];
+   List.Objects[Index1]:=List.Objects[Index2];
+   List.Strings[Index2]:=Str;
+   List.Objects[Index2]:=Obj;
+  end;
+ finally
+  List.EndUpdate;
+ end;
+end; 
+</pre>
+
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+ShuffleStrings(Memo1.Lines) 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

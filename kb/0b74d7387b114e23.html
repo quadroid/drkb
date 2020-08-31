@@ -1,0 +1,78 @@
+<html>
+<head>
+  <title>Как убрать заголовок в дочерней форме MDI?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как убрать заголовок в дочерней форме MDI?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Если в дочерней форме MDI установить BorderStyle в bsNone, то заголовок формы не исчезнет. (Об этом сказано в хелпе). А вот следующий пример решает эту проблему:</p>
+<pre name="code" class="delphi">
+type
+  ... = class(TForm)
+{ other stuff above }
+    procedure CreateParams(var Params: TCreateParams); override;
+{ other stuff below }
+  end;
+ 
+  ...
+ 
+procedure tMdiChildForm.CreateParams(var Params: tCreateParams);
+begin
+  inherited CreateParams(Params);
+  Params.Style := Params.Style and (not WS_CAPTION);
+end;
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+
+<hr />
+<pre name="code" class="delphi">
+type
+  TForm2 = class(TForm)
+    { другой код выше }
+    procedure CreateParams(var Params: TCreateParams); override;
+    { другой код ниже }
+  end;
+ 
+procedure TForm2.CreateParams(var Params: TCreateParams);
+begin
+  inherited CreateParams(Params);
+  Params.Style := Params.Style and not WS_OVERLAPPEDWINDOW or WS_BORDER
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<html>
+<head>
+  <title>Алгоритм 8. Цифровая сортировка</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Алгоритм 8. Цифровая сортировка</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Алгоритм 8. Цифровая сортировка. </p>
+<p>Этой сортировкой можно сортировать целые неотрицательные числа большого диапазона. Идея состоит в следующем: отсортировать числа по младшему разряду, потом устойчивой сортировкой сортируем по второму, третьему, и так до старшего разряда. В качестве устойчивой сортировки можно выбрать сортировку подсчетом, в виду малого времени работы. Реализация такова: </p>
+<pre name="code" class="delphi">
+Program RadixSort;
+Var A,B   : array[1..1000] of word;
+   N,i    : integer;
+   t      : longint;
+Procedure Sort; {сортировка подсчетом}
+Var C    : array[0..9] of integer;
+    j     : integer;
+Begin
+ For j:=0 to 9 do
+ C[j]:=0;
+ For j:=1 to N do
+ C[(A[j] mod (t*10)) div t]:= C[(A[j] mod (t*10)) div t]+1;
+ For j:=1 to 9 do
+ C[j]:=C[j-1]+C[j];
+ For j:=N downto 1 do
+ begin
+  B[C[(A[j] mod (t*10)) div t]]:=A[j];
+  C[(A[j] mod (t*10)) div t] := C[(A[j] mod (t*10)) div t]-1;
+ end;
+End;
+Begin
+{Определение размера массива A (N) и его заполнение}
+ …
+{сортировка данных}
+ t:=1;
+ for i:=1 to 5 do
+ begin
+  Sort;
+  A:=B;
+  t:= t*10;
+ end;
+{Вывод массива A}
+ …
+End.
+</pre>
+<p>Так как сортировка подсчетом вызывается константное число раз, то время работы всей сортировки есть O(n). Заметим, что таким способом можно сортировать не только числа, но и строки, если же использовать сортировку слиянием в качестве устойчивой, то можно сортировать объекты по нескольким полям. </p>
+<p>Теперь вы владеете достаточным арсеналом, чтобы сортировать все что угодно и как угодно. Помните, что выбор нужной вам сортировки зависит от того, какие данные вы будете сортировать и где вы их будете сортировать. </p>
+<p>P.S. Все программы рабочие &#8212; если, конечно, вам не лень будет заменить три точки на код ввода и вывода массивов :-). </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

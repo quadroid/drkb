@@ -1,0 +1,157 @@
+<html>
+<head>
+  <title>Write / read a string to / from the serial port</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Write / read a string to / from the serial port</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function OpenCOMPort: Boolean;
+var
+  DeviceName: array[0..80] of Char;
+  ComFile: THandle;
+begin
+   { First step is to open the communications device for read/write.
+     This is achieved using the Win32 'CreateFile' function.
+     If it fails, the function returns false.
+   }
+  StrPCopy(DeviceName, 'COM1:');
+ 
+  ComFile := CreateFile(DeviceName,
+    GENERIC_READ or GENERIC_WRITE,
+    0,
+    nil,
+    OPEN_EXISTING,
+    FILE_ATTRIBUTE_NORMAL,
+    0);
+ 
+  if ComFile = INVALID_HANDLE_VALUE then
+    Result := False
+  else
+    Result := True;
+end;
+ 
+ 
+function SetupCOMPort: Boolean;
+const
+  RxBufferSize = 256;
+  TxBufferSize = 256;
+var
+  DCB: TDCB;
+  Config: string;
+  CommTimeouts: TCommTimeouts;
+begin
+   { We assume that the setup to configure the setup works fine.
+     Otherwise the function returns false.
+   }
+ 
+  Result := True;
+ 
+  if not SetupComm(ComFile, RxBufferSize, TxBufferSize) then
+    Result := False;
+ 
+  if not GetCommState(ComFile, DCB) then
+    Result := False;
+ 
+  Config := 'baud=9600 parity=n data=8 stop=1';
+ 
+  if not BuildCommDCB(@Config[1], DCB) then
+    Result := False;
+ 
+  if not SetCommState(ComFile, DCB) then
+    Result := False;
+ 
+  with CommTimeouts do
+  begin
+    ReadIntervalTimeout         := 0;
+    ReadTotalTimeoutMultiplier  := 0;
+    ReadTotalTimeoutConstant    := 1000;
+    WriteTotalTimeoutMultiplier := 0;
+    WriteTotalTimeoutConstant   := 1000;
+  end;
+ 
+  if not SetCommTimeouts(ComFile, CommTimeouts) then
+    Result := False;
+end;
+ 
+ 
+{
+  The following is an example of using the 'WriteFile' function
+  to write data to the serial port.
+}
+ 
+ 
+procedure SendText(s: string);
+var
+  BytesWritten: DWORD;
+begin
+   {
+     Add a word-wrap (#13 + #10) to the string
+   }
+  s := s + #13 + #10;
+  WriteFile(ComFile, s[1], Length(s), BytesWritten, nil);
+end;
+ 
+ 
+{
+  The following is an example of using the 'ReadFile' function to read
+  data from the serial port.
+}
+ 
+ 
+procedure ReadText: string;
+var
+  d: array[1..80] of Char;
+  s: string;
+  BytesRead, i: Integer;
+begin
+  Result := '';
+  if not ReadFile(ComFile, d, SizeOf(d), BytesRead, nil) then
+  begin
+    { Raise an exception }
+  end;
+  s := '';
+  for i := 1 to BytesRead do s := s + d[I];
+  Result := s;
+end;
+ 
+ 
+procedure CloseCOMPort;
+begin
+  // finally close the COM Port!
+  CloseHandle(ComFile);
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

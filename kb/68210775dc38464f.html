@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>ActiveControl имеет DataSet</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">ActiveControl имеет DataSet</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: OAmiry (Borland) </p>
+<p>Для успешного кодирования необходимо включить typinfo в список используемых модулей. Код данного примера инвертирует логическое свойство Active набора данных, связанного с активным элементом управления при каждом нажатии пользователем клавиши ESC.</p>
+<pre name="code" class="delphi">
+procedure TForm1.FormKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+var
+  PropInfo: PPropInfo;
+  PropValue: TObject;
+  ds: TDataSource;
+begin
+  if Key = VK_ESCAPE then
+    { Основной код ниже }
+  try
+    ds := nil;
+    { Проверяем, имеет ли компонент свойство DataSource }
+    PropInfo := GetPropInfo(ActiveControl.ClassInfo, 'DataSource');
+    if PropInfo &lt;&gt; nil then
+      { Свойство компонента datasource типа class (например, TDataSource) }
+      if PropInfo^.PropType^.Kind = tkClass then
+      begin
+        PropValue := TObject(GetOrdProp(ActiveControl, PropInfo));
+        { Создаем слепок найденного TDataSource }
+        ds := (PropValue as DB.TDataSource);
+        { Используем dataset, связанный с datasource }
+        if not (ds.DataSet.State in dsEditModes) then
+          ds.DataSet.Active := not ds.DataSet.Active;
+      end;
+  except
+    on E: EInvalidCast do
+      ShowMessage('Ошибка. Ожидался DataSource');
+  end;
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

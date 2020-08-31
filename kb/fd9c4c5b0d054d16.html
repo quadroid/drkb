@@ -1,0 +1,88 @@
+<html>
+<head>
+  <title>Как связать определенное расширение файлов с моим приложением?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как связать определенное расширение файлов с моим приложением?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В Win32 необходимо создать новую запись в реестре в корневом ключе HKEY_CLASSES_ROOT, которая будет указывать на расширение файла, командную строку и иконку, которая будет отображаться для этого расширения. В Win16, просто включить расширение файла и командную строку в секцию [Extensions] в Win.ini.</p>
+
+<p>Пример:</p>
+<pre name="code" class="delphi">
+uses 
+  Registry, {For Win32} 
+  IniFiles; {For Win16} 
+ 
+{Для Win32} 
+procedure TForm1.Button1Click(Sender: TObject); 
+var 
+  reg: TRegistry; 
+begin 
+  reg := TRegistry.Create; 
+  reg.RootKey := HKEY_CLASSES_ROOT; 
+  reg.LazyWrite := false; 
+  {Add Program Support} 
+  reg.OpenKey('.bor\shell\open\command', true); 
+  {Имя файла будет передавать в приложение как первый параметр}
+  reg.WriteString('', 'C:\Program Files\Borland\Delphi 3\Project1.exe %1'); 
+  {Добавляем отображаемую иконку}
+  reg.CloseKey; 
+  reg.OpenKey('.bor\DefaultIcon',true); 
+  {Для отображения используем первую иконку в нашем приложении}
+  reg.WriteString('', 'C:\Program Files\Borland\Delphi 3\Project1.exe,0');
+  reg.CloseKey; 
+  reg.free; 
+end; 
+ 
+{Для Win16} 
+procedure TForm1.Button2Click(Sender: TObject); 
+var 
+  WinIni : TIniFile; 
+  WinIniFileName : array[0..MAX_PATH] of char; 
+  s : array[0..64] of char; 
+begin 
+  GetWindowsDirectory(WinIniFileName, sizeof(WinIniFileName)); 
+  StrCat(WinIniFileName, '\win.ini'); 
+  WinIni := TIniFile.Create(WinIniFileName); 
+  WinIni.WriteString('Extensions', 
+                     'bor', 
+                     'C:\PROGRA~1\BORLAND\DELPHI~1\PROJECT1.EXE ^.bor'); 
+  WinIni.Free; 
+  StrCopy(S, 'Extensions'); 
+  SendMessage(HWND_BROADCAST, WM_WININICHANGE, 0, LongInt(@S)); 
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<html>
+<head>
+  <title>Кораблик</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Кораблик</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit ship_;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    Timer1: TTimer;
+    procedure Timer1Timer(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+ 
+var
+  Form1: TForm1;
+  x, y: integer; // координаты корабля (базовой точки)
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure Titanik(x, y: integer; // координаты базовой точки
+  color: TColor); // цвет корабля
+const
+  dx = 5;
+  dy = 5;
+var
+  buf: TColor;
+begin
+  with form1.canvas do
+  begin
+    buf := pen.Color; // сохраним текущий цвет
+    pen.Color := color; // установим нужный цвет
+    // рисуем ...
+    //  корпус
+    MoveTo(x, y);
+    LineTo(x, y - 2 * dy);
+    LineTo(x + 10 * dx, y - 2 * dy);
+    LineTo(x + 11 * dx, y - 3 * dy);
+    LineTo(x + 17 * dx, y - 3 * dy);
+    LineTo(x + 14 * dx, y);
+    LineTo(x, y);
+    // надстройка
+    MoveTo(x + 3 * dx, y - 2 * dy);
+    LineTo(x + 4 * dx, y - 3 * dy);
+    LineTo(x + 4 * dx, y - 4 * dy);
+    LineTo(x + 13 * dx, y - 4 * dy);
+    LineTo(x + 13 * dx, y - 3 * dy);
+    MoveTo(x + 5 * dx, y - 3 * dy);
+    LineTo(x + 9 * dx, y - 3 * dy);
+    // капитанский мостик
+    Rectangle(x + 8 * dx, y - 4 * dy, x + 11 * dx, y - 5 * dy);
+    // труба
+    Rectangle(x + 7 * dx, y - 4 * dy, x + 8 * dx, y - 7 * dy);
+    // иллюминаторы
+    Ellipse(x + 11 * dx, y - 2 * dy, x + 12 * dx, y - 1 * dy);
+    Ellipse(x + 13 * dx, y - 2 * dy, x + 14 * dx, y - 1 * dy);
+    // мачта
+    MoveTo(x + 10 * dx, y - 5 * dy);
+    LineTo(x + 10 * dx, y - 10 * dy);
+    // оснастка
+    MoveTo(x + 17 * dx, y - 3 * dy);
+    LineTo(x + 10 * dx, y - 10 * dy);
+    LineTo(x, y - 2 * dy);
+    pen.Color := buf; // восстановим старый цвет карандаша
+  end;
+end;
+ 
+// обработка сигнала таймера
+ 
+procedure TForm1.Timer1Timer(Sender: TObject);
+begin
+  Titanik(x, y, form1.color); // стереть рисунок
+  if x &lt; Form1.ClientWidth then
+    x := x + 5
+  else
+  begin // новый рейс
+    x := 0;
+    y := Random(50) + 100;
+  end;
+  Titanik(x, y, clWhite); // нарисовать в новой точке
+end;
+ 
+procedure TForm1.FormActivate(Sender: TObject);
+begin
+  x := 0;
+  y := 100;
+  Form1.Color := clNavy;
+  Timer1.Interval := 50; // сигнал таймера каждые 50 мСек
+end;
+ 
+end.
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

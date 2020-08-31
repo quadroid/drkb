@@ -1,0 +1,91 @@
+<html>
+<head>
+  <title>Как создать поле Lookup во время выполнения приложения</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как создать поле Lookup во время выполнения приложения</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses
+  Forms, Classes, Controls, StdCtrls, Db, DBTables, DBCtrls;
+ 
+ 
+type
+  TForm1 = class(TForm)
+    Table1: TTable; // DBDemos customer table
+    Table2: TTable; // DBDemos orders table
+    Button1: TButton;
+    DBLookupComboBox1: TDBLookupComboBox;
+    DataSource1: TDataSource;
+    Table2CustNo: TFloatField; // CustNo key field object used for Lookup
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  with TStringField.Create(Table2) do
+  begin
+    FieldName := 'MyLookup';
+    FieldKind:= fkLookup;
+    DataSet := Table2;
+    name := Dataset.name + FieldName;
+    KeyFields:= 'CustNo';
+    LookUpDataset:= Table1;
+    LookUpKeyFields:= 'CustNo';
+    LookUpResultField:= 'Company';
+    DbLookupCombobox1.DataField:= FieldName;
+    DataSource1.DataSet:= Dataset;
+    Table2.FieldDefs.Add(name, ftString, 20, false);
+  end;
+  DbLookupCombobox1.DataSource:= Datasource1;
+  Table1.Active:= True;
+  Table2.Active:= True;
+end;
+ 
+end.
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

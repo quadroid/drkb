@@ -1,0 +1,309 @@
+<html>
+<head>
+  <title>Как читать REG_MULTI_SZ значение?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как читать REG_MULTI_SZ значение?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">uses
+  Registry;
+
+procedure ReadREG_MULTI_SZ(const CurrentKey: HKey; const Subkey, ValueName: string;
+  Strings: TStrings);
+var
+  valueType: DWORD;
+  valueLen: DWORD;
+  p, buffer: PChar;
+  key: HKEY;
+begin
+  // Clear TStrings
+  Strings.Clear;
+  // open the specified key
+  if RegOpenKeyEx(CurrentKey,
+                  PChar(Subkey),
+                  0, KEY_READ, key) = ERROR_SUCCESS then
+  begin
+    // retrieve the type and data for a specified value name
+    SetLastError(RegQueryValueEx(key,
+                 PChar(ValueName),
+                 nil,
+                 @valueType,
+                 nil,
+                 @valueLen));
+    if GetLastError = ERROR_SUCCESS then
+      if valueType = REG_MULTI_SZ then
+      begin
+        GetMem(buffer, valueLen);
+        try
+          // receive the value's data (in an array).
+          RegQueryValueEx(key,
+                          PChar(ValueName),
+                          nil,
+                          nil,
+                          PBYTE(buffer),
+                          @valueLen);
+          // Add values to stringlist
+          p := buffer;
+          while p^ &lt;&gt; #0 do
+          begin
+            Strings.Add(p);
+            Inc(p, lstrlen(p) + 1)
+          end
+        finally
+          FreeMem(buffer)
+        end
+      end
+      else
+        raise ERegistryException.Create('Stringlist expected/ String Liste erwartet...')
+    else
+      raise ERegistryException.Create('Cannot Read MULTI_SZ Value/'+
+        'Kann den MULTI_SZ Wert nicht lesen...');
+  end;
+end;
+
+// Test it:
+
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  ReadREG_MULTI_SZ(HKEY_CURRENT_USER, 'Software\XYZ', 'Test44', Memo1.Lines);
+end;
+</pre>
+
+<hr />
+<pre name="code" class="delphi">
+{******************************************}
+{2. by Ralph Friedman }
+ 
+{
+ Question:
+ I want to read out the binary-value "problems" of the path
+ HKEY_DYN_DATA\Config Manager\Enum\[add the key of a hardware component] to
+ detect if a hardware component is troubled and not working right.
+ But I cannot handle the ReadBinaryData-Method of TRegistry correct.
+ Everytime I use it, it always returns "4" as content of the buffer.
+ How do I detect if the content of the binary-key "problems" is
+ not "00 00 00 00" but something else like "16 00 00 00" or such?
+}
+ 
+{Answer: Here's an example of ReadBinaryData }
+ 
+ 
+procedure TFrmReadBinary.Button1Click(Sender: TObject);
+const
+  CKeyName: string = 'System\Setup';
+  CValName: string = 'NetcardDlls';
+var
+  keyGood: boolean;
+  p: integer;
+  regKey: TRegistry;
+  tmpStr: string;
+  vSize: integer;
+begin
+  regKey := TRegistry.Create;
+  try
+    regKey.RootKey := HKEY_LOCAL_MACHINE;
+    keyGood  := regKey.OpenKey(CKeyName, False);
+ 
+    if (keyGood) then
+    begin
+      vSize := regKey.GetDataSize(CValName);
+ 
+      if (vSize &gt; 0) then
+      begin
+        SetLength(tmpStr, vSize);
+        regKey.ReadBinaryData(CValName, tmpstr[1], vSize);
+ 
+        repeat
+          p := Pos(#0, tmpStr);
+ 
+          if p &lt;&gt; 0 then
+          begin
+            Delete(tmpStr, p, 1);
+            Insert(#13#10, tmpStr, p);
+          end;
+        until p = 0;
+ 
+        (*StringReplace(tmpStr, #0, #13#10, [rfReplaceAll]); *)
+ 
+        ListBox1.Items.Text := tmpStr;
+      end;
+    end;
+  finally
+    regKey.Free;
+  end;
+end;
+</pre>
+
+<hr />
+<pre name="code" class="delphi">
+{******************************************}
+{3. by Michael Winter }
+ 
+procedure RaiseWin32Error(Code: Cardinal);
+var
+  Error: EWin32Error;
+begin
+  Error := EWin32Error.CreateResFmt(@SWin32Error, [Code,
+    SysErrorMessage(Code)]);
+  Error.ErrorCode := Code;
+  raise Error;
+end;
+ 
+// Write REG_MULTI_SZ
+procedure TForm1.Button1Click(Sender: TObject);
+const
+  Str = 'multiple'#0'strings'#0'in one'#0'registry'#0'value'#0;
+var
+  Reg: TRegistry;
+  Res: Integer;
+begin
+  Reg := TRegistry.Create;
+  try
+    Reg.RootKey := HKEY_CURRENT_USER;
+    if not Reg.OpenKey('\Software\Test\RegMultiSzTest', true) then
+      raise Exception.Create('Can''t open key');
+    Res := RegSetValueEx(
+      Reg.CurrentKey,     // handle of key to set value for
+      'TestValue',        // address of value to set
+      0,                  // reserved
+      REG_MULTI_SZ,       // flag for value type
+      PChar(Str),         // address of value data
+      Length(Str) + 1);   // size of value data
+    if Res &lt;&gt; ERROR_SUCCESS then
+      RaiseWin32Error(Res);
+  finally
+    Reg.Free;
+  end;
+end;
+ 
+// Read REG_MULTI_SZ
+procedure TForm1.Button2Click(Sender: TObject);
+var
+  Reg: TRegistry;
+  DataType: Cardinal;
+  DataSize: Cardinal;
+  Res: Integer;
+  Str: String;
+  i: Integer;
+begin
+  Reg := TRegistry.Create;
+  try
+    Reg.RootKey := HKEY_CURRENT_USER;
+    if not Reg.OpenKeyReadOnly('\Software\Test\RegMultiSzTest') then
+      raise Exception.Create('Can''t open key');
+    DataSize := 0;
+    Res := RegQueryValueEx(
+      Reg.CurrentKey,     // handle of key to query
+      'TestValue',        // address of name of value to query
+      nil,                // reserved
+      @DataType,          // address of buffer for value type
+      nil,                // address of data buffer
+      @DataSize);         // address of data buffer size
+    if Res &lt;&gt; ERROR_SUCCESS then
+      RaiseWin32Error(Res);
+    if DataType &lt;&gt; REG_MULTI_SZ then
+      raise Exception.Create('Wrong data type');
+    SetLength(Str, DataSize - 1);
+    if DataSize &gt; 1 then begin
+      Res := RegQueryValueEx(
+        Reg.CurrentKey,     // handle of key to query
+        'TestValue',        // address of name of value to query
+        nil,                // reserved
+        @DataType,          // address of buffer for value type
+        PByte(Str),         // address of data buffer
+        @DataSize);         // address of data buffer size
+      if Res &lt;&gt; ERROR_SUCCESS then
+        RaiseWin32Error(Res);
+    end;
+ 
+    for i := Length(Str) downto 1 do
+      if Str[i] = #0 then
+        Str[i] := #13;
+    ShowMessage(Str);
+  finally
+    Reg.Free;
+  end;
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+
+<pre name="code" class="delphi">
+type
+
+ 
+  TExRegistry = class(TRegistry)
+  public
+    function ReadStrings(const ValueName: String): String;
+  end;
+ 
+function TExRegistry.ReadStrings(const ValueName: String): String;
+var
+  ValueType : DWORD;
+  ValueLen  : DWORD;
+  P, Buffer : PChar;
+begin
+  Result := '';
+  SetLastError(RegQueryValueEx(CurrentKey, PChar (ValueName), nil,
+    @ValueType, nil, @ValueLen));
+  if GetLastError = ERROR_SUCCESS then
+  begin
+    if ValueType = REG_MULTI_SZ then
+    begin
+      GetMem(Buffer, ValueLen);
+      try
+        RegQueryValueEx(CurrentKey, PChar(ValueName), nil, nil, PBYTE(Buffer), @ValueLen);
+        P := Buffer;
+        while P^ &lt;&gt; #0 do
+        begin
+          if Result &lt;&gt; '' then 
+            Result := Result + sLineBreak;
+          Result := Result + P;
+          Inc(P, lstrlen(P) + 1);
+        end;
+      finally
+        FreeMem (Buffer);
+      end;
+    end
+    else
+      raise ERegistryException.Create ('String list expected');
+  end
+  else
+    raise Exception.Create ('Unable read MULTI_SZ value');
+end;
+</pre>
+
+<p>&nbsp;<br>
+<p id="author">Автор: Александр (Rouse_) Багель</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

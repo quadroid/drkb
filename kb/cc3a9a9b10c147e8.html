@@ -1,0 +1,94 @@
+<html>
+<head>
+  <title>Как преобразовать шестнадцатиричный цвет HTML в TColor?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как преобразовать шестнадцатиричный цвет HTML в TColor?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>допустим, мы имеем переменную:</p>
+<p>const BGCOLOR = '#003366';</p>
+<p>и нам необходимо связать её с фоновым цветом memo либо любого другого TColor.</p>
+<p>Мы можем это сделать простым вызовом функции и использовать возвращённое значение:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  Memo.Color := ConvertHtmlHexToTColor(BGCOLOR);
+end;
+</pre>
+
+<p>Ниже приведён исходник этой функции, а так же код функции CheckHexForHash.</p>
+<pre name="code" class="delphi">unit colours;
+ 
+interface
+uses Windows, Sysutils, Graphics;
+ 
+function ConvertHtmlHexToTColor(Color: string): TColor;
+function CheckHexForHash(col: string): string;
+ 
+implementation
+ 
+////////////////////////////////////////////////////////////////////////////////
+// ConvertHtmlHexToTColor
+//
+ 
+function ConvertHtmlHexToTColor(Color: string): TColor;
+var
+  rColor: TColor;
+begin
+  Color := CheckHexForHash(Color);
+ 
+  if (length(color) &gt;= 6) then
+    begin
+{незабудьте, что TColor это bgr, а не rgb: поэтому необходимо изменить порядок}
+      color := '$00' + copy(color, 5, 2) + copy(color, 3, 2) + copy(color, 1, 2);
+      rColor := StrToInt(color);
+    end;
+ 
+  result := rColor;
+end;
+ 
+////////////////////////////////////////////////////////////////////////////////
+// CheckHexForHash:
+// Просто проверяет первый сивол строки на наличие '#' и удаляет его, если он найден
+ 
+function CheckHexForHash(col: string): string;
+begin
+  if col[1] = '#' then
+    col := StringReplace(col, '#', '', [rfReplaceAll]);
+  result := col;
+end;
+end.
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

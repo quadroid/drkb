@@ -1,0 +1,76 @@
+<html>
+<head>
+  <title>CREATE TABLE и типы данных</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">CREATE TABLE и типы данных</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+CREATE TABLE</p>
+<p>В версии 7.0 поддерживаются следующие типы данных:</p>
+
+<p>BIT &mdash; Целое число равное 0 или1. В Delphi возможно обращение к полю этого типа при помощи свойства AsBoolean (1 = True, 0 = False)</p>
+<p>INT &mdash; 32-битное целое число в диапазоне от -2,147,483,648 до 2,147,483,647.</p>
+<p>SMALLINT &mdash; 16-битное целое число в диапазоне от 32,768 до 32,767</p>
+<p>TINYINT &mdash; 8-битное целое число в диапазоне от 0 до 255</p>
+<p>DECIMAL[(P[, S])] &mdash; NUMERIC, DEC &mdash; Десятичное число с фиксированной точностью в диапазоне от - 10^38 -1 до 10^38 &#8211; 1 P &#8211; максимальное количество знаков в числе S &#8211; количество знаков после запятой</p>
+<p>MONEY &mdash; Денежный тип данных. Целое 64-битное число, младшие 4 разряда которого отведены под дробную часть. Может хранить числа в диапазоне от -922,337,203,685,477.5808 до 922,337,203,685,477.5807. В Delphi соответствует типу данных Currency</p>SMALLMONEY &mdash; Аналогичен Money, но 32-разрядный и ограничен диапазоном от -214,748.3648 до 214,748.3647</p>
+<p>FLOAT &mdash; DOUBLE PRECISION &mdash; Число с плавающей точкой в диапазоне от -1.79E + 308 до 1.79E + 308.</p>
+<p>REAL &mdash; Число с плавающей точкой в диапазоне от -3.40E + 38 до 3.40E + 38</p>
+<p>DATETIME &mdash; Дата и время в диапазоне от 1 января 1753 г. до 31 декабря 9999 г. с точностью 3.33 миллисекунды</p>
+<p>SMALLDATETIME &mdash; Дата и время в диапазоне от 1 января 1900 г. до 6 июня 2079 г. с точностью до 1 минуты</p>
+<p>TIMESTAMP &mdash; Уникальный в пределах БД идентификатор. Этот тип данных НЕ СОДЕРЖИТ времени и гарантирует лишь, что поле этого типа уникально в рамках базы данных.</p>
+<p>UNIQUEIDENTIFIER &mdash; Глобальный уникальный идентификатор. Статистически уникальное 16-битное значение. Над этим типом данных определены лишь операции =, &lt;&gt;, IS NULL и IS NOT NULL</p>
+<p>CHAR[(N)] &mdash; CHARACTER, VARYING VARCHAR &mdash; Строка фиксированной длины.&nbsp; N &#8211; длина строки. Максимальная длина &#8211; 8000 символов</p>
+<p>VARCHAR[(N)] &mdash; CHARACTER VARYING(N) &mdash; Строка переменной длины N &#8211; длина строки. Максимальная длина &#8211; 8000 символов</p>TEXT &mdash; Строка произвольной (до 2,147,483,647 символов) длины</p>
+<p>NCHAR[(N)] &mdash; NATIONAL CHARACTER,&nbsp; NATIONAL CHAR &mdash; Строка фиксированной длины в формате UNICODE.&nbsp; N &#8211; длина строки. Максимальная длина &#8211; 4000 символов</p>
+<p>NVARCHAR[(N)] &mdash; NATIONAL CHARACTER VARYING(N), NATIONAL CHAR VARYING(N) &mdash; Строка переменной длины в формате UNICODE N &#8211; длина строки. Максимальная длина &#8211; 4000 символов</p>
+<p>NTEXT &mdash; NATIONAL TEXT &mdash; Строка произвольной (до 1,073,741,823 символов) длины</p>
+<p>BINARY[(N)] &mdash; VARYING VARBINARY &mdash; Двоичные данные фиксированной длины, до 8000 байт N &#8211; длина данных</p>
+<p>VARBINARY[(N)] &mdash; Двоичные данные переменной длины, до 8000 байт N &#8211; длина данных</p>IMAGE &mdash; Двоичные данные произвольной (до 2,147,483,647 байт) длины</p>
+<p>В версии SQL 2000 дополнительно появились:</p>
+<p>BIGINT &mdash; 64-битное целое число</p>
+<p>SQL_VARIANT &mdash; Может хранить данные произвольного типа</p>
+<p>Поддерживается создание вычисляемых полей</p>
+<pre name="code" class="sql">
+CREATE TABLE MyTable (
+  Direction BIT NOT NULL,
+  Amount MONEY,
+  CASE Direction 
+   WHEN 1 THEN Amount
+   ELSE -Amount
+  END AS SignedAmount
+)
+</pre>
+
+<p>Выражение не должно содержать подзапросов. В версии MSSQL2000 по вычисляемому полю может быть построен индекс.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

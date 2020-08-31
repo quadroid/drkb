@@ -1,0 +1,99 @@
+<html>
+<head>
+  <title>Обработчики ввода / вывода (IOHandlers)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Обработчики ввода / вывода (IOHandlers)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>12. Обработчики ввода/вывода (IOHandlers)</p>
+Indy может настраиваться и расширяться многими путями, без необходимости напрямую модифицировать исходный код. Примером такой расширяемости являются обработчики ввода/вывода (IOHandlers). Обработчики ввода/вывода позволяют вам использовать любой источник ввода/вывода I/O в Indy. Обработчики ввода/вывода должны использоваться, когда вы желаете использовать альтернативный механизм ввода/вывода или создание нового транспортного механизма.</p>
+Обработчики ввода/вывода выполняют весь ввод/вывод (Input/Output) для Indy. Indy не выполняет ни какого своего ввода/вывода, за пределами обработчика ввода/вывода. Обработчик ввода/вывода используется для посылки сырых TCP данных для компонент Indy.</p>
+Обработчики ввода/вывода позволяют классам обрабатывать весь ввод/вывод в Indy. Обычно, весь ввод/вывод делается через сокет и обслуживается обработчиком по умолчанию -&nbsp; TIdIOHandlerSocket.</p>
+Каждый TCP клиент имеет свойство IOHandler, которое может быть назначено обработчику IOHandler, как это делает каждое серверное соединение. Если обработчик IOHandler не указан, то неявно используется TIdIOHandlerSocket, который создается автоматически и используется TCP клиентом. TIdIOHandlerSocket реализует ввод/вывод используя TCP сокет. Indy также включает дополнительные обработчики ввода/вывода: TIdIOHandlerStream и TIdSSLIOHandlerSocket.</p>
+Другие обработчики ввода/вывода могут быть созданы, позволяя Indy использовать любые источники ввода/вывода, которые вы только можете вообразить. В данный момент Indy поддерживает только сокеты, потоки и SSL как источники ввода/вывода, но источники ввода/вывода позволяют и другие возможности. Пока нет других планов, но обработчики ввода/вывода могут быть созданы для поддержки туннелей, IPX/SPX, RS-232, USB или Firewire. Indy не ограничивает вас в выборе вашего источника ввода/вывода и использование обработчиков ввода/вывода позволяет это сделать.</p>
+12.1. Компоненты IOHandler </p>
+12.1.1. Компонент TIdIOHandlerSocket</p>
+Компонент TIdIOHandlerSocket это обработчик IOHandler по умолчанию. Если обработчик не указан явно, то он создается неявно для вас. Компонент TIdIOHandlerSocket обрабатывает весь ввод/вывод, относящийся к TCP сокетам.</p>
+Обычно, компонент TIdIOHandlerSocket не используется явно, пока не потребуются расширенные способности.</p>
+12.1.2. Компонент TIdIOHandlerStream</p>
+Компонент TIdIOHandlerStream используется для отладки и тестирования. При его использовании все взаимодействие с сервером в TCP сессии может быть записаны. Позже вся сессия может быть «проиграна». Компоненты Indy не знают, работают ли они с реальным сервером и реальным соединением.</p>
+Это очень мощное средство отладки в дополнение к инструменту QA отладки. Если у пользователя есть проблемы, то специальная версия программы может быть послана пользователю или включены средства отладки для ведения лога сессии. Используя лог файлы, вы можете затем реконструировать сессию пользователя в локальной отладочной среде.</p>
+12.1.3. Компонент TIdSSLIOHandlerSocket</p>
+Компонент TIdSSLIOHandlerSocket используется для поддержки SSL. Обычно компрессия и декомпрессия данных может быть реализована с использованием перехватчиков (Intercepts) вместо IOHandlers. Но SSL библиотека используемая Indy (OpenSSL), работает напрямую с сокетом, вместо трансляции данных посылаемых Indy.&nbsp; Поэтому реализация выполнена как IOHandler. . TIdSSLIOHandlerSocket является наследником TIdIOHandlerSocket.</p>
+12.2. Пример - Speed Debugger</p>
+Пример Speed Debugger демонстрирует как симулировать медленное соединение. Это полезно, как для отладки, так и для тестирования ваших приложений при симуляции медленных сетей, таких как модемы.</p>
+Пример Speed Debugger состоит из главной формы и пользовательского обработчика IOHandler. Speed Debugger использует компонент «маппированый порт» для передачи данных конкретному web серверу. Браузер соединяется со Speed Debugger и Speed Debugger пробует получить&nbsp; страницу с указанного web сервера, затем возвращает ее web браузеру замедленно, с указанной скоростью.</p>
+Поле текстового ввода используется для указания web сервера. </p>
+Примечание: не указывайте URL и не указывайте протокол http:// или web страницу. Оно предназначено только для указания имени сервера или его IP адреса. Если у вас есть локальный web сервер, то вы можете просто указать 127.0.0.1 и использовать локальный web сервер.</p>
+Комбо-бокс используется для выбора скорости и состоит из следующих выборов. Симулируемая скорость указывается в скобках.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Apache (Unlimited)</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Dial Up (28.8k baud)</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>IBM PC XT (9600 baud)</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Commodore 64 (2400 baud)</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Microsoft IIS on a PIII-750 &amp; 1GB RAM (300 baud) (Боже как же он его ненавидит! :-))</td></tr></table></div>После нажатия кнопки Test - Speed Debugger загружает браузер по умолчанию с URL http://127.0.0.1:8081/. В данном случае браузер делает запрос из Speed Debugger. Speed Debugger слушает на порту 8081, который может конфликтовать с некоторым существующими локальными web серверами.</p>
+Пример Speed Debugger может быть загружен с Indy Demo Playground.</p>
+12.2.1. Пользовательский обработчик IOHandler</p>
+Работа Speed Debugger делается на основе пользовательского IOHandler. Маппированый порт&nbsp; компонент имеет событие OnConnect, и данное событие используется как хук в нашем IOHandler для каждого исходящего клиента, который создает маппированый порт. Это выглядит так:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 0px;"><pre name="code" class="delphi">procedure TformMain.IdMappedPortTCP1Connect(AThread: TIdMappedPortThread);
+var
+  LClient: TIdTCPConnection;
+  LDebugger: TMyDebugger;
+begin
+  LClient := AThread.OutboundClient;
+  LDebugger := TMyDebugger.Create(LClient);
+  LDebugger.BytesPerSecond := GSpeed;
+  LClient.IOHandler := LDebugger;
+end;
+</pre>
+&nbsp;</p>
+Пользовательский класс IOHandler, называется TMyDebugger и реализован как наследник от TIdIOHandlerSocket, являющегося наследником IOHandler. Поскольку TIdIOHandlerSocket уже реализует весь актуальный ввод/вывод, TMyDebugger должен только замедлить передачу данных. Это делается путем перекрытия метода Recv.</p>
+Из метода Recv вызывается наследованный Recv для приема данных. Затем, базируясь на выбранном ограничении скорости, рассчитывается необходимая задержка. Если рассчитанная величина больше, чем наследованная, то метод&nbsp; Recv вызывает Sleep. Это может казаться сложным, но на самом деле это очень просто. Метод&nbsp; Recv приведен ниже.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 0px;"><pre name="code" class="delphi">function TMyDebugger.Recv(var ABuf; ALen: integer): integer;
+var
+  LWaitTime: Cardinal;
+  LRecvTime: Cardinal;
+begin
+  if FBytesPerSecond &gt; 0 then 
+  begin
+ &nbsp;&nbsp; LRecvTime := IdGlobal.GetTickCount;
+ &nbsp;&nbsp; Result := inherited Recv(ABuf, ALen);
+ &nbsp;&nbsp; LRecvTime := GetTickDiff(LRecvTime, IdGlobal.GetTickCount);
+ &nbsp;&nbsp; LWaitTime := (Result * 1000) div FBytesPerSecond;
+ &nbsp;&nbsp; if LWaitTime &gt; LRecvTime then 
+ &nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp; IdGlobal.Sleep(LWaitTime – LRecvTime);
+ &nbsp;&nbsp; end;
+  end 
+  else 
+  begin
+ &nbsp;&nbsp; Result := inherited Recv(ABuf, ALen);
+  end;
+end;
+</pre>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<html>
+<head>
+  <title>Как перемещать строки и колонки в TStringGrid?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как перемещать строки и колонки в TStringGrid?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Пользователь может перемещать строки и колонки StringGrid при помощи мышки. Можно ли это сделать программно? В описании TCustomGrid можно увидеть методы MoveColumn и MoveRow, однако они скрыты в TStringGrid. Но нам ничего не мешает просабклассить TStringGrid и объявить эти методы как public:</p>
+<pre name="code" class="delphi">
+type
+  TStringGridX = class(TStringGrid)
+  public
+    procedure MoveColumn(FromIndex, ToIndex: Longint);
+    procedure MoveRow(FromIndex, ToIndex: Longint);
+  end;
+</pre>
+
+<p>Чтобы воспользоваться этими методами, достаточно вызвать соответствующий метод предка:</p>
+<pre name="code" class="delphi">
+procedure TStringGridX.MoveColumn(FromIndex, ToIndex: Integer);
+begin
+  inherited;
+end;
+ 
+procedure TStringGridX.MoveRow(FromIndex, ToIndex: Integer);
+begin
+  inherited;
+end;
+</pre>
+
+<p>Этот компонент не нужно регистрировать в палитре компонентов. Просто используйте потомка TStringGrid или любого TCustomGrid, и вызывайте его методы:</p>
+<pre name="code" class="delphi">
+  procedure TForm1.Button1Click(Sender: TObject); 
+  begin 
+    TStringGridX(StringGrid1).MoveColumn(1, 3); 
+  end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+<hr />Примечание от Vit: код можно написать значительно компактнее:</p>
+
+<pre name="code" class="delphi">
+ type TFake = class(TStringGrid);
+...
+ 
+  procedure TForm1.Button1Click(Sender: TObject); 
+
+  begin 
+    TFake(StringGrid1).MoveColumn(1, 3); 
+  end;
+</pre>
+
+
+<hr />
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Перестановка строки в StringGrid в другую позицию
+ 
+Передвигает строку StringGrid из позиции FromRow в позицию ToRow, сдвигая остальные
+ 
+Зависимости: Grids
+Автор:       Борис Новгородов (MBo), mbo@mail.ru, Новосибирск
+Copyright:   MBo
+Дата:        28 апреля 2002 г.
+***************************************************** }
+ 
+procedure SGMoveRow(SG: TStringGrid; FromRow, ToRow: Integer);
+var
+  TempList: TStringList;
+  i: Integer;
+begin
+  with SG do
+    if (FromRow in [0..RowCount - 1]) and (ToRow in [0..RowCount - 1]) then
+    begin
+      TempList := TStringList.Create;
+      TempList.Assign(Rows[FromRow]);
+      if FromRow &gt; ToRow then
+        for i := FromRow downto ToRow + 1 do
+          Rows[i].Assign(Rows[i - 1])
+      else
+        for i := FromRow to ToRow - 1 do
+          Rows[i].Assign(Rows[i + 1]);
+      Rows[ToRow].Assign(TempList);
+      TempList.Free;
+    end;
+end;
+ 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

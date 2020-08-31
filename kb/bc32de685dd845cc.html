@@ -1,0 +1,92 @@
+<html>
+<head>
+  <title>Несколько функций для TStream</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Несколько функций для TStream</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{These are three utility functions to write strings to a TStream. 
+Nothing fancy, but I just ended up coding this repeatedly so 
+I made these functions. }
+ 
+unit ClassUtils;
+ 
+interface
+ 
+uses
+  SysUtils,
+  Classes;
+ 
+{: Write a string to the stream 
+  @param Stream is the TStream to write to. 
+  @param s is the string to write 
+  @returns the number of bytes written. }
+function Writestring(_Stream: TStream; const _s: string): Integer;
+ 
+{: Write a string to the stream appending CRLF 
+  @param Stream is the TStream to write to. 
+  @param s is the string to write 
+  @returns the number of bytes written. }
+function WritestringLn(_Stream: TStream; const _s: string): Integer;
+ 
+{: Write formatted data to the stream appending CRLF 
+  @param Stream is the TStream to write to. 
+  @param Format is a format string as used in sysutils.format 
+  @param Args is an array of const as used in sysutils.format 
+  @returns the number of bytes written. }
+function WriteFmtLn(_Stream: TStream; const _Format: string;
+  _Args: array of const): Integer;
+ 
+implementation
+ 
+function Writestring(_Stream: TStream; const _s: string): Integer;
+begin
+  Result := _Stream.Write(PChar(_s)^, Length(_s));
+end;
+ 
+function WritestringLn(_Stream: TStream; const _s: string): Integer;
+begin
+  Result := Writestring(_Stream, _s);
+  Result := Result + Writestring(_Stream, #13#10);
+end;
+ 
+function WriteFmtLn(_Stream: TStream; const _Format: string;
+  _Args: array of const): Integer;
+begin
+  Result := WritestringLn(_Stream, Format(_Format, _Args));
+end;
+</pre>
+
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

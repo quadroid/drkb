@@ -1,0 +1,194 @@
+<html>
+<head>
+  <title>Нахождение последнего вхождения подстроки в строку</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Нахождение последнего вхождения подстроки в строку</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Нахождение последнего вхождения подстроки в строку
+ 
+Функция возвращает начало последнего вхождения
+подстроки FindS в строку SrcS, т.е. первое с конца.
+Если возвращает ноль, то подстрока не найдена.
+Можно использовать в текстовых редакторах
+при поиске текста вверх от курсора ввода.
+ 
+Зависимости: System
+Автор:       Fenik, chook_nu@uraltc.ru, Новоуральск
+Copyright:   Автор: Федоровских Николай
+Дата:        16 июня 2002 г.
+***************************************************** }
+ 
+function PosR2L(const FindS, SrcS: string): Integer;
+{Функция возвращает начало последнего вхождения
+ подстроки FindS в строку SrcS, т.е. первое с конца.
+ Если возвращает ноль, то подстрока не найдена.
+ Можно использовать в текстовых редакторах
+ при поиске текста вверх от курсора ввода.}
+ 
+  function InvertS(const S: string): string;
+    {Инверсия строки S}
+  var
+    i, Len: Integer;
+  begin
+    Len := Length(S);
+    SetLength(Result, Len);
+    for i := 1 to Len do
+      Result[i] := S[Len - i + 1];
+  end;
+ 
+var
+  ps: Integer;
+begin
+  {Например: нужно найти последнее вхождение
+   строки 'ро' в строке 'пирожок в коробке'.
+   Инвертируем обе строки и получаем
+     'ор' и 'екборок в кожорип',
+   а затем ищем первое вхождение с помощью стандартной
+   функции Pos(Substr, S: string): string;
+   Если подстрока Substr есть в строке S, то
+   эта функция возвращает позицию первого вхождения,
+   а иначе возвращает ноль.}
+  ps := Pos(InvertS(FindS), InvertS(SrcS));
+  {Если подстрока найдена определяем её истинное положение
+   в строке, иначе возвращаем ноль}
+  if ps &lt;&gt; 0 then
+    Result := Length(SrcS) - Length(FindS) - ps + 2
+  else
+    Result := 0;
+end;
+Пример использования: 
+ 
+p := PosR2L('са', 'Мой сапог догнал самолёт.'); // p:=18;
+</pre>
+<hr />
+<pre name="code" class="delphi">
+{ 
+  Letzte Position von SubStr in S ermitteln. 
+  Returns the last occurence of SubStr in S. 
+}
+ 
+ function LastPos(SubStr, S: string): Integer;
+ var
+   Found, Len, Pos: integer;
+ begin
+   Pos := Length(S);
+   Len := Length(SubStr);
+   Found := 0;
+   while (Pos &gt; 0) and (Found = 0) do
+   begin
+     if Copy(S, Pos, Len) = SubStr then
+       Found := Pos;
+     Dec(Pos);
+   end;
+   LastPos := Found;
+ end;
+ 
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+&nbsp;</p>
+&nbsp;</p>
+<hr />
+<pre name="code" class="delphi">
+// by Manuel Wiersch 
+ 
+ function LastPos(const SubStr: AnsiString; const S: AnsiString): LongInt;
+ asm
+         TEST    EAX,EAX         // EAX auf 0 prufen (d.h. SubStr = nil) 
+        JE      @@noWork        // wenn EAX = 0 dann Sprung zu noWork 
+        TEST    EDX,EDX
+         // Test ob S = nil 
+        JE      @@stringEmpty   // bei Erfolg -&gt; Sprung zum Label 'stringEmpty' 
+        PUSH    EBX
+         PUSH    ESI
+         PUSH    EDI             // Register auf dem Stack sichern  Grund: OH 
+                                // OH: "In einer asm-Anweisung mu? der Inhalt 
+                                // der Register EDI, ESI, ESP, EBP und EBX 
+                                // erhalten bleiben (dh. vorher auf dem Stack 
+                                // speichern)         MOV     ESI, EAX 
+                                // ESI = Sourceindex      -&gt; Adresse vom SubStr 
+        MOV     EDI, EDX        // EDI = Destinationindex -&gt; Adresse von S 
+        MOV     ECX,[EDI-4]     // Lange von S  ins Zahlregister 
+        MOV     EDX,[ESI-4]     // Lange des SubStr in EDX 
+        DEC     EDX             // Length(SubStr) - 1 
+        JS      @@fail
+         // Vorzeichenbedingter Sprung (JumpIfSign) 
+                                // d.h. (EDX &lt; 0) -&gt; Sprung zu 'fail' 
+        STD;                    // SetDirectionFlag -&gt; Stringroutinen von hinten 
+                                // abarbeiten 
+        ADD     ESI, EDX        // Pointer auf das letzte Zeichen vom SubStr 
+        ADD     EDI, ECX
+         DEC     EDI             // Pointer auf das letzte Zeichen von S 
+        MOV     AL, [ESI]       // letztes Zeichen des SubStr in AL laden 
+        DEC     ESI             // Pointer auf das vorletzte Zeichen setzen. 
+        SUB     ECX, EDX        // Anzahl der Stringdurchlaufe 
+                                // = Length(s) - Length(substr) + 1 
+        JLE     @@fail          // Sprung zu 'fail' wenn ECX &lt;= 0 
+@@loop:
+         REPNE   SCASB           // Wdh. solange ungleich (repeat while not equal) 
+                                // scan string for byte 
+        JNE     @@fail
+         MOV     EBX,ECX         { Zahleregister, ESI und EDI sichern, da nun der 
+                                  Vergleich durchgefuhrt wird ob die nachfolgenden 
+                                  Zeichen von SubStr in S vorhanden sind }
+         PUSH    ESI
+         PUSH    EDI
+         MOV     ECX,EDX         // Lange des SubStrings in ECX 
+        REPE    CMPSB           // Solange (ECX &gt; 0) und (Compare string fo byte) 
+                                // dh. solange S[i] = SubStr[i] 
+        POP     EDI
+         POP     ESI             // alten Source- und Destinationpointer vom Stack holen 
+        JE      @@found         // Und schon haben wir den Index da ECX = 0 
+                                // dh. alle Zeichen wurden gefunden 
+        MOV     ECX, EBX        // ECX wieder auf alte Anzahl setzen und 
+        JMP     @@loop          // Start bei 'loop' 
+@@fail:
+         XOR     EAX,EAX         // EAX auf 0 setzen 
+        JMP     @@exit @@stringEmpty:
+         XOR     EAX,EAX
+         JMP     @@noWork @@found:
+         MOV     EAX, EBX        // in EBX steht nun der aktuelle Index 
+        INC     EAX             // um 1 erhohen, um die Position des 1. Zeichens zu 
+                                // bekommen 
+@@exit:
+         POP     EDI
+         POP     ESI
+         POP     EBX
+ @@noWork:         CLD;          // DirectionFlag loschen 
+end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

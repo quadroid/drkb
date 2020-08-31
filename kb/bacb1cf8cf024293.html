@@ -1,0 +1,311 @@
+<html>
+<head>
+  <title>НОД и НОК</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushCpp.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">НОД и НОК</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>НОД, решение ax+by=1, нахождение обратного элемента по модулю <img src="pic/embim1817.gif" width="1" height="1" vspace="1" hspace="1" border="0" alt=""><br>
+<img src="pic/embim1818.png" width="160" height="1" vspace="1" hspace="1" border="0" alt=""><br>
+&nbsp;<br>
+<p>&nbsp;</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Алгоритм Евклида<br>
+&nbsp;</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Бинарный алгоритм Евклида<br>
+&nbsp;</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Алгоритм решения уравнения ax+by = 1</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Расширенный алгоритм Евклида:<br>
+Даны x, y. Находит a, b, v: ax+by = d, где d=НОД(x, y) </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Нахождение обратного элемента по модулю<br>
+Обратный элемент для x из Zn - такой a из Zn, что ax = 1(mod n) </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>НОК<br>
+&nbsp;</td></tr></table></div><p>&nbsp;<br>
+Алгоритм Евклида. <img src="pic/embim1819.gif" width="1" height="1" vspace="1" hspace="1" border="0" alt=""><br>
+<img src="pic/embim1820.png" width="160" height="1" vspace="1" hspace="1" border="0" alt=""><br>
+<p>&nbsp;</p>
+<p>1. Вычислим r - остаток от деления числа a на b, a = bq+r, 0 &lt;= r &lt; b. </p>
+<p>2. Если r = 0, то b есть искомое число. </p>
+<p>3. Если r =/= 0, то заменим пару чисел (a,b) парой (b,r)<br>
+<p>и перейдем к шагу 1. </p>
+<pre name="code" class="cpp">
+int NOD(int a,int b)
+ {
+    while(a!=0 &amp;&amp; b!=0)
+    {
+       if(a&gt;=b) a=a%b;
+           else b=b%a;
+    }
+ return a+b; // Одно - ноль
+ }
+</pre>
+
+<p>При вычислении наибольшего общего делителя (a,b) с помощью алгоритма Евклида будет выполнено не более 5p операций деления с остатком, где p есть количество цифр в десятичной записи меньшего из чисел a и b. </p>
+<p>&nbsp;<br>
+Бинарный алгоритм Евклида. <img src="pic/embim1821.gif" width="1" height="1" vspace="1" hspace="1" border="0" alt=""><br>
+<img src="pic/embim1822.png" width="160" height="1" vspace="1" hspace="1" border="0" alt=""><br>
+<p>&nbsp;</p>
+<p>Этот алгоритм использует соотношения для НОД:<br>
+&nbsp;<br>
+НОД(2*a, 2*b) = 2*НОД(a,b)<br>
+НОД(2*a, b) = НОД(a,b) при нечетном b,<br>
+&nbsp;<br>
+Он иллюстрируется следующей программой:<br>
+<p>&nbsp;</p>
+<pre name="code" class="delphi">
+  m:= a; n:=b; d:=1;
+  {НОД(a,b) = d * НОД(m,n)}
+  while not ((m=0) or (n=0)) do begin
+    if (m mod 2 = 0) and (n mod 2 = 0) then begin
+      d:= d*2; m:= m div 2; n:= n div 2;
+    end else if (m mod 2 = 0) and (n mod 2 = 1) then begin
+      m:= m div 2;
+    end else if (m mod 2 = 1) and (n mod 2 = 0) then begin
+      n:= n div 2;
+    end else if (m mod 2=1) and (n mod 2=1) and (m&gt;=n)then begin
+      m:= m-n;
+    end else if (m mod 2=1) and (n mod 2=1) and (m&lt;=n)then begin
+      n:= n-m;
+    end;
+  end;
+  {m=0 =&gt; ответ=d*n; n=0 =&gt;  ответ=d*m}  
+</pre>
+
+<p>&nbsp;<br>
+Алгоритм решения уравнения ax+by = 1. <img src="pic/embim1823.gif" width="1" height="1" vspace="1" hspace="1" border="0" alt=""><br>
+<img src="pic/embim1824.png" width="160" height="1" vspace="1" hspace="1" border="0" alt=""><br>
+<p>&nbsp;</p>
+<p>1.Определим матрицу E:</p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>E = </p>
+</td>
+<td ><p>( 1 0 )<br>
+( 0 1 )
+</td>
+</tr>
+</table>
+<p>2. Вычислим r - остаток от деления числа a на b, a=bq+r, 0 &lt;= r &lt; b. </p>
+<p>3. Если r=0, то второй столбец матрицы E даёт вектор ( x, y ) решений уравнения. </p>
+<p>4. Если r =/= 0, то заменим матрицу E матрицей </p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>E * </p>
+</td>
+<td ><p>( 0 1 )<br>
+( 1 -q ) 
+</td>
+</tr>
+</table>
+<p>5. Заменим пару чисел (a,b) на (b,r) и перейдем к шагу 2. </p>
+<p>&nbsp;<br>
+Расширенный алгоритм Евклида. <img src="pic/embim1825.gif" width="1" height="1" vspace="1" hspace="1" border="0" alt=""><br>
+<img src="pic/embim1826.png" width="160" height="1" vspace="1" hspace="1" border="0" alt=""><br>
+<p>&nbsp;</p>
+<p>Алгоритм Евклида можно расширить так, что он не только даст НОД(a,b)=d, но и найдет целые числа x и y, такие что ax + by = d.</p>
+<p>Псевдокод.</p>
+<p>НА ВХОДЕ: два неотрицательных числа a и b: a&gt;=b</p>
+<p>НА ВЫХОДЕ: d=НОД(a,b) и целые x,y: ax + by = d.</p>
+<p>1. Если b=0 положить d:=a, x:=1, y:=0 и возвратить (d,x,y)</p>
+<p>2. Положить x2:=1, x1:=0, y2:=0, y1:=1</p>
+<p>3. Пока b&gt;0</p>
+<p> &nbsp;&nbsp; 3.1 q:=[a/b], r:=a-qb, x:=x2-qx1, y:=y2-qy1</p>
+<p> &nbsp;&nbsp; 3.2 a:=b, b:=r, x2:=x1, x1:=x, y2:=y1, y1:=y</p>
+<p>4. Положить d:=a, x:=x2, y:=y2 и возвратить (d,x,y)</p>
+<p>Исходник на Си.</p>
+<p>/* Author:&nbsp; Pate Williams (c) 1997 */</p>
+<pre name="code" class="cpp">
+#include &lt;stdio.h&gt;
+ 
+#define DEBUG
+ 
+ 
+void extended_euclid(long a, long b, long *x, long *y, long *d)
+ 
+/* calculates a * *x + b * *y = gcd(a, b) = *d */
+ 
+{
+ 
+  long q, r, x1, x2, y1, y2;
+ 
+ 
+  if (b == 0) {
+ 
+    *d = a, *x = 1, *y = 0;
+ 
+    return;
+ 
+  }
+ 
+  x2 = 1, x1 = 0, y2 = 0, y1 = 1;
+ 
+  #ifdef DEBUG
+  printf("------------------------------");
+  printf("-------------------\n");
+  printf("q    r    x    y    a    b    ");
+  printf("x2   x1   y2   y1\n");
+  printf("------------------------------");
+  printf("-------------------\n");
+  #endif
+ 
+  while (b &gt; 0) {
+ 
+    q = a / b, r = a - q * b;
+ 
+    *x = x2 - q * x1, *y = y2 - q * y1;
+ 
+    a = b, b = r;
+ 
+    x2 = x1, x1 = *x, y2 = y1, y1 = *y;
+ 
+    #ifdef DEBUG
+    printf("%4ld %4ld %4ld %4ld ", q, r, *x, *y);
+    printf("%4ld %4ld %4ld %4ld ", a, b, x2, x1);
+    printf("%4ld %4ld\n", y2, y1);
+    #endif
+ 
+  }
+ 
+  *d = a, *x = x2, *y = y2;
+ 
+  #ifdef DEBUG
+  printf("------------------------------");
+  printf("-------------------\n");
+  #endif
+ 
+}
+ 
+ 
+ 
+int main(void)
+{
+ 
+  long a = 4864, b = 3458, d, x, y;
+ 
+  extended_euclid(a, b, &amp;x, &amp;y, &amp;d);
+ 
+  printf("x = %ld y = %ld d = %ld\n", x, y, d);
+ 
+  return 0;
+}
+</pre>
+
+<p>Алгоритм работает за O(log2n) операций.</p>
+<p>&nbsp;<br>
+Нахождение обратного элемента по модулю <img src="pic/embim1827.gif" width="1" height="1" vspace="1" hspace="1" border="0" alt=""><br>
+<img src="pic/embim1828.png" width="160" height="1" vspace="1" hspace="1" border="0" alt=""><br>
+&nbsp;<br>
+<p>&nbsp;</p>
+<p>Для начала заметим, что элемент a кольца Zn обратим тогда и только тогда, когда НОД(a,n)=1. То есть ответ есть не всегда. Из определения обратного элемента прямо следует алгоритм.</p>
+<p>Псевдокод.</p>
+<p>НА ВХОДЕ: а из Zn.</p>
+<p>НА ВЫХОДЕ: обратный к а в кольце, если он существует.</p>
+<p>1. Использовать расширенный алгоритм Евклида для нахождения</p>
+<p> &nbsp; x и y, таких что ax + ny = d, где d=НОД(a,n).</p>
+<p>2. Если d &gt; 1, то обратного элемента не существует.</p>
+<p> &nbsp;&nbsp; Иначе возвращаем x.</p>
+<p>Исходник на Си.</p>
+<pre name="code" class="cpp">
+/*  Author:  Pate Williams (c) 1997 */
+ 
+ 
+#include &lt;stdio.h&gt;
+ 
+void extended_euclid(long a, long b, long *x, long *y, long *d)
+ 
+/* calculates a * *x + b * *y = gcd(a, b) = *d */
+ 
+{
+  long q, r, x1, x2, y1, y2;
+ 
+  if (b == 0) {
+ 
+    *d = a, *x = 1, *y = 0;
+ 
+    return;
+  }
+ 
+  x2 = 1, x1 = 0, y2 = 0, y1 = 1;
+ 
+  while (b &gt; 0) {
+ 
+    q = a / b, r = a - q * b;
+ 
+    *x = x2 - q * x1, *y = y2 - q * y1;
+ 
+    a = b, b = r;
+ 
+    x2 = x1, x1 = *x, y2 = y1, y1 = *y;
+ 
+  }
+ 
+  *d = a, *x = x2, *y = y2;
+ 
+}
+ 
+ 
+long inverse(long a, long n)
+ 
+/* computes the inverse of a modulo n */
+ 
+{
+ 
+  long d, x, y;
+ 
+ 
+  extended_euclid(a, n, &amp;x, &amp;y, &amp;d);
+ 
+  if (d == 1) return x;
+ 
+  return 0;
+ 
+}
+ 
+ 
+int main(void)
+ 
+{
+ 
+  long a = 5, n = 7;
+ 
+ 
+  printf("the inverse of %ld modulo %2ld is %ld\n", a, n, inverse(a, n));
+ 
+  a = 2, n = 12;
+ 
+  printf("the inverse of %ld modulo %2ld is %ld\n", a, n, inverse(a, n));
+ 
+  return 0;
+}
+</pre>
+<p>&nbsp;<br>
+НОК. <img src="pic/embim1829.gif" width="1" height="1" vspace="1" hspace="1" border="0" alt=""><br>
+<img src="pic/embim1830.png" width="160" height="1" vspace="1" hspace="1" border="0" alt=""><br>
+<p>&nbsp;</p>
+<p>НОК( a , b) = a*b / НОД(a, b)<br>
+<p>&nbsp;</p>
+<p><a href="http://algolist.manual.ru" target="_blank">http://algolist.manual.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

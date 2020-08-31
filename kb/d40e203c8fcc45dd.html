@@ -1,0 +1,107 @@
+<html>
+<head>
+  <title>Поговорим о случайных числах в Delphi</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Поговорим о случайных числах в Delphi</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Поговорим о случайных числах в Delphi</p>
+В этой статье я постараюсь рассказать Вам, что такое генератор случайных чисел, как им пользоваться и как всегда рассмотрим примеры использования случайных чисел в Delphi.</p>
+Процедура Randomize</p>
+Эта процедура инициализирует (проще говоря запускает) генератор случайных чисел. Надо также заметить, что генератор случайных чисел может быть инициализирован не только с помощью обращения к Randomize, но и с помощью присвоения переменной RandSeed (об этом поговорим ниже).</p>
+Без инициирования генератора случайных чисел обращения к соответствующим функциям выбора случайного числа всегда будут давать один и тот же результат.</p>
+Получение случайного числа</p>
+Для того, чтобы получить случайное число нужно воспользоваться функцией Random. Вот ее заголовок:</p>
+function Random [ ( Range: Integer) ]; </p>
+Если обращаться к функции без параметров, то она вернет значение типа Real в диапазоне: </p>
+0 &lt;= X &lt; 1 </p>
+А если в качестве параметра указано целое число k, то функция вернет целочисленное значение в диапазоне: </p>
+0 &lt;= X &lt; k, </p>
+или, для наглядности, можно записать так: </p>
+0 &lt;= X &lt;= k-1 </p>
+Важно что реализация функции Random может меняться в зависимости от версии компилятора, поэтому не рекомендуется использовать эту функцию, например, в шифровании. </p>
+Пример использования функции Random. </p>
+Вы легко можете собрать небольшой тир, используя таймер и картинку Image, ну и конечно же генератор случайных чисел. </p>
+Поставим на форму таймер Timer1 и картинку Image1 (не забудьте загрузить в нее изображение) и напишем обработчик события OnTimer </p>
+<pre name="code" class="delphi">
+procedure TForm1.Timer1Timer(Sender: TObject);
+begin
+Randomize; //запускаем генератор случайных чисел
+Image1.left:=Random(Form1.width);
+Image1.top:=Random(Form1.height);
+end; 
+</pre>
+
+Мы просто каждый раз меняем случайным образом координаты изображения, которое начинает двигаться по форме беспорядочно. Хотя здесь было бы логичнее Randomize вызвать один раз при загрузке формы. </p>
+Теперь сделаем реакцию на попадание в картинку. Естественно это событие OnClick для картинки: </p>
+<pre name="code" class="delphi">
+procedure TForm1.Image1Click(Sender: TObject); 
+begin 
+Timer1.Enabled:=false; //остановим таймер 
+Showmessage('Попадание в цель!'); 
+Timer1.Enabled:=true; //запустим его обратно 
+end; 
+</pre>
+
+Здесь можно было бы вести учет очков, уменьшение линии жизни картинки и еще какие-нибудь игровые финты. Увеличить скорость игры можно просто уменьшив свойство Interval таймера </p>
+Вот и готова простая игра. </p>
+Заполним массив с помощью Random </p>
+<pre name="code" class="delphi">
+Randomize;
+//заполним массив
+for i:= 1 to 10 do a[i]:=Random(10);
+ 
+//Выведем массив на канву формы
+for i:= 1 to 10 do Canvas.TextOut(10+10*i,10,IntToStr(a[i])); 
+</pre>
+
+Массив в любом случае будет содержать неотрицательные элементы, чтобы заполнить массив еще и неотрицательными элементами надо написать так: </p>
+<pre name="code" class="delphi">
+for i:= 1 to 10 do a[i]:=Random(20)-10; 
+</pre>
+
+Таким образом диапазон значений массива будет (-10 .. 9) </p>
+Получение случайного числа с помощью RandSeed </p>
+Запустить генератор случайных можно получить и без вызова процедуры Randomize. Это делается с помощью переменной RandSeed. Вот пример, демонстрирующий это: </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var RandSeed: LongInt;
+begin
+RandSeed:=random(10);
+ShowMessage(IntToStr(RandSeed));
+end; 
+</pre>
+
+Вот мы и поговорили о случайных числах в Delphi. Надеюсь, что каждый почерпнет хоть маленько нового для себя в этой статье. </p>
+Источник: <a href="http://delphid.dax.ru" target="_blank">http://delphid.dax.ru</a></p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

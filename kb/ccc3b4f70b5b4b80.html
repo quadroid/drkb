@@ -1,0 +1,75 @@
+<html>
+<head>
+  <title>Получение информации о таблице</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получение информации о таблице</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Вам нужно воспользоваться свойством FieldDefs. В следующем примере список полей и их соответствующий размер передается компоненту TMemo (расположенному на форме) с именем Memo1:</p>
+<pre name="code" class="delphi">
+procedure TForm1.ShowFields;
+var
+  i: Word;
+begin
+  Memo1.Lines.Clear;
+  Table1.FieldDefs.Update;                     
+  { должно быть вызвано, если Table1 не активна }
+  for i := 0 to Table1.FieldDefs.Count - 1 do
+    With Table1.FieldDefs.Items[i] do
+      Memo1.Lines.Add(Name + ' - ' + IntToStr(Size));
+end;
+</pre>
+
+
+<p>Если вам просто нужны имена полей (FieldNames), то используйте метода TTable GetFieldNames:</p>
+<p>GetIndexNames для получения имен индексов:</p>
+<pre name="code" class="delphi">
+var 
+  FldNames, IdxNames : TStringList;
+begin
+  FldNames := TStringList.Create;
+  IdxNames := TStringList.Create;
+  If Table1.State = dsInactive then 
+    Table1.Open;
+  Table1.GetFieldNames(FldNames);
+  Table1.GetIndexNames(IdxNames);
+  {...... используем полученную информацию ......}
+  FldNames.Free; {освобождаем stringlist}
+  IdxNames.Free;
+end;
+</pre>
+
+
+<p>Для получения информации об определенном поле вы должны использовать FieldDef. </p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

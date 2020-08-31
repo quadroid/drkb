@@ -1,0 +1,111 @@
+<html>
+<head>
+  <title>Добавить цветную строку в TRichEdit</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Добавить цветную строку в TRichEdit</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  To color text in a TRichEdit, follow this two steps: 
+ 
+ 
+  1) Select the text with the SelStart, SelLength properties. 
+ 
+  2) Set the text attribtutes through the SelAttributes property. 
+}
+ 
+ { 
+  1. Example/ Beispiel: 
+ 
+  Add a colored line to a TRichEdit: 
+}
+ 
+ procedure AddColoredLine(ARichEdit: TRichEdit; AText: string; AColor: TColor);
+ begin
+   with ARichEdit do
+   begin
+     SelStart := Length(Text);
+     SelAttributes.Color := AColor;
+     SelAttributes.Size := 8;
+     SelAttributes.Name := 'MS Sans Serif';
+     Lines.Add(AText);
+   end;
+ end;
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   AddColoredLine(RichEdit1, 'Hallo', clRed);
+   AddColoredLine(RichEdit1, 'Hallo', clGreen);
+ end;
+ 
+ { 
+  2. Example/ Beispiel: 
+ 
+  To color the 5 characters. 
+  Die ersten 5 Zeichen im Richedit blau einfдrben. 
+}
+ 
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   RichEdit1.SelStart  := 0;
+   RichEdit1.SelLength := 5;
+   RichEdit1.SelAttributes.Color := clBlue;
+ end;
+ 
+ { 
+  3. Example/ Beispiel: ( by www.delphimania.de) 
+ 
+  To color a specified line with a color 
+  So kann eine beliebige Zeile mit einer Farbe gefдrbt werden: 
+}
+ 
+ procedure RE_ColorLine(ARichEdit: TRichEdit; ARow: Integer; AColor: TColor);
+ begin
+   with ARichEdit do
+   begin
+     SelStart := SendMessage(Handle, EM_LINEINDEX, ARow - 1, 0);
+     SelLength := Length(Lines[ARow - 1]);
+     SelAttributes.Color := AColor;
+     SelLength := 0;
+   end;
+ end;
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   ZeileFaerben(RichEdit1, 4, clGreen);
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

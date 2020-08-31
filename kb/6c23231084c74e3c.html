@@ -1,0 +1,55 @@
+<html>
+<head>
+  <title>Как запретить кнопку Close в любом окне?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как запретить кнопку Close в любом окне?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Следующий пример запрещает кнопку закрытия (и пункт "закрыть" (close) в системном меню) нужного нам окна (в данном случае Notepad).</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject); 
+var 
+  hwndHandle : THANDLE; 
+  hMenuHandle : HMENU; 
+begin 
+  hwndHandle := FindWindow(nil, 'Untitled - Notepad'); 
+  if (hwndHandle &lt;&gt; 0) then begin 
+    hMenuHandle := GetSystemMenu(hwndHandle, FALSE); 
+    if (hMenuHandle &lt;&gt; 0) then 
+      DeleteMenu(hMenuHandle, SC_CLOSE, MF_BYCOMMAND); 
+  end; 
+end; 
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

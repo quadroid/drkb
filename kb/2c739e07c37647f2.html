@@ -1,0 +1,73 @@
+<html>
+<head>
+  <title>Как преобразовать длинный IP-адрес в короткий адрес / порт?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как преобразовать длинный IP-адрес в короткий адрес / порт?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Некоторые старые internet протоколы ( такие как FTP ) посылают IP адреса и номера портов в шестизначном формате XXX.XXX.XXX.XXX.XX.XXX&nbsp; Следующий код позволяет преобразовать такой адрес к нормальному четырёхзначному IP адресу.</p>
+<pre name="code" class="delphi">
+procedure LongIPToShort(aLongIPAddress: string; out ShortIPAddress: string; out PortNumber: Integer);
+var I, DotPos, tempPort: Integer;
+var tempAddy, temp: string;
+var TempStr: string;
+begin
+  tempAddy := '';
+  tempStr := '';
+// Определяем, какой символ использует отправитель в качестве разделителя длинного IP: , или .
+ 
+  if (POS(',', aLongIPAddress) &lt;&gt; 0) then
+    TempStr := ','
+  else
+    TempStr := '.';
+ 
+  for I := 1 to 4 do
+    begin
+      DotPOS := POS(TempStr, aLongIPAddress);
+      tempAddy := tempAddy + (Copy(aLongIPAddress, 1, (DotPos - 1)));
+      if I &lt;&gt; 4 then TempADdy := TempAddy + '.';
+      Delete(aLongIpAddress, 1, DotPos);
+    end;
+  DotPos := Pos(TempStr, aLongIpAddress);
+  temp := Copy(aLongIpAddress, 1, (DotPos - 1));
+  tempPort := (StrToInt(temp) * 256);
+  Delete(aLongIpAddress, 1, DotPos);
+  TempPort := tempPort + StrToInt(ALongIpAddress);
+  ShortIPAddress := TempADdy;
+  PortNumber := tempPort;
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<html>
+<head>
+  <title>Реализация ADO в Delphi</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Реализация ADO в Delphi</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Механизм доступа к данным через ADO и многочисленные объекты и интерфейсы реализованы в VCL Delphi в виде набора компонентов, расположенных на странице ADO. Все необходимые интерфейсы, обеспечивающие работу компонентов, объявлены и описаны в файлах OleDB.pas и ADODB.pas в папке \Delphi7\Source\Vcl. </p>
+
+<p>Компонент TADOConnection вобрал возможности перечислителя, источника данных и сессии с возможностями обслуживания транзакций. </p>
+
+<p>Текстовые команды ADO реализованы в компоненте TADOCommand. </p>
+
+<p>Наборы рядов (нотация Microsoft) можно получить при помощи компонентов TADOTable, TADOQuery, TADOstoredProc. Каждый из них реализует способ доступа к конкретному типу представления данных в хранилище. Далее по тексту, применительно к компонентам Delphi, совокупность возвращаемых из хранилища данных строк будем называть набором записей, что соответствует документации Inprise (см. www.borland.com или www.borland.ru) и стилю изложения предыдущих глав. </p>
+
+<p>Набор свойств и методов компонентов ADO обеспечивает реализацию всех необходимых приложению БД функций. Способы использования компонентов ADO немногим отличаются от стандартных компонентов VCL доступа к данным (см. гл. 11). </p>
+
+<p>Однако при необходимости разработчик может использовать все возможности интерфейсов ADO, обращаясь к ним через соответствующие объекты ADO. </p>
+
+<p>Компоненты доступа к данным ADO могут использовать два варианта подключения к хранилищу данных. Это стандартный метод ADO и стандартный метод Delphi. </p>
+
+<p>В первом случае компоненты используют свойство connectionstring для прямого обращения к хранилищу данных. Во втором случае используется специальный компонент TADOConnection, который обеспечивает расширенное управление соединением и позволяет обращаться к данным нескольким компонентам одновременно. </p>
+
+<p>Свойство connectionstring предназначено для хранения информации о соединении с объектом ADO. В нем через точку с запятой перечисляются все необходимые параметры. Как минимум, это должны быть имена провайдера соединения или удаленного сервера: </p>
+
+<p>Connectionstring:='Remote Server=ServerName;Provider=ProviderName'; </p>
+
+<p> При необходимости указываются путь к удаленному провайдеру: </p>
+
+<p>Connectionstring:='Remote Provider=ProviderName'; </p>
+
+<p>и параметры, необходимые провайдеру: </p>
+
+<p>'User Name=User_Name;Password=Password'; </p>
+
+<p>Каждый компонент, обращающийся к хранилищу данных ADO самостоятельно, задавая параметры соединения в свойстве Connectionstring, открывает собственное соединение. Чем больше приложение содержит компонентов ADO, тем больше соединений может быть открыто одновременно. </p>
+
+<p>Поэтому целесообразно реализовать механизм соединения ADO через специальный компонент &#8212; TADOConnection. Этот компонент открывает соединение, также заданное свойством Connectionstring (см. выше), и предоставляет разработчику дополнительные средства управления соединением. </p>
+
+<p>Компоненты, работающие с хранилищем данных ADO через данное соединение, подключаются к компоненту TADOConnection при помощи свойства </p>
+
+<p>property Connection: TADOConnection; </p>
+
+<p>которое имеет каждый компонент, инкапсулирующий набор данных ADO. </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

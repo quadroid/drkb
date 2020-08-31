@@ -1,0 +1,85 @@
+<html>
+<head>
+  <title>Как добавить группу в Program Manager?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как добавить группу в Program Manager?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+interface
+ 
+procedure CreateGroup;
+ 
+implementation
+ 
+procedure TSetupForm.CreateGroup;
+{ Для установки группы в Program Manager используем компонент TProgMan }
+var
+  ItemList: TStringList;
+  GroupName: string;
+  ItemName: string;
+  i: word;
+begin
+  { Получаем из INI-файла строку GroupName }
+  GroupName := IniFile.ReadString('General', 'PMGroup', '');
+  { Если один есть, устанавливаем группу }
+  if GroupName &lt;&gt; '' then
+  begin
+    ItemList := TStringList.Create;
+    try
+      { читаем элементы для установки }
+      IniFile.ReadSectionValues('PMGroup', ItemList);
+      with TProgMan.Create(Self) do
+      try
+        CreateGroup(GroupName);
+        for i := 0 to ItemList.Count - 1 do
+        begin
+          { получаем имя файла } ItemName := Copy(ItemList.Strings[i], 1,
+            Pos('=',
+            ItemList.Strings[i]) - 1);
+          { прибавляем путь к имени файла и добавляем элемент }
+          AddItem(GetTarget(ItemList.Values[ItemName][1]) + ItemName, ItemName);
+        end;
+      finally
+        Free;
+      end;
+    finally
+      ItemList.Free;
+    end;
+  end;
+end;
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

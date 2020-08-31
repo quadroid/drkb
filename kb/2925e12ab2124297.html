@@ -1,0 +1,118 @@
+<html>
+<head>
+  <title>Как перевести компьютер в Stend by или Hibernate?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как перевести компьютер в Stend by или Hibernate?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{
+  The SetSuspendState function suspends the system by shutting power down.
+  Depending on the Hibernate parameter,
+  the system either enters a suspend (sleep) state or hibernation.
+ 
+  Syntax:
+}
+ 
+ function SetSuspendState(
+   Hibernate: Boolean,
+   ForceCritical: Boolean,
+   DisableWakeEvent: Boolean);
+ 
+ 
+{  Parameters:
+ 
+   Hibernate: If this parameter is TRUE, the system hibernates.
+              If the parameter is FALSE, the system is suspended.
+   ForceCritical: If this parameter is TRUE, the system suspends operation immediately;
+                  if it is FALSE, the system broadcasts a PBT_APMQUERYSUSPEND event to
+                  each application to request permission to suspend operation.
+   DisableWakeEvent: If this parameter is TRUE, the system disables all wake events.
+                     If the parameter is FALSE, any system wake events remain enabled.
+ 
+ 
+  Windows NT/2000/XP: Included in Windows 2000 and later.
+  Windows 95/98/Me: Included in Windows 98 and later.
+}
+ 
+var
+  _SetSuspendState: function (Hibernate, ForceCritical, DisableWakeEvent: BOOL): BOOL
+  stdcall = nil;
+ 
+  function LinkAPI(const module, functionname: string): Pointer; forward;
+ 
+function SetSuspendState(Hibernate, ForceCritical,
+  DisableWakeEvent: Boolean): Boolean;
+begin
+  if not Assigned(_SetSuspendState) then
+    @_SetSuspendState := LinkAPI('POWRPROF.dll', 'SetSuspendState');
+  if Assigned(_SetSuspendState) then
+    Result := _SetSuspendState(Hibernate, ForceCritical,
+      DisableWakeEvent)
+  else
+    Result := False;
+end;
+ 
+function LinkAPI(const module, functionname: string): Pointer;
+var
+  hLib: HMODULE;
+begin
+  hLib := GetModulehandle(PChar(module));
+  if hLib = 0 then
+    hLib := LoadLibrary(PChar(module));
+  if hLib &lt;&gt; 0 then
+    Result := getProcAddress(hLib, PChar(functionname))
+  else
+    Result := nil;
+end;
+ 
+// Example Call:
+// Beispielaufruf:
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  SetSuspendState(True, False, False);
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+
+<hr />
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   SendMessage(Handle, WM_SYSCOMMAND, SC_SCREENSAVE, 1);
+ end
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

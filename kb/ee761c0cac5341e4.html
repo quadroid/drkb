@@ -1,0 +1,118 @@
+<html>
+<head>
+  <title>Создание базы данных в run-time с ZEOS?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создание базы данных в run-time с ZEOS?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="note">Примечание от Vit</p>
+<p>Zeos - популярный бесплатный пакет доступа к базам данных, подробности см. на sourceforge.net</p>
+<pre name="code" class="delphi">
+{
+ This unit creates a database on a Interbase-Server at run-time.
+ The IBConsole is no longer needed.
+ You can execute an SQL script to create tables.
+ Try it out!
+}
+ 
+ 
+unit Unit1;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ZTransact, ZIbSqlTr, DB, ZQuery, ZIbSqlQuery,
+  ZConnect, ZIbSqlCon;
+ 
+type
+  TForm1 = class(TForm)
+    Button1: TButton;
+    Memo1: TMemo;
+    Button2: TButton;
+    ZIbSqlQuery1: TZIbSqlQuery;
+    ZIbSqlTransact1: TZIbSqlTransact;
+    ZIbSqlDatabase1: TZIbSqlDatabase;
+    Button3: TButton;
+    procedure Button1Click(Sender: TObject);   // Caption/ 
+    procedure Button2Click(Sender: TObject);   // Caption/ 
+    procedure Button3Click(Sender: TObject);   // Caption/ 
+  private
+  public
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+// Creating the database
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  ZIbSqlDatabase1.Database := '&lt;&lt;Pfad zu Datenbank&gt;&gt;';// Path to Database
+  ZIbSqlDatabase1.Host := 'testserver';
+  ZIbSqlDatabase1.Password := 'masterkey';
+  ZIbSqlDatabase1.Login := 'SYSDBA';
+  ZIbSqlDatabase1.CreateDatabase('');
+end;
+ 
+// Execute the SQL-Script in the memo
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  ZIbSqlDatabase1.Database := '&lt;&lt;Pfad zu Datenbank&gt;&gt;'; // Path to Database
+  ZIbSqlDatabase1.Host := 'testserver';
+  ZIbSqlDatabase1.Password := 'masterkey';
+  ZIbSqlDatabase1.Login := 'SYSDBA';
+  ZIbSqlQuery1.SQL.Clear;
+  ZIbSqlQuery1.SQL.AddStrings(memo1.Lines);
+  ZIbSqlQuery1.ExecSQL;
+end;
+ 
+// Deleted the database
+procedure TForm1.Button3Click(Sender: TObject);
+begin
+  ZIbSqlDatabase1.Database := '&lt;&lt;Pfad zu Datenbank&gt;&gt;'; // Path to Database
+  ZIbSqlDatabase1.Host := 'testserver';
+  ZIbSqlDatabase1.Password := 'masterkey';
+  ZIbSqlDatabase1.Login := 'SYSDBA';
+  ZIbSqlDatabase1.DropDatabase;
+end;
+ 
+end.
+</pre>
+
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

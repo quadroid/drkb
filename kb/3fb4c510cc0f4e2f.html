@@ -1,0 +1,81 @@
+<html>
+<head>
+  <title>Помещение компонентов в TStringGrid</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Помещение компонентов в TStringGrid</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Neil Rubenking </p>
+
+<p>Некоторое время тому назад такой вопрос уже ставился: возможно ли поместить элемент управления, например, CheckBox или ComboBox внутрь компонента ...Grid. Я сегодня помозговал и нашел неплохую, на мой взгляд, технологию. Это работает! Вот решение для тех, кто этим интересуется: </p>
+
+<p>При создании компонента (в обработчике OnCreate), создайте его объекты Objects[C,R], например TCheckBox.Create(Self). Имейте в виду, что вы должны присвоить ячейкам Cells[C,R] какие-либо значения прежде, чем чем вы сможете иметь доступ к Objects[C,R]. Установите у вновь созданного компонента свойство Visible в FALSE, а свойство parent в SELF. Осуществите другую необходимую инициализацию. Имейте в виду, что вы должны внести необходимые модули в список uses, если создаете тип компонента, которого нигде кроме как на форме нет. </p>
+
+<p>Создайте процедуру, берущую координаты колонки/строки и правильно позиционирующую соотвествующий объект в пределах прямоугольника ячейки, например:</p>
+
+<pre name="code" class="delphi">
+procedure TForm1.FixObjPosn(vCol, vRow: LongInt);
+{Размещаем содержимое компонента в области прямоугольника ячейки}
+var
+  R: TRect;
+begin
+  R := StringGrid1.CellRect(vCol, vRow);
+  if StringGrid1.Objects[vCol, vRow] is TControl then
+    with TControl(StringGrid1.Objects[vCol, vRow]) do
+      if R.Right = R.Left then {прямоугольник ячейки невидим}
+        Visible := False
+      else
+      begin
+        InflateRect(R, -1, -1);
+        OffsetRect(R, StringGrid1.Left + 1, StringGrid1.Top + 1);
+        BoundsRect := R;
+        Visible := True;
+      end;
+end;
+</pre>
+
+
+
+<p>смещение позиции необходимо, поскольку CellRect расчитывается относительно верхнего левого угла строки сетки, и родителем компонента является форма). </p>
+
+<p>В обработчике события сетки OnSelectCell проверьте, располагается ли элемент Objects в текущей колонке Col и строке Row TControl - если так, установите его свойство visible в FALSE. Теперь вызовите процедуру установления координат из шага 2 для *НОВЫХ* Col и Row, передавая их из параметров обработчика события в параметры функции. </p>
+
+<p>В обработчике OnTopLeftChanged просто вызовите FixObjPosn </p>
+
+<p>В обработчике события OnDrawCell во-первых, если ячейка выбрана, EXIT. Если элемент ячейки Objects не TControl, также EXIT. В противном случае вам нужно создать код, обеспечивающий отрисовку "фасада" каждого типа элемента управления, которого вы разместили в сетке. </p>
+
+<p>Обратите внимание на то, что если вы делаете что-либо с элементом управления, на который влияют ДРУГИЕ элементы управления (например, изменение статуса какой-либо радиокнопки из группы, или операции enable/disable), вы должны вызвать метод сетки Refresh.</p>
+
+<p>Опс! Это звучит немного запутанно, но это работает. Успехов!</p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

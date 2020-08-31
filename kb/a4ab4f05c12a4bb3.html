@@ -1,0 +1,85 @@
+<html>
+<head>
+  <title>Реализовать фоновую работу программы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Реализовать фоновую работу программы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Попробуйте запустить программу. Пока компьютер ничего не делает, рисунок на окне все время меняется, но, стоит загрузить компьютер какой-либо работой, и изменение фона прекращается. В этой программе можно подвигать мышью по окну &#8211; это приведет к сравнительно сложным действиям, поэтому фоновая работа программы временно прекратится. </p>
+<pre name="code" class="delphi">
+ 
+...
+public
+  Row: integer;
+  procedure OnIdleProc(Sender: TObject; var Done: Boolean);
+...
+procedure TForm1.FormCreate(Sender: TObject);
+ 
+begin
+  Application.OnIdle := OnIdleProc;
+end;
+ 
+procedure TForm1.OnIdleProc(Sender: TObject; var Done: Boolean);
+var
+  i: integer;
+  col: TColor;
+  Gray: integer;
+begin
+  for i := 0 to Form1.ClientWidth - 1 do begin
+    col := Form1.Canvas.Pixels[i, Row];
+    Gray := GetRValue(col) + round(30 * sin(i / 30 + Row / 50));
+    Form1.Canvas.Pixels[i, Row] := RGB(Gray, Gray, Gray);
+  end;
+ 
+  inc(Row);
+  if (Row = Form1.ClientHeight) then Row := 0;
+  Done := false;
+end;
+ 
+procedure TForm1.FormMouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+var
+  i: integer;
+begin
+  with Form1.Canvas do begin
+    Brush.Style := bsClear;
+    for i := 0 to 1000 do begin
+      Pen.Color := RGB(i, i, i);
+      Rectangle(X - i, Y - i, X + i, Y + i);
+ 
+    end;
+  end;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

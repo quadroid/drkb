@@ -1,0 +1,408 @@
+<html>
+<head>
+  <title>БД &ndash; хранилище объектов (статья)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">БД &ndash; хранилище объектов (статья)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Классической методикой проектирования БД является создание отдельной таблицы для каждой описываемой моделью данных сущности, затем, в процессе нормализации &#8211; выделение отдельных таблиц для хранения атрибутов сущности (таблицы-справочники). Такой подход хорошо работает для БД с относительно небольшим количеством описываемых объектов (десятки) и при несложных и статичных связях между ними. Однако, любое изменение структуры хранимых данных приводит к внесению изменений в структуру таблиц, эти данные отображающих. Несложная на этапе разработки, эта операция становится крайне проблематичной при больших объемах данных и отсутствии у разработчика непосредственного доступа к БД (например, если она стоит у заказчика). Многим, наверное, знакомы громоздкие, медленные и требующие огромного дискового пространства операции по конвертированию БД при переходе на новую версию продукта. Не менее неприятна работа с БД, исторически разросшейся до сотен таблиц, структуру которой сложно даже изобразить в читабельном виде. В связи с этим встает вопрос &#8211; а нельзя ли создать структуру данных, не требующую переделок при появлении новых сущностей, позволяющую хранить произвольную информацию и при этом достаточно простую и эффективную? Чудес, увы, не бывает. Любая универсальная система менее эффективна, чем специализированная. Однако, возможно создание решения, сочетающего приемлемую производительность и простоту с достаточной степенью универсальности.</p>
+
+Базовые тезисы</p>
+<p>Прежде чем продолжать, необходимо сформулировать основные принципы, на которых будет строиться проектируемая БД.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Каждая сущность, информация о которой хранится в БД &#8211; это объект</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>Каждый объект уникален в пределах БД и имеет уникальный идентификатор.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>Объект имеет свойства (строковые, числовые, временные, перечислимые), которые описывают атрибуты сущности.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">4.</td><td>Объекты могут быть связаны между собой произвольным образом. Связь характеризуется связанными объектами и типом связи. Например, сотрудник фирмы может быть связан с отделом, в котором он работает связью типа «сотрудник в отделе» и т.п. Связь в некотором роде аналогична понятию ссылки на таблицу-справочник в традиционной модели БД.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">5.</td><td>Объект может быть хранилищем. В этом случае допускается хранение на нем других объектов (например, товара на складе).</td></tr></table></div>Такая БД не привязана ни к какой бизнес модели и позволяет реализовать «над собой» практически любую бизнес-логику. Логика выделяется в отдельный программный слой и, как правило, реализуется на сервере приложений, где по запросу клиента создаются объекты, загружающие информацию о себе из БД и реализующие «поведение» объектов реального мира. В то же время, в силу однообразности модели хранения эти объекты несложно создаются на основе базовых классов, инкапсулирующих функциональность по загрузке и сохранению свойств и связей в БД.</p>
+
+Объекты</p>
+<p>Объект в нашей БД &#8211; это скорее логическое понятие, его главное назначение &#8211; предоставить уникальный идентификатор, по которому он будет отличаться. Кроме этого, каждый объект обладает типом. Типы описываются таблицей:</p>
+ObjType &nbsp; &nbsp; &nbsp; 
+Id INTEGER &nbsp; &nbsp; &nbsp; &nbsp;Первичный ключ &nbsp; &nbsp; &nbsp; 
+Code CHAR(10) NOT NULL UNIQUE &nbsp; &nbsp; &nbsp; &nbsp;Краткое название типа. Используется в программе для поиска объектов данного типа &nbsp; &nbsp; &nbsp; 
+ItemName CHAR(30) &nbsp; &nbsp; &nbsp; &nbsp;Полное название типа, используется только для интерфейса. &nbsp; &nbsp; &nbsp; 
+<p>Типами объектов может быть, например «Фирма», «Сотрудник», «Товар»</p>
+<p>Для упрощения не будем реализовывать наследования, отмечу лишь, что для этого необходимо ввести в ObjType поле ParentId, ссылающееся на Id наследника.</p>
+<p>Сами объекты хранятся в таблице</p>
+Objects &nbsp; &nbsp; &nbsp; 
+Id INTEGER &nbsp; &nbsp; &nbsp; &nbsp;Первичный ключ &nbsp; &nbsp; &nbsp; 
+TypeId INTEGER REFERENCES ObjType(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на тип объекта &nbsp; &nbsp; &nbsp; 
+ItemName CHAR(50) &nbsp; &nbsp; &nbsp; &nbsp;Название объекта &nbsp; &nbsp; &nbsp; 
+<p>Поле Objects.ItemName заслуживает отдельного обсуждения. В этом поле хранится строка, описывающая объект и (часто) дублирующая одно из его свойств, либо формируемая как сочетание нескольких свойств (например, номер и дата договора, фамилия и инициалы человека). Такой подход приводит к известному дублированию информации и потенциальным аномалиям обновления. Однако, при работе через сервер приложений&nbsp; формирование этого поля реализуется очень просто, а при выводе в интерфейсе списков объектов получение наименования из этого поля существенно повышает общее быстродействие базы данных. В то же время, в системах, где преимущественно производится ввод информации и мало операций по её выборке можно отказаться от него, что позволит уменьшить накладные затраты на его формирование и обновление. </p>
+<p>Таким образом, мы получаем возможность, хранить объекты произвольного количества типов. Выборка объектов конкретного типа производится запросом вида</p>
+<pre name="code" class="sql">
+SELECT O.Id, O.ItemName, OT.ItemName
+  FROM Objects O
+   INNER JOIN ObjType OT ON O.TypeId = OT.Id
+ WHERE OT.Code = 'EMPLOYEE'
+</pre>
+
+
+<p>Однако, наименования явно недостаточно для описания произвольного объекта из реального мира. Поэтому дополним создаваемую БД группой таблиц для описания свойств объектов.</p>
+
+Свойства</p>
+<p>Свойства объектов отражают реальные атрибуты описываемых ими сущностей. Все они принадлежат к какому-то объекту и содержат некую информацию об атрибуте и его величине, причем список атрибутов общий для всех объектов одного и того же типа.</p>
+<p>Величина же может выражаться данными различного типа. Будем хранить в БД атрибуты следующих типов:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Строковые</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Числовые. Различия между целыми и вещественными числами делать не будем, полагая целые подмножеством вещественных. Если задача диктует невозможность применения данного подхода &#8211; придется выделять эти атрибуты в различные типы</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Исторические (дата и время)</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Перечислимые (например, форма собственности фирмы)</td></tr></table></div>
+Строковые атрибуты</p>
+<p>Для описания атрибутов заведем таблицу</p>
+StrDesc &nbsp; &nbsp; &nbsp; 
+Id INTEGER &nbsp; &nbsp; &nbsp; &nbsp;Первичный ключ &nbsp; &nbsp; &nbsp; 
+TypeId INTEGER REFERENCES ObjType(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на тип объекта &nbsp; &nbsp; &nbsp; 
+Code CHAR(10) &nbsp; &nbsp; &nbsp; &nbsp;Краткое название параметра &nbsp; &nbsp; &nbsp; 
+ItemName CHAR(30) &nbsp; &nbsp; &nbsp; &nbsp;Полное название параметра, используется только для интерфейса. &nbsp; &nbsp; &nbsp; 
+<p>При настройке БД, для каждого типа объектов задается набор свойств данного типа. Так, например, объект типа «EMPLOYEE» (Сотрудник) может иметь строковые свойства:</p>
+«FAMILY» - фамилия</p>
+«FIRSTNAME» - имя</p>
+«LASTNAME» - отчество</p>
+«ADDRESS» - адрес</p>
+«EMAIL» - адрес электронной почты</p>
+<p>Поле Objects.ItemName для сотрудников заполняется сервером приложений как комбинация из атрибутов FAMILY + FIRSTNAME + LASTNAME</p>
+<p>Сами атрибуты хранятся в таблице</p>
+Strings &nbsp; &nbsp; &nbsp; 
+Id INTEGER &nbsp; &nbsp; &nbsp; &nbsp;Первичный ключ &nbsp; &nbsp; &nbsp; 
+TypeId INTEGER REFERENCES StrDesc(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на тип параметра &nbsp; &nbsp; &nbsp; 
+ObjectId INTEGER REFERENCES Objects(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на объект &nbsp; &nbsp; &nbsp; 
+Value VARCHAR(255) &nbsp; &nbsp; &nbsp; &nbsp;Значение параметра &nbsp; &nbsp; &nbsp; 
+<p>Чтобы получить список сотрудников, имеющих E-Mail можно использовать запрос:</p>
+<pre name="code" class="sql">
+SELECT O.ItemName, S.Value
+  FROM Objects O
+   INNER JOIN ObjType OT ON O.TypeId = OT.Id
+   INNER JOIN Strings S ON O.Id = S.ObjectId
+   INNER JOIN StrDesc SD ON S.TypeId = SD.Id
+ WHERE OT.Code = 'EMPLOYEE'
+   AND SD.TypeId = OT.Id
+   AND SD.Code = 'EMAIL'
+</pre>
+
+
+<p>Для получения списка всех сотрудников, с указанием адресов электронной почты для тех, у кого они есть запрос надо модифицировать:</p>
+<pre name="code" class="sql">
+SELECT O.ItemName, S.Value
+  FROM Objects O
+   INNER JOIN ObjType OT ON O.TypeId = OT.Id
+   LEFT JOIN Strings S ON O.Id = S.ObjectId
+   LEFT JOIN StrDesc SD ON S.TypeId = SD.Id
+ WHERE OT.Code = 'EMPLOYEE'
+   AND SD.TypeId = OT.Id
+   AND SD.Code = 'EMAIL'
+</pre>
+
+
+<p>Интересный эффект можно получить, создав у различных типов объектов атрибуты с одинаковыми значениями поля Code. Предположим, что у объектов типов EMPLOYEE (сотрудник) и FIRM (организация) есть строковые атрибуты с одинаковым именем 'EMAIL'. Тогда можно одним запросом получить адресную книгу по всем известным в БД почтовым адресам.</p>
+<pre name="code" class="sql">
+SELECT O.ItemName, OT.ItemName, S.Value
+  FROM Objects O
+   INNER JOIN ObjType OT ON O.TypeId = OT.Id
+   INNER JOIN Strings S ON O.Id = S.ObjectId
+   INNER JOIN StrDesc SD ON S.TypeId = SD.Id
+ WHERE SD.Code = 'EMAIL'
+ORDER BY OT.ItemName, O.ItemName
+</pre>
+
+
+<p>Если впоследствии добавится еще какой-то объект, имеющий аналогичный атрибут &#8211; его наличие будет немедленно учтено и он появится в списке без каких-либо модификаций БД и запросов. Добиться подобного результата в БД с традиционной структурой будет, как минимум, сложно.</p>
+
+Числовые атрибуты</p>
+<p>Для простоты будем предполагать, что для хранения любых числовых атрибутов достаточно одного типа данных, например DECIMAL(20,4). В серверах, поддерживающих тип MONEY удобно реализовывать хранение на базе этого типа. Если же логика БД требует выделения отдельного целого, либо другого типа данных &#8211; можно сделать это путем выделения для него отдельной группы таблиц. В остальном, хранение значений этого типа аналогично строковым. Описание атрибутов хранится в таблице:</p>
+PropDesc &nbsp; &nbsp; &nbsp; 
+Id INTEGER &nbsp; &nbsp; &nbsp; &nbsp;Первичный ключ &nbsp; &nbsp; &nbsp; 
+TypeId INTEGER REFERENCES ObjType(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на тип объекта &nbsp; &nbsp; &nbsp; 
+Code CHAR(10) &nbsp; &nbsp; &nbsp; &nbsp;Краткое название параметра &nbsp; &nbsp; &nbsp; 
+ItemName CHAR(30) &nbsp; &nbsp; &nbsp; &nbsp;Полное название параметра, используется только для интерфейса. &nbsp; &nbsp; &nbsp; 
+<p>А сами атрибуты &#8211; в таблице:</p>
+Properties &nbsp; &nbsp; &nbsp; 
+Id INTEGER &nbsp; &nbsp; &nbsp; &nbsp;Первичный ключ &nbsp; &nbsp; &nbsp; 
+TypeId INTEGER REFERENCES PropDesc(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на тип параметра &nbsp; &nbsp; &nbsp; 
+ObjectId INTEGER REFERENCES Objects(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на объект &nbsp; &nbsp; &nbsp; 
+Value DECIMAL(20,4) &nbsp; &nbsp; &nbsp; &nbsp;Значение параметра. На серверах, поддерживающих тип данных MONEY (аналог Currency в Delphi), удобно использовать этот тип. &nbsp; &nbsp; &nbsp; 
+<p>При необходимости возможно дополнение таблицы PropDesc дополнительными полями, задающими минимальное и максимальное значение атрибута, значение по умолчанию и т.п. Проверка корректности этих значений может осуществляться в триггере на изменение таблицы Properties</p>
+
+Исторические атрибуты</p>
+<p>Многие объекты в процессе своей «жизни» изменяют своё состояние. Так, сотрудник может быть принят на работу, уволен, снова принят, товар оприходован и продан и т.д. Для описания состояний объекта служит таблица:</p>
+Status &nbsp; &nbsp; &nbsp; 
+Id INTEGER &nbsp; &nbsp; &nbsp; &nbsp;Первичный ключ &nbsp; &nbsp; &nbsp; 
+TypeId INTEGER REFERENCES ObjType(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на тип объекта &nbsp; &nbsp; &nbsp; 
+Code CHAR(10) &nbsp; &nbsp; &nbsp; &nbsp;Краткое название состояния &nbsp; &nbsp; &nbsp; 
+ItemName CHAR(30) &nbsp; &nbsp; &nbsp; &nbsp;Полное название состояния, используется только для интерфейса. &nbsp; &nbsp; &nbsp; 
+<p>Например, для человека допустимые состояния могут включать:</p>
+«WASBORN» - Дата рождения</p>
+«EMPLOYEED» - Принят на работу</p>
+«DISMISS» - Уволен</p>
+<p>При этом, возможно реализовать логику, когда любое состояние может возникать многократно, например человек может быть принят, уволен, потом опять принят и т.п.</p>
+<p>Сама история состояний хранится в таблице:</p>
+History &nbsp; &nbsp; &nbsp; 
+Id INTEGER &nbsp; &nbsp; &nbsp; &nbsp;Первичный ключ &nbsp; &nbsp; &nbsp; 
+StatusId INTEGER REFERENCES Status(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на тип состояния &nbsp; &nbsp; &nbsp; 
+ObjectId INTEGER REFERENCES Objects(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на объект &nbsp; &nbsp; &nbsp; 
+ItemDate DATETIME &nbsp; &nbsp; &nbsp; &nbsp;Дата возникновения состояния &nbsp; &nbsp; &nbsp; 
+<p>При изменении состояния объекта в History добавляется запись со ссылкой на это состояние и датой его возникновения. Например, при увольнении сотрудника, в его историю состояний добавляется запись с датой увольнения и ссылкой на состояние «DISMISS». Если этот же человек снова принят на работу &#8211; достаточно добавить новую запись с датой приема и ссылкой на состояние «EMPLOYEED». Список сотрудников, числящихся на работе на любую интересующую дату, может быть получен запросом вида:</p>
+<pre name="code" class="sql">
+SELECT O.ItemName, H.ItemDate AS Employeed
+  FROM Objects O
+   INNER JOIN ObjType OT ON O.TypeId = OT.Id
+   INNER JOIN History H ON H.ObjectId = O.Id
+   INNER JOIN Status S ON H.StatusId = S.Id
+WHERE OT.Code = 'EMPLOYEE'
+  AND S.Code = 'EMPLOYEED'
+  AND H.ItemDate = (SELECT MAX(H1.ItemDate)
+                      FROM History H1
+                       INNER JOIN Status S1 ON H1.StatusId = S1.Id
+                      WHERE H1.ObjectId = O.Id
+                        AND H.ItemDate &lt;= :DateParam
+                        AND S1.Code IN ('EMPLOYEED', 'DISMISS'))
+</pre>
+
+
+
+Перечислимые атрибуты</p>
+<p>Последним видом атрибутов будут перечислимые типы, которые могут принимать одно из заранее заданного набора значений. Для этих данных нам понадобится не две, как для остальных, а три таблицы. Первая из них задаёт, какие перечисления допустимы для выбранного типа объекта:</p>
+EnumDesc &nbsp; &nbsp; &nbsp; 
+Id INTEGER &nbsp; &nbsp; &nbsp; &nbsp;Первичный ключ &nbsp; &nbsp; &nbsp; 
+TypeId INTEGER REFERENCES ObjType(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на тип объекта &nbsp; &nbsp; &nbsp; 
+Code CHAR(10) &nbsp; &nbsp; &nbsp; &nbsp;Краткое название состояния &nbsp; &nbsp; &nbsp; 
+ItemName CHAR(30) &nbsp; &nbsp; &nbsp; &nbsp;Полное название состояния, используется только для интерфейса. &nbsp; &nbsp; &nbsp; 
+<p>Вторая &#8211; определяет возможные значения для перечислимого типа:</p>
+EnumValues &nbsp; &nbsp; &nbsp; 
+Id INTEGER &nbsp; &nbsp; &nbsp; &nbsp;Первичный ключ &nbsp; &nbsp; &nbsp; 
+DescId INTEGER REFERENCES EnumDesc(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на тип перечисления &nbsp; &nbsp; &nbsp; 
+Code CHAR(10) &nbsp; &nbsp; &nbsp; &nbsp;Краткое название значения &nbsp; &nbsp; &nbsp; 
+ItemName CHAR(30) &nbsp; &nbsp; &nbsp; &nbsp;Полное название значения, используется только для интерфейса. &nbsp; &nbsp; &nbsp; 
+<p>И третья &#8211; непосредственно хранит значения, связанные с объектом:</p>
+Enums &nbsp; &nbsp; &nbsp; 
+Id INTEGER &nbsp; &nbsp; &nbsp; &nbsp;Первичный ключ &nbsp; &nbsp; &nbsp; 
+ValueId INTEGER REFERENCES EnumValues(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на значение &nbsp; &nbsp; &nbsp; 
+ObjectId INTEGER REFERENCES Objects(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на объект &nbsp; &nbsp; &nbsp; 
+<p>Типичным примером использования этого типа данных является форма собственности фирмы. Для её определения необходимо вставить в EnumDesc строку </p>
+TypeId  &nbsp; &nbsp; &nbsp; &nbsp;Code &nbsp; &nbsp; &nbsp; &nbsp;ItemName &nbsp; &nbsp; &nbsp; 
+Ссылка на ObjType для типа «FIRM» &nbsp; &nbsp; &nbsp; &nbsp;OWNERFORM &nbsp; &nbsp; &nbsp; &nbsp;Форма собственности &nbsp; &nbsp; &nbsp; 
+<p>И в EnumValues:</p>
+DescId &nbsp; &nbsp; &nbsp; &nbsp;Code &nbsp; &nbsp; &nbsp; &nbsp;ItemName &nbsp; &nbsp; &nbsp; 
+Ссылка на EnumDesc для  &nbsp; &nbsp; &nbsp; &nbsp;ИЧП &nbsp; &nbsp; &nbsp; &nbsp;Индивидуальное частное предприятие &nbsp; &nbsp; &nbsp; 
+типа «OWNERFORM» &nbsp; &nbsp; &nbsp; &nbsp;ООО &nbsp; &nbsp; &nbsp; &nbsp;Общество с ограниченной ответственностью &nbsp; &nbsp; &nbsp; 
+ &nbsp; &nbsp; &nbsp; &nbsp;... &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<p>Таким образом, мы получили возможность описать произвольный набор свойств любой сущности, данные о которой хранятся в БД и отобразить её на единообразно хранимые объекты. Однако, на настоящий момент, база данных еще не пригодна для решения сколько-либо сложных задач, поскольку реальные объекты любой предметной области имеют разнообразные связи друг с другом, которые еще не может отразить наша БД.</p>
+
+Связи</p>
+<p>Сущности реального мира имеют между собой множество различных связей, определяющих их роль и место в этом мире. В традиционной методологии построения БД связи отображаются на ссылки (REFERENCES) между таблицами, в которых хранится описание соответствующих сущностей. Такой подход обеспечивает высокую эффективность БД и возможность автоматической проверки и поддержания целостности связей (механизмы referential integrity), однако жестко ограничивает связи, хранимые в БД её структурой. В нашей структуре данных не предусмотрено отдельных полей для хранения ссылок на другие таблицы. Вместо них в БД вводятся дополнительные таблицы.</p>
+<p>Первая из них описывает возможные типы связей, которые могут быть установлены между объектами</p>
+
+LinkType &nbsp; &nbsp; &nbsp; 
+Id INTEGER &nbsp; &nbsp; &nbsp; &nbsp;Первичный ключ &nbsp; &nbsp; &nbsp; 
+Code CHAR(10) &nbsp; &nbsp; &nbsp; &nbsp;Краткое название связи &nbsp; &nbsp; &nbsp; 
+ItemName CHAR(30) &nbsp; &nbsp; &nbsp; &nbsp;Полное название связи, используется только для интерфейса. &nbsp; &nbsp; &nbsp; 
+<p>Например, сотрудник может быть связан с отделом, в котором он работает связью типа «EMPDEPART» (сотрудник в отделе). В то же время он может быть связан с отделом связью «BOSS» (начальник отдела). Со сторонней фирмой сотрудник может быть связан как менеджер, а с документом &#8211; как его создатель. Сами связи хранятся в таблице:</p>
+Links &nbsp; &nbsp; &nbsp; 
+Id INTEGER &nbsp; &nbsp; &nbsp; &nbsp;Первичный ключ &nbsp; &nbsp; &nbsp; 
+ParentId INTEGER REFERENCES Objects(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на первый из связываемых объектов &nbsp; &nbsp; &nbsp; 
+ChildId INTEGER REFERENCES Objects(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на второй из связываемых объектов &nbsp; &nbsp; &nbsp; 
+TypeId INTEGER REFERENCES LinkType(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на тип связи. &nbsp; &nbsp; &nbsp; 
+<p>Таким образом, чтобы получить менеджера, прикрепленного к фирме необходимо выполнить запрос:</p>
+<pre name="code" class="sql">
+SELECT O.ItemName
+  FROM Objects O
+   INNER JOIN Links L ON O.Id = L.ParentId
+   INNER JOIN LinkType LT ON LT.Id = L.TypeId
+WHERE LT.Code = 'MANAGER'
+  AND L.ChildId = :FirmId  -- Первичный ключ объекта-фирмы
+А всех сотрудников отдела поставок можно получить запросом:
+SELECT Employee.ItemName
+  FROM Objects Employee
+   INNER JOIN Links L ON L.ChildId = Employee.Id
+   INNER JOIN LinkType LT ON L.TypeId = LT.Id
+   INNER JOIN Objects Departments ON L.ParentId = Departments.Id
+   INNER JOIN ObjType OT ON Departments.TypeId = OT.Id
+WHERE OT.Code = 'DEPARTMENT'
+  AND LT.Code = 'EMPDEPART'
+  AND Department.ItemName = 'Отдел поставок'
+</pre>
+
+
+<p>Опытные разработчики, видимо уже заметили слабость предлагаемой схемы &#8211; связи никак не контролируются и ничто не гарантирует, что "сотрудником" отдела не окажется счет-фактура. Поскольку описание связей между объектами является "сердцем" разрабатываемой БД, необходимо ввести в неё механизм, контролирующий допустимость устанавливаемой связи. Таким механизмом служит таблица допустимых связей:</p>
+AllowedLinks &nbsp; &nbsp; &nbsp; 
+Id INTEGER &nbsp; &nbsp; &nbsp; &nbsp;Первичный ключ &nbsp; &nbsp; &nbsp; 
+ParentId INTEGER REFERENCES ObjType(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на тип первого из связываемых объектов &nbsp; &nbsp; &nbsp; 
+ChildId INTEGER REFERENCES ObjType(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на тип второго из связываемых объектов &nbsp; &nbsp; &nbsp; 
+TypeId INTEGER REFERENCES LinkType(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на тип связи. &nbsp; &nbsp; &nbsp; 
+<p>На вставку и изменение записей в Links создается несложный триггер, который проверяет типы объектов для создаваемой связи и их допустимость по AllowedLinks. Так как разрешенные типы связей хранятся в таблице, мы получаем гибкий механизм для настройки БД под требования конкретной задачи. Если требуется задать новый тип связи между объектами &#8211; достаточно лишь добавить в AllowedLinks запись с этим типом связи и типами объектов.</p>
+<p>Замечу, что предлагаемая модель позволяет легко хранить иерархические данные. Для этого надо лишь задать связь типа "находится в".</p>
+<p>Выбирая, какой тип объекта должен быть первым (ParentId), а какой вторым (ChildId) в связи, рекомендуется придерживаться единой системы. Для БД это безразлично, однако для уменьшения путаницы лучше в качестве первого выбирать объект, который бы оказался на стороне «один» отношения «один-ко-многим» при проектировании БД по классической методике. Если объекты связаны по принципу «многие-ко-многим» - надо просто выработать для себя единую методику и в дальнейшем ей следовать.</p>
+
+Расширение БД</p>
+<p>Итак, полученная БД может хранить описание произвольных сущностей, позволяет динамически определять и устанавливать между ними произвольные связи. Для многих задач (например, отдел кадров) в которых каждый объект уникален этого уже достаточно. Однако, существует много задач, под которые полученное «ядро» неплохо было бы дополнить дополнительными возможностями</p>
+Налаживаем учет</p>
+<p>Существует большой класс объектов, экземпляры которых с точки зрения учета не отличаются друг от друга. К таким объектам применимо понятие количества. Например, нам безразлично какие конкретно рубли лежат в кассе. Важно лишь знать СКОЛЬКО их там. Подобные объекты широко распространены в задачах учета материальных ценностей. Задачи учета требуют хранения в БД информации о перемещениях материальных ценностей и их остатках. Отметим, что остатки есть расчетная величина, которая может быть легко рассчитана из перемещений. Таким образом, хранение остатков может осуществляться в целях кэширования часто требующейся информации и его методика определяется скорее особенностями реализуемой системы. Часто можно вообще отказаться от него и пересчитывать остатки «на лету», по мере поступления запросов от пользователей.</p>
+<p>Для хранения информации о перемещениях заведем таблицу:</p>
+
+Movement &nbsp; &nbsp; &nbsp; 
+Id INTEGER &nbsp; &nbsp; &nbsp; &nbsp;Первичный ключ &nbsp; &nbsp; &nbsp; 
+OperationId INTEGER REFERENCES Objects(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на объект-операцию, группирующую логически связанные перемещения &nbsp; &nbsp; &nbsp; 
+ContainerId INTEGER REFERENCES Objects(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на объект-хранилище на который совершается приход, либо с которого совершается расход &nbsp; &nbsp; &nbsp; 
+ContentId INTEGER REFERENCES Objects(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на объект, который перемещается &nbsp; &nbsp; &nbsp; 
+Amount DECIMAL(20,4) &nbsp; &nbsp; &nbsp; &nbsp;Количество &nbsp; &nbsp; &nbsp; 
+ItemDate DATETIME &nbsp; &nbsp; &nbsp; &nbsp;Дата перемещения &nbsp; &nbsp; &nbsp; 
+<p>Рассмотрим некоторые поля этой таблицы подробнее.</p>
+<p>OperationId</p>
+<p>Каждая операция может состоять из нескольких перемещений. Например, расход товара со склада и приход его на фирму-покупателя. Чтобы иметь возможность логически связать эти перемещения они группируются в операцию. В то же время операция часто имеет ряд дополнительных атрибутов (менеджер, срок выполнения, тип) и т.п. Поэтому &#8211; объявим операцию объектом, и будем хранить информацию о ней наравне с другими объектами БД. Можно завести отдельные типы объектов для различных операций, диктуемых предметной областью. Наша схема позволяет легко определить такие виды операций как:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>продажа товара &#8211; расход товара со склада, приход денег в кассу, расход денег с фирмы-покупателя, приход товара на фирму-покупатель</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>конвертация &#8211; расход одной валюты и приход другой (возможно на другой счет)</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>производство &#8211; расход нескольких товаров со склада материалов и приход одного (или нескольких же) других товаров на склад готовой продукции</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>бухгалтерская проводка &#8211; дебет одного счета и кредит другого (либо нескольких других)</td></tr></table></div>и т.п.</p>
+
+ContainerId</p>
+<p>Ссылка на объект-хранилище на который приходят, либо с которого уходят материальные ценности. Таким объектом может быть склад, касса, фирма-контрагент и т.п. Хранилище само может выступать как перемещаемый объект &#8211; например, гвозди лежат в ящике, а ящик лежит на складе.</p>
+
+Amount</p>
+<p>Перемещаемое количество. Если Amount &gt; 0 &#8211; это приход, иначе - расход</p>
+<p>Поскольку все операции однообразно хранятся в одной таблице, появляются богатые возможности по ведению аналитики. Например, остатки денег в кассе на любую дату можно получить несложным запросом</p>
+<pre name="code" class="sql">
+SELECT Sum(Amount)
+  FROM Movement
+WHERE ContentId = :&lt;Id объекта «рубли»&gt;
+  AND ContainerId = :&lt;Id объекта «касса»&gt;
+  AND ItemDate &lt;= :InterestDate
+Запрос:
+SELECT O.Id, O.ItemName, SUM(M.Amount)
+  FROM Movement M
+   INNER JOIN Object O ON M.ContentId = O.Id
+   INNER JOIN ObjType OT ON O.TypeId = OT.Id
+ WHERE OT.Code = 'GOOD'
+   AND M.Amount &gt; 0
+   AND M.ContainerId = :&lt;Id объекта «склад»&gt;
+   AND M.ItemDate BETWEEN :StartDate AND :EndDate
+GROUP BY O.Id, O.ItemName
+</pre>
+
+<p>вернет суммы прихода на склад по всем товарам (тип объекта «GOOD») за период от StartDate до EndDate.</p>
+<p>Истинная мощь аналитических возможностей становится понятной, если вспомнить о богатых возможностях группировки объектов по связям между ними (Links).</p>
+<p>Как и в случае со связями между объектами, желательно иметь механизм, не позволяющий проводить недопустимых с точки зрения бизнес логики операций. Для этого в БД вводится таблица:</p>
+AllowedMovement &nbsp; &nbsp; &nbsp; 
+Id INTEGER &nbsp; &nbsp; &nbsp; &nbsp;Первичный ключ &nbsp; &nbsp; &nbsp; 
+ContainerId INTEGER REFERENCES ObjType(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на тип объекта-хранилища &nbsp; &nbsp; &nbsp; 
+ContentId INTEGER REFERENCES ObjType(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на тип перемещаемого объекта &nbsp; &nbsp; &nbsp; 
+<p>Триггер на таблицу Movement не допускает создания записей с недопустимыми (т.е. отсутствующими в AllowedMovement) типами объектов.</p>
+
+Цены</p>
+<p>Под ценой мы будем понимать некоторый курс, по которому один объект может быть обменен на другой. Так, ценой может являться курс обмена валюты или отпускная цена. При этом, для каждого объекта может существовать много цен (цена оприходования, отпускная и т.п.). Для хранения типов цен добавим в БД таблицу:</p>
+PriceType &nbsp; &nbsp; &nbsp; 
+Id INTEGER &nbsp; &nbsp; &nbsp; &nbsp;Первичный ключ &nbsp; &nbsp; &nbsp; 
+Code CHAR(10) &nbsp; &nbsp; &nbsp; &nbsp;Краткое название типа цены &nbsp; &nbsp; &nbsp; 
+ItemName CHAR(30) &nbsp; &nbsp; &nbsp; &nbsp;Полное название типа цены, используется только для интерфейса. &nbsp; &nbsp; &nbsp; 
+<p>Сами цены будем хранить в таблице:</p>
+Price &nbsp; &nbsp; &nbsp; 
+Id INTEGER &nbsp; &nbsp; &nbsp; &nbsp;Первичный ключ &nbsp; &nbsp; &nbsp; 
+TypeId INTEGER REFERENCES PriceType(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на тип цены &nbsp; &nbsp; &nbsp; 
+WhereId INTEGER REFERENCES Objects(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на объект по которому установлена цена. Это может быть наша фирма, участок обмена валюты, валютная биржа, фирма-контрагент и т.п. &nbsp; &nbsp; &nbsp; 
+ObjectId INTEGER REFERENCES Objects(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на объект, цена которого устанавливается данной записью &nbsp; &nbsp; &nbsp; 
+CurrencyId INTEGER REFERENCES Objects(Id) &nbsp; &nbsp; &nbsp; &nbsp;Ссылка на объект, в единицах которого выражена цена &nbsp; &nbsp; &nbsp; 
+Value DECIMAL(20,4) &nbsp; &nbsp; &nbsp; &nbsp;Цена &nbsp; &nbsp; &nbsp; 
+PriceDate DATETIME &nbsp; &nbsp; &nbsp; &nbsp;Дата, начиная с которой действует цена &nbsp; &nbsp; &nbsp; 
+<p>Таким образом, мы можем задать любое количество цен по любому объекту. Например, товар по оприходованию получает входную цену, затем ему назначается долларовая цена, а впоследствии, время от времени начиная с каких-то дат назначается рублевая цена. Каждая из подсистем учета (бухгалтерия, торговый зал и т.п.) может выбирать и работать с интересующими их ценами. Для ведения курсов валют достаточно завести объекты, устанавливающие эти курсы и по ним вести цену типа "EXCHANGE" (курс обмена) по интересующим валютам.</p>
+
+Проблемы и пути их решения</p>
+<p>При построении БД мы пошли на ряд очень серьёзных компромиссов, обеспечивших нам чрезвычайную гибкость и настраиваемость подсистемы хранения. Разработчику полезно знать возникающие при этом проблемы, чтобы иметь возможность учесть их при использовании подобной системы.</p>
+Ослабленный контроль за целостностью данных</p>
+<p>Разбив данные об одном объекте по нескольким таблицам, мы теряем возможность на декларативном уровне контролировать правильность ввода данных. Так, нельзя указать серверу не позволять вводить объект при незаполненном атрибуте, либо неуказанной связи с другим объектом. Таким образом, на разработчика и администратора ложится дополнительная работа по программированию проверки ограничений и по недопущению прямой работы пользователей с БД. Задача это хорошо решается путем создания сервера приложений, через который осуществляется доступ к данным. При отсутствии такой возможности рекомендуется манипуляции с объектами вынести в хранимые процедуры, лишив пользователей БД права модифицировать таблицы напрямую. </p>
+<p>При необходимости возможно дополнение таблиц, хранящих описание атрибутов (StringDesc, PropDesc и т.п.) полями, несущими информацию об ограничении значений вводимого атрибута. Например, можно добавить в таблицу PropDesc поля MinValue и MaxValue и в триггере на таблицу Properties проверять соответствие вводимых значений заданному диапазону. Подобные расширения зависят от конкретной реализации всей системы и здесь для простоты не рассматривались, однако, разработчик имеет возможность применить их про необходимости.</p>
+
+Понижение быстродействие при выборке данных</p>
+<p>Хранение атрибутов в различных таблицах требует аккуратности при программировании выборки множества объектов. Так, чтобы получить одновременно несколько атрибутов придется написать запрос вида:</p>
+<pre name="code" class="sql">
+SELECT O.Id, S1.Value AS Family, S2.Value AS FirstName, 
+       S3.Value AS LastName, H.ItemDate AS BirthDate
+  FROM Objects O
+   INNER JOIN ObjType OT ON OT.Id = O.TypeId 
+   LEFT JOIN Strings S1 ON O.Id = S1.ObjectId
+   LEFT JOIN StrDesc SD1 ON S1.TypeId = SD1.Id
+   LEFT JOIN Strings S2 ON O.Id = S2.ObjectId
+   LEFT JOIN StrDesc SD2 ON S2.TypeId = SD2.Id
+   LEFT JOIN Strings S3 ON O.Id = S3.ObjectId
+   LEFT JOIN StrDesc SD3 ON S3.TypeId = SD3.Id
+   LEFT JOIN History H ON O.Id = H.ObjectId
+   LEFT JOIN Status S ON H.TypeId = S.Id
+ WHERE OT.Code = 'PEOPLE'
+   AND SD1.Code = 'FAMILY'
+   AND SD2.Code = 'FIRSTNAME'
+   AND SD3.Code = 'LASTNAME'
+   AND S.Code = 'BIRTHDATE'
+</pre>
+
+
+<p>Кроме неудобства в написании (об этом мы поговорим позже) такой запрос может привести еще и к медленному выполнению на сервере. Выходом из ситуации может послужить автоматическое формирование в поле Objects.ItemName краткого описания объекта, необходимого для поиска его в списке себе подобных и использование преимущественно этого поля. Прочие атрибуты, выводимые в список объектов должны по возможности исключаться из него. Как правило, это условие вполне выполнимо. Практика показывает, что вывод имени объекта и двух-трех атрибутов вполне достаточен для его выбора и практически не создают проблем для сервера.</p>
+
+Сложность в понимании структуры и выборке данных</p>
+<p>Структура БД, не ориентированная на бизнес-логику часто бывает затруднительной для понимания. Часто, даже достаточно квалифицированным разработчикам требуется некоторое время, чтобы понять принципы хранения объектов и связи между ними. Еще хуже обстоит дело с конечными пользователями, которым бывает нужен нестандартный доступ к хранящейся в БД информации для её анализа. Преодолением данной проблемы может послужить создание набора представлений (VIEW), предоставляющих более простой доступ к данным. Так, создав следующие представления:</p>
+<pre name="code" class="sql">
+CREATE VIEW vObjects AS
+  SELECT O.*, OT.Code
+    FROM Objects O 
+     INNER JOIN ObjType OT ON O.TypeId = OT.Id
+CREATE VIEW vStrings AS
+  SELECT S.*, SD.Code, OT.Code AS TypeCode
+    FROM Strings S 
+     INNER JOIN StrDesc SD ON S.TypeId = SD.Id
+     INNER JOIN ObjType OT ON SD.TypeId = OT.Id
+CREATE VIEW vHistory AS
+  SELECT H.*, S.Code, OT.Code AS TypeCode
+    FROM History H
+     INNER JOIN Status S ON H.TypeId = S.Id
+     INNER JOIN ObjType OT ON S.TypeId = OT.Id
+</pre>
+
+<p>Мы сможем записать запрос из предыдущего раздела как:</p>
+<pre name="code" class="sql">
+SELECT O.Id, S1.Value AS Family, S2.Value AS FirstName, 
+       S3.Value AS LastName, H.ItemDate AS BirthDate
+  FROM vObjects O
+   LEFT JOIN vStrings S1 ON O.Id = S1.ObjectId
+   LEFT JOIN vStrings S2 ON O.Id = S2.ObjectId
+   LEFT JOIN vStrings S3 ON O.Id = S3.ObjectId
+   LEFT JOIN vHistory H ON O.Id = H.ObjectId
+ WHERE O.Code = 'PEOPLE'
+   AND S1.Code = 'FAMILY'
+   AND S2.Code = 'FIRSTNAME'
+   AND S3.Code = 'LASTNAME'
+   AND S.Code = 'BIRTHDATE'
+</pre>
+
+
+<p>Очевидно, что такой запрос уже гораздо проще воспринимается неподготовленным человеком. Также можно создать представления для различных типов объектов с набором их наиболее употребимых атрибутов.</p>
+
+Построение клиентской части</p>
+<p>В роли клиентской части для такой БД как правило выступает сервер приложений, реализующий слой бизнес логики. Для его создания реализуется иерархия классов</p>
+<p>TBaseDBObject</p>
+<p> +--TInvoice</p>
+<p> +--TEmployee</p>
+<p> ...</p>
+<p>В TBaseDBObject реализуется базовая функциональность по загрузке свойств из БД и сохранению их в БД, а также интерфейсные методы, позволяющие ему общаться со слоем представления данных, расположенном на клиентской машине. Наследники создаются для каждого типа объектов в БД и реализуют логику их поведения. Возможна реализация этих объектов как COM &#8211; серверов, скомпилированных в отдельные DLL и подключаемых в основному модулю сервера приложений при необходимости (либо, например, как объектов Microsoft Transaction Server).</p>
+<p><img src="pic/clip0178.gif" width="855" height="643" border="0" alt="clip0178"></p>
+<p>При построении интерфейса пользователя удобно реализовать набор базовых классов, умеющих работать с информацией о произвольном объекте БД. Такие классы, оформленные в виде компонентов, позволяют легко компоновать интерфейсные решения для работы с конкретными типами объектов. На рисунке приведены два таких компонента &#8211; наследник TListBox, отображающий информацию о свойствах объекта и наследник TTreeView, отображающий другие объекты, связанные с выбранным и типы связей. Оба они реализованы независимыми от типа конкретного объекта, за счет единообразия хранения информации о свойствах и связях. Такая пара компонентов легко позволяет реализовать произвольное перемещение по связям между объектами в БД, что достаточно сложно реализуется в традиционной БД.</p>
+
+<p>Тенцер А. Л.</p>
+<p>ICQ UIN 15925834</p>
+<p>tolik@katren.nsk.ru</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

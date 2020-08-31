@@ -1,0 +1,81 @@
+<html>
+<head>
+  <title>Атомы: запись, чтение и удаление информации</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Атомы: запись, чтение и удаление информации</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{Act: 0 - Очистка атомов, 1 - чтение атомов, 2 - запись атомов}
+{Uniq - Уникальный идентификатор}
+{AtomNfo - Информация для записи}
+Function AtomDo(Act:integer;Uniq,AtomNfo:string);
+ Procedure CleanAtoms;
+ var P:PChar;
+  i:Word;
+ begin
+  GetMem(p, 256);
+ &nbsp;&nbsp; For i:=0 to $FFFF do
+ &nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp; GlobalGetAtomName(i, p, 255);
+ &nbsp;&nbsp;&nbsp; if StrPos(p, PChar(Uniq))&lt;&gt;nil then GlobalDeleteAtom(i);
+ &nbsp;&nbsp; end;
+ &nbsp; FreeMem(p);
+ end;
+ Function ReadAtom:string;
+ var P:PChar;
+  i:Word;
+  begin
+ &nbsp;&nbsp; GetMem(p, 256);
+ &nbsp;&nbsp; For i:=0 to $FFFF do
+ &nbsp; begin
+ &nbsp;&nbsp; GlobalGetAtomName(i, p, 255);
+ &nbsp;&nbsp; if StrPos(p, PChar(Uniq))&lt;&gt;nil then break;
+ &nbsp; end;
+ &nbsp;&nbsp;&nbsp;&nbsp; result:=StrPas(p+length(Uniq));
+ &nbsp;&nbsp;&nbsp;&nbsp; FreeMem(p);
+  end;
+begin
+  case Act of
+  0 : CleanAtoms;
+  1 : Result:=ReadAtom;
+  2 : begin
+ &nbsp;&nbsp;&nbsp;&nbsp; CleanAtoms;
+ &nbsp;&nbsp;&nbsp;&nbsp; GlobalAddAtom(PChar(Uniq+AtomNfo));
+ &nbsp;&nbsp;&nbsp;&nbsp; end;
+end;
+</pre>
+
+<p id="author">Автор: Radmin</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

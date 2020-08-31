@@ -1,0 +1,181 @@
+<html>
+<head>
+  <title>Сохранение изображения экрана в файле</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сохранение изображения экрана в файле</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>На форме у меня стоит TImage (его можно сделать невидимым) </p>
+<pre name="code" class="delphi">
+var
+
+  Dwh : HWND; 
+  DRect: TRect; 
+  DescDC: HDC; 
+  Canv: TCanvas;
+  i: TJPEGImage;
+begin
+  try
+    i := TJPEGImage.create;
+    try
+      Canv := TCanvas.Create();
+      i.CompressionQuality := 100;
+      image.Width := screen.width;
+      image.height := screen.height;
+      DWH := GetDesktopWindow;
+      GetWindowRect(DWH, DRect);
+      DescDC := GetDeviceContext(DWH);
+      Canv.Handle := DescDC;
+      DRect.Left := 0;
+      DRect.Top := 0;
+      DRect.Right := screen.Width;
+      DRect.Bottom := screen.Height;
+      Image.Canvas.CopyRect(DRect, Canv, DRect);
+      i.assign(Image.Picture.Bitmap);
+      I.SaveToFile('M:\MyFile.jpg');
+      Canv.free;
+    finally
+      i.free;
+    end;
+  except
+  end;
+</pre>
+<p id="author">Автор: Vit</p>
+
+<pre name="code" class="delphi">
+program ScrShop;
+ 
+uses
+Windows;
+ 
+procedure ApiScrCapture(FileName: String);
+type
+   TScr = array [0..1] of Byte;
+   PScr = ^TScr;
+var
+   hBmp       : hBitmap;
+   DeskDC     : hDC;
+   DC         : hDC;
+   BFH        : BITMAPFILEHEADER;
+   BIH        : tagBITMAPINFO;
+   ScrX, ScrY : Integer;
+   F          : File;
+   ScrSize    : Cardinal;
+   Bits       : PScr;
+begin
+   SCRX     := GetSystemMetrics(SM_CXSCREEN);
+   SCRY     := GetSystemMetrics(SM_CYSCREEN);
+   ScrSize  := ScrX * ScrY * 3;
+ 
+   GetMem(Bits, ScrSize);
+ 
+   DeskDC   := GetDC(0);
+   hBmp     := CreateCompatibleBitmap(DeskDC, ScrX, ScrY);
+   DC       := CreateCompatibleDC(DeskDC);
+ 
+   SelectObject(DC, hbmp);
+   BitBlt(DC, 0, 0, SCRX, SCRY, DeskDC, 0, 0, SrcCopy);
+ 
+   with BFH do
+   begin
+     bfType      := $4D42;
+     bfSize      := SCRX * SCRY * 3 + SizeOf(BFH) + SizeOf(BIH);
+     bfReserved1 := 0;
+     bfReserved2 := 0;
+     bfOffBits   := SizeOf(BFH) + SizeOf(BIH);
+   end;
+ 
+   with BIH.bmiHeader do
+   begin
+    biSize         := sizeof(BIH);
+    biWidth        := SCRX;
+    biHeight       := SCRY;
+    biPlanes       := 1;
+    biBitCount     := 24;
+    biCompression  := BI_RGB;
+    biSizeImage    := ScrSize;
+    biClrImportant := 0;
+   end;
+ 
+   GetDiBits(DC, hbmp, 0, SCRY, Bits, BIH, DIB_RGB_COLORS);
+   DeleteObject(hbmp);
+   AssignFile(F, FileName);
+   Rewrite(F, 1);
+   Blockwrite(F, BFH, SizeOf(BFH));
+   Blockwrite(F, BIH, SizeOf(BIH));
+   Blockwrite(F, bits^, ScrSize);
+   CloseFile(F);
+   FreeMem(Bits);
+end;
+ 
+begin
+   ApiScrCapture('1.bmp');
+end.
+</pre>
+&nbsp;<br>
+
+<p>&nbsp;<br>
+Автор: Arazel <br>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<hr />
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  DC: HDC;
+  Canva: TCanvas;
+  B: TBitmap;
+begin
+  Canva := TCanvas.Create;
+  B := TBitmap.Create;
+  DC := GetDC(0);
+  try
+    Canva.Handle := DC;
+    with Screen do
+    begin
+      B.Width := Width;
+      B.Height := Height;
+      B.Canvas.CopyRect(Rect(0, 0, Width, Height),
+      Canva, Rect(0, 0, Width, Height));
+      B.SaveToFile('c:\Мои документы\screentofile.bmp');
+    end
+  finally
+    ReleaseDC(0, DC);
+    B.Free;
+    Canva.Free
+  end
+end;
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

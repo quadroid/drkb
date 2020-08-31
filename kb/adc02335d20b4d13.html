@@ -1,0 +1,109 @@
+<html>
+<head>
+  <title>Загрузка INI-файла в TTreeView</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Загрузка INI-файла в TTreeView</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure LoadIniToTree(const FName: string; Tree: TTreeView);
+var LS, LV: TStrings;
+    i, j: integer;
+    root: TTreeNode;
+    n: string;
+    p: PString;
+begin
+     Tree.Items.Clear;  // очищаем дерево
+     with TIniFile.Create(FName) do  // пытаемся открыть файл FName
+     try
+       LS := TStringList.Create;  // список названий секций
+       try
+         ReadSections(LS);          // читаем все секции в список
+         LV := TStringList.Create;   // список пар "имя=значение"
+         try
+           for i := 0 to LS.Count-1 do   // для всех секций...
+           begin
+             LV.Clear;                   // подготовим список
+             ReadSectionValues(LS[i], LV);  // читаем список пар "имя=значение" для текущей секции
+             root := Tree.Items.Add(nil, LS[i]); // добавляем корневой узел (имя текущей секции)
+             for j := 0 to LV.Count-1 do    // для всех пар "имя=значение"...
+             begin
+              n := LV.Names[j];  // выделяем "имя"
+ 
+              // добавляем дочерний по отношению к root узел,
+              // в качестве текста исп. "имя"
+              // в качестве значения поля Data = "значение"
+              New(p);
+              p^ := LV.Values[n];
+              Tree.Items.AddChildObject(root, n, p);
+             end;
+           end;
+         finally
+           LV.Free;
+         end;
+       finally
+         LS.Free;
+       end;
+     finally
+       Free;  // корректно уничтожаем объект TIniFile
+     end;
+end;
+ 
+// Применение:
+ 
+procedure TForm1.TreeView1Change(Sender: TObject; Node: TTreeNode);
+begin
+     if (TreeView1.Selected &lt;&gt; nil) and (TreeView1.Selected.Parent &lt;&gt; nil) then
+     begin
+        Edit1.Text := TreeView1.Selected.Text;
+        Edit2.Text := String(TreeView1.Selected.Data^);
+     end else
+     begin
+       Edit1.Text := '';
+       Edit2.Text := '';
+     end;
+end;
+ 
+// После использования не забыть освободить память, напр. так:
+ 
+procedure TForm1.TreeView1Deletion(Sender: TObject; Node: TTreeNode);
+begin
+  if Node.Data &lt;&gt; nil then
+    Dispose(PString(Node.Data));
+end;
+</pre>
+<p>&nbsp;<br>
+<p id="author">Автор: Dynamic </p>
+&nbsp;<br>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

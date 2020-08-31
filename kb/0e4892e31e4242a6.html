@@ -1,0 +1,87 @@
+<html>
+<head>
+  <title>Когда приходит несколько пакетов в одном</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Когда приходит несколько пакетов в одном</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Разбиение полученных данных через ClientSocket и ServerSocket, когда приходит несколько пакетов в одном.
+ 
+При получении нескольких данных по socket иногда приходят два и более пакета в одном.
+Здесь пример, как разбить при получении полученную строку на несколько отправленных.
+ 
+Зависимости: System, ScktComp
+Автор:       cyborg, cyborg1979@newmail.ru, ICQ:114205759, Бузулук
+Copyright:   Собственное написание (Осипов Евгений Анатольевич)
+Дата:        23 мая 2002 г.
+********************************************** }
+ 
+{Разделитель строк, добавляется в конец отсылаемых данных,
+можно написать любой, какой нравится/какой вам подойдёт}
+Const Delitel : String = #13#10;
+ 
+ 
+{Процедура обработки строк, S-передаваемая строка,
+Socket - Передаваемый сокет откуда пришли данные}
+Procedure Process_Message(Var S : AnsiString; Var Socket: TCustomWinSocket);
+Begin
+ {Обрабатываем здесь полученные данные S из сокета Socket}
+End;
+ 
+ 
+{Обработака события по получению данных из ClientSocket,
+а так же действенно и для ServerSocket}
+procedure TMyForm.ClientSocketRead(Sender: TObject; Socket: TCustomWinSocket);
+Var S1,S2 : AnsiString;
+    I : Integer;
+begin
+  S1:=Socket.ReceiveText; {Присваиваем S1 полученную строку из Socket}
+  I:=0;
+    Repeat {Разделяем строку, если одновременно пришло несколько}
+      I:=Pos(Delitel,S1); {Ищем раздлелитель Delitel в строке S1}
+      if I&lt;&gt;0 then {Если найден делитель, тогда ...
+      Если не найден, то вы не добавили в конце отсылаемой строки Delitel !}
+        Begin
+          S2:=Copy(S1,1,I-1);{Копируем одну пришедшую строку в S2}
+          Delete(S1,1,I+Length(Delitel)-1);{Удаляем уже скопированную строку}
+          Process_Message(S2,Socket);
+          {Вызываем процедуру обработки полученных строк,
+          где S2 наша выделенная строка}
+        End;
+    Until I=0; {Повторять, пока будет не найден разделитель Delitel}
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

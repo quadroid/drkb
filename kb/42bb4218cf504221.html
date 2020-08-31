@@ -1,0 +1,107 @@
+<html>
+<head>
+  <title>Двигаем крестик для показа значений X/Y</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Двигаем крестик для показа значений X/Y</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// TPanel, TImage e TLabel components
+// Insert Image into Panel...
+ 
+private
+   BmpH, BmpV : TBitmap;
+   OldX, OldY: Integer;
+end;
+ 
+var
+  RectSaved : boolean = false;
+ 
+procedure TFormMain.FormCreate(Sender: TObject);
+begin
+  PanelImage.DoubleBuffered := true; // This prevents that the image is blinking
+  LabelHint.Transparent := true;
+  LabelHint.Font.Color := clNave;
+end;
+ 
+procedure TFormMain.FormMouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  Cross(X, Y);
+end;
+ 
+procedure TFormMain.Cross(X, Y: Integer);
+begin
+  Image.Canvas.Pen.Color := clBlack;
+  // Restore last image to erase line
+  if RectSaved then
+  begin
+    Image.Canvas.CopyRect(Rect(OldX - 5, 0, OldX + 5, BmpV.Height),
+    BmpV.Canvas, Rect(0,0,BmpV.Width,BmpV.Height));
+    Image.Canvas.CopyRect(Rect(0, OldY - 5, BmpH.Width, OldY + 5),
+    BmpH.Canvas, Rect(0,0,BmpH.Width,BmpH.Height));
+    BmpH.Free;
+    BmpV.Free;
+  end;
+  // Now save the image at new position for each line
+  // horizontal line
+  BmpH := TBitmap.Create;
+  BmpH.Width := Image.Width;
+  BmpH.Height := 10;
+  BmpH.Canvas.CopyRect(Rect(0,0,BmpH.Width,BmpH.Height),
+  Image.Canvas,Rect(0, Y - 5, BmpH.Width, Y + 5));
+  // Vertical line
+  BmpV := TBitmap.Create;
+  BmpV.Width := 10;
+  BmpV.Height := Image.Height;
+  BmpV.Canvas.CopyRect(Rect(0,0,BmpV.Width,BmpV.Height),
+                 Image.Canvas,Rect(X - 5, 0, X + 5, BmpV.Height));
+ 
+  // Now draw the current position
+  Image.Canvas.MoveTo(0, Y);
+  Image.Canvas.LineTo(Image.Width, Y);
+  Image.Canvas.MoveTo(X, 0);
+  Image.Canvas.LineTo(X, Image.Height);
+ 
+  RectSaved := true;
+  OldX := X;
+  OldY := Y;
+ 
+  LabelHint.Left := X + 36;
+  LabelHint.Top := Y - 15;
+  LabelHint.Caption := '(X:' + IntToStr(X) + ' x Y:' + IntToStr(Y) +')';
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<html>
+<head>
+  <title>Перемещение из TDBGrid</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Перемещение из TDBGrid</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Кто-нибудь пробовал перемещать что-либо из DbGrid методом перетащи и брось (drag and drop)? Вы сами можете создать потомка TDBGrid (или TDBCustomGrid) и добавить необходимую функциональность для достижения цели. </p>
+
+<p>Скопируйте код из данного "Совета", сохраните его с именем DBGrid.pas и установите компонент в палитру. У Вас появится новый компонент EDBGrid с двумя новыми событиями: OnMouseDown и OnMouseUp. Я не считаю эту информацию конфиденциальной: это ошибка разработчиков Delphi! На самом деле эти два события должны быть частью компонента DBGrid.</p>
+
+<pre name="code" class="delphi">
+unit Dbgrid;
+ 
+interface
+ 
+uses
+ 
+  DBGrids, Controls, Classes;
+ 
+type
+ 
+  TEDBGrid = class(TDBGrid)
+  private
+    FOnMouseDown: TMouseEvent;
+    FOnMouseUp: TMouseEvent;
+  protected
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:
+      Integer); override;
+ 
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:
+      Integer); override;
+ 
+  published
+    property OnMouseDown: TMouseEvent read FOnMouseDown write
+      FOnMouseDown;
+ 
+    property OnMouseUp: TMouseEvent read FOnMouseUp write FOnMouseUp;
+  end;
+ 
+procedure Register;
+ 
+implementation
+ 
+procedure Register;
+begin
+ 
+  RegisterComponents('Data Controls', [TEDBGrid]);
+end;
+ 
+procedure TEDBGrid.MouseDown(Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
+begin
+ 
+  if Assigned(FOnMouseDown) then
+    FOnMouseDown(Self, Button, Shift, X, Y);
+  inherited MouseDown(Button, Shift, X, Y);
+end;
+ 
+procedure TEDBGrid.MouseUp(Button: TMouseButton; Shift: TShiftState; X,
+  Y: Integer);
+begin
+ 
+  if Assigned(FOnMouseUp) then
+    FOnMouseUp(Self, Button, Shift, X, Y);
+  inherited MouseUp(Button, Shift, X, Y);
+end;
+ 
+end.
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

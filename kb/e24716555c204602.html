@@ -1,0 +1,291 @@
+<html>
+<head>
+  <title>Еще примеры экспертов</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Еще примеры экспертов</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>This article introduces you to the world of Delphi Experts. Delphi Experts are DLLs, that will be loaded during the startup sequence of Delphi. This article first appeared on Delphi-PRAXiShttp://www.delphipraxis.net/viewtopic.php?t=5300 in German. </p>
+
+<p>NOTE: The techniques shown in this article are valid starting with Delphi 3 or 4 and since Delphi 7 they are deprecated, however, still fully suported by the Delphi IDE. </p>
+
+<p class="p_Heading1">Installation of a Delphi-IDE-Expert</p>
+
+<p>Every Delphi-Expert has to be registered in the Windows-Registry. For each Delphi-Version installed on a machine, as well as for each user using the machine, the Delphi-Expert has to be registered separately. </p>
+
+<p>In the Registry the Delphi-Expert has to be registered under the folowing key: </p>
+
+<p>HKCU\Software\Borland\Delphi\X.0\Experts</p>
+
+<p>, where the X has to be replaced by the appropriate Delphi-Version supported. It may happen that the Experts key is not installed, in such case you are required to create it. </p>
+
+<p>Underneath the Experts key you have to create a string value for the Delphi-Expert. The name must be unique. The value must point to the Delphi-Expert DLL, including both complete path and file name of the Delphi-Expert. Next time Delphi starts, the Expert will be loaded automatically. </p>
+
+<p class="p_Heading1">The interface of the Delphi-Expert</p>
+
+<p>In order for the Delphi Expert to interact with the Delphi-IDE ist has to export a function with the name ExpertEntryPoint, using the following parameters: </p>
+
+<pre name="code" class="delphi">
+function InitExpert(ToolServices: TIToolServices; RegisterProc:
+  TExpertRegisterProc; var Terminate: TExpertTerminateProc): Boolean; export;
+  stdcall;
+</pre>
+
+<p>The first parameter ToolServices offers all "documented" interfaces to the Delphi-IDE. The second parameter RegisterProc is used to load the expert into the Delphi-IDE. The last parameter Teminate is used to notify the Expert-DLL when it is about to be unloaded by the Delphi-IDE. </p>
+
+<p>The InitExpert method returns True, if the Expert has loaded successfully, otherwise it can eiter return False or raises an exception to unload the DLL from the Delphi-IDE (see code sample for solution). </p>
+
+<p class="p_Heading1">The PlugIn class TIExpert</p>
+
+<p>Any Delphi-Expert must be derived from the class TIExpert, which is declared in the unit ExptIntf. This class defines some abstract methods, which must be implemented by each PlugIn: GetName, GetAuthor, GetComment, GetPage, GetGlyph (different for Windows and Linux), GetStyle, GetState, GetIDString, GetMenuText and Execute. The purpose of each method is explained in the source code below. </p>
+
+<p class="p_Heading1">The simplest Delphi-Expert</p>
+
+<p>This Delphi-Expert want do much good, however, it shows you the basic way of getting the job done. It will show an entry in the Help menu (default behavior). Once the user clicks the menu item the method Execute from the Expert will be called. The following points must be respected in order to get the expert working:</p>
+
+&#183; The method GetState must return [esEnabled]<br />
+&#183; The method GetStyle must return esStandard<br />
+&#183; The method GetMenuText returns the text to be shown in the Help menu<br />
+&#183; The method Execute defines the expert action upon activation<br />
+<br />
+<p>The Library Source Code (DelphiPlugI.dpr)</p>
+
+<pre name="code" class="delphi">
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ * App. Name : DelphiPlug
+ * Autor     : Daniel Wischnewski
+ * Copyright : Copyright © 2000-2003 by gate(n)etwork GmbH. All Right Reserved.
+ * Urheber   : Daniel Wischnewski
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+ 
+library DelphiPlug;
+ 
+{ Important note about DLL memory management: ShareMem must be the
+  first unit in your library's USES clause AND your project's (select
+  Project-View Source) USES clause if your DLL exports any procedures or
+  functions that pass strings as parameters or function results. This
+  applies to all strings passed to and from your DLL--even those that
+  are nested in records and classes. ShareMem is the interface unit to
+  the BORLNDMM.DLL shared memory manager, which must be deployed along
+  with your DLL. To avoid using BORLNDMM.DLL, pass string information
+  using PChar or ShortString parameters. }
+ 
+uses
+  ShareMem,
+  ExptIntf,
+  uPlugIn in 'uPlugIn.pas';
+ 
+{$R *.res}
+ 
+exports
+  InitExpert name ExpertEntryPoint;
+ 
+begin
+end.
+ 
+The Unit Source Code (uPlugIn.pas)
+ 
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ * Unit Name : uPlugIn
+ * Autor     : Daniel Wischnewski
+ * Copyright : Copyright © 2000-2003 by gate(n)etwork GmbH. All Right Reserved.
+ * Urheber   : Daniel Wischnewski
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+ 
+unit uPlugIn;
+ 
+interface
+ 
+uses
+  ToolIntf, EditIntf, ExptIntf, VirtIntf, Windows, Messages;
+ 
+const
+  MIdx_Main = $0001;
+  MIdx_ShowItems = $0002;
+  MIdx_RunCommand = $0003;
+ 
+type
+  TDelphiPlug = class(TIExpert)
+  private
+  protected
+  public
+    // abstract methods to be overriden
+    { Expert UI strings }
+    function GetName: string; override; stdcall;
+    function GetAuthor: string; override; stdcall;
+    function GetComment: string; override; stdcall;
+    function GetPage: string; override; stdcall;
+{$IFDEF MSWINDOWS}
+    function GetGlyph: HICON; override; stdcall;
+{$ENDIF}
+{$IFDEF LINUX}
+    function GetGlyph: Cardinal; override; stdcall;
+{$ENDIF}
+    function GetStyle: TExpertStyle; override; stdcall;
+    function GetState: TExpertState; override; stdcall;
+    function GetIDString: string; override; stdcall;
+    function GetMenuText: string; override; stdcall;
+    { Launch the Expert }
+    procedure Execute; override; stdcall;
+  end;
+ 
+function InitExpert(ToolServices: TIToolServices; RegisterProc:
+  TExpertRegisterProc; var Terminate: TExpertTerminateProc): Boolean; export;
+stdcall;
+ 
+implementation
+ 
+uses
+  SysUtils, ShellAPI;
+ 
+function InitExpert(ToolServices: TIToolServices; RegisterProc:
+  TExpertRegisterProc; var Terminate: TExpertTerminateProc): Boolean; export;
+  stdcall;
+var
+  DelphiPlug: TDelphiPlug;
+begin
+  Result := True;
+  try
+    // assign tools services
+    ExptIntf.ToolServices := ToolServices;
+    // create the Delphi-Plug
+    DelphiPlug := TDelphiPlug.Create;
+    // register with Delphi
+    RegisterProc(DelphiPlug);
+  except
+    // kill assistant
+    ToolServices.RaiseException(ReleaseException);
+  end;
+end;
+ 
+{ TDelphiPlug }
+ 
+procedure TDelphiPlug.Execute;
+begin
+  // en:
+  //   Execute will be called, whenever the user clicks on the menu entry in the
+  //   help menu
+  MessageBox(ToolServices.GetParentHandle, 'How may I help you?', 'Hmm',
+    MB_ICONQUESTION + MB_OK);
+end;
+ 
+function TDelphiPlug.GetAuthor: string;
+begin
+  // en:
+  //   returns the name of the author of the plugin
+  Result := 'sakura (Daniel Wischnewski)';
+end;
+ 
+function TDelphiPlug.GetComment: string;
+begin
+  // en:
+  //   I got no idea where this comment will be displayed, ever.
+  Result := 'A simple Delphi-PlugIn example.';
+end;
+ 
+{$IFDEF MSWINDOWS}
+ 
+function TDelphiPlug.GetGlyph: HICON;
+begin
+  // en:
+  //   an icon handle for the entry in the help menu
+  Result := NOERROR;
+end;
+{$ENDIF}
+{$IFDEF LINUX}
+ 
+function TDelphiPlug.GetGlyph: Cardinal;
+begin
+  // en:
+  //   an icon handle for the entry in the help menu
+  Result := NOERROR;
+end;
+{$ENDIF}
+ 
+function TDelphiPlug.GetIDString: string;
+begin
+  // en:
+  //   id of the expert
+  Result := 'DelphiPlugSampleI';
+end;
+ 
+function TDelphiPlug.GetMenuText: string;
+begin
+  // en:
+  //   this text will be schon in the help menu. each time the menu drops down,
+  //   this method will be called.
+  //   NOTE:
+  //     the method GetState must return esStandard, otherwise the help menu
+  //     entry will not be generated and shown
+  Result := 'You will find me in the help menu';
+end;
+ 
+function TDelphiPlug.GetName: string;
+begin
+  // en:
+  //   this name must be unique
+  Result := 'sakura_DelphiPlugSample';
+end;
+ 
+function TDelphiPlug.GetPage: string;
+begin
+  // en:
+  //   interesting to experts expanding the default dialogs of the Delphi-IDE
+  Result := '';
+end;
+ 
+function TDelphiPlug.GetState: TExpertState;
+begin
+  // en:
+  //   returns a set of states
+  //   possible values: esEnabled, esChecked
+  Result := [esEnabled];
+end;
+ 
+function TDelphiPlug.GetStyle: TExpertStyle;
+begin
+  // en:
+  //   returns the type of expert
+  Result := esStandard;
+end;
+ 
+end.
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

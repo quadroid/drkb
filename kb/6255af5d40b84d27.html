@@ -1,0 +1,135 @@
+<html>
+<head>
+  <title>Редактор свойства Color с заданными ограничениями</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Редактор свойства Color с заданными ограничениями</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Редактор свойства, пример которого приведен ниже, имеет ограничение на устанавливаемые цвета: только clRed, clWhite или clBlue.</p>
+<pre name="code" class="delphi">
+unit ClrComps;
+ 
+interface
+ 
+uses
+  SysUtils, WinTypes, WinProcs, Messages, Classes,
+  Graphics, Controls, Forms, Dialogs, DsgnIntf;
+ 
+type
+  TColorComponent = class(TComponent)
+  private
+    FColor: TColor;
+  protected
+    procedure SetColor(Value: TColor);
+  public
+    constructor Create(AnOwner: TComponent); override;
+  published
+    property Color: TColor read FColor write SetColor;
+  end;
+ 
+{ Это специальный редактор свойства выбора цветов... }
+  TMyColorProperty = class(TIntegerProperty)
+  public
+    function GetAttributes: TPropertyAttributes; override;
+    function GetValue: string; override;
+    procedure GetValues(Proc: TGetStrProc); override;
+    procedure SetValue(const Value: string); override;
+  end;
+ 
+procedure Register;
+ 
+implementation
+ 
+{ TMyColorProperty }
+ 
+function TMyColorProperty.GetAttributes: TPropertyAttributes;
+begin
+  Result := [paMultiSelect, paValueList];
+end;
+ 
+function TMyColorProperty.GetValue: string;
+begin
+  Result := ColorToString(TColor(GetOrdValue));
+end;
+ 
+procedure TMyColorProperty.GetValues(Proc: TGetStrProc);
+begin
+  Proc('clRed');
+  Proc('clWhite');
+  Proc('clBlue');
+end;
+ 
+procedure TMyColorProperty.SetValue(const Value: string);
+var
+  NewValue: Longint;
+begin
+  if IdentToColor(Value, NewValue) and
+    ((NewValue = clRed) or
+    (NewValue = clWhite) or
+    (NewValue = clBlue)) then
+    SetOrdValue(NewValue);
+end;
+ 
+{ Образец компонента... }
+ 
+constructor TColorComponent.Create(AnOwner: TComponent);
+begin
+  inherited Create(AnOwner);
+  FColor := clRed;
+end;
+ 
+procedure TColorComponent.SetColor(Value: TColor);
+begin
+  if (Value = clRed) or
+    (Value = clWhite) or
+    (Value = clBlue) then
+    begin
+      FColor := Value;
+    end;
+end;
+ 
+procedure Register;
+begin
+  RegisterComponents('Samples', [TColorComponent]);
+  RegisterPropertyEditor(TypeInfo(TColor), TColorComponent,
+    'Color', TMyColorProperty);
+end;
+ 
+end.
+</pre>
+
+<p>- Ed Jordan</p>
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

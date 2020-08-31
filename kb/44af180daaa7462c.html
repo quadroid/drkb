@@ -1,0 +1,97 @@
+<html>
+<head>
+  <title>Как зафиксировать один или несколько столбцов в TDBGrid с возможностью навигации по этим столбцам?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как зафиксировать один или несколько столбцов в TDBGrid с возможностью навигации по этим столбцам?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TDbGridEx.ColEnter;
+ 
+procedure ProcessColEnter;
+begin
+ // -----------------------------------------------------------
+ if (SelectedIndex  _Mark) then
+   begin
+     ColumnMoved(Columns.Count, StaticCol + 1);
+     SelectedField := Fields[StaticCol];
+   end;
+   Exit;
+ end;
+ 
+ // -----------------------------------------------------------
+ if (SelectedIndex &gt; StaticCol) then
+ begin
+ 
+   if _LastSelectedIndex = StaticCol then
+   begin
+     if _Mark = Columns[SelectedIndex].Title.Caption then
+ 
+     begin
+       ColumnMoved(StaticCol + 1, Columns.Count);
+       SelectedField := Fields[Columns.Count - 1];
+     end
+       else
+     begin
+       ColumnMoved(StaticCol + 1, Columns.Count);
+       SelectedField := Fields[StaticCol];
+     end;
+   end;
+ 
+ end;
+end;
+ 
+begin
+ if (_EntryCol &gt; 0) or _MouseDown or (StaticCol = 0) then
+ begin
+   _MouseDown := FALSE;
+ end else
+ begin
+   inc(_EntryCol);
+   ProcessColEnter;
+   dec(_EntryCol);
+ end;
+ 
+ if Assigned(OnColEnter) then OnColEnter(Self);
+ 
+ _LastSelectedIndex := SelectedIndex;
+end;
+</pre>
+
+<p id="author">Автор: Ramil Galiev</p>
+<p>(2:5085/33.11)</p>
+
+<p id="author">Автор: StayAtHome</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

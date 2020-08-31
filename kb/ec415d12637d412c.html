@@ -1,0 +1,75 @@
+<html>
+<head>
+  <title>Использование многомерных массивов в процедурах и функциях из math.pas</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Использование многомерных массивов в процедурах и функциях из math.pas</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Использование многомерных массивов в процедурах и функциях из Math.pas
+ 
+Многим процедурам и функциям из Math.pas в качестве одного из параметров требуется одномерный открытый массив, например:
+function Mean(const Data: array of Double): Extended;
+function Sum(const Data: array of Double): Extended;
+function MinValue(const Data: array of Double): Double;
+function MaxValue(const Data: array of Double): Double;
+ 
+Эти процедуры и функции можно применить также для работы с многомерными массивами или подмассивами одномерного массива, приводя их тип и заменяя описание открытого массива на пару "Data: pointer; Bound: integer", где первый параметр - указатель на первый обрабатываемый элемент массива, второй - количество обрабатываемых элементов минус 1. 
+Например, для доступа к функции MaxIntValue можно использовать тип: 
+TMaxIntValue = function(Data: pointer; Bound: integer): integer;
+ 
+Зависимости: Math
+Автор:       Александр Шарахов, alsha@mailru.com, Москва
+Copyright:   Александр Шарахов
+Дата:        18 января 2003 г.
+********************************************** }
+ 
+type // Тип для доступа к MaxIntValue
+  TMaxIntValue = function(Data: pointer; Bound: integer): integer; 
+</pre>
+
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+type // Тип для доступа к MaxIntValue
+  TMaxIntValue = function(Data: pointer; Bound: integer): integer;
+var
+  a: array[1..2,1..2,1..2] of integer;
+  b: integer;
+begin
+  // Эквивалент для b:=MaxIntValue(a); если бы так можно было писать
+  b:=TMaxIntValue(@MaxIntValue)(@a,SizeOf(a) div SizeOf(integer)-1);
+end; 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

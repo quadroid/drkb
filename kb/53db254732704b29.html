@@ -1,0 +1,521 @@
+<html>
+<head>
+  <title>Забавное программирование в Delphi</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Забавное программирование в Delphi</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Забавное программирование в Delphi</p>
+<p>Приведённый здесь материал можно озаглавить не иначе как "Чем заняться программисту, если нечего делать". На самом деле, <br>
+Delphi настолько интересная среда, что в ней наряду<br>
+с разработкой серьёзных приложений<br>
+можно легко увлечься созданием абсолютно бесполезных вещей.<br>
+&nbsp;<br>
+Итак, поехали... <br>
+&nbsp;<br>
+Автоматически нажимающаяся кнопка<br>
+Этот компонент представляет из себя кнопку, на которую не надо нажимать, чтобы получить событие OnClick. Достаточно переместить курсор мышки на кнопку. При создании такого компонента традиционным способом, требуется довольно много времени, так как необходимо обрабатывать мышку, перехватывать её и т.д. Однако результат стоит того!<br>
+&nbsp;<br>
+Предлагаю взглянуть на две версии данного компонента.<br>
+В более простой версии обработчик перемещения мышки просто перехватывает сообщения <br>
+<p>Windows с нужным кодом и вызывает обработчик события OnClick:</p>
+<pre name="code" class="delphi">
+type
+TAutoButton1 = class(TButton)
+private
+procedure WmMouseMove (var Msg: TMessage);
+message wm_MouseMove;
+end;
+ 
+procedure TAutoButton1.WmMouseMove (var Msg: TMessage);
+begin
+inherited;
+if Assigned (OnClick) then
+OnClick (self);
+end;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+Вторая версии имеет больше исходного кода, <br>
+так как в ней я просто пытаюсь повторить событие <br>
+мышки OnClick когда пользователь перемещает мышку над кнопкой либо по истечении<br>
+<p>определённого времени. Далее следует объявление класса: </p>
+<pre name="code" class="delphi">
+type
+TAutoKind = (akTime, akMovement, akBoth);
+ 
+TAutoButton2 = class(TButton)
+private
+FAutoKind: TAutoKind;
+FMovements: Integer;
+FSeconds: Integer;
+// really private
+CurrMov: Integer;
+Capture: Boolean;
+MyTimer: TTimer;
+procedure EndCapture;
+// обработчики сообщений
+procedure WmMouseMove (var Msg: TWMMouse);
+message wm_MouseMove;
+procedure TimerProc (Sender: TObject);
+procedure WmLBUttonDown (var Msg: TMessage);
+message wm_LBUttonDown;
+procedure WmLButtonUp (var Msg: TMessage);
+message wm_LButtonUp;
+public
+constructor Create (AOwner: TComponent); override;
+published
+property AutoKind: TAutoKind
+read FAutoKind write FAutoKind default akTime;
+property Movements: Integer
+read FMovements write FMovements default 5;
+property Seconds: Integer
+read FSeconds write FSeconds default 10;
+end;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+Итак, когда курсор мышки попадает в область кнопки (WmMouseMove), то компонент<br>
+запускает таймер либо счётчик количества сообщений о перемещении. <br>
+По истечении определённого времени либо при получении нужного количества сообщений о перемещении,<br>
+компонент эмулирует событие нажатия кнопкой.<br>
+<p>&nbsp;</p>
+<pre name="code" class="delphi">
+procedure TAutoButton2.WmMouseMove (var Msg: TWMMouse);
+begin
+inherited;
+if not Capture then
+begin
+SetCapture (Handle);
+Capture := True;
+CurrMov := 0;
+if FAutoKind &lt;&gt; akMovement then
+begin
+MyTimer := TTimer.Create (Parent);
+if FSeconds &lt;&gt; 0 then
+MyTimer.Interval := 3000
+else
+MyTimer.Interval := FSeconds * 1000;
+MyTimer.OnTimer := TimerProc;
+MyTimer.Enabled := True;
+end;
+end
+else // захватываем
+begin
+if (Msg.XPos &gt; 0) and (Msg.XPos &lt; Width)
+and (Msg.YPos &gt; 0) and (Msg.YPos &lt; Height) then
+begin
+// если мы подсчитываем кол-во движений...
+if FAutoKind &lt;&gt; akTime then
+begin
+Inc (CurrMov);
+if CurrMov &gt;= FMovements then
+begin
+if Assigned (OnClick) then
+OnClick (self);
+EndCapture;
+end;
+end;
+end
+else // за пределами... стоп!
+EndCapture;
+end;
+end;
+ 
+procedure TAutoButton2.EndCapture;
+begin
+Capture := False;
+ReleaseCapture;
+if Assigned (MyTimer) then
+begin
+MyTimer.Enabled := False;
+MyTimer.Free;
+MyTimer := nil;
+end;
+end;
+ 
+procedure TAutoButton2.TimerProc (Sender: TObject);
+begin
+if Assigned (OnClick) then
+OnClick (self);
+EndCapture;
+end;
+ 
+procedure TAutoButton2.WmLBUttonDown (var Msg: TMessage);
+begin
+if not Capture then
+inherited;
+end;
+ 
+procedure TAutoButton2.WmLButtonUp (var Msg: TMessage);
+begin
+if not Capture then
+inherited;
+end;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+&nbsp;<br>
+Как осуществить ввод текста в компоненте Label ?<br>
+Многие программисты задавая такой вопрос получают на него стандартный ответ "используй edit box."<br>
+На самом же деле этот вопрос вполне решаем, хотя лейблы и не основаны на окне и, <br>
+соответственно не могут получать фокус ввода и, соответственно не могут получать символы, <br>
+вводимые с клавиатуры. Давайте рассмотрим шаги, которые были предприняты мной для<br>
+разработки данного компонента.<br>
+&nbsp;<br>
+<p>Первый шаг, это кнопка, которая может отображать вводимый текст:</p>
+<pre name="code" class="delphi">
+type
+TInputButton = class(TButton)
+private
+procedure WmChar (var Msg: TWMChar);
+message wm_Char;
+end;
+ 
+procedure TInputButton.WmChar (var Msg: TWMChar);
+var
+Temp: String;
+begin
+if Char (Msg.CharCode) = #8 then
+begin
+Temp := Caption;
+Delete (Temp, Length (Temp), 1);
+Caption := Temp;
+end
+else
+Caption := Caption + Char (Msg.CharCode);
+end;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+С меткой (label) дела обстоят немного сложнее, так как прийдётся создать некоторые ухищрения, <br>
+чтобы обойти её внутреннюю структуру. Впринципе, проблему можно решить созданием других <br>
+<p>скрытых компонент (кстати, тот же edit box). Итак, посмотрим на объявление класса:</p>
+<pre name="code" class="delphi">
+type
+TInputLabel = class (TLabel)
+private
+MyEdit: TEdit;
+procedure WMLButtonDown (var Msg: TMessage);
+message wm_LButtonDown;
+protected
+procedure EditChange (Sender: TObject);
+procedure EditExit (Sender: TObject);
+public
+constructor Create (AOwner: TComponent); override;
+end;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+<p>Когда метка (label) создана, то она в свою очередь создаёт edit box и устанавливает несколько обработчиков событий для него. Фактически, если пользователь кликает по метке, то фокус перемещается на (невидимый) edit box, и мы используем его события для обновления метки. Обратите внимание на ту часть кода, которая подражает фокусу для метки (рисует прямоугольничек), основанная на API функции DrawFocusRect: </p>
+<pre name="code" class="delphi">
+constructor TInputLabel.Create (AOwner: TComponent);
+begin
+inherited Create (AOwner);
+ 
+MyEdit := TEdit.Create (AOwner);
+MyEdit.Parent := AOwner as TForm;
+MyEdit.Width := 0;
+MyEdit.Height := 0;
+MyEdit.TabStop := False;
+MyEdit.OnChange := EditChange;
+MyEdit.OnExit := EditExit;
+end;
+ 
+procedure TInputLabel.WMLButtonDown (var Msg: TMessage);
+begin
+MyEdit.SetFocus;
+MyEdit.Text := Caption;
+(Owner as TForm).Canvas.DrawFocusRect (BoundsRect);
+end;
+ 
+procedure TInputLabel.EditChange (Sender: TObject);
+begin
+Caption := MyEdit.Text;
+Invalidate;
+Update;
+(Owner as TForm).Canvas.DrawFocusRect (BoundsRect);
+end;
+ 
+procedure TInputLabel.EditExit (Sender: TObject);
+begin
+(Owner as TForm).Invalidate;
+end;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+&nbsp;<br>
+Кнопка со звуком<br>
+Когда Вы нажимаете на кнопку, то видите трёхмерный эффект нажатия.<br>
+А как же насчёт четвёртого измерения, например звука ?<br>
+Ну тогда нам понадобится звук для нажатия и звук для отпускания кнопки. <br>
+Если есть желание, то можно добавить даже речевую подсказку, однако не будем сильно углубляться.<br>
+&nbsp;<br>
+Компонент звуковой кнопки имеет два новых свойства:<br>
+<p>&nbsp;</p>
+<pre name="code" class="delphi">
+type
+TDdhSoundButton = class(TButton)
+private
+FSoundUp, FSoundDown: string;
+protected
+procedure MouseDown(Button: TMouseButton;
+Shift: TShiftState; X, Y: Integer); override;
+procedure MouseUp(Button: TMouseButton;
+Shift: TShiftState; X, Y: Integer); override;
+published
+property SoundUp: string
+read FSoundUp write FSoundUp;
+property SoundDown: string
+read FSoundDown write FSoundDown;
+end;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+<p>Звуки будут проигрываться при нажатии и отпускании кнопки:</p>
+<pre name="code" class="delphi">
+procedure TDdhSoundButton.MouseDown(
+Button: TMouseButton;
+Shift: TShiftState; X, Y: Integer);
+begin
+inherited;
+PlaySound (PChar (FSoundDown), 0, snd_Async);
+end;
+ 
+procedure TDdhSoundButton.MouseUp(Button: TMouseButton;
+Shift: TShiftState; X, Y: Integer);
+begin
+inherited;
+PlaySound (PChar (FSoundUp), 0, snd_Async);
+end;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+&nbsp;<br>
+&nbsp;<br>
+Экранный вирус<br>
+Никогда не видели экранного вируса? <br>
+Представьте, что Ваш экран заболел и покрылся красными пятнами :) <br>
+А если эта болезнь нападёт на какое-нибудь окно ? <br>
+Всё, что нам надо, это получить контекст устройства при помощи API функции GetWindowDC и<br>
+рисовать, что душе угодно.<br>
+&nbsp;<br>
+<p>К исходному коду особых комментариев не требуется, скажу лишь только то, что основная часть кода находится в обработчике события OnTimer:</p>
+<pre name="code" class="delphi">
+type
+TScreenVirus = class(TComponent)
+private
+FTimer: TTimer;
+FInterval: Cardinal;
+FColor: TColor;
+FRadius: Integer;
+protected
+procedure OnTimer (Sender: TObject);
+procedure SetInterval (Value: Cardinal);
+public
+constructor Create (AOwner: TComponent); override;
+procedure StartInfection;
+published
+property Interval: Cardinal
+read FInterval write SetInterval;
+property Color: TColor
+read FColor write FColor default clRed;
+property Radius: Integer
+read FRadius write FRadius default 10;
+end;
+ 
+constructor TScreenVirus.Create (AOwner: TComponent);
+begin
+inherited Create (AOwner);
+FTimer := TTimer.Create (Owner);
+FInterval := FTimer.Interval;
+FTimer.Enabled := False;
+FTimer.OnTimer := OnTimer;
+FColor := clRed;
+FRadius := 10;
+end;
+ 
+procedure TScreenVirus.StartInfection;
+begin
+if Assigned (FTimer) then
+FTimer.Enabled := True;
+end;
+ 
+procedure TScreenVirus.SetInterval (Value: Cardinal);
+begin
+if Value &lt;&gt; FInterval then
+begin
+FInterval := Value;
+FTimer.Interval := Interval;
+end;
+end;
+ 
+procedure TScreenVirus.OnTimer (Sender: TObject);
+var
+hdcDesk: THandle;
+Brush: TBrush;
+X, Y: Integer;
+begin
+hdcDesk := GetWindowDC (GetDesktopWindow);
+Brush := TBrush.Create;
+Brush.Color := FColor;
+SelectObject (hdcDesk, Brush.Handle);
+X := Random (Screen.Width);
+Y := Random (Screen.Height);
+Ellipse (hdcDesk, X - FRadius, Y - FRadius,
+X + FRadius, Y + FRadius);
+ReleaseDC (hdcDesk, GetDesktopWindow);
+Brush.Free;
+end;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+&nbsp;<br>
+&nbsp;<br>
+Шутки над пользователем<br>
+Некоторых пользователей врят ли можно будет испугать экранным вирусом, <br>
+однако можно воспользоваться другими способами запугивания, например: прозрачные окошки, <br>
+недоступные пункты меню с большим количеством подуровней, а так же сообщения об ошибках, <br>
+которые нельзя убрать.<br>
+&nbsp;<br>
+В приведённом ниже примере при помощи обычного диалогового окна<br>
+пользователю показывается сообщение об ошибке, причём кнопка "close" накак не хочет нажиматься.<br>
+У этого диалога есть зависимое окно, которое показывается, при нажатии кнопки "details".<br>
+&nbsp;<br>
+Поддельная форма с сообщением об ошибке имеет кнопку "details", которая открывает вторую<br>
+часть формы. Это достигается путём добавления компонента за пределы самой формы:<br>
+<p>&nbsp;</p>
+<pre name="code" class="delphi">
+object Form2: TForm2
+AutoScroll = False
+Caption = 'Error'
+ClientHeight = 93
+ClientWidth = 320
+OnShow = FormShow
+object Label1: TLabel
+Left = 56
+Top = 16
+Width = 172
+Height = 65
+AutoSize = False
+Caption = 
+'Программа выполнила недопустимую ' +
+'операцию. Если проблема повторится, ' +
+'то обратитесь к разработчику программного обеспечения.'
+WordWrap = True
+end
+object Image1: TImage
+Left = 8
+Top = 16
+Width = 41
+Height = 41
+Picture.Data = {...}
+end
+object Button1: TButton
+Left = 240
+Top = 16
+Width = 75
+Height = 25
+Caption = 'Close'
+TabOrder = 0
+OnClick = Button1Click
+end
+object Button2: TButton
+Left = 240
+Top = 56
+Width = 75
+Height = 25
+Caption = 'Details &gt;&gt;'
+TabOrder = 1
+OnClick = Button2Click
+end
+object Memo1: TMemo // за пределами формы!
+Left = 24
+Top = 104
+Width = 265
+Height = 89
+Color = clBtnFace
+Lines.Strings = (
+'AX:BX 73A5:495B'
+'SX:PK 676F:FFFF'
+'OH:OH 7645:2347'
+'Crash 3485:9874'
+''
+'What'#39's going on here?')
+TabOrder = 2
+end
+end
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+<p>Когда пользователь нажимает кнопку "details", то программа просто изменяет размер формы:</p>
+<pre name="code" class="delphi">
+procedure TForm2.Button2Click(Sender: TObject);
+begin
+Height := 231;
+end;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+<p>Вторая форма, которая наследуется от первой имеет перемещающуюся кнопку "close": </p>
+<pre name="code" class="delphi">
+procedure TForm3.Button1Click(Sender: TObject);
+begin
+Button1.Left := Random (ClientWidth - Button1.Width);
+Button1.Top := Random (ClientHeight - Button1.Height);
+end;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+<p>В заключении, можно сделать дырку в окне, используя API функцию SetWindowRgn:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button4Click(Sender: TObject);
+var
+HRegion1, Hreg2, Hreg3: THandle;
+Col: TColor;
+begin
+ShowMessage ('Ready for a real crash?');
+Col := Color;
+Color := clRed;
+PlaySound ('boom.wav', 0, snd_sync);
+HRegion1 := CreatePolygonRgn (Pts,
+sizeof (Pts) div 8,
+alternate);
+SetWindowRgn (
+Handle, HRegion1, True);
+ShowMessage ('Now, what have you done?');
+Color := Col;
+ShowMessage ('Вам лучше купить новый монитор');
+end;
+</pre>
+<p>Источник: <a href="http://delphid.dax.ru" target="_blank">http://delphid.dax.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

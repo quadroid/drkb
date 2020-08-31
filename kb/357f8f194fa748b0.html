@@ -1,0 +1,107 @@
+<html>
+<head>
+  <title>Программа рисует на форме календарь на 2002 год</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Программа рисует на форме календарь на 2002 год</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>В связи с наступающим Новым годом я решил посвятить выпуск календарю. Ниже приведенная программа рисует на форме календарь на 2002 год. Для каждого месяца сначала выводится его название (используется глобальная переменная LongMonthNames модуля SysUtils), далее выводятся сокращенные названия дней недели (глобальная переменная ShortDayNames модуля SysUtils) и, наконец, выводятся сами числа. Количество дней в месяце записано в массиве months. Чтобы определить, високосный это год или нет, используется функция IsLeapYear. </p>
+<pre name="code" class="delphi">
+const year = 2002; // Год календаря
+ 
+var months: array [1..12] of byte;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  Form1.Caption := 'Календарь на ' + IntToStr(year) + ' год';
+  Form1.Color := clWhite;
+  // Длины месяцев:
+  months[1] := 31;
+  months[2] := 28 + ord(IsLeapYear(year));
+  months[3] := 31;
+  months[4] := 30;
+  months[5] := 31;
+  months[6] := 30;
+  months[7] := 31;
+  months[8] := 31;
+  months[9] := 30;
+  months[10] := 31;
+  months[11] := 30;
+  months[12] := 31;
+end;
+ 
+procedure TForm1.FormPaint(Sender: TObject);
+const // Настройки размеров календаря:
+  MonthDX = 150;
+  MonthDY = 135;
+  DayDX = 20;
+  DayDY = 15;
+  MonthH = 20;
+var
+  month, i: integer;
+  day: integer;
+  s: string[2];
+begin
+  with Form1.Canvas do for month := 1 to 12 do begin
+    // Вывод названия месяца:
+    Font.Name := 'Times';
+    Font.Size := 13;
+    TextOut((month - 1) mod 3 * MonthDX, (month - 1) div 3 * MonthDY,
+      LongMonthNames[month]);
+ 
+    Font.Name := 'Courier';
+    Font.Size := 8;
+    // Вывод названий дней недели:
+    for day := 1 to 7 do
+      TextOut((month - 1) mod 3 * MonthDX,
+        day mod 7 * DayDY + (month - 1) div 3 * MonthDY + MonthH,
+        ShortDayNames[(day + 1) mod 7 + 1]);
+ 
+    // Определение дня недели первого числа месяца:
+    day := DayOfWeek(EncodeDate(year, month, 1)) - 2;
+    if day &lt; 0 then inc(day, 7);
+    // Вывод чисел:
+    for i := 1 to months[month] do begin
+      str(i: 2, s);
+      TextOut(day div 7 * DayDX + (month - 1) mod 3 * MonthDX + DayDX,
+        day mod 7 * DayDY + (month - 1) div 3 * MonthDY + MonthH, s);
+      inc(day);
+    end;
+  end;
+end;
+ 
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

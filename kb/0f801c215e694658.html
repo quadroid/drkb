@@ -1,0 +1,140 @@
+<html>
+<head>
+  <title>Отправка SMS при помощи Delphi</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Отправка SMS при помощи Delphi</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Отправка SMS при помощи Delphi</p>
+Алгоритм работы приложения для отправки sms достаточно простой. При помощи компонента twebbrowser нужно реализовать отправку данных на веб-сервер сотового оператора, содержащих информацию о телефонном номере, текст сообщения и некоторой служебной информации. <br>
+<p>Отправку sms сообщения рассмотрим на примере оператора сотовой связи "Ульяновск- gsm ", позволяющего производить отправку sms сообщений через web- страничку по адресу: </p>
+http://sms.smarts-gsm.ru/sms.cgi </p>
+Для отправки sms сообщения нужно заполнить поля формы: <br>
+в поле "Кому" ввести полный телефонный номер, например 78422973421 . <br>
+В поле "Что" вводится текст сообщения. <br>
+В списке "Формат" выбирается тип сообщения. <br>
+<p>Отправка сообщения инициализируется кнопкой "send&gt;&gt;". </p>
+Передаваемая строка на сервер оператора сотовой связи, при заполненном поле "Кому" - 78422973421, полем "Что" - " sms ", в формате "Обычный sms " выглядит следующим образом: </p>
+to=78422973421&amp;msg=sms&amp;dcs=0 (1) </p>
+Разберемся откуда берется эта строка и что она означает. Если рассмотреть html код страницы, то видим следующую картину: </p>
+&lt; form method=post action="http://sms.smarts-gsm.ru/sms.cgi"&gt; <br>
+&lt; input type=text name=to value="" size=15&gt;[номер абонента] <br>
+&lt; textarea name=msg cols=30 rows=5&gt; &lt; /textarea&gt; <br>
+&lt; select name=dcs&gt; <br>
+&lt; option value=0&gt;Обычный sms <br>
+&lt; option value=24 &gt;flash sms <br>
+&lt; option value=200 &gt;Индикация голосового сообщения (Вкл.) <br>
+&lt; option value=192 &gt;Индикация голосового сообщения (Выкл.) <br>
+&lt; option value=201 &gt;Иидикация наличия факса (Вкл.) <br>
+&lt; option value=193 &gt;Иидикация наличия факса (Вкл.) <br>
+&lt; option value=202 &gt;Индикация сообщения e-mail ( Вкл. ) <br>
+&lt; option value=194 &gt;Индикация сообщения e-mail ( Выкл. ) <br>
+&lt; input type=reset value="clean"&gt; <br>
+&lt; input type=submit value="send &gt;&gt;"&gt; <br>
+<p>&lt; /form&gt; </p>
+&nbsp;<br>
+<p>Очевидно, что это форма со следующими компонентами : </p>
+1) поле для ввода текста с именем to , куда вводится номер абонента <br>
+2) элемент ввода текста с именем msg , куда вводится текст сообщения <br>
+3) выпадающее меню с именем dcs , где выбирается тип сообщения <br>
+4) кнопка " clean " для очистки формы от текстовой информации <br>
+<p>5) кнопка "send &gt;&gt;" для отправки содержимого формы на сервер </p>
+Таким образом, строка вида (1) образуется при отправке содержимого формы методом post на cgi шлюз по адресу http://sms.smarts-gsm.ru/sms.cgi </p>
+Делаем вывод, что нужно при помощи delphi сформировать такую же строку и отослать ее на сервер оператора сотовой связи. Отправку строки будем производить методом navigate2 компонента t webbrowser . </p>
+Спецификация метода следующая : </p>
+procedure navigate2(var url: olevariant; var flags: olevariant; var targetframename: olevariant; var postdata: olevariant; var headers: olevariant); overload; </p>
+Описание: метод используется при навигации и закачки специфичных ресурсов. Может отсылать НТТР сообщения на специфичные адреса url и показывать при этом результаты выполнения этого метода. <br>
+Параметры: <br>
+var url: olevariant - переменная типа olevariant, содержащая указатель на локальный файл или ресурс в сети Интернет. <br>
+<p>var flags: olevariant - переменная типа olevariant, может принимать одно из нескольких возможных значений:</p>
+Константа Значение Описание <br>
+navopeninnewwindow 1 - открывать файл или url в новом окне <br>
+navnohistory 2 - не добавлять файл в лист history. Новая страница заменяет имеющуюся страницу в кэше. <br>
+navnoreadfromcache 4 - Не читать страницу из кэша. <br>
+navnowritetocache 8 - Не записывать результат навигации в кэш. <br>
+<p>navallowautosearch 16 - Если навигация не удалась, разрешить броузеру искать ресурсы с таким же названием, но с именем домена (com, .edu, и т.д.) </p>
+var targetframename: olevariant - имя фрейма в ресурсе, который должен быть отображен, или null если таковой не может отображаться в указанном url. <br>
+var postdata: olevariant - содержит данные, пересылаемые серверу. Используется для генерации post метода. Если значение переменной null , то генерируется метод get. Данные, содержащиеся в postdata <br>
+игнорируются, если url по которому производится навигация, не http типа. <br>
+<p>var headers: olevariant - содержит НТТР заголовок передаваемых данных </p>
+Создадим форму в delphi из необходимых для заполнения строки вида (1) компонентов. Добавляем также компонент twebbrowser и делаем его невидимым из эстетических соображений.<br>
+<p>Номер телефона должен заноситься в компонент combobox1 , а текст сообщения в memo1. Обработчик кнопки "Отправить", будет выглядеть следующим образом: </p>
+<pre name="code" class="delphi">
+var
+vwebaddr, vpostdata, vflags, vframe, vheaders: olevariant;
+iloop: integer;
+text,stpostdata: string;
+begin
+text:=memo1.text;
+stpostdata:='to='+combobox1.text+'&amp;msg='+text+'&amp;dcs=0';
+vheaders:= 'content-type:application/x-www-form-urlencoded'+ #10#13#0;
+vpostdata:= vararraycreate([0, length(stpostdata)], varbyte);
+for iloop := 0 to length(stpostdata)- 1 do
+begin
+vpostdata[iloop]:= ord(stpostdata[iloop+1]); 
+end;
+vpostdata[length(stpostdata)]:= 0;
+tvardata(vpostdata).vtype:= vararray;
+vwebaddr:='http://sms.smarts-gsm.ru/sms.cgi';
+vflags:=navnowritetocache;
+vframe:=emptyparam;
+try
+webbrowser1.navigate2(vwebaddr,vflags,vframe,vpostdata,vheaders);
+except
+end; 
+</pre>
+&nbsp;</p>
+Разберем код построчно. </p>
+stpostdata:='to='+combobox1.text+'&amp;msg='+text+'&amp;dcs=0'; </p>
+заполняем строковую переменную stpostdata значениями полей. Отправляем обычный sms, поэтому dcs=0, исходя из значений в html форме </p>
+&lt; option value=0&gt;Обычный sms </p>
+vheaders:= 'content-type:application/x-www-form-urlencoded'+ #10#13#0; </p>
+здесь создаем http заголовок в виде нуль-терминальной строки( оканчивающейся на #0 ); </p>
+vpostdata:= vararraycreate([0, length(stpostdata)], varbyte); </p>
+здесь, для заполнения передаваемых данных создаем вариантный массив с минимальным пределом равным 0 и максимальным, равного длине строки length(stpostdata) типа varbyte ( 8-ми битовое беззнаковое целочисленное значение (тип byte ) ) </p>
+for iloop := 0 to length(stpostdata)- 1 do<br>
+begin<br>
+vpostdata[iloop]:= ord(stpostdata[iloop+1]); <br>
+<p>end; </p>
+здесь посимвольно заполняем вариантный массив значениями нашей строки </p>
+vpostdata[length(stpostdata)]:= 0; </p>
+обнуляем последний элемент </p>
+tvardata(vpostdata).vtype:= vararray; </p>
+В поле vtype помещается признак типа данных. Присваиваем вариантной структуре данных тип vararray, что означает "Вариантный массив". Данная операция необходимо для того, чтобы массив данных был вариантного типа. Если данную операцию не производить, то массив, хотя и будет состоять из значений типа variant , не будет вариантного типа. Далее </p>
+vflags:=navnowritetocache; </p>
+ставим флаг "не записывать в кэш". <br>
+<p>Затем, используя метод navigate2 , отправляем заполненные структуры данных на известный нам адрес, предусмотрев обработку ошибки. </p>
+Подводные камни </p>
+1) Абонент может получить sms сообщение в другой кодировке. Это объясняется тем, что в шлюзе производится обработка принимаемого сообщения только в какой-либо одной кодировке. Все зависит от конкретной реализации cgi шлюза. В любом случае кодировка подбирается экспериментальным путем. </p>
+2) Результат отправки сообщения появляется в новой странице, к примеру "Сообщение отправлено успешно", после того, как сервер принимает сообщение и генерирует при помощи шлюза новую страницу. Так что узнать, корректно ли принял sms сообщение сервер, можно при анализе новой страницы, появляющейся в браузере.</p>
+Источник: <a href="http://delphi-ex.narod.ru" target="_blank">http://delphi-ex.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

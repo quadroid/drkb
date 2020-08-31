@@ -1,0 +1,144 @@
+<html>
+<head>
+  <title>Вычисление определенного интеграла методом левых и правых прямоугольников с заданной точностью</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Вычисление определенного интеграла методом левых и правых прямоугольников с заданной точностью</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Вычисление определенного интеграла методом левых и правых прямоугольников с заданной точностью
+ 
+"Просто расчет площади под функцией, параметры: a,b - пределы интегрирования, a&lt;=b
+eps - допустимая погрешность, практически гарантируется, что расхождение результата с истинным значением интеграла не превосходит по модулю указанную величину. Только не переборщите :-))
+intF - подинтегральная функция. Естественно, желательно задавать функции, интегрируемые в смысле Римана. Объявление смотри в примере.
+Примечание: Несобственные интегралы не считаем :-)
+Проверок на переполнение нет, да и вообще нет проверок..."
+(Romkin (Москва))
+ 
+Модуль сделан на основе функции вычисления опред. интеграла методом трапеций от Romkin'а (Москва).
+ 
+Зависимости: Нет
+Автор:       Алексей Глеб, noodlesf@mail.ru, Чернигов
+Copyright:   с подачи Romkin'а (Москва)
+Дата:        18 мая 2003 г.
+********************************************** }
+ 
+Unit IntPram;
+ 
+Interface
+ 
+Type
+  TIntFunc=Function(X: Double): Double;
+ 
+Function LeftPramInt(a, b: Double; eps: Double; IntF: TIntFunc): Double;
+Function RightPramInt(a, b: Double; eps: Double; IntF: TIntFunc): Double;
+ 
+Implementation
+ 
+Function LeftPramInt(a, b: Double; eps: Double; IntF: TIntFunc): Double;
+Var
+  //S - площадь на предыдущей итерации,
+  //step - "толщина" прямоугольника
+  //gran - передвигаемая от a до b граница
+  //n - число прямоугольников, удваивается на каждой итерации
+  S, step, gran: Double;
+  n: integer;
+Begin
+  //Сначала приближение одного прямоугольника
+  step:=b-a;
+  Result:=IntF(a)*step;
+  n:=1;
+  Repeat
+    S:=Result;
+    n:=n*2;
+    step:=(b-a)/n;
+    Gran:=a;
+    Result:=0;
+    //Ниже - просто вычисляем площади новых прямоугольников
+    while gran&lt;b do
+    Begin
+      Result:=Result+IntF(gran)*step;
+      gran:=gran+step;
+    End;
+  Until abs(S-Result)&lt;=eps;
+End;
+ 
+Function RightPramInt(a, b: Double; eps: Double; IntF: TIntFunc): Double;
+Var
+  //S - площадь на предыдущей итерации,
+  //step - "толщина" прямоугольника
+  //gran - передвигаемая от a до b граница
+  //n - число прямоугольников, удваивается на каждой итерации
+  S, step, gran: Double;
+  n: integer;
+Begin
+  //Сначала приближение одного прямоугольника
+  step:=b-a;
+  Result:=IntF(b)*step;
+  n:=1;
+  Repeat
+    S:=Result;
+    n:=n*2;
+    step:=(b-a)/n;
+    Gran:=b;
+    Result:=0;
+    //Ниже - просто вычисляем площади новых прямоугольников
+    while a&lt;gran do
+    Begin
+      Result:=Result+IntF(gran)*step;
+      gran:=gran-step;
+    End;
+  Until abs(S-Result)&lt;=eps;
+End;
+ 
+End. 
+</pre>
+
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+uses IntPram;
+ 
+function IntSqrt(x: Double): Double;
+begin
+  Result:=Sqrt(x);
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  label1.Caption:=FloatToStr(LeftPramInt(0, Pi, 0.00001, S));
+  label2.Caption:=FloatToStr(RightPramInt(0, Pi, 0.00001, S));
+end; 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

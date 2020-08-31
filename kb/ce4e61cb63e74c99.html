@@ -1,0 +1,498 @@
+<html>
+<head>
+  <title>WMI &ndash; практика применения в Delphi</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">WMI &ndash; практика применения в Delphi</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Алексей Павлов</p>
+<p>1. Предисловие.Приветствую всех любителей Delphi! В этой статье я хочу поведать вам об одной из замечательных, с моей точки зрения, технологии, разработанной Microsoft для облегчения нашей жизни. Теперь любой программист, используя любой современный язык программирования (не исключая и скрип языков!) может с лёгкостью узнать о своём компьютере практически всё. Теперь программисты всех "вероисповеданий" могут определить, какое оборудование установлено на их компьютере, узнать информацию о материнской плате и процессоре, параметры БИОСа, какие процессы запущены в данный момент, какова температура процессора и скорость вращения кулера, какие настройки графической системы, какие.&#8230; Одним словом, все о чём вы так долго мечтали, стало доступно благодаря WMI. Звучит заманчиво, не так ли? ;) </p>
+<p>Естественно, что WMI - это не только набор параметров. А что это такое - читайте ниже. </p>
+<p>2. Введение.Для того, чтобы не лишиться большей части потенциальных читателей на начальном этапе, скажу сразу, что применение Windows Management Instrumentation (WMI) я буду рассматривать в основном с практической точки зрения (т.е. теории в этой статье будет немного). Сразу хочу оговориться, что т.к. я собираюсь осветить вопрос практического использования технологии WMI в Delphi и намериваюсь достигнуть этой цели достаточно быстро, то я не стану разжёвывать все, с чем нам придётся сталкиваться по ходу повествования и ограничусь минимумом теории. Так что материал изначально ориентирован на тех читателей, кто уверено чувствует себя в области применения интерфейсов, технологии COM и кто умеет работать с литературой. </p>
+<p>Так же, я не стану излагать всю теорию, непосредственно связанную с технологией WMI, т.к. во-первых, это достаточно утомительно, а во-вторых, это уже сделано в лучшем виде, и заниматься перепечатыванием не имеет смысла. Итак, дальнейшее прочтение статьи и использование прилагаемых к ней примеров возможно и без понимания самой сути WMI, но, согласитесь, смысла в этом чуть. Так что очень рекомендую прочитать следующее:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>"Внутри Windows Management Interface". </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>"Сценарии WMI для начинающих" </td></tr></table></div>Примечание:<br>
+<p>: авторы статьи "Внутри Windows Management Interface" интерпретируют аббревиатуру WMI как Windows Management Interface, хотя сами создатели (фирма Microsoft) придерживаются следующей трактовки: Windows Management Instrumentation, что в общем говоря правильнее. Но и интерпретация буквы "I", как "Interface", а не как " Instrumentation " вполне понятна и простительна, т.к. многие разработчики рассматривают WMI не иначе как набор интерфейсов, позволяющих получать доступ к определённым компонентам системы. </p>
+<p>Надеюсь, что предложенные мной к прочтению статьи были прочитаны и поняты, т.к. дальнейшие повествование подразумевает собой понимание структуры WMI и назначения всех её составляющих. Все даваемые мной ниже пояснения всего лишь дополнение к общей теории, а даваемые определения - дополнения к тем, что были даны в вышеупомянутых статьях (или же умышленно утрированные для акцентирования внимания на наиболее важных для понимания моментах). Если же вы прочли вышеперечисленные статьи и всё чётко поняли, то вас не запутают и не введут в заблуждение мои, не претендующие на непогрешимость и полноту, определения :) <br>
+<p>Итак, начали. </p>
+<p>3. Теория.</p>
+<p>Windows Management Instrumentation (WMI) - технология, входящая в состав ядра Windows 2000 и предоставляющая доступ с помощью интерфейсов к объектам системы. </p>
+<p>Представлю несколько упрощённую архитектуру WMI в том виде, в котором она нас будет интересовать в нашем конкретном случае. Быстро пробежимся по всем её компонентам. </p>
+<p>Объекты Win32 </p>
+- с этим элементом ассоциированы компоненты Win32, к данным которых мы желаем получить доступ </p>
+<p>Провайдер Win32 </p>
+- представители объектов Win32, т.е. провайдер осуществляет связь между "внешним миром" и компонентами системы. Нас провайдеры будут интересовать как COM (DCOM) серверы, которые могут быть реализованы как внутренние (в виде DLL), так и внешние (в виде самостоятельных приложений). </p>
+<p>CIM Object Manager </p>
+- попросту говоря, это служба координации данных передаваемых в обоих направлениях (будь то запрос от управляющей программы к провайдеру или данные предоставляемые провайдером приложению). </p>
+<p>Классы CIM </p>
+- вернее база данных, содержащая классы, которые есть не что иное, как шаблоны управляемых элементов, т.е. каждый класс описывает какой-то элемент и содержит свойства и методы для работы с этим элементом. </p>
+<p>Windows Management API </p>
+- интерфейс прикладного программирования, по средствам которого управляющие приложения обращаются к объектам, а провайдеры поставляют данные и определения класса. </p>
+<p>Наша программа является в данном случае не чем иным как контроллером, работающим с помощью Windows Management API с провайдерами (серверами). </p>
+<p>На этом я закончу теоретическое вступление и перейду к практической части. </p>
+<p>4. Практика. </p>
+<p>Подготовка.</p>
+<p>Итак, начнём с того, что нам необходимо сделать перед тем, как непосредственно начать использовать мощь технологии WMI в своих программах: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>установить систему Windows 2000 или NT 4.0 SP4 и выше; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>установить Microsoft Internet Explorer (IE) 5.0 и выше; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>установить WMI SDK; </td></tr></table></div><p>После того, как вы установили WMI SDK, импортируйте следующие библиотеки типов: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Active DS Type Library (Version 1.0) </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Microsoft WMI Scripting v1.1 Library (Version 1.1) </td></tr></table></div><p>Отлично, теперь в палитре компонентов у вас появились новые элементы, которые мы и будем в дальнейшем использовать. </p>
+<p>Порядок действий.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Первым делом нам необходимо подсоединиться к интересующему нас пространству имён. Для данной цели используется интерфейс IWbemLocator и его единственный метод ConnectServer, который позволит нашей программе (в данном случае наша программа является WMI клиентом) получить указатель на интерфейс IWbemServices, который связан с выбранным нами пространством имён на выбранном нами компьютере (не стоит забывать, что технология WMI основана на COM/DCOM, что позволяет использовать её удалённо). Методы объектов типа SWbemServices предназначены для произведения операций в выбранном пространстве имён. <br>
+<p>Да, надеюсь, вы знаете, где можно посмотреть имя интересующего вас пространства имён и WMI класса, если нет, то перечитываем предложенные к прочтению статьи или открываем WMI SDK и просматриваем раздел Win32 Classes. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>После того, как мы подсоединились к выбранному нами пространству имён и получили указатель на объект, связанный с данным пространством имён, нам необходимо получить описание интересующего нас класса в выбранном нами пространстве имён (возможно, звучит мудрёно, но на практике всё гораздо проще, в чём вы скоро сами убедитесь). Для этого воспользуемся методом Get объекта SWbemServices, который вернёт описание (definition) указанного нами класса (на этом этапе вы уже можете считать имена свойств класса и названия поддерживаемых им методов, естественно, все свойства будут содержать null; так же вы можете создать свой класс на базе полученного описания и дополнить его своими свойствами и методами). Таким образом, мы получим указатель на объект типа SWbemObject. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Затем нам необходимо получить непосредственно экземпляр (instance) класса, описание которого мы получили. Для этого воспользуемся методом Instances_ объекта SWbemObject, который создаст объект, осуществляющий нумерацию всех экземпляров (instances) данного класса типа SWbemObjectSet. Говоря по-русски, будет создана коллекция всех объектов данного класса. Полученный объект SWbemObjectSet будет содержать объекты SWbemObject. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Вот собственно и всё. Получив из объекта SWbemObjectSet экземпляр класса, нам остаётся считать его свойства и воспользоваться его методами. </td></tr></table></div><p>Теперь перейдём к рассмотрению самих примеров. Вашему вниманию будут предложены четыре примера, полные исходные тексты и рабочие exe-файлы которых вы найдёте в прилагаемом к статье архиве. </p>
+<p>5. Примеры. </p>
+<p>5.1. Получение данных о центральном процессоре.</p>
+<p>Этот первый пример я старался сделать как можно нагляднее и разберу я его достаточно подробно. В остальных же 3-х примерах я не буду повторяться в комментариях, а постараюсь продемонстрировать некоторые приёмы, которые, возможно, помогут вам в дальнейшем в ваших собственных программах. </p>
+<p>Создаём новый проект и добавляем к нему компоненту TSWbemLocator, которая должна появиться в палитре компонент после импортирования указанных выше библиотек типов. Далее я буду давать комментарии непосредственно в коде программы.</p>
+<pre name="code" class="delphi">unit Unit1;
+ 
+interface
+ 
+uses
+  …, WbemScripting_TLB, OleServer, ActiveX;
+type
+  TForm1 = class(TForm)
+    …
+      SWbemLocator1: TSWbemLocator;
+    …;
+  private
+    { Private declarations }
+    procedure ShowProp(SProp: SWBemProperty);
+  public
+    { Public declarations }
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  Service: ISWbemServices;
+  ObjectSet: ISWbemObjectSet;
+  SObject: ISWbemObject;
+  PropSet: ISWbemPropertySet;
+  SProp: ISWbemProperty;
+ 
+  PropEnum, Enum: IEnumVariant;
+  TempObj: OleVariant;
+  Value: Cardinal;
+  StrValue: string;
+begin
+  // см. Примечание 1
+  Service := SWbemLocator1.ConnectServer('.', 'root\CIMV2', '', '', '', '', 0,
+    nil);
+  // см. Примечание 2
+  SObject := Service.Get('Win32_Processor', wbemFlagUseAmendedQualifiers, nil);
+  // см. Примечание 3
+  ObjectSet := SObject.Instances_(0, nil);
+  {
+  Далее нам нужно из коллекции ObjectSet получить экземпляр объекта,
+  соответствующий классу Win32_Processor.
+  Делается это с помощью метода Item объекта ObjectSet.
+  В качестве первого параметра этого метода указывается путь к объекту,
+  экземпляр которого вы желаете извлечь из коллекции.
+  Данный метод возвращает объект типа SWbemObject. Но нам не известно, как выглядит этот путь.
+  Использовать дополнительный класс SwbemObjectPath тоже нет никакого желания.
+  Так что делаю "финт ушами":
+  }
+  //  SObject:= ObjectSet.Item('???', 0);
+ 
+  Enum := (ObjectSet._NewEnum) as IEnumVariant;
+  Enum.Next(1, TempObj, Value);
+  SObject := IUnknown(TempObj) as SWBemObject;
+  {
+  Полагаю, что данный приём понятен читателю и в комментариях не нуждается.
+ 
+  Вот практически и всё - осталось прочитать интересующие нас свойства.
+  Сколько было слов и как всё просто оказалось в действительности :)
+ 
+  Перебираем свойства объекта SObject:
+ }
+  while (PropEnum.Next(1, TempObj, Value) = S_OK) do
+  begin
+    SProp := IUnknown(TempObj) as SWBemProperty;
+    StrValue := '';
+    ListBox1.AddItem(SProp.Name, nil);
+    ShowProp(SProp);
+  end;
+end;
+ 
+procedure TForm1.ShowProp(SProp: SWBemProperty);
+begin
+  if (SProp.Get_Value &amp;lt; &amp;gt; null) then
+  begin
+    with SProp do
+    begin
+      if Name = 'Name' then
+        Label2.Caption := Get_Value
+      else if Name = 'Manufacturer' then
+        ….
+ 
+    end; { with }
+  end; { if }
+end;
+ 
+end.
+</pre>
+
+<p>Пояснения к коду: </p>
+<p id="note">Примечание 1 </p>
+Подсоединяемся к пространству имён 'root\CIMV2' нашего компьютера. Метод ConnectServer принимает следующие параметры: </p>
+objwbemServices = ConnectServer(</p>
+  [strServer = ""],</p>
+  [strNameSpace = ""],</p>
+  [strUser = ""],</p>
+  [strPassword = ""],</p>
+  [strLocale = ""],</p>
+  [strAuthority = ""],</p>
+  [iSecurityFlags = 0],</p>
+  [objwbemNamedValueSet = null]</p>
+  )</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>strServer - необязательный к указанию параметр, содержащий имя компьютера к пространству имён которого вы желаете подключиться. Если не указан, имеется в виду данный компьютер; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>strNameSpace - необязательный к указанию параметр, содержащий строку, указывающую к какому пространству имён вы собираетесь подключиться. Если не указан, то устанавливается в значение по умолчанию. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>StrUser - необязательный к указанию параметр, содержащий строку с именем пользователя, которое будет использовано при подключении. При применении на локальной машине должна содержать нулевую строку. Применяется только при подключении к удалённой машине. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>StrPassword - см. StrUser. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>StrLocale - необязательный к указанию параметр, содержащий код местности (localization code). Должен содержать нулевую строку для применения действующего кода местности. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>StrAuthority - необязательный к указанию параметр, предназначенный для работы в сетях с системой Kerberos. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>ISecurityFlags - необязательный к указанию параметр. Если содержит 0, то метод ConnectServer вернёт результат только после того, как соединение с сервером будет установлено, т.е. если соединение установить не удалось - ваша программа повиснет. Если содержит значение wbemConnectFlagUseMaxWait, то приложение ждёт две минуты после чего возвращает код ошибки. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>ObjwbemNamedValueSet - необязательный к указанию параметр. Обычно его не определяют (nil). Вообще говоря, можно указать объект типа SWbemNamedValueSet, который будет содержать информацию, которая может быть использована провайдером, обслуживающим данный запрос. </td></tr></table></div>Подробнее обо всех свойствах см. Platform SDK. </p>
+&nbsp;<br>
+<p>&nbsp;</p>
+<p id="note">Примечание 2 </p>
+Теперь получим описание интересующего нас класса, т.е. Win32_Processor. <br>
+Делается это с помощью метода Get полученного нами объекта Service. <br>
+<p>Метод Get принимает следующие параметры: </p>
+objWbemObject = Get(</p>
+  [strObjectPath = ""],</p>
+  [iFlags = 0],</p>
+  [objWbemNamedValueSet = null]</p>
+  )</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>strObjectPath - необязательный к указанию параметр, содержащий название класса, описание которого мы желаем получить. Если данный параметр будет содержать нулевую строку, то будет создан новый класс. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>IFlags - необязательный к указанию параметр. Принимает только одно значение: wbemFlagUseAmendedQualifiers. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>ObjWbemNamedValueSet - см. выше. </td></tr></table></div>Подробнее обо всех свойствах см. Platform SDK. </p>
+&nbsp;<br>
+<p>&nbsp;</p>
+<p id="note">Примечание 3 </p>
+Теперь надо получить коллекцию экземпляров класса Win32_Processor. <br>
+Делается это с помощью метода Instances_ объекта SObject. <br>
+<p>Метод Instances_ принимает следующие параметры: </p>
+objWbemObjectSet = Instances_(</p>
+  [iFlags = wbemFlagReturnImmediately],</p>
+  [objwbemNamedValueSet = null]</p>
+  )</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>iFlags - необязательный к указанию параметр, содержащий числовое значение типа Integer, определяющее поведение данного запроса. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>ObjwbemNamedValueSet - см. выше. </td></tr></table></div>Подробнее обо всех свойствах см. Platform SDK. </p>
+&nbsp;</p>
+<p>Исходный код и exe-файл данного примера вы сможете найти в прилагаемом к статье архиве в каталогах \source\GetProcessorData и \Exe-files соответственно. </p>
+<p>Вот что у меня получилось:</p>
+
+<p>5.2. Получение данных о запущенных процессах.</p>
+<p>Данный пример будет отличаться от предыдущего только тем, что я использую нехитрый приём и покажу, как вывести все свойства объекта некого класса, не зная самих имён этих свойств. Действуем так же, как и в первом примере: </p>
+<pre name="code" class="delphi">
+var
+  Form1: TForm1;
+  ListItem: TListItem;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  Service: ISWbemServices;
+  ObjectSet: ISWbemObjectSet;
+  SObject: ISWbemObject;
+  PropSet: ISWbemPropertySet;
+  SProp: ISWbemProperty;
+ 
+  PropEnum, Enum: IEnumVariant;
+  TempObj: OleVariant;
+  Value: Cardinal;
+  Column: TListColumn;
+begin
+  ListView1.Items.BeginUpdate;
+  ListView1.Items.Clear;
+ 
+  Service := SWbemLocator1.ConnectServer('.', 'root\CIMV2', '', '', '', '', 0,
+    nil);
+  SObject := Service.Get('Win32_Process', wbemFlagUseAmendedQualifiers, nil);
+  ObjectSet := SObject.Instances_(0, nil);
+  Enum := (ObjectSet._NewEnum) as IEnumVariant;
+ 
+  {
+  На данном этапе начинаются некоторые незначительные отличия от первого примера.
+  В предыдущем примере, мы знали, что у нас был единственный экземпляр класса
+  Win32_Processor, характеризующий центральный процессор.
+  В данном примере мы имеем столько экземпляров, сколько запущенных процессов,
+  поэтому их все необходимо перебрать и получить их свойства:
+  }
+ 
+// в этом цикле перебираю все имеющиеся экземпляры
+  while (Enum.Next(1, TempObj, Value) = S_OK) do
+  begin
+    SObject := IUnknown(TempObj) as SWBemObject;
+    PropSet := SObject.Properties_;
+    PropEnum := (PropSet._NewEnum) as IEnumVariant;
+    ListItem := ListView1.Items.Add;
+ 
+    // перебираю свойства
+    while (PropEnum.Next(1, TempObj, Value) = S_OK) do
+    begin
+      SProp := IUnknown(TempObj) as SWBemProperty;
+      if ListView1.Items.Count = 1 then
+      begin
+        Column := ListView1.Columns.Add;
+        Column.Width := 100;
+        Column.Caption := SProp.Name;
+      end;
+      ShowProp(SProp);
+    end;
+  end; { while }
+  ListView1.Items.EndUpdate;
+end;
+// В процедуре ShowProp происходит определение типа свойства
+// и соответствующие приведение типа.
+ 
+procedure TForm1.ShowProp(SProp: ISWbemProperty);
+var
+  StrValue: string;
+  Count: Cardinal;
+begin
+  StrValue := '';
+  if VarIsNull(SProp.Get_Value) then
+    StrValue := '&amp;lt;empty&amp;gt;'
+  else
+    case SProp.CIMType of
+      //******************************************************************//
+      wbemCimtypeUint8, wbemCimtypeSint8, wbemCimtypeUint16, wbemCimtypeSint16,
+        wbemCimtypeUint32, wbemCimtypeSint32, wbemCimtypeSint64:
+        if VarIsArray(SProp.Get_Value) then
+        begin
+          if VarArrayHighBound(SProp.Get_Value, 1)&amp;gt;
+          0 then
+            for Count := 1 to VarArrayHighBound(SProp.Get_Value, 1) do
+              StrValue := StrValue + ' ' + IntToStr(SProp.Get_Value[Count]);
+        end
+        else
+          StrValue := IntToStr(SProp.Get_Value);
+      //******************************************************************//
+      wbemCimtypeReal32, wbemCimtypeReal64:
+        StrValue := FloatToStr(SProp.Get_Value);
+      //******************************************************************//
+ 
+      …
+ 
+      //******************************************************************//
+    else
+      MessageBox(0, PChar('Unknown type'), PChar(Form1.Caption), MB_OK);
+    end; {case}
+  if ListItem.Caption = '' then
+    ListItem.Caption := StrValue
+  else
+    ListItem.SubItems.Add(StrValue);
+end;
+ 
+end.
+</pre>
+
+<p>Исходный код и exe-файл данного примера вы сможете найти в прилагаемом к статье архиве в каталогах \source\ GetProcessData и \Exe-files соответственно. <br>
+&nbsp;<br>
+<p>5.3. Запуск приложений и выключение компьютера.</p>
+<p>В данном примере я продемонстрирую, как использовать методы, предоставляемые провайдерами. </p>
+<pre name="code" class="delphi">var
+  Form1: TForm1;
+  ListItem: TListItem;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  Service: ISWbemServices;
+  ObjectSet: ISWbemObjectSet;
+  SObject: ISWbemObject;
+  PropSet: ISWbemPropertySet;
+  SProp: ISWbemProperty;
+ 
+  PropEnum, Enum: IEnumVariant;
+  TempObj: OleVariant;
+  Value: Cardinal;
+  Column: TListColumn;
+begin
+  ListView1.Items.BeginUpdate;
+  ListView1.Items.Clear;
+ 
+  Service := SWbemLocator1.ConnectServer('.', 'root\CIMV2', '', '', '', '', 0,
+    nil);
+  SObject := Service.Get('Win32_Process', wbemFlagUseAmendedQualifiers, nil);
+  ObjectSet := SObject.Instances_(0, nil);
+  Enum := (ObjectSet._NewEnum) as IEnumVariant;
+ 
+  {
+  На данном этапе начинаются некоторые незначительные отличия от первого примера.
+  В предыдущем примере, мы знали, что у нас был единственный экземпляр класса
+  Win32_Processor, характеризующий центральный процессор.
+  В данном примере мы имеем столько экземпляров, сколько запущенных процессов,
+  поэтому их все необходимо перебрать и получить их свойства:
+  }
+ 
+// в этом цикле перебираю все имеющиеся экземпляры
+  while (Enum.Next(1, TempObj, Value) = S_OK) do
+  begin
+    SObject := IUnknown(TempObj) as SWBemObject;
+    PropSet := SObject.Properties_;
+    PropEnum := (PropSet._NewEnum) as IEnumVariant;
+    ListItem := ListView1.Items.Add;
+ 
+    // перебираю свойства
+    while (PropEnum.Next(1, TempObj, Value) = S_OK) do
+    begin
+      SProp := IUnknown(TempObj) as SWBemProperty;
+      if ListView1.Items.Count = 1 then
+      begin
+        Column := ListView1.Columns.Add;
+        Column.Width := 100;
+        Column.Caption := SProp.Name;
+      end;
+      ShowProp(SProp);
+    end;
+  end; { while }
+  ListView1.Items.EndUpdate;
+end;
+// В процедуре ShowProp происходит определение типа свойства
+// и соответствующие приведение типа.
+ 
+procedure TForm1.ShowProp(SProp: ISWbemProperty);
+var
+  StrValue: string;
+  Count: Cardinal;
+begin
+  StrValue := '';
+  if VarIsNull(SProp.Get_Value) then
+    StrValue := '&amp;lt;empty&amp;gt;'
+  else
+    case SProp.CIMType of
+      //******************************************************************//
+      wbemCimtypeUint8, wbemCimtypeSint8, wbemCimtypeUint16, wbemCimtypeSint16,
+        wbemCimtypeUint32, wbemCimtypeSint32, wbemCimtypeSint64:
+        if VarIsArray(SProp.Get_Value) then
+        begin
+          if VarArrayHighBound(SProp.Get_Value, 1)&amp;gt;
+          0 then
+            for Count := 1 to VarArrayHighBound(SProp.Get_Value, 1) do
+              StrValue := StrValue + ' ' + IntToStr(SProp.Get_Value[Count]);
+        end
+        else
+          StrValue := IntToStr(SProp.Get_Value);
+      //******************************************************************//
+      wbemCimtypeReal32, wbemCimtypeReal64:
+        StrValue := FloatToStr(SProp.Get_Value);
+      //******************************************************************//
+ 
+      …
+ 
+      //******************************************************************//
+    else
+      MessageBox(0, PChar('Unknown type'), PChar(Form1.Caption), MB_OK);
+    end; {case}
+  if ListItem.Caption = '' then
+    ListItem.Caption := StrValue
+  else
+    ListItem.SubItems.Add(StrValue);
+end;
+ 
+end.
+</pre>
+
+<p>Пояснения к коду: </p>
+<p id="note">Примечание 1 </p>
+Security_ - данное свойство используется в том случае, когда вы собираетесь считать или установить настройки безопасности для объекта SWbemServices. Объект SWbemSecurity имеет следующие свойства: AuthenticationLevel, ImpersonationLevel, Privileges. Нас в данном случае будет интересовать только второе свойство. ImpersonationLevel - Числовое значение. Данное свойство определяет, может ли процесс, владельцем которого является WMI, пользоваться правами вашей учётной записи, что может быть необходимо при обращении к другим процессам. Я буду пользоваться значением '3' (wbemImpersonationLevelImpersonate), что означает, что я наделяю данный объект правами того, кто его вызвал. Об остальных уровнях наследования прав читайте в SDK. <br>
+<p>&nbsp;</p>
+&nbsp;</p>
+<p id="note">Примечание 2 </p>
+Свойство Methods_ объекта SWbemObject представляет собой объект типа SWbemMethodSet, который является не чем иным, как коллекцией методов данного класса (или экземпляра класса).<br>
+Данное свойство предназначено только для чтения (read-only).<br>
+&nbsp;<br>
+Единственный метод Item объекта SWbemMethodSet возвращает объект типа SWbemMethod. <br>
+<p>Метод Item принимает следующие параметры: </p>
+objMethod = Item(</p>
+  strName,</p>
+  [iFlags = 0]</p>
+  )</p>
+strName - необходимый параметр. Имя метода, указатель на который должен быть возвращён данным методом. <br>
+<p>&nbsp;</p>
+&nbsp;</p>
+<p id="note">Примечание 3 </p>
+Свойство InParameters объекта SWbemMethod определяет входные параметры для данного метода. Метод SpawnInstance_ объекта SWbemObject создаёт новый экземпляр класса.<br>
+<p>Данный метод имеет следующие входные параметры: </p>
+objNewInstance = SpawnInstance_(</p>
+  [iFlags = 0]</p>
+  )</p>
+Единственный параметр iFlags зарезервирован и не обязателен к указанию.<br>
+Если указывается, то должен быть равен 0. <br>
+<p>&nbsp;</p>
+&nbsp;</p>
+<p id="note">Примечание 4 </p>
+Свойство Properties_ объекта SWbemObject представляет собой объект типа SWbemPropertySet, который является коллекцией свойств для данного класса или экземпляра.<br>
+Метод Add объекта SWbemPrivilegeSet добавляет объект типа SWbemProperty к объекту SWbemPrivilegeSet. <br>
+<p>Данный метод имеет следующие входные параметры: </p>
+objProperty = Add(</p>
+  strName,</p>
+  iCIMType,</p>
+  [bIsArray = FALSE],</p>
+  [iFlags = 0]</p>
+  )</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>strName - обязательный к указанию параметр. Имя нового свойства. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>iCIMType - обязательный к указанию параметр. Определяет тип (CIMType) свойства. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>bIsArray - необязательный к указанию параметр. Определяющий является ли данное свойство массивом. По умолчанию False. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>iFlags - необязательный к указанию параметр. Зарезервирован. Если указывается, то должен быть равен 0. </td></tr></table></div>&nbsp;<br>
+<p>&nbsp;</p>
+&nbsp;</p>
+<p id="note">Примечание 5 </p>
+Для получения коллекции экземпляров Win32_OperatingSystem я намеренно воспользовался методом ExecQuery объекта ISWbemServices, что бы продемонстрировать работу данной ф-ии. <br>
+Использование данного метода равносильно используемой мною ранее конструкции. <br>
+&nbsp;<br>
+Кстати, синтаксис WQL вам ничего не напоминает? ;) Правильно - WQL прямой потомок ANSI SQL, и соответствует синтаксису SQL. В WQL введены незначительные семантические изменения необходимые для работы с WMI. Так что вам даже не придётся учить новый язык запросов, для того что бы использовать WMI - Microsoft оказалась гуманной и мудрой в этом отношении и в очередной раз не усложнила нашу жизнь :) <br>
+<p>Для интересующихся правилами составления запросов: откруваем SDK, раздел "Querying with WQL", всё понятно и доступно. </p>
+&nbsp;</p>
+<p>Исходный код и exe-файл данного примера вы сможете найти в прилагаемом к статье архиве в каталогах \source\ UseMethods и \Exe-files соответственно. </p>
+
+<p>5.4. Получения значений c температурных сенсоров и с установленных вентиляторов.</p>
+<p>Данный пример не содержит каких-либо новых решений или приёмов, кроме проверки на существование провайдера (вернее возможности работать с ним), осуществляющего связь между требуемым компонентом системы и программой. У меня (Chaintech 7VJL (Apogee) VIA KT333 / Athlon XP 1600+ / Windows 2000 Professional SP3) не удаётся получить свойства некоторых классов, например, Win32_Fan и Win32_TemperatureProbe. Выражается это в том, что не удаётся получить экземпляр ни одного из этих классов. Дело в том, что WMI не может получить доступ к WMI провайдеру. Но, т.к. данные классы имеются в хранилище CIM классов, то получить описание данных классов удаётся: </p>
+<pre name="code" class="delphi">Service := SWbemLocator1.ConnectServer('.', 'root\CIMV2', '', '', '', '', 0, nil);
+SObject := Service.Get('Win32_Fan', wbemFlagUseAmendedQualifiers, nil);
+</pre>
+<p>Но при выполнении: </p>
+<p>ObjectSet := SObject.Instances_(0, nil);</p>
+<p>Метод Instances_ не возвращает требуемой коллекции экземпляров и функция Enum.Next(1, TempObj, Value) вернёт значение S_FALSE, а при попытке выполнить PropSet := SObject.Properties_; как я сделал в первом примере, вы получите отказ в доступе (Access Violation), причина понятна&#8230;. </p>
+<p>Я проверял работу данного примера и на материнской плате Gigabyte VIA KT266 с аналогичным процессором и операционной системой - результат тот же. </p>
+<p>Думаю, не нужно говорить о том, что обе материнских платы имеют соответствующие сенсоры для диагностики температурного режима и контроля вращения вентиляторов. </p>
+<p>Между тем, имеется информация о том, что данные параметры удаётся без проблем получить на материнских платах с чипсетами (chipset) фирмы Intel. Ничего по этому поводу сказать не могу - у меня в момент написания данной статьи не было возможности протестировать данный пример на компьютерах на базе чипсетов от Intel. </p>
+<p>Исходный код и exe-файл данного примера вы сможете найти в прилагаемом к статье архиве в каталогах \source\ FanAndTemperature и \Exe-files соответственно. </p>
+<p>6. Послесловие.На этом я закончу рассказ о применении технологии WMI. Надеюсь, что теперь вы прониклись мыслью о том, что WMI крайне удобная и относительно несложная в реализации технология, которая поможет решить массу ваших проблем :) Microsoft продолжает активно развивать WMI, и в скором времени мы получим мощнейший инструмент, области применения которого очень и очень обширны. Нам, людям занимающимся программированием, как никому другому приходится год от года, месяц от месяца пополнять свой "боевой" арсенал всё новыми и новыми знаниями, приёмами, инструментами и методологиями. На мой взгляд, технология WMI может занять достойное место в вашем личном арсенале знаний. <br>
+&nbsp;<br>
+P.S. <br>
+<p>Если вам что-то не понятно в примерах или самой теории, то прежде чем отягощать кого-либо своими расспросами, откройте Platform SDK Documentation, затратьте немного своего драгоценного времени и поищите самостоятельно ответы на свои вопросы. Как показывает практика многих поколений - решение, найденное самостоятельно, стоит нескольких, полученных от кого-то. Но если всё же у вас ничего не выйдет - пишите мне, будем разбираться вместе :) </p>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>Как узнать, доступен ли в сети сервер MS SQL?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать, доступен ли в сети сервер MS SQL?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Здесь представлена функция, выполняющая проверку доступности MS SQL сервера.</p>
+
+<pre name="code" class="delphi">
+function CheckMSSQLServer(fServerName, fUserName, fPsw : String) : Bool; 
+Var 
+  wDb : TDatabase; 
+begin  // Check if MS SQL Server is reachable 
+  // Важно! BDE Должна быть установлена
+  Result := False; 
+  wDb := TDatabase.Create(nil); 
+ 
+  with wDb do 
+    begin 
+      DatabaseName := 'wDbDatabaseName'; // arbitrary name, must be unique 
+                                         // in current Session 
+      Params.Values['SERVER Name'] := fServerName; 
+      Params.Values['USER Name']   := fUserName; 
+      Params.Values['PASSWORD']    := fPsw; 
+      LoginPrompt := False; 
+    end; 
+ 
+  try 
+    wDb.DriverName := 'MSSQL'; 
+    try 
+      wDb.Connected := True; 
+      wDb.Connected := False; 
+    except 
+      ShowMessage('Server is not reachable'); 
+    end; 
+    Result := True; 
+  finally 
+    wDb.Free; 
+  end; 
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

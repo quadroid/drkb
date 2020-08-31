@@ -1,0 +1,92 @@
+<html>
+<head>
+  <title>Как выделить URL в TRichEdit?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как выделить URL в TRichEdit?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{....}
+ 
+  protected
+    procedure WndProc(var Message: TMessage); override;
+ 
+{....}
+ 
+ 
+uses Richedit, ShellApi;
+ 
+{Today I want to show how to implement URL highlighting and URL navigation
+without any third-party components. This functionality is implemented in
+RichEdit from Microsoft (and MS Outlook use this feature, for example) and
+only Borland's developers didn't publish it for us.}
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  mask: Word;
+begin
+  mask := SendMessage(RichEdit1.Handle, EM_GETEVENTMASK, 0, 0);
+  SendMessage(RichEdit1.Handle, EM_SETEVENTMASK, 0, mask or ENM_LINK);
+  SendMessage(RichEdit1.Handle, EM_AUTOURLDETECT, Integer(True), 0);
+ 
+  //Some text in RichEdit
+  RichEdit1.Text := 'Scalabium Software'#13#10 +
+    ' Site is located at www.scalabium.com. Welcome to our site.';
+end;
+ 
+procedure TForm1.WndProc(var Message: TMessage);
+var
+  p: TENLink;
+  strURL: string;
+begin
+  if (Message.Msg = WM_NOTIFY) then
+  begin
+    if (PNMHDR(Message.lParam).code = EN_LINK) then
+    begin
+      p := TENLink(Pointer(TWMNotify(Message).NMHdr)^);
+      if (p.Msg = WM_LBUTTONDOWN) then
+      begin
+        SendMessage(RichEdit1.Handle, EM_EXSETSEL, 0, Longint(@(p.chrg)));
+        strURL := RichEdit1.SelText;
+        ShellExecute(Handle, 'open', PChar(strURL), 0, 0, SW_SHOWNORMAL);
+      end
+    end
+  end;
+ 
+  inherited;
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Кнопка со звуком</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Кнопка со звуком</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Когда Вы нажимаете на кнопку, то видите трёхмерный эффект нажатия. А как же насчёт четвёртого измерения, например звука ? Ну тогда нам понадобится звук для нажатия и звук для отпускания кнопки. Если есть желание, то можно добавить даже речевую подсказку, однако не будем сильно углубляться.</p>
+
+<p>Компонент звуковой кнопки имеет два новых свойства:</p>
+<pre name="code" class="delphi">
+type
+  TDdhSoundButton = class(TButton)
+  private
+    FSoundUp, FSoundDown: string;
+  protected
+    procedure MouseDown(Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseUp(Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer); override;
+  published
+    property SoundUp: string
+      read FSoundUp write FSoundUp;
+    property SoundDown: string
+      read FSoundDown write FSoundDown;
+  end;
+</pre>
+
+<p>Звуки будут проигрываться при нажатии и отпускании кнопки:</p>
+<pre name="code" class="delphi">
+procedure TDdhSoundButton.MouseDown(
+  Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  PlaySound (PChar (FSoundDown), 0, snd_Async);
+end;
+ 
+procedure TDdhSoundButton.MouseUp(Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  PlaySound (PChar (FSoundUp), 0, snd_Async);
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

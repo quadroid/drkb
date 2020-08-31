@@ -1,0 +1,132 @@
+<html>
+<head>
+  <title>Изменение размера</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Изменение размера</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+ {
+This function resizes a bitmap calculating the average color of a rectangular 
+area of pixels from source bitmap to a pixel or a rectangular area to target 
+bitmap. 
+ 
+It produces a soft-color and undistorsioned result image unlike the StretchDraw 
+method 
+ 
+I think that this method have a tenichal name, but I am not sure. 
+ 
+As you can see, this function could be very optimized :p 
+}
+ 
+ procedure TFormConvertir.ResizeBitmap(imgo, imgd: TBitmap; nw, nh: Integer);
+ var
+   xini, xfi, yini, yfi, saltx, salty: single;
+   x, y, px, py, tpix: integer;
+   PixelColor: TColor;
+   r, g, b: longint;
+ 
+   function MyRound(const X: Double): Integer;
+   begin
+     Result := Trunc(x);
+     if Frac(x) &gt;= 0.5 then
+       if x &gt;= 0 then Result := Result + 1
+       else
+         Result := Result - 1;
+     // Result := Trunc(X + (-2 * Ord(X &lt; 0) + 1) * 0.5); 
+  end;
+ 
+ begin
+   // Set target size 
+ 
+  imgd.Width  := nw;
+   imgd.Height := nh;
+ 
+   // Calcs width &amp; height of every area of pixels of the source bitmap 
+ 
+  saltx := imgo.Width / nw;
+   salty := imgo.Height / nh;
+ 
+ 
+   yfi := 0;
+   for y := 0 to nh - 1 do
+   begin
+     // Set the initial and final Y coordinate of a pixel area 
+ 
+    yini := yfi;
+     yfi  := yini + salty;
+     if yfi &gt;= imgo.Height then yfi := imgo.Height - 1;
+ 
+     xfi := 0;
+     for x := 0 to nw - 1 do
+     begin
+       // Set the inital and final X coordinate of a pixel area 
+ 
+      xini := xfi;
+       xfi  := xini + saltx;
+       if xfi &gt;= imgo.Width then xfi := imgo.Width - 1;
+ 
+ 
+       // This loop calcs del average result color of a pixel area 
+      // of the imaginary grid 
+ 
+      r := 0;
+       g := 0;
+       b := 0;
+       tpix := 0;
+ 
+       for py := MyRound(yini) to MyRound(yfi) do
+       begin
+         for px := MyRound(xini) to MyRound(xfi) do
+         begin
+           Inc(tpix);
+           PixelColor := ColorToRGB(imgo.Canvas.Pixels[px, py]);
+           r := r + GetRValue(PixelColor);
+           g := g + GetGValue(PixelColor);
+           b := b + GetBValue(PixelColor);
+         end;
+       end;
+ 
+       // Draws the result pixel 
+ 
+      imgd.Canvas.Pixels[x, y] :=
+         rgb(MyRound(r / tpix),
+         MyRound(g / tpix),
+         MyRound(b / tpix)
+         );
+     end;
+   end;
+ end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

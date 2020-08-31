@@ -1,0 +1,94 @@
+<html>
+<head>
+  <title>Массив TEdit-компонентов</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Массив TEdit-компонентов</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure DoSomethingWithEditControls;
+var
+  K: Integer;
+  EditArray: array[0..99] of Tedit;
+begin
+  try
+    for K := 0 to 99 do
+    begin
+      EditArray[K] := TEdit.Create(Self);
+      EditArray[K].Parent := Self;
+      {Устанавливаем необходимые свойства TEdit}
+      SetSomeOtherPropertiesOfTEdit;
+      Left := 100;
+      Top := K * 10;
+      {Что-то делаем при перемещении мыши}
+      OnMouseMove := WhatToDoWhenMouseIsMoved;
+    end;
+    {Делаем все что хотим с полученным массивом Edit-компонентов}
+    DoWhateverYouWantToDoWithTheseEdits;
+  finally
+    for K := 0 to 99 do
+      EditArray[K].Free;
+  end;
+end;
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+<hr />
+<p>...массив ячеек TEdit будет просто замечательным, но я не могу понять как мне их создавать и делать видимыми. </p>
+<p>Допустим, если они имеют имена с Edit1 по Edit 9, то можно попробовать сделать так:</p>
+<pre name="code" class="delphi">
+var
+  eds: array[1..3,1..3] of TEdit;
+  ix: integer;
+  ed: TEdit;
+begin
+  for ix := 0 to 8 do 
+  begin
+    ed := FindComponent('Edit'+IntToStr(ix+1)) as TEdit;
+    if ed &lt;&gt; nil then 
+      eds[ix div 3 + 1,ix mod 3 + 1] := ed;
+  end;
+end;
+ 
+</pre>
+<p>Затем, допустим, вам захотелось скопировать текст из строки 1 в строку 2:</p>
+<pre name="code" class="delphi">
+for ix := 1 to 3 do
+  eds[2,ix].Text := eds[1,ix].Text;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

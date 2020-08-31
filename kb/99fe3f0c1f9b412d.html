@@ -1,0 +1,131 @@
+<html>
+<head>
+  <title>Как экспортировать все таблицы в CSV файл?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как экспортировать все таблицы в CSV файл?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TMainForm.SaveAllTablesToCSV(DBFileName: string);
+var
+  InfoStr,
+    FileName,
+    RecString,
+    WorkingDirectory: string;
+  OutFileList,
+    TableNameList: TStringList;
+  TableNum,
+    FieldNum: integer;
+  VT: TVarType;
+begin
+  ADOTable1.Active := false;
+  WorkingDirectory := ExtractFileDir(DBFileName);
+  TableNameList := TStringList.Create;
+  OutFileList := TStringList.Create;
+  InfoStr := 'The following files were created' + #13#13;
+ 
+  ADOConnection1.GetTableNames(TableNameList, false);
+  for TableNum := 0 to TableNameList.Count - 1 do
+  begin
+    FileName := WorkingDirectory + '\' +
+      TableNameList.Strings[TableNum] + '.CSV';
+    Caption := 'Saving "' + ExtractFileName(FileName) + '"';
+    ADOTable1.TableName := TableNameList.Strings[TableNum];
+    ADOTable1.Active := true;
+    OutFileList.Clear;
+ 
+    ADOTable1.First;
+    while not ADOTable1.Eof do
+    begin
+ 
+      RecString := '';
+      for FieldNum := 0 to ADOTable1.FieldCount - 1 do
+      begin
+        VT := VarType(ADOTable1.Fields[FieldNum].Value);
+        case VT of
+          // just write the field if not a string
+          vtInteger, vtExtended, vtCurrency, vtInt64:
+            RecString := RecString + ADOTable1.Fields[FieldNum].AsString
+        else
+          // it IS a string so put quotes around it
+          RecString := RecString + '"' +
+            ADOTable1.Fields[FieldNum].AsString + '"';
+        end; { case }
+ 
+        // if not the last field then use a field separator
+        if FieldNum &lt; (ADOTable1.FieldCount - 1) then
+          RecString := RecString + ',';
+      end; { for FieldNum }
+      OutFileList.Add(RecString);
+ 
+      ADOTable1.Next;
+    end; { while }
+ 
+    OutFileList.SaveToFile(FileName);
+    InfoStr := InfoStr + FileName + #13;
+    ADOTable1.Active := false;
+ 
+  end; { for  TableNum }
+  TableNameList.Free;
+  OutFileList.Free;
+  Caption := 'Done';
+  ShowMessage(InfoStr);
+end;
+ 
+procedure TMainForm.Button1Click(Sender: TObject);
+const
+  ConnStrA = 'Provider=Microsoft.Jet.OLEDB.4.0;Data Source=';
+  ConnStrC = ';Persist Security Info=False';
+  ProvStr = 'Microsoft.Jet.OLEDB.4.0';
+begin
+  OpenDialog1.InitialDir := ExtractFileDir(ParamStr(0));
+  if OpenDialog1.Execute then
+ 
+  try
+    ADOConnection1.ConnectionString :=
+      ConnStrA + OpenDialog1.FileName + ConnStrC;
+    ADOConnection1.Provider := ProvStr;
+    ADOConnection1.Connected := true;
+    ADOTable1.Connection := ADOConnection1;
+    SaveAllTablesToCSV(OpenDialog1.FileName);
+  except
+    ShowMessage('Could not Connect to ' + #13 +
+      '"' + OpenDialog1.FileName + '"');
+    Close;
+  end;
+ 
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

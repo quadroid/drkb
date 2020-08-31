@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>Как узнать загрузку CPU определенным процессом?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать загрузку CPU определенным процессом?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В коде используется функция ExecCmdine из статьи: <a href="z1000.htm">Как запустить консольное приложение и перехватить вывод?</a></p>
+<pre name="code" class="delphi">
+Procedure ReadProcLoad(Pid:string; var CPU, Mem:string);
+  var t:TStringList;
+      s:string;
+ 
+  Function GetLine:string;
+    var i:integer;
+  begin
+    For i:=0 to t.Count-1 do
+      if (pos(Pid, t[i])&lt;10) and (pos(Pid, t[i])&gt;0) then Result:=t[i];
+  end;
+ 
+begin
+  t:=TStringList.Create;
+  try
+    ExecCmdine('top -n1 p '+PID, t);
+    try
+      s:=GetLine;
+      s:=GetBefore(':',s);
+      s:=trim(copy(s,1,lastDelimiter(' ',s)));
+      Mem:=trim(copy(s,lastDelimiter(' ',s), length(s)));
+      s:=trim(copy(s,1,lastDelimiter(' ',s)));
+      CPU:=trim(copy(s,lastDelimiter(' ',s), length(s)));
+    except
+      CPU:='-1';
+      Mem:='-1';
+    end
+  finally
+    t.Free;
+  end;
+end;
+</pre>
+<p>В процедуру передаётся PID процесса, а возвращается использование CPU и памяти процессом. Более подробную информацию можно получить запустив в консоле:</p>
+<p>man top </p>
+<p id="note">Примечание</p>
+<p>Под отладчиком Kylix код может не работать. Надо запускать приложение не под Kylix для того чтобы удостовериться что код работает. Кроме того некоторые консольные приложения, типа top не совсем стандартно используют консоль, поэтому я наблюдала такое явление, что&nbsp; top можно запустить только если запускать готовое приложение в терминале.</p>
+
+<p id="author">Автор: Vit</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

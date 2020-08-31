@@ -1,0 +1,91 @@
+<html>
+<head>
+  <title>Копирование большого файла в буфер обмена</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Копирование большого файла в буфер обмена</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Вот общее решение, которое будет работать, даже если у вас размер файла превышает 64Кб:</p>
+<pre name="code" class="delphi">
+function _hread(FileHandle: word; BufPtr: pointer;
+  ByteCount: longint): longint; far;
+  external 'KERNEL' index 349;
+ 
+procedure CopyFileToClipboard(const fname: string);
+var
+  hmem, hFile: THandle;
+  size: LongInt;
+  p: Pointer;
+begin
+  hFile := FileOpen(fname, fmOpenRead);
+  try
+    size := FileSeek(hFile, 0, 2);
+    FileSeek(hfile, 0, 0);
+    if size &gt; 0 then
+    begin
+      hmem := GlobalAlloc(GHND, size);
+      if hMem &lt;&gt; 0 then
+      begin
+        p := GlobalLock(hMem);
+        if p &lt;&gt; nil then
+        begin
+          _hread(hFile, p, size);
+          GlobalUnlock(hMem);
+          Clipboard.SetAsHandle(CF_TEXT, hMem);
+        end
+        else
+          GlobalFree(hMem);
+      end;
+    end;
+  finally
+    FileClose(hFile);
+  end;
+end;
+ 
+procedure TForm1.SpeedButton2Click(Sender: TObject);
+var
+  fname: string[128];
+begin
+  if OpenDialog1.Execute then
+  begin
+    fname := OpenDialog1.Filename;
+    CopyFileToClipboard(fname);
+  end;
+end;
+ 
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<p id="note">Примечание Vit</p>
+<p>Похоже это актуально только для Windows 3x</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

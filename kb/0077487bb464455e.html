@@ -1,0 +1,101 @@
+<html>
+<head>
+  <title>Перемещение контролов мышкой во время выполнения приложения</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Перемещение контролов мышкой во время выполнения приложения</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для этого необходимо перехватить событие OnMouseDown, запомнив координаты x и y и захватить мышку. После этого можно будет отслеживать движение мышки при помощи события OnMouseMove, перемещая контрол пока срабатывает событие OnMouseUp. Затем надо поместить контрол на своё окончательное место и снять захват мышки.</p>
+
+<p>Следующий пример показывает как мышкой двигать компонент TButton по форме.</p>
+<pre name="code" class="delphi">
+type
+  TForm1 = class(TForm)
+    Button1: TButton;
+    procedure Button1MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure Button1MouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+    procedure Button1MouseUp(Sender: TObject; Button: 
+      TMouseButton; Shift: TShiftState; X, Y: Integer);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    MouseDownSpot : TPoint;
+    Capturing : bool;
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TForm1.Button1MouseDown(Sender: TObject;
+Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  if ssCtrl in Shift then begin
+    SetCapture(Button1.Handle);
+    Capturing := true;
+    MouseDownSpot.X := x;
+    MouseDownSpot.Y := Y;
+  end;
+end;
+ 
+procedure TForm1.Button1MouseMove(Sender: TObject;
+Shift: TShiftState; X,  Y: Integer);
+begin
+  if Capturing then begin
+    Button1.Left := Button1.Left - (MouseDownSpot.x - x);
+    Button1.Top := Button1.Top - (MouseDownSpot.y - y);
+  end;
+end;
+ 
+procedure TForm1.Button1MouseUp(Sender: TObject; Button: 
+    TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  if Capturing then begin
+    ReleaseCapture;
+    Capturing := false;
+    Button1.Left := Button1.Left - (MouseDownSpot.x - x);
+    Button1.Top := Button1.Top - (MouseDownSpot.y - y);
+  end;
+end;
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

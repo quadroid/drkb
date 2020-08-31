@@ -1,0 +1,124 @@
+<html>
+<head>
+  <title>Как установить переменные окружения?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как установить переменные окружения?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Следующая простая подпрограмма создаёт новые значения в переменных окружения. Если переменной окружения не существует, то она создаётся. Если переменной окружения установить значение пустой строки, то переменная удаляется. Функция возвращает 0, если значение переменной установлено или переменная создана успешно, либо возвратит значение ошибки Windows вслучае неудачи. Обратите внимание, что размер пространства доступного для переменных окружения ограничен.</p>
+<pre name="code" class="delphi">
+function SetEnvVarValue(const VarName, 
+  VarValue: string): Integer; 
+begin 
+  // Просто вызываем API функцию
+  if Windows.SetEnvironmentVariable(PChar(VarName), 
+    PChar(VarValue)) then 
+    Result := 0 
+  else 
+    Result := GetLastError; 
+end;
+</pre>
+
+
+<p>ЗАМЕЧАНИЕ: данный способ позволяет делать изменения в переменных окружения только для текущего процесса либо для дочерних процессов, порождённых текущим.</p>
+
+<p>Для того, чтобы передать какую-либо переменную окружения в дочерний процесс просто:</p>
+
+<p>1) Создайте новую переменную окружения при помощи SetDOSEnvVar.</p>
+<p>2) Запустите новую программу.</p>
+
+<p>А вот как выглядит пример передачи текущих переменных окружения + переменной FOO=Bar в дочерний процесс:</p>
+<pre name="code" class="delphi">
+{ snip ... } 
+var 
+  ErrCode: Integer; 
+begin 
+  ErrCode := SetEnvVarValue('FOO', 'Bar'); 
+  if ErrCode = 0 then 
+    WinExec('MyChildProg.exe', SW_SHOWNORMAL); 
+  else 
+    ShowMessage(SysErrorMessage(ErrCode)); 
+end; 
+{ ... end snip }
+</pre>
+
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+
+<hr />
+<pre name="code" class="delphi">
+{*********************************************}
+{ Set Global Environment Function             }
+{ Coder : Kingron,2002.8.6                    }
+{ Bug Report : Kingron@163.net                }
+{ Test OK For Windows 2000 Advance Server     }
+{ Parameter:                                  }
+{ Name : environment variable name            }
+{ Value: environment variable Value           }
+{ Ex: SetGlobalEnvironment('MyVar','OK')      }
+{*********************************************}
+ 
+function SetGlobalEnvironment(const Name, Value: string;
+  const User: Boolean = True): Boolean;
+resourcestring
+  REG_MACHINE_LOCATION = 'System\CurrentControlSet\Control\Session Manager\Environment';
+  REG_USER_LOCATION = 'Environment';
+begin
+  with TRegistry.Create do
+    try
+      if User then { User Environment Variable }
+        Result := OpenKey(REG_USER_LOCATION, True)
+      else { System Environment Variable }
+      begin
+        RootKey := HKEY_LOCAL_MACHINE;
+        Result  := OpenKey(REG_MACHINE_LOCATION, True);
+      end;
+      if Result then
+      begin
+        WriteString(Name, Value); { Write Registry for Global Environment }
+        { Update Current Process Environment Variable }
+        SetEnvironmentVariable(PChar(Name), PChar(Value));
+        { Send Message To All Top Window for Refresh }
+        SendMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0, Integer(PChar('Environment')));
+      end;
+    finally
+      Free;
+    end;
+end; { SetGlobalEnvironment }
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

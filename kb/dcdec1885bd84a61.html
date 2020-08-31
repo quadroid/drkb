@@ -1,0 +1,105 @@
+<html>
+<head>
+  <title>Проблемы с автоинкрементальными полями</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Проблемы с автоинкрементальными полями</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Оказывается, что Interbase триггер "before insert" срабатывает только после того, как запись "запостится" из Delphi приложения. В связи с чем становится невозможным увеличение автоинкрементальных ключевых полей. Есть решение? </p>
+
+<p>Большинство программистов решило эту проблему созданием хранимой процедуры (stored procedure), позволяющей от InterBase получить следующий номер и поместить его в вашу запись посредством метода onBeforePost или onNewRecord.</p>
+
+<hr />Автор: Steve Koterski (Borland) </p>
+
+<p>Я пытаюсь сгенерировать последовательный ключ для первичной ключевой колонки, но LIBS мне отвечает "nested select is not support in this context." (вложенный выбор не поддерживается в данном контексте.) </p>
+
+<p>Как насчет: </p>
+
+<pre name="code" class="sql">  CREATE TRIGGER AUTOINCREMENT FOR MYTABLE
+  BEFORE INSERT AS
+  DECLARE VARIABLE new_key INTEGER;
+  BEGIN
+    UPDATE AUTOKEYS
+      SET KEY_VALUE = KEY_VALUE + 1
+      WHERE (KEY_ID = "A");
+    SELECT KEY_VALUE
+      FROM AUTOKEYS
+      WHERE KEY_ID = "A"
+      INTO :new_key;
+    new.my_key_column = new_key;
+  END ^
+</pre>
+
+
+<hr />Автор: Mike Downey </p>
+
+<p>Я пытаюсь добавить запись в таблицу InterBase, содержащую триггеры и blob-поля, тем не менее, всякий раз при выполнении метода "post" после установки ("append") значений, я получаю ошибку: 'Record/Key deleted.' (запись/ключ удален). </p>
+
+<p>Вот реальный пример того, как я обошел эту проблему: </p>
+
+<p>Определение хранимой процедуры:</p>
+<pre name="code" class="sql">  Create Procedure NewEmployeeKey Returns ( EmployeeKey Integer ) as
+  begin
+    EmployeeKey = Gen_Id( gnEmployeeKey, 1 ) ;
+  end
+</pre>
+
+
+<p>Определение триггера:</p>
+<pre name="code" class="sql">  Create Trigger SetEmployeeKey for tbEmployee Active Before Insert Position 0 as
+  begin
+    if ( New.EmployeeKey is Null ) then begin
+      Execute Procedure NewEmployeeKey Returning_Values New.EmployeeKey ;
+    end
+  end
+</pre>
+
+
+<p>Код Delphi для использования в обработчике события OnNewRecord, или AfterInsert, или BeforePost: </p>
+<pre name="code" class="delphi">
+{ qyProviderData - это tQuery }
+{ spProviderKey - это tStoredProc }
+ 
+if qyProviderData.State in [dsInsert] then
+begin
+  spProviderKey.ExecProc ;
+  qyProviderData.FieldByName( 'ProviderKey' ).AsInteger :=
+  spProviderKey.ParamByName( 'ProviderKey' ).AsInteger ;
+end ; { if }
+</pre>
+
+
+
+<p>Это все, что вам необходимо. Хранимая процедура возвращает следующее сгенерированное значение. Триггер это гарантирует, даже если бы данные не были доступны из вашей Delphi-программы, первичный ключ все еще назначает значение. В Delphi-коде, я полагаю, вы могли бы проверять наличие пустого поля первичного ключа вместо .State in [dsInsert], хотя это то же работает.</p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

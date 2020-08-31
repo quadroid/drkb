@@ -1,0 +1,99 @@
+<html>
+<head>
+  <title>Замена Application.ProcessMessages</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Замена Application.ProcessMessages</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Замена штатного Application.ProcessMessages
+ 
+Хорошо использовать в DLL или бесформенных приложениях, 
+если внутри цикла возникает необходимость в использовании Application.ProcessMessages.
+ 
+Зависимости: Windows, Messages
+Автор:       ssk, ucad@pisem.net, ICQ:166758074, Харьков
+Copyright:   составлено из кусков кода Borland
+Дата:        7 сентября 2004 г.
+***************************************************** }
+ 
+procedure ProcessMessagesEx;
+  function IsKeyMsg(var Msg: TMsg): Boolean;
+  const
+    CN_BASE = $BC00;
+  var
+    Wnd: HWND;
+  begin
+    Result := False;
+    with Msg do
+      if (Message &gt;= WM_KEYFIRST) and (Message &lt;= WM_KEYLAST) then
+        begin
+          Wnd := GetCapture;
+          if Wnd = 0 then
+            begin
+              Wnd := HWnd;
+              if SendMessage(Wnd, CN_BASE + Message, WParam, LParam) &lt;&gt; 0 then
+                Result := True;
+            end
+              else
+                if (LongWord(GetWindowLong(Wnd, GWL_HINSTANCE)) = HInstance) then
+                  if SendMessage(Wnd, CN_BASE + Message, WParam, LParam) &lt;&gt; 0 then
+                    Result := True;
+        end;
+  end;
+ 
+  function ProcessMessage(var Msg: TMsg): Boolean;
+  begin
+    Result := False;
+    if PeekMessage(Msg, 0, 0, 0, PM_REMOVE) then
+      begin
+        Result := True;
+        if Msg.Message &lt;&gt; WM_QUIT then
+          if not IsKeyMsg(Msg) then
+            begin
+              TranslateMessage(Msg);
+              DispatchMessage(Msg);
+            end;
+      end;
+  end;
+ 
+var
+ Msg: TMsg;
+begin
+ while ProcessMessage(Msg) do {loop};
+end;
+</pre>
+
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

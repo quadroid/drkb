@@ -1,0 +1,147 @@
+<html>
+<head>
+  <title>Агрегация и нотификация вообще и для Delphi в частности</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Агрегация и нотификация вообще и для Delphi в частности</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Виталий Маматов</p>
+<p>Специально для Королевства Delphi </p>
+
+<p>Вступление. </p>
+
+<p>К написанию данной статьи меня подтолкнула моя недавняя пробежка по вопросам относительно COM. Значительное их число сводилось к непониманию принципов организации агрегирования и нотификации. И, дабы лишний раз не утруждать себя напрасно, было решено, дать такой развёрнутый ответ с примером и сразу для всех. </p>
+
+<p>Про литературу. </p>
+
+<p>Самой полезной книжкой по технологии COM для меня стала неброская книжонка А.Кобирниченко "Visual Studio 6. Искусство программирования". Для примера два одинаковых понятия из тоже хорошей книжки Елмановой и Трепалина "Delphi 4 технология COM" но несколько путаной: </p>
+<p>Apartment: </p>
+
+<p>Елманова: </p>
+<p>"Можно вызывать методы объекта только из того потока, где объект был создан. При этом одновременно можно создать несколько отличающихся объектов в разных потоках, но каждый объект обязан вызываться только из того потока, где был создан". </p>
+
+<p>Кобирниченко: </p>
+<p>"Каждый объект выполняется в своём потоке. Потоков может быть несколько, но всю синхронизацию берёт на себя сама библиотека. Объект, выполняющийся в одном потоке, ничего не знает о других потоках, поэтому может не заботится о многопоточном доступе к своим методам." </p>
+
+<p>Теоретические экскурсы в данной статье, в основном, основаны на книге Кобирниченко. </p>
+
+<p>Часть первая: Теория. </p>
+
+<p>Агрегация. </p>
+
+<p>При агрегировании внешний объект не реализует сам интерфейсы имеющиеся у внутреннего. Вместо этого он передаёт своему клиенту указатель указатель непосредственно на интерфейс внутреннего. Клиент напрямую общается с внутренним объектом. Взамен появляются требования к внутреннему объекту связанные с реализацией IUnknown внутреннего объекта. Все вызовы IUnknown внутреннего объекта должны делегироваться методам IUnknown внешнего объекта. </p>
+
+<p>Нотификация. </p>
+
+<p>Помимо методов реализующих входящие интерфейсы вызываемые клиентом, Объект может объявить исходящие интерфейсы, реализация которых возложена на самого клиента. </p>
+
+<p>Исходящие интерфейсы являются расширением принципа уведомления, реализованного в составных документах всё уведомление в которых построено на IAdviseSink с ограниченным набором событий. Установление соединения на основе этого интерфейса требует всего одного вызова IOleObject::SetAdise. </p>
+
+<p>При использовании точек соединения нужно четыре вызова: QueryInterface для получения IConnectionPointContainer, затем FindConnectionPoint для получения нужной точки соединения, затем Advise для передачи указателя на IUnknown исходящего интерфейса и, наконец, QueryInterface со стороны клиента для получения самого исходящего интерфейса. Вся эта деятельность, особенно в случае DCOM, может занять значительное время. Собственно по этому сама Microsoft рекомендует организовывать уведомление на основе собственных интерфейсов, похожих на IadviseSink, а не на основе точек соединения. </p>
+
+<p>После такого введения, я думаю, вы уже готовы взять в руки инструмент Исследователя - IDE Delphi. В нашем случае ;). </p>
+
+<p>Часть вторая: Махровая практика. </p>
+
+<p>Агрегирование: </p>
+
+<p>После тщательных поисков по Дельфийскому хелпу в данной предметной области, мною было обнаружено следующее: "TAggregatedObject is used as part of an aggregate that has a single controlling Iunknown" И приписка: "Note: For more information about aggregation, controlling objects, and interfaces, see the Inside OLE, second edition, by Kraig Brockschmidt" Ну, второе нам сейчас ни к чему, а вот с первым следует ознакомиться поближе. </p>
+
+<p>Итак, вот он: </p>
+
+<pre name="code" class="delphi">
+TAggregatedObject = class
+private
+  FController: Pointer;
+  function GetController: IUnknown;
+protected
+  { IUnknown }
+  function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
+  function _AddRef: Integer; stdcall;
+  function _Release: Integer; stdcall;
+public
+  constructor Create(Controller: IUnknown);
+  property Controller: IUnknown read GetController;
+end;
+ 
+constructor TAggregatedObject.Create(Controller: IUnknown);
+begin
+  FController := Pointer(Controller);
+end;
+ 
+function TAggregatedObject.QueryInterface(const IID: TGUID; out Obj): HResult;
+begin
+  Result := IUnknown(FController).QueryInterface(IID, Obj);
+end;
+</pre>
+
+
+
+
+<p>и т.д. В общем ясен перец. </p>
+
+<p>Теперь следующая проблема. Если мы хотим организовывать нашу библиотеку на основе TAutoObject (а нам этого очень хочется, так как по жизни мы ленивы), то, нам следует каким-то образом заставить его воспринимать наш агрегируемый объект. Способ единственный - перекрытие метода TAutoObject::QueryInterface и собственная реализация данного метода. Проблема в том, что понятие полиморфизма к интерфейсным методам неприменимо и вызываемый метод зависит только от типа ссылки на класс. </p>
+
+<p>В ATL эта проблема решается применением шаблонов классов. В результате чего получается, что все методы реализованные в шаблоне _как_бы_ виртуальные. Это здорово придумано, берёшь любой метод, перекрываешь его и никаких гвоздей. Только надо учитывать, что после сборки, на этане выполнения, никакие фокусы с полиморфными вызовами у вас не пройдут. </p>
+
+<p>Однако, вернёмся к нашим баранам. Просматривая, в некотором унынии, предков нашего обожаемого TAutoObject была обнаружена следующая забавная конструкция: </p>
+
+<pre name="code" class="delphi">
+TComObject = class(TObject, IUnknown, ISupportErrorInfo)
+  ..
+  protected
+  { IUnknown }
+  function IUnknown.QueryInterface = ObjQueryInterface;
+  ..
+    function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
+  ..
+  public
+  function ObjQueryInterface(const IID: TGUID; out Obj): HResult; virtual;
+    stdcall;
+  ..
+end;
+</pre>
+
+
+
+
+<p>Это явно не спроста, что же получается, уважаемая Borland, виртуализируем QueryInterface, сами забавляемся полученным результатом, а простым бедным программерам ни слова? Некрасиво! </p>
+
+<p>Ну, думаю, с этим моментом также всё ясно, перекрываем ObjQueryInterface и дело в шляпе. Пошли дальше. </p>
+
+<p>Нотификация: </p>
+
+<p>Каждый школьник знает, что приём и передача нотификационных сообщений в COM производится через интерфейс IconnectionPointContainer. Дочитав MSDN до этого места, большинство программеров, тут же всё бросают и начинают реализовывать свою нотификацию на основе этого интерфейса. Но мы не так наивны, мы пойдём другим путём. На самом деле, реализовать собственную нотификацию, гораздо проще, чем это можно подумать. Работает как во внутренних, так и в локальных серверах, а заодно и в удалённых. Впрочем последнее лично не проверял. Идея: см. IAdviseSink, и мой пример по его мотивам. </p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

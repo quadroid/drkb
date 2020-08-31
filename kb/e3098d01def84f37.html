@@ -1,0 +1,552 @@
+<html>
+<head>
+  <title>Стилевые таблицы XSL</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushXml.js"></script>
+  <script language="javascript" src="js/shBrushCss.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Стилевые таблицы XSL</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Язык XML. Стилевые таблицы XSL</p>
+В предыдущем разделе для вывода элементов XML- документа на экран броузера мы применяли Java Script-сценарии Однако, как уже отмечалось, для этих целей предпочтительней использование специально предназначенного для этого средства - стилевых таблиц XSL(Extensible Stylesheet Language). </p>
+Стилевыми таблицами (стилевыми листами) принято называть специальные инструкции, управляющие процессом отображения элемента в окне программы-клиента(например, в окне броузера). Предложенные в качестве рекомендация W3C, каскадные стилевые таблицы(CSS- Cascading Style Sheets [7]) уже больше года используются Web- разработчиками для оформления Web- страниц. Поддержка CSS наиболее известными на сегодняшний день броузерами Netscape Navigator(начиная с версии 4.0) и Microsoft Explorer(начиная с версии 3.0), позволила использовать стилевые таблицы для решения самого широкого спектра задач - от оформления домашней странички до создания крупного корпоративного Web-узла. Слово каскадные в определении CSS означает возможность объединения отдельных элементов форматирования путем вложенных описаний стиля. Например, атрибуты текста, заданные в тэге &lt;body&gt;, будут распространяться на вложенные тэги до тех пор, пока в них не встретятся стилевые описания, отменяющие или дополняющие текущие параметры. Таким образом, использование таблиц CSS в HTML было весьма эффективно - отпадала необходимость явного задания тэгов форматирования для каждого из элементов документа. </p>
+Являясь очень мощным средством оформления HTML- страниц, CSS- таблицы, тем не менее, не могут применяться в XML-документах, т.к. набор тэгов в этом языке не ограничен и использование статических ссылок на форматируемые объекты документа в этом случае невозможно. </p>
+Поэтому для форматирования XML- элементов был разработан новый язык разметки, являющийся подмножеством XML, и специально был предназначен для форматирования XML- элементов. </p>
+Некоторые его отличия от CSS: <br>
+Во-первых, стилевые таблицы XSL позволяют определять оформление элемента в зависимости от его месторасположения внутри документа, т.е. к двум элементам с одинаковым названием могут применяться различные правила форматирования. <br>
+Во-вторых, языком, лежащем в основе XSL, является XML, а это означает, что XSL более гибок, универсален и у разработчиков появляется возможность использования средства для контроля за корректностью составления таких стилевых списков(используя DTD или схемы данных) <br>
+В-третьих, таблицы XSL не являются каскадными, подобно CSS, т.к. чрезвычайно сложно обеспечить "каскадируемость" стилевых описаний, или, другими словами, возможность объединения отдельных элементов форматирования путем вложенных описаний стиля, в ситуации, когда структура выходного документа заранее неизвестна и он создается в процессе самого разбора. Однако в XSL существует возможность задавать правила для стилей, при помощи которых можно изменять свойства стилевого оформления, что позволяет использовать довольно сложные приемы форматирования <br>
+<p>&nbsp;</p>
+В настоящий момент язык XSL находится на стадии разработки в W3C[3] и в будущем, видимо, станет частью стандарта XML. Это означает, что использование этого механизма является наиболее перспективным способом оформления XML- документов. В текущем рабочем варианте W3C, XSL рассматривается не только как язык разметки, определяющий стилевые таблицы - в него заложены средства, необходимые для выполнения действий по фильтрации информации, выводимой в окно клиента, поиска элементов, сложного поиска, основанного на зависимостях между элементами и т.д. На сегодняшний день единственным броузером, поддерживающим некоторые из этих возможностей, является бэта-версия Internet Explorer 5.0, однако в самом ближайшем будущем, безусловно, XSL будет использоваться также широко, как сегодня стандартные тэги HTML </p>
+В этом разделе мы рассмотрим упрощенную объектную модель XSL- документа, используемую в текущей версии XSL-конвертора Microsoft msxsl, и поэтому информацию, изложенную далее, нельзя считать описанием стандарта языка. </p>
+Все примеры, приводимые далее, могут быть проверены при помощи XSL- конвертора, свободно доступного на странице Mcrosoft [ www.microsoft.com/xml/xsl/ ] </p>
+<p>С чего начать<br>
+<p>&nbsp;</p>
+Принцип обработки XML- документов стилевыми таблицами заключается в следующем: при разборе XSL-документа программа-анализатор обрабатывает инструкции этого языка и каждому элементу, найденному в XML- дереве ставит в соответствие набор тэгов, определяющих форматирование этого элемента. Другими словами, мы задаем шаблон форматирования для XML- элементов, причем сам этот шаблон может иметь структуру соответствующего фрагмента XML-документа. Инструкции XSL определяют точное месторасположение элемента XML в дереве, поэтому существует возможность применять различные стили оформления к одинаковым элементам, в зависимости от контекста их использования. </p>
+В общем случае, XSL позволяет автору задавать параметры отображения элемента XML, используя любые языки, предназначенные для форматирования - HTML, RTF и т.д. В этом разделе мы будем использовать в качестве такого языка HTML, т.к. документы, созданные при помощи этого языка разметки могут просматриваться любой подходящей программой просмотра Web-страниц </p>
+<p>Структура XSL- таблиц<br>
+<p>&nbsp;</p>
+Рассмотрим основные структурные элементы XSL, используемые, в частности, в конверторе msxsl, для создания оформления XML-документов. </p>
+<p>Правила XSL </p>
+XSL- документ представляет собой совокупность правил построения, каждое из которых выделено в отдельный блок, ограниченный тэгами &lt;rule&gt; и &lt;/rule&gt;;. Правила определяют шаблоны, по которым каждому элементу XML ставится в соответствие последовательность HTML- тэгов, т.е. внутри них содержатся инструкции, определяющие элементы XML- документа и тэги форматирования, применяемые к ним. </p>
+Элементы XML, к которым будет применяться форматирование, обозначаются в XSL дескриптором &lt;target-element/&gt;;. Для указания элемента с конкретным названием (название элемента определяется тэгами, его обозначающими), т.е. определения класса элемента, можно использовать атрибут type="&lt;имя_элемента&gt;" </p>
+Вот пример простейшего XSL-документа, определяющего форматирование для фрагмента &lt;flower&gt;rose&lt;/flower&gt;:</p>
+<pre name="code" class="xml">
+&lt;xsl&gt;
+&lt;rule&gt;
+&lt;target-element type="flower"/&gt;
+&lt;p color="red" font-size="12"&gt;
+&lt;children/&gt;
+&lt;/p&gt;
+&lt;/rule&gt;
+&lt;/xsl&gt;
+</pre>
+Уже на этом примере можно проследить особенность использования стилевых таблиц: в любых правилах при помощи соответствующих элементов декларативно задается область, которая определяет фрагмент XML-документа, как мы чуть позже увидим, программа-анализатор заново проходит все элементы, начиная с текущего, всякий раз, когда в структуре XML- документа обнаруживаются новые вложенные элементы. </p>
+Инструкция &lt;target-element&gt; указывает на то, что данное правило определяет элемент. Параметром type="flower" задается название XML-элемента, для которого будет использоваться это правило. Программа-конвертор будет использовать HTML-тэги, помещенные внутри блока &lt;rule&gt;&lt;/rule&gt; для форматирования XML-элемента, которому "предназначался" текущий блок. В том случае, если для какого-то элемента XML шаблон не определяется, в выходной документ будут добавлены тэги форматирования по умолчанию (например, &lt;DIV&gt;&lt;/DIV&gt; ) </p>
+Процесс разбора XSL-правил является рекурсивным, т.е. если у элемента есть дочерние элементы, то программа будет искать определения этих элементов, расположенных "глубже" в дереве документа. Указанием на то, что необходимо повторить процесс разбора XML документа, теперь уже для дочерних элементов, является инструкция &lt;children/&gt;. Дойдя до нее, анализатор выберет из иерархического дерева XML- элементов нужную ветвь и найдет в XSL-шаблонах правила, определяющие форматирование этих нижележащих элементов. В том случае, если вместо &lt;children&gt; мы укажем инструкцию &lt;empty/&gt;;, программа закончит движение по данной ветви и возвратится назад, в родительское правило. При этом текущее правило никакой информации в выходном HTML-документе изменять не будет, т.к. &lt;empty/&gt; в данном случае означает, что содержимое элемента отсутствует. </p>
+Если в одном правиле &lt;target-element&gt; используется несколько раз, то инструкции по форматированию будут распространены на все описываемые внутри него XML-элементы, т.е. можно задавать единый шаблон форматирования для нескольких элементов одновременно: </p>
+<pre name="code" class="xml">
+&lt;xsl&gt;
+&lt;rule&gt;
+&lt;target-element type="item1"/&gt;
+&lt;target-element type="item2"/&gt;
+&lt;target-element type="item3"/&gt;
+&lt;hr&gt;
+&lt;children/&gt;
+&lt;hr&gt;
+&lt;/rule&gt;
+&lt;/xsl&gt;
+</pre>
+Ниже приведен пример более сложного XSL- описания, некоторые фрагменты которого будут пояснены позже. </p>
+XML-документ:</p>
+<pre name="code" class="xml">
+&lt;?XML Version="1.0"?&gt;
+&lt;documents&gt;
+&lt;books&gt;
+&lt;book id="Book1"&gt;
+&lt;title&gt;Макроэномические показатели экономики
+Римской Империи в период ее расцвета&lt;/title&gt;
+&lt;author&gt;Иван Петров&lt;/author&gt;
+&lt;date&gt;21.08.98&lt;/date&gt;
+&lt;/book&gt;
+&lt;book id="Book2"&gt;
+&lt;title&gt;Цветоводство и животноводство.
+ Практические советы&lt;/title&gt;
+&lt;author&gt;Петр Сидоров&lt;/author&gt;
+&lt;date&gt;10.10.98&lt;/date&gt;
+&lt;/book&gt;
+&lt;/books&gt;
+&lt;articles&gt;
+&lt;article id="Article1"&gt;
+&lt;author&gt;Петр Иванов&lt;/author&gt;
+&lt;title&gt;Влияние повышения тарифов оплаты за телефон
+на продолжительность жизни населения&lt;/title&gt;
+&lt;date&gt;12.09.98&lt;/date&gt;
+&lt;/article&gt;
+&lt;/articles&gt;
+&lt;/documents&gt;
+</pre>
+<p>Содержимое XSL-документа:</p>
+<pre name="code" class="xml">
+&lt;xsl&gt;
+  &lt;rule&gt;
+ &nbsp;&nbsp; &lt;root/&gt;
+ &nbsp;&nbsp; &lt;HTML&gt;
+ &nbsp;&nbsp; &lt;BODY bgcolor="white"&gt;
+ &nbsp;&nbsp; &lt;center&gt;&lt;hr width="80%"/&gt;&lt;b&gt;Library&lt;/b&gt;
+ &lt;hr width="80%"/&gt;&lt;br/&gt;
+ &nbsp;&nbsp; &lt;table width="80%" border="2"&gt;
+ &nbsp;&nbsp; &lt;children/&gt;
+ &nbsp;&nbsp; &lt;/table&gt;&lt;/center&gt;
+ &nbsp;&nbsp; &lt;/BODY&gt;
+ &nbsp;&nbsp; &lt;/HTML&gt;
+  &lt;/rule&gt;
+ &nbsp;&nbsp; &lt;rule&gt;
+  &lt;element type="book"&gt;
+ &nbsp;&nbsp;&nbsp; &lt;target-element type="author"/&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/element&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;td align="center"&gt;
+ &nbsp;&nbsp;&nbsp; &lt;p color="red" font-size="14"&gt; &lt;b&gt;
+&lt;children/&gt;
+&lt;/b&gt;&lt;/p&gt;&lt;/td&gt;
+ &nbsp;&nbsp; &lt;/rule&gt;
+ &nbsp;&nbsp; &lt;rule&gt;
+  &lt;element type="article"&gt;
+ &nbsp;&nbsp;&nbsp; &lt;target-element type="author"/&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/element&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;td align="center"&gt;
+ &nbsp;&nbsp;&nbsp; &lt;p color="red" font-size="14"
+ font-style="italic"&gt;&lt;children/&gt;&lt;/p&gt;&lt;/td&gt;
+ &nbsp;&nbsp; &lt;/rule&gt;
+ &nbsp;&nbsp; &lt;rule&gt;
+ &nbsp;&nbsp;&nbsp; &lt;target-element type="book"/&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;tr&gt;&lt;children/&gt;&lt;/tr&gt;
+ &nbsp;&nbsp; &lt;/rule&gt;
+ &nbsp;&nbsp; &lt;rule&gt;
+ &nbsp;&nbsp;&nbsp; &lt;target-element type="article"/&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;tr&gt;&lt;children/&gt;&lt;/tr&gt;
+ &nbsp;&nbsp; &lt;/rule&gt;
+ &nbsp;&nbsp; &lt;rule&gt;
+ &nbsp;&nbsp;&nbsp; &lt;target-element/&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;td align="center"&gt;&lt;p&gt;&lt;children/&gt;&lt;/p&gt;&lt;/td&gt;
+ &nbsp;&nbsp; &lt;/rule&gt;
+ &nbsp;&nbsp; &lt;rule&gt;
+ &nbsp;&nbsp;&nbsp; &lt;target-element type="books"/&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;tr&gt;&lt;td colspan="3" bgcolor="silver"
+ &nbsp;&nbsp; &gt;Books&lt;/td&gt;&lt;/tr&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;children/&gt;
+ &nbsp;&nbsp; &lt;/rule&gt;
+ &nbsp;&nbsp; &lt;rule&gt;
+ &nbsp;&nbsp;&nbsp; &lt;target-element type="articles"/&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;tr&gt;&lt;td colspan="3" bgcolor="silver"
+ &nbsp;&nbsp; &gt;Articles&lt;/td&gt;&lt;/tr&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;children/&gt;
+ &nbsp;&nbsp; &lt;/rule&gt;
+&lt;/xsl&gt;
+</pre>
+<p>Корневое правило<br>
+<p>Разбор любого XSL- документа всегда начинается с правила для корневого элемента, в котором определяется область всего разбираемого XML документа и поэтому тэги форматирования, помещенные сюда, будут действовать на весь документ в целом. Для обозначения корневого правила необходимо включить в него элемент &lt;root/&gt;;. Например, для того, чтобы задать тэг &lt;body&gt; для формируемой нами выходной HTML- страницы, мы можем использовать следующий фрагмент:</p>
+<pre name="code" class="xml">
+&lt;xsl&gt;
+&lt;rule&gt;
+&lt;root/&gt;
+&lt;html&gt;&lt;head&gt;&lt;title&gt; Flowers&lt;/title&gt;&lt;/head&gt;
+&lt;body bgcolor="white" link="blue" alink="darkblue"
+vlink="darckblue"&gt;
+&lt;children/&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+&lt;/rule&gt;
+&lt;/xsl&gt;
+</pre>
+В этом примере при помощи инструкций &lt;root/&gt; и &lt;children/&gt; мы определили ряд начальных и конечных HTML-тэгов для нашей страницы, между которыми затем в процессе рекурсивного обхода XSL- анализатора будут помещены остальные элемента документа. </p>
+В том случае, если мы не определяем правило для корневого элемента, разбор документа начнется с первого правила с инструкцией &lt;target-element&gt;(для оформления же заголовка документа будет использован образец форматирования, применяющийся по умолчанию). </p>
+<p>Отношения между элементами<br>
+
+<p>Дочерние элементы в XML-документе всегда находятся внутри области, определяемой тэгами родительского по отношению к ним элемента. Для того, чтобы точно указать месторасположение обрабатываемого элемента в дереве XML, в XSL используется дополнительный тэг &lt;element&gt;;. При помощи него можно указать, какие элементы должны предшествовать текущему, а какие - следовать после него. Например, в следующем фрагменте определяется, что форматирование элемента &lt;title&gt; будет зависеть от его месторасположения внутри XML-документа: </p>
+<pre name="code" class="xml">
+&lt;xsl&gt;
+&lt;rule&gt;
+&lt;element type="journal"&gt;
+ &nbsp;&nbsp;&nbsp; &lt;target-element type="title"/&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/element&gt;
+&lt;center&gt;
+&lt;hr width=80%&gt;
+&lt;children/&gt;
+&lt;hr width=80%&gt;
+&lt;/center&gt;
+&lt;/rule&gt;
+&lt;rule&gt;
+&lt;element type="article"&gt;
+ &nbsp;&nbsp;&nbsp; &lt;target-element type="title"/&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/element&gt;
+&lt;td align="center"&gt;&lt;p color="blue" font-size="14"
+ font-style="italic"&gt;&lt;children/&gt;
+&lt;/td&gt;
+&lt;/rule&gt;
+&lt;/xsl&gt;
+</pre>
+<p>Как видно из примера, если в XML- документе будет найден элемент &lt;title&gt;, являющийся дочерним по отношению к элементу &lt;article&gt; (название статьи), то его форматирование будет несколько отличаться от элемента &lt;title&gt;, расположенного внутри тэгов &lt;journal&gt;</p>
+<p>Приоритеты правил</p>
+
+<p>В том случае, если внутри XSL- документа встречается несколько правил для одного и того же элемента, то msxsl будет использовать то из них, которое более точно определяет позицию данного элемента. Т.е. если XSL- документ содержит следующие правила: </p>
+<pre name="code" class="xml">
+&lt;rule&gt;
+&lt;element type="journal"&gt;
+ &nbsp;&nbsp;&nbsp; &lt;target-element type="title"/&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/element&gt;
+&lt;center&gt;
+&lt;hr width=80%&gt;
+&lt;children/&gt;
+&lt;hr width=80%&gt;
+&lt;/center&gt;
+&lt;/rule&gt;
+&lt;rule&gt;
+ &lt;target-element type="title"/&gt;
+&lt;b&gt;
+&lt;children/&gt;
+&lt;/b&gt;
+&lt;/rule&gt;
+</pre>
+, то при использовании этой стилевой таблицы в случае, когда элемент &lt;title&gt; является потомком &lt;journal&gt;, к нему будет применено первое правило. Для любых же других элементов будет действовать правило без тэга &lt;element&gt; </p>
+В общем случае приоритет правил определяется следующим образом (в порядке убывания приоритета): </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>правила, помеченные специальным тэгом &lt;importance&gt; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>правила с наибольшим значением атрибута id, если он определен </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>правила с наибольшим значением атрибута class, если он определен </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>правила, имеющие наибольшую вложенность, определяемую тэгом &lt;element&gt; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>правила, использующие атрибут type совместно с &lt;target-element&gt; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>правила, в которых отсутствует атрибут type в &lt;target-element&gt; или &lt;element&gt; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>правила с более высоким приоритетом, задаваемым атрибутом priority тэга &lt;rule&gt; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>правила с наибольшим значением квалификаторов &lt;only&gt;, &lt;position&gt;, &lt;attribute&gt; </td></tr></table></div><p>Использование атрибутов элементов<br>
+<p>Применительно к &lt;target-element&gt; и &lt;element&gt; в правилах также могут использоваться специальные элементы &lt;attribute&gt;;, при помощи которых можно уточнять характеристики обрабатываемых элементов, задавая различные инструкции форматирования для одинаковых элементов с различными атрибутами. Указываемые в &lt;attribute&gt; параметры name и value определяют атрибут XML, который должен иметь текущий обрабатываемый элемент. Например, в следующем фрагменте все элементы с атрибутом free_lance ="true" будут выделены в выходном HTML- документе серым цветом </p>
+<pre name="code" class="xml">
+&lt;rule&gt;
+&lt;target-element type="author"&gt;
+ &lt;attribute name="free_lance" value="true"&gt;
+ &lt;/target-element&gt;
+&lt;p color="gray"&gt;
+&lt;children/&gt;
+&lt;/p&gt;
+ &lt;/rule&gt;
+</pre>
+Фильтрация элементов<br>
+Одним из самых мощных средств XSL является возможность сортировки и выборки элементов, выделяемых из общего дерева элементов документа. Для этого используется элемент &lt;select-elements&gt;;, который заменяет &lt;children/&gt; в правилах, определяя те элементы, которые следует обработать в процессе рекурсивного обхода. Например, в следующем примере будут обработаны только элементы &lt;author&gt;: </p>
+<pre name="code" class="xml">
+&lt;rule&gt;
+&lt;target-element type=" staff"/&gt;
+&lt;div&gt;
+&lt;select-elements&gt;
+&lt;target-element type = "author"/&gt;
+&lt;/select-elements&gt;
+&lt;/div&gt;
+&lt;/rule&gt;
+</pre>
+Элемент &lt;select-elements&gt; сам по себе не определяет шаблон форматирования, он лишь управляет работой анализатора, обозначая, подобно &lt;children/&gt;, "нижележащие" элементы. В приведенном примере элемент &lt;author&gt; должен быть расположен внутри элемента &lt;staff&gt; </p>
+Для того, чтобы в шаблоне выделить не только собственные дочерние элементы, но и дочерние элементы потомков, т.е. использовать несколько уровней вложенности, необходимо задать параметр from = "descendants". Если параметр имеет значение "children", что указывает на то, что выбор должен производится из списка собственных дочерних элементов, то атрибут from может опускаться, т.к. "children" является значением по умолчанию. </p>
+<p>Правила стилей<br>
+<p>&nbsp;</p>
+В отличие от CSS, в XSL невозможно использование каскадных стилевых определений(т.е. нельзя использовать несколько правил для определения стиля одного того же элемента), т.к. такие ограничения вводит рекурсивный алгоритм работы программы - анализатора. Однако использование правил определения стиля(Style Rules) элемента позволяет каким-то образом скомпенсировать этот недостаток. </p>
+Для определения правила стилевого оформления необходимо воспользоваться элементом &lt;style-rule&gt;;, который используется точно также, как и &lt;rule&gt;, но инструкции, содержащиеся в нем, никак не влияют на структуру выходного документа. Поэтому все команды внутри этого правила должны описываться в рамках элемента &lt;apply&gt;. Вот как будет выглядеть, например, определение стиля для элемента &lt;flower&gt;rose&lt;/flower&gt;;: </p>
+<pre name="code" class="xml">
+&lt;style-rule&gt;
+&lt;target-element type ="flower"/&gt;
+&lt;apply color ="red"/&gt;
+&lt;/style-rule&gt;
+&lt;rule&gt;
+&lt;target-element type="flower"/&gt;
+&lt;div font-style="italic";&gt;
+&lt;children/&gt;
+&lt;/div&gt;
+&lt;/rule&gt;
+</pre>
+Если бы мы не определили правила &lt;rule&gt;, то в выходной документ не было бы помещено никакой информации, т.к. элемент &lt;style-rule&gt; только определяет параметры стилевого оформления, не предпринимая никаких других действий. </p>
+Также надо учитывать, что XSL- анализатор использует CSS для определения задаваемого правилами &lt;style-rule&gt; стиля в выходном HTML-документе, тем самым предоставляя нам возможность использования этого мощного средства при оформлении HTML-страниц После обработки приведенного в примере фрагмента в выходной документ будут помещены следующие элементы: </p>
+<p>&lt;div style= "font-style: italic; color : red;"</p>
+<p>&gt;rose&lt;/div&gt;</p>
+<p>Еще один пример: </p>
+Стили в формате CSS: </p>
+<pre name="code" class="css">
+issue {
+  font-weight: bold;
+  color: blue;
+}
+
+.new {
+  font-weight: bold;
+  color: red;
+}
+</pre>
+Фрагмент XSL- документа, позволяющего использовать подобные стилевые определения:</p>
+<pre name="code" class="xml">
+&lt;style-rule&gt;
+&lt;target-element type ="issue"/&gt;
+&lt;apply color ="blue"/&gt;
+&lt;/style-rule&gt;
+&lt;style-rule&gt;
+&lt;target-element type ="issue"&gt;
+&lt;attribute name ="class" value ="new" /&gt;
+&lt;/target-element&gt;
+&lt;apply color ="red"/&gt;
+&lt;/style-rule&gt;
+&lt;rule&gt;
+&lt;target-element type="issue"/&gt;
+&lt;div&gt;
+&lt;children/&gt;
+&lt;/div&gt;
+&lt;/rule&gt;
+</pre>
+<p>Сценарии<br>
+<p>&nbsp;</p>
+Сценарии могут использоваться в документах XSL точно также, как и в HTML. Кроме того, сценарии, содержащиеся внутри XSL-документа и запускаемые броузером в процессе обработки документа могут динамически создавать HTML-документы, извлекая необходимую для этого информацию непосредственно из элементов XSL-документа. </p>
+Для написания сценариев XSL использует специальный скриптовый язык - ECMAScript. Однако в msxsl для этих целей можно применять Microsoft JavaScript,- язык, который объединил в себе некоторые элементы стандартного JavaScript и ECMAScript. </p>
+<p>Вычисление выражений<br>
+<p>&nbsp;</p>
+Наиболее простым примером использования сценариев в XSL -документе является вычисление значений параметров описываемых элементов. Для этого надо просто поставить знак равенства в качестве первого символа параметра, что заставит XSL-процессор вычислить значение выражения(синтаксис этого выражения должен отвечать требованиям JavaScript). Например, после разбора этого правила: </p>
+<pre name="code" class="xml">
+&lt;rule&gt;
+&lt;target-element type="header"&gt;
+&lt;hr width="=100-20+'%'"&gt;
+&lt;children/&gt;
+&lt;hr width="80%"&gt;
+&lt;/rule&gt;
+</pre>
+, в выходном документе окажутся следующие инструкции: </p>
+<pre name="code" class="xml">
+&lt;hr width=80%&gt;
+...
+&lt;hr width=80%&gt;
+</pre>
+Очень часто в правилах XSL необходимо использовать атрибуты описываемого в них элемента. Для этого мы должны воспользоваться методом getAttribute(), описанным в объектной модели XML (мы рассматриваем объектную модель XML-документов, предложенную Microsoft, список этих функций приведен в конце раздела). Т.к. каждому элементу XSL доступен указатель на соответствующий ему объект, сценарий может обращаться к внутренним функциям и свойствам этих элементов, при помощи которых и осуществляются необходимые действия. </p>
+В следующем фрагменте XML- документа определяется элемент &lt;article&gt;, в котором атрибут src используется для задания адреса файла, содержащего текст статьи. </p>
+<pre name="code" class="xml">
+&lt;articles&gt;
+&lt;article src="http://server/pages/article.html"&gt;
+Bugs report&lt;/article&gt;
+&lt;/articles&gt;
+</pre>
+Для того, чтобы использовать этот атрибут в выходном HTML-документе, необходимо определить следующее правило:</p>
+<pre name="code" class="xml">
+&lt;rule&gt;
+&lt;target-element type="article"&gt;
+&lt;a href='=getAttribute("src")'&gt;
+&lt;children/&gt;
+&lt;/a&gt;
+&lt;/rule&gt;
+</pre>
+После обработки этого фрагмента в выходной документ будет помещен элемент:</p>
+<pre name="code" class="xml">
+&lt;a href="http://server/pages/article.html"
+&gt;Bugs report&lt;/a&gt;
+</pre>
+<p>Выполнение инструкций<br>
+<p>&nbsp;</p>
+Другим способом помещения в выходной HTML- документ информации, являющейся результатом выполнения каких-либо операций JavaScript &#8211; сценариев является использовнаие инструкции &lt;eval&gt;;: </p>
+<pre name="code" class="xml">
+&lt;rule&gt;
+&lt;element type="articles"&gt;
+&lt;target-element type="article"&gt;
+&lt;/element&gt;
+&lt;tr&gt;&lt;td&gt;&lt;eval&gt;childNumber(this)&lt;/eval&gt;&lt;/td&gt;&lt;td&gt;
+&lt;children/&gt;
+&lt;/td&gt;&lt;tr&gt;
+&lt;/rule&gt;
+</pre>
+Метод childNumber в данном случае возвращает текущий номер дочернего элемента. </p>
+<p>Определение функций и глобальных переменных<br>
+<p>&nbsp;</p>
+Аналогично тэгу &lt;SCRIPT&gt; в HTML, элемент &lt;define-script&gt; содержит функции и определения глобальных переменных. Обычно в XSL-документе определяется один элемент &lt;define-script&gt;, расположенный в самом начале. </p>
+<pre name="code" class="xml">
+&lt;xsl&gt;
+&lt;define-script&gt;
+&lt;![CDATA[
+var fontSize=12;
+function getColor(elem){
+return elem.children.item("color",0).text;
+  // Возвращает содержимое дочернего элемента &lt;color&gt;
+}]]&gt;
+&lt;/define-script&gt;
+&lt;rule&gt;
+&lt;target-element type = "flower"&gt;
+&lt;div background-color="=getColor(this)";
+font-size="=fontSize"&gt;
+&lt;children/&gt;
+&lt;/div&gt;
+&lt;/rule&gt;
+&lt;/xsl&gt;
+</pre>
+Если применить эти правила к такому фрагменту XML- документу: </p>
+<pre name="code" class="xml">
+&lt;xml&gt;
+&lt;flower&gt;
+rose
+&lt;color&gt;red&lt;/color&gt;
+&lt;/flower&gt;
+</pre>
+, то на выходе HTML -документ будет содержать следующие элементы: </p>
+<pre name="code" class="xml">
+&lt;div background-color="red"; font-size="12"&gt;</p>
+</pre>
+Необходимо отметить, что использование глобальных переменных в некоторых случаях может приводить к серьезным ошибкам, вызванным попытками одновременного к ним доступа. Поэтому рекомендуется использовать такие переменные только в качестве констант. </p>
+<p>Использование Java Script для HTML</p>
+Создавая шаблон HTML-документа, Вы можете указывать в нем практически любые элементы HTML, в том числе и блоки &lt;SCRIPT&gt;, внутри которых можно задавать любые конструкции Java Script, используя для этого область CDATA: </p>
+<pre name="code" class="xml">
+&lt;xsl&gt;
+  &lt;rule&gt;
+ &nbsp;&nbsp; &lt;root/&gt;
+ &nbsp;&nbsp; &lt;HTML&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp; &lt;HEAD&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;SCRIPT LANGUAGE="JSCRIPT"&gt;&lt;![CDATA[
+var ie4=((navigator.appName=="Microsoft Internet
+Explorer")&amp;&amp;(parseInt(navigator.appVersion)&nbsp; &gt;= 4 ));
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; function msover(){
+if (ie4){
+ &nbsp;&nbsp; event.srcElement.style.color="red";
+ &nbsp;&nbsp; event.srcElement.style.cursor = "hand";
+ &nbsp; }
+}
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; function msout(){
+ if (ie4){
+ &nbsp;&nbsp; event.srcElement.style.color="black";
+ &nbsp;&nbsp; event.srcElement.style.cursor = "auto";
+ &nbsp; }
+}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]]&gt;&lt;/SCRIPT&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp; &lt;/HEAD&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp; &lt;BODY&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;children/&gt;
+ &nbsp;&nbsp;&nbsp;&nbsp; &lt;/BODY&gt;
+ &nbsp;&nbsp; &lt;/HTML&gt;
+  &lt;/rule&gt;
+  &lt;rule&gt;
+ &nbsp;&nbsp; &lt;target-element type="chapter"/&gt;
+ &nbsp;&nbsp; &lt;DIV id='=tagName + formatNumber
+ (childNumber(this),"1")'
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; background-color="marron"
+ &nbsp;&nbsp; onmouseover='="msover("+ tagName +
+  formatNumber(childNumber(this),"1")+")"'
+ &nbsp;&nbsp; onmouseout='="msout("+ tagName +
+  formatNumber(childNumber(this),"1")+")"'
+ &nbsp;&nbsp;&nbsp;&nbsp; &lt;children/&gt;
+ &nbsp;&nbsp; &lt;/DIV&gt;
+  &lt;/rule&gt;
+&lt;/xsl&gt;
+</pre>
+<p>Если использовать эти правила для следующего XML- документа: 
+<pre name="code" class="xml">
+&lt;contents&gt;
+  &lt;chapter&gt;Part1&lt;/chapter&gt;
+  &lt;chapter&gt;Part2&lt;/chapter&gt;
+  &lt;chapter&gt;Part3&lt;/chapter&gt;
+&lt;/contents&gt;
+</pre>
+<p>то в результате мы получим такой HTML-файл:</p>
+<pre name="code" class="html">
+&lt;HTML&gt;
+&lt;HEAD&gt;
+&lt;SCRIPT LANGUAGE="JSCRIPT"&gt;
+var ie4=((navigator.appName=="Microsoft Internet
+Explorer")&amp;&amp;(parseInt(navigator.appVersion)&nbsp; &gt;= 4 ));
+function msover(){
+if (ie4){
+ &nbsp;&nbsp; event.srcElement.style.color="red";
+ &nbsp;&nbsp; event.srcElement.style.cursor = "hand";
+  }
+}
+function msout(){
+ if (ie4){
+ &nbsp;&nbsp; event.srcElement.style.color="black";
+ &nbsp;&nbsp; event.srcElement.style.cursor = "auto";
+ &nbsp; }
+  }
+&lt;/SCRIPT&gt;
+&lt;/HEAD&gt;
+&lt;BODY&gt;
+&lt;DIV id=''chapter1" onmouseover="msover("chapter1")"'
+ &nbsp;&nbsp;&nbsp; onmouseout="msout("chapter1")"'
+ &nbsp;&nbsp;&nbsp;&nbsp; Part 1
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/DIV&gt;
+&lt;DIV id=''chapter2" onmouseover="msover("chapter2")"'
+ &nbsp;&nbsp;&nbsp; onmouseout="msout("chapter2")"'
+ &nbsp;&nbsp;&nbsp;&nbsp; Part 2
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/DIV&gt;
+&lt;DIV id=''chapter3" onmouseover="msover("chapter3")"'
+ &nbsp;&nbsp;&nbsp; onmouseout="msout("chapter3")"'
+ &nbsp;&nbsp;&nbsp;&nbsp; Part 3
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/DIV&gt;
+&lt;/BODY&gt;
+&lt;/HTML&gt;
+</pre>
+<p>Встроенные функции XSL</p>
+В завершении приведем список внутренних функций, которые можно использовать в JavaScript &#8211;сценариях, предназначенных для анализатора msxsl: </p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>Ancestor(elementType, elem)</p>
+</td>
+<td ><p>Возвращает для текущего элемента ссылку на ближайший родительский элемент заданного типа. Если такого элемента нет или текущий элемент пустой, то возвращает null </p>
+</td>
+</tr>
+<tr >
+<td ><p>ChildNumber(elem)</p>
+</td>
+<td ><p>Возвращает индекс текущего элемента в списке других дочерних элементов данного типа.</p>
+</td>
+</tr>
+<tr >
+<td ><p>AncestorChildNumber()</p>
+</td>
+<td ><p>Возвращает номер ближайшего предка текущего элемента или null, если такового не существует</p>
+</td>
+</tr>
+<tr >
+<td ><p>path(xsl)</p>
+</td>
+<td ><p>Возвращает массив, содержащий "путь" к текущему элементу - в каждую ячейку этого массива помещается цифровое значение, указывающее на количество элементов одинакового типа, находящихся на текущем уровне вложенности. Первым значением этого массива будет представлен корневой элемент, последним - текущий. Размер массива определяет глубину вложенности текущего элемента.</p>
+</td>
+</tr>
+<tr >
+<td ><p>HierarchicalNumberRecursive (elementType,elem)</p>
+</td>
+<td ><p>Метод, похожий на метод path, но возвращает только дочерние элементы </p>
+</td>
+</tr>
+<tr >
+<td ><p>FormatNumber(n,format)</p>
+</td>
+<td ><p>Возвращает строку - символьное представление номера(т.е. "один", "два" и т.д.). Возможно определение следующих форматов: <br>
+"1" - 0,1,2,.. <br>
+"01" - 01,02,03,... <br>
+"a" - a,b,c,..z, aa, ab,..zz <br>
+<p>"A" - A,..,Z,AA, .. ZZ</p>
+</td>
+</tr>
+<tr >
+<td ><p>FormatNumberList(list,format,separator)</p>
+</td>
+<td ><p>Возвращает строку, представляющую список, элементами которого являются символьные представления чисел
+</td>
+</tr>
+</table>
+<p>Источник: <a href="http://helper10.narod.ru/ " target="_blank">http://helper10.narod.ru/ </a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

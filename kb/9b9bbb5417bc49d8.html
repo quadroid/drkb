@@ -1,0 +1,82 @@
+<html>
+<head>
+  <title>Огромные LCK-файлы (Lock File Has Grown Too Large)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Огромные LCK-файлы (Lock File Has Grown Too Large)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Если .EXE-файл расположен в том же каталоге, что и таблица Paradox, и флажок Local Share установлен в TRUE, .LCK-файл с каждым запросом растет как на дрожжах. Другая условие - вы имеете соединение посредством DbiOpenTable или TTable.Open.</p>
+
+<p>РЕШЕНИЕ:</p>
+
+<p>Установите частный (private) каталог в какое-нибудь другое место </p>
+<p>Переместите .EXE-файл в каталог, отличный от каталога с файлами таблиц </p>
+<p>Установите Local Share в FALSE</p>
+
+<p>- Scott Frolich </p>
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+<hr />Эта проблема специфична для таблиц форматат Paradox, относится как 16 битным, так и 32 битным версиям BDE, и может встречается при выполнении одного из следующих условий: </p>
+
+<p>1. Исполняемый файл приложения находится в той же папке, что и таблица.</p>
+<p>2. Некорректно установлен (неустановлен) параметр Private Directory.</p>
+<p>3. Открытая в TTable таблица Paradox участвует в запросах TQuery.</p>
+<p>4. Параметр LOCAL SHARE установлен в True (BDE Administrator, закладка "System") </p>
+
+<p>Для решения проблемы необходимо выполнить следующие шаги: </p>
+
+<p>1. В папке с исполняемым файлом приложения создайте три новых папки: TABLES, PRIV и NET (длина пути NetDir не должна привышать 31 символа). Поместите все таблицы приложения в папку Tables </p>
+
+<p>2. Во время исполнения Ваше приложение должно устанавливать значения: </p>
+
+<p>Session.PrivateDir := ExtractFilePath(ParamStr(0)) + 'PRIV'; Session.NetFileDir := ExtractFilePath(ParamStr(0)) + 'NET'; </p>
+
+<p>3. Убедитесь, что значение LOCAL SHARE установлено в False (BDE Administrator, закладка "System") </p>
+
+<p>Эти рекомендации позволяют избежать ошибки "Lock File Too Large". </p>
+
+<p>Источник </p>
+
+<p id="note">Примечание</p>
+<p>данные рекомендации справедливы для локальных баз, в случае сетевых баз и/или размещения программы на сетевом устройстве или при доступе из нескольких программ, можно поступись следующим образом: </p>
+
+<p>1. Не размещайте базу и программу в одной папке, тем более, что программу желательно поместить в защищенную от записи папку. </p>
+
+<p>2. Приватный каталог надо разместить в персональной папке, желательно для каждой запущенной копии приложения отдельный, подходящее место персональная папка TEMP\SessionID\ </p>
+
+<p>3. Сетевой каталог NETDIR - выделить отдельную папку на сети исключительно только для этой цели и единную для всех приложений BDE </p>
+
+<p>4. LOCAL SHARE - TRUE, можно попробовать и FALSE, если это не будет приводить к порче индексов. </p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

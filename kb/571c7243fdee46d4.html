@@ -1,0 +1,131 @@
+<html>
+<head>
+  <title>Как инвертировать матрицу?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как инвертировать матрицу?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+type 
+  RCOMat = array of array of Extended; 
+ 
+var 
+  DimMat: integer; 
+ 
+procedure InvertMatrix(var aa: RCOMat); 
+var 
+  numb, nula1, ipiv, indxr, indxc: array of Integer; 
+  i, j, l, kod, jmax, k, ll, icol, irow: Integer; 
+  amax, d, c, pomos, big, dum, pivinv: Double; 
+  ind: Boolean; 
+begin 
+  for j := 0 to Pred(DimMat) do ipiv[j] := 0; 
+ 
+  irow := 1; 
+  icol := 1; 
+  for i := 0 to Pred(DimMat) do 
+  begin 
+    big := 0; 
+ 
+    for j := 0 to Pred(DimMat) do 
+    begin 
+      if (ipiv[j] &lt;&gt; 1) then 
+      begin 
+        for k := 0 to Pred(DimMat) do 
+        begin 
+          if (ipiv[k] = 0) then 
+            if (Abs(aa[j, k]) &gt;= big) then 
+            begin 
+              big  := Abs(aa[j, k]); 
+              irow := j; 
+              icol := k; 
+            end 
+            else; 
+        end; 
+      end; 
+    end; 
+ 
+    ipiv[icol] := ipiv[icol] + 1; 
+    if (irow &lt;&gt; icol) then 
+    begin 
+      for l := 0 to Pred(DimMat) do 
+      begin 
+        dum         := aa[irow, l]; 
+        aa[irow, l] := aa[icol, l]; 
+        aa[icol, l] := dum; 
+      end; 
+      for l := 0 to Pred(DimMat) do 
+      begin 
+        dum := aa[irow + DimMat + 1, l]; 
+        aa[irow + DimMat + 1, l] := aa[icol + DimMat + 1, l]; 
+        aa[icol + DimMat + 1, l] := dum; 
+      end; 
+    end; 
+    indxr[i] := irow; 
+    indxc[i] := icol; 
+    if (aa[icol, icol] = 0) then; 
+    pivinv         := 1.0 / aa[icol, icol]; 
+    aa[icol, icol] := 1.0; 
+    for l := 0 to Pred(DimMat) do aa[icol, l] := aa[icol, l] * pivinv; 
+    for l := 0 to Pred(DimMat) do aa[icol + DimMat + 1, l] := 
+        aa[icol + DimMat + 1, l] * pivinv; 
+    for ll := 0 to Pred(DimMat) do 
+    begin 
+      if (ll &lt;&gt; icol) then 
+      begin 
+        dum          := aa[ll, icol]; 
+        aa[ll, icol] := 0.0; 
+        for l := 0 to Pred(DimMat) do aa[ll, l] := aa[ll, l] - aa[icol, l] * dum; 
+        for l := 0 to Pred(DimMat) do aa[ll + DimMat + 1, l] := 
+            aa[ll + DimMat + 1, l] - aa[icol + DimMat + 1, l] * dum; 
+      end; 
+    end; 
+  end; 
+ 
+  for l := Pred(DimMat) downto 0 do 
+  begin 
+    if (indxr[l] &lt;&gt; indxc[l]) then 
+    begin 
+      for k := 0 to Pred(DimMat) do 
+      begin 
+        dum := aa[k, indxr[l]]; 
+        aa[k, indxr[l]] := aa[k, indxc[l]]; 
+        aa[k, indxc[l]] := dum; 
+      end; 
+    end; 
+  end; 
+end; 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

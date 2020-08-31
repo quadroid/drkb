@@ -1,0 +1,89 @@
+<html>
+<head>
+  <title>За какое время было создано изображение?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">За какое время было создано изображение?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p id="author">Автор: Даниил Карапетян</p>
+<p>WEB сайт: http://program.dax.ru  </p>
+<p>При нажатии на Button1 используется свойство Pixels, а при нажатии на Button2 - ScanLine. В заголовок окна выводится время в миллисекундах, за которое было создано изображение. </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  t: cardinal;
+  x, y: integer;
+  bm: TBitmap;
+begin
+  bm := TBitmap.Create;
+  bm.PixelFormat := pf24bit;
+  bm.Width := Form1.ClientWidth;
+  bm.Height := Form1.ClientHeight;
+  t := GetTickCount;
+  for y := 0 to bm.Height - 1 do
+    for x := 0 to bm.Width - 1 do
+    bm.Canvas.Pixels[x,y] := RGB(x+y, x-y, y-x);
+  Form1.Caption := IntToStr(GetTickCount - t);
+  Form1.Canvas.Draw(0, 0, bm);
+end;
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+var
+  t: cardinal;
+  x, y: integer;
+  bm: TBitmap;
+  p: PByteArray;
+begin
+  bm := TBitmap.Create;
+  bm.PixelFormat := pf24bit;
+  bm.Width := Form1.ClientWidth;
+  bm.Height := Form1.ClientHeight;
+  t := GetTickCount;
+  for y := 0 to bm.Height - 1 do
+  begin
+    p := bm.ScanLine[y];
+    for x := 0 to bm.Width - 1 do
+    begin
+      p^[x*3] := x+y;
+      p^[x*3+1] := x-y;
+      p^[x*3+2] := y-x;
+    end;
+  end;
+  Form1.Caption := IntToStr(GetTickCount - t);
+  Form1.Canvas.Draw(0, 0, bm);
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

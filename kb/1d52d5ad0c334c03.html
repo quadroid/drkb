@@ -1,0 +1,53 @@
+<html>
+<head>
+  <title>Работа с листами книги</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Работа с листами книги</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Есть в VBA одна вещь, которая меня раздражает. Это ActiveSheet и ActiveWorkbook, а также возможность работы с Cells и Range без указания, к какому листу или книге они принадлежат. Одно время я боролся сам с собой, то применяя, то совсем отказываясь от подобных конструкций. Окончательно я отказался от этого лишь после обнаружения многочисленных ошибок в анализе «лога» моего Web-сервера, который я сделал на VBA. Благо, при работе в Delphi нет возможности написать Cells(x, y) = NewValue, подразумевая при этом какой-то неуловимый ActiveSheet. Поэтому прежде, чем работать с отдельными ячейками, я всегда получаю интерфейс на конкретный и вполне осязаемый лист книги. И делю это так: </p>
+
+<pre name="code" class="delphi">
+var ISheet: Excel8TLB._Worksheet;
+…
+ISheet := IWorkbook.Worksheets.Item['Лист1'] as Excel8TLB._Worksheet;
+</pre>
+
+
+<p>Коллекция Worksheet подобна всем остальным коллекциям из Excel TLB. В ней вы можете удалять листы, вставлять новые, изменять их порядок. Но я практически никогда не делаю этого, поэтому всех нетерпеливых снова отсылаю к справке по Excel VBA. </p>
+
+<p>Главную же мысль свою повторю еще раз. Всегда и везде рекомендую работать с ячейками и областями в контексте их листа, получив предварительно интерфейс на этот лист вышеописанным способом. От использования свойств ActiveSheet и ActiveWorkbook можно совсем отказаться, разве что за исключением каких-то особых случаев. </p>
+
+<p id="author">Автор Евгений Старостин</p>
+<p>Взято с сайта <a href="http://www.delphikingdom.ru/" target="_blank">http://www.delphikingdom.ru/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

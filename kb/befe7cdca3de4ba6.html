@@ -1,0 +1,152 @@
+<html>
+<head>
+  <title>Как запросить страницу с сайта?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как запросить страницу с сайта?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Это можно сделать с помощью TClientSocket.</p>
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ScktComp;
+ 
+const Request: AnsiString = 'GET / HTTP/1.1' + #$D#$A +
+  'Accept: application/vnd.ms-excel, application/msword, */*' + #$D#$A +
+    'Accept-Language: en-us' + #$D#$A +
+    'Accept-Encoding: gzip, deflate' + #$D#$A +
+    'User-Agent: Mozilla/4.0 (compatible; MSIE 4.01; Windows 98)' + #$D#$A +
+    'Host: vingrad.com' + #$D#$A +
+    'Connection: Keep-Alive' + #$D#$A + #$D#$A;
+ 
+type
+  TForm1 = class(TForm)
+    Skt: TClientSocket;
+    Button1: TButton;
+    Memo1: TMemo;
+    procedure Button1Click(Sender: TObject);
+    procedure SktRead(Sender: TObject; Socket: TCustomWinSocket);
+    procedure SktConnect(Sender: TObject; Socket: TCustomWinSocket);
+  private
+{ Private declarations }
+  public
+{ Public declarations }
+  end;
+ 
+var Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  Skt.Host := 'vingrad.ru';
+  Skt.Port := 80;
+  Skt.Open;
+end;
+ 
+procedure TForm1.SktRead(Sender: TObject; Socket: TCustomWinSocket);
+begin
+  Memo1.Lines.Text := Memo1.Lines.Text + Socket.ReceiveText;
+end;
+ 
+procedure TForm1.SktConnect(Sender: TObject; Socket: TCustomWinSocket);
+begin
+  Socket.SendText(Request);
+end;
+end.
+</pre>
+
+<p>Request - это запрос который посылает мой IE5.</p>
+<p>В принципе, по протоколу HTTP он может ограничиваться:</p>
+<p>'GET / HTTP/1.1'+#13+#13. Если хотите запросить оределенный документ: 'GET /&lt;полный путь&gt; HTTP/1.1'+#13+#13.</p>
+<p>Конечно, всегда можно воспользоваться готовыми компонентами.</p>
+<p id="author">Автор: Fantasist</p>
+<hr />
+<pre name="code" class="delphi">
+{
+Присоедините следующий обработчик к Вашему TClientSocket. 
+Он получает файл с сервера и помещает его в строковую переменную FText string variable. Однако он не убирает заголовок, который так же посылается вебсервером.
+ 
+Не забудьте задать правильный адрес сервера в объекте Socket. Установите порт 80. А затем откройте его при помощи команды "Socket.Open;".
+ 
+Автор: E.J.Molendijk
+} 
+ 
+ 
+Const 
+  WebPage = '/index.html'; 
+Var 
+  FText   : String; 
+ 
+procedure TForm1.SocketWrite(Sender: TObject; 
+  Socket: TCustomWinSocket); 
+begin 
+  Socket.SendText('GET '+Webpage+' HTTP/1.0'#10#10); 
+end; 
+ 
+procedure TForm1.SocketRead(Sender: TObject; 
+  Socket: TCustomWinSocket); 
+begin 
+  FText := FText +  Socket.ReceiveText 
+end; 
+ 
+procedure TForm1.SocketConnecting(Sender: TObject; 
+  Socket: TCustomWinSocket); 
+begin 
+  FText := ''; 
+end; 
+ 
+procedure TForm1.SocketDisconnect(Sender: TObject; 
+  Socket: TCustomWinSocket); 
+begin 
+{ --- } 
+{ ЗДЕСЬ ВЫ МОЖЕТЕ ОБРАБАТЫВАТЬ ВАШ FText !!! } 
+{ --- } 
+end; 
+ 
+procedure TForm1.SocketError(Sender: TObject; 
+  Socket: TCustomWinSocket; ErrorEvent: TErrorEvent; 
+  var ErrorCode: Integer); 
+begin 
+  ErrorCode:=0; { Ошибки игнорируем }
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

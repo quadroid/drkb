@@ -1,0 +1,49 @@
+<html>
+<head>
+  <title>Без иконки в панели задач</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Без иконки в панели задач</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Neil J. Rubenking  </p>
+<p>Если вы не хотите, чтобы ваше приложение имело иконку в панели задач, добавьте следующие строки в исходный код проекта:</p>
+<pre name="code" class="delphi">
+Application.CreateHandle;
+ShowWindow(Application.Handle, SW_HIDE);
+Application.ShowMainForm := FALSE;
+</pre>
+<p>Да, чуть не забыл, есть еще одна вещь. При нормальном поведении TApplication создает дескриптор и показывает окно прежде, чем далее начнет что-то "происходить". Чтобы избежать этого, вам необходимо создать модуль, содержащий единственную строчку в секции initialization:</p>
+<pre name="code" class="delphi">
+IsLibrary := True;
+</pre>
+<p>... и поместить этот модуль ПЕРВЫМ в .DPR-файле в списке используемых модулей. Этим мы "одурачиваем" TApplication, и оно думает что оно запущено из DLL, тем самым изменяя свое обычное поведение.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

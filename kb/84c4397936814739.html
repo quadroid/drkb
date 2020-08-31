@@ -1,0 +1,113 @@
+<html>
+<head>
+  <title>Как импортировать данные из Excel в Stringgrid?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как импортировать данные из Excel в Stringgrid?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses 
+  ComObj; 
+ 
+function Xls_To_StringGrid(AGrid: TStringGrid; AXLSFile: string): Boolean; 
+const 
+  xlCellTypeLastCell = $0000000B; 
+var 
+  XLApp, Sheet: OLEVariant; 
+  RangeMatrix: Variant; 
+  x, y, k, r: Integer; 
+begin 
+  Result := False; 
+  // Create Excel-OLE Object 
+  XLApp := CreateOleObject('Excel.Application'); 
+  try 
+    // Hide Excel 
+    XLApp.Visible := False; 
+ 
+    // Open the Workbook 
+    XLApp.Workbooks.Open(AXLSFile); 
+ 
+    // Sheet := XLApp.Workbooks[1].WorkSheets[1]; 
+    Sheet := XLApp.Workbooks[ExtractFileName(AXLSFile)].WorkSheets[1]; 
+ 
+    // In order to know the dimension of the WorkSheet, i.e the number of rows 
+    // and the number of columns, we activate the last non-empty cell of it 
+ 
+    Sheet.Cells.SpecialCells(xlCellTypeLastCell, EmptyParam).Activate; 
+    // Get the value of the last row 
+    x := XLApp.ActiveCell.Row; 
+    // Get the value of the last column 
+    y := XLApp.ActiveCell.Column; 
+ 
+    // Set Stringgrid's row &amp;col dimensions. 
+ 
+    AGrid.RowCount := x; 
+    AGrid.ColCount := y; 
+ 
+    // Assign the Variant associated with the WorkSheet to the Delphi Variant 
+ 
+    RangeMatrix := XLApp.Range['A1', XLApp.Cells.Item[X, Y]].Value; 
+    //  Define the loop for filling in the TStringGrid 
+    k := 1; 
+    repeat 
+      for r := 1 to y do 
+        AGrid.Cells[(r - 1), (k - 1)] := RangeMatrix[K, R]; 
+      Inc(k, 1); 
+      AGrid.RowCount := k + 1; 
+    until k &gt; x; 
+    // Unassign the Delphi Variant Matrix 
+    RangeMatrix := Unassigned; 
+ 
+  finally 
+    // Quit Excel 
+    if not VarIsEmpty(XLApp) then 
+    begin 
+      // XLApp.DisplayAlerts := False; 
+      XLApp.Quit; 
+      XLAPP := Unassigned; 
+      Sheet := Unassigned; 
+      Result := True; 
+    end; 
+  end; 
+end; 
+ 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  if Xls_To_StringGrid(StringGrid1, 'C:\Table1.xls') then 
+    ShowMessage('Table has been exported!'); 
+end; 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

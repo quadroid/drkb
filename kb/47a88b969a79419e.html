@@ -1,0 +1,98 @@
+<html>
+<head>
+  <title>Получение имени модуля по хендлу окна</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получение имени модуля по хендлу окна</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function GetModuleFileNameExW(hProcess:THandle; hModule:HMODULE; lpFilename:PWideChar; nSize:DWORD):DWORD; stdcall; external 'PSAPI.DLL';
+ 
+function WindowGetEXE(wnd:HWND):string;
+var
+ wt:array[0..MAX_PATH-1] of WChar;
+ r:integer;
+ prc:THandle;
+ prcID:cardinal;
+begin
+ result:='';
+ if GetWindowThreadProcessID(wnd,prcID)&lt;&gt;0 then
+ begin
+  prc:=OpenProcess(PROCESS_ALL_ACCESS,false,prcID);
+  if prc&lt;&gt;0 then
+  try
+   r:=GetModuleFileNameExW(prc,GetWindowLong(wnd,GWL_HINSTANCE),wt,MAX_PATH*2);
+   if r=0 then r:=GetModuleFileNameExW(prc,0,wt,MAX_PATH*2);
+   if r&lt;&gt;0 then result:=wt;
+  finally
+   CloseHandle(prc)
+  end
+ end
+end;
+ 
+function SetProcessDebugPrivelege:boolean;
+var
+ hToken:THandle;
+ tp:TTokenPrivileges;
+ rl:cardinal;
+begin
+  result:=false;
+  if not OpenProcessToken(GetCurrentProcess,TOKEN_ADJUST_PRIVILEGES,hToken) then exit;
+  try
+     if not LookupPrivilegeValue(nil,'SeDebugPrivilege', tp.Privileges[0].Luid) then exit;
+      tp.Privileges[0].Attributes:=SE_PRIVILEGE_ENABLED;
+      tp.PrivilegeCount:=1;
+      result:=AdjustTokenPrivileges(hToken,false,tp,0,nil,rl) and (GetLastError=0)
+  finally
+     CloseHandle(hToken);
+  end
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+ SetProcessDebugPrivelege;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+    ShowMessage(WindowGetExe(hWnd))
+end;
+</pre>
+&copy;Drkb::02133</p>
+<p>&nbsp;<br>
+PS только для NT4 и выше. Для Win9x юзать GetWindowModuleFileName.<br>
+&nbsp;<br>
+<p id="author">Автор: Krid </p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a><br>
+<p>&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

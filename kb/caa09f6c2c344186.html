@@ -1,0 +1,101 @@
+<html>
+<head>
+  <title>Подсветить HTML-теги в TRichEdit</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Подсветить HTML-теги в TRichEdit</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure HTMLSyntax(RichEdit: TRichEdit; TextCol,
+  TagCol, DopCol: TColor); 
+var  
+  i, iDop: Integer; 
+  s: string; 
+  Col: TColor; 
+  isTag, isDop: Boolean; 
+begin 
+  iDop := 0; 
+  isDop := False; 
+  isTag := False; 
+  Col := TextCol; 
+  RichEdit.SetFocus; 
+ 
+  for i := 0 to Length(RichEdit.Text) do 
+  begin 
+    RichEdit.SelStart := i; 
+    RichEdit.SelLength := 1; 
+    s := RichEdit.SelText; 
+ 
+    if (s = '&lt;') or (s = '{') then isTag := True; 
+ 
+    if isTag then 
+      if (s = '"') then 
+        if not isDop then 
+        begin 
+          iDop  := 1; 
+          isDop := True; 
+        end  
+        else 
+          isDop := False; 
+ 
+    if isTag then 
+      if isDop then 
+      begin 
+        if iDop &lt;&gt; 1 then Col := DopCol; 
+      end  
+      else 
+        Col := TagCol 
+    else 
+      Col := TextCol; 
+ 
+    RichEdit.SelAttributes.Color := Col; 
+ 
+    iDop := 0; 
+ 
+    if (s = '&gt;') or (s = '}') then isTag := False; 
+  end; 
+ 
+  RichEdit.SelLength := 0; 
+end; 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  RichEdit1.Lines.BeginUpdate; 
+  HTMLSyntax(RichEdit1, clBlue, clRed, clGreen); 
+  RichEdit1.Lines.EndUpdate; 
+end;
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

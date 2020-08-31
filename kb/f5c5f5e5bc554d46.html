@@ -1,0 +1,63 @@
+<html>
+<head>
+  <title>Как создавать неквадратные формы и контроллы?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как создавать неквадратные формы и контроллы?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Всё, что нам нужно, это HRGN и дескриптор (handle) элемента управления. SetWindowRgn имеет три параметра: дескриптор окна, которое будем менять, дескритор региона и булевый (boolean) параметр, который указывает - перерисовывать или нет после изменения. Как только у нас есть дескриптор и регион, то можно вызвать SetWindowRgn(Handle, Region, True) и вуаля!</p>
+
+<p>Здесь приведён пример использования функции BitmapToRgn (описанной в примере Как создать регион(HRNG) по маске). </p>
+
+<p>Заметьте, что Вы не должны освобождать регион при помощи DeleteObject, так как после вызова SetWindowRgn владельцем региона становится операционная система.</p>
+<pre name="code" class="delphi">
+var 
+  MaskBmp: TBitmap; 
+begin 
+  MaskBmp := TBitmap.Create; 
+  try 
+    MaskBmp.LoadFromFile('FormShape.bmp'); 
+    Height := MaskBmp.Height; 
+    Width := MaskBmp.Width; 
+    // ОС владеет регионом, после вызова SetWindowRgn
+    SetWindowRgn(Self.Handle, BitmapToRgn(MaskBmp), True); 
+  finally 
+    MaskBmp.Free; 
+  end; 
+end;
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

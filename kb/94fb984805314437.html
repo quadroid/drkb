@@ -1,0 +1,200 @@
+<html>
+<head>
+  <title>Шифрование в Delphi</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Шифрование в Delphi</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Шифрование в DELPHI</p>
+Данные надо беречь. Сам посуди, обидно, если открытие ценой в сто миллионов енотов <br>
+или рецепт безалкогольной водки, над которым ты корпел три вечера в мрачном подвале<br>
+нелегального компьютерного клуба, уплывет к злостному ленивому конкуренту, <br>
+который, пользуясь твоим похмельем, наложил грязную лапу на приватные дискеты с ценнейшей инфой?! <br>
+Дальше можно не продолжать. Шифруем, шифруем, шифруем!..<br>
+&nbsp;<br>
+Добрый дядюшка borland предоставил нам несколько занятных функций для работы со строками, о которых не все знают. Сосредоточены они в модуле strutils.pas. <br>
+Такие функции, как rightstr, leftstr совмещают стандартные команды copy и delete: так, leftstr возвращает значение левой части строки до указанной вами позиции (что вытворяет rightstr, догадайся сам), а функция reversestring и вовсе делает зеркальное отображение данной строки: 321 вместо 123. Используем ее в особенности, <br>
+чтобы осложнить жизнь хитрому дешифровщику.<br>
+&nbsp;<br>
+Алгоритм шифрования будет прост, как win 3.1. <br>
+С каждым символом кодируемого документа проделаем следующее:<br>
+&nbsp;<br>
+1. Преобразуем символ в число командой ord.<br>
+&nbsp;<br>
+2. Преобразуем каждый символ пользовательского пароля <br>
+в число и сумму этих чисел прибавим к полученному в пункте 1.<br>
+&nbsp;<br>
+3. От результата отнимаем число, равное позиции данного символа. <br>
+То есть буковки будут шифроваться по-разному в зависимости от их позиции в строке :).<br>
+&nbsp;<br>
+4. То, что получилось, запишем обратно из чисел в символы командой chr. <br>
+Как видишь, после всех наших манипуляций этот символ уже будет другим.<br>
+&nbsp;<br>
+5. Запишем всю строку навыворот командой reversestring.<br>
+&nbsp;<br>
+Дешифровка, как ты догадываешься, будет производиться в обратном порядке.<br>
+&nbsp;<br>
+Теперь, когда алгоритм намертво засел в голове, реализуем соответствующую программу. <br>
+Внимание! Не исключено, что это будет первая твоя программа с настоящим синтаксисом команд:<br>
+&lt;команда&gt; &lt;путь&gt; &lt;пароль&gt;<br>
+&nbsp;<br>
+&#8212; так будет выглядеть он в консоли нашего приложения (да, оно будет консольным!). <br>
+Команд всего две: crypt и decrypt соответственно зашифровать и дешифровать файл, <br>
+путь к которому указывается после пробела, а затем &#8212; твой пароль. НЕ ЗАБУДЬ ЕГО! <br>
+Предупреждаю совершенно серьезно. Запомнил? В бой!<br>
+&nbsp;<br>
+crypt c:file.txt linuxmustsurvive<br>
+&nbsp;<br>
+&#8212; закодируем file.txt. <br>
+Результат (зашифрованный текст) сохраниться в той же директории, <br>
+что и исполняемый файл нашего приложения под именем translated_file.txt.<br>
+&nbsp;<br>
+decrypt c:translated_file.txt linuxmustsurvive<br>
+&nbsp;<br>
+&#8212; дешифровка.<br>
+&nbsp;<br>
+<p>Реализовывается это вот как:</p>
+<pre name="code" class="delphi">
+program crypter;
+ 
+{$apptype console}
+ 
+uses
+sysutils,
+strutils; //!!
+var
+f, //входящий файл
+f1: textfile; //результат (файл с переводом)
+todo, filename, passw, line, translatedfile: string;
+position, iscrypt: integer;
+ 
+//находим сумму числовых значений символов пароля
+function password(psw: string): integer;
+var
+i,res: integer;
+begin
+res:=0;
+for i:=1 to length(psw) do res:=res+ord(psw[i]);
+result:=res;
+end;
+ 
+function crypt(cryptstr: string): string;
+var
+s: string;
+i: integer;
+begin
+if cryptstr&lt;&gt;emptystr then
+for i:=1 to length(cryptstr) do begin
+s:=leftstr(cryptstr,1);
+cryptstr:=rightstr(cryptstr,length(cryptstr)-1);
+//ШИФРОВКА:
+s:=chr(ord(s[1])+password(passw)-i);
+result:=result+s;
+end;
+result:=reversestring(result);
+end;
+ 
+function decrypt(decryptstr: string): string;
+var
+i: integer;
+s: string;
+begin
+decryptstr:=reversestring(decryptstr);
+if decryptstr&lt;&gt;emptystr then
+for i:=1 to length(decryptstr) do begin
+s:=leftstr(decryptstr,1);
+decryptstr:=rightstr(decryptstr,length(decryptstr)-1);
+//ДЕШИФРОВКА:
+result:=result+chr(ord(s[1])-password(passw)+i);
+end;
+end;
+ 
+begin
+while true do begin
+iscrypt:=0;
+writeln(#10+'crypter &gt;'+#10);
+//Какую команду ввел юзер?
+readln(todo);
+if uppercase(todo)='exit' then exit;
+if ansicontainstext(todo,'decrypt') then iscrypt:=1
+else if ansicontainstext(todo,'crypt') then iscrypt:=2;
+//прочитав команду, удаляем ее из строки и читаем дальше
+position:=pos(' ',todo);
+if position&gt;0 then todo:=rightstr(todo,length(todo)-position);
+//Читаем путь к файлу
+position:=pos(' ',todo);
+if position&gt;0 then filename:=leftstr(todo,position-1);
+//Читаем пароль
+passw:=rightstr(todo,length(todo)-position);
+//Всё правильно? Начинаем!
+if (iscrypt&lt;=0) or (passw=emptystr) or 
+(not fileexists(filename)) then writeln('wrong command')
+else begin
+translatedfile:=extractfilepath(paramstr(0)) + 
+'translated_' + extractfilename(filename);
+//соединяемся с файлами
+assignfile(f, filename);
+assignfile(f1, translatedfile);
+//переходим в начало файла
+rewrite(f1);
+reset(f);
+//читаем строки, пока не дойдем до конца файла
+while not eof(f) do begin
+//читаем из переводимого файла
+readln(f, line);
+if iscrypt=1 then line:=decrypt(line);
+if iscrypt=2 then line:=crypt(line);
+//записываем в файл с переводом
+writeln(f1, line);
+end;
+//отсоединямся от файлов 
+closefile(f);
+closefile(f1);
+end;
+end;
+end.
+</pre>
+&nbsp;<br>
+Вот, собственно, и всё. Еще раз напоминаю, что результат (файл с переводом) сохранится В ТОЙ ЖЕ ДИРЕКТОРИИ, <br>
+что и наше приложение, а не в той, где лежит исходный файл. <br>
+В заключение процитирую отрывок из статьи <br>
+&#171;Криптография в c++&#187; в номере 3.03 журнала &#171;Хакер&#187;:<br>
+&nbsp;<br>
+//(с) Николай &#171;gorlum&#187; Андреев<br>
+&nbsp;<br>
+Но я хочу тебя предупредить: в нашей стране, <br>
+согласно указу &#8470; 334 от 1995 года, производить и распространять любые шифрующие средства можно, <br>
+только имея лицензию ФАПСИ. Соответственно, шифровать нельзя :). <br>
+Поэтому пиши программы только для личного пользования и только в познавательных целях.<br>
+&nbsp;<br>
+<p id="author">Автор: Трофим Роцкий</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

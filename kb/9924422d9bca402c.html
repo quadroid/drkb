@@ -1,0 +1,252 @@
+<html>
+<head>
+  <title>Реализация интерфейсов</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Реализация интерфейсов</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Реализацией интерфейса в Delphi всегда выступает класс. Для этого в объявлении класса необходимо указать, какие интерфейсы он реализует.</p>
+<pre name="code" class="delphi">
+type
+  TMyClass = class(TComponent, IMyInterface, IDropTarget)
+    // Реализация методов
+  end;
+</pre>
+
+
+<p>Класс TMyClass реализует интерфейсы IMyInterface и IDropTarget. Необходимо понимать, что реализация классом нескольких интерфейсов не означает множественного наследования и вообще наследования класса от интерфейса. Указание интерфейсов в описании класса означает лишь то, что в данном классе реализованы все эти интерфейсы.</p>
+<p>Класс должен иметь методы, точно соответствующие по именам и спискам параметров всем методам всех объявленных в его заголовке интерфейсов.</p>
+<p>Рассмотрим более подробный пример.</p>
+<pre name="code" class="delphi">
+type
+  ITest = interface
+  ['{61F26D40-5CE9-11D4-84DD-F1B8E3A70313}']
+    procedure Beep;
+  end;
+ 
+  TTest = class(TInterfacedObject, ITest)
+    procedure Beep;
+    destructor Destroy; override;
+  end;
+…
+procedure TTest.Beep;
+begin
+  Windows.Beep(0,0);
+end;
+ 
+destructor TTest.Destroy;
+begin
+  inherited;
+  MessageBox(0, 'TTest.Destroy', NIL, 0);
+end;
+ 
+Здесь класс TTest реализует интерфейс ITest. Рассмотрим использование интерфейса из программы.
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  Test: ITest;
+begin
+  Test := TTest.Create;
+  Test.Beep;
+end;
+</pre>
+
+
+<p>Данный код выглядит довольно странно, поэтому остановимся на нем подробнее.</p>
+<p>Во-первых &#8211; оператор присваивания при приведении типа данных к интерфейсу неявно вызывает метод _AddRef. При этом количество ссылок на интерфейс увеличивается на 1.</p>
+<p>Во-вторых &#8211; код не содержит никаких попыток освободить память, выделенную под объект TTest. Тем не менее, если выполнить эту программу, то на экран будет выведено сообщение о том, что деструктор был вызван. Это происходит потому, что при выходе переменной, ссылающейся на интерфейс за область видимости (либо, при присвоении ей другого значения) компилятор Delphi генерирует код для вызова метода _Release, информируя реализацию о том, что ссылка на неё больше не нужна.</p>
+<p>!  &nbsp; &nbsp; &nbsp; &nbsp;Если у класса запрошен хотя бы один интерфейс &#8211; не вызывайте его метод Free (или Destroy). Класс будет освобожден тогда, когда отпадет необходимость в последней ссылке на его интерфейсы. Если Вы к этому моменту уничтожили экземпляр класса вручную &#8211; произойдет ошибка доступа к памяти</p>
+<p>Так, следующий код приведет к ошибке в момент выхода из функции:</p>
+<pre name="code" class="delphi">
+var
+  Test: ITest;
+  T: TTest;
+begin
+  T := TTest.Create;
+  Test := T;
+  Test.Beep;
+  T.Free;
+end;   // в этот момент произойдет ошибка
+</pre>
+
+
+<p>Если вы хотите уничтожить реализацию интерфейса немедленно, не дожидаясь выхода переменной за область видимости &#8211; просто присвойте ей значение NIL</p>
+<pre name="code" class="delphi">
+var
+  Test: ITest;
+  T: TTest;
+begin
+  T := TTest.Create;
+  Test := T;
+  Test.Beep;
+  Test := NIL;  // Неявно вызывается IUnknown._Release;
+end;
+</pre>
+
+
+<p>Обратите особое внимание, что вызовы методов IUnknown осуществляются Delphi неявно и автоматически. Поэтому &#8211; не вызывайте методов IUnknown самостоятельно. Это может нарушить нормальную работу автоматического подсчета ссылок и привести к не освобождению памяти, либо нарушениям защиты памяти при работе с интерфейсами. Во избежание этого &#8211; необходимо просто помнить, что:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>При приведении типа объекта к интерфейсу, вызывается метод _AddRef.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>При выходе переменной, ссылающейся на интерфейс за область видимости, либо при присвоении ей другого значения вызывается метод _Release</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>Единожды запросив у объекта интерфейс, Вы в дальнейшем не должны освобождать объект вручную. Лучше вообще, начиная с этого момента работать с объектом только через интерфейсные ссылки.</td></tr></table></div>
+<p>В рассмотренных примерах код для получения интерфейса у класса генерировался (с проверкой типов) на этапе компиляции. Если класс не реализует требуемого интерфейса, то программа не откомпилируется. Однако, существует возможность запросить интерфейс и во время выполнения программы. Для этого служит оператор as, который вызывает QueryInterface и, в случае успеха, возвращает ссылку на полученный интерфейс. В противном случае генерируется исключение.</p>
+<p>Например, следующий код будет успешно откомпилирован, но вызовет ошибку «Interface not supported» при выполнении:</p>
+<pre name="code" class="delphi">
+var
+  Test: ITest;
+begin
+  Test := TInterfacedObject.Create as ITest;
+  Test.Beep;
+end;
+В то же время код:
+var
+  Test: ITest;
+begin
+  Test := TTest.Create as ITest;
+  Test.Beep;
+end;
+</pre>
+
+
+<p>Будет успешно компилироваться и исполняться.</p>
+
+<p>Реализация интерфейсов &#8211; расширенное рассмотрение</p>
+<p>
+<p>Рассмотрим вопросы реализации интерфейсов подробнее.</p>
+<p>Объявим два интерфейса:</p>
+<pre name="code" class="delphi">
+type
+  ITest = interface
+  ['{61F26D40-5CE9-11D4-84DD-F1B8E3A70313}']
+    procedure Beep;
+  end;
+ 
+  ITest2 = interface
+  ['{61F26D42-5CE9-11D4-84DD-F1B8E3A70313}']
+    procedure Beep;
+  end;
+</pre>
+
+
+<p>Теперь создадим класс, который будет реализовывать оба этих интерфейса</p>
+<pre name="code" class="delphi">
+  TTest2 = class(TInterfacedObject, ITest, ITest2)
+    procedure Beep1;
+    procedure Beep2;
+    procedure ITest.Beep = Beep1;
+    procedure ITest2.Beep = Beep2;
+  end;
+</pre>
+
+
+<p>Как видно, класс не может содержать сразу двух методов Beep. Поэтому, Delphi предоставляет способ для разрешения конфликтов имен, позволяя явно указать какой метод класса будет служить реализацией соответствующего метода интерфейса.</p>
+<p>Если реализация методов TTest2.Beep1 и TTest2.Beep2 идентична, то можно не создавать двух разных методов, а объявить класс следующим образом:</p>
+<pre name="code" class="delphi">
+  TTest2 = class(TInterfacedObject, ITest, ITest2)
+    procedure MyBeep;
+    procedure ITest.Beep = MyBeep;
+    procedure ITest2.Beep = MyBeep;
+  end;
+</pre>
+
+
+<p>При реализации классов, поддерживающих множество интерфейсов и много методов может оказаться удобным делегировать реализацию некоторых их них дочерним классам. Рассмотрим пример класса, реализующего два интерфейса:</p>
+<pre name="code" class="delphi">
+type
+  TBeeper = class
+    procedure Beep;
+  end;
+ 
+  TMessager = class
+    procedure ShowMessage(const S: String);
+  end;
+ 
+  TTest3 = class(TInterfacedObject, ITest, IAnotherTest)
+  private
+    FBeeper: TBeeper;
+    FMessager: TMessager;
+    property Beeper: TBeeper read FBeeper implements ITest;
+    property Messager: TMessager read FMessager implements IAnotherTest;
+  public
+    constructor Create;
+    destructor Destroy; override;
+  end;
+</pre>
+
+
+<p>Для делегирования реализации интерфейса другому классу служит ключевое слово implements</p>
+<pre name="code" class="delphi">
+ 
+{ TBeeper }
+procedure TBeeper.Beep;
+begin
+  Windows.Beep(0,0);
+end;
+ 
+{ TMessager }
+procedure TMessager.ShowMessage(const S: String);
+begin
+  MessageBox(0, PChar(S), NIL, 0);
+end;
+ 
+{ TTest3 }
+constructor TTest3.Create;
+begin
+  inherited;
+  // Создаем экземпляры дочерних классов
+  FBeeper := TBeeper.Create;
+  FMessager := TMessager.Create;
+end;
+ 
+destructor TTest3.Destroy;
+begin
+  // Освобождаем экземпляры дочерних классов
+  FBeeper.Free;
+  FMessager.Free;
+  inherited;
+end;
+</pre>
+
+<p>Такой подход позволяет разбить реализацию сложного класса на несколько простых, что упрощает программирование и повышает модульность программы.</p>
+<p>Обращаться к полученному классу можно точно так же, как и к любому классу, реализующему интерфейсы:</p>
+<pre name="code" class="delphi">
+var
+  Test: ITest;
+  Test2: IAnotherTest;
+begin
+  Test2 := TTest3.Create;
+  Test2.ShowMessage('Hi');
+  Test := Test2 as ITest;
+  Test.Beep;
+end;
+</pre>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

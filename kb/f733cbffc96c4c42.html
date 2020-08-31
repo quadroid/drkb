@@ -1,0 +1,430 @@
+<html>
+<head>
+  <title>База данных без BDE</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">База данных без BDE</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Что есть жизнь Delphi-разработчика без Borland Database Engine aka BDE?</p>
+<p>Полная зависимость от прихотей этого мощного, но при этом не лишенного недостатков механизма связи с базами данных с самого начала нравилась далеко не всем. Тем не менее, до последнего времени BDE была одним из наиболее распространенных механизмов доступа к данным из приложений, разработанных с использованием систем программирования от Borland.</p>
+<p>Впрочем, альтернативы BDE существовали всегда. Многие программисты, работающие на Delphi, пошли своим путем. Так начали появляться всевозможные компоненты для работы с различными базами данных - настольными и серверными СУБД, текстовыми файлами, временными таблицами в памяти и т.п. Кроме того, в самой системе разработки Borland Delphi существуют альтернативы BDE, которые, однако, выбора не упрощают. На сегодня на палитре компонент Delphi 7.0 присутствуют следующие закладки, относящиеся к механизмам доступа к данным: dbExpress, BDE, ADO и Interbase.</p>
+&nbsp;</p>
+<p>&nbsp;<br>
+<p>Из числа перечисленных механизмов фирма Borland наиболее активно продвигает сегодня технологию dbExpress - не в последнюю очередь по той причине, что она предоставляет кроссплатформенную поддержку как для Delphi и C++ Builder под Windows, так и для Kylix под Linux. Следует учитывать также и тот факт, что с целью повышения скорости доступа к данным dbExpress переписана практически "с нуля". Однако на сегодняшний день вряд ли можно считать dbExpress безоговорочной преемницей BDE.</p>
+<p>Delphi 7 Enterprise поставляется с драйверами dbExpress для работы с DB2, Informix, InterBase, MS SQL Server, MySQL и Oracle. Но для создания бесплатных приложений подходят только MySQL и FireBird (InterBase-совместимая СУБД, распространяемая по лицензии Open Source). Поэтому мы рассмотрим использование dbExpress для работы с СУБД MySQL.</p>
+<p>dbExpress и MySQL</p>
+<p>Какие возможности связи со структурами данных из Delphi-проекта с помощью dbExpress существуют?</p>
+<p>Взглянув на список возможных значений свойства Connection компонента TSQLConnection, мы обнаружим там значение MySQLConnection. Кроме этого необходимо указать значение для свойства VendorLib - libMySQL.dll. Для корректной работы приложения нужно обеспечить обнаружение данного файла нашей программой. Для чего следует либо скопировать библиотеку в один из каталогов, где приложение будет искать файлы (например, WinNT\System32), либо внести в список таких каталогов c:\mysql\bin. Конечно, можно жестко задать путь к файлу библиотеки (MySQLConnection.VendorLib:= 'c:\mysql\bin\libmysql.dll') - но вряд ли это лучший вариант, хотя на этапе разработки и отладки сойдет.</p>
+<p>&nbsp;<br>
+<p>Последним штрихом настройки компонента Connection является установка имени базы данных, с которой будет работать приложение. Не стоит забывать и о таких параметрах, как имя пользователя и пароль доступа к БД. В данном случае мы работаем под именем root, но в реальных проектах набор пользователей, естественно, будет иным.</p>
+&nbsp;</p>
+<p>Для доступа к таблицам, входящим в состав созданной нами базы данных testdbExpress (пока что это единственная таблица customer), можно воспользоваться компонентами TSQLTable, TSQLDataSet и TSQLQuery.</p>
+<p>Создадим в качестве примера небольшое приложение для просмотра и модификации данных. Поскольку компоненты DataSet, входящие в состав dbExpress, предоставляют только возможность чтения данных read-only, то для полноценного доступа к хранящейся в таблице информации потребуются компоненты TSQLTable, TDataSetProvider, TClientDataSet и TDataSource. Ниже приведен фрагмент.dfm-файла с описанием тех свойств компонентов, которые следует изменить:</p>
+<pre name="code" class="delphi">
+object SQLTableCustomer: TSQLTable
+…
+SQLConnection = SQLConnection
+TableName = 'customer'
+…
+end
+object dspCustomer: TDataSetProvider
+DataSet = SQLTableCustomer
+…
+end
+object cdsCustomer: TClientDataSet
+…
+ProviderName = 'dspCustomer'
+…
+end
+object dsCustomer: TDataSource
+DataSet = cdsCustomer
+…
+end
+</pre>
+
+<p>Одним из основных отличий dbExpress от BDE является необходимость использования компонентов DataSetProvider и ClientDataSet для взаимодействия компонентов доступа к данным dbExpress с компонентом DataSource и средствами визуализации информации (закладка Data Controls). Поначалу эта особенность может сбивать с толку, однако скоро вы к ней привыкнете и перестанете считать это неудобством.</p>
+<p>Для оформления формы просмотра и редактирования данных из таблицы customer можно воспользоваться стандартными компонентами Delphi, расположенными на закладке Data Controls панели компонентов. Однако не следует забывать, что для реальной записи в таблицу базы данных MySQL необходимо явно вызвать метод компонента ClientDataSet.ApplyUpdates. Это можно сделать при обработке событий OnAfterPost и OnAfterDelete компонента cdsCustomer - а можно и по факту нажатия некоей кнопки (например, "Сохранить изменения"). Кроме того, обработчик события запроса на закрытие формы OnCloseQuery может проверять свойство cdsCustomer.ChangeCount на равенство нулю. При отрицательном результате приложению следует уточнять у пользователя, имеет ли он в виду завершение работы без сохранения изменений (что-нибудь типа: Application.MessageBox ('Сохранить изменения?', 'Внимание', mb_YESNOCANCEL or mb_ICONWARNING)). Ниже приводится пример применения ApllyUpdates:</p>
+<pre name="code" class="delphi">procedure TMainForm.cdsCustomerAfterPostOrDelete (DataSet: TDataSet); 
+begin 
+(DataSet as TClientDataSet).ApplyUpdates (0) 
+end; 
+procedure TMainForm.FormCloseQuery (Sender: TObject; var CanClose: Boolean);
+var AnswId:Integer;
+begin
+CanClose:= True;
+if cdsCustomer.ChangeCount &gt; 0 then begin
+AnswId:= Application.MessageBox ('Сохранить изменения?', 'Внимание', 
+mb_YESNOCANCEL or mb_ICONWARNING);
+if AnswId = ID_CANCEL then CanClose:= False
+else if AnswId = ID_YES then cdsCustomer.ApplyUpdates (0);
+end;
+end;
+</pre>
+
+<p>Обратите внимание: такой подход позволяет без дополнительных усилий предоставить пользователю возможность принять решение о необходимости сохранения на сервере изменений, внесенных в БД. При использовании BDE это также возможно, однако требует намного больше усилий. В случае же с dbExpress для отмены изменений, внесенных в процессе работы, достаточно применить RevertRecord (для текущей записи) или метод ClientDataSet.UndoLastChange (для всей несохраненной информации). Правда, следует помнить, что при таком положении дел нельзя использовать метод ApplyUpdates в обработчике события OnAfterPost - это вызовет очистку буфера несохраненных изменений и запись данных в таблицу БД.</p>
+<p>Усложняем проект</p>
+<p>Теперь можно внести некоторое разнообразие в структуру базы данных testdbExpress и добавить еще одну таблицу, SQL-скрипт создания которой ниже.</p>
+<pre name="code" class="delphi">
+CREATE TABLE orders (
+OrderNo INT (4) NOT NULL PRIMARY KEY, 
+CustNo INT (4) NOT NULL, 
+Name VARCHAR (24), 
+Price DOUBLE (8,2))
+</pre>
+
+<p>Подобные SQL-инструкции могут быть выполнены с помощью метода TConnection.ExecuteDirect:</p>
+<pre name="code" class="delphi">
+procedure TMainForm.Button1Click (Sender: TObject);
+var SQLScript:String;
+begin
+SQLScript:= 'CREATE TABLE orders (OrderNo INT (4) NOT NULL PRIMARY KEY,'
++' CustNo INT (4) NOT NULL, Name VARCHAR (24), Price DOUBLE (8,2))';
+SQLConnection.ExecuteDirect (SQLScript);
+end;
+</pre>
+
+<p>Таким образом, нам больше не нужны дополнительные средства для изменения состава таблиц базы данных MySQL - у нас появилась возможность менять ее структуру "на лету", в процессе выполнения приложения. Для того чтобы еще более упростить создание требуемой структуры таблиц в тестовой базе данных, я поместил в демонстрационный проект кнопку "Создать таблицы" - ее нажатие приводит к выполнению команд SQL, создающих эти структуры данных.</p>
+<p>Таблица orders позволяет просматривать и модифицировать информацию не только о клиентах, но и об их заказах. Организация связи между этими таблицами по ключевому полю достаточно очевидна. Пользователю предоставляется возможность просмотра детальной информации по заказам при выборе клиента. Как известно, BDE позволяет достаточно просто организовать такого рода связи. DbExpress предоставляет, как минимум, два способа решения этой задачи.</p>
+<p>Проще всего будет загрузить содержимое компонентов TSQLTable, соответствующих таблицам customer и orders, в компоненты ClientDataSet (посредством TDataSetProvider). Затем можно организовать связи по ключевому полю между этими наборами данных, используя штатные средства соответствующих компонентов. Однако содержимое обеих MySQL-таблиц размещается в оперативной памяти клиентского ПК, что чревато нехваткой ресурсов в случае больших объемов данных. С другой стороны, это обстоятельство обеспечивает высокую скорость работы. В приведенном ниже листинге описаны ключевые параметры создаваемых при использовании такого подхода компонентов.</p>
+<pre name="code" class="delphi">
+object SQLTableOrders: TSQLTable
+SQLConnection = SQLConnection
+TableName = 'orders'
+end
+object dspOrders: TDataSetProvider
+DataSet = SQLTableOrders
+end
+object cdsOrders: TClientDataSet
+IndexFieldNames = 'CustNo'
+MasterFields = 'CustNo'
+MasterSource = dsCustomer
+ProviderName = 'dspOrders'
+end
+object dsOrders: TDataSource
+DataSet = cdsOrders
+end
+</pre>
+
+<p>В данном случае связь между таблицами организована по ключевому полю на уровне компонентов ClientDataSet. Но есть альтернативный подход, реализуемый двумя способами. Речь идет о формировании детализирующего набора данных по факту перехода с одной записи на другую в master-компоненте. Таким образом мы сокращаем расход оперативной памяти за счет скорости работы. Реализовать такой механизм можно с помощью как TSQLTable, так и TSQLQuery. В первом случае используется связь между главным и подчиненным наборами данных по полям MasterSource и MasterFields:</p>
+<pre name="code" class="delphi">
+object SQLTableOrdersByCustomer: TSQLTable
+IndexFieldNames = 'CustNo'
+MasterFields = 'CustNo'
+MasterSource = dsCustomer
+SQLConnection = SQLConnection
+TableName = 'orders'
+end
+object dspOrdersByCustomer: TDataSetProvider
+DataSet = SQLTableOrdersByCustomer
+end
+object cdsOrdersbyCustomer: TClientDataSet
+ProviderName = 'dspOrdersByCustomer'
+end
+object dsOrdersbyCustomer: TDataSource
+DataSet = cdsOrdersbyCustomer
+end
+</pre>
+
+<p>Во втором случае применяется параметр, передаваемый в SQL-запрос:</p>
+<pre name="code" class="delphi">
+object SQLQueryOrders: TSQLQuery
+DataSource = dsCustomer
+Params = &lt;
+item
+DataType = ftInteger
+Name = 'custno'
+ParamType = ptInput
+end&gt;
+SQL.Strings = (
+'select * from orders where (orders.custno =:custno)')
+SQLConnection = SQLConnection
+end
+object dspQOrders: TDataSetProvider
+DataSet = SQLQueryOrders
+end
+object cdsQOrders: TClientDataSet
+ProviderName = 'dspQOrders'
+end
+object dsQOrders: TDataSource
+DataSet = cdsQOrders
+end
+</pre>
+
+<p>Оба способа требуют явного указания обработчика события OnDataChanged компонента dsCustomerDataChange:</p>
+<pre name="code" class="delphi">
+procedure TMainForm.dsCustomerDataChange (Sender: TObject; Field: TField); 
+begin 
+if cdsOrdersByCustomer.Active then cdsOrdersByCustomer.Refresh; 
+if cdsQOrders.Active then cdsQOrders.Refresh; 
+end;
+</pre>
+
+&nbsp;</p>
+<p>Заключение</p>
+<p>Как видно из рассмотренных примеров**, у dbExpress есть ряд очевидных отличий по сравнению с BDE. В частности, появилась необходимость в использовании компонентов DataSetProvider и ClientDataSet, явный вызов метода ApplyUpdatets; кроме того, имеют место различные способы организации связи между таблицами. Тем не менее, использование технологии dbExpress не только приводит к дополнительным усилиям при разработке ПО, но и дает ряд преимуществ: проекты, разработанные с применением технологии dbExpress, более производительны и менее требовательны к ресурсам по сравнению с BDE-приложениями.</p>
+MySQL: краткая справка </p>
+<p>&nbsp;<br>
+<p>MySQL представляет собой сейчас одну из наиболее распространенных СУБД с открытым кодом, она регламентируется лицензией GPL (GNU General Public License, www.gnu.org/license). В некоммерческих проектах MySQL можно использовать бесплатно. Однако при встраивании кода MySQL в коммерческие приложения следует приобрести коммерческую лицензионную версию. </p>
+<p>Первоначально MySQL разрабатывалась программистами-энтузиастами с целью усовершенствовать возможности использовавшегося в те время сервера mSQL. В дальнейшем компания MySQL AB, созданная для поддержки продукта, стала предоставлять широкую техническую поддержку пользователям MySQL - за счет чего эта компания существует и по сей день. На сайте MySQL AB, помимо исходных кодов и скомпилированных под различные платформы модулей самого сервера, выложено множество утилит, облегчающих жизнь разработчикам и администраторам этой СУБД. </p>
+<p>MySQL обычно используется для решения не очень серьезных задач (ведение статистики, форумов и т.п.), однако существует опыт реализации на ее базе достаточно крупных проектов. MySQL доступна для работы в различных средах - как Windows, так и Linux. Она является приоритетным вариантом при выборе СУБД для хранения данных на большинстве веб-серверов. MySQL предоставляет многие возможности, характерные для реляционных СУБД, демонстрируя особенно высокую производительность при выполнении запросов на чтение данных. Кроме того, она поддерживает SQL, разработку клиент-серверных приложений и даже транзакции. </p>
+Установка и управление MySQL </p>
+<p>Размер дистрибутива (mysql-4.0.12-win.zip) составляет примерно 21 Мб. Установка не требует особых усилий и занимает несколько минут. Если раньше вы не имели дела с MySQL, то рекомендую не менять настройки, предлагаемые по умолчанию. </p>
+<p>Полная установка СУБД не превышает 72 Мб - согласитесь, по сравнению с теми сотнями мегабайт, которые требуются для продуктов IBM, Oracle, Microsoft и др., впечатляет. В каталоге C:\MySQL\Docs вы найдете руководства по MySQL (на английском языке) - однако организация их, к сожалению, оставляет желать лучшего. Тем не менее, вся необходимая информация там есть. </p>
+<p>В каталоге C:\mysql\bin размещен ряд программ и библиотека libmySQL.dll, которая потребуется нам для Delphi-проектов. Для манипуляции структурой базы и самими данными на первых порах воспользуемся утилитой mysql.exe, которая предоставляет нам интерфейс командной строки. Это не единственный способ работы с MySQL. Есть и другие приложения, в том числе, входящие в стандартную поставку,- например, WinMySqladmin. Обзор таких приложений может послужить темой отдельной статьи, мы же пока воспользуемся скромной mysql.exe. </p>
+&nbsp;</p>
+<p>&nbsp;<br>
+<p>Каждый из подкаталогов, расположенных в C:\mysql\data, соответствует базе данных. При инсталляции MySQL там формируются две БД - mysql и test. Для того чтобы создать собственную базу данных - например, с одной таблицей из трех полей, в которой будет храниться информация о заказчиках,- следует осуществить общение с mysql.exe примерно следующим образом: </p>
+<pre name="code" class="delphi">
+mysql&gt; CREATE DATABASE testdbExpress;<br>
+Query OK, 1 row affected (0.01 sec)<br>
+mysql&gt; USE testdbExpress;<br>
+Database changed;<br>
+mysql&gt; show tables;<br>
+Empty set (0.02 sec)<br>
+mysql&gt; CREATE TABLE customer<br>
+(CustNo INT (4) NOT NULL PRIMARY KEY,<br>
+Name VARCHAR (50),<br>
+Company VARCHAR (100));<br>
+Query OK, 0 rows affected (0.18 sec)<br>
+mysql&gt; exit<br>
+Bye
+</pre>
+
+<p>Результат описанной выше сессии - создание новой базы данных testdbExpress и таблицы customer. </p>
+FWS-компоненты для работы с базами данных без использования BDE </p>
+<p>&nbsp;<br>
+<p>При всей своей эффективности технология dbExpress - далеко не универсальное средство, годящееся на все случаи жизни. В некоторых случаях использование стандартных решений от фирмы Borland может быть связано с рядом неудобств. Это обстоятельство является одним из основных побудительных мотивов движения FWS (FreeWare With Source, бесплатное ПО с открытым кодом). В интернете то и дело встречаются оригинальные и, главное, применимые на практике разработки. О двух из них мне и хотелось бы рассказать в рамках этого лирического отступления. </p>
+<p>TjanSQL v.1.1 </p>
+<p>TjanSQL - однопользовательская реляционная СУБД, причем база данных представлена в виде плоских текстовых файлов, где разделителем между столбцами служит точка с запятой. TjanSQL поддерживает следующие команды языка SQL: SELECT (с возможностью объединения таблиц, вычислений и псевдонимов полей), UPDATE, INSERT (значения полей и подзапросы), DELETE, CREATE TABLE, DROP TABLE, ALTER TABLE, CONNECT TO, COMMIT, WHERE, IN (список или подзапрос), GROUP BY, HAVING, ORDER BY (ASC, DESC), а также вложенные подзапросы, статистические функции (COUNT, SUM, AVG, MAX, MIN), операторы (+, -, *, /, and, or, &gt;, &gt;=, &lt;, &lt;=, =, &lt;&gt;, Like), функции UPPER, LOWER, TRIM, LEFT, MID, RIGHT, LEN, FIX, SOUNDEX, SQR, SQRT и др. </p>
+<p>Все это я узнал из аннотации к архиву. Начало интригующее&#8230; После распаковки zip-архива объемом 425 Кб обнаружилось еще несколько интересных особенностей. В первую очередь, порадовало наличие в образовавшемся каталоге таких поддиректорий, как db, demosource и sql, а также файла janSQL.hlp. Появилась надежда, что не придется исследовать исходные коды компонентов для определения набора и назначения их свойств и методов. </p>
+<p>Увы, она не оправдалась. К сожалению, более тесное знакомство с TjanSQL вызвало больше отрицательных эмоций, нежели положительных. Первым разочарованием стало отсутствие законченных компонент, которые можно было бы использовать по аналогии с Data Access. В частности, для подключения к текстовой базе данных необходимо в режиме runtime создавать (и ликвидировать) объект класса TjanSQL, используя примерно такой код: </p>
+<pre name="code" class="delphi">var
+janSQLDemoF: TjanSQLDemoF;
+appldir:string;
+thefile:string;
+db:TjanSQL;
+procedure TjanSQLDemoF.FormCreate (Sender: TObject);
+begin
+db:=TjanSQL.create;
+end;
+procedure TjanSQLDemoF.FormDestroy (Sender: TObject);
+begin
+db.free;
+end;
+</pre>
+
+<p>Таким образом, в TjanSQL отсутствует одно из основных, на мой взгляд, преимуществ компонентного Delphi-программирования: для доступа к базе данных необходимо прописывать всю настроечную информацию в тексте программы. Конечно, это тоже своего рода design-time, но помилуйте - что стоило разработать невизуальный компонент, аналог какого-нибудь TDataBase или TAdoConnection? </p>
+<p>Второй минус - демонстрационный проект, поставляемый вместе с классами Tjan* (язык не поворачивается назвать их компонентами), просто так не работает. Я впервые столкнулся с ситуацией, когда демо-проект не скомпилировался при попытке запуска. Делать нечего - начал разбираться. Как выяснилось, проблема устранима - достаточно закомментировать те строки, которые вызывают "раздражение" у модулей проекта Delphi, а также изменить пути к модулям с описанием классов доступа к базе данных - они почему-то "зашиты" в проект с точностью до имени каталога и буквы диска. Так я узнал, что у разработчика на компьютере как минимум три логических диска (пути начинались с Е:\&#8230;). </p>
+<p>В файле помощи тоже ряд пробелов. Зачем было помещать в оглавление ссылки на страницы, содержащие только заголовок? Впрочем, возможно, я придираюсь... </p>
+<p>Но главным, на мой взгляд, недостатком TjanSQL является невозможность непосредственной связи между TJanSQL и компонентами Data Aware, как это делается, в частности, с TQuery, TDataSource и TDBGrid. В демонстрационном проекте для отображения информации, получаемой с помощью SQL-запросов, используется обычный TStringGrid. В следующем примере приводится та часть кода, которая относится к обработке и визуализации результатов запроса: </p>
+<pre name="code" class="delphi">unit janSQLDemoU;
+interface
+uses
+Windows, Messages, SysUtils, Classes, Graphics, Controls,
+Forms, Dialogs, FileCtrl,Grids, ExtCtrls, ComCtrls, ToolWin,
+Menus, janSQL, StdCtrls, Buttons;
+type
+TjanSQLDemoF = class (TForm)
+MainMenu1: TMainMenu;
+ToolBar1: TToolBar;
+StatusBar1: TStatusBar;
+Panel1: TPanel;
+Splitter1: TSplitter;
+viewgrid: TStringGrid;
+sqlmemo: TMemo;
+cmdExecute: TSpeedButton;
+edmessage: TEdit;
+Insert1: TMenuItem;
+ApplicationFolder1: TMenuItem;
+SelectedFolder1: TMenuItem;
+Help1: TMenuItem;
+Contents1: TMenuItem;
+procedure cmdExecuteClick (Sender: TObject);
+private
+procedure showresults (resultset:integer);
+Private declarations
+public
+Public declarations
+end;
+var
+janSQLDemoF: TjanSQLDemoF;
+appldir:string;
+db:TjanSQL;
+implementation
+{$R *.DFM}
+procedure TjanSQLDemoF.cmdExecuteClick (Sender: TObject);
+var
+sqlresult:integer;
+sqltext:string;
+begin
+sqltext:=sqlmemo.text;
+sqlresult:=db.SQLDirect (sqltext);
+if sqlresult&lt;&gt;0 then begin
+edmessage.Text:='OK';
+sqlmemo.text:='';
+if sqlresult&gt;0 then begin
+showresults (sqlresult);
+db.ReleaseRecordset (sqlresult);
+end;
+end
+else
+edmessage.Text:=db.Error;
+sqlmemo.SetFocus;
+end;
+procedure TjanSQLDemoF.showresults (resultset:integer);
+var
+r1:integer;
+i,arow,acol,c,rc,fc:integer;
+begin
+r1:=resultset;
+rc:=db.RecordSets [r1].recordcount;
+if rc=0 then exit;
+fc:=db.RecordSets [r1].fieldcount;
+if fc=0 then exit;
+viewgrid.RowCount:=rc+1;
+viewgrid.ColCount:=fc;
+for i:=0 to fc-1 do
+viewgrid.Cells [i,0]:=db.recordsets [r1].FieldNames [i];
+for arow:=0 to rc-1 do
+for acol:=0 to fc-1 do
+viewgrid.cells [acol,arow+1]:=db.RecordSets [r1].records
+[arow].fields [acol];
+end;
+</pre>
+
+<p>Только не подумайте, что я собрался обругать всё и вся. Я всего лишь считаю необходимым предупредить вас о подводных камнях, на которые вы можете напороться при использовании TJanSQL. </p>
+<p>Вообще TJanSQL - очень полезный набор разработок. Но только если рассматривать его не как конечный продукт, а как базу для написания собственных BDE-независимых компонентов для работы с плоскими текстовыми файлами, организованными в реляционные базы данных. </p>
+<p>Действительно, возможность обращения к структурированным текстовым файлам с использованием SQL - ценное преимущество. Можно совместить помещенные в TJanSQL функции, например, со стандартными компонентами Data Access или воспользоваться другими разработками - компонентами для организации временных таблиц в памяти. Это обеспечит доступ к плоским текстовым файлам на уровне SQL-запросов - сервис, аналогичный стандартным Delphi-компонентам, но без зависимости от такого монстра, как Borland Database Engine. Стоит ли говорить, какие перспективы тогда откроются? </p>
+<p>MiTeC DBFTable v.1.5 </p>
+<p>Этот компонент - наследник TDataSet, предназначенный для доступа к DBF-файлам без использования BDE. Демонстрационный проект радует глаз. Как говорится, простенько и со вкусом. Огорчает отсутствие файла помощи, нет даже комментариев в исходных текстах проекта. Но ведь сами-то тексты есть! Поэтому я все-таки решил исследовать данный компонент поглубже. </p>
+<p>Среди немногих свойств компонента TMDBFTable, доступных в режиме design-time, следует выделить MakeBackup, PackOnSave и ShowDeleted. Даже не искушенный в английском языке читатель без труда определит, какие функции они выполняют. </p>
+<p>Увы, как показало тестирование, DBFTable не подходит для работы с таблицами, где число записей превышает 100 тыс. Последовательных приближений к тому количеству записей, при работе с которыми демо-приложение не "вываливается" с удручающим сообщением "Out of memory", я не делал - однако таблицу на 15 тыс. оно восприняло вполне спокойно. А все потому, что для загрузки информации из таблиц используется обычный TStringList. </p>
+<p>Тут обнаружилось еще одно удручающее обстоятельство - вместо русских букв, на экране в качестве значений текстовых полей отображаются "крокозябры". Кроме того, DBFTable поддерживает отнюдь не любые dbf-файлы, как можно было бы предположить из его названия, а только с DBase-III или IV. Умиляют также закомментированные строки кода в описании компонента. </p>
+<p>Последнее, что я занесу в "пассив" этой разработки: компонент не лишен "глюков", возникающих в design-time и в ходе работы приложений. Критичными их не назовешь, но помнить о них следует. Подозреваю, что кроме парочки выловленных мною есть и другие. </p>
+<p>Все же использовать MiTeC DBFTable v.1.5 в реальных проектах) можно. Во-первых, DBFTable (как и предыдущий кандидат на звание альтернативы BDE) может послужить базой для дальнейших разработок. Во-вторых, начинающим программистам очень полезно будет изучить исходные тексты компонента. Уверен, они почерпнут оттуда много интересного. В-третьих, DBFTable, как-никак, рабочий компонент и вполне может подойти для определенного класса задач - например, для создания на диске пользователя временных файлов данных, для описания настроек приложения и т.п. А проблему с отображением русских букв вполне можно решить, внеся изменения в исходный код DBFTable. </p>
+<p>И все-таки очень жаль, что нет файла помощи! </p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>Компонент:</p>
+</td>
+<td >TjanSQL v.1.1 MiTeC </p>
+</td>
+<td >DBFTable v.1.5</p>
+</td>
+</tr>
+<tr >
+<td ><p>Разработчик</p>
+</td>
+<td >Jan Verhoeven (jan1.verhoeven@wxs.nl)</p>
+</td>
+<td >MichaL MutL (michal.mutl@atlas.cz)</p>
+</td>
+</tr>
+<tr >
+<td ><p>Краткое описание</p>
+</td>
+<td >однопользовательская реляционная СУБД с поддержкой подмножества SQL для работы с плоскими текстовыми файлами</p>
+</td>
+<td >обеспечивает доступ к файлам формата DBASE III, IV </p>
+</td>
+</tr>
+<tr >
+<td ><p>Версии Delphi</p>
+</td>
+<td >D4, D5, D6, D7</p>
+</td>
+<td >D3, D4, D5, D6, D7 </p>
+</td>
+</tr>
+<tr >
+<td ><p>Адрес архива</p>
+</td>
+<td >http://www.torry.net/db/direct/custom/jansql.zip</p>
+</td>
+<td >http://www.torry.net/db/direct/db_dbf/mitecdbftable.zip</p>
+</td>
+</tr>
+<tr >
+<td ><p>Сайт поддержки</p>
+</td>
+<td >http://jansfreeware.com/</p>
+</td>
+<td >http://www.mitec.d2.cz/</p>
+</td>
+</tr>
+<tr >
+<td ><p>Объем архива</p>
+</td>
+<td >425 Кб</p>
+</td>
+<td >274 Кб</p>
+</td>
+</tr>
+<tr >
+<td ><p>Демонстрационные проекты</p>
+</td>
+<td >+</p>
+</td>
+<td >+</p>
+</td>
+</tr>
+<tr >
+<td ><p>Справочная система</p>
+</td>
+<td >+</p>
+</td>
+<td >-</p>
+</td>
+</tr>
+<tr >
+<td ><p>Проблемы с установкой</p>
+</td>
+<td >для обеспечения работоспособности демо-проекта пришлось править его исходный код</p>
+</td>
+<td >нет</p>
+</td>
+</tr>
+<tr >
+<td ><p>Общее впечатление</p>
+</td>
+<td >материал для собственных разработок; использовать непосредственно в проектах проблематично</p>
+</td>
+<td >приятный на вид компонент с не вполне понятной (по причине отсутствия вразумительного описания) функциональностью 
+</td>
+</tr>
+</table>
+<p>&nbsp;<br>
+2004.05.13 Автор: Сергей Кривошеев <br>
+&nbsp;<br>
+<a href="http://www.cpp.com.ua" target="_blank">http://www.cpp.com.ua</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

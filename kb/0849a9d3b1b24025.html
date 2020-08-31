@@ -1,0 +1,87 @@
+<html>
+<head>
+  <title>Как поймать свой RAISEERROR в Delphi</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как поймать свой RAISEERROR в Delphi</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TFDMUtils.GeneralError(DataSet: TDataSet; E: EDatabaseError; var
+  Action: TDataAction);
+var
+  i: Word;
+  ExtInfo: string;
+begin
+  ExtInfo := '';
+ 
+  if (E is EDBEngineError) then
+  begin
+    if (EDBEngineError(E).Errors[0].NativeError = 0) then
+    begin // Local Error
+      if EDBEngineError(E).Errors[0].Errorcode = 9732 then
+        ExtInfo := DataSet.FieldByName(trim(copy(E.Message, 29,
+          20))).DisplayLabel;
+      .......................................
+    end
+    else
+    begin // Remote SQL Server error
+      ExtInfo := ExtractFieldLabels(DataSet, E.Message);
+      case EDBEngineError(E).Errors[0].NativeError of
+        233, 515:
+          Alert('Ошибка', 'Hе все поля заполнены ! ' + ExtInfo);
+        547:
+          if (StrPos(PChar(E.Message), PChar('DELETE')) &lt;&gt; nil) then
+            Alert('Ошибка пpи удалении',
+              'Имеются подчиненные записи, удаление (изменение) невозможно! ' +
+              ExtInfo)
+          else if (StrPos(PChar(E.Message), PChar('INSERT')) &lt;&gt; nil) then
+            Alert('Ошибка пpи вставке', 'Отсутствует запись в МАСТЕР-таблице! '
+              + ExtInfo)
+          else if (StrPos(PChar(E.Message), PChar('UPDATE')) &lt;&gt; nil) then
+            Alert('Ошибка пpи обновлении',
+              'Отсутствует запись в МАСТЕР-таблице! ' + ExtInfo);
+        2601:
+          Alert('Ошибка', 'Такая запись уже есть!');
+      else
+        Alert('Ошибка', 'Hеизвестная ошибка, код - ' +
+          inttostr(EDBEngineError(E).Errors[0].NativeError) + ExtInfo);
+      end;
+    end;
+  end;
+end;
+</pre>
+
+
+<p id="author">Автор: Nomadic </p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

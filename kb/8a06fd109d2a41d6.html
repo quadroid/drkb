@@ -1,0 +1,104 @@
+<html>
+<head>
+  <title>Как нарисовать что-нибудь на TMemo?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как нарисовать что-нибудь на TMemo?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для рисования на поверхности TMemo необходимо создать создать собственный компонент, наследованный от TMemo и переопределить в нём рисование. Примерно так:</p>
+<pre name="code" class="delphi">
+type 
+  TMyMemo = class(TMemo) 
+  protected 
+    procedure WMPaint(var Message: TWMPaint); message WM_PAINT; 
+  end;
+</pre>
+
+<p>А теперь добавьте реализацию этой процедуры:</p>
+<pre name="code" class="delphi">
+procedure TMyMemo.WMPaint(var Message: TWMPaint); 
+var 
+  MCanvas: TControlCanvas; 
+  DrawBounds : TRect; 
+Begin 
+  inherited; 
+  MCanvas:=TControlCanvas.Create; 
+  DrawBounds := ClientRect;  // Работаем с временной записью TRect.
+  Try 
+   MCanvas.Control:=Self; 
+   With MCanvas do 
+   Begin 
+    Brush.Color := clBtnFace; 
+    FrameRect( DrawBounds ); 
+    InflateRect( DrawBounds, -1, -1); 
+    FrameRect( DrawBounds ); 
+    FillRect ( DrawBounds ); 
+    MoveTo ( 33, 0 ); 
+    Brush.Color := clWhite; 
+    LineTo ( 33, ClientHeight ); 
+    PaintImages; 
+   end; 
+  finally 
+    MCanvas.Free; 
+  End; 
+end; 
+</pre>
+
+
+<p>Процедура PaintImages рисует картинки на канвасе Memo.</p>
+<pre name="code" class="delphi">
+procedure TMyMemo.PaintImages; 
+var 
+  MCanvas: TControlCanvas; 
+  DrawBounds : TRect; 
+  i, j : Integer; 
+  OriginalRegion : HRGN; 
+  ControlDC : HDC; 
+begin 
+  MCanvas:=TControlCanvas.Create; 
+  DrawBounds := ClientRect;  // Работаем с временной записью TRect.
+  try 
+   MCanvas.Control:=Self; 
+   ControlDC := GetDC ( Handle ); 
+   MCanvas.Draw(0, 1, Application.Icon); 
+  finally 
+    MCanvas.Free; 
+  end; 
+end;
+</pre>
+
+
+<p>Теперь мы имеем собственноручно нарисованный memo.</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

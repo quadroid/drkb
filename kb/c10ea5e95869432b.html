@@ -1,0 +1,59 @@
+<html>
+<head>
+  <title>Как обрабатывать сообщения?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как обрабатывать сообщения?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Обработка сообщений означает, что приложение будет тем или иным образом реагировать на полученные от операционной системы сообщения. В стандартном приложении Windows обработка сообщений сосредотачивается в процедурах окна. Delphi, частично обрабатывая сообщения, упрощает работу программиста, позволяя вместо одной процедуры для обработки всех типов сообщений создавать независимые процедуры для обработки сообщений различных типов. </p>
+<p>Все процедуры обработки сообщений должны отвечать следующим требованиям: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 14px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>Процедура должна быть методом объекта </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 14px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>Процедуре должен передаваться один передаваемый по ссылке параметр, т.е. с помощью описания var. Тип параметра должен быть TMessage или другой, зависящий от типа специализированного сообщения </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 14px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>Описание процедуры должно включать ключевое слово message, за которым должна следовать константа, задающая тип обрабатываемого сообщения </td></tr></table></div>&nbsp;</p>
+<p>Вот пример объявления процедуры, обрабатывающей сообщение WM_Paint </p>
+<p>procedure WMPaint(var Msg: TWMPaint); message wm_Paint;</p>
+<p>[соглашение по присвоению имён требует присваивать обработчику сообщения то же имя, что и имя обрабатываемого сообщения, но без символа подчёркивания и указанием первым знаков имени прописными буквами] </p>
+<p>В качестве примера напишем процедуру обработки сообщения WM_Paint, которая вместо перерисовки будет выдавать звуковой сигнал: </p>
+<p>Для этого сначала нужно объявить процедуру в частных объявлениях (в области Private объекта TForm1): </p>
+<p>procedure WMPaint(var Msg: TWMPaint); message wm_Paint;</p>
+<p>Теперь в разделе implementation модуля добавляем определение процедуры (в этом случае указание ключевого слова message не требуется): </p>
+<pre name="code" class="delphi">
+procedure TForm1.WMPaint(var Msg: TWMPaint);
+begin
+  beep;
+  inherited;
+end;
+</pre>
+
+<p>Обратите внимание на ключевое слово inherited, которое позволяет передать сообщение обработчику этого сообщения, принадлежащему классу-предку, т.е. если бы мы в нашем случае не указали бы это слово, перерисовка окна не осуществлялась бы, а выполнялось бы только только то, что было описано в области реализации нашего приложения, т.е. только бы подавался звуковой сигнал.</p>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

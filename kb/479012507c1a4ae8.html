@@ -1,0 +1,158 @@
+<html>
+<head>
+  <title>Часть 2. Работа с примитивами и изображениями</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Часть 2. Работа с примитивами и изображениями</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Доброе время суток, уважаемые коллеги. В данной статье мы разберем вывод графических примитивов и вывод изображений. GDI+ предоставляет программисту огромный выбор методов для вывода графики, в данной статье мы рассмотрим вывод примитивов с заливкой и без, вывод примитивов с своим стилем линии, использование групп (путей) для группировки примитивов и вывода их на экран, также мы рассмотрим операции по загрузке и выводу изображений, создание на основе изображения - мини-просмотра (Thumbnail), вывода изображения в область (растягивание), вывод изображения в параллелограмм. В данной статье я не буду специально рассматривать трансформацию изображений и примитивов, а так же заливку примитивов различными градиентами и изображениями, так как в первой части данного цикла статей я дал простые примеры по данным вопросам, а применить их к изображению иль к примитивам не составляет особого труда.<br>
+&nbsp;<br>
+<p>Итак, что в данной части мы получим - </p>
+<img src="pic/clip0270.png" width="473" height="372" border="0" alt="clip0270">вот такой пример. <br>
+&nbsp;<br>
+<p>Итак, сверху - вниз : </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>1. Вывод примитивов без заливки (для этого в GDI+ предусмотрены функции начинающиеся с Draw&#8230;) </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>2. Вывод примитивов с заливкой (для этого в GDI+ предусмотрены функции начинающиеся с Fill&#8230;) </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>3. Создание мини-просмотра </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>4.Вывод оригинального изображения, вывод растянутого и вывод изображения в параллелограмм. </td></tr></table></div><p>Рассмотрим это в коде : </p>
+<pre name="code" class="delphi">
+procedure TForm1.PaintBox1Paint(Sender: TObject);
+Const
+  dash : array[0..3] of single = (1, 1, 5, 4);
+ 
+  Grani : array[0..2] of TPoint =
+    ((x: 620; y: 180),  // Верхняя грань
+     (x: 560; y: 200),  // Правая грань
+     (x: 600; y: 260)); // Нижяя грань
+ 
+var
+  R             : TRect;
+  Pen           : TGPPen;                 // Кисть
+  SolidBrush    : TGPSolidBrush;          // Заливка непрерывным цветом
+  path          : TGPGraphicsPath;        // Пути
+  Image, pThumbnail: TGPImage;            // Рисунок
+begin
+  graphicsGDIPlus := TGPGraphics.Create(PaintBox1.Canvas.Handle);
+  // Рисование примитивов без заливки
+  pen:= TGPPen.Create(MakeColor(255, 0, 0, 0), 1);
+  R.X := 0;  R.Y := 0;
+  R.Width := 50;  R.Height := 50;
+  graphicsGDIPlus.DrawRectangle(Pen,R);
+  graphicsGDIPlus.DrawLine(Pen,R.X,R.Y,R.X+R.Width,R.Y+R.Height);
+  pen.Free;
+ 
+  // Рисование примитивов без заливки c толщиной линии 5
+  pen:= TGPPen.Create(MakeColor(255, 0, 0, 0), 5);
+  R.X := 60;  R.Y := 0;
+  R.Width := 50;  R.Height := 50;
+  graphicsGDIPlus.DrawRectangle(Pen,R);
+  graphicsGDIPlus.DrawLine(Pen,R.X,R.Y,R.X+R.Width,R.Y+R.Height);
+  pen.Free;
+ 
+  // Рисование примитивов без заливки c толщиной линии 5 и собственным стилем Dash
+  pen:= TGPPen.Create(MakeColor(255, 0, 0, 0), 5);
+  Pen.SetDashPattern(@dash, 4);
+  R.X := 120;  R.Y := 0;
+  R.Width := 50;  R.Height := 50;
+  graphicsGDIPlus.DrawRectangle(Pen,R);
+  graphicsGDIPlus.DrawLine(Pen,R.X,R.Y,R.X+R.Width,R.Y+R.Height);
+  pen.Free;
+ 
+  // Использование графических путей
+  path := TGPGraphicsPath.Create;
+  pen:= TGPPen.Create(MakeColor(255, 0, 0, 0), 1);
+  path.Reset;
+ 
+  R.X :=  180 ;  R.Y := 0;
+  R.Width := 50;  R.Height := 50;
+  path.StartFigure();
+  path.AddArc(R, 0.0, -180.0);
+  path.AddLine(R.X, R.Y+25, R.X+25, R.Y+R.Height);
+  path.AddLine(R.X+25, R.Y+R.Height,R.X+R.Width, R.Y+25);
+  path.CloseFigure();
+  graphicsGDIPlus.DrawPath(pen, path);
+  Pen.Free;
+ 
+  // Рисование примитивов с заливкой непрерывным цветом
+  // Создаем объект для непрерывной заливки
+  SolidBrush := TGPSolidBrush.Create(MakeColor(255, 255, 255, 0));
+  R.X :=  0 ;  R.Y := 60;
+  R.Width := 50;  R.Height := 50;
+  graphicsGDIPlus.FillRectangle(SolidBrush,R);
+  SolidBrush.Free;
+ 
+  SolidBrush := TGPSolidBrush.Create(MakeColor(255, 255, 255, 0));
+  R.X :=  60 ;  R.Y := 60;
+  R.Width := 50;  R.Height := 50;
+  graphicsGDIPlus.FillEllipse(SolidBrush,R);
+  SolidBrush.Free;
+ 
+  // Использование графических путей
+  path := TGPGraphicsPath.Create;
+  SolidBrush := TGPSolidBrush.Create(MakeColor(255, 255, 255, 0));
+  path.Reset;
+  R.X :=  120 ;  R.Y := 60;
+  R.Width := 50;  R.Height := 50;
+  path.StartFigure();
+  path.AddArc(R, 0.0, -180.0);
+  path.AddLine(R.X, R.Y+25, R.X+25, R.Y+R.Height);
+  path.AddLine(R.X+25, R.Y+R.Height,R.X+R.Width, R.Y+25);
+  path.CloseFigure();
+  graphicsGDIPlus.FillPath(SolidBrush, path);
+  SolidBrush.Free;
+ 
+  // РАБОТА С ИЗОБРАЖЕНИЕМ // Создаем Thumbnail (Мини просмотр)
+  Image:= TGPImage.Create('FRUIT.JPG');
+ 
+  pThumbnail := Image.GetThumbnailImage(60, 48, nil, nil);
+  graphicsGDIPlus.DrawImage(pThumbnail, 0, 120, pThumbnail.GetWidth, pThumbnail.GetHeight);
+  pThumbnail.Free;
+  pThumbnail := Image.GetThumbnailImage(20, 20, nil, nil);
+  graphicsGDIPlus.DrawImage(pThumbnail, 70, 120, pThumbnail.GetWidth, pThumbnail.GetHeight);
+  pThumbnail.Free;
+ 
+  // Вывести изображение как есть
+  graphicsGDIPlus.DrawImage(image, 0, 180);
+  // Вывести изображение в область
+  R := MakeRect(220, 180, 320, 200);
+  graphicsGDIPlus.DrawImage(Image,R);
+  // Вывести изображение в парралелограмм
+  graphicsGDIPlus.DrawImage(Image, PPoint(@Grani), 3);
+  Image.Free;
+ 
+  graphicsGDIPlus.Free;
+end;
+</pre>
+<p>Вот в принципе и все, еще раз повторюсь, ничего сложного в GDI+ нет, а огромное количество примеров по использованию от http://www.progdigy.com дадут вам совершенно новый механизм по выводу графики в Delphi. </p>
+<p>Данной статьей я хотел показать основы работы, привлечь внимание начинающих программистов к данной библиотеке </p>
+С уважением к коллегам, Дмитрий Кузан. </p>
+<p>&nbsp;<br>
+&nbsp;<br>
+<p>&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

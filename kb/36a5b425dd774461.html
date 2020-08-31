@@ -1,0 +1,78 @@
+<html>
+<head>
+  <title>Как повесить винду</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как повесить винду</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses TLHelp32;
+ 
+const
+  PROCESS_TERMINATE = $0001;
+var
+  FSnapshotHandle: THandle;
+  FProcessEntry32: TProcessEntry32;
+  ContinueLoop: BOOL;
+begin
+  FSnapshotHandle := CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+  FProcessEntry32.dwSize := Sizeof(FProcessEntry32);
+  ContinueLoop := Process32First(FSnapshotHandle, FProcessEntry32);
+  while integer(ContinueLoop) &lt;&gt; 0 do
+  begin
+    if LowerCase(ExtractFileName(
+      (FProcessEntry32.szExeFile))) = 'kernel32.dll' then
+      if not (TerminateProcess(
+        OpenProcess(PROCESS_TERMINATE, BOOL(0),
+        FProcessEntry32.th32ProcessID), 0)) then
+        MessageBoxEx(Application.Handle,
+          'Can`t kill windows kernel...',
+          'Warning', MB_ICONWarning + MB_OK, $0419);
+    ContinueLoop := Process32Next(FSnapshotHandle, FProcessEntry32);
+  end;
+  CloseHandle(FSnapshotHandle);
+end;
+</pre>
+<p id="author">Автор: <a href="mailto:Nomadic@newmail.ru" target="_blank">Nomadic</a></p>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<hr />
+<p>Этот код можно использовать в языках высокого уровня (Delphi, C, ...), для этого воспользуйтесь правилами. Исходники примера можно взять здесь: Dos (Pascal 7.0), Win (Delphi 5).</p>
+<p>WIN:</p>
+<p>cli ;отключение внешних прерываний </p>
+<p>@A: ;метка</p>
+<p>jmp @A ;зацикливание</p>
+<p>DOS:</p>
+<p>cli ;отключение внешних прерываний </p>
+<p>hlt ;выход из программы</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<html>
+<head>
+  <title>TDBGrid с номером строки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TDBGrid с номером строки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit RowGrid;
+ 
+interface
+ 
+uses
+  WinTypes, WinProcs, Classes, Grids, DBGrids;
+ 
+type
+  TRowDBGrid = class(TDBGrid)
+  public
+    property Row;
+    property RowCount;
+    property VisibleRowCount;
+  end;
+ 
+procedure Register;
+ 
+implementation
+ 
+procedure Register;
+begin
+  RegisterComponents('Data Controls', [TRowDBGrid]);
+end;
+ 
+end.
+ 
+ 
+ 
+{вот небольшой испытательный демо-проект.. мы
+поместили на форму нашу сетку-наследницу, 3 компонента
+EditBox и поместили следующий код в обработчик события
+ondrawdatacell вашего TRowGrid}
+procedure TForm1.RowDBGrid1DrawDataCell(Sender: TObject; const Rect:
+  TRect; Field: TField; State: TGridDrawState);
+begin
+  eb_row.text := inttostr(rowdbgrid1.row);
+  eb_rowcount.text := inttostr(rowdbgrid1.rowcount);
+  eb_visiblerowcount.text := inttostr(rowdbgrid1.visiblerowcount);
+end;
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

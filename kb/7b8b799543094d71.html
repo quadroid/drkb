@@ -1,0 +1,87 @@
+<html>
+<head>
+  <title>Как добавить текст к закладке?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как добавить текст к закладке?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses
+  ComObj;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+const
+  // Word Document to open
+  YourWordDocument = 'c:\test\worddoc.doc';
+var
+  BookmarkName, Doc, R: OleVariant;
+begin
+  // Start a Word instance
+  try
+    WordApp := CreateOleObject('Word.Application');
+  except
+    ShowMessage('Could not start MS Word!');
+  end;
+  // Open your Word document
+  WordApp.Documents.Open(YourWordDocument);
+  Doc := WordApp.ActiveDocument;
+ 
+  // name of your bookmark
+  BookmarkName := 'MyBookMark';
+ 
+  // Check if bookmark exists
+  if Doc.Bookmarks.Exists(BookmarkName) then
+  begin
+    R := Doc.Bookmarks.Item(BookmarkName).Range;
+    // Add text at our bookmark
+    R.InsertAfter('Text in bookmark');
+    // You make a text formatting like changing its color
+    R.Font.Color := clRed;
+  end;
+ 
+  // Save your document and quit Word
+  if not VarIsEmpty(WordApp) then
+  begin
+    WordApp.DisplayAlerts := 0;
+    WordApp.Documents.Item(1).Save;
+    WordApp.Quit;
+    BookmarkName := Unassigned;
+    R := Unassigned;
+    WordApp := Unassigned;
+  end;
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

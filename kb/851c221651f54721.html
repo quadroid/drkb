@@ -1,0 +1,80 @@
+<html>
+<head>
+  <title>Как проверить существование URL?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как проверить существование URL?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Данная функция позволяет Вам проверить существование определённого адреса(URL) в интернете. Естественно она может пригодиться веб-мастерам, у которых на сайте много ссылок, и необходимо с определённой периодичнойстью эти ссылки проверять. </p>
+<p>URL может быть как с префиксом http:/ так и без него - эта функция добавляет префикс http:// если он отсутствует (необходимо для функции internetOpenUrl которая так же поддерживает FTP:// и gopher:// </p>
+<p>Эта функция проверяет только два возвращаемых кода '200'(ОК) или '302' (Редирект), но Вы можете заставить проверять функцию и другие коды. Для этого достаточно модифицировать строчку "result := ". </p>
+<p>Платформа: Delphi 3.x (или выше)</p>
+<pre name="code" class="delphi">
+uses wininet;
+ 
+function CheckUrl(url: string): boolean;
+var
+  hSession, hfile, hRequest: hInternet;
+  dwindex, dwcodelen: dword;
+  dwcode: array[1..20] of char;
+  res: pchar;
+begin
+  if pos('http://', lowercase(url)) = 0 then
+    url := 'http://' + url;
+  Result := false;
+  hSession := InternetOpen('InetURL:/1.0',
+    INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
+  if assigned(hsession) then
+    begin
+      hfile := InternetOpenUrl(
+        hsession,
+        pchar(url),
+        nil,
+        0,
+        INTERNET_FLAG_RELOAD,
+        0);
+      dwIndex := 0;
+      dwCodeLen := 10;
+      HttpQueryInfo(hfile, HTTP_QUERY_STATUS_CODE,
+        @dwcode, dwcodeLen, dwIndex);
+      res := pchar(@dwcode);
+      result := (res = '200') or (res = '302');
+      if assigned(hfile) then
+        InternetCloseHandle(hfile);
+      InternetCloseHandle(hsession);
+    end;
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<html>
+<head>
+  <title>Escape код PASSTHROUGH</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Escape код PASSTHROUGH</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Кто - нибудь знает почему некоторые видеодрайверы не осуществляют транзитную пересылку данных(passthrough)в Escape функции?</p>
+<p>Как узнать, поддерживает ли драйвер принтера код PASSTROUGH? Dos - приложения и в Windows 95 используют эту функцию с командой "copy file &gt; lpt1" для передачи текста в буфер принтера.</p>
+
+<p>Хотя Delphi модуль TPrinter облегчает доступ к принтеру, есть случаи, когда вам необходимо спуститься до транспортного уровня общения системы с принтером и передать специфические для устройства управляющие коды.Под 16 - битной операционной системой Windows это было так же легко, как открыть порт принтера, но сейчас, к примеру, под Windows NT, непосредственный доступ к аппаратному обеспечению невозможен.Одно из решений проблемы состоит в использовании Windows кода "PASSTHROUGH" для посылки кода непосредственно в принтер.Тем не менее, для использования кода "PASSTHROUGH" необходимо, чтобы это поддерживалось самим драйвером принтера.К сожалению, далеко не все принтеры поддерживают данную характеристику.</p>
+
+<p>Необходимо отметить, что "PASSTHROUGH" для 32 - битных приложений считается устаревшим кодом.Но должно пройти немало лет, прежде чем это умрет окончательно, поскольку это до сих пор используется во многих коммерческих приложениях.</p>
+
+<p>Приведенный ниже пример не привязан к каким - либо специфическим моделям принтеров.Вам необходимо лишь знать правильную последовательность передачи escape кодов на управляемый вами принтер.Имейте в виду, что вы все еще должны вызывать методы BeginDoc и EndDoc объекта TPrinter.При вызове метода BeginDoc драйвер принтера инициализирует принтер как объект управления, EndDoc - деинициализацирует и извлекает бумагу.При escape вызове принтер может установить текущий режим метрики экрана, если он поддерживает внутреннее масштабирование.Технически вы ничего не должны делать, что могло бы вызвать обнуление памяти принтера или удаление из него бумаги с помощью escape кодов.Другими словами, попытайтесь оставить принтер в том же состоянии, в котором он остался после окончания печати.В основном это касается технически совершенных принтеров, поддерживающих режим Postscript, в стандартных же моделях(TTY)все это не столь существенно, и вы свободны в своих действиях, включая удаление страницы из принтера.</p>
+
+<p>Пример кода:</p>
+
+<p>Прежде всего вам необходимо описать структуру буфера, который вы собираетесь посылать.Структура буфера определена как слово, содержащее размер буфера и сам буфер, содержащий данные.</p>
+
+<p>Прежде всего, с помощью escape вызова "QUERYESCSUPPORT" необходимо убедиться, что "PASSTHROUGH" поддерживается драйвером печати.</p>
+
+<p>И, наконец, ваши данные будут переданы в поток данных принтера.Необходимо также помнить, что в некоторых моделях принтеров(Postscript), вам возможно понадобиться добавить пробелы в начале и в конце передаваемых данных, чтобы отделить ваши данные от данных драйвера печати.</p>
+<pre name="code" class="delphi">
+unit Esc1;
+ 
+interface
+ 
+uses
+ 
+  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
+  Forms, Dialogs, StdCtrls;
+ 
+type
+ 
+  TForm1 = class(TForm)
+    Button1: TButton;
+    procedure Button1Click(Sender: TObject);
+  private
+{ Private declarations }
+  public
+{ Public declarations }
+  end;
+ 
+var
+ 
+  Form1: TForm1;
+ 
+implementation
+ 
+{ добавляем модуль printers }
+uses
+ 
+  Printers;
+ 
+{$R *.DFM}
+ 
+{ описываем структуру "PASSTHROUGH" }
+type TPrnBuffRec = record
+ 
+    BuffLength: word;
+    Buffer: array[0..255] of char;
+  end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+ 
+  Buff: TPrnBuffRec;
+  TestInt: integer;
+  s: string;
+begin
+ 
+{ Тестируем на предмет поддержки escape кода "PASSTHROUGH" }
+ 
+  TestInt := PASSTHROUGH;
+  if Escape(Printer.Handle,
+    QUERYESCSUPPORT,
+    sizeof(TestInt),
+    @TestInt,
+    nil) &gt; 0 then
+    begin
+ 
+{ Начинаем вывод на печать }
+      Printer.BeginDoc;
+ 
+{ Создаем строку для транзитной пересылки }
+      s := ' Текстовая строка ';
+ 
+{ Копируем строчку в буфер }
+      StrPCopy(Buff.Buffer, s);
+ 
+{ Устанавливаем размер буфера }
+      Buff.BuffLength := StrLen(Buff.Buffer);
+ 
+{ Даем команду на транзитную пересылку буфера }
+      Escape(Printer.Canvas.Handle,
+        PASSTHROUGH,
+        0,
+        @Buff,
+        nil);
+ 
+{ Заканчиваем вывод на печать }
+      Printer.EndDoc;
+    end;
+end;
+ 
+end.
+</pre>
+
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

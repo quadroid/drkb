@@ -1,0 +1,125 @@
+<html>
+<head>
+  <title>Как прочитать свойства видеофайла?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как прочитать свойства видеофайла?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>Below is some code to get some of the data. To use the DirectDraw/ DirectShow calls you need either the older DSHOW.PAS (DX6) or more current DirectShow.pas header conversion from the Project JEDI web site:</p>
+
+<pre name="code" class="delphi">
+type
+  TDSMediaInfo = record
+    SurfaceDesc: TDDSurfaceDesc;
+    Pitch: integer;
+    PixelFormat: TPixelFormat;
+    MediaLength: Int64;
+    AvgTimePerFrame: Int64;
+    FrameCount: integer;
+    Width: integer;
+    Height: integer;
+    FileSize: Int64;
+  end;
+ 
+function GetHugeFileSize(const FileName: string): int64;
+var
+  FileHandle: hFile;
+begin
+  FileHandle := FileOpen(FileName, fmOpenRead or fmShareDenyNone);
+  try
+    LARGE_INTEGER(Result).LowPart := GetFileSize(FileHandle, @LARGE_INTEGER(Result).HighPart);
+    if LARGE_INTEGER(Result).LowPart = $FFFFFFFF then
+      Win32Check(GetLastError = NO_ERROR);
+  finally
+    FileClose(FileHandle);
+  end;
+end;
+ 
+function GetMediaInfo(FileName: WideString): TDSMediaInfo;
+var
+  DirectDraw: IDirectDraw;
+  AMStream: IAMMultiMediaStream;
+  MMStream: IMultiMediaStream;
+  PrimaryVidStream: IMediaStream;
+  DDStream: IDirectDrawMediaStream;
+  GraphBuilder: IGraphBuilder;
+  MediaSeeking: IMediaSeeking;
+  TimeStart, TimeStop: Int64;
+  DesiredSurface: TDDSurfaceDesc;
+  DDSurface: IDirectDrawSurface;
+begin
+  if FileName = '' then
+    raise Exception.Create('No File Name Specified');
+  OleCheck(DirectDrawCreate(nil, DirectDraw, nil));
+  DirectDraw.SetCooperativeLevel(GetDesktopWindow(), DDSCL_NORMAL);
+  Result.FileSize := GetHugeFileSize(FileName);
+  AMStream := IAMMultiMediaStream(CreateComObject(CLSID_AMMultiMediaStream));
+  OleCheck(AMStream.Initialize(STREAMTYPE_READ, AMMSF_NOGRAPHTHREAD, nil));
+  OleCheck(AMStream.AddMediaStream(DirectDraw, MSPID_PrimaryVideo, 0, IMediaStream(nil^)));
+  OleCheck(AMStream.OpenFile(PWideChar(FileName), AMMSF_NOCLOCK));
+  AMStream.GetFilterGraph(GraphBuilder);
+  MediaSeeking := GraphBuilder as IMediaSeeking;
+  MediaSeeking.GetDuration(Result.MediaLength);
+  MMStream := AMStream as IMultiMediaStream;
+  OleCheck(MMStream.GetMediaStream(MSPID_PrimaryVideo, PrimaryVidStream));
+  DDStream := PrimaryVidStream as IDirectDrawMediaStream;
+  DDStream.GetTimePerFrame(Result.AvgTimePerFrame);
+  {Result.FrameCount := Result.MediaLength div Result.AvgTimePerFrame;}
+  { TODO : Test for better accuracy }
+  Result.FrameCount := Round(Result.MediaLength / Result.AvgTimePerFrame);
+  Result.MediaLength := Result.FrameCount * Result.AvgTimePerFrame;
+  ZeroMemory(@DesiredSurface, SizeOf(DesiredSurface));
+  DesiredSurface.dwSize := Sizeof(DesiredSurface);
+  OleCheck(DDStream.GetFormat(TDDSurfaceDesc(nil^), IDirectDrawPalette(nil^),
+    DesiredSurface, DWord(nil^)));
+  Result.SurfaceDesc := DesiredSurface;
+  DesiredSurface.ddsCaps.dwCaps := DesiredSurface.ddsCaps.dwCaps or
+    DDSCAPS_OFFSCREENPLAIN or DDSCAPS_SYSTEMMEMORY;
+  DesiredSurface.dwFlags := DesiredSurface.dwFlags or DDSD_CAPS or DDSD_PIXELFORMAT;
+  {Create a surface here to get vital statistics}
+  OleCheck(DirectDraw.CreateSurface(DesiredSurface, DDSurface, nil));
+  OleCheck(DDSurface.GetSurfaceDesc(DesiredSurface));
+  Result.Pitch := DesiredSurface.lPitch;
+  if DesiredSurface.ddpfPixelFormat.dwRGBBitCount = 24 then
+    Result.PixelFormat := pf24bit
+  else if DesiredSurface.ddpfPixelFormat.dwRGBBitCount = 32 then
+    Result.PixelFormat := pf32bit;
+  Result.Width := DesiredSurface.dwWidth;
+  Result.Height := DesiredSurface.dwHeight;
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

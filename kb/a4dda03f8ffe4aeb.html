@@ -1,0 +1,84 @@
+<html>
+<head>
+  <title>Что из себя представляет Self?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Что из себя представляет Self?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Self - это явное задание экземпляра класса в его методе.</p>
+<p>Например для твоей формы это указание на саму форму:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  showmessage(self.classname+#13#10+self.name);
+end;
+</pre>
+<p>Если например это MDI форма то это будет указатель именно на тот экземпляр для которого выполняется этот код. На практике Self обычно применяется при написании своих классов, когда ты пишешь класс или компонент, то у тебя нет переменной с экземпляром этого компонента, следовательно чтобы обратится к экземпляру (который появится только в коде конечного пользователя, который будет использовать компонент) класса нужна переменная - вот она и берётся за self.</p>
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<p>  Чтобы понять, что такое self надо понять что такое метод класса. Метод класса - это просто функция(процедура) который имеет дополнительный неявный параметр - указатель на экземпляр класса. То есть:</p>
+<pre name="code" class="delphi">
+TMy=class
+  x:integer;
+  procedure Proc(val:integer);
+end;
+ 
+procedure TMy.Proc(val:integer);
+begin
+  x:=val;
+end;
+</pre>
+<p> После компиляции это будет практически то же самое, что:</p>
+
+<pre name="code" class="delphi">
+procedure Proc(self:TMy;val:integer);
+begin
+  self.x:=val;
+end;
+</pre>
+<p> То есть на самом деле в методе Proc обращаясь к x мы на самом деле обращаемся к self.x, просто переменная self опускается. В откомпилированном коде нет такого понятия как классы - есть только код и память. Все методы классов превращаются в обыкновенные функции, в которым качестве первого параметра передается указатель на область памяти где лежит созданный пользователем экземпляр класса, который они и используют для чтения или записи(а так же для вызова) того, что мы называем членами класса.</p>
+<pre name="code" class="delphi">
+var
+  m1,m2:TMy;
+begin
+  .....
+  m1.Proc(4); // -&gt; Proc(m1,4)
+  m2.Proc(4); // -&gt; Proc(m2,4)
+end;
+</pre>
+
+<p id="author">Автор: Fantasist</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

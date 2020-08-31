@@ -1,0 +1,95 @@
+<html>
+<head>
+  <title>Как различать звуковые CD</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как различать звуковые CD</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>лазерный диск имеет свой идентификатор. Если сохранить, какому диску соответствует какой идентификатор, то можно реализовать определение диска. </p>
+<p>В этой программе при нажатии на кнопку происходит проверка, есть ли название этого диска в файле. Если есть, то в заголовок окна выводится его название, если нет, то введенное пользователем название диска сохраняется в файл.</p>
+<pre name="code" class="delphi">
+uses MMSystem, IniFiles;
+ 
+function GetCDid: string;
+var
+  InfoParams: TMCI_Info_Parms;
+  s: array [0..63] of char;
+  OpenParams: TMCI_Open_Parms;
+  CloseParams: TMCI_Generic_Parms;
+begin
+  result := '';
+  FillChar(InfoParams, sizeof(InfoParams), #0);
+  InfoParams.lpstrReturn := @s[0];
+  InfoParams.dwRetSize := 10;
+  OpenParams.dwCallback := 0;
+  OpenParams.lpstrDeviceType := 'CDAudio';
+  if mciSendCommand(0, mci_Open, mci_Open_Type,
+ 
+    Longint(addr(OpenParams))) &lt;&gt; 0 then Exit;
+  if mciSendCommand(OpenParams.wDeviceID, MCI_INFO,
+    MCI_INFO_MEDIA_IDENTITY, longint(@InfoParams)) = 0
+  then result := s;
+  mciSendCommand(OpenParams.wDeviceID, mci_Close, 0,
+    Longint(addr(CloseParams)));
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  id: string;
+  ini: TIniFile;
+  name: string;
+begin
+  id := GetCDid;
+  if id = '' then begin
+ 
+    Form1.Caption := 'No disk';
+    Exit;
+  end;
+  ini := TIniFile.Create(ExtractFilePath(Application.ExeName) +
+    'cd.ini');
+  name := ini.ReadString('CD', id, '');
+  if name = '' then begin
+    name := 'CD name';
+    if not InputQuery('CD name', 'Enter CD name:', name)
+      then Exit;
+    ini.WriteString('CD', id, name);
+  end;
+  Form1.Caption := name;
+  ini.Destroy;
+end;
+</pre>
+<p id="author">Автор советов: Даниил Карапетян</p>
+<p>e-mail: delphi4all@narod.ru</p>
+<p id="author">Автор справки: Алексей Денисов</p>
+<p>e-mail: aleksey@sch103.krasnoyarsk.su</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

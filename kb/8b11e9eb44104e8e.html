@@ -1,0 +1,102 @@
+<html>
+<head>
+  <title>Как работать с GIF файлами?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как работать с GIF файлами?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  if opendialog1.Execute then
+    begin
+      ListBox1.Items := opendialog1.Files;
+      Edit2.Text := inttostr(ListBox1.Items.Count);
+    end;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  i, a: integer;
+  bm: TBItmap;
+begin
+  a := 0;
+  bm := TBItmap.Create;
+  image1.Picture.LoadFromFile(listbox1.Items[0]);
+  bm.Height := image1.Height;
+  bm.Width := listbox1.Items.Count * image1.Picture.width;
+  for i := 0 to listbox1.Items.Count - 1 do
+    begin
+      image1.Picture.LoadFromFile(listbox1.Items[i]);
+      bm.Canvas.Draw(a, 0, image1.Picture.Graphic);
+      a := a + image1.Picture.Height;
+    end;
+//form1.Canvas.Draw(0,0,bm);
+  bm.SaveToFile(Edit1.Text + '.bmp');
+  bm.free;
+end;
+</pre>
+
+<p>Этот код, делает следующее, загружаем в листбох список Gif файлов, затем это все дело обьединяетсяв один BMP файл,картинка к картинке, кто знает DirectX поймет для чего это надо (спрайты);</p>
+<hr />
+<pre name="code" class="delphi">
+procedure TForm1.Button4Click(Sender: TObject);
+var
+  i, a: integer;
+  bm: TBItmap;
+begin
+  a := 0;
+  bm := TBItmap.Create;
+  bm.Height := RxGIFAnimator1.Height;
+  bm.Width := RxGIFAnimator1.Image.Count * RxGIFAnimator1.width;
+  for i := 0 to RxGIFAnimator1.Image.Count - 1 do
+    begin
+      RxGIFAnimator1.FrameIndex := i;
+      bm.Canvas.Draw(a, 0, RxGIFAnimator1.Image.Frames[i].Bitmap);
+      a := a + RxGIFAnimator1.Height;
+    end;
+//form1.Canvas.Draw(0,0,bm);
+  bm.SaveToFile(Edit1.Text + '.bmp');
+  bm.free;
+end;
+</pre>
+<p>из файловов GIF (анимированных) вытаскивает каждую картинку в отдельности, или записывает в отдельный BMP по очереди</p>
+<p>Для этих программок нужен всеми любимый RX Lib !!!</p>
+<p id="author">Автор ответа: МММ </p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a> </p>
+<p>Как поставить (анимационный) GIF на форму?</p>
+<p>Использовать компонент rxGIFAnimator из библиотеки RxLib. </p>
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

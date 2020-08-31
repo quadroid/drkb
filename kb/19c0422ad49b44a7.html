@@ -1,0 +1,60 @@
+<html>
+<head>
+  <title>Поддерживает ли процессор технологию 3DNow?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Поддерживает ли процессор технологию 3DNow?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{$ifndef ver80} // так как будем использовать 32-битный регистр
+    function 3DNowSupport: Boolean; assembler; 
+    asm 
+      push  ebx 
+      mov   @Result, True 
+      mov   eax, $80000000 
+      dw    $A20F            
+      cmp   eax, $80000000 
+      jbe   @NOEXTENDED    // 3DNow не поддерживается
+      mov   eax, $80000001 
+      dw    $A20F            
+      test  edx, $80000000 
+      jnz    @EXIT          // 3DNow поддерживается
+      @NOEXTENDED: 
+      mov  @Result, False 
+      @EXIT: 
+      pop ebx 
+    end; 
+    {$endif}
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Запущен ли Softice?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Запущен ли Softice?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+//SoftIce in W9x
+ 
+function IsSoftIce95Loaded: boolean;
+var
+  hFile: Thandle;
+begin
+  result := false;
+  hFile := CreateFileA('\.SICE', GENERIC_READ or GENERIC_WRITE,
+    FILE_SHARE_READ or FILE_SHARE_WRITE, nil, OPEN_EXISTING,
+    FILE_ATTRIBUTE_NORMAL, 0);
+  if (hFile &lt;&gt; INVALID_HANDLE_VALUE) then
+  begin
+    CloseHandle(hFile);
+    result := TRUE;
+  end;
+end;
+// SoftIce in NT OS
+ 
+function IsSoftIceNTLoaded: boolean;
+var
+  hFile: Thandle;
+begin
+  result := false;
+  hFile := CreateFileA('\.NTICE', GENERIC_READ or GENERIC_WRITE,
+    FILE_SHARE_READ or FILE_SHARE_WRITE, nil, OPEN_EXISTING,
+    FILE_ATTRIBUTE_NORMAL, 0);
+  if (hFile &lt;&gt; INVALID_HANDLE_VALUE) then
+  begin
+    CloseHandle(hFile);
+    result := TRUE;
+  end;
+end;
+//to detect it
+if IsSoftIce95Loaded or IsSoftIceNTLoaded then
+  Application.Terminate
+    {if you insert a "Nag" (Message telling him he uses SoftIce) then a amatuer cracker w'll find this protection in notime}
+  //bestway of using this thing is in "project Unit"
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

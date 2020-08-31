@@ -1,0 +1,147 @@
+<html>
+<head>
+  <title>Покрашенный TStringGrid</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Покрашенный TStringGrid</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>...вы можете попробовать использовать StringGrid. У него имеется свойство Objects, через которое вы можете назначать объекты. Создайте объект, содержащий переменную типа TColor, и назначьте это Objects[col,row], что позволит иметь к нему доступ в любое время. Назначьте событие OnDrawCell StringGrid, позволяющее рисовать текст ячейки правильного цвета. Чтобы убедиться, что ячейка выбрана, воспользуйтесь свойством Selection, содержащим то, что выбрал пользователь. Все это должно выглядеть приблизительно так:</p>
+<pre name="code" class="delphi">
+type
+  TStrColor = class(TObject)
+  public
+    Color: TColor; {вы могли бы также определить частные и
+    публичные методы доступа}
+  end;
+...
+ 
+procedure TForm1.FormCreate(Sender: TObject)
+var
+  i, j: Integer;
+begin
+  with StringList1 do
+    for i := 0 to ColCount - 1
+      for j := 0 to RowCount - 1
+      Objects[i, j] := TStrColor.Create;
+end;
+...
+ 
+procedure TForm1.StringGrid1DrawCell(Sender: TObject; Col, Row: Longint;
+  Rect: TRect; State: TGridDrawState);
+var
+  OldColor: TColor;
+begin
+  with StringGrid1.Canvas do
+  begin
+    OldColor := Font.Color;
+    Font.Color := (StringGrid1.Objects[col, row] as TStrColor).Color;
+    TextOut(Rect.Left + 2, Rect.Top + 2, StringGrid1.Cells[Col, Row]);
+    Font.Color := OldColor;
+  end;
+end;
+...
+ 
+procedure TForm1.ProcessSelection(Sender: TObject);
+var
+  i, j: Integer;
+begin
+  with StringGrid1.Selection do
+    for i := left to right do
+      for j := top to bottom do
+        MessageDlg(IntToStr(i) + ',' + IntToStr(j) + '-' +
+          IntToStr((StringGrid1.Objects[i, j] as TStrColor).Color),
+          mtInformation, [mbOk], 0);
+end;
+ 
+ 
+ 
+ 
+</pre>
+<p>Этот компонент не позволяет делать многочисленный выбор.... </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+<hr />
+<p>В данном модуле демонстрируется техника изменения цвета у выводимого в StringGrid текста.</p>
+<pre name="code" class="delphi">
+unit Strgr;
+ 
+interface
+ 
+uses
+  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
+  Forms, Dialogs, Grids, StdCtrls, DB;
+ 
+type
+  TForm1 = class(TForm)
+    StringGrid1: TStringGrid;
+    procedure StringGrid1DrawCell(Sender: TObject; Col, Row: Longint;
+      Rect: TRect; State: TGridDrawState);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+ 
+var
+ 
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TForm1.StringGrid1DrawCell(Sender: TObject; Col, Row: Longint;
+ 
+  Rect: TRect; State: TGridDrawState);
+const
+ 
+  CharOffset = 3;
+begin
+ 
+  with StringGrid1.canvas do
+  begin
+    font.color := clMaroon;
+    textout(rect.left + CharOffset, rect.top + CharOffset, 'L');
+    font.color := clNavy;
+    textout(rect.left + CharOffset + TextWidth('L'),
+      rect.top + CharOffset, 'loyd');
+  end;
+end;
+ 
+end.
+ 
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

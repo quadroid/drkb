@@ -1,0 +1,89 @@
+<html>
+<head>
+  <title>Эффект блоков</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Эффект блоков</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Эффект 'Блоки'
+ 
+Зависимости: Windows, Classes, Graphics
+Автор:       Fenik, chook_nu@uraltc.ru, Новоуральск
+Copyright:   Собственное написание (Николай федоровских)
+Дата:        1 июня 2002 г.
+***************************************************** }
+ 
+procedure Blocks(Bitmap: TBitmap; Hor, Ver, MaxOffset:
+  Integer; BackColor: TColor);
+{вырезаем прямоугольники со сторонами Hor Ver
+и копируем их в радиусе MaxOffset}
+ 
+  function RandomInRadius(Num, Radius: Integer): Integer;
+  begin
+    if Random(2) = 0 then
+      Result := Num + Random(Radius)
+    else
+      Result := Num - Random(Radius);
+  end;
+ 
+var
+  x, y, xd, yd: Integer;
+  Bmp: TBitmap;
+begin
+  Bmp := TBitmap.Create;
+  try
+    Bmp.Assign(Bitmap);
+    Bitmap.Canvas.Brush.Color := BackColor;
+    Bitmap.Canvas.FillRect(Rect(0, 0, Bitmap.Width, Bitmap.Height));
+    xd := (Bitmap.Width - 1) div Hor;
+    yd := (Bitmap.Height - 1) div Ver;
+    Randomize;
+    for x := 0 to xd do
+      for y := 0 to yd do
+        BitBlt(Bitmap.Canvas.Handle,
+          RandomInRadius(Hor * x, MaxOffset),
+          RandomInRadius(Ver * y, MaxOffset),
+          Hor, Ver, Bmp.Canvas.Handle, Hor * x, Ver * y, SRCCOPY);
+  finally
+    Bmp.Free;
+  end;
+end;
+Пример использования: 
+ 
+Blocks(FBitmap, FBitmap.Width div 10, FBitmap.Height div 10, 4, clWhite); 
+ 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

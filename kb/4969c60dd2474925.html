@@ -1,0 +1,111 @@
+<html>
+<head>
+  <title>Как очистить очередь печати принтера?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как очистить очередь печати принтера?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses ..., WinSpool;
+ 
+
+ 
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  PrintersInfo, TmpPrintersInfo: PPrinterInfo1;
+  pcbNeeded, pcReturned, jpcbNeeded, jpcReturned: DWORD;
+  I, J: Integer;
+  hPrinter: THandle;
+  JobInfo, TmpJobInfo: PJobInfo3;
+begin
+  EnumPrinters(PRINTER_ENUM_LOCAL, nil, 1, PrintersInfo, 0, pcbNeeded,  pcReturned);
+  if GetLastError = ERROR_INSUFFICIENT_BUFFER then
+  begin
+    GetMem(PrintersInfo, pcbNeeded);
+    try
+      if EnumPrinters(PRINTER_ENUM_LOCAL, nil, 1,
+        PrintersInfo, pcbNeeded, pcbNeeded,  pcReturned) then
+      begin
+        TmpPrintersInfo := PrintersInfo;
+        for I := 0 to pcReturned - 1 do
+        begin
+          if OpenPrinter(TmpPrintersInfo^.pName, hPrinter, nil) then
+          begin
+            EnumJobs(hPrinter, 0, 100, 1, nil,
+              0, jpcbNeeded, jpcReturned);
+            if GetLastError in [NO_ERROR, ERROR_INSUFFICIENT_BUFFER] then
+            begin
+              GetMem(JobInfo, jpcbNeeded);
+              try
+                if EnumJobs(hPrinter, 0, 100, 3, JobInfo,
+                  jpcbNeeded, jpcbNeeded, jpcReturned) then
+                begin
+                  TmpJobInfo := JobInfo;
+                  for J := 0 to jpcReturned - 1 do
+                  begin
+                    if not SetJob(hPrinter, TmpJobInfo^.JobId, 0,
+                      nil, JOB_CONTROL_DELETE) then RaiseLastOSError;
+                    Inc(TmpJobInfo);
+                  end;
+                end
+                else
+                  RaiseLastOSError;
+              finally
+                FreeMem(JobInfo);
+              end;
+            end
+            else
+              RaiseLastOSError;
+          end
+          else
+            RaiseLastOSError;
+          Inc(TmpPrintersInfo);
+        end;
+      end
+      else
+        RaiseLastOSError;
+    finally
+      FreeMem(PrintersInfo);
+    end;
+  end
+  else
+    RaiseLastOSError;
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: Rouse_
+<p>&nbsp;</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

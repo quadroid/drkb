@@ -1,0 +1,106 @@
+<html>
+<head>
+  <title>Создание мышиного перехватчика</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создание мышиного перехватчика</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+library Hookdemo;
+ 
+uses
+ 
+Beeper in '\DELDEMOS\HOOKDEMO\BEEPER.PAS';
+ 
+exports
+ 
+SetHook index 1,
+UnHookHook index 2,
+HookProc index 3;
+ 
+begin
+ 
+HookedAlready:=False;
+end.
+</pre>
+
+<p>, где beeper.pas содержит следующий код:</p>
+<pre name="code" class="delphi">unit Beeper;
+ 
+interface
+ 
+uses Wintypes, Winprocs, Messages;
+ 
+function SetHook: Boolean; export;
+function UnHookHook: Boolean; export;
+function HookProc(Code: integer; wParam: Word;
+  lParam: Longint): Longint; export;
+ 
+var
+  HookedAlready: Boolean;
+ 
+implementation
+ 
+var
+  ourHook: HHook;
+ 
+function SetHook: Boolean;
+begin
+  if HookedAlready then
+    exit;
+  ourHook := SetWindowsHookEx(WH_MOUSE, HookProc, HInstance, 0);
+  HookedAlready := True;
+end;
+ 
+function UnHookHook: Boolean;
+begin
+  UnHookWindowsHookEx(ourHook);
+  HookedAlready := False;
+end;
+ 
+function HookProc(Code: integer; wParam: Word;
+  lParam: Longint): Longint;
+begin
+  if (wParam = WM_LBUTTONDOWN) then
+    MessageBeep(0);
+  result := CallNextHookEx(ourHook, Code, wParam, lParam);
+end;
+ 
+end.
+</pre>
+
+<p>Теперь, при вызове из приложения функции SetHook, при каждом нажатии левой кнопки мыши будет раздаваться сигнал - до тех пор, пока вы не вызовете функцию UnHookHook. В действующем приложении возвращаемое функцией CallNextHookEx значение &lt; 0 сведетельствует об отсутствии манипуляций с мышью. </p>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

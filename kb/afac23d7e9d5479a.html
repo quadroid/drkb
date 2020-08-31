@@ -1,0 +1,73 @@
+<html>
+<head>
+  <title>TStringGrid с фокусом (OnDrawCell)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TStringGrid с фокусом (OnDrawCell)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Если вы создаете собственный обработчик компонента TStringGrid OnDrawCell, то вы можете нарисовать все, что вам заблагорассудится. Попробуйте, к примеру, это:</p>
+<pre name="code" class="delphi">procedure TForm1.DrawCell(Sender: TObject;
+  Col: Longint;
+  Row: Longint;
+  Rect: TRect;
+  State: TGridDrawState);
+var
+  lRow, lCol: LongInt;
+  S: string;
+begin
+  lRow := Row;
+  lCol := Col;
+  with Sender as TStringGrid, Canvas do
+  begin
+    if (gdSelected in State) then
+    begin
+      Brush.Color := clHighlight; { *** }
+    end
+    else if (lRow &lt; FixedRows) or (lCol &lt; FixedCols) then
+    begin
+      Brush.Color := FixedColor;
+    end
+    else
+    begin
+      Brush.Color := Color;
+    end;
+    FillRect(Rect);
+    SetBkMode(Handle, TRANSPARENT);
+    TextOut(Rect.Left + 2, Rect.Top + 2, Cells[lCol, lRow]);
+  end;
+end;
+</pre>
+<p>Строка с комментарием { *** } в данном контексте ключевая. Она "сообщает" о том, что если мы рисуем ячейку, которая имеет фокус, то мы ее рисуем с применением цвета подсветки (highlight) (хотя вы бы могли здесь использовать любой другой нравящийся вам цвет), хотя никто нам специально о необходимости подкрашивания области сфокусированной ячейки и не говорил. Единственная проблема возникает со шрифтом, но в конечном счете я обнаружил, что она решается сама собой, если установить свойство компонента TStringGrid DefaultDrawing в TRUE (я потерял немало времени, решая проблему цвета шрифта со значением FALSE!). Попробуйте также поиграться с другими настройками цветов, может вам повезет и вы добъетесь неописуемой красоты компонента TStringGrid. </p>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

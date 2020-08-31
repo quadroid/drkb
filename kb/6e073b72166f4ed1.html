@@ -1,0 +1,122 @@
+<html>
+<head>
+  <title>Как получить RTF из Word без буффера обмена?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить RTF из Word без буффера обмена?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses
+  Word_TLB, ActiveX, ComObj;
+ 
+function GetRTFFormat(DataObject: IDataObject; var RTFFormat: TFormatEtc): Boolean;
+var
+  Formats: IEnumFORMATETC;
+  TempFormat: TFormatEtc;
+  pFormatName: PChar;
+  Found: Boolean;
+begin
+  try
+    OleCheck(DataObject.EnumFormatEtc(DATADIR_GET, Formats));
+    Found := False;
+    while (not Found) and (Formats.Next(1, TempFormat, nil) = S_OK) do
+    begin
+      pFormatName := AllocMem(255);
+      GetClipBoardFormatName(TempFormat.cfFormat, pFormatName, 254);
+      if (string(pFormatName) = 'Rich Text Format') then
+      begin
+        RTFFormat := TempFormat;
+        Found := True;
+      end;
+      FreeMem(pFormatName);
+    end;
+    Result := Found;
+  except
+    Result := False;
+  end;
+end;
+ 
+function GetRTF: string;
+var
+  DataObject: IDataObject;
+  RTFFormat: TFormatEtc;
+  ReturnData: TStgMedium;
+  Buffer: PChar;
+  WordDoc: _Document;
+  WordApp: _Application;
+begin
+  Result := '';
+  try
+    GetActiveOleObject('Word.Application').QueryInterface(_Application, WordApp);
+  except
+    ShowMessage('Error: MSWord is not running');
+    Exit;
+  end;
+  if (WordApp &lt;&gt; nil) then
+    try
+      WordDoc := WordApp.ActiveDocument;
+      WordDoc.QueryInterface(IDataObject, DataObject);
+      if GetRTFFormat(DataObject, RTFFormat) then
+      begin
+        OleCheck(DataObject.GetData(RTFFormat, ReturnData));
+        //RTF is passed through global memory
+        Buffer := GlobalLock(ReturnData.hglobal);
+        //Buffer is a pointer to the RTF text
+        Result := StrPas(Buffer);
+        GlobalUnlock(ReturnData.hglobal);
+        ReleaseStgMedium(ReturnData);
+      end;
+    except
+      // Error occured...
+    end;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  ss: TStringstream;
+  rtfText: string;
+begin
+  rtfText := GetRTF;
+  ss := TStringStream.Create(rtfText);
+  try
+    ss.Position := 0;
+    Memo1.Text := rtfText;
+    RichEdit1.Lines.LoadFromStream(ss);
+  finally
+    ss.Free
+  end;
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

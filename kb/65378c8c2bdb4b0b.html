@@ -1,0 +1,64 @@
+<html>
+<head>
+  <title>Панель с двумя полосами слева, которые можно двигать</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Панель с двумя полосами слева, которые можно двигать</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Для создания панелей в двумя полосами слева, которые можно двигать друг относительно друга, используют компонент ControlBar (вкладка Additional), на котором обычно размещают один или несколько ToolBar (вкладка Win32). Чтобы сделать возможным "вытаскивание" панели из ControlBar нужно написать следующий код: </p>
+<pre name="code" class="delphi">
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  ToolBar1.DockSite := true;
+  ToolBar1.DragKind := dkDock;
+  ToolBar1.DragMode := dmAutomatic;
+end;
+ 
+procedure TForm1.ControlBar1DockOver(Sender: TObject;
+  Source: TDragDockObject; X, Y: Integer; State: TDragState;
+  var Accept: Boolean);
+begin
+  Accept := (Source.Control is TToolBar);
+  if Accept then
+    with Source.DockRect do
+    begin
+      TopLeft := ControlBar1.ClientToScreen(ControlBar1.ClientRect.TopLeft);
+      Right := Left + Source.Control.Width;
+      Bottom := Top + Source.Control.Height;
+    end;
+end;
+</pre>
+<p>Вы можете убрать метод FormCreate, установив нужные свойства компонента ToolBar1 на стадии разработки при помощи Object Inspector. </p>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<html>
+<head>
+  <title>Оптимизация программы для работы в фоновом режиме</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Оптимизация программы для работы в фоновом режиме</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Я пишу программу в Delphi, которая каждый час должна проверять размер файла. Это также предполагает, что в случае неактивности приложения оно должно работать сторожевым псом в фоновом режиме win 95 и NT. Как мне сделать это...?? Вот некоторый исходный код, который должен делать то, что вы хотите. Я его только что создал и еще не успел проверить, но что-то подобное я уже делал, так что это должно работать. Код допускает одно предположение, о котором вы должны отдавать себе отчет. Оно заключается в том, что приложение должно запускатьтся одновременно с Windows (может быть из группы автозапуска), так как код использует GetTickCount, возвращающий в миллисекундах время с момента старта системы, это необходимо для ежечасной инициализац ии кода выполнения задачи. По-моему это то, что вам нужно. Величина, возвращаемая GetTickCount имеет тип DWORD, но Delphi ее хранит как LongInt, поэтому большие значения могут иметь отрицательную величину (после примерно 25 дней). Данный эффект в алгоритм е проверки наступления часа неопределен (я действительно не считал это). Аналогично, значение будет повторяться в цикле каждые 49.7 дней и может появиться другой эффект, когда раз в 49.7 дней в одном реальном часе алгоритм сработает дважды. Надеюсь это ни как не скажется на вашей задаче. Во всяком случае разве это не то, что вы хотели? Успехов! </p>
+
+<pre name="code" class="delphi">
+program Project1;
+ 
+uses Messages, Windows;
+ 
+{$R *.RES}
+ 
+function KeepRunning: Boolean;
+var
+  Msg: TMsg;
+begin
+  Result := True;
+  while PeekMessage(Msg, 0, 0, 0, PM_REMOVE) do
+  begin
+    if (Msg.Message = WM_QUIT) then
+      Result := False;
+    DispatchMessage(Msg);
+  end;
+end;
+ 
+function OnTheHour: Boolean;
+begin
+  { Это действительно проверяется в течение одной секунды    }
+  { (или меньше) для проверки наступления нового часа,       }
+  { когда нам необходимо запустить нашу задачу на выполнение }
+  Result := (GetTickCount mod
+    (1 {hr} * 60 {min} * 60 {sec} * 1000 {msec}) &lt; 1000);
+end;
+ 
+const
+  filetocheck = 'c:\somedir\somefile.ext';
+  magicsize = 1000000;
+var
+  f: file;
+  size: longint;
+begin
+  { проверка наступления нового часа с момента запуска системы }
+  while keeprunning do
+  begin
+    { проверяем наступление часа }
+    if onthehour then
+    begin
+      { открываем файл с размером записи 1 байт }
+      { и проверяем его размер                  }
+      assignfile(f, filetocheck);
+      reset(f, 1);
+      size := filesize(f);
+      closefile(f);
+      { теперь проверяем изменение размера файла }
+      if (size &gt;= MAGICSIZE) then
+      begin
+        { Предпринимаем какие-то действия }
+      end;
+      { Теперь "сидим" в этом участке кода                 }
+      { и ожидаем очередного часа, здесь можно             }
+      { предусмотреть выход из программы или иное действие }
+      while (KeepRunning and OnTheHour) do
+        {ничего};
+    end;
+  end;
+end.
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<html>
+<head>
+  <title>Включение и выключение клавиатуры</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Включение и выключение клавиатуры</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// используемые переменные
+var
+  Dummy: integer = 0;
+  OldKbHook: HHook = 0;
+ 
+implementation
+ 
+function KbHook(code: Integer; wparam: Word; lparam: LongInt): LongInt; stdcall;
+begin
+  if code &lt; 0 then
+    Result := CallNextHookEx(oldKbHook, code, wparam, lparam)
+  else
+    Result := 1;
+end;
+ 
+// включение клавы
+ 
+procedure TForm1.KeyBoardOn(Sender: TObject);
+begin
+  if OldKbHook &lt;&gt; 0 then
+  begin
+    UnHookWindowshookEx(OldKbHook);
+    OldKbHook := 0;
+  end;
+  SystemParametersInfo(SPI_SETFASTTASKSWITCH, 0, 0, 0);
+  SystemParametersInfo(SPI_SCREENSAVERRUNNING, 0, 0, 0);
+end;
+ 
+// выключение клавы
+ 
+procedure TForm1.KeyBoardOff(Sender: TObject);
+begin
+  SystemParametersInfo(SPI_SETFASTTASKSWITCH, 1, @Dummy, 0);
+  SystemParametersInfo(SPI_SCREENSAVERRUNNING, 1, @Dummy, 0);
+  OldKbHook := SetWindowsHookEx(WH_KEYBOARD, @KbHook, HInstance, 0);
+end;
+</pre>
+
+<p>Некоторые замечания по поводу этих процедур: </p>
+<p>Если программу упаковать UPX-ом - клава не будет отключаться (причин не знаю). </p>
+<p>В ДОС-окне клава будет работать (FAR, VC и т.п.) :( </p>
+<p>Состояния клавиш NumLock,CapsLock,ScrollLock не отслеживаются и могут быть изменены. </p>
+<p>Возможно EnableHardwareKeyboard более эффективен и прост, но я тоже, к сожалению, не знаю, как им пользоваться. </p>
+<p>Если вместо WH_KEYBOARD поставить WH_MOUSE, то можно выключать таким образом мышь :-)</p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr />
+<pre name="code" class="delphi">
+program antiklava;
+{ подключение необходимых модулей }
+uses
+  Windows;
+{ объявление логической переменной}
+var
+  klava: boolean;
+begin
+  { устанавливаем значение переменной }
+  klava:=true;
+  { начинаем бесконечный цикл }
+  while true do
+  begin
+    { делаем так, чтобы всё не подвисло :)}
+    Yield;
+    { ничего не делаем 2 минуты }
+    Sleep(2*60*1000);
+    { присваиваем переменной противоположное значение }
+    klava:=not klava;
+    { и в зависимости от переменной,
+    отключаем или включаем клаву с мышкой}
+    EnableHardwareInput(klava);
+  end;
+end.
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr />
+<p>Вот недокументированная функция из User32.dll, которая блокирует ввод (мышь, клавиатуру кроме Ctrl+Alt+Del). При нажатии Ctrl+Alt+Del все разблокируется :-(</p>
+<pre name="code" class="delphi">
+procedure BlockInput; external 'user32.dll'; 
+</pre>
+<p>Передаем параметры в стек вручную через push, иначе что-то глючит: </p>
+<p>1 - заблокировать</p>
+<p>0 - разблокировать</p>
+<pre name="code" class="delphi">
+procedure Block;
+asm
+  push 1
+  call BlockInput
+end;
+ 
+procedure UnBlock;
+asm
+  push 0
+  call BlockInput
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

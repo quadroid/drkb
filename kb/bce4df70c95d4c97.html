@@ -1,0 +1,106 @@
+<html>
+<head>
+  <title>Параметры</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Параметры</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Параметры </p>
+<p>Многие компоненты ADO, инкапсулирующие набор записей, должны обеспечивать применение параметров запросов. Для этого в них используется специальный класс TParameters. </p>
+<p>Для каждого параметра из коллекции класса TParameters создается отдельный класс TParameter. </p>
+<p>Этот класс является наследником класса коллекции TCollection и инкапсулирует индексированный список отдельных параметров (см. ниже). Напомним, что для работы с параметрами обычных запросов в компонентах запросов и хранимых процедур используется класс TParams (например в компонентах dbExpress), также происходящий от класса коллекции. </p>
+<p>Методы этих двух классов совпадают, а свойства имеют некоторые отличия. Для представления параметров команд в ADO имеется специальный объект параметров, который активно используется в процессе работы компонентов АDO, инкапсулирующих набор данных. </p>
+<p>Поэтому для компонентов ADO в VCL был создан собственный класс параметров. </p>
+<p>Класс TParameters </p>
+<p>Главное, для чего предназначен класс TParameters, &#8212; содержать список параметров. Индексированный список параметров представлен свойством property Items[Index: Integer]: TParameter; Текущие значения параметров можно получить из индексированного свойства </p>
+<p>property ParamValues[const ParamName: String]: Variant; </p>
+<p>При этом доступ к конкретному значению осуществляется по имени параметра: </p>
+<p>Editl.Text := ADODataSet.Parameters.ParamValues['ParamOne']; </p>
+<p>Список параметров можно обновлять при помощи методов </p>
+<p>function AddParameter: TParameter;  </p>
+<p>и </p>
+<p>function CreateParameter(const Name: WideString; DataType: TDataType; </p>
+<p>Direction: TParameterDirection; Size: Integer; Value: OleVariant): TParameter; </p>
+<p>Первый метод просто создает новый объект параметра и добавляет его к списку. Затем необходимо задать все свойства нового параметра: </p>
+<p>var NewParam: TParameter; </p>
+<p>NewParam := ADODataSet.Parameters.AddParameter; </p>
+<p>NewParam.Name := 'ParamTwo'; </p>
+<p>NewParam.DataType := ftlnteger;&nbsp; </p>
+<p>NewParam.Direction := pdlnput; </p>
+<p>NewParam.Value := 0; </p>
+<p>Метод CreateParameter создает новый параметр и определяет его свойства:&nbsp; </p>
+<p> Name &#8212; имя параметра; </p>
+<p> DataType &#8212; тип данных параметра, соответствующий типу поля таблицы БД (тип TFieldType); </p>
+<p> Direction &#8212; тип параметра, в дополнение к стандартным типам dUnknown, pdlnput, pdOutput, pdlnputOutput,тип TParameterDirection имеет дополнительный тип pdReturnValue, определяющий любое возвращаемое значение; </p>
+<p> size &#8212; максимальный размер значения параметра;&nbsp; </p>
+<p> value &#8212; значение параметра. </p>
+<p>При работе с параметрами полезно вызывать их, используя имена, а не абсолютные индексы в списке. Для этого можно использовать метод </p>
+<p>function ParamByName(const Value: WideString): TParameter; </p>
+<p>Список параметров всегда должен соответствовать запросу или хранимой процедуре. Для обновления списка используется метод </p>
+<p>procedure Refresh; </p>
+<p>Также вы можете создать список параметров для не связанного с данным объектом параметров запроса. Для этого используется метод </p>
+<p>function ParseSQL(SQL: String; DoCreate: Boolean): String; </p>
+<p>где DoCreate определяет, удалять ли перед анализом существующие параметры. </p>
+<p>Класс TParameter </p>
+<p>Класс TParameter инкапсулирует отдельный параметр. Имя параметра определяется свойством </p>
+<p>property Name: WideString; </p>
+<p>Тип данных, которому должно соответствовать его значение, задается свойством </p>
+<p>TDataType = TFieldType; </p>
+<p>property DataType: TDataType; </p>
+<p>И так как параметры взаимодействуют с полями таблиц БД, то тип данных параметров совпадает с типами данных полей. От типа данных зависит размер параметра </p>
+<p>property Size: Integer; </p>
+<p>который может быть изменен для строкового или символьного типа данных и им подобных. </p>
+<p>Само значение параметра содержится в свойстве </p>
+<p>property Value: OleVariant;&nbsp; </p>
+<p>А свойство </p>
+<p>type </p>
+<p>TParameterAttribute = (paSigned, paNullable, paLong); </p>
+<p>TParameterAttributes = set of TParameterAttribute; property Attributes: TParameterAttributes; </p>
+<p>контролирует значение, присваиваемое параметру: </p>
+<p> paSigned &#8212; значение может быть символьным; </p>
+<p> paNullable &#8212; значение параметра может быть пустым; </p>
+<p> paLong &#8212; значение может содержать данные типа BLOB. </p>
+<p>Тип параметра задается свойством </p>
+<p>type TParameterDirection = (pdUnknown, pdlnput, pdOutput, pdlnputOutput, pdReturnValue); </p>
+<p>property Direction: TParameterDirection; </p>
+<p>pdUnknown &#8212; неизвестный тип, источник данных попытается определить его самостоятельно; </p>
+<p>pdinput &#8212; входной параметр, используется в запросах и хранимых процедурах; </p>
+<p>pdOutput &#8212; выходной параметр, используется в хранимых процедурах; </p>
+<p>pdlnputOutput &#8212; входной и выходной параметр одновременно, используется в хранимых процедурах; </p>
+<p>pdReturnValue &#8212; параметр для передачи значения. </p>
+<p>Если параметр должен передавать большие бинарные массивы (например, изображения или файлы), то значение параметра можно загрузить, используя методы </p>
+<p>procedure LoadFromFile(const FileName: String; DataType: TDataType); </p>
+<p>И </p>
+<p>procedure LoadFromStream(Stream: TStream; DataType: TDataType); </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

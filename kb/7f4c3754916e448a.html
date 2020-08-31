@@ -1,0 +1,81 @@
+<html>
+<head>
+  <title>Как добавить пароль к таблице</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как добавить пароль к таблице</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses
+  Bde, SysUtils, dbtables, windows;
+ 
+ 
+function StrToOem(const AnsiStr: string): string;
+begin
+  SetLength(Result, Length(AnsiStr));
+  if Length(Result)  0 then
+    CharToOem(PChar(AnsiStr), PChar(Result));
+end;
+ 
+function TablePasswort(var Table: TTable; password: string): Boolean;
+var
+  pTblDesc: pCRTblDesc;
+  hDb: hDBIDb;
+begin
+  Result := False;
+  with Table do
+  begin
+    if Active and (not Exclusive) then Close;
+    if (not Exclusive) then Exclusive := True;
+    if (not Active) then Open;
+    hDB := DBHandle;
+    Close;
+  end;
+  GetMem(pTblDesc, SizeOf(CRTblDesc));
+  FillChar(pTblDesc^, SizeOf(CRTblDesc), 0);
+  with pTblDesc^ do
+  begin
+    StrPCopy(szTblName, StrToOem(Table.TableName));
+    szTblType := szParadox;
+    StrPCopy(szPassword, StrToOem(Password));
+    bPack      := True;
+    bProtected := True;
+  end;
+  if DbiDoRestructure(hDb, 1, pTblDesc, nil, nil, nil, False) DBIERR_NONE then Exit;
+  if pTblDesc  nil then FreeMem(pTblDesc, SizeOf(CRTblDesc));
+  Result := True;
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

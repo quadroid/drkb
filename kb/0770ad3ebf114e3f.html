@@ -1,0 +1,154 @@
+<html>
+<head>
+  <title>Динамические SQL-запросы Oracle для ускорения выборок данных</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Динамические SQL-запросы Oracle для ускорения выборок данных</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Типичная задача при работе с базами данных &#8211; выбрать информацию из разных таблиц, отфильтровать ее по определенным критериям, потом обработать и/или выдать пользователю для просмотра и визуального анализа. Если параметры отбора записей имеются в наличии и определены &#8211; эта задача решается тривиально, с помощью обычного оператора sql &#8220;select&#8230; from&#8230; where&#8230;&#8221; - где набор условий, располагаемых после where, всегда определен. Однако, бывают случаи, когда набор параметров отбора данных определяется только перед самим отбором - а изначально, во время проектирования программы, не известен. <br>
+Например, надо выбрать клиентов, &#8220;засветившихся&#8221; в базе данных торговой фирмы за определенный срок; или сделавших покупки на сумму больше некоторой заданной.<br>
+Или приходится искать конкретного человека, используя частично известные анкетные данные&#8230;<br>
+Ситуация усложняется еще больше, если для определения, какие записи нужно выбрать, а какие нет, надо вызывать какую-нибудь функцию, реализующую сложные и ресурсоемкие вычисления. Разумеется, эту функцию без необходимости лучше в обработку не включать&#8230; <br>
+&nbsp;<br>
+Все перечисленные проблемы можно решить с помощью динамического sql. <br>
+Динамический sql позволяет строить текст запроса непосредственно внутри кода pl/sql - и затем выполнять его. Соответственно, разработчик может построить текст запроса, включая в него только необходимые, задействованные в текущий момент условия (случай, когда текст sql-запроса может быть сформирован внутри клиентского приложения, рассматривать не будем - всегда существуют ситуации, когда этого нельзя сделать по каким-нибудь причинам). <br>
+&nbsp;<br>
+За работу с динамическими sql -запросами отвечает пакет dbms_sql. В общем, работа с ним происходит по следующей схеме.<br>
+1. Строится сам текст запроса с метками для параметров. Текст запроса может быть представлен в виде строки или коллекции строк.<br>
+2. Функцией dbms_sql.open_cursor выделяется идентификатор курсора, который будет использоваться для работы с запросом. Идентификатор ссылается на внутреннюю структуру oracle, определяющую курсор. Этот идентификатор используется процедурами пакета dbms_sql.<br>
+3. Выполняется разбор текста запроса. dbms_sql.parse.<br>
+4. Устанавливаются значения параметров запроса. dbms_sql.bind_variable.<br>
+5. Если запрос возвращает данные, то определяются столбцы и буферные переменные, в которых будут размещаться возвращаемые данные. dbms_sql.define_column.<br>
+6. Запрос выполняется. dbms_sql.execute.<br>
+7. Если запрос возвращает данные, то производится выборка данных из курсора и необходимая их обработка. dbms_sql.fetch_rows, dbms_sql.column_value.<br>
+8. Курсор закрывается. dbms_sql.close_cursor.<br>
+&nbsp;<br>
+Ниже мы рассмотрим пример использования динамического sql для поиска человека по (неполным) анкетным данным.<br>
+&nbsp;<br>
+Вначале определимся с используемыми структурами данных. <br>
+&nbsp;<br>
+create table personparticulars<br>
+(id number(9) constraint pk_personparticulars primary key not null,<br>
+family varchar2(32) constraint pp_chk_family not null,<br>
+firstname varchar2(16) constraint pp_chk_firstname not null<br>
+)<br>
+tablespace x; <br>
+&nbsp;<br>
+Поля таблицы personparticulars: <br>
+&nbsp;<br>
+&#183; id &#8211; уникальный номер анкетных данных<br>
+&#183; family &#8211; фамилия <br>
+&#183; firstname &#8211; имя <br>
+&#183; middlename &#8211; отчество <br>
+&nbsp;<br>
+Процесс получения результатов разобьем на две части: построение текста sql-запроса и, собственно, его выполнение. Можно оформить это как две хранимые процедуры, можно как одну - пусть разработчик сам решает. Текст sql-запроса можно формировать как в одну строку, так и в виде коллекции - на случай, если текст окажется слишком длинным. В нашем случае будем использовать коллекцию - несмотря на то, что длина текста запроса будет небольшой. Зачем? А просто так, для примера. <br>
+Условимся также, что в хранимую процедуру будут передаваться следующие параметры, управляющие поиском: <br>
+&nbsp;<br>
+&#183; familyfilter &#8211; шаблон для поиска по фамилии<br>
+&#183; firstnamefilter &#8211; шаблон для поиска по имени<br>
+&#183; middlenamefilter &#8211; шаблон для поиска по отчеству <br>
+&nbsp;<br>
+Если в качестве какого-либо из параметров передано значение null &#8211; этот параметр при поиске игнорируем. <br>
+<p>Результаты поиска вернем в виде таблицы в памяти. Для простоты - это будут просто номера найденных людей (значения их id). </p>
+<pre name="code" class="sql">
+create or replace procedure searchperson(
+  familyfilter in varchar2, 
+  firstnamefilter in varchar2, 
+  middlenamefilter in varchar2, 
+  result in out dbms_sql.varchar2s) is
+sqltext dbms_sql.varchar2s; /* Текст запроса */
+whereclause dbms_sql.varchar2s; /* Часть … where… */
+i integer; /* Счетчик */
+c integer; /* Идентификатор курсора */
+b_id number; /* Буферная переменная для результатов */
+begin
+whereclause(1):=’true ‘;
+if familyfilter is not null then
+whereclause(whereclause.last+1):=’ and family like :xfamilyfilter’;
+end if;
+if firstnamefilter is not null then
+whereclause(whereclause.last+1):=’ and firstname like :xfirstnamefilter’;
+end if;
+if middlenamefilter is not null then
+whereclause(whereclause.last+1):=’ and middlename like :xmiddlenamefilter’;
+end if;
+/* На этом этапе у нас имеется часть запроса - where, в которой упомянуты только те условия, которые были заданы через непустые параметры хранимой процедуры */
+/* Теперь построим текст запроса полностью */
+sqltext(1):=’select id’;
+sqltext(2):=’from personparticulars’;
+for i in whereclause.first..whereclause.last loop
+sqltext(sqltext.last+1):=whereclause(i);
+end loop;
+/* Получаем идентификатор курсора */
+c:=dbms_sql.open_cursor;
+/* Разборка текста запроса */
+dbms_sql.parse(c, sqltext, sqltext.first, sqltext.last, false, dbms_sql.native);
+/* Установка параметров запроса */
+if familyfilter is not null then
+dbms_sql.bind_variable(c,’:xfamilyfilter’,familyfilter);
+end if;
+if firstnamefilter is not null then
+dbms_sql.bind_variable(c,’:xfirstnamefilter’,firstnamefilter);
+end if;
+if middlenamefilter is not null then
+dbms_sql.bind_variable(c,’:xmiddlenamefilter’,middlenamefilter);
+end if;
+/* Установка столбцов в запросе */
+dbms_sql.define_column(c,1,b_id);
+/* Выполнение запроса */
+dbms_sql.execute(c);
+/* Выборка результатов запроса */
+loop
+/* Выбираем следующую строку */
+if dbms_sql.fetch_rows(c)&gt;0 then
+dbms_sql.column_value(c,1,b_id);
+/* В этот момент в переменной b_id имеем текущее значение id очередной строки. Что с ней делать, уже дело разработчика */
+else
+exit; /* Если нет больше строк, вываливаемся */
+end if;
+end loop;
+/* Закрываем курсор */
+dbms_sql.close_cursor(c);
+end; 
+</pre>
+&nbsp;<br>
+&nbsp;<br>
+Надеюсь, основные идеи понятны? <br>
+Дальше &#8211; сами :)<br>
+&nbsp;<br>
+Использованная литература: oracle8 application developer&#8217;s guide &#169; oracle corporation<br>
+&nbsp;<br>
+Автор: Андрей Фионик<br>
+Источник:<br>
+<a href="http://doc.woweb.ru" target="_blank">http://doc.woweb.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

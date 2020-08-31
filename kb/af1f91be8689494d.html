@@ -1,0 +1,83 @@
+<html>
+<head>
+  <title>Показываем всплывающие подсказки в различных панелях StatusBar</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Показываем всплывающие подсказки в различных панелях StatusBar</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Данный пример демонстрирует показ всплывающих подсказок для любой панели статусбара. Этот метод отличается от того, который использует событие MouseMove, и запускается только тогда, когда приложению необходимо показать всплывающие подсказки. В то время как при использовании MouseMove метод будет вызываться при каждом попадании курсора мышки на statusbar.</p>
+<pre name="code" class="delphi">
+{ Добавьте CommCtrl в uses. }
+{ в интерфейсе формы для статусбара } 
+  private 
+    procedure AppShowHint(var HintStr: string; var CanShow: boolean; 
+      var HintInfo: THintInfo);
+ 
+procedure TForm1.FormCreate(Sender: TObject); 
+begin 
+  Application.OnShowHint := AppShowHint; 
+end;
+ 
+procedure TForm1.AppShowHint(var HintStr: string; var CanShow: boolean; 
+var HintInfo: THintInfo); 
+const 
+  PanelHints: array [0..6] of string = 
+    ('Cursor position', 'Ascii char', 'Bookmarks', 'Caps lock', 
+    'Insert/Overwrite', 'File size', 'File name');
+var 
+  x: integer; 
+  R: TRect; 
+begin 
+  if HintInfo.HintControl = StatusBar1 then 
+  begin 
+    for x := 0 to StatusBar1.Panels.Count-1 do 
+    begin 
+      SendMessage(StatusBar1.Handle, SB_GETRECT, x, Longint(@R)); 
+      if PtInRect(R, HintInfo.CursorPos) then 
+      begin 
+        HintStr := PanelHints[x]; 
+        InflateRect(R, 3, 3);
+        { Устанавливаем CursorRect говоря системе проверить новые
+        строки с подсказками, когда курсор покинет этот прямоугольник. } 
+        HintInfo.CursorRect := R; 
+        break; 
+      end; 
+    end; 
+  end; 
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

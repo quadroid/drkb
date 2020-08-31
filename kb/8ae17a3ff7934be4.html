@@ -1,0 +1,107 @@
+<html>
+<head>
+  <title>Using TAPI</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Using TAPI</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>How can I use TAPI to dial the telephone for a voice call?</p>
+<p>The following example shows how to interface with tapi to make a voice call.</p>
+<pre name="code" class="delphi">
+{tapi Errors}
+ const TAPIERR_CONNECTED          = 0;
+ const TAPIERR_DROPPED            = -1;
+ const TAPIERR_NOREQUESTRECIPIENT = -2;
+ const TAPIERR_REQUESTQUEUEFULL   = -3;
+ const TAPIERR_INVALDESTADDRESS   = -4;
+ const TAPIERR_INVALWINDOWHANDLE  = -5;
+ const TAPIERR_INVALDEVICECLASS   = -6;
+ const TAPIERR_INVALDEVICEID      = -7;
+ const TAPIERR_DEVICECLASSUNAVAIL = -8;
+ const TAPIERR_DEVICEIDUNAVAIL    = -9;
+ const TAPIERR_DEVICEINUSE        = -10;
+ const TAPIERR_DESTBUSY           = -11;
+ const TAPIERR_DESTNOANSWER       = -12;
+ const TAPIERR_DESTUNAVAIL        = -13;
+ const TAPIERR_UNKNOWNWINHANDLE   = -14;
+ const TAPIERR_UNKNOWNREQUESTID   = -15;
+ const TAPIERR_REQUESTFAILED      = -16;
+ const TAPIERR_REQUESTCANCELLED   = -17;
+ const TAPIERR_INVALPOINTER       = -18;
+ 
+{tapi size constants}
+ const TAPIMAXDESTADDRESSSIZE      = 80;
+ const TAPIMAXAPPNAMESIZE          = 40;
+ const TAPIMAXCALLEDPARTYSIZE      = 40;
+ const TAPIMAXCOMMENTSIZE          = 80;
+ const TAPIMAXDEVICECLASSSIZE      = 40;
+ const TAPIMAXDEVICEIDSIZE         = 40;
+ 
+function tapiRequestMakeCallA(DestAddress : PAnsiChar;
+                              AppName : PAnsiChar;
+                              CalledParty : PAnsiChar;
+                              Comment : PAnsiChar) : LongInt;
+  stdcall; external 'TAPI32.DLL';
+ 
+function tapiRequestMakeCallW(DestAddress : PWideChar;
+                              AppName : PWideChar;
+                              CalledParty : PWideChar;
+                              Comment : PWideChar) : LongInt;
+  stdcall; external 'TAPI32.DLL';
+ 
+function tapiRequestMakeCall(DestAddress : PChar;
+                             AppName : PChar;
+                             CalledParty : PChar;
+                             Comment : PChar) : LongInt;
+  stdcall; external 'TAPI32.DLL';
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  DestAddress : string;
+  CalledParty : string;
+  Comment : string;
+begin
+  DestAddress := '1-555-555-1212';
+  CalledParty := 'Frank Borland';
+  Comment := 'Calling Frank';
+  tapiRequestMakeCall(pChar(DestAddress),
+                      PChar(Application.Title),
+                      pChar(CalledParty),
+                      PChar(Comment));
+ 
+end;
+ 
+end.
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

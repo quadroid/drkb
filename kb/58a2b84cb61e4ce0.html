@@ -1,0 +1,60 @@
+<html>
+<head>
+  <title>Текстовые файлы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Текстовые файлы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Текстовый файл отличается тем что он разбит на разные по длине строки, отделенные символами #13#10. Есть 2 основных метода работы с текстовыми файлами - старый паскалевский способ и через файловые потоки. У обоих есть преимущества и недостатки. Через потоки способ проще поэтому начнем с него.</p>
+<p>Итак у всех потомков класса TStrings (TStringList, memo.Lines и т.п. ) есть методы записи и чтения в файл - SaveToFile, LoadFromFile. Преимущество - простота использования и довольно высокая скорость, недостаток - читать и писать файл можно только целиком.</p>
+<p>Примеры.</p>
+<p>1) Загрузка текста из файла в Memo:</p>
+<p> Memo1.lines.loadfromfile('c:\MyFile.txt');&nbsp;&nbsp;  &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>2) Сохранение в файл:</p>
+<p> Memo1.lines.savetoFile('c:\MyFile.txt');&nbsp;&nbsp;  &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>3) А вот так можно прочитать весь файл в строку:</p>
+<pre name="code" class="delphi">
+function ReadFromFile(FileName: string): string; 
+begin 
+  with TStringList.Create do 
+  try 
+    LoadFromFile(FileName); 
+    Result := text; 
+  finally 
+    Free; 
+  end; 
+end;
+</pre>
+<p> &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp;</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

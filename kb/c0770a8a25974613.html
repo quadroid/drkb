@@ -1,0 +1,65 @@
+<html>
+<head>
+  <title>Изменение размеров колонок в TStringGrid</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Изменение размеров колонок в TStringGrid</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Ниже приведён примен кода, который позволяет автоматически подогнать размер колонки в компененте TStringGrid, под размер самой длинной строки текста в колонке:</p>
+<pre name="code" class="delphi">
+procedure AutoSizeGridColumn(Grid : TStringGrid;
+                              column : integer);
+var
+  i : integer;
+  temp : integer;
+  max : integer;
+begin
+  max := 0;
+  for i := 0 to (Grid.RowCount - 1) do begin
+    temp := Grid.Canvas.TextWidth(grid.cells[column, i]);
+    if temp &gt; max then max := temp;
+  end;
+  Grid.ColWidths[column] := Max + Grid.GridLineWidth + 3;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  AutoSizeGridColumn(StringGrid1, 1);
+end;
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

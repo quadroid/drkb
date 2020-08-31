@@ -1,0 +1,88 @@
+<html>
+<head>
+  <title>Свои настройки Proxy в программе с TWebBrowser</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Свои настройки Proxy в программе с TWebBrowser</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Сразу скажу, что эта статья - маленькая рекомендация тем, кто хочет реализовать возможность работы TWebBrowser в своей программе с настройками Proxy , которые отличаются от стандартных. <br>
+В один прекрасный день мне понадобилось в программе периодически менять Proxy и при этом пользоваться всем, что предоставляет IE. Лучший и единственный выбор - TwebBrowser. При близком знакомстве с ним стало понятно, что через Proxy он работать не может (вернее может, но берет настройки из "Свойств обозревателя"). Перспектива постоянно менять настройки реестра меня не прельщала . И как назло ни в одной крупной конференции не было даже упоминания о возможности настройки Proxy в ходе выполнения программы кроме изменения реестра (может плохо искал).<br>
+<p>Перерыв Fido-архивы и конференции Инета накаткнулся на win-функцию UrlMkSetSessionOption. Вот к чему привели мои изыскания : </p>
+<pre name="code" class="delphi">
+....
+uses ... urlmon, wininet ...
+....
+var PIInfo : PInternetProxyInfo;
+...     
+New (PIInfo) ;
+ //  Изменение  настроек ПРОКСИ 
+PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_PROXY ;  //  Тип доступа в интернет - через Proxy сервер 
+PIInfo^.lpszProxy := PChar('some.proxy:someport');   //  указать  прокси  напр. 195.43.67.33:8080 
+PIInfo^.lpszProxyBypass := PChar('');  //  Список адресов, доступ к которым возможен минуя Proxy сервер 
+ 
+UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info),0);  
+.... 
+Dispose (PIInfo) ; 
+.... 
+</pre>
+<p>Вызывать функцию UrlMkSetSessionOption можно из любого места программы, причем любое количество раз и с разными настройками. <br>
+<p>После вызова функции TWebBrowser будет работать через указанный прокси. Еще раз повторюсь, настройки касаются только текущей сессии (программы на момент выполнения ), общие настройки Windows не изменяются. </p>
+Андрей Попков </p>
+http://www.delphikingdom.com</p>
+<p>Дополнительно:</p>
+<p>INTERNET_PROXY_INFO Structure</p>
+<p>Contains information that is supplied with the INTERNET_OPTION_PROXY </p>
+<p>value to get or set proxy information on a handle obtained from </p>
+<p>a call to the InternetOpen function. </p>
+<p>Syntax</p>
+<p>typedef struct {</p>
+<p> &nbsp;&nbsp; DWORD dwAccessType;</p>
+<p> &nbsp;&nbsp; LPCTSTR lpszProxy;</p>
+<p> &nbsp;&nbsp; LPCTSTR lpszProxyBypass;</p>
+<p>} INTERNET_PROXY_INFO, * LPINTERNET_PROXY_INFO;</p>
+<p>Members</p>
+<p>dwAccessType </p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp;Unsigned long integer value that contains the access type. </p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp;This can be one of the following values: </p>
+<p>INTERNET_OPEN_TYPE_DIRECT </p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp;Internet accessed through a direct connection. </p>
+<p>INTERNET_OPEN_TYPE_PRECONFIG </p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp;Applies only when setting proxy information. </p>
+<p>INTERNET_OPEN_TYPE_PROXY </p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp;Internet accessed using a proxy. </p>
+<p>lpszProxy </p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp;Address of a string value that contains the proxy server list. </p>
+<p>lpszProxyBypass </p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp;Address of a string value that contains the proxy bypass list. </p>
+<p>&nbsp;<br>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

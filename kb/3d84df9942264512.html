@@ -1,0 +1,103 @@
+<html>
+<head>
+  <title>Работа с INI-файлами</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Работа с INI-файлами</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Почему иногда лучше использовать INI-файлы, а не реестр?</p>
+
+<p>1. INI-файлы можно просмотреть и отредактировать в обычном блокноте.</p>
+<p>2. Если INI-файл хранить в папке с программой, то при переносе папки на другой компьютер настройки сохраняются. (Я еще не написал ни одной программы, которая бы не поместилась на одну дискету :)</p>
+<p>3. Новичку в реестре можно запросто запутаться или (боже упаси), чего-нибудь не то изменить.</p>
+<p>Поэтому для хранения параметров настройки программы удобно использовать стандартные INI файлы Windows. Работа с INI файлами ведется при помощи объекта TIniFiles модуля IniFiles. Краткое описание методов объекта TIniFiles дано ниже.</p>
+
+<p>Constructor Create('d:\test.INI');</p>
+<p>Создать экземпляр объекта и связать его с файлом. Если такого файла нет, то он создается, но только тогда, когда произведете в него запись информации.</p>
+
+<p>WriteBool(const Section, Ident: string; Value: Boolean);</p>
+<p>Присвоить элементу с именем Ident раздела Section значение типа boolean</p>
+
+<p>WriteInteger(const Section, Ident: string; Value: Longint);</p>
+<p>Присвоить элементу с именем Ident раздела Section значение типа Longint</p>
+
+<p>WriteString(const Section, Ident, Value: string);</p>
+<p>Присвоить элементу с именем Ident раздела Section значение типа String</p>
+
+<p>ReadSection (const Section: string; Strings: TStrings);</p>
+<p>Прочитать имена всех корректно описанных переменных раздела Section (некорректно описанные опускаются)</p>
+
+<p>ReadSectionValues(const Section: string; Strings: TStrings);</p>
+<p>Прочитать имена и значения всех корректно описанных переменных раздела Section. Формат :</p>
+<p>имя_переменной = значение</p>
+
+<p>EraseSection(const Section: string);</p>
+<p>Удалить раздел Section со всем содержимым</p>
+
+<p>ReadBool(const Section, Ident: string; Default: Boolean): Boolean;</p>
+<p>Прочитать значение переменной типа Boolean раздела Section с именем Ident, и если его нет, то вместо него подставить значение Default.</p>
+
+<p>ReadInteger(const Section, Ident: string; Default: Longint): Longint;</p>
+<p>Прочитать значение переменной типа Longint раздела Section с именем Ident, и если его нет, то вместо него подставить значение Default.</p>
+
+<p>ReadString(const Section, Ident, Default: string): string;</p>
+<p>Прочитать значение переменной типа String раздела Section с именем Ident, и если его нет, то вместо него подставить значение Default.</p>
+
+<p>Free;</p>
+<p>Закрыть и освободить ресурс. Необходимо вызвать при завершении работы с INI файлом</p>
+
+<p>Property Values[const Name: string]: string;</p>
+<p>Доступ к существующему параметру по имени Name</p>
+
+<p>Пример :</p>
+<pre name="code" class="delphi">
+Procedure TForm1.FormClose(Sender: TObject);
+var
+ IniFile:TIniFile;
+begin
+  IniFile := TIniFile.Create('d:\test.INI'); { Создали экземпляр объекта }
+  IniFile.WriteBool('Options', 'Sound', True); { Секция Options: Sound:=true }
+  IniFile.WriteInteger('Options', 'Level', 3); { Секция Options: Level:=3 }
+  IniFile.WriteString('Options' , 'Secret password', Pass); 
+   { Секция Options: в Secret password записать значение переменной Pass }
+  IniFile.ReadSection('Options ', memo1.lines); { Читаем имена переменных}
+  IniFile.ReadSectionValues('Options ', memo2.lines); { Читаем имена и значения }
+  IniFile.Free; { Закрыли файл, уничтожили объект и освободили память }
+end;
+</pre>
+
+
+<p>Источник: <a href="http://dmitry9.nm.ru/info/" target="_blank">http://dmitry9.nm.ru/info/</a></p>
+<p id="note">Примечание от Vit.</p>
+<p>INI файлы имеют ограничение на размер (конкретно зависит от версии операционной системы), поэтому если нужна поддержка файлов более 64 Kb прийдётся воспользоваться сторонними библиотеками или самому работать с файлами как с текстом. Однако следует помнить, что для хранения больших массивов информации ini файлы представляют не самое удачное решение, при увеличении ini файлов до таких размеров следует подумать об альтернативных методах хранения информации: XML, файлы прямого доступа или базы данных.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

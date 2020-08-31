@@ -1,0 +1,185 @@
+<html>
+<head>
+  <title>Проверить приложение на зависание</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Проверить приложение на зависание</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// 1. The Documented way
+ 
+{
+  An application can check if a window is responding to messages by
+  sending the WM_NULL message with the SendMessageTimeout function.
+}
+ 
+function AppIsResponding(ClassName: string): Boolean;
+const
+  { Specifies the duration, in milliseconds, of the time-out period }
+  TIMEOUT = 50;
+var
+  Res: DWORD;
+  h: HWND;
+begin
+  h := FindWindow(PChar(ClassName), nil);
+  if h &lt;&gt; 0 then
+    Result := SendMessageTimeOut(H,
+      WM_NULL,
+      0,
+      0,
+      SMTO_NORMAL or SMTO_ABORTIFHUNG,
+      TIMEOUT,
+      Res) &lt;&gt; 0
+  else
+    ShowMessage(Format('%s not found!', [ClassName]));
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  if AppIsResponding('OpusApp') then
+    { OpusApp is the Class Name of WINWORD }
+    ShowMessage('App. responding');
+end;
+</pre>
+
+<pre name="code" class="delphi">
+// 2. The Undocumented way
+ 
+{
+  // Translated form C to Delphi by Thomas Stutz
+  // Original Code:
+  // (c)1999 Ashot Oganesyan K, SmartLine, Inc
+  // mailto:ashot@aha.ru, http://www.protect-me.com, http://www.codepile.com
+ 
+ The code doesn't use the Win32 API SendMessageTimout function to
+ determine if the target application is responding but calls
+ undocumented functions from the User32.dll.
+ 
+ --&gt; For NT/2000/XP the IsHungAppWindow() API:
+ 
+ The function IsHungAppWindow retrieves the status (running or not responding)
+ of the specified application
+ 
+ IsHungAppWindow(Wnd: HWND): // handle to main app's window
+ BOOL;
+ 
+ --&gt; For Windows 95/98/ME we call the IsHungThread() API
+ 
+ The function IsHungThread retrieves the status (running or not responding) of
+ the specified thread
+ 
+ IsHungThread(DWORD dwThreadId): // The thread's identifier of the main app's window
+ BOOL;
+ 
+ Unfortunately, Microsoft doesn't provide us with the exports symbols in the
+ User32.lib for these functions, so we should load them dynamically using the
+ GetModuleHandle and GetProcAddress functions:
+}
+ 
+// For Win9X/ME
+function IsAppRespondig9X(dwThreadId: DWORD): Boolean;
+type
+  TIsHungThread = function(dwThreadId: DWORD): BOOL; stdcall;
+var
+  hUser32: THandle;
+  IsHungThread: TIsHungThread;
+begin
+  Result := True;
+  hUser32 := GetModuleHandle('user32.dll');
+  if (hUser32 &gt; 0) then
+  begin
+    @IsHungThread := GetProcAddress(hUser32, 'IsHungThread');
+    if Assigned(IsHungThread) then
+    begin
+      Result := not IsHungThread(dwThreadId);
+    end;
+  end;
+end;
+ 
+// For Win NT/2000/XP
+function IsAppRespondigNT(wnd: HWND): Boolean;
+type
+  TIsHungAppWindow = function(wnd:hWnd): BOOL; stdcall;
+var
+  hUser32: THandle;
+  IsHungAppWindow: TIsHungAppWindow;
+begin
+  Result := True;
+  hUser32 := GetModuleHandle('user32.dll');
+  if (hUser32 &gt; 0) then
+  begin
+    @IsHungAppWindow := GetProcAddress(hUser32, 'IsHungAppWindow');
+    if Assigned(IsHungAppWindow) then
+    begin
+      Result := not IsHungAppWindow(wnd);
+    end;
+  end;
+end;
+ 
+function IsAppRespondig(Wnd: HWND): Boolean;
+begin
+ if not IsWindow(Wnd) then
+ begin
+   ShowMessage('Incorrect window handle!');
+   Exit;
+ end;
+ if Win32Platform = VER_PLATFORM_WIN32_NT then
+   Result := IsAppRespondigNT(wnd)
+ else
+   Result := IsAppRespondig9X(GetWindowThreadProcessId(Wnd,nil));
+end;
+ 
+// Example: Check if Word is hung/responding
+ 
+procedure TForm1.Button3Click(Sender: TObject);
+var
+  Res: DWORD;
+  h: HWND;
+begin
+  // Find Winword by classname
+  h := FindWindow(PChar('OpusApp'), nil);
+  if h &lt;&gt; 0 then
+  begin
+    if IsAppRespondig(h) then
+      ShowMessage('Word is responding!')
+    else
+      ShowMessage('Word is not responding!');
+  end
+  else
+    ShowMessage('Word is not open!');
+end;
+</pre>
+
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

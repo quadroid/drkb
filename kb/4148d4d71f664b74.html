@@ -1,0 +1,91 @@
+<html>
+<head>
+  <title>Как узнать версию BDE?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать версию BDE?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses 
+  BDE; 
+ 
+{Without the Registry:} 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+var 
+  ThisVersion: SYSVersion; 
+begin 
+  DbiGetSysVersion(ThisVersion); 
+  ShowMessage('BORLAND DATABASE ENGINE VERSION = ' + IntToStr(ThisVersion.iVersion)); 
+end; 
+ 
+{With the Registry:} 
+ 
+function GetBDEVersion: string; 
+var 
+  h: hwnd; 
+  ptr: Pointer; 
+  proc: TSYSVerProc; 
+  ver: SYSVersion; 
+  idapi: string; 
+  reg: TRegistry; 
+begin 
+  try 
+    reg.RootKey := HKEY_CLASSES_ROOT; 
+    reg.OpenKey('CLSID\{FB99D710-18B9-11D0-A4CF-00A024C91936}\InProcServer32', False); 
+    idapi := reg.ReadString(''); 
+    reg.CloseKey; 
+  finally 
+    reg.Free; 
+  end; 
+  Result := '&lt;BDE Bulunamadi&gt;'; 
+  h      := LoadLibrary(PChar(idapi)); 
+  if h &lt;&gt; 0 then  
+    try 
+      ptr := GetProcAddress(h, 'DbiGetSysVersion'); 
+      if ptr &lt;&gt; nil then  
+      begin 
+        proc := ptr; 
+        Proc(Ver); 
+        Result := IntToStr(ver.iVersion); 
+        Insert('.', Result, 2); 
+      end; 
+    finally 
+      FreeLibrary(h); 
+    end; 
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

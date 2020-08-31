@@ -1,0 +1,103 @@
+<html>
+<head>
+  <title>TComponent</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TComponent</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Класс TComponent является предком всех компонентов VCL. Он используется в качестве основы для создания невизуальных компонентов и реализует основные механизмы, которые обеспечивают функционирование любого компонента. В нем появляются первые свойства, которые отображаются в Инспекторе объектов. Это свойство </p>
+<p>property Name: TComponentName; </p>
+<p>Оно содержит имя экземпляра компонента, которое используется для идентификации компонента в приложении. </p>
+<p id="note">Примечание&nbsp; </p>
+<p>Тип TComponentName представляет собой обычную строку: </p>
+<p>type TComponentName = type string; </p>
+<p>Свойство </p>
+<p>property Tag: Longint; </p>
+<p>является вспомогательным и не влияет на работу компонента. Оно отдано на откуп разработчику, который может присваивать ему значения по своему усмотрению. Например, это свойство можно использовать для дополнительной, более удобной идентификации компонентов. </p>
+<p>Для компонентов существует своя иерархия, поэтому в классе введен механизм учета и управления компонентами, для которых данный компонент является владельцем. Свойства и методы, которые отвечают за управление, приведены в табл. 2.1. </p>
+<p>Таблица 2.1. Свойства и методы для управления списком компонентов </p>
+<p>Свойство (метод) </p>
+<p> Описание </p>
+<p>property Components [Index: Integer]: TComponent ; </p>
+<p> Содержит индексированный список указателей всех компонентов, для которых данный компонент является владельцем (owner) </p>
+<p>property ComponentCount : Integer; </p>
+<p> Число подчиненных компонентов </p>
+<p>property Owner: TComponent; </p>
+<p> Указывается, какой компонент является владельцем данного </p>
+<p>property Componentlndex: Integer; </p>
+<p> Индекс данного компонента в списке владельца </p>
+<p>procedure InsertComponent (AComponent : TComponent) ; </p>
+<p> Вставляет компонент AComponent в список </p>
+<p>procedure RemoveComponent (AComponent : TComponent}; </p>
+<p> Удаляет компонент AComponent из списка </p>
+<p>procedure FindComponent (AName: string): TComponent; </p>
+<p> Осуществляет поиск компонента по имени AName </p>
+<p>procedure DestroyComponents; </p>
+<p> Предназначен для уничтожения всех компонентов, подчиненных данному </p>
+<p>Очень важное свойство </p>
+<p>type TComponentState = set of (csLoading, csReading, csWriting, csDestroying, csDesigning, csAncestor, csllpdating, csFixups, csFreeNotification, cslnline, csDesignlnstance); property ComponentState: TComponentState; </p>
+<p>дает представление о текущем состоянии компонента. В табл. 2.2 описаны возможные состояния компонента. Состояние может измениться в результате получения компонентом некоторого сообщения, действий разработчика, выполнения акции и т. д. Это свойство активно используется средой разработки. </p>
+<p>Таблица 2.2. Возможные состояния компонента </p>
+<p>csLoading </p>
+<p> Устанавливается при загрузке компонента из потока </p>
+<p>csReading </p>
+<p> Устанавливается при чтении значений свойств из потока </p>
+<p>csWriting </p>
+<p> Устанавливается при записи значений свойств в поток </p>
+<p>csDestroying </p>
+<p> Устанавливается при уничтожении компонента </p>
+<p>csDesigning </p>
+<p> Состояние разработки. Устанавливается при работе с формой во время разработки </p>
+<p>csAncestor </p>
+<p> Устанавливается при переносе компонента на форму. Для перехода в это состояние должно быть уже установлено состояние csDesigning </p>
+<p>csUpdating </p>
+<p> Устанавливается при изменении значений свойств и отображения результата на форме-владельце. Для перехода в это состояние должно быть уже установлено состояние csAncestor </p>
+<p>CsFixups </p>
+<p> Устанавливается, если компонент связан с компонентом другой формы, которая еще не загружена в среду разработки </p>
+<p>csFreeNotification </p>
+<p> Если это состояние устанавливается, другие компоненты, связанные с данным, уведомляются о его уничтожении </p>
+<p>cslnline </p>
+<p> Определяет компонент верхнего уровня в иерархии. Используется для обозначения корневого объекта в разворачивающихся свойствах </p>
+<p>csDesignlnstance </p>
+<p> Определяет корневой компонент на этапе разработки </p>
+<p>Для обеспечения работы механизма действий (см. гл. 8) предназначен </p>
+<p>метод </p>
+<p>function ExecuteAction(Action: TBasicAction): Boolean; dynamic; </p>
+<p>Он вызывается автоматически при необходимости выполнить акцию, предназначенную для данного компонента. </p>
+<p>На уровне класса TComponent обеспечена поддержка СОМ-интерфейсов IUnknown и IDispatch. </p>
+<p>Через свойство </p>
+<p>property ComObject: IUnknown; </p>
+<p>вы можете обеспечить применение методов этих интерфейсов. </p>
+<p>Таким образом, класс TComponent имеет все для использования в качестве предка, для создания собственных невизуальных компонентов. </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

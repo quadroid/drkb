@@ -1,0 +1,74 @@
+<html>
+<head>
+  <title>Управление настройками шрифта</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Управление настройками шрифта</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<pre name="code" class="delphi">
+{
+Данный код изменяет стиль шрифта поля редактирования,
+если оно выбрано. Может быть адаприрован для управления
+шрифтами в других объектах.
+ 
+Расположите на форме Edit(Edit1) и ListBox(ListBox1).
+Добавьте следующие элементы (Items) к ListBox:
+fsBold
+fsItalic
+fsUnderLine
+fsStrikeOut
+}
+ 
+procedure TForm1.ListBox1Click(Sender: TObject);
+var
+  X: Integer;
+type
+  TLookUpRec = record
+    Name: string;
+    Data: TFontStyle;
+  end;
+const
+  LookUpTable: array[1..4] of TLookUpRec =
+  ((Name: 'fsBold'; Data: fsBold),
+    (Name: 'fsItalic'; Data: fsItalic),
+    (Name: 'fsUnderline'; Data: fsUnderline),
+    (Name: 'fsStrikeOut'; Data: fsStrikeOut));
+begin
+  X := ListBox1.ItemIndex;
+  Edit1.Text := ListBox1.Items[X];
+  Edit1.Font.Style := [LookUpTable[ListBox1.ItemIndex + 1].Data];
+end;
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

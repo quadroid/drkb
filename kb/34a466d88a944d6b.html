@@ -1,0 +1,92 @@
+<html>
+<head>
+  <title>Использовать TTime для более 24 часов</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Использовать TTime для более 24 часов</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function TextToTime(S: string): Integer;
+ var
+   p, i: Integer;
+   Sh, Sm, Ss: string;
+ begin
+   Sh := '';
+   SM := '';
+   SS := '';
+   i  := 1;
+   p  := 0;
+   while i do
+   begin
+     if (s[i] &lt;&gt; ':') then
+     begin
+       case P of
+         0: SH := Sh + s[i];
+         1: SM := SM + S[i];
+         2: SS := SS + S[i];
+       end;
+     end
+     else
+       Inc(p);
+     Inc(i);
+   end;
+   try
+     Result := (StrToInt(SH) * 3600) + (StrToInt(SM) * 60) + (StrToInt(SS))
+     except
+       Result := 0;
+   end;
+ end;
+ 
+ function TimeToText(T: Integer): string;
+ var
+   H, M, S: string;
+   ZH, ZM, ZS: Integer;
+ begin
+   ZH := T div 3600;
+   ZM := T div 60 - ZH * 60;
+   ZS := T - (ZH * 3600 + ZM * 60);
+   if ZH then H := '0' + IntToStr(ZH)
+   else
+     H := IntToStr(ZH);
+   if ZM then M := '0' + IntToStr(ZM)
+   else
+     M := IntToStr(ZM);
+   if ZS then S := '0' + IntToStr(ZS)
+   else
+     S := IntToStr(ZS);
+   Result := H + ':' + M + ':' + S;
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

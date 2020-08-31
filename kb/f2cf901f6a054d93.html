@@ -1,0 +1,136 @@
+<html>
+<head>
+  <title>Как узнать номер BIOS для разных версий Windows?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать номер BIOS для разных версий Windows?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Windows 9X</p>
+<pre name="code" class="delphi">
+
+with Memo1.Lines do
+  begin
+    Add('MainBoardBiosName:'+^I+string(Pchar(Ptr($FE061))));
+    Add('MainBoardBiosCopyRight:'+^I+string(Pchar(Ptr($FE091))));
+    Add('MainBoardBiosDate:'+^I+string(Pchar(Ptr($FFFF5))));
+    Add('MainBoardBiosSerialNo:'+^I+string(Pchar(Ptr($FEC71))));
+  end;
+</pre>
+<p>Windows NT</p>
+<pre name="code" class="delphi">
+procedure TBIOSInfo.GetRegInfoWinNT;
+
+ 
+var
+  Registryv       : TRegistry;
+  RegPath         : string;
+  sl              : TStrings;
+begin
+  Params.Clear;
+ 
+  RegPath := '\HARDWARE\DESCRIPTION\System';
+  registryv:=tregistry.Create;
+  registryv.rootkey:=HKEY_LOCAL_MACHINE;
+  sl := nil;
+  try
+    registryv.Openkey(RegPath,false);
+    ShowMessage('BIOS Date: '+RegistryV.ReadString('SystemBiosDate'));
+    sl := ReadMultirowKey(RegistryV,'SystemBiosVersion');
+    ShowMessage('BIOS Version: '+sl.Text);
+  except
+  end;
+  Registryv.Free;
+  if Assigned(sl) then sl.Free;
+end;
+ 
+function ReadMultirowKey(reg: TRegistry; Key: string): TStrings;
+const bufsize = 100;
+var
+  i: integer;
+  s1: string;
+  sl: TStringList;
+  bin: array[1..bufsize] of char;
+begin
+  try
+    result := nil;
+    sl := nil;
+    sl := TStringList.Create;
+    if not Assigned(reg) then
+      raise Exception.Create('TRegistry object not assigned.');
+    FillChar(bin,bufsize,#0);
+    reg.ReadBinaryData(Key,bin,bufsize);
+    i := 1;
+    s1 := '';
+    while i &lt; bufsize do
+    begin
+      if ord(bin[i]) &gt;= 32 then
+        s1 := s1 + bin[i]
+      else
+      begin
+        if Length(s1) &gt; 0 then
+        begin
+          sl.Add(s1);
+          s1 := '';
+        end;
+      end;
+      inc(i);
+    end;
+    result := sl;
+  except
+    sl.Free;
+    raise;
+  end;
+end;
+</pre>
+<p>нашел на <a href="http://www.sources.ru/delphi/system/get_bios_information_w9x.shtml" target="_blank">http://www.sources.ru/delphi/system/get_bios_information_w9x.shtml</a></p>
+<p>и <a href="http://www.sources.ru/delphi/system/get_bios_information_nt_2000_xp.shtml" target="_blank">http://www.sources.ru/delphi/system/get_bios_information_nt_2000_xp.shtml</a></p>
+<p id="author">Автор ответа: МММ </p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Получение серийного номера BIOS
+ 
+Зависимости:
+Автор:       Gua, fbsdd@ukr.net, ICQ:141585495, Simferopol
+Copyright:
+Дата:        03 мая 2002 г.
+***************************************************** }
+ 
+function GetBiosNumber: string;
+begin
+  result := string(pchar(ptr($FEC71)));
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

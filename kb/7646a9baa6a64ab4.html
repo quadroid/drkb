@@ -1,0 +1,83 @@
+<html>
+<head>
+  <title>Как отобразить модально MDI Child форму?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как отобразить модально MDI Child форму?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Как выполнить код после создания MDIChild-формы но до появления ее на экране?<br>
+<p>Как отобразить MDIChild-форму модально? </p>
+<p>1.Убераешь свою MDIChild форму из автосоздания: (MainMenu) Project-&gt;Options-&gt;Forms. Там её перебрасываешь в: Available forms</p>
+<p>2. Переключаешься на свою MDIChild форму и дописываеш в описание класса(пусть например твой класс формы для MDIChild называется TForm2): </p>
+<pre name="code" class="delphi">
+ TForm2 = class(TForm)
+    ...
+    procedure CreateWindowHandle(const Params: TCreateParams); override;
+  private
+    { Private declarations }
+  public
+ 
+</pre>
+<p>3. Реализуешь эту процедуру: </p>
+<pre name="code" class="delphi">
+procedure TForm2.CreateWindowHandle(const Params: TCreateParams);
+var Comp:TForm2;
+begin
+ inherited;
+ Comp:=TForm2(Application.Components[Application.ComponentCount-1]);
+ Comp.Visible:=false;
+end;
+</pre>
+
+<pre name="code" class="delphi">
+ 
+uses Unit2; //ссылка на модуль MDIChild формы
+ 
+{$R *.dfm}
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var vv:TForm2;
+begin
+ vv:=TForm2.Create(Application);
+ //... Здесь форма не видна
+ vv.Memo1.Lines.Add('123123'); //Типо что-то заполняем на MDIChild форме
+ Caption:='2';
+ Sleep(2000);
+ Caption:='0';
+ //.. Здесь форма до сих пор не видна
+ vv.Show;
+end;
+</pre>
+<p id="author">Автор: Girder</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<html>
+<head>
+  <title>Условие создания главной формы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Условие создания главной формы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Существует ли в Delphi возможность создавать главную форму по условию? Я хочу использовать условие IF (в зависимости от передаваемого параметра) для того, чтобы определить какая форма будет главной при старте приложения. Фактически "другую" форму НЕ нужно будет загружать. </p>
+<p>Хитрость здесь заключается в том, что мы предоставляем компилятору весь необходимый для создания форм код, но не допускаем его выполнения (IF FALSE THEN), при этом компилятор не ругается, а мы тем временем (во время выполнения приложения) выбираем и создаем главную форму. Вот пример кода, измененный .DPR-файл, который при старте случайным образом выбирает из друх форм главную:</p>
+<pre name="code" class="delphi">
+begin
+  if FALSE then
+  begin
+    Application.CreateForm(TForm1, Form1);
+    Application.CreateForm(TForm2, Form2);
+  end;
+  Randomize;
+  if Random &lt; 0.5 then
+    Application.CreateForm(TForm1, Form1)
+  else
+    Application.CreateForm(TForm2, Form2);
+  Application.Run;
+end.
+</pre>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<p>Пара "подходящих" для CreateForm форм заключено в никогда не выполнимый блок, тем самым приводя компилятор в состояние свинячего восторга.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

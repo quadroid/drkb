@@ -1,0 +1,114 @@
+<html>
+<head>
+  <title>Функция наполнения строки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Функция наполнения строки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function Spcs(num : byte) : string;
+var
+  tmp : string;
+begin
+  fillchar(tmp, num+1, ' ');  {инициализация всей строки пробелами}
+  tmp[0] := chr(num);         {устанавливаем длину строки с пробелами}
+  result := tmp;
+end;
+ 
+ 
+//Теперь достаточно написать 
+ 
+ 
+Edit1.Text := SurName + spcs(10) + FirstName
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+<hr />
+<p>Решением является создание функции, функционально похожей на функцию Clipper:</p>
+<p>PadL(string, width, character)</p>
+<pre name="code" class="delphi">function TfrmFunc.PadL(cVal: string; nWide: integer; cChr: char): string;
+var
+  i1, nStart: integer;
+begin
+  if length(cVal) &lt; nWide then
+  begin
+    nStart:=length(cVal);
+    for i1:=nStart to nWide-1 do
+      cVal:=cChar+cVal;
+  end;
+  PadL:=cVal;
+end;
+ 
+</pre>
+
+<p>Затем это может вызываться c любой строкой, которой вы хотите задать определенную длину. Пользуйтесь функцией также, как вы привыкли пользоваться прежней - PadL(A,length(B),'0'); Она имеет большую гибкость - возможно заполнение любым символом до необходимой длины (удобно для задания текстовых счетчиков с фиксированным количеством символов -- PadL(A,6,'0'). </p>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+&nbsp;</p>
+<hr />
+<pre name="code" class="delphi">
+function LeftPad(S: string; Ch: Char; Len: Integer): string;
+ var
+   RestLen: Integer;
+ begin
+   Result  := S;
+   RestLen := Len - Length(s);
+   if RestLen &lt; 1 then Exit;
+   Result := S + StringOfChar(Ch, RestLen);
+ end;
+ 
+ function RightPad(S: string; Ch: Char; Len: Integer): string;
+ var
+   RestLen: Integer;
+ begin
+   Result  := S;
+   RestLen := Len - Length(s);
+   if RestLen &lt; 1 then Exit;
+   Result := StringOfChar(Ch, RestLen) + S;
+ end;
+ 
+ {Beispiel / Example}
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   Edit1.Text := Rightpad(Edit2.Text, '-', 30);
+ end;
+</pre>
+
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

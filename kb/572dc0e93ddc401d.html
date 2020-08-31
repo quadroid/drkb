@@ -1,0 +1,59 @@
+<html>
+<head>
+  <title>Как получить список таблиц?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить список таблиц?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>A list of user tables can be retrieved by querying system table rdb$relations.</p>
+
+<p>The example below shows how to do this - it inserts the table names sorted alphabetically into a ListBox (lbSourceTables).</p>
+
+<pre name="code" class="delphi">
+begin
+  ibcSourceList.SQL.Clear;
+  ibcSourceList.SQL.Add('select rdb$relation_name from rdb$relations');
+  ibcSourceList.SQL.Add('where rdb$system_flag = 0');
+  ibcSourceList.SQL.Add('order by rdb$relation_name');
+  ibcSourceList.Open;
+  while not ibcSourceList.Eof do
+  begin
+    lbSourceTables.Items.Add(ibcSourceList.Fields[0].AsString);
+    ibcSourceList.Next;
+  end;
+  ibcSourceList.Close;
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

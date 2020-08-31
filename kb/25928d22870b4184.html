@@ -1,0 +1,104 @@
+<html>
+<head>
+  <title>String &gt; TStringList</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">String &gt; TStringList</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Преобразование строки с разделителями в StringList.
+ 
+Преобразование строки с разделителями в StringList или наследник TStrings.
+Навеяно одноименной процедурой из InfoPower :-)
+ 
+Зависимости: Classes
+Автор:       Игорь Шевченко, whitefranz@hotmail.com, Москва
+Copyright:   Игорь Шевченко, Woll2Woll software (original)
+Дата:        30 апреля 2002 г.
+***************************************************** }
+ 
+procedure StrBreakApart(const S, Delimeter: string; Parts: TStrings);
+var
+  CurPos: integer;
+  CurStr: string;
+begin
+  Parts.clear;
+  Parts.BeginUpdate();
+  try
+    CurStr := S;
+    repeat
+      CurPos := Pos(Delimeter, CurStr);
+      if (CurPos &gt; 0) then
+      begin
+        Parts.Add(Copy(CurStr, 1, Pred(CurPos)));
+        CurStr := Copy(CurStr, CurPos + Length(Delimeter),
+          Length(CurStr) - CurPos - Length(Delimeter) + 1);
+      end
+      else
+        Parts.Add(CurStr);
+    until CurPos = 0;
+  finally
+    Parts.EndUpdate();
+  end;
+end;
+Пример использования: 
+ 
+var
+  Tmp: StringList;
+begin
+  Tmp := TStringList.Create();
+  StrBreakApart('Text1&lt;BR&gt;Text2&lt;BR&gt;Text3&lt;BR&gt;Text4', '&lt;BR&gt;', Tmp);
+  // После вызова Tmp содержит
+  // Text1
+  // Text2
+  // Text3
+  // Text4
+  ...
+  Tmp.Free();
+end;
+</pre>
+
+<hr />
+<p>Можно сделать значительно проще:</p>
+<pre name="code" class="delphi">procedure StrBreakApart(const S, Delimeter: string; Parts: TStrings);
+
+begin
+  Parts.text:=StringReplace(S, Delimeter, #13#10, [rfReplaceAll, rfIgnoreCase]);
+end;
+</pre>
+
+<p id="author">Автор: Vit</p>
+&nbsp;
+<p>&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

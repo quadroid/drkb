@@ -1,0 +1,119 @@
+<html>
+<head>
+  <title>Стандарт СОМ</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Стандарт СОМ</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Продолжаем, осталось совсем немного, чтобы подогнать под стандарт COM.</p>
+<p>Какой у нас пробел еще остался? Представте, что кто-то сделал так:</p>
+<pre name="code" class="delphi">
+var 
+   Calc:ICalc;
+   Calc2:ICalc2;
+begin
+   CreateObject(ICalc,Calc);
+   Calc.QueryInterafce(ICalc2,Calc2)
+   ... 
+   Calc.Release;  //объект уничтожается
+   i:=Calc2.Mult;  //Облом! Объекта уже нет.
+ ...
+end;
+</pre>
+<p>Не очень хорошо, не правда ли? Нужно все-таки сохранить объект, пока им кто-то пользуется. Очевидное решение - подсчет ссылок. То есть, если у нашего объекта попросили интерфейс, мы увеличим счетчик, если кому-то интерфейс больше не нужен, мы ументьшим счетчик, и как только он обратиться в 0 мы уничтожим объект. Вот и настала пора, имплементировать последние два метода в интерфейса IUnknown. Вначале, добавим счетчик в наш объект:</p>
+<pre name="code" class="delphi">
+MyCalc=class(TObject,ICalc,ICalc2) 
+   fx,fy:integer;
+   FRrefCount:LongInt; //вот он!
+public
+   procedure SetOperands(x,y:integer); 
+   function Sum:integer;
+   function Diff:integer;
+   function Divide:integer;
+   function Mult:integer;
+   procedure Release;
+   function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
+   function _AddRef:Longint; stdcall;
+   function _Release:Longint; stdcall;
+end;
+</pre>
+
+<p>и имплементируем методы:</p>
+<pre name="code" class="delphi">
+function MyCalc._AddRef:Longint;
+begin
+  Result := InterlockedIncrement(FRefCount);
+end;
+ 
+function MyCalc._Release:Longint;
+begin
+   Result := InterlockedDecrement(FRefCount);
+   if Result = 0 then
+     Destroy;
+end;
+</pre>
+
+<p> Именно так, как правило, выглядят эти два метода в реализациях под Windows. Теперь в нашем интерфейсе Release не нужен, и можно его оттуда выкинуть. Итак, клиент должен вызывать Release для того, чтобы дать объекту знать, что он его больше не будет использовать, а кто должен вызывать AddRef? Во-первых, мы сами, всегда, когда клиент получает от нас интерфейс. Если бы мы не писали на Delphi, это надо было бы делать в методе QueryInterface, однако в Delhpi метод GetInterface класса TObject сам вызывает AddRef, так что нам заботиться об этом не надо. Надо сказать, что и клиент может вызвать AddRef, ecли по каким-то причинам, не желает чтобы объект исчез из памяти. Но тут уж вся ответсвенность на нем.</p>
+<p>  Надо сказать еще об одной особенности Delphi, касательно использования COM объектов(а точнее интерфейсов) в своих приложениях. Как было упомянуто выше, клиент должен вызывать Release для того, чтобы объект знал, когда ему можно удалиться. Так вот для переменных типа interface Delphi сам вызывает Release, если переменная уничтожается или если ей присваивается nil. То есть:</p>
+<pre name="code" class="delphi">
+var
+  ifc:IUnknown;
+begin
+  ifc:=SomeComObj.QueryInterface(IUnknown,ifc); 
+  ...
+  ifc:=nil; //здесь вызывается ifc._Release
+end;
+ 
+var
+  ifc:IUnknown;
+begin
+  ifc:=SomeComObj.QueryInterface(IUnknown,ifc);
+  ...
+end; //теперь где-то здесь ifc._Release (перед уничтожением ifc).
+</pre>
+
+<p>Так что всегла имейте это ввиду: как минимум один раз Release будет вызван без вашего указания.</p>
+<pre name="code" class="delphi">
+var
+  ifc:IUnknown;
+begin
+  ifc:=SomeComObj.QueryInterface(IUnknown,ifc);
+  ifc._Release;
+end; //Access violation! Объекта уже нет и вызов ifc._Release проваливается!
+</pre>
+
+<p>Ну вот у нас теперь практически полноценный COM объект. Чем же он еще не полноценен? Наверно вы уже догадались - он не универсален с точки зрения системы. То есть создать его можно лишь подключив загрузив вручную нашу dll и вызвав CreateObject. Но ведь в Windows есть возможность вызывать СOM объекты даже просто по имени! Как это делается? Понятно, что в системе существует правило, как создавать COM объекты. И если мы хотим, чтобы система знала как слздать наш MyCalc, мы должны сделать его по этим правилам. Именно этим мы и займемся.</p>
+<p> Но в начале, небольшое резюме.</p>
+<p> Итак СOM - это битовый стандарт, то есть он обеспечивает совместимость на битовом уровне. С СOM объектами работают через их интерфейсы. Интерфейс - это таблица методов, указатель на которую мы можем получить у объекта. Каждый СОМ объект имплементирует интерфейс IUnknown, который содержит три метода: QueryInterface, AddRef и Release (это стандартные имена, но в принципе вы можете дать любые. Так как совмещение идет на битовом уровне, то важен лишь порядок в котором расположенны эти методы в таблице, а так же тип метода(набор параметров, тип возвращаемого значения, тип вызова)). Все интерфейсы должны быть потомками IUnknown, то есть у каждого интерфейса первые три метода это QueryInterface, AddRef и Release. Интерфейсы индифецируются GUID. Для того, чтобы получить у объекта какой-то интерфейс, нужно знать его(интерфейса) GUID. То есть название интерфейса неважно для COM - оно исползуется для удобства людей. Вы можете назвать его IMyInterface, но если его GUID равен {00000000-0000-0000-C000-000000000046}, то все в COM'e (случайная игра слов) будут думать, что это IUnknown.</p>
+<p> Ну вот в основном все, пойдем дальше.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

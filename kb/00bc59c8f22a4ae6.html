@@ -1,0 +1,100 @@
+<html>
+<head>
+  <title>Как использовать свои курсоры?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как использовать свои курсоры?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{$R CURSORS.RES}
+ 
+const
+ 
+ 
+crZoomIn = 1; 
+crZoomOut = 2; 
+ 
+Screen.Cursors[crZoomIn] := LoadCursor(hInstance, 'CURSOR_ZOOMIN');
+Screen.Cursors[crZoomOut] := LoadCursor(hInstance, 'CURSOR_ZOOMOUT'); 
+</pre>
+
+
+<p>С вашей программой должен быть слинкован файл ресурсов, содержащий соответствующие курсоры или заменить зеленое на конкретное имя файла(он должен также поставляться с программой).</p>
+
+<p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
+
+<hr />
+<p>В этой статье вы найдёте несколько способов использования собственных курсоров, в том числе и анимированных.[это файлы с расширением .ani] </p>
+
+<p>Например, у вас есть какой-то файл с расширением .ani и вы хотите его задействовать. Всё, что вам для этого потребуется сделать, это - поместить файл в тот же каталог, где будет ваш exe, а затем написать следующий код, ну, скажем, по нажатию на кнопку: </p>
+
+<pre name="code" class="delphi">
+Screen.Cursors[5] := LoadCursorFromFile('File.ani');
+Screen.Cursor := 5;
+</pre>
+
+<p>Здесь используется свойство Cursors глобального объекта Screen. В нём содержится список курсоров, доступных приложению. По индексу в нужную позицию мы загружаем курсор из файла. А затем с помощью свойства Cursor задействуем его. </p>
+
+<p>Если же вы имеете файл ресурсов, тогда дела будут обстоять иначе: </p>
+
+<p>Помещаете этот файл в тот же каталог, что и exe. Затем в модуле объявляем глобальную константу, например после </p>
+<pre name="code" class="delphi">
+var
+  Form1: TForm1;
+</pre>
+<p>Выглядеть это будет примерно так: </p>
+<pre name="code" class="delphi">
+var
+  Form1: TForm1;
+const
+  MyConst = 100;
+</pre>
+
+<p>С помощью этой константы мы зарезервируем новую позицию в свойстве Cursors глобального объекта Screen. </p>
+
+<p>После чего подключаем файл ресурсов, т.е. если он у нас называется Cursors.res, тогда после </p>
+<pre name="code" class="delphi">
+{$R *.DFM}
+{$R Cursors.res}
+...
+ 
+ 
+//Затем, допустим, по нажатию на кнопку пишем код: 
+ 
+Screen.Cursors[MyConst] := LoadCursor(hInstance,'MYCURSOR');
+Screen.Cursor := MyConst;
+</pre>
+<p>Здесь 'MYCURSOR' - это имя курсора, который нам необходимо загрузить. Обратите внимание, если вы создаёте файл ресурсов самостоятельно, а сделать это можно с помощью утилиты "ImageEditor", вам необходимо в именах курсоров использовать только прописные буквы. </p>
+<a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

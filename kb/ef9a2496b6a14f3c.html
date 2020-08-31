@@ -1,0 +1,115 @@
+<html>
+<head>
+  <title>Как долго запущена Windows?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как долго запущена Windows?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Ниже приведён код обработчика события OnClick для Button1. Он показывает диалоговое окошко с текстом в следующем формате</p>
+<p>Windows started on Thursday, February 10, 2000 at 11:42:46 AM </p>
+<p>Its been up for 0 days, 3 hours, 22 minutes, 54 seconds </p>
+<pre name="code" class="delphi">procedure TForm1.Button1Click(Sender: TObject); 
+var 
+  ndays: double; 
+  ticks: LongInt; 
+  btime: TDateTime; 
+begin 
+ {Функция GetTickCount получает количество миллисекунд, прошедших с момента старта Windows}
+  ticks := GetTickCount; 
+ 
+  {Чтобы получить дни, необходимо разделить на количество миллисекунд в дне, 24*60*60*1000=86400000} 
+  ndays := ticks/86400000; 
+ 
+  {теперь вычитаем из текущей даты полученное количество дней работы Windows}
+  bTime := now-ndays; 
+ 
+  {показываем диалоговое окошко с сообщением}
+  ShowMessage( 
+   FormatDateTime('"Windows started on" dddd, mmmm d, yyyy, ' + 
+                  '"at" hh:nn:ss AM/PM', bTime) + #10#13 + 
+   'Its been up for ' + IntToStr(Trunc(nDays)) + ' days,' + 
+   FormatDateTime(' h "hours," n "minutes," s "seconds"',ndays)); 
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<hr />
+<pre name="code" class="delphi">
+function UpTime: string;
+ const
+   ticksperday: Integer    = 1000 * 60 * 60 * 24;
+   ticksperhour: Integer   = 1000 * 60 * 60;
+   ticksperminute: Integer = 1000 * 60;
+   tickspersecond: Integer = 1000;
+ var
+   t:          Longword;
+   d, h, m, s: Integer;
+ begin
+   t := GetTickCount;
+ 
+   d := t div ticksperday;
+   Dec(t, d * ticksperday);
+ 
+   h := t div ticksperhour;
+   Dec(t, h * ticksperhour);
+ 
+   m := t div ticksperminute;
+   Dec(t, m * ticksperminute);
+ 
+   s := t div tickspersecond;
+ 
+   Result := 'Uptime: ' + IntToStr(d) + ' Days ' + IntToStr(h) + ' Hours ' + IntToStr(m) +
+     ' Minutes ' + IntToStr(s) + ' Seconds';
+ end;
+ 
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   label1.Caption := UpTime;
+ end;
+</pre>
+
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+<hr />
+<p id="author">Автор: Павел </p>
+<p>Чтобы определить сколько времени прошло с момента последней перезагрузки системы необходимо воспользоваться функцией GetCurrentTime: LongInt; </p>
+<p>Возвращаемое значение: время в миллисекундах. </p>
+<p>Пример использования: </p>
+<pre name="code" class="delphi">
+Edit1.Text := FloatToStr(GetCurrentTime / 1000) + ' секунд с момента перезагрузки';
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<html>
+<head>
+  <title>Кодировка полиалфавитным шифром Вигeнера</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Кодировка полиалфавитным шифром Вигeнера</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Кодировка полиалфавитным шифром Вигeнера - xor кодировка
+ 
+Кодировка полиалфавитным шифром Вигeнера - xor кодировка
+одна функция для кодирования и декодирования
+Input - входная строка. При кодировании это незакодированная строка, при декодировнии это закодированная строка.
+Key - слово ключ один и тот же в обоих случаях.
+ 
+При совпадении символов во входной строке и строке ключе на выходе получается символ '#0'.
+ 
+Зависимости: Стандартные модули
+Автор:       Ru, DiVo_Ru@rambler.ru, Одесса
+Copyright:   DiVo 2002 creator Ru
+Дата:        18 ноября 2002 г.
+********************************************** }
+ 
+function VigenerCoDec(Input,Key:pchar):pchar
+var
+i,j:integer;
+tmps,text:string;
+begin
+ text:=Input;
+ for i:=1 to length(text) do
+ begin
+  if i&gt;length(key) then j:=i mod length(key) else j:=i;
+  tmps:=tmps+chr((ord(text[i]))xor(ord(key[j])));
+ end;
+ result:=pchar(tmps);
+end; 
+</pre>
+
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+Text:=edit1.text;
+K:=edit2.text;
+Edit3.text:=VigenerCoDec(Text,K);
+ 
+Закодировать:
+Input:='Привет я РУ'; Key:='hello'; result:='ГуднйзHвH++';
+Восстановить:
+Input:='ГуднйзHвH++'; Key:='hello'; result:='Привет я РУ'; 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

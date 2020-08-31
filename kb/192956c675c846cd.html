@@ -1,0 +1,109 @@
+<html>
+<head>
+  <title>Как показать содержимое TMemo-поля в TDBGrid?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как показать содержимое TMemo-поля в TDBGrid?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Поумолчанию, DBGrid не может отображать memo-поля. Однако, проблему можно решить при помощи события OnDrawDataCell в DBGrid.</p>
+<pre name="code" class="delphi">
+procedure TForm1.DBGrid1DrawDataCell(Sender: TObject; const 
+                 Rect: TRect; Field: TField; State: 
+                 TGridDrawState); 
+ 
+var 
+  P: array [0..50] of char; {размер массива, это количество необходимых символов}
+  bs: TBlobStream;          {из memo-поля} 
+  hStr: String; 
+ 
+begin 
+  if Field is TMemoField then 
+  begin 
+    with (Sender as TDBGrid).Canvas do 
+    begin   {Table1Notes это TMemoField} 
+      bs := TBlobStream.Create(Table1Notes, bmRead); 
+      FillChar(P,SizeOf(P),#0); {строка завершается нулём} 
+      bs.Read(P, 50); {читаем 50 символов из memo в blobStream} 
+      bs.Free; 
+      hStr := StrPas(P); 
+      while Pos(#13, hStr) &gt; 0 do  {удаляем переносы каретки и}
+        hStr[Pos(#13, hStr)] := ' '; 
+      while Pos(#10, hStr) &gt; 0 do  {отступы строк}
+        S[Pos(#10, hStr)] := ' '; 
+ 
+      FillRect(Rect);  {очищаем ячейку}
+      TextOut(Rect.Left, Rect.Top, hStr);  {заполняем ячейку данными из memo}
+    end; 
+  end; 
+end; 
+</pre>
+
+
+<p>Замечание: перед тем, запустить пример, создайте объект TMemoField для memo-поля двойным кликом по компоненту TTable и добавлением memo-поля.</p>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+<hr />В обработчик события GetText TMemoField поместите следующую строку:</p>
+
+<p>Text := GrabMemoAsString(TMemoField(Sender)); </p>
+
+<p>и поместите следующую функцию так, чтобы к ней можно было свободно обратиться:</p>
+<pre name="code" class="delphi">function GrabMemoAsString(TheField: TMemoField): string;
+begin
+  if TheField.IsNull then
+    Result := ''
+  else
+    with TBlobStream.Create(TheField, bmRead) do
+    begin
+      if Size &gt;= 255 then
+      begin
+        Read(Result[1], 255);
+        Result[0] := #255;
+      end
+      else
+      begin
+        Read(Result[1], Size);
+        Result[0] := Chr(Size);
+      end;
+      Free;
+      while Pos(#10, Result) &gt; 0 do
+        Result[Pos(#10, Result)] := ' ';
+      while Pos(#13, Result) &gt; 0 do
+        Result[Pos(#13, Result)] := ' ';
+    end;
+end;
+ 
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<html>
+<head>
+  <title>Восстановление минимизированного приложения</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Восстановление минимизированного приложения</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>При минимизации формы я использую RxTrayIcon, чтобы при этом исчезла</p>
+<p>кнопка из Панели задач вызываю ShowWindow(Application.Handle,SW_HIDE).</p>
+<p>Но вот незадача - не получается при восстановлении приложения (после клика</p>
+<p>на TrayIcon) добиться, чтобы оно становилось поверх других окон и обязательно было активным.</p>
+<p>Дело оказалось в следующем : гасить Tray-иконку надо в последнюю очередь,</p>
+<p>именно так все работает(ранее сначала гасил Tray-иконку, а уже потом восттанавливал свое приложение).</p>
+<p>Таким образом правильно работает следующий код:</p>
+<pre name="code" class="delphi">
+procedure TForm1.ApplicationMinimize(Sender : TObject);
+begin
+ RxTrayIcon1.Show;
+ ShowWindow(Application.Handle,SW_HIDE);
+end;
+ 
+procedure TForm1.RxTrayIcon1Click(Sender: TObject; Button: TMouseButton;
+         Shift: TShiftState; X, Y: Integer);
+begin
+ Application.Restore;
+ SetForeGroundWindow(Application.MainForm.Handle);
+ RxTrayIcon1.Hide;
+end;
+</pre>
+<p id="author">Авторы ответа: Song, Den</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

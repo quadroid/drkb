@@ -1,0 +1,90 @@
+<html>
+<head>
+  <title>Повышение криптоустойчивости шифрования текста любым алгоритмом</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Повышение криптоустойчивости шифрования текста любым алгоритмом</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Повышение криптоустойчивости шифрования текста любым алгоритмом
+ 
+Данная функция (AddDisturbToText) представляет собой подготовительную 
+операцию перед шифрацией текста любым алгоритмом. Функция 
+добавляет в текст случайное количество непечатных символов, 
+располагая их хаотически. Таким образом подготовленный текст, 
+после шифрации одним и тем-же ключом, не зависимо от алгоритма, 
+каждый раз будет выглядеть по разному и количественно и качественно, 
+что практически сводит на нет любой статистический анализ. При 
+расшифровке, непечатные символы элементарно вычищаются функцией 
+RemoveDisturbFromText.
+ 
+Зависимости: SysUtils
+Автор:       Delirium, VideoDVD@hotmail.com, ICQ:118395746
+Copyright:   Delirium (Master BRAIN) 2004
+Дата:        28 февраля 2004 г.
+********************************************** }
+ 
+const
+ NPCS:set of char = [ #0..#8, #11, #12, #14..#31, #127];
+ 
+// Добавление в текст непечатных символов
+function AddDisturbToText(Source:String):String;
+var n, c:integer;
+begin
+Randomize;
+Result:=Source;
+n:=(Length(Source)*2)+Random(Length(Source));
+while Length(Result)&lt;n
+do
+ begin
+ c:=Random(128);
+ if Chr(c) in NPCS
+ then Insert(Chr(c), Result, Random(Length(Result))+1)
+ end;
+end;
+ 
+// Убрать из текста непечатные символы
+function RemoveDisturbFromText(Source:String):String;
+var i:integer;
+begin
+Result:=Source;
+i:=1;
+while i&lt;Length(Result)
+do if Result[i] in NPCS
+   then Delete(Result, i, 1)
+   else Inc(i);
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

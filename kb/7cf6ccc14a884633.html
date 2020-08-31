@@ -1,0 +1,92 @@
+<html>
+<head>
+  <title>Как прочитать владельца файла?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как прочитать владельца файла?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// When you create a file or directory, you become the owner of it. 
+// With GetFileOwner you get the owner of a file. 
+ 
+function GetFileOwner(FileName: string; 
+  var Domain, Username: string): Boolean; 
+var 
+  SecDescr: PSecurityDescriptor; 
+  SizeNeeded, SizeNeeded2: DWORD; 
+  OwnerSID: PSID; 
+  OwnerDefault: BOOL; 
+  OwnerName, DomainName: PChar; 
+  OwnerType: SID_NAME_USE; 
+begin 
+  GetFileOwner := False; 
+  GetMem(SecDescr, 1024); 
+  GetMem(OwnerSID, SizeOf(PSID)); 
+  GetMem(OwnerName, 1024); 
+  GetMem(DomainName, 1024); 
+  try 
+    if not GetFileSecurity(PChar(FileName), 
+      OWNER_SECURITY_INFORMATION, 
+      SecDescr, 1024, SizeNeeded) then 
+      Exit; 
+    if not GetSecurityDescriptorOwner(SecDescr, 
+      OwnerSID, OwnerDefault) then 
+      Exit; 
+    SizeNeeded  := 1024; 
+    SizeNeeded2 := 1024; 
+    if not LookupAccountSID(nil, OwnerSID, OwnerName, 
+      SizeNeeded, DomainName, SizeNeeded2, OwnerType) then 
+      Exit; 
+    Domain   := DomainName; 
+    Username := OwnerName; 
+  finally 
+    FreeMem(SecDescr); 
+    FreeMem(OwnerName); 
+    FreeMem(DomainName); 
+  end; 
+  GetFileOwner := True; 
+end; 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+var 
+  Domain, Username: string; 
+begin 
+  GetFileOwner('YourFile.xyz', domain, username); 
+  ShowMessage(username + '@' + domain); 
+end; 
+ 
+// Note: Only works unter NT.
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

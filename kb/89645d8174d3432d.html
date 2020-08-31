@@ -1,0 +1,103 @@
+<html>
+<head>
+  <title>Инверсия всех цветов в bitmap</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Инверсия всех цветов в bitmap</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function InvertBitmap(Bmp: TBitmap): TBitmap;
+var
+  x, y: integer;
+  ByteArray: PByteArray;
+begin
+  Bmp.PixelFormat := pf24Bit;
+  for y := 0 to Bmp.Height - 1 do
+  begin
+    ByteArray := Bmp.ScanLine[y];
+    for x := 0 to Bmp.Width * 3 - 1 do
+    begin
+      ByteArray[x] := 255 - ByteArray[x];
+    end;
+  end;
+  Result := Bmp;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  Image1.Picture.Bitmap := InvertBitmap(Image1.Picture.Bitmap);
+end;
+</pre>
+
+<p id="author">Автор: Song</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<hr />
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Инверсия всех цветов Bitmap
+ 
+Зависимости: Graphics
+Автор:       Fenik, chook_nu@uraltc.ru, Новоуральск
+Copyright:   Собственное написание (Николай федоровских)
+Дата:        1 июня 2002 г.
+***************************************************** }
+ 
+procedure InvertBitmap(Bitmap: TBitmap);
+type
+  TRGB = record
+    B, G, R: Byte;
+  end;
+  pRGB = ^TRGB;
+var
+  x, y: Integer;
+  Dest: pRGB;
+begin
+  Bitmap.PixelFormat := pf24Bit;
+  for y := 0 to Bitmap.Height - 1 do
+  begin
+    Dest := Bitmap.ScanLine[y];
+    for x := 0 to Bitmap.Width - 1 do
+    begin
+      with Dest^ do
+      begin
+        R := 255 - R;
+        G := 255 - G;
+        B := 255 - B;
+      end;
+      Inc(Dest);
+    end;
+  end;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

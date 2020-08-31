@@ -1,0 +1,62 @@
+<html>
+<head>
+  <title>Компиляция ресурсов</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Компиляция ресурсов</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Ralph Friedman&nbsp; </p>
+
+<p>У меня имеется приблизительно 36 маленьких растровых изображений, которые я хочу сохранить в файле и затем прилинковать его к exe. Как мне поместить их в res-файл? </p>
+
+<p>Самый простой путь - создать файл с именем "BITMAPS.RC" и поместить в него список ваших .BMP-файлов:</p>
+
+<p>BMAP1 BITMAP BMAP1.BMP</p>
+<p>BMAP2 BITMAP BMAP2.BMP</p>
+<p>CLOCK BITMAP CLOCK.BMP</p>
+<p>DBLCK BITMAP DBLCK.BMP</p>
+<p>DELOK BITMAP DELOK.BMP</p>
+<p>LUPE BITMAP LUPE.BMP</p>
+<p>OK BITMAP OK.BMP</p>
+<p>TIMEEDIT BITMAP TIMEEDIT.BMP</p>
+
+<p>Затем загрузите Resource Workshop (RW) и выберите пункт меню File|Project Open. В выпадающем списке "File Type" (тип файла) выберите RC-Resource Script и откройте файл, который вы только что создали. После того, как RW загрузит ваш файл, выберите пункт меню File|Project save as. Выберите объект RES-Resource из выпадающего списка "File Type" (тип файла). В поле редактирования "New File name" задайте имя нового файла, скажем, BITMAPS.RES. Нажмите OK. Теперь у вас есть файл ресурса. В вашем модуле Delphi добавьте после строки {$R *.RES} строку {$R BITMAPS.RES}. После компиляции вы получите exe-файл с скомпилированными ресурсами. Для получения доступа к ресурсам во время выполнения программы нужно сделать следующее: </p>
+
+<pre name="code" class="delphi">
+myImage.Picture.Bitmap.Handle := LoadBitmap(HInstance, 'TIMEEDIT');
+</pre>
+
+<p>В качестве предостережения: убедитесь в том, что имена (в самой левой колонке) изображений в .RC файле написаны в верхнем регистре, при вызове также необходимо писать их имена в верхнем регистре.</p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

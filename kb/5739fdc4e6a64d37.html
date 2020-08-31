@@ -1,0 +1,114 @@
+<html>
+<head>
+  <title>Как получить / установить приоритет процесса?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить / установить приоритет процесса?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+const 
+    ppIdle                  : Integer = -1; 
+    ppNormal                : Integer =  0; 
+    ppHigh                  : Integer =  1; 
+    ppRealTime              : Integer =  2; 
+ 
+function SetProcessPriority( Priority : Integer ) : Integer; 
+var 
+    H : THandle; 
+begin 
+    Result := ppNormal; 
+    H := GetCurrentProcess(); 
+    if ( Priority = ppIdle ) then 
+        SetPriorityClass( H, IDLE_PRIORITY_CLASS ) 
+    else If ( Priority = ppNormal ) then 
+        SetPriorityClass( H, NORMAL_PRIORITY_CLASS ) 
+    else If ( Priority = ppHigh ) then 
+        SetPriorityClass( H, HIGH_PRIORITY_CLASS ) 
+    else If ( Priority = ppRealTime ) then 
+        SetPriorityClass( H, REALTIME_PRIORITY_CLASS ); 
+    case GetPriorityClass( H ) of 
+        IDLE_PRIORITY_CLASS     : Result := ppIdle; 
+        NORMAL_PRIORITY_CLASS   : Result := ppNormal; 
+        HIGH_PRIORITY_CLASS     : Result := ppHigh; 
+        REALTIME_PRIORITY_CLASS : Result := ppRealTime; 
+    end; 
+end; 
+ 
+function GetProcessPriority : Integer; 
+var 
+    H : THandle; 
+begin 
+    Result := ppNormal; 
+    H := GetCurrentProcess(); 
+    case GetPriorityClass( H ) of 
+        IDLE_PRIORITY_CLASS     : Result := ppIdle; 
+        NORMAL_PRIORITY_CLASS   : Result := ppNormal; 
+        HIGH_PRIORITY_CLASS     : Result := ppHigh; 
+        REALTIME_PRIORITY_CLASS : Result := ppRealTime; 
+    end; 
+end; 
+</pre>
+
+
+<p>Как использовать:</p>
+
+<p> &nbsp;&nbsp; Function SetProcessPriority( Priority : Integer ) : Integer; </p>
+
+<p>для установки приоритета Вашего приложения, либо:</p>
+
+<p> &nbsp;&nbsp; Function GetProcessPriority : Integer; </p>
+
+<p>для получения приоритета.</p>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+<hr />Следующий пример изменяет приоритет приложения. Изменение приоритета следует использовать с осторожностью - т.к. присвоение слишком высокого приоритета может привети к медленной работе остальных программ и системы в целом. См. Win32 help for SetThreadPriority() function. </p>
+
+<pre name="code" class="delphi">
+  procedure TForm1.Button1Click(Sender: TObject);
+  var
+    ProcessID : DWORD;
+    ProcessHandle : THandle;
+    ThreadHandle : THandle;
+  begin
+    ProcessID := GetCurrentProcessID;
+    ProcessHandle := OpenProcess(PROCESS_SET_INFORMATION,
+                                 false,
+                                 ProcessID);
+    SetPriorityClass(ProcessHandle, REALTIME_PRIORITY_CLASS);
+    ThreadHandle := GetCurrentThread;
+    SetThreadPriority(ThreadHandle, THREAD_PRIORITY_TIME_CRITICAL);
+  end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

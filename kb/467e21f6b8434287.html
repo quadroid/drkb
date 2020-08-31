@@ -1,0 +1,56 @@
+<html>
+<head>
+  <title>Функция для работы с палитрами и RGB</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Функция для работы с палитрами и RGB</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>У меня трудности с пониманием операций, производимых в Delphi над палитрой. По существу, я имею 4 открытых формы, которые должны использовать цвета, которые не входят в стандрартный набор из 20 именованных цветов. Ячейки таблицы также должны использовать мои нестандартные цвета. Есть какой-либо способ обновления системной палитры для того, чтобы все формы использовали один и тот же цвет? </p>
+
+<p>При работе с палитрами рекомендуется пользоваться функцией RGB. Если вы используете ее для изменения свойства "Color", Windows довольно хорошо справляется с задачай подбора цветов для низкого разрешения, а в системах с высоким разрешением вы получите точный цвет RGB. Это могло бы послужить выходом из создавшейся у вас ситуации. Вот пример формы, которая "линяет" от красного до синего:</p>
+
+<pre name="code" class="delphi">
+procedure TForm1.FormClick(Sender: TObject);
+var
+  blue: Byte;
+begin
+  For blue := 0 to 255 do
+  Begin
+    Color := RGB(255-blue,0,blue);
+    Update;
+  End;
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

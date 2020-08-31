@@ -1,0 +1,181 @@
+<html>
+<head>
+  <title>Как запустить и остановить сервис (или получить его статус)?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как запустить и остановить сервис (или получить его статус)?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Здесь представлены две функции ServiceStart и ServiceStop, которые показывают, как пользоваться API функциями OpenSCManager, OpenService и т.д.:</p>
+<pre name="code" class="delphi">
+function ServiceStart(aMachine, aServiceName : string ) : boolean; 
+// aMachine это UNC путь, либо локальный компьютер если пусто
+var 
+  h_manager,h_svc: SC_Handle; 
+  svc_status: TServiceStatus; 
+  Temp: PChar; 
+  dwCheckPoint: DWord; 
+begin 
+  svc_status.dwCurrentState := 1; 
+  h_manager := OpenSCManager(PChar(aMachine), Nil, 
+                             SC_MANAGER_CONNECT); 
+  if h_manager &gt; 0 then 
+  begin 
+    h_svc := OpenService(h_manager, PChar(aServiceName), 
+                         SERVICE_START or SERVICE_QUERY_STATUS); 
+    if h_svc &gt; 0 then 
+    begin 
+      temp := nil; 
+      if (StartService(h_svc,0,temp)) then 
+        if (QueryServiceStatus(h_svc,svc_status)) then 
+        begin 
+          while (SERVICE_RUNNING &lt;&gt; svc_status.dwCurrentState) do 
+          begin 
+            dwCheckPoint := svc_status.dwCheckPoint; 
+ 
+            Sleep(svc_status.dwWaitHint); 
+ 
+            if (not QueryServiceStatus(h_svc,svc_status)) then 
+              break; 
+ 
+            if (svc_status.dwCheckPoint &lt; dwCheckPoint) then 
+            begin 
+              // QueryServiceStatus не увеличивает dwCheckPoint 
+              break; 
+            end; 
+          end; 
+        end; 
+      CloseServiceHandle(h_svc); 
+    end; 
+    CloseServiceHandle(h_manager); 
+  end; 
+  Result := SERVICE_RUNNING = svc_status.dwCurrentState; 
+end; 
+</pre>
+
+<pre name="code" class="delphi">
+function ServiceStop(aMachine,aServiceName : string ) : boolean; 
+// aMachine это UNC путь, либо локальный компьютер если пусто
+var 
+  h_manager,h_svc   : SC_Handle; 
+  svc_status     : TServiceStatus; 
+  dwCheckPoint : DWord; 
+begin 
+  h_manager:=OpenSCManager(PChar(aMachine),nil, 
+                           SC_MANAGER_CONNECT); 
+  if h_manager &gt; 0 then 
+  begin 
+    h_svc := OpenService(h_manager,PChar(aServiceName), 
+                         SERVICE_STOP or SERVICE_QUERY_STATUS); 
+ 
+    if h_svc &gt; 0 then 
+    begin 
+      if(ControlService(h_svc,SERVICE_CONTROL_STOP, 
+                        svc_status))then 
+      begin 
+        if(QueryServiceStatus(h_svc,svc_status))then 
+        begin 
+          while(SERVICE_STOPPED &lt;&gt; svc_status.dwCurrentState)do 
+          begin 
+            dwCheckPoint := svc_status.dwCheckPoint; 
+            Sleep(svc_status.dwWaitHint); 
+ 
+            if(not QueryServiceStatus(h_svc,svc_status))then 
+            begin 
+              // couldn't check status 
+              break; 
+            end; 
+ 
+            if(svc_status.dwCheckPoint &lt; dwCheckPoint)then 
+              break; 
+ 
+          end; 
+        end; 
+      end; 
+      CloseServiceHandle(h_svc); 
+    end; 
+    CloseServiceHandle(h_manager); 
+  end; 
+ 
+  Result := SERVICE_STOPPED = svc_status.dwCurrentState; 
+end; 
+</pre>
+
+<p>Чтобы узнать состояние сервиса, используйте следующую функцию:</p>
+
+<pre name="code" class="delphi">
+function ServiceGetStatus(sMachine, sService: string ): DWord; 
+var 
+  h_manager,h_service: SC_Handle; 
+  service_status     : TServiceStatus; 
+  hStat : DWord; 
+begin 
+  hStat := 1; 
+  h_manager := OpenSCManager(PChar(sMachine) ,Nil, 
+                             SC_MANAGER_CONNECT); 
+ 
+  if h_manager &gt; 0 then 
+  begin 
+    h_svc := OpenService(h_manager,PChar(sService), 
+                      SERVICE_QUERY_STATUS); 
+ 
+    if h_svc &gt; 0 then 
+    begin 
+      if(QueryServiceStatus(h_svc, service_status)) then 
+        hStat := service_status.dwCurrentState; 
+ 
+      CloseServiceHandle(h_svc); 
+    end; 
+    CloseServiceHandle(h_manager); 
+  end; 
+ 
+  Result := hStat; 
+end; 
+ 
+</pre>
+
+<p>Она возвращает одну из следующих констант:</p>
+
+<p>SERVICE_STOPPED </p>
+<p>SERVICE_RUNNING </p>
+<p>SERVICE_PAUSED </p>
+<p>SERVICE_START_PENDING </p>
+<p>SERVICE_STOP_PENDING </p>
+<p>SERVICE_CONTINUE_PENDING </p>
+<p>или</p>
+<p>SERVICE_PAUSE_PENDING </p>
+
+<p>Всё что, что Вам нужно, это unit WinSvc !</p>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

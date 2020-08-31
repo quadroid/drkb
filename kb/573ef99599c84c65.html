@@ -1,0 +1,58 @@
+<html>
+<head>
+  <title>Указатель на вариантный тип</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Указатель на вариантный тип</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+I just ran across this in some of my old code and thought I''d share it with you:</p>
+<p>Consider the following (simplified code): </p>
+<pre name="code" class="delphi">
+ function CreateVariantPtr(_Value: variant): pVariant;
+ begin
+ GetMem(Result, SizeOf(Variant));
+ Result^ := _Value;
+ end;
+</pre>
+<p>Seems pretty simple, doesn''t it? Anybody who can spot the bug? I got spurious access violations in the line Result^ := _Value; Ok, the reason: Memory allocated with GetMem is not initialised, so the "Variant" pointed to by Result contains some random data, for example something that might represent a variant type which requires some finalisation when the variant is changed, lets say a variant array of some sort. But this finalisation won''t work because the content is just some random garbage, and sometimes I was lucky (I mean that!) and got an access violation that allowed me to spot the error. The fix: </p>
+<pre name="code" class="delphi">
+ function CreateVariantPtr(_Value: variant): pVariant;
+ begin
+ GetMem(Result, SizeOf(Variant));
+ Initialize(Result^);
+ Result^ := _Value;
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+&nbsp;</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

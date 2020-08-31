@@ -1,0 +1,419 @@
+<html>
+<head>
+  <title>PGPSDK &ndash; легкий путь к шифрованию</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">PGPSDK &ndash; легкий путь к шифрованию</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Евгений Дадыков </p>
+<p>Иногда бывает нужно прикрутить к своей программе какое-нибудь шифрование. Для этих целей разработаны кучи алгоритмов шифрования, дешифрования, электронной подписи и т.п., основанных на различных математических аппаратах. Мало того &#8211; необходимо реализовать этот алгоритм. Но мы как кульные программеры не будем этого делать &#8211; а возьмем готовую библиотеку PGPsdk. Я не буду повторять классиков [2], что для реальных приложений использовать самодельные шифры не рекомендуется, если вы не являетесь экспертом и не уверены на 100 процентов в том, что делаете. Отговаривать же Вас от разработки собственных шифров или реализации какого-либо стандарта тоже не суть этой статьи, здесь пойдет речь о том, как быстро и правильно реализовать в своих приложениях защиту от посторонних глаз и, самое главное - не обмануться. </p>
+<p>В моем приложении уже использовалось шифрование от PGP, ДОСовская, работало через командные файлы (*.bat), что явилось весомым аргументом для выбора средства шифрования, все работало, но меня это не устраивало &#8211; ДОСовская версия PGP (5.0) затрудняло инсталляцию программы, поддержку и не имеет некоторых полезных вещей, нужных для расширения системы в будущем. Еще чем привлекала PGP &#8211; бесплатная для некоммерческих программ, генерация произвольного количества ключей и то что пакет PGP очень популярен и им пользуются большое количество людей, и Вам легко будет решить проблему защиты информации от посторонних глаз в своих приложениях и по моему защита с помощью PGP дает большое преимущество. </p>
+<p>Небольшая справка по PGP: </p>
+<p>Pretty Good Privacy (PGP) выпущено фирмой Phil's Pretty Good Software и является криптографической системой с высокой степенью секретности для операционных систем MS-DOS, Unix, VAX/VMS и других. PGP позволяет пользователям обмениваться файлами или сообщениями с использованием функций секретности, установлением подлинности, и высокой степенью удобства. Секретность означает, что прочесть сообщение сможет только тот, кому оно адресовано. Установление подлинности позволяет установить, что сообщение, полученное от какого-либо человека было послано именно им. Нет необходимости использовать секретные каналы связи, что делает PGP простым в использовании программным обеспечением. Это связано с тем, что PGP базируется на мощной новой технологии, которая называется шифрованием с "открытым ключом". </p>
+<p>Поддерживаемые алгоритмы </p>
+<p>Deiffie-Hellman </p>
+<p>CAST </p>
+<p>IDEA </p>
+<p>3DES </p>
+<p>DSS </p>
+<p>MD5 </p>
+<p>SHA1 </p>
+<p>RIPEMD-160 </p>
+<p>Реализуемые функции </p>
+<p>Шифрование и аунтефикация (с использованием перечисленных алгоритмов); </p>
+<p>Управление ключами (создание, сертификация, добавление/удаление из связки, проверка действительности, определения уровня надежности); </p>
+<p>Интерфейс с сервером открытых ключей (запрос, подгрузка, удаление и отзыв ключа с удаленного сервера); </p>
+<p>Случайные числа (генерация криптографически стойких псевдослучайных чисел и случайных чисел, базируясь на внешних источниках); </p>
+<p>Поддержка PGP/MIME; </p>
+<p>Вспомогательные функции. </p>
+<p>Обзор существующих библиотек </p>
+<p>Первое что я сделал &#8211; сходил на torry.ru и был удивлен обилием библиотек и функций для разного рода шифрования. Функциональность их я проверять не стал, а остановился на PGP-пишных компонентах. </p>
+<p>PGPComp - ДОСовская, работает по принципу запуска внешнего exe-файла, сразу отпала по той причине - что нужно будет устанавливать MSDOS версию PGP (Кроме того библиотека только под 1 и 2 Delphi). Вспомнил что в моей любимой почтовой программе The Bat встроена поддержка PGP, зашел на их сайт - скачал библиотеку dklib.dll, любезно предоставленную ими, но почему то у меня не один из примеров не пошел, а за отсутствием исходников, я не мог понять почему. Пробовал обраться к автору - в ответ тишина, уже больше года не отвечает он. А неплохая библиотека, по крайней мере по тому что написано в документации присутствует тот необходимый минимум функций для шифрования-дешифрования, проверки ключа и сама библиотека весит не очень много &#8211; 184'832 Байт. </p>
+<p>Т.е. меня не устроили эти библиотеки и я пошел на http://www.pgpi.org, в поисках истины. Нашел там упоминание про библиотеку для разработчиков &#8211; PGPsdk. </p>
+<p>Собственно сам PGPsdk </p>
+<p>28 октября 1997 г. PGP, Inc. объявила о поставке PGPsdk сторонним производителям программного обеспечения. PGPsdk - это средство разработки для программистов на С, позволяющее разработчикам программного обеспечения встраивать в него стойкие криптографические функции. Можно сказать что в PGPsdk реализованы все функции пакета PGP, мало того - версия PGP начиная с 5.0 хранит криптографические функции в динамических библиотеках &#8211; dll (о том насколько это не безопасно &#8211; вопрос к Крису Касперски, я лишь скажу что насколько я силен в математике). </p>
+<p>PGPsdk - это динамическая библиотека, состоящая из трех файлов [табл. 1], поддерживающая базовые алгоритмы криптования (перечислены выше), гибкое управление ключами, сетевой интерфейс и др. (можно использовать одну библиотеку - PGP_sdk.dll, если Вы не будите использовать фирменный интерфейс пользователя от NAI и сетевую библиотеку). </p>
+<p>Установка </p>
+<p>Скачайте архив с PGPsdk [9], на момент написания статьи доступна версия 1.7.2 (должен заметить что архив занимает 3 с лишним мегабайт), необходимо его разархивировать и из каталога \Libraries\DLL\Release взять следующие файлы - табл. 1 </p>
+<p>Табл.1 </p>
+<p>PGP_SDK.dll для криптования, управление ключами и т.д.  </p>
+<p>PGPsdkUI.dll (UI= user interface) интерфейсные штучки, если Вам нужно будет только шифровать/расшифровывать, то этот файл необязателен. Но очень полезен для ввода пароля, выбора получателей сообщений, генерации ключей и другое.  </p>
+<p>PGPsdkNL.dll (NL= network library) сетевая библиотека для работы с сервером ключей или для transport layer security. Ее мы рассматривать не будем, но в ближайшем будущем я попытаюсь ее описать.  </p>
+<p>Собственно распространять Вам приложение придется с этими файлами, подложить их необходимо или в системный каталог WINDOWS или в каталог вместе с приложением - механизм стандартный как и для всех dll, главное чтоб библиотеку было видно Вашему приложению. </p>
+<p>Переходим к делу. </p>
+<p>Для работы система предоставляет ряд низкоуровневых PGP API (Application Programmig Interface) функций. Заголовки (хеадеры, описания) этих функций поставляются вместе с пакетом на Ц и лежат в каталоге Headers. Если Вы как и я пишите на Delphi, можете сами сконвертировать их, а можете взять готовые тут [10]. Это проект по переводу Ц-ных хеадеров на любимый мною язык программирования. Занимается всем этим делом Стивен Хейлер (Steven R. Heller ). </p>
+<p>Описатели переведены на Delphi по принципу как это сделано для Ц - разбросаны на кучи модулей (листинг 1). Все названия модулей аналогичны Ц-ным заголовкам, за исключением pgpEncode - переименовано в pgpEncodePas, из-за особенностей объявления в Delphi (нельзя чтоб имя процедуры совпадало с названием модуля). </p>
+<p>Листинг 1. Объявление используемых библиотек. </p>
+<pre name="code" class="delphi">
+uses
+  // PGPsdk
+  pgpEncodePas, pgpOptionList, pgpBase, pgpPubTypes,
+  pgpUtilities, pgpKeys, pgpErrors,
+  // always last
+  pgpSdk;
+</pre>
+<p>Единственная трудность, которая возникает на пути включения криптования в Ваше приложение - это использование слишком уж низкоуровневых PGP API функций. Для того что бы сделать какую-нибудь операцию - будь то подсчет публичных ключей в связке или просто зашифровать файл - необходимо создавать контекст, указать где находятся ключи, создать фильтр ключей, подготовить файловые дескрипторы, если с памятью - выделить ее (в случае шифрования-/-расшифрования), затем все это в обратном порядке освободить (если контекст неправильно освобождается - файлы с резервными ключиками не удалятся). И все это при том что в системном каталоге WINDOWS создается файл, в котором содержится информация где находятся файлы с публичными и секретными ключами (о нем будет подробно сказано ниже). Для сравнения работы через PGP API предоставлен листинг2. </p>
+<p>Листинг 2. Пример использования PGPsdk через PGP API </p>
+<pre name="code" class="delphi">
+var
+  context: pPGPContext;
+  keyFileRef: pPGPKeySet;
+  defaultKeyRing: pPGPKeySet;
+  foundUserKeys: pPGPKeySet;
+  filter: pPGPFilter;
+  countKeys: PGPUInt32;
+  keyFileName: PChar;
+  userID: PChar;
+  inFileRef,
+    outFileRef: pPGPFileSpec;
+  inFileName,
+    outFileName: PChar;
+begin
+  // Init от C++
+  context := nil;
+  keyFileName := 'pubring.pgp';
+  userID := '';
+  inFileName := 'myInFile.txt';
+  outFileName := 'myOutFile.txt.asc';
+ 
+  // Begin
+  PGPCheckResult('sdkInit', PGPsdkInit);
+ 
+  PGPCheckResult('PGPNewContext',
+    PGPNewContext(
+    kPGPsdkAPIVersion,
+    context
+    ));
+ 
+  PGPCheckResult('PGPNewFileSpecFromFullPath',
+    PGPNewFileSpecFromFullPath(
+    context,
+    keyFileName,
+    keyFileRef
+    ));
+ 
+  PGPCheckResult('PGPOpenKeyRing',
+    PGPOpenKeyRing(
+    context,
+    kPGPKeyRingOpenFlags_None,
+    keyFileRef,
+    defaultKeyRing
+    ));
+ 
+  PGPCheckResult('PGPNewUserIDStringFilter',
+    PGPNewUserIDStringFilter(context, userID, kPGPMatchSubString, filter));
+ 
+  PGPCheckResult('PGPFilterKeySet',
+    PGPFilterKeySet(defaultKeyRing, filter, foundUserKeys));
+ 
+  // Открываем файловые манипуляторы
+  PGPCheckResult('PGPNewFileSpecFromFullPath',
+    PGPNewFileSpecFromFullPath(context, inFileName, inFileRef));
+ 
+  PGPCheckResult('PGPNewFileSpecFromFullPath',
+    PGPNewFileSpecFromFullPath(context, outFileName, outFileRef));
+ 
+  //
+  // А вот здесь уже идет кодирование.
+  //
+  PGPCheckResult('PGPEncode',
+    PGPEncode(
+    context,
+    [
+    PGPOEncryptToKeySet(context, foundUserKeys),
+      PGPOInputFile(context, inFileRef),
+      PGPOOutputFile(context, outFileRef),
+      PGPOArmorOutput(context, 1),
+      PGPOCommentString(context, PChar('Comments')),
+      PGPOVersionString(context,
+        PChar('Version 5.0 assembly by Evgeny Dadgoff')),
+      PGPOLastOption(context)
+      ]
+      ));
+ 
+  //
+  // Освобождаем занимаемые ресурсы и контекст PGP
+  //
+  if (inFileRef &lt;&gt; nil) then
+    PGPFreeFileSpec(inFileRef);
+  if (outFileRef &lt;&gt; nil) then
+    PGPFreeFileSpec(outFileRef);
+  if (filter &lt;&gt; nil) then
+    PGPFreeFilter(filter);
+  if (foundUserKeys &lt;&gt; nil) then
+    PGPFreeKeySet(foundUserKeys);
+  if (defaultKeyRing &lt;&gt; nil) then
+    PGPFreeKeySet(defaultKeyRing);
+  if (keyFileRef &lt;&gt; nil) then
+    PGPFreeKeySet(keyFileRef);
+  if (context &lt;&gt; nil) then
+    PGPFreeContext(context);
+  PGPsdkCleanup;
+end;
+</pre>
+<p>Здесь реализован пример из [9] со страницы 39. Функция PGPCheckResult позаимствована у Стивена из его примеров - принимает два параметра - строковую и код выполнения функции PGP API, если была ошибка - генерируется исключение и на экран выводится описание ошибки с именем функции (Очень помогает для ловли ошибок, а при вызове dll-библиотеки, тем более написанной на другом языке &#8211; помогает избавиться от Access violation). </p>
+<p>Листинг 3. Функция PGPCheckResult. </p>
+<pre name="code" class="delphi">
+procedure PGPCheckResult(const ErrorContext: shortstring; const TheError:
+  PGPError);
+var
+  s: array[0..1024] of Char;
+begin
+  if (TheError &lt;&gt; kPGPError_NoError) then
+  begin
+    PGPGetErrorString(TheError, 1024, s);
+    if (PGPGetErrorString(TheError, 1024, s) = kPGPError_NoError) then
+      raise exception.create(ErrorContext + ' [' + IntToStr(theError) + '] : ' +
+        StrPas(s))
+    else
+      raise exception.create(ErrorContext +
+        ': Error retrieving error description');
+  end;
+end;
+</pre>
+<p>Там же у Стивена я нашел еще один проект - написанная на Delphi библиотека для VB, проект под названием SimplePGP (SPGP). Дело в том, что VB не может использовать библиотеку PGPsdk из-за ограничения импортирования библиотек dll [9, раздел FAQ]. Сам Стивен предложил мне добавить к проекту еще одну dll, тем самым забыть про PGP API, и использовать облегченную модель вызова функций криптований. </p>
+<p>Сам интерфейс к доступу функциям выполнен не плохо, продуманно и вызов их не должен вызвать затруднений у Вас. </p>
+<p>Открыв ее я подумал - а не убрать ли мне все эти "stdcall;export;" и просто присоединить библиотеку к ехе-файлу (ну не устраивает меня хитросплетение dll). Сказано сделано. </p>
+<p>Итак, поехали! </p>
+<p>Создадим подкаталог для объявления функций PGPsdk, скопировав туда файлики DELPHI PGP API - pgp*.pas и spgp*.pas. Удалим в файлах spgp*.pas - "stdcall;export;"(уже полученные в итоге заголовочные файлы можно взять тут [12]). Теперь к Вашему проекту нужно приписать использование библиотек (это там где uses): </p>
+<pre name="code" class="delphi">
+uses
+  // PGPsdk
+  pgpEncodePas, pgpOptionList, pgpBase, pgpPubTypes,
+  pgpUtilities, pgpKeys, pgpErrors,
+  // SPGP
+  spgpGlobals, spgpEncrypt, spgpKeyUtil, spgpUtil, spgpKeyMan,
+  spgpPreferences, spgpKeyProp, spgpKeyIO, spgpKeyGen, spgpMisc,
+  spgpUIDialogs,
+  // always last
+  pgpSdk;
+</pre>
+<p>Можно использовать только необходимые модули. </p>
+<p>Первое что мы попробуем сделать - это зашифровать и подписать произвольный файл и получить зашифрованный в текстовом виде (ASC). Здесь следует отметить что PGPsdk может работать не только с файлами, но и с памятью, а также комбинировать - память - файл, файл - память. </p>
+<pre name="code" class="delphi">
+PGPCheckResult
+(
+  'Ошибка при шифровании файла',
+  spgpencodefile(
+  PChar(edtFileIn.Text),
+  PChar(edtFileOut.Text),
+  1, // Encrypt.Value
+  1, // Sign.Value
+  kPGPHashAlgorithm_MD5,
+  0,
+  kPGPCipherAlgorithm_CAST5,
+  1,
+  0,
+  0,
+  'Steven R. Heller', // Кто может расшифровать
+  'Evgeny Dadgoff', // Чем подписывать
+  'MyPassPhrase', // Хех, это пароль
+  '',
+  PChar(edtComment.Text)
+  )
+);
+</pre>
+
+
+<p>Сравним что получится если переделать пример [9,стр. 18] на Delphi - на чистом API. </p>
+<p>Лично для меня проще было использовать spgp-модель чем тяжелые PGPAPI вызовы. </p>
+<p>Про преференс </p>
+<p>Для работы библиотеке необходимо знать где лежат файлы с ключиками (pubring.prk и secring.prk). PGP API позволяет сохранять свои настройки в файле PGPsdk.dat (почему то он всегда сохраняется в каталоге с виндами). Для работы с этим файлом предназначены следующие функции: </p>
+<pre name="code" class="delphi">
+spgpgetpreferences(Prefs: pPreferenceRec; Flags: Longint):LongInt;
+spgpsetpreferences(Prefs: pPreferenceRec; Flags: Longint):LongInt;
+</pre>
+
+
+<p>Соответственно для получения преференса и установки его (кстати ключики могут лежать не только в файлах). Замечу что это не единственный способ &#8211; PGP API позволяет напрямую указывать где расположены ключи, но тогда Вам придется отказаться от SPGP, или поправлять SPGP под себя. </p>
+<p>Как получить список всех имеющихся ключей </p>
+<p>Здесь я покажу как получить список всех ключей - заполнение LVKeys:TListView именами ключей и шестнадцатеричными ID-значениями ключей, используя SPGP-модель. </p>
+<pre name="code" class="delphi">
+var
+  P: TPreferenceRec;
+  Flags: LongInt;
+  outBuf: array[1..30000] of Char;
+  i, KeyCount: Integer;
+  TempStr, StrKeys: AnsiString;
+begin
+  LVKeys.Items.Clear;
+  FillChar(P, 1024, 0);
+  FillChar(outbuf, 30000, 0);
+  Flags := PGPPrefsFlag_PublicKeyring or
+    PGPPrefsFlag_PrivateKeyring or
+    PGPPrefsFlag_RandomSeedFile;
+  if (spgpGetPreferences(@P, Flags) &lt;&gt; 0) then
+    ShowEvent('Error!', 1);
+  // GetWindowsDirectory
+  if (LowerCase(WinDir + 'pubring.pkr') = LowerCase(StrPas(P.PublicKeyring))) or
+    not (FileExists(StrPas(P.PublicKeyring))) then
+  begin
+    StrPCopy(P.PublicKeyring, ExtractFilePath(Application.ExeName) +
+      'KEYS\pubring.pgp');
+    StrPCopy(P.PrivateKeyring, ExtractFilePath(Application.ExeName) +
+      'KEYS\secring.pgp');
+    StrPCopy(P.RandomSeedFile, ExtractFilePath(Application.ExeName) +
+      'KEYS\randseed.bin');
+    if (CreateDir(ExtractFilePath(Application.ExeName) + 'KEYS')) then
+      ShowEvent('Каталог ключей ' + ExtractFilePath(Application.ExeName) + 'KEYS'
+        +
+        ' -- не существует, Будет создан заново... ', 0);
+    spgpSetPreferences(@P, Flags);
+ 
+    //Создать файлы с ключами - такой хитрый прием.
+    spgpSubKeyGenerate('mmmh', 'sssl', 'ssss', 1, 1024, 0, 0, 0, 0);
+  end;
+  btnPubKeys.Caption := StrPas(P.PublicKeyring);
+  btnSecKeys.Caption := StrPas(P.PrivateKeyring);
+  btnRndBin.Caption := StrPas(P.RandomSeedFile);
+  PGPCheckResult('Ошибка при инициализации PGP-SDK, убедитесь что все DLL
+    установленны правильно', Init(FContext, PubKey, false, false));
+  spgpKeyRingID(@outBuf, 30000);
+  KeyCount := spgpkeyringcount;
+  StrKeys := StrPas(@outBuf);
+  for i := 1 to KeyCount do
+  begin
+    TempStr := Copy(StrKeys, 1, Pos(#13 + #10, StrKeys));
+    Delete(StrKeys, 1, Pos(#13 + #10, StrKeys) + 1);
+    with (LVKeys.Items.Add) do
+    begin
+      Caption := Copy(TempStr, 14, Length(TempStr) - 14);
+      SubItems.Add(TempStr[1]);
+      SubItems.Add(Copy(TempStr, 3, 10));
+    end;
+  end;
+  QuitIt(FContext, PubKey);
+end;
+</pre>
+
+
+<p>Про то, как вычисляется размер зашифрованного текста. </p>
+<p>Не всегда можно предположить какой размер будет выходного шифрованного текста, а функции проводящие преобразование требуют что бы память под него была уже выделена (разработчики PGPsdk почему-то это не предусмотрели), и если памяти не хватает - возникает исключение о нехватки памяти. Мною опытным путем была установлена формула для вычисления размера блока: </p>
+<pre name="code" class="delphi">
+outBufLen := inBufLen * 5;
+if (outBufLen &lt; 10000) then
+  outBufLen := 10000;
+outBufRef := StrAlloc(outBufLen);
+</pre>
+
+
+<p>Временные ключики </p>
+<p>В процессе работы программы появляются резервные файлы ключей, имеющие следующий вид - (pub|sec)ring-bak-##.pgp &#8211; предусмотрен откат от изменений. В принципе, если Вы правильно используете контекст и правильно его закрываете, этот файл корректно удаляется при освобождение контекста. Но на всякий случай можно его удалять следующим образом (повесить можно на закрытие формы или вызывать принудительно): </p>
+<pre name="code" class="delphi">
+procedure DeleteBakPGPFiles;
+var
+  P: TPreferenceRec;
+  FileSearch: string;
+  SearchRec: TSearchRec;
+begin
+  spgpGetPreferences(@P, PGPPrefsFlag_PublicKeyring or
+    PGPPrefsFlag_PrivateKeyring);
+  FileSearch := P.PublicKeyring;
+  Insert('-bak-*', FileSearch, Pos('.', FileSearch));
+  FindFirst(FileSearch, faAnyFile, SearchRec);
+  if (SearchRec.Name &lt;&gt; '') then
+    if not (DeleteFile(ExtractFilePath(FileSearch) + SearchRec.Name)) then
+      ShowEvent('Not delete file::' +
+        ExtractFilePath(FileSearch) + SearchRec.Name, 0);
+  while (FindNext(SearchRec) = 0) do
+    if not (DeleteFile(ExtractFilePath(FileSearch) + SearchRec.Name)) then
+      ShowEvent('Not delete file::' +
+        ExtractFilePath(FileSearch) + SearchRec.Name, 0);
+  FindClose(SearchRec);
+end;
+</pre>
+
+
+<p>Интерфейс пользователя</p>
+<p>PGP_sdkUI.dll &#8211; это библиотека пользовательских интерфейсов, фирменные штучки от Network Associates, использовав их у Вас будут диалоги такие же как у фирменного пакета PGP. Вам уже не нужно будет строить диалоги самому: </p>
+<p>Для Генерации ключей; </p>
+<p>При выборе получателей сообщений; </p>
+<p>При запросе пароля и т.п. </p>
+<p>Вывод:</p>
+<p>Если Вы читаете эту статью - то Вы наверное уже знаете где в своих приложениях можно применить криптование, PGP это позволит сделать быстро, надежно, открыто и самое главное &#8211; переносимо. Но я могу посоветовать еще одно применение - это защита Ваших программ от несанкционированного копирования. Зашить открытый ключ в exe-файл, и рассылать секретный, нужным людям. Вот тут то и появляется поле для простора. </p>
+<p>Перечень функций SPGP</p>
+<pre name="code" class="delphi">
+  { spgpDecrypt - decryption &amp; signature verification functions            }
+  function spgpdecode(BufferIn, BufferOut: PChar; BufferOutLen: LongInt; Pass,
+    SigProps: PChar): LongInt;
+  function spgpdecodefile(FileIn, FileOut, Pass, SigProps: PChar): LongInt;
+  function spgpdetachedsigverify(SigFile, SignedFile, SigProps: PChar):LongInt;
+ 
+  { spgpEncrypt - encryption &amp; signing functions                           }
+  function spgpencode(BufferIn, BufferOut: PChar; BufferOutLen: LongInt;
+           Encrypt, Sign, SignAlg, ConventionalEncrypt, ConventionalAlg, Armor,
+           TextMode, Clear: LongInt; CryptKeyID, SignKeyID, SignKeyPass,
+           ConventionalPass, Comment: PChar): LongInt;
+  function spgpencodefile(FileIn, FileOut: PChar; Encrypt, Sign, SignAlg,
+           ConventionalEncrypt, ConventionalAlg, Armor, TextMode,
+           Clear: LongInt; CryptKeyID, SignKeyID, SignKeyPass, ConventionalPass,
+           Comment: PChar): LongInt;
+ 
+  { spgpFeatures - functions to determine PGPsdk version and availability  }
+  { of PGPsdk features                                                     }
+  function spgpsdkapiversion: Longint;
+  function spgppgpinfo(Info: pPGPInfoRec): LongInt;
+  function countkeyalgs: LongInt;
+  function countcipheralgs: LongInt;
+ 
+  { spgpKeyGen - key-generation functions                                  }
+  function spgpkeygenerate(UserID, PassPhrase, NewKeyHexID: PChar;
+           KeyAlg, CipherAlg, Size, ExpiresIn, FastGeneration, FailWithoutEntropy,
+           WinHandle: Longint): LongInt; 
+  function spgpsubkeygenerate(MasterKeyHexID, MasterKeyPass, NewSubKeyHexID: PChar;
+           KeyAlg, Size: Longint; ExpiresIn, FastGeneration, FailWithoutEntropy,
+           WinHandle: Longint): LongInt;
+ 
+  { spgpKeyIO - Key import/export functions                                }
+  function spgpkeyexport(pKeyID,BufferOut: PChar;BufferOutLen,ExportPrivate,
+    ExportCompatible: LongInt):LongInt;
+  function spgpkeyexportfile(pKeyID,FileOut: PChar; ExportPrivate,ExportCompatible:
+    LongInt):LongInt;
+  function spgpkeyimport(BufferIn,KeyProps: PChar; KeyPropsLen: LongInt):LongInt;
+  function spgpkeyimportfile(FileIn,KeyProps: PChar; KeyPropsLen: LongInt):LongInt;
+</pre>
+<p>Список используемой литературы и интернет ресурсы</p>
+<p>Владимир Жельников "Криптография от папируса до компьютера" М:ABF, 1996 </p>
+<p>Tatu Ylonen "Introduction to Cryptography" http://www.cs.hut.fi/ssh/crypto/intro.html </p>
+<p>Брюс Шнайер "Прикладная криптография" http://www.ssl.stu.neva.ru/psw/crypto/appl_rus/appl_cryp.html </p>
+<p><a href="http://www.ssl.stu.neva.ru/psw/crypto.htm " target="_blank">http://www.ssl.stu.neva.ru/psw/crypto.htm </a></p>
+<p><a href="http://pgp2all.org.ru/" target="_blank">http://pgp2all.org.ru/</a> </p>
+<p><a href="http://www.pgpi.org/cgi/download.cgi?filename=pgp50ibi.zip " target="_blank">http://www.pgpi.org/cgi/download.cgi?filename=pgp50ibi.zip </a></p>
+<p><a href="ftp://ftp.no.pgpi.org/pub/pgp/sdk/ " target="_blank">ftp://ftp.no.pgpi.org/pub/pgp/sdk/ </a></p>
+<p>PGP Software Developer's Kit "PGPsdk, Reference Guide Version 1.7" </p>
+<p>PGP Software Developer's Kit "PGPsdk, Users Guide Version 1.7" </p>
+<p><a href="http://www.oz.net/~srheller/dpgp/sdk/" target="_blank">http://www.oz.net/~srheller/dpgp/sdk/</a> </p>
+<p><a href="http://www.oz.net/~srheller/spgp/" target="_blank">http://www.oz.net/~srheller/spgp/</a> </p>
+<p><a href="http://mymesi.pp.ru/programs/keyprop.zip " target="_blank">http://mymesi.pp.ru/programs/keyprop.zip </a></p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

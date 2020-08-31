@@ -1,0 +1,107 @@
+<html>
+<head>
+  <title>События, происходящие в приложениях Delphi при завершении работы Windows</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">События, происходящие в приложениях Delphi при завершении работы Windows</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Я провел небольшое исследование, и вот что я выяснил: </p>
+<p>При закрытии приложения (используя системное меню или вызывая метод закрытия формы), возникают следующие события: </p>
+FormCloseQuery - действие по умолчанию, устанавливает переменную CanClose в значание TRUE и продолжает закрытие формы. </p>
+FormClose </p>
+FormDestroy </p>
+<p>Если приложение активно и вы пытаетесь завершить работу Windows (Shut Down), происходят следующие события (с соблюдением последовательности): </p>
+FormCloseQuery </p>
+FormDestroy </p>
+<p>Мы видим, что метод FormClose в этом случае не вызывается.</p>
+<p>Теперь воспроизведем всю последовательность событий, происходящую при попытке завершить работу Windows: </p>
+Windows посылает сообщение WM_QUERYENDSESSION всем приложениям и ожидает ответ. </p>
+Каждое приложение получает сообщение и возвращает одну из величин: не равную нулю - приложение готово завершить свою работу, 0 - приложение не может завершить свою работу. </p>
+Если одно из приложений возвращает 0, Windows не завершает свою работу, а снова рассылает всем окнам сообщение, на этот раз WM_ENDSESSION. </p>
+Каждое приложение должно снова подтвердить свою готовность завершить работу, поэтому операционная система ожидает ответа TRUE, резонно предполагая, что оставшиеся приложения с момента предыдущего сообщения закрыли свои сессии и готовы завершить работу. Теперь посмотрим, как на это реагирует Delphi-приложение: приложение возвращает значение TRUE и немедленно вызывает метод FormDestroy, игнорируя при этом метод FormClose. Налицо проблема. </p>
+Завершение работы Windows. </p>
+<p>Первое решение проблемы: приложение Delphi на сообщение WM_QUERYENDSESSION должно возвратить 0, не дав при этом Windows завершить свою работу. При этом бессмысленно пытаться воспользоваться методом FormCloseQuery, поскольку нет возможности определить виновника завершения работы приложения (это может являться как результатом сообщения WM_QUERYENDSESSION, так и просто действием пользователя при попытке закрыть приложение).</p>
+<p>Другое решение состоит в том, чтобы при получении сообщения WM_QUERYENDSESSION самим выполнить необходимые действия, вызвав метод FormClose.</p>
+<pre name="code" class="delphi">unit Unit1;
+interface
+uses
+  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls, Forms,
+  Dialogs;
+type
+  TForm1 = class(TForm)
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+{--------------------------------------------------------}
+{ Объявляем свой обработчик сообщения WM_QUERYENDSESSION }
+{--------------------------------------------------------}
+    procedure WMQueryEndSession(
+      var Message: TWMQueryEndSession); message WM_QUERYENDSESSION;
+  public
+{ Public declarations }
+  end;
+var
+  Form1: TForm1;
+ 
+implementation
+{$R *.DFM}
+ 
+{--------------------------------------------------------------}
+{ Создаем процедуру обработки сообщения WM_QUERYENDSESSION. }
+{ Приложение получит только это сообщение при попытке Windows }
+{ завершить работу }
+{--------------------------------------------------------------}
+ 
+procedure TForm1.WMQueryEndSession(var Message: TWMQueryEndSession);
+begin
+  inherited; { сначала сообщание должен обработать наследуемый метод }
+{--------------------------------------------------------------------}
+{ в этой точке вы также можете сообщить Windows о неготовности }
+{ приложения завершить работу... }
+{ Message.Result:=0; }
+{-------------------------------------------или----------------------}
+{ вызов процедуры освобождения ресурсов, предусмотренной в FormClose }
+{ MyCleanUpProcedure; }
+{--------------------------------------------------------------------}
+end;
+ 
+procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  MyCleanUpProcedure;
+end;
+ 
+end.
+ 
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

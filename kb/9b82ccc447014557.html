@@ -1,0 +1,143 @@
+<html>
+<head>
+  <title>Хинт любой формы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Хинт любой формы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Borland Delphi 4, Руководство разработчика", К. Пачеко и С. </p>
+<p>Тейксер</p>
+
+<p>З.Ы. Пристегните (uses CoolHint) к любой форме с hint'ами и любуйтесь </p>
+<p>подсказками. </p>
+<pre name="code" class="delphi">
+unit CoolHint 
+ 
+interface 
+ 
+uses Windows, Classes, Controls, Forms, Messages, Graphics 
+type 
+TddgHintWindow = class(THintWindow) 
+private 
+  FRegion: THandle 
+  procedure FreeCurrentRegion 
+public 
+  destructor Destroy override 
+  procedure ActivateHint(Rect: TRect const AHint: string);override ;
+  procedure Paint; override ;
+  procedure CreateParams(var Params: TCreateParams); override ;
+end 
+ 
+implementation 
+ 
+destructor TddgHintWindow.Destroy 
+begin 
+FreeCurrentRegion; 
+inherited Destroy; 
+end 
+ 
+procedure TddgHintWindow.CreateParams(var Params: TCreateParams) 
+{ We need to remove the border created on the Windows API-level } 
+{ when the window is created. } 
+begin 
+inherited CreateParams(Params) ;
+Params.Style := Params.Style and not ws_Border // remove border ;
+end;
+ 
+procedure TddgHintWindow.FreeCurrentRegion 
+{ Regions, like other API objects, should be freed when you are } 
+{ through using them. Note, however, that you cannot delete a } 
+{ region which is currently set in a window, so this method sets } 
+{ the window region to 0 before deleting the region object. } 
+begin 
+if FRegion &lt;&gt;0 then 
+begin // if Region is alive... 
+SetWindowRgn(Handle, 0, True) // set win region to 0 
+DeleteObject(FRegion) // FRegion := 0 // zero out field 
+end 
+end 
+ 
+procedure TddgHintWindow.ActivateHint(Rect: TRect const AHint: string); 
+{ Called when the hint is activated by putting the mouse pointer } 
+{ above a control. } 
+begin 
+with Rect do 
+Right := Right + Canvas.TextWidth('WWWW') // add some slop 
+BoundsRect := Rect 
+FreeCurrentRegion 
+with BoundsRect do 
+{ Create a round rectangular region to display the hint window } 
+FRegion := CreateRoundRectRgn(0, 0, Width, Height, Width, Height) 
+if FRegion &lt;&gt;0 then 
+SetWindowRgn(Handle, FRegion, True) // set win region 
+inherited ActivateHint(Rect, AHint) // call inherited 
+end 
+procedure TddgHintWindow.Paint 
+{ This method gets called by the WM_PAINT handler. It is } 
+{ responsible for painting the hint window. } 
+var R: TRect 
+begin 
+R := ClientRect // get bounding rectangle 
+Inc(R.Left, 1) // move left side slightly 
+Canvas.Font.Color := clInfoText // set to proper color 
+{ paint string in the center of the round rect } 
+DrawText(Canvas.Handle, PChar(Caption), Length(Caption), R, 
+DT_NOPREFIX or DT_WORDBREAK or DT_CENTER or DT_VCENTER) 
+end 
+ 
+var 
+OldHintClass: THintWindowClass 
+ 
+function SetNewHintClass(AClass: THintWindowClass): THintWindowClass 
+var 
+DoShowHint: Boolean 
+begin 
+Result := HintWindowClass // return value is old hint 
+window 
+DoShowHint := Application.ShowHint 
+if DoShowHint then 
+Application.ShowHint := False // destroy old hint window 
+HintWindowClass := AClass // assign new hint window 
+if DoShowHint then 
+Application.ShowHint := True // create new hint window 
+end 
+initialization 
+OldHintClass := SetNewHintClass(TddgHintWindow) 
+finalization 
+SetNewHintClass(OldHintClass) 
+end.
+</pre>
+
+
+<p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<html>
+<head>
+  <title>Получение текста из буфера обмена без использования модуля Clipbrd</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получение текста из буфера обмена без использования модуля Clipbrd</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Получение текста из буфера обмена без использования модуля Clipbrd
+ 
+Wnd - Handle окна, получающего доступ к буферу обмена;
+Str - строка, в которую будет скопирован текст;
+ 
+Зависимости: Windows
+Автор:       Dimka Maslov, mainbox@endimus.ru, ICQ:148442121, Санкт-Петербург
+Copyright:   Dimka Maslov
+Дата:        22 августа 2002 г.
+********************************************** }
+ 
+function GetClipboardText(Wnd: HWND; var Str: string): Boolean;
+var
+ hData: HGlobal;
+begin
+ Result:=True;
+ if OpenClipboard(Wnd) then begin
+  try
+   hData:=GetClipboardData(CF_TEXT);
+   if hData&lt;&gt;0 then begin
+    try
+     SetString(Str, PChar(GlobalLock(hData)), GlobalSize(hData));
+    finally
+     GlobalUnlock(hData);
+    end;
+   end else Result:=False;
+   Str:=PChar(@Str[1]);
+  finally
+   CloseClipboard;
+  end;
+ end else Result:=False;
+end; 
+</pre>
+
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+function TForm1.Button2Click(Sender: TObject)
+var
+ Str: string;
+begin 
+ GetClipboardText(Handle, Str);
+ ShowMessage(Str);
+end; 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

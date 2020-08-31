@@ -1,0 +1,124 @@
+<html>
+<head>
+  <title>Печать повернутого текста</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Печать повернутого текста</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure AngleTextOut(CV: TCanvas; const sText: string; x, y, angle: integer);
+var
+  LogFont: TLogFont;
+  SaveFont: TFont;
+begin
+  SaveFont := TFont.Create;
+  SaveFont.Assign(CV.Font);
+  GetObject(SaveFont.Handle, sizeof(TLogFont), @LogFont);
+  with LogFont do
+    begin
+      lfEscapement := angle * 10;
+      lfPitchAndFamily := FIXED_PITCH or FF_DONTCARE;
+    end; {with}
+  CV.Font.Handle := CreateFontIndirect(LogFont);
+  SetBkMode(CV.Handle, TRANSPARENT);
+  CV.TextOut(x, y, sText);
+  CV.Font.Assign(SaveFont);
+  SaveFont.Free;
+end;
+</pre>
+
+
+<hr />
+
+<pre name="code" class="delphi">
+procedure TextOutVertical(var bitmap: TBitmap; x, y: Integer; s: string);
+var b1, b2: TBitmap;
+  i, j: Integer;
+begin
+  with bitmap.Canvas do
+    begin
+      b1 := TBitmap.Create;
+      b1.Canvas.Font := lpYhFont;
+      b1.Width := TextWidth(s) + 1;
+      b1.Height := TextHeight(s) + 1;
+      b1.Canvas.TextOut(1, 1, s);
+      b2 := TPackedBitmap.Create;
+      b2.Width := TextHeight(s);
+      b2.Height := TextWidth(s);
+      for i := 0 to b1.Width - 1 do
+        for j := 0 to b1.Height do
+          b2.Canvas.Pixels[j, b2.Height + 1 - i] := b1.Canvas.Pixels[i, j];
+      Draw(x, y, b2);
+      b1.Free;
+      b2.Free;
+    end
+end;
+</pre>
+
+<hr />
+<p>Некоторое время я делал так: я создавал шрифт, выбирал его в DC...</p>
+<pre name="code" class="delphi">
+function CreateMyFont(degree: Integer): HFONT;
+begin
+  CreateMyFont := CreateFont(
+    -30, 0, degree, 0, 0,
+    0, 0, 0, 1, OUT_TT_PRECIS,
+    0, 0, 0, szFontName);
+end;
+</pre>
+
+
+<p>....и затем использовал любую функцию рисования для вывода текста.</p>
+
+<hr />
+<p>Приведенное выше решение(1)очень медленно, так как требует рисования текста и содержит, на мой взгляд, неэффективный метод вращения.Попробуйте взамен это:</p>
+
+<pre name="code" class="delphi">
+procedure TForm1.TextUp(aRect: tRect; aTxt: string);
+var LFont: TLogFont;
+  hOldFont, hNewFont: HFont;
+begin
+  GetObject(Canvas.Font.Handle, SizeOf(LFont), Addr(LFont));
+  LFont.lfEscapement := 900;
+  hNewFont := CreateFontIndirect(LFont);
+  hOldFont := SelectObject(Canvas.Handle, hNewFont);
+  Canvas.TextOut(aRect.Left + 2, aRect.Top, aTxt);
+  hNewFont := SelectObject(Canvas.Handle, hOldFont);
+  DeleteObject(hNewFont);
+end;
+</pre>
+
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

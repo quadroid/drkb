@@ -1,0 +1,74 @@
+<html>
+<head>
+  <title>Как очистить базу данных, оставив только структуру?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как очистить базу данных, оставив только структуру?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>ЗАМЕЧАНИЕ: Этот пример не работает в режиме редактирования, так как таблица должна быть открыта в эксклюзивном режиме.</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button2Click(Sender: TObject); 
+begin 
+  {Opens the table in exclusive mode} 
+  Try 
+    With Table1 Do 
+    Begin 
+      Active:=False; 
+      Exclusive:=True; 
+      Active:=True; 
+      try 
+        EmptyTable; 
+      except 
+        ShowMessage('Cannot empty database'); 
+      end; 
+    End 
+  Except 
+    ShowMessage('cannot open table in exclusive mode'); 
+  End 
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+
+<p id="note">Примечание Vit</p>
+<p>Если требуется очистить таблицу не прибегая к эксклюзивному доступу или используя другие способы доступа помимо BDE то рекомендуется выполнить квери:</p>
+
+<p>Delete From MyTable</p>
+
+<p>Которая полностью очистит таблицу. Для MS SQL Server существует и другой способ - выполнение квери:</p>
+
+<p>Truncate Table MyTable</p>
+
+<p>Различие между Delete и Truncate заключается в том, что для операции Delete создаётся запись в Transaction log, что обеспечивает более высокую надёжность, но при больших таблицах выполнение Delete  может быть весьма долгим. Напротив, Truncate в&nbsp; Transaction log не попадает и таблица любых размеров необратимо очищается практически мгновенно вне зависимости от её размера. Delete - стандартная операция SQL и поддерживается всеми базами данных, напротив, Truncate - операция&nbsp; не стандартная, поэтому поддерживается лишь отдельными базами данных.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

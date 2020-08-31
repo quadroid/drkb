@@ -1,0 +1,132 @@
+<html>
+<head>
+  <title>Буферы для потоков</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Буферы для потоков</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Стандартные потоки, широко применяющиеся в Delphi, резко упрощают повседневную работу с потоковыми данными. Но и у них есть недостаток. Дело в том, что в VCL потоки, и, главное, их базовый класс TStream, реализованы "в лоб": без всяких хитростей данные немедленно препровождаются по назначению (например, в файл). И такие операции занимают весьма значительное время (многие сотни машинных команд). Хорошо, если надо работать с "крупными" данными (килобайт и выше) - а если данные небольшие и разнообразные, замедление достигает 100 и более раз (на типе Char).</p>
+Стандартный способ ускорения подобных операций - работа с массивами элементов, вводя-выводя их в/из потока сразу. Но, во-первых, это значительно сложнее поэлементных операций, а во-вторых, если элементы имеют непостоянную длину, становится ещё сложнее. Делая небольшое отступление, замечу, что стандартная библиотека потокового ввода-вывода в большинстве реализаций C++ сделана не так - там потоки могут сами буферизовать передаваемые данные. Не понимаю, почему в Borland решили обойтись без этого. Единственное приходящее в голову объяснение - они твёрдо рассчитывали на "крупный" и "средний" обмен данными, который оптимально производить как раз без буферизации. Действительно, если посмотреть на C++ - сразу кружится голова от количества команд, необходимых для обслуживания буфера. Связано это с тем, что потоки могут попеременно читаться и писаться, а кроме того, одновременно использоваться многими потоками кода.</p>
+Ввиду этих проблем мной были написаны сравнительно простые буферные классы (работают на Delphi версий 4-5, должны работать и на последующих, а вот 3 версия уже не поддерживает перегрузку методов - в принципе, переписать и тут несложно), позволяющие производить буферизованный обмен с любыми потоками. В целях максимального ускорения работы классы эти, во-первых, не "thread-safe", а во-вторых, это два разных класса - для записи и для чтения - унаследованных от одного базового (кроме TObject, разумеется). Классы "пристёгиваются" к потоку (кстати, в C++ это делается практически так же) - и пользуются ими только для "крупного" обмена, осуществляя "мелкий" самостоятельно со своим буфером.</p>
+<pre name="code" class="delphi">
+        ByteArray = packed array of Byte;
+ 
+        psnAbstractStreamBuffer = class {
+                Абстрактный предок классов для БЫСТРОЙ (буферизованно: вся цепочка до
+        API-функций задействуется только при переполнении буфера, что даёт ускорение
+        на порядок для данных длиной несколько байт) и УДОБНОЙ (перегруженные методы
+        для разных типов данных позволяют не задавать их размер, хотя можно и так)
+        бинарной работы с потоками заданной структуры. Принцип действия прост:
+        накопление данных в буфере и сброс в поток - у буфера записи; чтение из
+        потока и раздача данных из буфера - у буфера чтения. О позиции потока буфер
+        не заботится - просто пишет или читает в текущей. А иначе будет монстр.
+                Опасно что-то делать с потоком (хотя кому это надо?), когда к нему
+        присоединён буфер, ведь буфер может переписать поток, прочитать устаревшие
+        данные или сделать это не там, где надо. Перед подобными операциями
+        сбрасывйте буфер методом Flush (при смене присоединённого потока (свойство
+        Stream) и разрушении буфера это делается автоматически). Это касается и
+        попеременной работы буферов чтения и записи с одним потоком... хотя зачем
+        тогда буфер - чтобы постоянно его сбрасывать и устанавливать позицию потока?
+                При ошибках чтения и записи возникают стандартные VCL-исключения 
+      EReadError и EWriteError.}
+        private
+                FStream: TStream; {присоединённый поток}
+                FSize: Cardinal; {размер буфера}
+                FBuffer, {буфер}
+                FBufferEnd: PChar; {конец буфера (сразу за последним байтом) - понятно, 
+            что вместе с FSize и FBuffer избыточно, но это повысит скорость и упростит код}
+                procedure SetStream(const Value: TStream);
+        protected
+                FCurrPos: PChar; {текущая позиция в буфере}
+                property Size: Cardinal read FSize;
+                property Buffer: PChar read FBuffer;
+                property BufferEnd: PChar read FBufferEnd;
+                constructor Create(const Stream: TStream; const Size: Cardinal);
+        public
+                property Stream: TStream read FStream write SetStream; {&lt;&gt; Nil !!!}
+                procedure Flush; virtual; abstract; {сброс}
+                destructor Destroy; override; {Stream разрушайте сами, если надо, ПОСЛЕ
+                разрушения буфера}
+        end;
+ 
+        psnStreamWriter = class(psnAbstractStreamBuffer)
+        public
+                constructor Create(
+                 {присоединённый поток, меняется свойством Stream}
+                        const Stream: TStream;
+                        const Size: Cardinal = 1024 {размер буфера}
+                );
+                procedure Flush; override;
+                procedure WriteBuffer(const Data; const Count: Cardinal); {Этот метод
+                не перегружен с Write, так как Delphi (4-5, во всяком случае) плохо выносит
+                перегруженные методы, когда один из них имеет бестиповые параметры: Code
+                Explorer сходит с ума, а Code Completion вообще хулиганит - самовольно
+                добавляет раздел Private и дублирует объявление метода (без overload!!!)
+                там, а потом ругается: мол, первый метод не был объявлен как overload).}
+                procedure Write(const Data: Byte     ); overload;
+                procedure Write(const Data: Word     ); overload;
+                procedure Write(const Data: LongWord ); overload;
+                procedure Write(const Data: Integer  ); overload;
+                procedure Write(const Data: Single   ); overload;
+                procedure Write(const Data: Double   ); overload;
+                procedure Write(const Data: Extended ); overload;
+                procedure Write(const Data: String   ); overload;
+                procedure Write(const Data: ByteArray); overload;
+        end;
+ 
+        psnStreamReader = class(psnAbstractStreamBuffer)
+        public
+                constructor Create(
+                {присоединённый поток, меняется свойством Stream}
+                        const Stream: TStream; 
+                        const Size: Cardinal = 1024 {размер буфера}
+                );
+                procedure Flush; override;
+                procedure ReadBuffer(out Data; const Count: Cardinal);
+                procedure Read(out Data: Byte     ); overload;
+                procedure Read(out Data: Word     ); overload;
+                procedure Read(out Data: LongWord ); overload;
+                procedure Read(out Data: Integer  ); overload;
+                procedure Read(out Data: Single   ); overload;
+                procedure Read(out Data: Double   ); overload;
+                procedure Read(out Data: Extended ); overload;
+                procedure Read(out Data: String   ); overload;
+                procedure Read(out Data: ByteArray); overload;
+        end;
+</pre>
+Их методы WriteBuffer и ReadBuffer работают аналогично одноименным методам класса TStream, то есть они генерируют стандартные VCL-исключения EWriteError и EReadError при невозможности осуществления операции. Причина этого в том, что, в конце концов, вы должны знать формат своего файла, а не я :). Кроме того, если кто не знает, исключения ускоряют работу по сравнению с постоянной проверкой результата (если секция try...finally или try...except содержит цикл, а не наоборот).</p>
+EWriteError может возникнуть много позже того, как в буферный класс поступят первые "не вмещающиеся" данные (но до того, как будет разорвана связь буферного класса и потока!) - ведь они буферизуются. В большинстве случаев это не критично: если в поток не удалось записать, можно "тушить свет" - это серьёзная ошибка, и поток к дальнейшему употреблению всё равно непригоден.</p>
+В силу того, что "мелкий" обмен с потоками часто производится типизированно - например, чтение строк или чисел с плавающей точкой - классы дополнены перегруженными методами Write и Read для распространённых типов, позволяющими не раздувать исходный (и машинный) код, постоянно указывая размеры передаваемых данных. Эти методы настолько просты, что расширение их набора не представляет проблем - фактически они просто транслируются в вызовы WriteBuffer и ReadBuffer.</p>
+В заключение остаётся предупредить, что во избежание ошибок прежде, чем что-то делать с потоком (позицию сменить, прочитать/записать что-то помимо данного буферного класса), необходимо сбросить буфер методом Flush.</p>
+Сергей Парунов</p>
+<p><a href="http://www.delphikingdom.com" target="_blank">http://www.delphikingdom.com</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

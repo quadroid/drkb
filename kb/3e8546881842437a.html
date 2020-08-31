@@ -1,0 +1,84 @@
+<html>
+<head>
+  <title>Как преобразовать значение любого типа в строку?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как преобразовать значение любого типа в строку?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Более подробно ищите в хелпе Delphi по словам "Variant" и "TVarData"... </p>
+<pre name="code" class="delphi">
+ 
+function ToString(Value: Variant): String;
+begin
+  case TVarData(Value).VType of
+    varSmallInt,
+    varInteger   : Result := IntToStr(Value);
+    varSingle,
+    varDouble,
+    varCurrency  : Result := FloatToStr(Value);
+    varDate      : Result := FormatDateTime('dd/mm/yyyy', Value);
+    varBoolean   : if Value then Result := 'T' else Result := 'F';
+    varString    : Result := Value;
+    else            Result := '';
+  end;
+end;
+</pre>
+<p>Использование: </p>
+<pre name="code" class="delphi">
+ShowMessage(ToString(10.87));
+ShowMessage(ToString(10));
+</pre>
+<p>или </p>
+<pre name="code" class="delphi">
+var
+  V1 : Double;
+  V2 : Integer;
+  V3 : TDateTime;
+  V4 : Boolean;
+ 
+begin
+  ...
+ 
+  ShowMessage(ToString(V1));  // Double a String
+  ShowMessage(ToString(V2));  // Integer a String
+  ShowMessage(ToString(V3));  // DateTime a String
+  ShowMessage(ToString(V4));  // Boolean a String
+end;
+ 
+</pre>
+<p>Так же можно пользоваться другими вариантами, например: </p>
+<p>varCurrency &nbsp;: Result := CurrToStrF(Value ,ffFixed,CurrencyDecimals);</p>
+<p>и </p>
+<p>varDate: Result := DateToStr(Value);</p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0 </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

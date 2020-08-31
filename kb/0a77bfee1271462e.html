@@ -1,0 +1,92 @@
+<html>
+<head>
+  <title>Использование WSAAsyncSelect в DLL</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Использование WSAAsyncSelect в DLL</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Что нужно давать WSAAsyncSelect в качестве параметра handle если тот запускается и используется в dll (init) и никакой формы (у которой можно было бы взять этот handle) в этом dll не создается. Что бы такого сделать чтобы работало?</p>
+
+<pre name="code" class="delphi">
+const
+ WM_ASYNCSELECT = WM_USER+0;
+type
+ TNetConnectionsManager = class(TObject)
+protected
+ FWndHandle : HWND;
+ procedure WndProc( var MsgRec : TMessage );
+ ...
+end;
+ 
+constructor TNetConnectionsManager.Create
+begin
+ inherited Create;
+ FWndHandle := AllocateHWnd(WndProc);
+ ...
+end;
+ 
+destructor TNetConnectionsManager.Destroy;
+begin
+ ...
+ if FWndHandle&lt;&gt;0 then DeallocateHWnd(FWndHandle);
+ inherited Destroy;
+end;
+ 
+procedure TNetConnectionsManeger.WndProc( var MsgRec : TMessage );
+begin
+ with MsgRec do
+   if Msg=WM_ASYNCSELECT then
+     WMAsyncSelect(MsgRec)
+   else
+     DefWindowProc( FWndHandle, Msg, wParam, lParam );
+end;
+</pre>
+
+
+<p>Hо pекомендую посмотpеть WinSock2, в котоpом можно:</p>
+
+<p>WSAEventSelect( FSocket, FEventHandle, FD_READ or FD_CLOSE );</p>
+<p>WSAWaitForMultipleEvents( ... );</p>
+<p>WSAEnumNetworkEvents( FSocket, FEventHandle, lpNetWorkEvents );</p>
+
+<p>То есть, обойтись без окон и без очеpеди сообщений windows, а заодно иметь возможность pаботать и с IPX/SPX, и с netbios.</p>
+<p>Свой winsock2.pas я вчеpа кинул в RU.DELPHI.DB, если кто имеет такой из дpугих источников - свистните погpомче.</p>
+
+<p id="author">Автор: Alex Konshin</p>
+<p>alexk@msmt.spb.su</p>
+<p>(2:5030/217) </p>
+
+<p id="author">Автор: StayAtHome</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

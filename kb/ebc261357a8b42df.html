@@ -1,0 +1,365 @@
+<html>
+<head>
+  <title>Компоненты ADO (статья)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Компоненты ADO (статья)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В Delphi 5.0 появились компоненты для работы с Microsoft® ActiveX® Data Objects (далее ADO). ADO это технология стандартного обращения к реляционным данным от Microsoft. Эта технология аналогична BDE по назначению и довольно близка по возможностям.</p>
+<p>Следует отличать компоненты Delphi, являющиеся частью библиотеки визуальных компонентов Delphi (VCL), и интерфейсы и объекты ADO, которые в них инкапсулированы. В дальнейшем, когда упоминается компонент &#8211; это компонент Delphi, а когда объект или интерфейс &#8211; это объект или интерфейс ADO.</p>
+<p>Обзор компонент</p>
+<p>Для работы с ADO на вкладке компонентов ADO есть шесть компонентов: TADOConnection, TADOCommand, TADODataSet, TADOTable, TADOQuery, TADOStoredProc.</p>
+<p><img src="pic/embim1714.png" width="284" height="74" vspace="1" hspace="1" border="0" alt=""></p>
+<p>Рис. 0.&nbsp; Палитра компонент ADO</p>
+<p>TADOConnection аналогичен компоненту BDE TDatabase и используется для указания базы данных и работы транзакциями.</p>
+<p>TADOTable &#8211; таблица доступная через ADO.</p>
+<p>TADOQuery &#8211; запрос к базе данных. Это может быть как запрос, в результате которого возвращаются данные и базы (например, SELECT), так и запрос не возвращающий данных (например, INSERT).</p>
+<p>TADOStoredProc &#8211; вызов хранимой процедуры. В отличие от BDE и InterBase хранимые процедуры в ADO могут возвращать набор данных, по этому компонент данного типа является потомком от TDataSet и может выступать источником данных в компонентах типа TDataSource.</p>
+<p>TADOCommand и TADODataSet являются наиболее общими компонентами для работы с ADO, но и наиболее сложными в работе. Оба компонента позволяют выполнять команды на языке провайдера данных (так в ADO называется драйвер базы данных). </p>
+<p>Разница между ними в том, что команда, исполняемая через TADODataSet, должна возвращать набор данных и этот компонент позволяет работать с ними средствами Delphi (например, привязать компонент типа TDataSource). А компонент TADOCommand позволяет исполнять команды не возвращающие набор данных, но не имеет штатных средств Delphi для последующего использования возвращенного набора данных.</p>
+<p>Очевидно, что все компоненты должны связываться с базой данных. Делается это двумя способами либо через компонент TADOConnection либо прямым указанием базы данных в остальных компонентах. К TADOConnection остальные компоненты привязываются с помощью свойства Connection, к базе данных напрямую через свойство ConnectionString. </p>
+<p>База данных может быть указана двумя способами через файл линка к данным (файл в формате Microsoft Data Link, расширение UDL), либо прямым заданием параметров соединения. </p>
+<p>Значение свойства всех ConnectionString этих компонент могут быть введены напрямую в текстовой форме, но куда проще вызвать редактор свойства нажав на кнопку «…» в конце поля ввода. Окно этого свойства выглядит так:</p>
+<p><img src="pic/embim1715.png" width="300" height="129" vspace="1" hspace="1" border="0" alt=""></p>
+<p>Рис. 1.</p>
+<p>При выборе «Use data link file» и нажатии на кнопку «Browse…» появляется стандартный диалог выбора файла. Этот файл можно создать в любом окне explorer-а (в этом окне открытия файла, в самом explorer, на desktop и т.д.) вызвав контекстное меню и выбрав пункт «New/Microsoft Data Link». Потом вызовите локальное меню для созданного файла и выберите в нем пункт «Open». После этого появится property sheet описанный чуть ниже. Эти же вкладки содержит и property sheet, вызываемый через пункт «Property» локального меню UDL файла, но в нем еще есть вкладки относящиеся к самому файлу. </p>
+<p>Использование файлов Microsoft Data Link упрощает поддержку приложений, так как возможно использовать средства Windows для настройки приложения.</p>
+<p>При выборе в редакторе свойства «Use connection string» и нажатии на кнопку «Build…» появляется такой же property sheet, как и при выборе «Open» для Microsoft Data Link файла.</p>
+<p>В этом окне выбирается тип базы данных, местоположение базы и параметры соединения.</p>
+<p>На первой странице выбирается тип базы данных или Provider, в терминах ADO.</p>
+<p><img src="pic/embim1716.png" width="222" height="279" vspace="1" hspace="1" border="0" alt=""></p>
+<p>Рис. 2.</p>
+<p>Базы MS Access доступны как через «Microsoft Jet OLE DB Provider», так и через «Microsoft OLE DB Provider for ODBC». </p>
+<p>Следующая страница зависит от выбранного типа базы, однако для всех типов есть кнопка «Test connection» позволяющая проверить правильность и полноту параметров.</p>
+<p>Для «Microsoft Jet OLE DB Provider» она выглядит так: </p>
+<p><img src="pic/embim1717.png" width="218" height="270" vspace="1" hspace="1" border="0" alt=""></p>
+<p>Рис. 3.</p>
+<p>Checkbox «Blank password» подавляет диалог ввода идентификатора и пароля пользователя при установлении соединения, если поле пароля пустое.</p>
+<p>Checkbox «Allow saving password» сохраняет пароль в строке параметров соединения. Если он не отмечен, то введенный пароль будет использоваться только при выполнении тестового соединения.</p>
+<p>Для «Microsoft OLE DB Provider for ODBC» эта страница выглядит так: </p>
+<p><img src="pic/embim1718.png" width="222" height="279" vspace="1" hspace="1" border="0" alt=""></p>
+<p>Рис. 4.</p>
+<p>Радиокнопка «Use data source name» позволяет ввести предустановленный алиас ODBC, а через «Use connection string» вводится как алиасы так и тип ODBC драйвера и параметры соединения. </p>
+<p>Параметры идентификации пользователя аналогичны выше описанным.</p>
+<p>На странице «Advanced» расположены дополнительные параметры, с помощью которых устанавливается уровень доступа к файлу базы данных, таймаут сетевого соединения (то есть время через которое связь будет считаться потерянной, если сервер не отвечает) и уровень глубины проверки секретности соединения.</p>
+<p><img src="pic/embim1719.png" width="218" height="270" vspace="1" hspace="1" border="0" alt=""></p>
+<p>Рис. 5.</p>
+<p>На странице «All» можно отредактировать все параметры с предыдущих страниц и параметры зависящие от провайдера, но не вошедшие на страницу «Connection». Редактирование осуществляется в виде параметр &#8211; значение, причем в текстовой форме, никаких диалогов нет. Помощи то же нет, эти параметры описаны только в документации на провайдер. Ее можно найти в MSDN Data Access Services/Microsoft Data Access Components (MDAC) SDK/Microsoft ActiveX Data Objects (ADO)/Microsoft ADO Programmer's Reference/Using Providers with ADO. </p>
+<p><img src="pic/embim1720.png" width="248" height="311" vspace="1" hspace="1" border="0" alt=""></p>
+<p>Рис. 6.</p>
+<p>В компоненте TADOConnection есть свойства Provider, DefaultDatabase и Mode которые являются альтернативным методом задания частей строки параметров соединения &#8211; провайдера, базы данных (например, пути до базы MS Access) и режима совместного использования файлов базы данных. Эти значение этих свойств автоматически включаются в строку соединения, если были заданы до активизации компонента и автоматически выставляются после соединения.</p>
+<p>Простейшее приложение</p>
+<p>Создадим простейшее приложение, состоящее из одной таблицы. </p>
+<p>Создаем форму состоящую из трех компонент </p>
+<p>TADOTable с палитры компонент ADO, </p>
+<p>TDataSource с палитры компонент Data Access,</p>
+<p>TDBGrid c палитры компонент Data Controls.</p>
+<p><img src="pic/embim1721.png" width="197" height="176" vspace="1" hspace="1" border="0" alt=""></p>
+<p>Рис 7</p>
+<p>Связываем компоненты, устанавливая</p>
+<p>свойство TDBGrid DataSource на компонент TDataSource,</p>
+<p>свойство DataSet компонента TDataSource на компонент TADOTable.</p>
+<p>Теперь нам необходимо указать базу данных. Делается это в свойстве ConnectionString компонента TADOTable. При нажатии на кнопку «…» появится редактор параметров соединения. Отметим радокнопку «Use data link file», нажмите на кнопку «Browse…» и выберите в появившемся окне после файл линка к базе данных «\Program Files\Common Files\System\ole db\Data Links\DBDEMOS.UDL». Этот линк указывает на базу в формате MS Access, входящую в поставку Delphi. </p>
+<p>После этого в свойстве TableName компонента TADOTable выберем таблицу customer.</p>
+<p>Активизируем компонента TADOTable, установив свойство Active в True.</p>
+<p>Приложение можно запускать. Этот пример можно найти в директории Simple.</p>
+<p>Обзор ADO</p>
+<p>ADO основано на технологии COM. Все объекты и интерфейсы ADO являются интерфейсами и объектами COM.</p>
+<p><img src="pic/embim1722.png" width="347" height="209" vspace="1" hspace="1" border="0" alt=""></p>
+<p>Рис 8. Архитектура ADO</p>
+<p>Интерфейс Connection</p>
+<p>Объекты этого типа выполняют следующие функции:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Связь с сервером.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Управление транзакциями. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Получение информации о произошедших ошибках (свойство Errors).</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Получение информации о схеме данных (таблицы, поля и так далее).</td></tr></table></div>
+<p><img src="pic/embim1723.png" width="353" height="221" vspace="1" hspace="1" border="0" alt=""></p>
+<p>Рис 9. Схема взаимодействия в ADO основных COM интерфейсов</p>
+<p>Интерфейсы Recordset и Field</p>
+<p>Интерфейс Recordset&nbsp; (на нижнем уровне ADO это IRowset) является аналогом TDataSet в Delphi. </p>
+<p>Поддерживает текущее положение и перемещение курсора, закладки (bookmarks), чтение, изменение и удаление записей и так далее. Значение полей и их типы доступны с помощью свойства Fields.</p>
+<p>Интерфейс Field позволяет получать значение поля, его тип длину и так далее.</p>
+<p>Интерфейсы Command и Parameter</p>
+<p>Эти два типа позволяют работать с командами источника данных. Синтаксис команд для каждого из источников свой. </p>
+<p>Интерфейс Property</p>
+<p>Все объекты, кроме Parameter, имеют свойство Properties, которое позволяет получать и устанавливать параметры специфические для провайдера данных.</p>
+<p>Библиотека довольно запутанная, многие функции дублированы в разных объектах. Например, Recordset можно создавать напрямую, методом Open, (причем предварительно создавать Connection не обязательно), можно получить как результат выполнения метода Command.Execute, либо после Connection.Execute задав команду без параметров.</p>
+<p>Интерфейс Command инкапсулирован во все компоненты за исключением TADOConnection. Это сделано потому, что в ADO нет возможности получить данные не выполнив команду.</p>
+<p>Интерфейс Recordset инкапсулирован в компоненты производные от TCustomADODataSet. Это компоненты TADODataSet, TADOTable, TADOQuery, TADOStoredProc. Получать данные из них возможно штатными средствами Delphi.</p>
+<p>Возможно получение данных и при выполнении компонента TADOCommand. Метод этого компонента Execute возвращает тип _Recordset. После чего его можно, например, связать с компонентом TADODataSet следующим образом</p>
+<p>ADODataSet1.RecordSet := ADOCommand1.Execute;</p>
+<p>Компоненты TADOTable, TADOQuery и TADOStoredProc являются частными случаями команды, соответственно для таблицы, SQL запроса и хранимой процедуры.</p>
+<p>Тип Connection инкапсулируется в компонент TADOConnection. </p>
+<p>Когда вы выполняете команду предварительно не открывая соединение, оно все равно создается. Получить к нему доступ возможно через свойство Recordset. Привязать компонент TADOConnection к уже открытому соединению возможно через свойство ConnectionObject.</p>
+<p>Информацию о структуре базы данных можно получить с помощью метода OpenSchema компонента TADOConnection. Эта информация представлена как набор таблиц, как стандартизованных, так и специфических для провайдера. Таким способом можно узнать список таблиц, запросов, хранимых процедур и многое другое. Однако изменять структуру базы с помощью возвращаемых наборов данных невозможно.</p>
+<p>Пример использования TADOConnection</p>
+<p>В этом примере рассматривается работа с компонентом TADOConnection, SQL запросами с параметрами и трансакциями.</p>
+<p>Создадим приложение из следующих компонентов&nbsp; </p>
+<p>Connect типа TADOConnection</p>
+<p>MasterSQL и DetailSQL типа TADODataSet</p>
+<p>MasterDS и DetailDS типа TDataSource</p>
+<p>MasterGrid и DetailGrid типа TDBGrid</p>
+<p><img src="pic/embim1724.png" width="247" height="294" vspace="1" hspace="1" border="0" alt=""></p>
+<p>Рис 10. Master-detail форма на этапе дизайна</p>
+<p>Связываем MasterGrid, MasterDS, MasterSQL и DetailGrid, DetailDS, DetailSQL аналогично предыдущему примеру, за исключением того, что вместо типа TADOTable используется тип TADODataSet.</p>
+<p>Привязываем Connect к базе данных. Для этого в редакторе свойства ConnectionString выбираем ту же базу данных, что и в предыдущем примере.</p>
+<p>Для ввода SQL запросов необходимо отредактировать свойство CommandText компонентах MasterSQL и DetailSQL. После нажатия на кнопку «…» появится редактор компонент, который выглядит следующим образом </p>
+<p><img src="pic/embim1725.png" width="355" height="233" vspace="1" hspace="1" border="0" alt=""></p>
+<p>Рис. 10</p>
+<p>Кнопка «Add Table to SQL» добавляет в текст SQL запроса таблицу, выбранную в списке «Tables», а «Add Field to SQL» поле таблицы, выбранное в списке «Fields».</p>
+<p>Запрос для MasterSQL</p>
+<p>select VendorNo, VendorName, Country, City, State, Preferred </p>
+<p>from vendors</p>
+<p>Запрос в DetailSQL должен выбирать только те детали, поставщик которых является текущим в MasterSQL. Для этого установим свойство DataSource компонента DetailSQL в значение MasterDS.</p>
+<p>Запрос для DetailSQL следующий:</p>
+<p>select PartNo, OnOrder, OnHand, ListPrice, Description, Cost </p>
+<p>from parts</p>
+<p>where VendorNo = :VendorNo</p>
+<p>:VendorNo в части where &#8211; параметр запроса. Параметры при установленном DataSource берутся из него.</p>
+<p>Активизируем MasterSQL и DetailSQL аналогично предыдущему примеру.</p>
+<p>Приложение можно запускать. Этот пример можно найти в директории MasterDetail.</p>
+<p>Пример использования параметров запроса</p>
+<p>Теперь ограничим выборку поставщиков по значению поля State. Для этого добавим к форме следующие компоненты StateEdit типа TEdit c вкладки Standard, QueryButton типа TButton c вкладки Standard</p>
+<p>Изменим запрос в MasterSQL на</p>
+<p>select VendorNo, VendorName, Country, City, State, Preferred </p>
+<p>from vendors</p>
+<p>where State = :StateID</p>
+<p>:StateID &#8211; параметр, вместо которого при выполнении подставляется значение.</p>
+<p>Добавим так же обработчик события OnClick в QueryButton следующего содержания</p>
+<p>procedure TForm1.QueryButtonClick(Sender: TObject);</p>
+<p>begin</p>
+<p> &nbsp; MasterSQL.Active := False;</p>
+<p> &nbsp; DetailSQL.Active := False;</p>
+<p> &nbsp; MasterSQL.Parameters.ParamByName('StateID').Value := StateEdit.Text;</p>
+<p> &nbsp; MasterSQL.Active := True;</p>
+<p> &nbsp; DetailSQL.Active := True;</p>
+<p>end;</p>
+<p>Программа готова. </p>
+<p>Синхронизация данных клиента и сервера.</p>
+<p>В ADO используются три метода синхронизации данных на клиенте и сервере.</p>
+<p>Первый &#8211; c помощью метода Resync, который повторно считывает записи набора. Этот метод используется при выполнении метода Refresh Delphi.</p>
+<p>Второй &#8211; повторный запрос методом Requery, который заново выполняет запрос на сервере. Выполнение этого метода то же самое, что и выполнение подряд закрытия и открытия набора данных.</p>
+<p>Третий- уведомление сервером клиента в случае изменения данных.</p>
+<p>Этих методы доступны во всех компонентах имеющих набор данных. Однако эти функции доступны не для всех баз данных.</p>
+<p>Работа с транзакциями</p>
+<p>В компонентах ADO работа с транзакциями осуществляется через компонент TADOConnection.</p>
+<p>Тип транзакции устанавливается в свойстве IsolationLevel одной из следующих констант:</p>
+<p>IlUnspecified  &nbsp; &nbsp; &nbsp; &nbsp; Сервер будет использовать лучший, по его мнению, тип изоляции.  &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>IlChaos  &nbsp; &nbsp; &nbsp; &nbsp; Транзакции с более высоким уровнем изоляции не могут изменять данные измененные, но не подтвержденные в текущей транзакции. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>IlReadUncommitted &nbsp; &nbsp; &nbsp; &nbsp;Чтение данных измененных в не подтвержденных транзакций. То есть изменения видны сразу после того как другая транзакция передала их на сервер. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>IlBrowse &nbsp; &nbsp; &nbsp; &nbsp;То же самое что и IlReadUncommitted &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>IlReadCommitted &nbsp; &nbsp; &nbsp; &nbsp;Чтение данных измененных подтвержденными транзакциями. То есть изменение данных будет видимо после выполнения Commit в другой транзакции. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>IlCursorStability &nbsp; &nbsp; &nbsp; &nbsp;То же самое что и IlCursorStability. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>IlRepeatableRead  &nbsp; &nbsp; &nbsp; &nbsp;Изменения, сделанные другими транзакциями не видимы, но при выполнении перезапроса они транзакция может получать новый набор данных. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>IlIsolated  &nbsp; &nbsp; &nbsp; &nbsp;Транзакция не видит изменений данных произведенных другими транзакциями. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>IlSerializable  &nbsp; &nbsp; &nbsp; &nbsp;То же самое что и IlIsolated. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>Обратите внимание на то, что не все типы провайдеров данных поддерживают все типы изоляции или работу с транзакциями.</p>
+<p>Свойство Attributes устанавливает открывать ли новую транзакцию автоматически</p>
+<p>xaCommitRetaining &#8211; при подтверждении транзакции</p>
+<p>xaAbortRetaining &#8211; при отмене транзакции</p>
+<p>Так же у компонента TADOConnection есть три метода для работы с транзакциями:</p>
+<p>BeginTrans  &nbsp; &nbsp; &nbsp; &nbsp;Начинает транзакцию</p>
+<p>CommitTrans  &nbsp; &nbsp; &nbsp; &nbsp;Подтверждает сделанные изменения</p>
+<p>RollbackTrans  &nbsp; &nbsp; &nbsp; &nbsp;Откатывает транзакцию.</p>
+<p>Пример работы с транзакциями</p>
+<p>За базовый возьмем пример использования TADOConnection. </p>
+<p>Добавим к форме две кнопки (StCmButton и RollbackButton) типа TButton, обработчики событий OnClick этих кнопок, процедуру fix_controls без параметров к форме, обработчик события OnActivate формы</p>
+<pre name="code" class="delphi">
+type
+  TForm1 = class(TForm)
+        …
+private
+       procedure fix_controls;
+        …
+procedure TForm1.fix_controls;
+begin
+    if Connection.InTransaction then
+        begin
+           StCmButton.Caption := 'Commit';
+           RollbackButton.Enabled := True;
+        end
+    else
+        begin
+           StCmButton.Caption := 'Begin';
+           RollbackButton.Enabled := False;
+        end;
+    MasterSQL.Requery;
+    DetailSQL.Requery;
+end;
+ 
+procedure TForm1.StCmButtonClick(Sender: TObject);
+begin
+    if not Connection.InTransaction
+          then Connection.BeginTrans
+          else Connection.CommitTrans;
+    fix_controls;
+end;
+ 
+procedure TForm1.RollbackButtonClick(Sender: TObject);
+begin
+    Connection.RollbackTrans;
+    fix_controls;
+end;
+ 
+procedure TForm1.FormActivate(Sender: TObject);
+begin
+    fix_controls;
+end;
+</pre>
+
+<p>Программу можно запускать. </p>
+<p>Обратите внимание на то, что когда транзакция не запущена, все равно можно изменять данные и они записываются немедленно.</p>
+<p>Доступ к данным</p>
+<p>В отличие от BDE, ADO поддерживает больше настроек работы данных. </p>
+<p>В ADO есть понятие набора данных (recordset) и тесно связанное с ним понятие курсора (cursor). Что такое курсор в документации на ADO не описано. Однако почему то месторасположение набора данных называется положением курсора. Я думаю, что это терминологическая путаница в Microsoft и курсор то же самое что набор данных.</p>
+<p>Во всех компонентах имеющих набор данных (то есть в TADODataSet, TADOTable, TADOQuery, TADOStoredProc) есть свойства CursorLocation, CursorType, LockType и MarshalOptions, устанавливающие параметры обмена с сервером. Все эти свойства должны быть установлены до того, как набор данных открывается. Если вы установите их позже, то эффекта не будет.</p>
+<p>CursorLocation &#8211; определяет, где выполняется работа с набором на клиенте (clUseClient) или на сервере (clUseServer). Если набор данных расположен на клиенте, то с сервера данные запрашиваются однократно (или до выполнения повторного запроса), в дальнейшем вся выборка данных и позиционирование идет на клиенте. Однако модификация данных производится немедленно.</p>
+<p>CursorType &#8211; устанавливает тип курсора. Значение одно из:</p>
+<p>ctUnspecified &#8211; библиотека ADO сама определяет оптимальный тип блокировки.</p>
+<p>ctStatic &#8211; статический курсор. Статическая копия набора записей, которую вы можете использовать, например, для генерации отчета. Добавления, изменения или удаление записей другими пользователями не видимы. </p>
+<p>сtOpenForwardOnly &#8211; идентичен статическому курсору, за исключением того, что вы можете переходить только вперед. Это тип улучшает эффективность в ситуациях, когда вы делаете только один проход через набор данных.</p>
+<p>ctDynamic &#8211; динамический курсор. Добавления, изменения и удаление другими пользователями видимы и возможны все типы передвижения по набору данных. Закладки (bookmarks) возможны только, если провайдер данных их поддерживает.</p>
+<p>ctKeyset &#8211; курсор набора данных. Аналогичен динамическому курсору, за исключением того, что вы не увидите записи добавленные другими пользователями, а записи удаленные другими пользователями недоступны из вашего набора данных. Изменения данных другими пользователями видимы.</p>
+<p>Надо заметить, что TDBGrid и другие компоненты, одновременно работающие с несколькими записями, могут работать только когда закладки поддерживаются. Поэтому для компонент с которыми вы будите связывать такие компоненты должны использоваться типы ctKeyset или ctDynamic.</p>
+<p>LockType &#8211; определяет тип блокировки записей в наборе данных. Оно из:</p>
+<p>ltUnspecified &#8211; библиотека ADO сама определяет какой тип будет использоваться.</p>
+<p>ltReadOnly &#8211; только чтение, изменение данных невозможно.</p>
+<p>ltPessimistic &#8211; пессимистическая блокировка. Запись блокируется сразу после начала редактирования и до сохранения записей.</p>
+<p>ltOptimistic &#8211; оптимистическая блокировка. Запись блокируется только когда изменения сохраняются.</p>
+<p>ltBatchOptimistic &#8211; тоже самое что и ltOptimistic, но используется отложенное сохранение изменений записей. Более подробно она рассматривается в следующем пункте.</p>
+<p>MarshalOptions &#8211; это свойство определяет будут ли отправлены на сервер те поля, которые не были изменены. При значении moMarshalAll будут, а при moMarshalModifiedOnly не будут.</p>
+<p>Работа с отложенными изменениями</p>
+<p>Обратите внимание, что в компонентах ADO нет свойства CachedUpdates, но это не означает, что невозможно отложить передачу изменений данных на сервер. Эта возможность встроена с ADO и называется Batch Updates.</p>
+<p>Для ее использования необходимо использовать клиентский курсор (то есть установить свойство CursorLocation в clUseClient) и LockType в ltBatchOptimistic </p>
+<p>Так же есть метод сохраняющий изменения UpdateBatch и метод их отменяющий CancelBatch.</p>
+<p>К каким записям из набора данных применяется действие зависит от единственного параметра этих функций</p>
+<p>arCurrent &#8211; текущая запись</p>
+<p>arFiltered &#8211; записи, которые попали в фильтрацию.</p>
+<p>arAll &#8211; все записи набора.</p>
+<p>Пример работы с отложенными изменениями.</p>
+<p>За основу возьмем пример работы с транзакциями.</p>
+<p>Добавим компоненты</p>
+<p>BatchCB типа TCheckBox </p>
+<p>ApplyButton типа TButton </p>
+<p>CancelButton типа TButton </p>
+<p>Добавим обработчики событий OnClick во все эти три компонента.</p>
+<p>Изменим обработчик события OnActivate формы.</p>
+<pre name="code" class="delphi">
+procedure TForm1.FormActivate(Sender: TObject);
+begin
+    fix_controls;
+    ApplyButton.Visible  := BatchCB.State = cbChecked;
+    CancelButton.Visible := BatchCB.State = cbChecked;
+end;
+ 
+procedure TForm1.BatchCBClick(Sender: TObject);
+begin
+    MasterSQL.Close;
+    DetailSQL.Close;
+    if BatchCB.State = cbChecked then
+      begin
+         MasterSQL.LockType := ltBatchOptimistic;
+         DetailSQL.LockType := ltBatchOptimistic;
+      end
+    else
+      begin
+         MasterSQL.LockType := ltOptimistic;
+         DetailSQL.LockType := ltOptimistic;
+      end;
+    MasterSQL.Open;
+    DetailSQL.Open;
+    ApplyButton.Visible  := BatchCB.State = cbChecked;
+    CancelButton.Visible := BatchCB.State = cbChecked;
+end;
+ 
+procedure TForm1.ApplyButtonClick(Sender: TObject);
+begin
+    MasterSQL.UpdateBatch;
+    DetailSQL.UpdateBatch;
+end;
+ 
+procedure TForm1.CancelButtonClick(Sender: TObject);
+begin
+    MasterSQL.CancelBatch;
+    MasterSQL.CancelBatch;
+end;
+</pre>
+
+<p>События ADO</p>
+<p>События ADO предназначены для той же цели, что и события VCL. Многие из них имеют аналогичные события VCL и компоненты вызывают из событий ADO события VCL. В компонентах доступны как события ADO, так и события BDE.</p>
+<p>События соединения. </p>
+<p>OnWillConnect &#8211; вызывается перед установкой соединения.</p>
+<p>OnConnectComplete &#8211; после установки соединения.</p>
+<p>OnDisconnect &#8211; при разрыве соединения.</p>
+<p>Эти события инкапсулированы в компоненте TADOConnection.</p>
+<p>События транзакции. </p>
+<p>OnBeginTransComplete &#8211; при выполнении BeginTrans.</p>
+<p>OnCommitTransComplete &#8211; при выполнении CommitTrans.</p>
+<p>OnRollbackTransComplete &#8211; при выполнении RollbackTrans.</p>
+<p>Эти события инкапсулированы в компоненте TADOConnection.</p>
+<p>События выполнения команд</p>
+<p>OnWillExecute и OnExecuteComplete вызываются перед и после выполнением команды.</p>
+<p>Эти события инкапсулированы в компоненте TADOConnection, а не в компоненте TADOCommand, как можно было бы предположить. Это связано с тем, что в ADO объекта команды как такого нет и по этой причине он не может получать сообщения.</p>
+<p>В TADOConnection также инкапсулировано событие OnInfoMessage, которое вызывается при приходе с сервера дополнительной информации. Формат и назначение зависят от сервера, с которым вы работаете.</p>
+<p>В ADO так же есть события связанные с набором данных, а не с соединением, как вышеописанные. Они инкапсулированы в компоненты имеющие набор данных &#8211; TADODataSet, TADOTable, TADOQuery и TADOStoredProc.</p>
+<p>Эти события можно разбить на три группы.</p>
+<p>События выборки данных</p>
+<p>OnFetchProgress &#8211; многократно вызывается в процессе выборки набора данных. </p>
+<p>OnFetchComplete &#8211; завершение выборки.</p>
+<p>Уведомления об изменении положения текущей записи в наборе.</p>
+<p>OnWillMove, OnMoveComplete &#8211; вызываются до и после изменения положения текущей записи. OnWillMove позволяет отменить действие.</p>
+<p>OnEndOfRecordset &#8211; вызывается при достижении конца набора данных, позволяет добавить новую запись.</p>
+<p>Уведомления об изменении набора данных</p>
+<p>OnWillChangeField, OnFieldChangeComplete &#8211; до и после изменения текущей записи набора.</p>
+<p>OnWillChangeRecord, OnRecordChangeComplete &#8211; вызываются до и после изменения, добавления, удаления строки набора и отмене этих действий.</p>
+<p>OnWillChangeRecordset, OnRecordsetChangeComplete - вызываются до и после открытия, закрытия, повторного запроса и синхронизации набора данных.</p>
+<p>Многие события допускают прерывание действия. Эта возможность бывает полезна при асинхронной работе с сервером. Например, для прерывания слишком длинного запроса.</p>
+<p>Асинхронная работа с сервером</p>
+<p>В ADO есть возможность не имеющая аналогов ни в BDE ни в InterBase. Это асинхронное выполнение операций с сервером. Могут асинхронно выполнятся установка соединения с сервером (Connection), выполнение команды (Execute) и выборка набора данных (Fetch)</p>
+<p>Асинхронное соединение</p>
+<p>Для включения этого режима необходимо установить свойство ConnectOptions компонента TADOConnection в coAsyncConnect.</p>
+<p>При установлении соединения происходит</p>
+<p>Вызывается обработчик события OnWillConnect</p>
+<p>Управление передается в программу</p>
+<p>После окончания соединения, как успешного, так и ошибочного, вызывается обработчик события OnConnectComplete</p>
+<p>Асинхронное выполнение команды</p>
+<p>Надо заметить, что все компоненты ADO, за исключением компонента TADOConnection при активизации или выполнении исполняют команду ADO. Эти компоненты TADOCommand, TADODataSet, TADOTable, TADOQuery, TADOStoredProc. Установите в свойстве ExecuteOptions eoAsyncExecute.</p>
+<p>При исполнении происходит </p>
+<p>Вызывается обработчик события OnWillExecute</p>
+<p>Управление передается в программу</p>
+<p>После окончания выполнения команды, как успешного, так и ошибочного, вызывается обработчик события OnExecuteComplete</p>
+<p>Асинхронная выборка данных</p>
+<p>Асинхронная выборка данных поддерживается в компонентах TADODataSet, TADOTable, TADOQuery, TADOStoredProc. Для ее включения установите в свойстве ExecuteOptions eoAsyncFetch. </p>
+<p>После исполнения команды происходит передача данных. В процессе передачи многократно вызывается обработчик сообщения OnFetchProgress. В его параметрах есть как количество уже переданных записей, так и общее количество. Это очень удобно для создания индикаторов типа TProgressBar. После того, как выборка с сервера закончена, вызывается обработчик события OnFetchComplete.</p>
+<p>Ресурсы:</p>
+<p>http://www.borland.com/delphi/</p>
+<p>http://www.microsoft.com/ado/</p>
+Автор &#8211; Дмитрий Ю. Сидоров.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

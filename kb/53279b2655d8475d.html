@@ -1,0 +1,112 @@
+<html>
+<head>
+  <title>Скопировать строки TListBox в буфер обмена</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Скопировать строки TListBox в буфер обмена</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses
+   Clipbrd;
+ 
+ procedure ListBoxToClipboard(ListBox: TListBox;
+   BufferSize: Integer;
+   CopyAll: Boolean);
+ var
+   Buffer: PChar;
+   Size: Integer;
+   Ptr: PChar;
+   I: Integer;
+   Line: string[255];
+   Count: Integer;
+ begin
+   if not Assigned(ListBox) then
+     Exit;
+ 
+   GetMem(Buffer, BufferSize);
+   Ptr   := Buffer;
+   Count := 0;
+   for I := 0 to ListBox.Items.Count - 1 do
+   begin
+     Line := ListBox.Items.strings[I];
+     if not CopyAll and ListBox.MultiSelect and (not ListBox.Selected[I]) then
+       Continue;
+     { Check buffer overflow }
+     Count := Count + Length(Line) + 3;
+     if Count = BufferSize then
+       Break;
+     { Append to buffer }
+     Move(Line[1], Ptr^, Length(Line));
+     Ptr    := Ptr + Length(Line);
+     Ptr[0] := #13;
+     Ptr[1] := #10;
+     Ptr    := Ptr + 2;
+   end;
+   Ptr[0] := #0;
+   ClipBoard.SetTextBuf(Buffer);
+   FreeMem(Buffer, BufferSize);
+ end;
+ 
+ procedure ClipboardToListBox(ListBox: TListbox);
+ begin
+   if not Assigned(ListBox) then
+     Exit;
+ 
+   if not Clipboard.HasFormat(CF_TEXT) then
+     Exit;
+ 
+   Listbox.Items.Text := Clipboard.AsText;
+ end;
+ 
+ 
+ //Copy all items from Listbox1 to the clipboard 
+procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   ListBoxToClipboard(ListBox1, 1024, True);
+ end;
+ 
+ //Paste items in clipboard to Listbox2 
+procedure TForm1.Button2Click(Sender: TObject);
+ begin
+   ClipboardToListBox(Listbox2);
+ end;
+ 
+ //Copy only selected items from Listbox1 to the clipboard 
+procedure TForm1.Button3Click(Sender: TObject);
+ begin
+   ListBoxToClipboard(Listbox1, 1024, False);
+ end;
+</pre>
+
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

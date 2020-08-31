@@ -1,0 +1,87 @@
+<html>
+<head>
+  <title>Как использовать mouse_event() для эмулирования событий мышки?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как использовать mouse_event() для эмулирования событий мышки?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Следующий пример демонстрирует использование API функции mouse_event() для эмуляции событий мышки. Когда Button2 нажата, то мышь перемещается на Button1 и щёлкает по ней. Координаты мыши даны в "Mickeys", где 65535 соответствует ширине экрана.</p>
+
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  ShowMessage('Button 1 clicked'); 
+end; 
+ 
+procedure TForm1.Button2Click(Sender: TObject); 
+var 
+  Pt : TPoint; 
+begin 
+{Allow Button2 to repaint it's self} 
+  Application.ProcessMessages; 
+{Получаем координаты центра button 1} 
+  Pt.x := Button1.Left + (Button1.Width div 2); 
+  Pt.y := Button1.Top + (Button1.Height div 2); 
+{Преобразуем Pt в координаты экрана} 
+  Pt := ClientToScreen(Pt); 
+{Преобразуем Pt в mickeys} 
+  Pt.x := Round(Pt.x * (65535 / Screen.Width)); 
+  Pt.y := Round(Pt.y * (65535 / Screen.Height)); 
+{Перемещаем мышку} 
+  Mouse_Event(MOUSEEVENTF_ABSOLUTE or 
+              MOUSEEVENTF_MOVE, 
+              Pt.x, 
+              Pt.y, 
+              0, 
+              0); 
+{Эмулируем нажатие левой кнопки мыши} 
+  Mouse_Event(MOUSEEVENTF_ABSOLUTE or 
+              MOUSEEVENTF_LEFTDOWN, 
+              Pt.x, 
+              Pt.y, 
+              0, 
+              0);; 
+{Эмулируем отпускание левой кнопки мыши} 
+  Mouse_Event(MOUSEEVENTF_ABSOLUTE or 
+              MOUSEEVENTF_LEFTUP, 
+              Pt.x, 
+              Pt.y, 
+              0, 
+              0);; 
+end;
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

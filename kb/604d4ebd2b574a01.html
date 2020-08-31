@@ -1,0 +1,124 @@
+<html>
+<head>
+  <title>Как расшарить диск?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как расшарить диск?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Repairman</p>
+<p>Это модуль для Share любого диска или папки как на локальном, так и на удаленном компьютере (если, конечно у Вас права администратора и на компе разрешено удаленное администрирование, для локальной машины это не обязательно... ;-))</p>
+<p>Следует отметить, что под NT некоторые процедуры находятся в других DLL...</p>
+<p>Функция SetShareOnDisk - ставит шару, RemoveShareFromDisk - снимает ее.</p>
+<pre name="code" class="delphi">
+unit Share;
+//(c)2002 &lt;Repairman&gt; repairman@uzel.ru
+interface
+type
+  TPassw = string[8];
+  TNetName = string[12];
+ 
+function SetShareOnDisk(HostName: string; //имя компьютера
+  LocalPath: string; //папка которую надо открыть для доступа
+  NetName: TNetName; //имя расшаренной папки в сети
+  Remark: string; //комментарий, видимый в сети
+  Access: word; //доступ
+  RO_Passw: TPassw; //пароль на чтение
+  RW_Passw: TPassw //пароль на полный доступ
+  ): boolean;
+ 
+function RemoveShareFromDisk(HostName: string; //имя компьютера
+  NetName: string; //сетевое имя папки которую надо закрыть
+  LocalPath: string //локальный путь папки
+  ): boolean;
+var
+  ShareResult: word;
+//-------------------------------------------------------------------------------------------
+implementation
+uses SysUtils, Windows, ShlObj;
+ 
+function NetShareAdd(ServerName: PChar; //указатель на имя компьютера, например '\\Server'#0, если свой, то можно nil
+  Level: Word; //уровень структуры Share_info, здесь 50
+  PShareInfo: PChar; //указатель на структуру Share_Info
+  ParmErr: DWord) //указатель на ???
+  : dword; stdcall; external 'svrapi.dll'; //svrapi для Win9X, NetApi32 для NT
+ 
+function NetShareDel(ServerName: PChar;
+  NetName: PChar;
+  Reserved: DWord): dword; stdcall; external 'svrapi.dll';
+ 
+type
+  _share_info_50 = record //структура Share уровня 50
+    NetName: array[1..13] of char; //Как будет называться диск в сети
+    SType: byte; //тип =0 (STYPE_DISKTREE) - шарить диски
+    Flags: word; //флаги $0191,$0192,$0193....(доступ из сети)
+    Remark: PChar; //указатель на комментарий, видимый из сети
+    Path: PChar; //указатель на имя ресурса, например 'c:\'#0
+    RW_Password: array[1..9] of char; //пароль для полного доступа, если не нужен =#0
+    RO_Password: array[1..9] of char; //пароль для доступа на чтение, если не нужен =#0
+  end;
+//----------------------------
+ 
+function SetShareOnDisk(HostName, LocalPath: string; NetName: TNetName; Remark: string;
+  Access: word; RO_Passw, RW_Passw: TPassw): boolean;
+var ShareInfo: _Share_Info_50;
+begin
+  Result := false;
+  StrPCopy(@ShareInfo.NetName, NetName);
+  ShareInfo.SType := 0;
+  ShareInfo.Flags := Access;
+  ShareInfo.Remark := PChar(Remark);
+  ShareInfo.Path := PChar(LocalPath);
+  StrPCopy(@ShareInfo.RO_Password, RO_Passw);
+  StrPCopy(@ShareInfo.RW_Password, RW_Passw);
+  ShareResult := NetShareAdd(PChar(HostName), 50, @ShareInfo, $0000002A); //вызываем Share
+  if ShareResult &lt;&gt; 0 then Exit; //расшарить неудалось
+  SHChangeNotify(SHCNE_NETSHARE, SHCNF_PATH, PChar(LocalPath), nil); //сказать шеллу об изменениях
+  Result := true;
+end;
+//----------------------------
+ 
+function RemoveShareFromDisk(HostName, NetName, LocalPath: string): boolean;
+begin
+  Result := false;
+  ShareResult := NetShareDel(PChar(HostName), PChar(NetName), 0); //удалить шару
+  if ShareResult &lt;&gt; 0 then Exit;
+  SHChangeNotify(SHCNE_NETUNSHARE, SHCNF_PATH, PChar(LocalPath), nil); //сказать шеллу об изменениях
+  Result := true;
+end;
+//----------------------------
+end.
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

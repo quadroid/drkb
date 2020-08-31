@@ -1,0 +1,116 @@
+<html>
+<head>
+  <title>Сортировка слиянием</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushCpp.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сортировка слиянием</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Сортировка слиянием также построена на принципе "разделяй-и-властвуй", однако реализует его несколько по-другому, нежели quickSort. А именно, вместо разделения по опорному элементу массив просто делится пополам.</p>
+<pre name="code" class="cpp">
+// a - сортируемый массив, его левая граница lb, правая граница ub
+template&lt;class T&gt;
+void mergeSort(T a[], long lb, long ub) { 
+  long split;                   // индекс, по которому делим массив
+ 
+  if (lb &lt; ub) {                // если есть более 1 элемента
+ 
+    split = (lb + ub)/2;
+ 
+    mergeSort(a, lb, split);       // сортировать левую половину 
+    mergeSort(a, split+1, last);// сортировать правую половину 
+    merge(a, lb, split, ub);    // слить результаты в общий массив
+  }
+}
+</pre>
+<p>Функция merge на месте двух упорядоченных массивов a[lb]...a[split] и a[split+1]...a[ub] создает единый упорядоченный массив a[lb]...a[ub].</p>
+<p>Пример работы алгоритма на массиве 3 7 8 2 4 6 1 5..</p>
+<img src="pic/clip0145.gif" width="567" height="192" border="0" alt="clip0145"></p>
+<p>Рекурсивный алгоритм обходит получившееся дерево слияния в прямом порядке. Каждый уровень представляет собой проход сортировки слияния - операцию, полностью переписывающую массив.</p>
+<p>Обратим внимание, что деление происходит до массива из единственного элемента. Такой массив можно считать упорядоченным, а значит, задача сводится к написанию функции слияния merge.</p>
+<p>Один из способов состоит в слиянии двух упорядоченных последовательностей при помощи вспомогательного буфера, равного по размеру общему количеству имеющихся в них элементов. Элементы последовательностей будут перемещаться в этот буфер по одному за шаг.</p>
+<p>merge ( упорядоченные последовательности A, B , буфер C ) {</p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp;пока A и B непусты {</p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;cравнить первые элементы A и B </p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;переместить наименьший в буфер</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp;если в одной из последовательностей еще есть элементы</p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;дописать их в конец буфера, сохраняя имеющийся порядок</p>
+<p>}</p>
+<p>Пример работы на последовательностях 2 3 6 7 и 1 4 5 </p>
+<img src="pic/clip0146.gif" width="530" height="161" border="0" alt="clip0146"></p>
+Результатом является упорядоченная последовательность, находящаяся в буфере. Каждая операция слияния требует n пересылок и n сравнений, где n - общее число элементов, так что время слияния: Theta(n). </p>
+<pre name="code" class="cpp">template&lt;class T&gt;
+void merge(T a[], long lb, long split, long ub) {
+// Слияние упорядоченных частей массива в буфер temp
+// с дальнейшим переносом содержимого temp в a[lb]...a[ub]
+ 
+  // текущая позиция чтения из первой последовательности a[lb]...a[split]
+  long pos1=lb;
+ 
+  // текущая позиция чтения из второй последовательности a[split+1]...a[ub]
+  long pos2=split+1;
+ 
+  // текущая позиция записи в temp
+  long pos3=0;  
+ 
+  T *temp = new T[ub-lb+1];
+ 
+  // идет слияние, пока есть хоть один элемент в каждой последовательности
+  while (pos1 &lt;= split &amp;&amp; pos2 &lt;= ub) {
+    if (a[pos1] &lt; a[pos2])
+      temp[pos3++] = a[pos1++];
+    else
+      temp[pos3++] = a[pos2++];
+  }
+ 
+  // одна последовательность закончилась - 
+  // копировать остаток другой в конец буфера 
+  while (pos2 &lt;= ub)   // пока вторая последовательность непуста 
+    temp[pos3++] = a[pos2++];
+  while (pos1 &lt;= split)  // пока первая последовательность непуста
+    temp[pos3++] = a[pos1++];
+ 
+  // скопировать буфер temp в a[lb]...a[ub]
+  for (pos3 = 0; pos3 &lt; ub-lb+1; pos3++)
+    a[lb+pos3] = temp[pos3];
+ 
+  delete temp[ub-lb+1];
+}
+</pre>
+<p>Оценим быстродействие алгоритма: время работы определяется рекурсивной формулой T(n) = 2T(n/2) + Theta(n).</p>
+<p>Ее решение: T(n) = n log n - результат весьма неплох, учитывая отсутствие "худшего случая". Однако, несмотря на хорошее общее быстродействие, у сортировки слиянием есть и серьезный минус: она требует Theta(n) памяти.</p>
+<p>Хорошо запрограммированная внутренняя сортировка слиянием работает немного быстрее пирамидальной, но медленнее быстрой, при этом требуя много памяти под буфер. Поэтому mergeSort используют для упорядочения массивов, лишь если требуется устойчивость метода(которой нет ни у быстрой, ни у пирамидальной сортировок).</p>
+<p>Сортировка слиянием является одним из наиболее эффективных методов для односвязных списков и файлов, когда есть лишь последовательный доступ к элементам.</p>
+
+<p><a href="http://algolist.manual.ru" target="_blank">http://algolist.manual.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

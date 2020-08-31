@@ -1,0 +1,102 @@
+<html>
+<head>
+  <title>Как узнать IP клиента и IP сервера для активного RAS-подключения?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать IP клиента и IP сервера для активного RAS-подключения?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses Ras, RasError;
+ 
+
+ 
+type
+ TRASIP = record
+   dwSize: DWORD;
+   dwError: DWORD;
+   szIpAddress: packed array[0..RAS_MaxIpAddress] of AnsiChar;
+   szServerIpAddress: packed array[0..RAS_MaxIpAddress] of AnsiChar;
+ end;
+ 
+procedure GetDialUpIpAddress(var server, client: string);
+var
+ RASPppIp: TRASIP;
+ lpcp: DWORD;
+ ConnClientIP: array[0..RAS_MaxIpAddress] of Char;
+ ConnServerIP: array[0..RAS_MaxIpAddress] of Char;
+ 
+ Entries: PRasConn;
+ BufSize, NumberOfEntries, Res: DWORD;
+ RasConnHandle: THRasConn;
+begin
+ New(Entries);
+ BufSize := Sizeof(Entries^);
+ ZeroMemory(Entries, BufSize);
+ Entries^.dwSize := Sizeof(Entries^);
+ 
+ Res := RasEnumConnections(Entries, BufSize, NumberOfEntries);
+ if Res = ERROR_BUFFER_TOO_SMALL then
+ begin
+   ReallocMem(Entries, BufSize); 
+   ZeroMemory(Entries, BufSize); 
+   Entries^.dwSize := Sizeof(Entries^); 
+   Res := RasEnumConnections(Entries, BufSize, NumberOfEntries); 
+ end; 
+ try 
+   if (Res = 0) and (NumberOfEntries &gt; 0) then RasConnHandle := Entries.hrasconn else exit
+ finally 
+   FreeMem(Entries); 
+ end; 
+ 
+ FillChar(RASPppIp, SizeOf(RASPppIp), 0);
+ RASPppIp.dwSize := SizeOf(RASPppIp);
+ lpcp := RASPppIp.dwSize;
+ if RasGetProjectionInfo(RasConnHandle,
+   RASP_PppIp, @RasPppIp, lpcp) = 0 then
+ begin
+ 
+   Move(RASPppIp.szServerIpAddress,
+     ConnServerIP,
+     SizeOf(ConnServerIP));
+   Server := ConnServerIP;
+   Move(RASPppIp.szIpAddress,
+     ConnClientIP,
+     SizeOf(ConnClientIP));
+   client := ConnClientIP;
+ end;
+end;
+</pre>
+
+<p id="author">Автор: p0s0l</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

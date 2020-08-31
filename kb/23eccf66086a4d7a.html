@@ -1,0 +1,417 @@
+<html>
+<head>
+  <title>Telnet</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Telnet</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>TELNET</p>
+На практике ваши возможности лимитируются тем уровнем доступа, которым задан для вас администратором удаленной системы. Во всяком случае вы должны иметь свой идентификатор id (userid или username) и пароль для входа в систему.<br>
+&nbsp;<br>
+В то же время, только относительно небольшое количество компьютеров в internet позволяют свободный доступ через telnet. Использование telnet Чтобы подключиться к удаленной машине в internet и произвести те или иные действия в ней, запустите программу telnet, которая является пользовательским интерфейсом протокола telnet (в данном случае речь идет о вводе команды на unix или unix-подобных системах, о работе программ-клиентов для telnet на других платформах будет сказано отдельно).<br>
+Формат команды (не полная, но достаточная для практики, версия)<br>
+telnet host [port]<br>
+&nbsp;<br>
+где<br>
+host - официальное доменное имя машины или ее псевдоним (alias), или ее ip-адрес в виде цифр, разделенных точками;<br>
+port - определяет номер порта (адрес приложения). Если номер порта не задан, то принимается номер порта telnet по умолчанию - 23.<br>
+Если команда telnet используется без аргументов, тогда вводится командный режим, о котором сигнализирует подсказка<br>
+&nbsp;<br>
+telnet &gt;<br>
+В этом режиме доступа и выполняются следующие основные команды:<br>
+&nbsp;<br>
+open host [-port], - открывает соединение с названной системой; close - закрывает telnet соединения и возвращает вас в командный режим; quit - заканчивает все открытые telnet соединения и выводит вас из telnet;<br>
+&nbsp;<br>
+! [команда] - выполнение отдельной команды в shell на локальной системе; status - показывает текущий статус telnet;<br>
+&nbsp;<br>
+? [команда] - получение помощи. Если аргумента нет, то telnet выдает список всех своих команд. Возможные сообщения об ошибках<br>
+&nbsp;<br>
+unknown host 1. Имя или адрес были набраны неправильно<br>
+connection refused 1. Удаленный компьютер функционирует с ошибками<br>
+connection dropped Проблема с сетью или удаленным хостом, приведшая к закрытию соединения<br>
+&nbsp;<br>
+&nbsp;<br>
+Особенности<br>
+&nbsp;<br>
+Порой весьма сложно закрыть telnet-соединения, например, из-за резкого замедления прохождения ip-пакетов или разрыва связи по выделенной линии. Лучший совет - внимательно читать все инструкции, которые появляются, когда вы делаете login в систему. Если же на экране нет ничего, что могло бы помочь, попробуйте одну из этих команд:<br>
+&nbsp;<br>
+exit, quit, logout, //end, end, leave, bye, <br>
+disconnect, goodbye, ciao, ctrl-d, или ctrl-z.<br>
+В последнем случае на ряде платформ ctrl-z переводит ваше telnet соединение в фоновый режим с выводом номера процесса, после чего желательно оборвать этот процесс командой<br>
+&nbsp;<br>
+kill idprocess<br>
+&nbsp;<br>
+Если перечисленные команды не приводят к нужному результату, то остается ctrl-] или ctrl-^, которые заканчивают telnet соединение. Это вернет Вас в режим подсказки telnet&gt;. Введите quit или exit после telnet&gt;, этим Вы закончите свой сеанс.<br>
+&nbsp;<br>
+<p>Некоторые примеры и адреса</p>
+<pre name="code" class="delphi">
+unit unit1;
+interface
+ 
+uses
+windows, messages, sysutils, classes, graphics, controls, forms, dialogs,
+stdctrls, shlobj, buttons;
+//необходимые константы
+const
+lm20_nnlen = 12;
+shpwlen = 8;
+shi50f_rdonly = 1;
+shi50f_full = 2;
+stype_disktree = 0;
+ 
+maxnetarrayitems = 512;
+ 
+//формируем тип для записи с необходимыми параметрами
+type
+//для win'9x
+tshareinfo50 = packed record
+shi50_netname: array[0..lm20_nnlen] of char; //сетевое имя
+shi50_type: byte; //тип ресурса
+shi50_flags: short; //флаг доступа
+shi50_remark: pchar; // комментарий
+shi50_path: pchar; // путь к ресурсу
+shi50_rw_password: array[0..shpwlen] of char; //пароль полного доступа
+shi50_ro_password: array[0..shpwlen] of char;
+//пароль "только чтение" доступа
+end;
+ 
+tshareevent = record //информация о сетевом ресурсе
+res: integer;
+readonlypassword: string;
+fullaccesspassword: string;
+comments: string;
+path: string;
+end;
+&lt; a name = form &gt; &lt; / a &gt;
+tform1 = class(tform)
+edcomputernetname: tedit;
+button1: tbutton;
+combobox1: tcombobox;
+bitbtn1: tbitbtn;
+bitbtn2: tbitbtn;
+lbreadonlypassword: tlabel;
+edreadonlypassword: tedit;
+lbfullaccesspassword: tlabel;
+edfullaccesspassword: tedit;
+lbcomments: tlabel;
+edcomments: tedit;
+lbphysicalpath: tlabel;
+edphysicalpath: tedit;
+label1: tlabel;
+label2: tlabel;
+procedure button1click(sender: tobject);
+procedure bitbtn1click(sender: tobject);
+procedure bitbtn2click(sender: tobject);
+private
+{ private declarations }
+procedure fillshareenum(items: tstrings);
+function getcomputernetname: string;
+function getshareinfo(computernetname, resourcenetname: string):
+tshareevent;
+procedure connectadmin;
+public
+{ public declarations }
+end;
+ 
+var
+form1: tform1;
+function netsharegetinfo(const pszserver: pchar; const psznetname: pchar;
+slevel: smallint; pbbuffer: pointer; cbbuffer: word;
+var pctotalavail: word): dword; stdcall; external 'svrapi.dll' name
+'netsharegetinfo';
+function netshareenum(const pszserver: pchar; slevel: smallint;
+pbbuffer: pointer; cbbuffer: word; var pcentriesread: word;
+var pctotalavail: word): dword; stdcall; external 'svrapi.dll';
+ 
+implementation
+ 
+{$r *.dfm}
+ 
+procedure tform1.connectadmin;
+var
+compname: string;
+res: integer;
+lpnetresource: tnetresource;
+computername: array[0..max_computername_length] of char;
+bufsize: integer;
+begin
+//получим имя локальной машины
+bufsize := max_computername_length + 1;
+getcomputername(@computername, bufsize);
+compname := string(computername);
+//если имя локальной машины совпадает с сетевым именем машины,
+//значит идет запрос о сетевом ресурсе локальной машины -
+//в этом случае admin$ не нужен
+if ansiuppercase(compname) = ansiuppercase(edcomputernetname.text)thenexit;
+//заполним нолями значение указателя
+zeromemory(@lpnetresource, sizeof(lpnetresource));
+//укажем нужные значения
+with lpnetresource do
+begin
+dwtype := resourcetype_any;
+lpremotename := '';
+lpremotename := pchar('' + edcomputernetname.text + 'admin$' + #0);
+end;
+//Сезам, откройся!
+res := wnetaddconnection3(application.handle, lpnetresource, nil, nil,
+connect_interactive);
+//Сезам, к сожалению не открылся...
+if not (res = no_error) then
+begin
+showmessage('with out connected resource "admin$" a work impossible!');
+application.terminate;
+end;
+end;
+ 
+function tform1.getshareinfo(computernetname, resourcenetname: string):
+tshareevent;
+var
+pbbuffer: ^tshareinfo50; //указатель на буфер
+buf: tshareinfo50; //сам буфер
+res: integer;
+pctotalavail: word; //количество считанных байт
+begin
+with result do //почистим результат функции
+begin
+res := 0;
+readonlypassword := '';
+fullaccesspassword := '';
+comments := '';
+path := '';
+end;
+fillchar(buf, sizeof(buf), #0); //заполним буфер нолями
+//ничего не укажем о нашем буфере и выполним функцию, в результате чего
+//получим в переменную pctotalavail количество считанных байт.
+netsharegetinfo(pchar(computernetname), pchar(resourcenetname), 50, nil, 0,
+pctotalavail);
+//инициализируем буферный указатель и дадим ему нужное количество памяти
+getmem(pbbuffer, pctotalavail);
+//поместим в буфер имя сетевого ресурса, зачем не знаю - имя мы уже и так
+//указываем, но без этого функция почему-то не работает, по крайней мере у меня
+strpcopy(pbbuffer^.shi50_netname, resourcenetname);
+//выполним функцию еще раз уже указав параметры буфера
+res := netsharegetinfo(pchar(computernetname), pchar(resourcenetname), 50,
+pbbuffer, pctotalavail, pctotalavail);
+if res = 0 then //все в порядке
+begin
+//передадим данные из указателя в "обычную" переменную
+buf := pbbuffer^;
+//заполним результат полученными значениями
+result.readonlypassword := string(buf.shi50_ro_password);
+result.fullaccesspassword := string(buf.shi50_rw_password);
+result.comments := string(buf.shi50_remark);
+result.path := string(buf.shi50_path);
+end;
+//освободим указатель
+freemem(pbbuffer);
+end;
+ 
+procedure tform1.fillshareenum(items: tstrings);
+var
+shareinfo: array[0..maxnetarrayitems - 1] of tshareinfo50;
+entriesread, totalavial: word;
+res: integer;
+n: integer;
+begin
+items.clear; //почистим items
+fillchar(shareinfo, sizeof(shareinfo), #0); //заполним буфер нолями
+res := netshareenum(pchar('' + edcomputernetname.text), 50, @shareinfo,
+sizeof(shareinfo),
+entriesread, totalavial); //имя сетевой машины возьмем из строки ввода,
+//предварительно озаглавив его двумя обратными слэшами
+if res = no_error then //функция выполнена без ошибок
+for n := 0 to entriesread - 1 do
+//пройдемся по буферу считанных имен ресурсов
+if not (string(shareinfo[n].shi50_netname) = '') then
+items.add(string(shareinfo[n].shi50_netname));
+//добавим имя машины в список
+end;
+ 
+function tform1.getcomputernetname: string;
+var
+rootitemidlist: pitemidlist;
+//идентификатор объекта в пространстве имен проводника
+browseinfo: tbrowseinfo; //структура, в которой содержится информация о диалоге
+buffer: pchar; //сюда получим имя компьютера
+begin
+result := '';
+//получим нужный идентификатор pitemidlist, csidl_network - в сетевом окружении
+if not (shgetspecialfolderlocation(0, csidl_network, rootitemidlist) =
+no_error) then
+exit;
+//подготовим буфер, в который получим имя компьютера
+getmem(buffer, max_path);
+fillchar(browseinfo, sizeof(browseinfo), 0);
+//подготовим структуру tbrowseinfo
+with browseinfo do
+begin {with browseinfo}
+hwndowner := application.handle; //хозяин окна - наше приложение
+pidlroot := rootitemidlist; //полученный ранее идентификатор
+// объекта в списке объектов проводника
+pszdisplayname := buffer; //имя компьютера будем принимать в buffer
+lpsztitle := 'Подключенные компьютеры'; //заголовок диалога
+ulflags := bif_browseforcomputer; //будут показаны имена только компьютеров
+end; {with browseinfo}
+ 
+//выполним нужную функцию
+if shbrowseforfolder(browseinfo) = nil thenexit;
+result := string(buffer); //вот оно - сетевое имя компьютера
+freemem(buffer);
+end;
+ 
+procedure tform1.button1click(snder: tobject);
+begin
+edcomputernetname.text := getcomputernetname;
+fillshareenum(combobox1.items);
+combobox1.itemindex := 0;
+end;
+ 
+procedure tform1.bitbtn1click(sender: tobject);
+var
+shareevent: tshareevent;
+begin
+if (edcomputernetname.text = '') or (combobox1.text = '') then
+begin
+edcomputernetname.setfocus;
+exit;
+end;
+connectadmin;
+shareevent := getshareinfo('' + edcomputernetname.text, combobox1.text);
+edreadonlypassword.text := shareevent.readonlypassword;
+edfullaccesspassword.text := shareevent.fullaccesspassword;
+edcomments.text := shareevent.comments;
+edphysicalpath.text := shareevent.path;
+end;
+ 
+procedure tform1.bitbtn2click(sender: tobject);
+begin
+close;
+end;
+ 
+end.
+</pre>
+&nbsp;<br>
+Другие ресурсы, доступные через telnet<br>
+&nbsp;<br>
+ndlc.occ.uky.edu или 128.163.38.10(login: nolc)<br>
+&nbsp;<br>
+База данных дистанционного образования<br>
+acsvax.open.ac.uk<br>
+или 137.108.48.24<br>
+(username: icdl, acconut code: usa password: aaa)<br>
+&nbsp;<br>
+open university(uk)<br>
+newton.dep.anl.gov или 130.292.92.50(login: bbs)<br>
+bbs для тех, кто преподает / изучает естественные науки,<br>
+математику<br>
+&nbsp;<br>
+martini.eecs.umich.edu 3000<br>
+или 141.212.99.9 3000 - информация о городах США,<br>
+население, географическое положение и др.<br>
+&nbsp;<br>
+locis.loc.gov или 140.147.254.3<br>
+marvel.loc.gov или 140.147.2.69<br>
+&nbsp;<br>
+библиотека конгресса США<br>
+e - math.ams.com или 130.44.1.100(login / password: e - math)<br>
+американское матем.общество, bbs,<br>
+програмное обеспечение, обзоры.<br>
+&nbsp;<br>
+gemm.com<br>
+база данных о cd и музыкальных клубах<br>
+enews.com(login: enews)<br>
+электронные журналы(выберите elec.serials)<br>
+rusinfo.rus.uni - stuttgart.de или 129.69.1.12(login: info)<br>
+Предлагает: журналы, unix - материалы, книги и др.<br>
+culine.colorado.edu 859 / 128.138.129.170 859<br>
+Расписание nba<br>
+culine.colorado.edu 860 / 128.138.129.170 860<br>
+Расписание nha<br>
+archie(поиск нужных файлов<br>
+по всем анонимным ftp серверам)<br>
+elnet archie.sura.net or 128.167.254.194(login: archie)<br>
+&nbsp;<br>
+archie.unl.edu or 129.93.1.14<br>
+archie.ans.net or 147.225.1.10<br>
+&nbsp;<br>
+archie.rutgers.edu or 128.6.18.15<br>
+Здесь приведены только archie-серверы, расположенные в США, более подробный список приведен в разделе о ftp.<br>
+&nbsp;<br>
+gopher<br>
+telnet consultant.micro.umn.edu или 134.84.132.4<br>
+infoslug.ucsc.edu или 128.114.143.25[infoslug]<br>
+infopath.ucsd.edu(login: infopath)<br>
+netfind user lookup<br>
+(поиск адреса, места работы пользователя и т.п.)<br>
+telnet bruno.cs.colorado.edu<br>
+или 128.138.243.150(login: netfind)<br>
+cobber.cord.edu или 138.129.1.32<br>
+pascal.sjsu.edu или 130.65.86.15<br>
+mudhoney.micro.umn.edu или 134.84.132.7<br>
+redmont.cis.uab.edu или 138.26.64.4<br>
+ds.internic.net или 198.49.45.10<br>
+netfind.oc.com или 192.82.215.88<br>
+archie.au или 139.130.4.6<br>
+netfind.anu.edu.au или 150.203.2.14<br>
+netfind.if.usp.br или 143.107.249.132<br>
+netfind.ee.mcgill.ca или 132.206.62.30<br>
+malloco.ing.puc.cl или 146.155.1.43<br>
+netfind.vslib.cz или 147.230.16.1<br>
+nic.nm.kr или 143.248.1.100<br>
+lincoln.technet.sg или 192.169.33.6<br>
+nic.uakom.sk или 192.108.131.12<br>
+monolith.cc.ic.ac.uk или 155.198.5.3<br>
+lust.mrrl.lut.ac.uk или 158.125.220.7<br>
+dino.conicit.ve или 150.188.1.10<br>
+whois services<br>
+поиск по ключевому слову адреса в internet)<br>
+telnet rs.internic.net или 198.41.0.5(login: whois)<br>
+info.cnri.reston.va.us 185(knowbot info serv.)<br>
+garam.kreonet.re.kr или 134.75.30.11(login: nic)<br>
+paradise.ulcc.ac.uk или 128.86.8.56(login: dua)<br>
+&nbsp;<br>
+waistation(wide area information service)<br>
+telnet quake.think.com или telnet 192.31.181.1(login: swais)<br>
+wais.com или telnet 192.216.46.98<br>
+&nbsp;<br>
+swais.cwis.uci.edu или 128.200.15.2<br>
+sunsite.unc.edu или telnet 198.86.40.81<br>
+info.funet.fi или 128.214.6.100(login: info)<br>
+wais.nis.garr.it или 192.12.192.10(login: wais)<br>
+Программы-клиенты<br>
+&nbsp;<br>
+Работа с telnet возможна и с помощью программ-клиентов, функционирующих под более употребительными операционными системами dos и/или ms-windows. Один из примеров - free-пакет ncsa telnet для dos или winqvt для windows.<br>
+&nbsp;<br>
+Обычно пакеты снабжены подробной информацией для инсталляции и тщательной настройки. Если и возникают проблемы, то они связаны больше с таблицами кодировок кириллицы или адекватной реакцией от нажатия комбинаций клавиш или при вызове таких программ как deco или midnight commander под unix.<br>
+Источник:<br>
+<a href="http://www.delphirus.com.ru" target="_blank">http://www.delphirus.com.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

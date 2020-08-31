@@ -1,0 +1,99 @@
+<html>
+<head>
+  <title>Вычисление автокорреляционной функции</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Вычисление автокорреляционной функции</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Вычисление автокорреляционной функции
+ 
+Зависимости: Math
+Автор:       lookin, lookin@mail.ru, Екатеринбург
+Copyright:   lookin
+Дата:        2 июня 2002 г.
+***************************************************** }
+ 
+//TDoubleArray = array of double
+ 
+procedure AutoCorrelation(ValueArray: TDoubleArray; var ACArray: TDoubleArray;
+  FromValue, ToValue: integer);
+var
+  i, j, N: integer;
+  avr, dev, xxsum: double;
+begin
+  //ValueArray - массив типа double для которого вычисляется функция
+  //FromValue - номер точки, начиная с которого выбираются элементы массива
+  //ToValue - номер точки, на котором заканчивается выбор элементов массива
+  //ACArray - массив возвращаемых значений автокорреляционной функции
+  //для 5-и точек
+  N := ToValue - FromValue;
+  SetLength(ACArray, 5);
+  if N &lt; 5 then
+  begin
+    for i := 0 to 4 do
+      ACArray[i] := 0;
+    Exit;
+  end
+  else
+  begin
+    SetLength(rv, N);
+    dev := 0;
+    for i := 0 to N - 1 do
+      rv[i] := ValueArray[i + FromValue];
+    avr := Mean(rv);
+    for i := 0 to N - 1 do
+      dev := dev + Sqr(rv[i] - avr);
+    dev := dev / N;
+    for j := 0 to 4 do
+    begin
+      xxsum := 0;
+      for i := 0 to (N - 1) - j do
+        xxsum := xxsum + (rv[i] - avr) * (rv[i + j] - avr);
+      ACArray[j] := xxsum / (dev * (N - j));
+    end;
+  end;
+end;
+ 
+//Пример использования: 
+ 
+var
+  SourceArray, ACCoefs: TDoubleArray;
+begin
+  AutoCorrelation(SourceArray, ARCoefs, 0, Length(SourceArray) - 1);
+  for i := 0 to Length(ACCoefs) - 1 do
+    showmessage(FloatToStr(ACCoefs[i]));
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

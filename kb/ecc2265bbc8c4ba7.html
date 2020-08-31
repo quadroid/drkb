@@ -1,0 +1,112 @@
+<html>
+<head>
+  <title>Как подсчитать количество слов в строке?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как подсчитать количество слов в строке?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function Seps(As_Arg: Char): Boolean; 
+begin 
+  Seps := As_Arg in 
+    [#0..#$1F, ' ', '.', ',', '?', ':', ';', '(', ')', '/', '\']; 
+end; 
+ 
+function WordCount(CText: string): Longint; 
+var 
+  Ix: Word; 
+  Work_Count: Longint; 
+begin 
+  Work_Count := 0; 
+  Ix         := 1; 
+  while Ix &lt;= Length(CText) do 
+  begin 
+    while (Ix &lt;= Length(CText)) and (Seps(CText[Ix])) do 
+      Inc(Ix); 
+    if Ix &lt;= Length(CText) then 
+    begin 
+      Inc(Work_Count); 
+ 
+      while (Ix &lt;= Length(CText)) and (not Seps(CText[Ix])) do 
+        Inc(Ix); 
+    end; 
+  end; 
+  Word_Count := Work_Count; 
+end; 
+ 
+{ 
+  To count the number opf words in a TMemo Component, 
+  call: WordCount(Memo1.Text) 
+}
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+<hr />
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Подсчет количества слов в строке.
+ 
+Возвращает количество слов в строке, границы слов определяются в
+соответствие с набором разделителей.
+ 
+Описание параметров:
+s - строка, в которой происходит подсчет слов;
+ 
+Delimiters множество, содержащее символы-разделители слов;
+ 
+Возвращаемое значение - количество слов
+ 
+Зависимости: SysUtils, UBPFD.WordScan
+Автор:       vuk, vuk@fcenter.ru
+Copyright:   Алексей Вуколов
+Дата:        18 апреля 2002 г.
+***************************************************** }
+ 
+function CountWords(const s: string; Delimiters: TSysCharSet): integer;
+var
+  wStart, wLen: integer;
+begin
+  Result := 0;
+  wStart := 1;
+  while WordScan(s, wStart, wLen, Delimiters) do
+  begin
+    inc(Result);
+    inc(wStart, wLen);
+  end;
+end;
+//Пример использования: 
+ 
+WordCount := CountWords('This is a sample', [' ']);
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

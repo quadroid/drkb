@@ -1,0 +1,165 @@
+<html>
+<head>
+  <title>Как распечатать TImage?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как распечатать TImage?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses 
+  Printers; 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+var 
+  ScaleX, ScaleY: Integer; 
+  RR: TRect; 
+begin 
+  with Printer do 
+  begin 
+    BeginDoc; 
+    // The StartDoc function starts a print job. 
+    try 
+      ScaleX := GetDeviceCaps(Handle, logPixelsX) div PixelsPerInch; 
+      ScaleY := GetDeviceCaps(Handle, logPixelsY) div PixelsPerInch; 
+      // Retrieves information about the Pixels per Inch of the Printer. 
+      RR := Rect(0, 0, Image1.picture.Width * scaleX, Image1.Picture.Height * ScaleY); 
+      Canvas.StretchDraw(RR, Image1.Picture.Graphic); 
+      // Stretch to fit 
+ 
+    finally 
+      EndDoc;   
+    end; 
+  end; 
+end; 
+</pre>
+
+<hr />
+<pre name="code" class="delphi">
+// Based on posting to borland.public.delphi.winapi by Rodney E Geraghty, 8/8/97. 
+ 
+ 
+procedure PrintBitmap(Canvas: TCanvas; DestRect: TRect; Bitmap: TBitmap); 
+var 
+  BitmapHeader: pBitmapInfo; 
+  BitmapImage: Pointer; 
+  HeaderSize: DWORD; 
+  ImageSize: DWORD; 
+begin 
+  GetDIBSizes(Bitmap.Handle, HeaderSize, ImageSize); 
+  GetMem(BitmapHeader, HeaderSize); 
+  GetMem(BitmapImage, ImageSize); 
+  try 
+    GetDIB(Bitmap.Handle, Bitmap.Palette, BitmapHeader^, BitmapImage^); 
+    StretchDIBits(Canvas.Handle, 
+      DestRect.Left, DestRect.Top,    // Destination Origin 
+      DestRect.Right - DestRect.Left, // Destination Width 
+      DestRect.Bottom - DestRect.Top, // Destination Height 
+      0, 0,                           // Source Origin 
+      Bitmap.Width, Bitmap.Height,    // Source Width &amp; Height 
+      BitmapImage, 
+      TBitmapInfo(BitmapHeader^), 
+      DIB_RGB_COLORS, 
+      SRCCOPY) 
+  finally 
+    FreeMem(BitmapHeader); 
+    FreeMem(BitmapImage) 
+  end 
+end {PrintBitmap}; 
+</pre>
+<hr />
+<pre name="code" class="delphi">
+// from www.experts-exchange.com 
+ 
+uses 
+  printers; 
+ 
+procedure DrawImage(Canvas: TCanvas; DestRect: TRect; ABitmap: TBitmap); 
+var 
+  Header, Bits: Pointer; 
+  HeaderSize: DWORD; 
+  BitsSize: DWORD; 
+begin 
+  GetDIBSizes(ABitmap.Handle, HeaderSize, BitsSize); 
+  Header := AllocMem(HeaderSize); 
+  Bits := AllocMem(BitsSize); 
+  try 
+    GetDIB(ABitmap.Handle, ABitmap.Palette, Header^, Bits^); 
+    StretchDIBits(Canvas.Handle, DestRect.Left, DestRect.Top, 
+      DestRect.Right, DestRect.Bottom, 
+      0, 0, ABitmap.Width, ABitmap.Height, Bits, TBitmapInfo(Header^), 
+      DIB_RGB_COLORS, SRCCOPY); 
+  finally 
+    FreeMem(Header, HeaderSize); 
+    FreeMem(Bits, BitsSize); 
+  end; 
+end; 
+ 
+procedure PrintImage(Image: TImage; ZoomPercent: Integer); 
+  // if ZoomPercent=100, Image will be printed across the whole page 
+var  
+  relHeight, relWidth: integer; 
+begin 
+  Screen.Cursor := crHourglass; 
+  Printer.BeginDoc; 
+  with Image.Picture.Bitmap do  
+  begin 
+    if ((Width / Height) &gt; (Printer.PageWidth / Printer.PageHeight)) then 
+    begin 
+      // Stretch Bitmap to width of PrinterPage 
+      relWidth := Printer.PageWidth; 
+      relHeight := MulDiv(Height, Printer.PageWidth, Width); 
+    end  
+    else 
+    begin 
+      // Stretch Bitmap to height of PrinterPage 
+      relWidth  := MulDiv(Width, Printer.PageHeight, Height); 
+      relHeight := Printer.PageHeight; 
+    end; 
+    relWidth := Round(relWidth * ZoomPercent / 100); 
+    relHeight := Round(relHeight * ZoomPercent / 100); 
+    DrawImage(Printer.Canvas, Rect(0, 0, relWidth, relHeight), Image.Picture.Bitmap); 
+  end; 
+  Printer.EndDoc; 
+  Screen.cursor := crDefault; 
+end; 
+ 
+// Example Call: 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  // Print image at 40% zoom: 
+  PrintImage(Image1, 40); 
+end; 
+</pre>
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

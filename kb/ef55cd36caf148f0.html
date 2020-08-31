@@ -1,0 +1,75 @@
+<html>
+<head>
+  <title>Синхронизация TTabSet c TListBox</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Синхронизация TTabSet c TListBox</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Что-то аналогичное я делал раньше, тем не менее, вместо Listbox я использовал dbGrid со следующими опциями: </p>
+<p>[dgAlwaysShowEditor,dgTabs,dgRowSelect,dgAlwaysShowSelection,dgConfirmDelete, dgCancelOnExit] </p>
+<p>Кроме того, я привел код, который я использовал в ответ на щелчок на закладке, таким образом изменяя запись в dbgrid.</p>
+<pre name="code" class="delphi">procedure TForm1.TabSet1Change(Sender: TObject; NewTab: Integer;
+  var AllowChange: Boolean);
+begin
+  Table1.FindNearest([Chr(NewTab+65)]);
+  Table2.FindNearest([Chr(NewTab+65)]);
+end;
+ 
+procedure TForm1.TabSet1Click(Sender: TObject);
+var
+  I: integer;
+begin
+  with TabSet1 do
+  begin
+    if TabIndex &gt; -1 then
+    begin
+      with ListBox1 do
+      begin
+        for I := 0 to Items.Count - 1 do
+        begin
+          if Pos(Tabs[TabIndex], Items[I]) = 1 then
+          begin
+            ItemIndex := I;
+            break;
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
+</pre>
+&nbsp;</p>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

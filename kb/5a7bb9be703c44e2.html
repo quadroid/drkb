@@ -1,0 +1,83 @@
+<html>
+<head>
+  <title>Rotate a 2D Point</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Rotate a 2D Point</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+const
+  PIDiv180 = 0.017453292519943295769236907684886;
+ 
+procedure Rotate(RotAng: Double; x, y: Double; var Nx, Ny: Double);
+var
+  SinVal: Double;
+  CosVal: Double;
+begin
+  RotAng := RotAng * PIDiv180;
+  SinVal := Sin(RotAng);
+  CosVal := Cos(RotAng);
+  Nx := x * CosVal - y * SinVal;
+  Ny := y * CosVal + x * SinVal;
+end;
+</pre>
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+<hr /><p>Rotate a 2D Point around another 2D Point</p>
+<pre name="code" class="delphi">
+const
+  PIDiv180 = 0.017453292519943295769236907684886;
+ 
+procedure Rotate(RotAng: Double; x, y, ox, oy: Double; var Nx, Ny: Double);
+begin
+  Rotate(RotAng, x - ox, y - oy, Nx, Ny);
+  Nx := Nx + ox;
+  Ny := Ny + oy;
+end;
+ 
+ 
+ 
+procedure Rotate(RotAng: Double; x, y: Double; var Nx, Ny: Double);
+var
+  SinVal: Double;
+  CosVal: Double;
+begin
+  RotAng := RotAng * PIDiv180;
+  SinVal := Sin(RotAng);
+  CosVal := Cos(RotAng);
+  Nx := x * CosVal - y * SinVal;
+  Ny := y * CosVal + x * SinVal;
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

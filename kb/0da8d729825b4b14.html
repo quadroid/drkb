@@ -1,0 +1,67 @@
+<html>
+<head>
+  <title>Можно ли удалять из списка TDriveComboBox диски которые отключены?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Можно ли удалять из списка TDriveComboBox диски которые отключены?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>На некоторых laptop компьютерах может не быть флоппи дисковода. Можно ли удалять из списка TDriveComboBox диски которые отключены?</p>
+
+<p>В примере TDriveComboBox не показывает дисководы, которые не готовы. (not ready). Учтите что на многих компьютерах будет ощутимая задержка при поверке plug&amp;play флоппи дисковода.</p>
+<pre name="code" class="delphi">
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  i: integer;
+  OldErrorMode: Word;
+  OldDirectory: string;
+begin
+  OldErrorMode := SetErrorMode(SEM_NOOPENFILEERRORBOX);
+  GetDir(0, OldDirectory);
+  i := 0;
+  while i &lt;= DriveComboBox1.Items.Count - 1 do
+    begin
+{$I-}
+      ChDir(DriveComboBox1.Items[i][1] + ':\');
+{$I+}
+      if IoResult &lt;&gt; 0 then
+        DriveComboBox1.Items.Delete(i)
+      else
+        inc(i);
+    end;
+  ChDir(OldDirectory);
+  SetErrorMode(OldErrorMode);
+end;
+</pre>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

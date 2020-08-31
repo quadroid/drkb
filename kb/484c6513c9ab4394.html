@@ -1,0 +1,497 @@
+<html>
+<head>
+  <title>Использование реестра</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Использование реестра</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p id="author">Автор: Алексей Федоров</p>
+<p>Реестр - это центральное хранилище информации о параметрах системы и установленных программах. В версиях Windows до Windows 95 программисты сохраняли параметры программ либо в INI-файлах WIN.INI и SYSTEM.INI, либо в дополнительных INI-файлах. Хотя использование INI-файлов поддерживается и в Win32, Microsoft настоятельно рекомендует для хранения необходимых в работе программы параметров пользоваться реестром. Реестр представляет собой иерархическую базу данных, cостоящую из секций, подсекций и элементов. Каждая секция имеет свое назначение. Хранить данные о пользовательских программах Microsoft рекомендует в секции HKEY_CURRENT_USER и подсекции Software. В этой подсекции вы создаете подсекцию, идентифицирующую вашу программу или фирму, и уже внутри нее располагаете данные. </p>
+<p>Модуль Registry </p>
+<p>Для упрощения работы с регистратором в состав Delphi (начиная с версии 2.0) входит модуль REGISTRY, содержащий реализацию трех классов, - TRegistry, TRegistryIniFile и TRegIniFile. </p>
+<p>Внимание! Чтобы использовать свойства и методы классов TRegistry, TRegistryIniFile и TRegIniFile, необходимо включить в список uses модуль Registry.</p>
+<p>TRegIniFile </p>
+<p>Собственно говоря, задача класса TRegIniFile - упростить перенос 16-битных программ в среду Windows 95. Методы этого класса эквивалентны методам класса TIniFile в 16-битной версии Delphi. Класс TRegIniFile позволяет обращаться к секции HKEY_CURRENT_USER, считывать и записывать строки (методы ReadString и WriteString), целочисленные значения (методы ReadInteger и WriteInteger), логические значения (методы ReadBool и WriteBool), секции (методы ReadSection, ReadSections и ReadSectionValues), удалять секции (метод EraseSection) и элементы (метод DeleteKey). Рассмотрим на примерах, как используются функции этого класса. </p>
+<p>Microsoft рекомендует записывать данные, относящиеся к вашей программе, в подсекции секции HKEY_CURRENT_USER_Software. Предположим (не особенно фантазируя на эту тему), что ваша программа называется RegDemo, и данные для нее располагаются в секции Software\RegDemo. Ниже мы покажем, как поместить в регистратор строчные, целочисленные и логические данные, а затем считать их, - этих операций будет достаточно для того, чтобы сохранить в регистраторе параметры нашей программы, а затем считать их. </p>
+<p>Прежде чем записать данные в определенную секцию, ее необходимо создать. Это происходит при вызове конструктора объекта TRegIniFile. В качестве параметра вы указываете название секции, и если таковой не существует, она создается:</p>
+<p>RegFile := TRegIniFile.Create(SubKey); </p>
+<p>После того как файл регистратора открыт (и создана определенная секция), мы можем записать данные. Поддерживаются три типа данных: целочисленные, логические и строчные данные. Для записи этих данных существуют методы WriteInteger, WriteBool и WriteString. В качестве параметров указываются:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>название подсекции; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>название элемента; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>записываемые данные. </td></tr></table></div><p>Так, чтобы записать значение элемента MyIntVal в подсекции IntKey, следует выполнить код</p>
+<p>RegFile.WriteInteger(IntKey, 'Int_Val', 32000); </p>
+<p>а для того чтобы прочесть значение, необходимо вызвать метод ReadInteger (в качестве параметров указываются название подсекции, название элемента и значение по умолчанию):</p>
+<p>RegFile.ReadInteger(IntKey, 'Int_Val', 0)); </p>
+<p>Для чтения логических и строчных данных используются соответственно методы ReadBool и ReadStr, а для их записи &#8211; методы WriteBool и WriteString. </p>
+<p>Расссмотрим пример использования перечисленных выше методов класса TRegIniFile. Расположим в форме компонент Memo, две группы GroupBox и шесть кнопок &#8211; три в группе Write и три в группе Read. Нажатие каждой кнопки в группе Write приведет к записи соответствующего значения в реестр, нажатие каждой кнопки в группе Read &#8211; к чтению этого значения. </p>
+<p>Ниже приведен исходный текст модуля, в котором содержатся обработчики нажатия кнопок, использующие методы класса TRegIniFile. </p>
+<pre name="code" class="delphi">
+unit RDUnit;
+interfaceuses
+Windows, Messages, SysUtils, Classes, Graphics, Controls,
+ 
+Forms, Dialogs, StdCtrls, Registry;
+type
+  TForm1 = class(TForm)
+    Memo1: TMemo;
+    GroupBox1: TGroupBox;
+    GroupBox2: TGroupBox;
+    Label1: TLabel;
+    Button1: TButton;
+    Button2: TButton;
+    Button3: TButton;
+    Button4: TButton;
+    Button5: TButton;
+    Button6: TButton;
+    procedure FormCreate(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
+    procedure FormClose(Sender: TObject;
+      var Action: TCloseAction);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+var
+  Form1: TForm1;
+implementation{$R *.DFM}var
+  RegFile: TRegIniFile;
+const
+  //Подсекция
+  SubKey: string = 'Software\RegDemo';
+  // Элемент для хранения логических данных
+  BoolKey: string = 'BoolKey';
+  // Элемент для хранения целочисленных данных
+  IntKey: string = 'IntKey';
+  // Элемент для хранения строчных данных
+  StrKey: string = 'StrKey';
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  // Создать экземпляр класса
+  RegFile := TRegIniFile.Create(SubKey);
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  // Записать целочисленное значение
+  RegFile.WriteInteger(IntKey, 'Value', 1998);
+end;
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  // Записать булево значение
+  RegFile.WriteBool(BoolKey, 'Value', True);
+end;
+ 
+procedure TForm1.Button3Click(Sender: TObject);
+begin
+  // Записать строку
+  RegFile.WriteString(StrKey, 'Value', 'Demo');
+end;
+ 
+procedure TForm1.Button4Click(Sender: TObject);
+begin
+  // Считать целочисленное значение
+  Memo1.Lines.Add('Int Value = ' +
+    IntToStr(RegFile.ReadInteger(IntKey,
+    'Value', 0)));
+end;
+ 
+procedure TForm1.Button5Click(Sender: TObject);
+begin
+  // Считать булево значение
+  if RegFile.ReadBool(BoolKey, 'Value', False) then
+    Memo1.Lines.Add('Bool Value = True')
+  else
+    Memo1.Lines.Add('Bool Value = False');
+end;
+ 
+procedure TForm1.Button6Click(Sender: TObject);
+begin
+  // Считать строку
+  Memo1.Lines.Add(RegFile.ReadString(StrKey, 'Value', ''));
+end;
+ 
+procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  // Удалить секцию
+  RegFile.EraseSection(SubKey);
+  // Освободить память
+  RegFile.Free;
+end;
+end.
+</pre>
+<p>На приведенном ниже рисунке показано, как выглядит созданная нами подсекция в редакторе REGEDIT.</p>
+<p>Отметим, что рассмотренных выше функций вполне достаточно для того чтобы обеспечить минимальную функциональность приложения. Если же вам требуется читать и записывать данные из других секций реестра, вы можете воспользоваться методами класса TRegistry или (что мене удобно) непосредственно функциями Win32 API.</p>
+<p>Класс TRegistry </p>
+<p>Прежде чем рассмотреть пример использования свойств и методов класса TRegistry, давайте кратко перечислим их. </p>
+<p>В следующей таблице перечислены свойства класса TRegistry.</p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>Свойство </p>
+</td>
+<td ><p>Описание </p>
+</td>
+</tr>
+<tr >
+<td ><p>CurrentKey </p>
+</td>
+<td ><p>Позволяет узнать текущую подсекцию, в которой проводятся операции по чтению и записи. Для изменения подсекции следует использовать методы OpenKey и OpenKeyReadOnly </p>
+</td>
+</tr>
+<tr >
+<td ><p>CurrentPath </p>
+</td>
+<td ><p>Позволяет узнать полное название текущей подсекции </p>
+</td>
+</tr>
+<tr >
+<td ><p>LazyWrite </p>
+</td>
+<td ><p>Задает способ обновления информации в реестре &#8211; непосредственно или после вызова метода CloseKey. </p>
+</td>
+</tr>
+<tr >
+<td ><p>RootKey </p>
+</td>
+<td ><p>Задает корневую секцию в реестре. По умолчанию установлено значение HKEY_CURRENT_USER 
+</td>
+</tr>
+</table>
+<p>В следующей таблице перечислены методы класса TRegistry.</p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>Метод </p>
+</td>
+<td ><p>Описание </p>
+</td>
+</tr>
+<tr >
+<td ><p>CloseKey </p>
+</td>
+<td ><p>Записывает внесенные изменения и закрывает текущую подсекцию </p>
+</td>
+</tr>
+<tr >
+<td ><p>Create </p>
+</td>
+<td ><p>Создает экземпляр класса TRegistry и задает значение корневой секции - HKEY_CURRENT_USER </p>
+</td>
+</tr>
+<tr >
+<td ><p>CreateKey </p>
+</td>
+<td ><p>Создает подсекцию </p>
+</td>
+</tr>
+<tr >
+<td ><p>DeleteKey </p>
+</td>
+<td ><p>Удаляет подсекцию </p>
+</td>
+</tr>
+<tr >
+<td ><p>DeleteValue </p>
+</td>
+<td ><p>Удаляет значение элемента </p>
+</td>
+</tr>
+<tr >
+<td ><p>Destroy </p>
+</td>
+<td ><p>Уничтожает ранее созданный экземпляр класса TRegistry </p>
+</td>
+</tr>
+<tr >
+<td ><p>GetDataInfo </p>
+</td>
+<td ><p>Возвращает тип данных для указанного элемента </p>
+</td>
+</tr>
+<tr >
+<td ><p>GetDataSize </p>
+</td>
+<td ><p>Возвращает размер данных для указанного элемента </p>
+</td>
+</tr>
+<tr >
+<td ><p>GetDataType </p>
+</td>
+<td ><p>Возвращает тип данных для указанного элемента </p>
+</td>
+</tr>
+<tr >
+<td ><p>GetKeyInfo </p>
+</td>
+<td ><p>Возвращает информацию о текущем элементе </p>
+</td>
+</tr>
+<tr >
+<td ><p>GetKeyNames </p>
+</td>
+<td ><p>Возвращает имена подсекций для указанной секции </p>
+</td>
+</tr>
+<tr >
+<td ><p>GetValueNames </p>
+</td>
+<td ><p>Возвращает названия элементов для указанной подсекции </p>
+</td>
+</tr>
+<tr >
+<td ><p>HasSubKeys </p>
+</td>
+<td ><p>Позволяет узнать, имеются ли подсекции для указанной секции </p>
+</td>
+</tr>
+<tr >
+<td ><p>KeyExists </p>
+</td>
+<td ><p>Позволяет узнать, существует ли элемент </p>
+</td>
+</tr>
+<tr >
+<td ><p>LoadKey </p>
+</td>
+<td ><p>Создает новую подсекцию и загружает в нее информацию из указанного файла </p>
+</td>
+</tr>
+<tr >
+<td ><p>MoveKey </p>
+</td>
+<td ><p>Перемещает указанную подсекцию и все вложенные подсекции в заданное место </p>
+</td>
+</tr>
+<tr >
+<td ><p>OpenKey </p>
+</td>
+<td ><p>Открывает подсекцию </p>
+</td>
+</tr>
+<tr >
+<td ><p>OpenKeyReadOnly </p>
+</td>
+<td ><p>Открывает подсекцию только для чтения </p>
+</td>
+</tr>
+<tr >
+<td ><p>ReadBinaryData </p>
+</td>
+<td ><p>Считывает данные в бинарном формате </p>
+</td>
+</tr>
+<tr >
+<td ><p>ReadBool </p>
+</td>
+<td ><p>Считывает данные в булевом формате </p>
+</td>
+</tr>
+<tr >
+<td ><p>ReadCurrency </p>
+</td>
+<td ><p>Считывает данные в формате валюты </p>
+</td>
+</tr>
+<tr >
+<td ><p>ReadDate </p>
+</td>
+<td ><p>Считывает данные в формате даты </p>
+</td>
+</tr>
+<tr >
+<td ><p>ReadDateTime </p>
+</td>
+<td ><p>Считывает данные в формате &#8220;дата/время&#8221; </p>
+</td>
+</tr>
+<tr >
+<td ><p>ReadFloat </p>
+</td>
+<td ><p>Считывает данные в формате с плавающей точкой </p>
+</td>
+</tr>
+<tr >
+<td ><p>ReadInteger </p>
+</td>
+<td ><p>Считывает данные в целочисленном формате </p>
+</td>
+</tr>
+<tr >
+<td ><p>ReadString </p>
+</td>
+<td ><p>Считывает данные в строчном формате </p>
+</td>
+</tr>
+<tr >
+<td ><p>ReadTime </p>
+</td>
+<td ><p>Считывает данные в формате времени </p>
+</td>
+</tr>
+<tr >
+<td ><p>RegistryConnect </p>
+</td>
+<td ><p>Устанавливает соединение с реестром на другом компьютере </p>
+</td>
+</tr>
+<tr >
+<td ><p>RenameValue </p>
+</td>
+<td ><p>Переименовывает элемент </p>
+</td>
+</tr>
+<tr >
+<td ><p>ReplaceKey </p>
+</td>
+<td ><p>Замещает значение элемента значениями из файла </p>
+</td>
+</tr>
+<tr >
+<td ><p>RestoreKey </p>
+</td>
+<td ><p>Восстанавливает значение элемента из файла </p>
+</td>
+</tr>
+<tr >
+<td ><p>SaveKey </p>
+</td>
+<td ><p>Сохраняет значение элемента в файле </p>
+</td>
+</tr>
+<tr >
+<td ><p>UnLoadKey </p>
+</td>
+<td ><p>Удаляет подсекцию, загруженную методом LoadKey </p>
+</td>
+</tr>
+<tr >
+<td ><p>ValueExists </p>
+</td>
+<td ><p>Позволяет узнать, существует ли значение у элемента </p>
+</td>
+</tr>
+<tr >
+<td ><p>WriteBinaryData </p>
+</td>
+<td ><p>Записывает данные в бинарном формате </p>
+</td>
+</tr>
+<tr >
+<td ><p>WriteBool </p>
+</td>
+<td ><p>Записывает данные в булевом формате </p>
+</td>
+</tr>
+<tr >
+<td ><p>WriteCurrency </p>
+</td>
+<td ><p>Записывает данные в формате валюты </p>
+</td>
+</tr>
+<tr >
+<td ><p>WriteDate </p>
+</td>
+<td ><p>Записывает данные в формате даты </p>
+</td>
+</tr>
+<tr >
+<td ><p>WriteDateTime </p>
+</td>
+<td ><p>Записывает данные в формате &#8220;дата/время&#8221; </p>
+</td>
+</tr>
+<tr >
+<td ><p>WriteExpandString </p>
+</td>
+<td ><p>Записывает данные в формате "расширенно" строки </p>
+</td>
+</tr>
+<tr >
+<td ><p>WriteFloat </p>
+</td>
+<td ><p>Записывает данные в формате с плавающей точкой </p>
+</td>
+</tr>
+<tr >
+<td ><p>WriteInteger </p>
+</td>
+<td ><p>Записывает данные в целочисленном формате </p>
+</td>
+</tr>
+<tr >
+<td ><p>WriteString </p>
+</td>
+<td ><p>Записывает данные в строчном формате </p>
+</td>
+</tr>
+<tr >
+<td ><p>WriteTime </p>
+</td>
+<td ><p>Записывает данные в формате времени 
+</td>
+</tr>
+</table>
+<p>После того как мы кратко познакомились со свойствами и методами класса TRegistry, давайте рассмотрим несколько примеров их использования.</p>
+<p>Инициализация</p>
+<p>Перед использованием свойств и методов класса TRegistry, необходимо создать экземпляр этого класса. Например:</p>
+<pre name="code" class="delphi">var
+  R: TRegistry;
+  ...R := TRegistry.Create;
+</pre>
+<p>Задание корневой секции</p>
+<p>Если вы собираетесь работать с секцией, отличной от HKEY_CURRENT_USER (это значение задается по умолчанию), то после инициализации вы должны изменить значение свойства RootKey. Возможны следующие значения:</p>
+<pre name="code" class="delphi">
+HKEY_CLASSES_ROOT
+HKEY_CURRENT_USER
+HKEY_LOCAL_MACHINE
+HKEY_USERS
+HKEY_PERFORMANCE_DATA
+HKEY_CURRENT_CONFIG
+HKEY_DYN_DATA
+</pre>
+
+<p>Например:</p>
+<pre name="code" class="delphi">
+with R do
+begin
+  RootKey := HKEY_LOCAL_MACHINE;
+  //
+  // Продолжаем работу с реестром
+  //
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

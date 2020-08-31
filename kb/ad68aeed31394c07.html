@@ -1,0 +1,57 @@
+<html>
+<head>
+  <title>Физическое удаление записей в локальных таблицах (BDE)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Физическое удаление записей в локальных таблицах (BDE)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>При удалении записей из таблицы dBase с помощью компонента TTable они просто приобретают признак удаления, и я никак не могу добиться их физического удаления. Как быть?</p>
+
+<p>Ваша проблема решается просто - для физического удаления записей нужно использовать функцию DbiPackTable (ее описание есть в справочном файле BDE). </p>
+
+<p>Наталия Елманова</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+
+<p id="note">Примечание Vit: точно так же удаляются записи и у таблиц других локальных баз данных</p>
+
+<hr />
+<p>В BDE есть функция DbiPackTable.</p>
+
+<p>Упаковать таблицу DBF можно открыв ее компонентом TTable и вызвав функцию BDE DbiPackTable. Для этого нужно добавить к модулю, где вызывается функция, имена DBITypes, DBIProcs, DBIErrs в оператор uses.</p>
+<p>Затем вызвать в нужном месте функцию:</p>
+
+<p>Result := DbiPackTable(Table1.DbHandle, Table1.Handle, nil, szDBase, True);</p>
+<p>Copyright © 1996 Epsylon Technologies</p>
+<p>Взято из FAQ Epsylon Technologies (095)-913-5608; (095)-913-2934; (095)-535-5349</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

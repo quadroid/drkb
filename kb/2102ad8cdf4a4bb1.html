@@ -1,0 +1,96 @@
+<html>
+<head>
+  <title>Растягивание изображения при печати</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Растягивание изображения при печати</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Я пишу программу, которая печатает изображение на принтере с помощью объекта TPrinter. Проблема происходит когда я пытаюсь "растянуть" изображение до требуемого размера на бумаге. Мой метод растяжения (bitblts и принтерном DC) приводит к белым кляксам, а само изображение получается практически серым. Конечно это не то, что мне хотелось. Кто-нибудь может мне помочь?</p>
+
+<p>Попробуй это:</p>
+<pre name="code" class="delphi">
+procedure DrawImage(Canvas: TCanvas; DestRect: TRect; ABitmap:
+  TBitmap);
+var
+ 
+  Header, Bits: Pointer;
+  HeaderSize: Integer;
+  BitsSize: Longint;
+begin
+  GetDIBSizes(ABitmap.Handle, HeaderSize, BitsSize);
+  Header := MemAlloc(HeaderSize);
+  Bits := MemAlloc(BitsSize);
+  try
+    GetDIB(ABitmap.Handle, ABitmap.Palette, Header^, Bits^);
+    StretchDIBits(Canvas.Handle, DestRect.Left, DestRect.Top,
+      DestRect.Right, DestRect.Bottom,
+      0, 0, ABitmap.Width, ABitmap.Height, Bits, TBitmapInfo(Header^),
+      DIB_RGB_COLORS, SRCCOPY);
+{ вам может понадобиться цветовой стандарт DIB_PAL_COLORS,
+но это уже выходит за рамки моих знаний. }
+  finally
+    MemFree(Header, HeaderSize);
+    MemFree(Bits, BitsSize);
+  end;
+end;
+ 
+{ Печатаем изображение, растягивая его до целого листа }
+ 
+procedure PrintBitmap(ABitmap: TBitmap);
+var
+  relheight, relwidth: integer;
+begin
+  screen.cursor := crHourglass;
+  Printer.BeginDoc;
+  if ((ABitmap.width / ABitmap.height) &gt; l(printer.pagewidth / printer.pageheight)) then
+    begin
+{ Растягиваем ширину изображения до ширины бумаги }
+      relwidth := printer.pagewidth;
+      relheight := MulDiv(ABitmap.height, printer.pagewidth, ABitmap.width);
+    end
+  else
+    begin
+{ Растягиваем высоту изображения до высоты бумаги }
+      relwidth := MulDiv(ABitmap.width, printer.pageheight, ABitmap.height);
+      relheight := printer.pageheight;
+    end;
+  DrawImage(Printer.Canvas, Rect(0, 0, relWidth, relHeight), ABitmap);
+  Printer.EndDoc;
+  screen.cursor := crDefault;
+end;
+</pre>
+
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

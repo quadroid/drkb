@@ -1,0 +1,102 @@
+<html>
+<head>
+  <title>Как менять шрифт в TRichEdit горячими клавишами?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как менять шрифт в TRichEdit горячими клавишами?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Следующий пример показывает, как можно изменять шрифт в компоненте TRichEdit при помощи следующих комбинаций клавиш:</p>
+
+<p>Ctrl + B - Включает и выключает жирность (Bold) шрифта</p>
+<p>Ctrl + I - Включает и выключает (Italic) шрифта</p>
+<p>Ctrl + S - Включает и выключает зачёркивание (Strikeout) шрифта</p>
+<p>Ctrl + U - Включает и выключает подчёркивание (Underline) шрифта</p>
+
+<p>Замечание: Так же можно устанавливать сразу несколько типов шрифта.</p>
+
+<p>Пример:</p>
+<pre name="code" class="delphi">
+const
+  KEY_CTRL_B = 02;
+  KEY_CTRL_I =  9;
+  KEY_CTRL_S = 19;
+  KEY_CTRL_U = 21;
+ 
+procedure TForm1.RichEdit1KeyPress(Sender: TObject; var Key: Char);
+begin
+  case Ord(Key) of
+    KEY_CTRL_B: begin
+      Key := #0;
+      if fsBold in (Sender as TRichEdit).SelAttributes.Style then
+      (Sender as TRichEdit).SelAttributes.Style :=
+        (Sender as TRichEdit).SelAttributes.Style - [fsBold] else
+      (Sender as TRichEdit).SelAttributes.Style :=
+        (Sender as TRichEdit).SelAttributes.Style + [fsBold];
+    end;
+    KEY_CTRL_I: begin
+      Key := #0;
+      if fsItalic in 
+      (Sender as TRichEdit).SelAttributes.Style then
+        (Sender as TRichEdit).SelAttributes.Style :=
+        (Sender as TRichEdit).SelAttributes.Style - [fsItalic] 
+      else
+       (Sender as TRichEdit).SelAttributes.Style :=
+       (Sender as TRichEdit).SelAttributes.Style + [fsItalic];
+    end;
+    KEY_CTRL_S: begin
+       Key := #0;
+      if fsStrikeout in 
+      (Sender as TRichEdit).SelAttributes.Style then
+        (Sender as TRichEdit).SelAttributes.Style :=
+        (Sender as TRichEdit).SelAttributes.Style - [fsStrikeout] 
+      else
+        (Sender as TRichEdit).SelAttributes.Style :=
+        (Sender as TRichEdit).SelAttributes.Style + [fsStrikeout];
+    end;
+    KEY_CTRL_U: begin
+       Key := #0;
+      if fsUnderline in 
+      (Sender as TRichEdit).SelAttributes.Style then
+        (Sender as TRichEdit).SelAttributes.Style :=
+        (Sender as TRichEdit).SelAttributes.Style - [fsUnderline] 
+      else
+        (Sender as TRichEdit).SelAttributes.Style :=
+        (Sender as TRichEdit).SelAttributes.Style + [fsUnderline];
+    end;
+  end;
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

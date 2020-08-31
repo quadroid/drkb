@@ -1,0 +1,152 @@
+<html>
+<head>
+  <title>Сбростить BDE базу данных в XML файл</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushXml.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сбростить BDE базу данных в XML файл</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+Procedure CreateXML(Alias:string; XMLName:string);
+ var i,j,x,y:integer;
+     f:TextFile;
+     Tables:TStringList;
+     Table:TTable;
+ 
+ Function FixValue(Value:string):string;
+   var n:integer;
+ begin
+   Result:='';
+   For n:=1 to length(Value) do
+     if Value[n] in ['0'..'9','a'..'z','A'..'Z','.',',','-',' ','/','*',':','{','}','_','@','\','+','%'] then
+       result:=Result+Value[n]
+     else
+       result:=Result+'&amp;#'+inttostr(ord(Value[n]))+';';
+ end;
+ 
+ Procedure WriteValue(Indent:integer; Name, ParamName, ParamValue, Value:string);
+   var temp:string;
+   const Empty='                                                             ';
+ begin
+   Temp:=Copy(empty,1,Indent);
+   temp:=temp+'&lt;'+Name;
+   if ParamName='' then temp:=temp+'&gt;' else temp:=temp+' '+Paramname+'="'+FixValue(ParamValue)+'"&gt;';
+   Temp:=Temp+FixValue(Value)+'&lt;/'+Name+'&gt;';
+   Writeln(f,temp);
+ end;
+ 
+ Procedure WriteTag(Indent:integer; Name, ParamName, ParamValue:string; Open:boolean=True);
+   var temp:string;
+   const Empty='                                                             ';
+ begin
+   Temp:=Copy(empty,1,Indent);
+   if Open then temp:=temp+'&lt;'+Name else temp:=temp+'&lt;/'+Name;
+   if ParamName='' then temp:=temp+'&gt;' else temp:=temp+' '+Paramname+'="'+FixValue(ParamValue)+'"&gt;';
+   Writeln(f,temp);
+ end;
+ 
+begin
+ Tables:=TStringList.Create;
+ Table:=TTable.Create(nil);
+ try
+   session.GetTableNames(Alias, '*.db',False, False, Tables);
+   Table.DatabaseName:=Alias;
+   assignFile(f,XMLName);
+   reWrite(f);
+   WriteTag(0, Alias, '', '', True);
+   for i:=0 to Tables.Count-1 do
+     begin
+       Table.Active:=false;
+       Table.TableName:=Tables[i];
+       WriteTag(1, Table.tablename, '', '', True);
+       Table.Active:=true;
+       Table.First;
+       For j:=0 to Table.RecordCount-1 do
+         begin
+           WriteTag(2, 'Rec', '', '', True);
+           For x:=0 to Table.fields.count-1 do  
+             WriteValue(4, Table.fields[x].FieldName, '', '', Table.fields[x].asstring);
+           WriteTag(2, 'Rec', '', '', False);
+           Table.Next;
+         end;
+       WriteTag(1, Table.tablename, '', '', False);
+     end;
+   WriteTag(0, Alias, '', '', False);
+   CloseFile(f);
+ finally
+   Tables.free;
+   Table.free;
+ end;
+ 
+end;
+ 
+ 
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+ CreateXML('MyDatabase', 'c:\XMLFile.xml');
+end;
+</pre>
+<p>XML формируется в ввиде</p>
+<pre name="code" class="xml">
+ &lt;MyDatabase&gt;
+   &lt;Table1&gt;
+     &lt;Rec&gt;
+       &lt;Field1&gt;Value1&lt;/Field1&gt;
+       &lt;Field2&gt;Value2&lt;/Field2&gt;
+       &lt;Field3&gt;Value3&lt;/Field3&gt;
+     &lt;/Rec&gt;
+     &lt;Rec&gt;
+       &lt;Field1&gt;Value1&lt;/Field1&gt;
+       &lt;Field2&gt;Value2&lt;/Field2&gt;
+       &lt;Field3&gt;Value3&lt;/Field3&gt;
+     &lt;/Rec&gt;
+   &lt;/Table1&gt;
+   &lt;Table2&gt;
+     &lt;Rec&gt;
+       &lt;Field1&gt;Value1&lt;/Field1&gt;
+       &lt;Field2&gt;Value2&lt;/Field2&gt;
+       &lt;Field3&gt;Value3&lt;/Field3&gt;
+     &lt;/Rec&gt;
+     &lt;Rec&gt;
+       &lt;Field1&gt;Value1&lt;/Field1&gt;
+       &lt;Field2&gt;Value2&lt;/Field2&gt;
+       &lt;Field3&gt;Value3&lt;/Field3&gt;
+     &lt;/Rec&gt;
+   &lt;/Table2&gt;
+ &lt;/MyDatabase&gt;
+</pre>
+
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<html>
+<head>
+  <title>Сгруппировать свойства наподобие Font</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сгруппировать свойства наподобие Font</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>...чтобы сгруппировать свойства наподобие Font, вам необходимо создать наследника (подкласс) TPersistent. Например:</p>
+<pre name="code" class="delphi">
+TBoolList = class(TPersistent)
+  private
+    FValue1: Boolean;
+    FValue2: Boolean
+  published
+    property Value1: Boolean read FValue1 write FValue1;
+    property Value2: Boolean read FValue2 write FValue2;
+end;
+</pre>
+<p>Затем, в вашем новом компоненте, для этого подкласса необходимо создать ivar. Чтобы все работало правильно, вам необходимо перекрыть конструктор.</p>
+<pre name="code" class="delphi">
+TMyPanel = class(TCustomPanel)
+  private
+    FBoolList: TBoolList;
+  public
+    constructor Create( AOwner: TComponent ); override;
+  published
+    property BoolList: TBoolList read FBoolList write FBoolLisr;
+end;
+</pre>
+<p>Затем добавьте следующий код в ваш конструктор:</p>
+<pre name="code" class="delphi">
+constructor TMyPanel.Create( AOwner: TComponent );
+begin
+  inherited Create( AOwner );
+  FBoolList := TBoolList.Create;
+end;
+</pre>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

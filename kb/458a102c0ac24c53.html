@@ -1,0 +1,99 @@
+<html>
+<head>
+  <title>Несколько расширенных функций по определению позиции</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Несколько расширенных функций по определению позиции</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// Get the Position of a string, starting at the end 
+// Ruckwartiges Vorkommen einer Zeichenkette innerhalb eines strings, Position von hinten 
+ 
+function LastPos(SearchStr, Str: string): Integer;
+ var
+    i: Integer;
+   TempStr: string;
+ begin
+   Result := Pos(SearchStr, Str);
+   if Result = 0 then Exit;
+   if (Length(Str) &gt; 0) and (Length(SearchStr) &gt; 0) then
+   begin
+     for i := Length(Str) + Length(SearchStr) - 1 downto Result do
+     begin
+       TempStr := Copy(Str, i, Length(Str));
+       if Pos(SearchStr, TempStr) &gt; 0 then
+       begin
+         Result := i;
+         break;
+       end;
+     end;
+   end;
+ end;
+ 
+ // Search for the next occurence of a string from a certain Position 
+// Nachstes Vorkommen einer Zeichenkette ab einer frei definierbaren Stelle im string 
+ 
+function NextPos(SearchStr, Str: string; Position: Integer): Integer;
+ begin
+   Delete(Str, 1, Position - 1);
+   Result := Pos(SearchStr, upperCase(Str));
+   if Result = 0 then Exit;
+   if (Length(Str) &gt; 0) and (Length(SearchStr) &gt; 0) then
+     Result := Result + Position + 1;
+ end;
+ 
+ // Get the number of characters from a certain Position to the string to be searched 
+// Anzahl der Zeichen von einer definierbaren Position zur gesuchten Zeichenkette 
+ 
+function NextPosRel(SearchStr, Str: string; Position: Integer): Integer;
+ begin
+   Delete(Str, 1, Position - 1);
+   Result := Pos(SearchStr, UpperCase(Str)) - 1;
+ end;
+ 
+ // simple replacement for strings 
+// einfaches Ersetzen von Zeichenketten 
+ 
+function ReplaceStr(Str, SearchStr, ReplaceStr: string): string;
+ begin
+   while Pos(SearchStr, Str) &lt;&gt; 0 do
+   begin
+     Insert(ReplaceStr, Str, Pos(SearchStr, Str));
+     Delete(Str, Pos(SearchStr, Str), Length(SearchStr));
+   end;
+   Result := Str;
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

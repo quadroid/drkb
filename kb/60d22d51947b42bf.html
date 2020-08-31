@@ -1,0 +1,67 @@
+<html>
+<head>
+  <title>Как узнать количество CD в системе?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать количество CD в системе?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function GetNumberOfCDDrives: Byte;
+ var
+   drivemap, mask: DWORD;
+   i: integer;
+   root: string;
+ begin
+   Result := 0;
+   root := 'A:\';
+   drivemap := GetLogicalDrives;
+   mask := 1;
+   for i := 1 to 32 do
+   begin
+     if (mask and drivemap) &lt;&gt; 0 then
+       if GetDriveType(PChar(root)) = DRIVE_CDROM then
+       begin
+         Inc(Result);
+       end;
+     mask := mask shl 1;
+     Inc(root[1]);
+   end;
+ end;
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   Label1.Caption := IntToStr(GetNumCDDrives);
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

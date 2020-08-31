@@ -1,0 +1,166 @@
+<html>
+<head>
+  <title>Шифрование исполняемого файла</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Шифрование исполняемого файла</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Шифрование исполняемого файла
+ 
+В данном примере реализована процедура шифрования и расшифрования одной 
+только процедуры "вывода сообщения".Процедура изночально не зашифровано,
+что ни есть хорошо.Для того что бы процедура была при запуске программы 
+уже зашифрована надо написать внешнюю программку,которая ба сканировала 
+ехе-шник и находила определенные метки(начальную и конечную)и шифровала 
+бы всё между ними.Таким образом вы получите готовый ехе-шник с уже 
+зашифрованой(зашифроваными)процедурой. Для того чтоб некоторым умным 
+людям (crackers)жить было не легко,после расшифровки и выполнения процедуры 
+можно её опять зашифровать.
+ 
+Более потробную информацию читайте в статье на «Королевства Delphi»
+http://delphi.vitpc.com/mastering/safe/safe.htm
+ 
+Там же читайте Открытый проект "Анти крэковые мучения"
+http://delphi.vitpc.com/mastering/safe/index.htm
+ 
+Зависимости: Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, 
+Forms,Dialogs, StdCtrls;
+Автор:       DDA, Vologda
+Copyright:   «Королевства Delphi» Защита от несанкционированного 
+использования программ, написанных на Delphi
+Дата:        3 марта 2004 г.
+********************************************** }
+ 
+unit Unit1;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    Button1: TButton;
+    Button2: TButton;
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+Procedure metka1;
+//Начальная метка - нужна что бы находить потом в exe файле эти символы и знать
+//откуда начинать шифровать
+//Здесь метка представляет из себя десятичные числа от 0 до 256 через запятые
+//Если метка 50,60,70,80,90 то это соответствует символам 2&lt;FPZ
+//Кстати, такого кол-во символов в метке может быть мало и лучше использовать больше
+//Т.к если программа большая то такие последовательности могут встретиться не один раз
+begin
+  asm
+    DB 50,60,70,80,90 //2&lt;FPZ это метка начальная
+  end;
+ 
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  beep;
+  ShowMessage('Период использования программы истёк!');
+end;
+ 
+Procedure metka2;
+//Конечная метка - нужна чтобы знать до куда нужно шифровать в файле и
+//докуда расшифровывать в памяти
+begin
+  asm
+    DB 68,68,67,45,61 //DDA-= это метка конечная
+  end;
+end;
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+//Процедура Расшифрования(В даном примере и зашифрования)
+var
+ ptrAddr: Pointer; {для Адреса процедуры вывода сообщения}
+ dwOldProtect: DWORD;
+begin
+ ptrAddr := @TForm1.Button1Click;//Получаем адрес процедуры вывода сообщения
+ VirtualProtect(@TForm1.Button1Click, 2048, PAGE_READWRITE, @dwOldProtect);
+ //2048 это размер в байтах с которыми можно работать(по моему)
+ //Если процедура большая то нужно подбирать соответствующий размер
+ while ptrAddr &lt;&gt; @metka2 do //шифрование(слабое) выполняем пока не дойдем то конечной метки
+ begin
+  Byte(ptrAddr^) := Byte(ptrAddr^) xor $41;
+  //каждый байт в памяти ксорится с кодом 65'A'(к примеру)
+  //Используйте более надёжные алгоритмы шифрования
+  inc(Integer(ptrAddr));
+ end;
+ 
+  exit; //нужно так сделать что б компилятор включил эти процедуры
+  metka1;//в код,т.к Delphi не вставляет в результирующий код процедуры,
+  metka2;//которые никогда не используются
+end;
+ 
+//Такое шифрование взято для примера и не рекомендуется для использования серьёзной защиты
+//Также рекомендуется использовать и проверочную контрольную сумму для проверки
+//целостности кода программы.
+//Теперь осталось только сделать отдельную программу которая искала бы
+//в этом exe файле начальную и конечную метки и шифровало бы всё между ними
+//
+//Но для демонстрации можно посмотреть результат и сейчас
+//Запустите программу и нажмите на кнопку 1 -Должно вывестись сообщение и звук.сигнал
+//А если нажать на кнопку 2 - то прцедура нажатия на кнопку 1 зашифруется
+//И если после этого нажать на кнопку 1 -то должно произойти что-то не предсказуемое
+//т.к процедура зашифрованна и что-то нормального вы не увидите.
+ 
+//Источник информации: CopyRight «Королевства Delphi»
+//"Защита от несанкционированного использования программ, написанных на Delphi"
+ 
+ 
+end. 
+ 
+ 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

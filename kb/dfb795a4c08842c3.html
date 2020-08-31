@@ -1,0 +1,97 @@
+<html>
+<head>
+  <title>Как определить, лежит ли точка внутри полигона?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как определить, лежит ли точка внутри полигона?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>The main procedure is called ExploreLine. In this procedure Fst and Lst may be two consecutively points in the polyline. Srch is the point searched.</p>
+
+<pre name="code" class="delphi">
+{ ... }
+const {global}
+  BigM = 1000000;
+ 
+function Pend(Pi, Pf: TPoint): Real;
+begin
+  if (Pf.X = Pi.X) then
+    Result := BigM {for a vertical line}
+  else
+    Result := (Pf.Y - Pi.Y) / (Pf.X - Pi.X);
+end;
+ 
+function Dist(Pi, Pf: TPoint): Real;
+begin
+  Result := sqrt(sqr(Pi.Y - Pf.Y) + sqr(Pi.X - Pf.X))
+end;
+ 
+function CalcPoint(Pi, Pf: TPoint; d: Word): TPoint;
+var
+  k, m: Real; { k=d / (1 + m2)Ѕ }
+begin
+  m := Pend(Pi, Pf);
+  k := d / (Sqrt(1 + Sqr(m)));
+  if ((Pf.X - Pi.X) &lt; 0) then
+  begin
+    Result.X := Pi.X - Round(k);
+    Result.Y := Pi.Y - Round(m * k);
+  end
+  else
+  begin
+    Result.X := Pi.X + Round(k);
+    Result.Y := Pi.Y + Round(m * k);
+  end;
+end;
+ 
+function ExploreLine(Srch, Fst, Lst: TPoint): Boolean;
+var
+  p: Word;
+  Any: TPoint;
+  lim, dis: Real;
+begin
+  lim := Dist(Lst, Fst);
+  p := 1;
+  Any := Fst;
+  repeat
+    Result := TestPoint(Srch, Any);
+    dis := Dist(Any, Fst);
+    Any := CalcPoint(Fst, Lst, Rad * p);
+    Inc(p);
+  until
+    (Result)rr(dis &gt;= lim);
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>Обмен значениями элементов TListView</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Обмен значениями элементов TListView</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Today I want to describe how you may exchange some items in standard TListView.</p>
+<p>For example, you have 5 items and want to swap</p>
+<p>positions for first and third items</p>
+<p>Problem that standard TListView component haven''t</p>
+<p>such method and you must realize it yourself.</p>
+<p>We remember that the standard way from old Pascal times (for numbers) is:</p>
+<pre name="code" class="delphi">
+ procedure Swap(X, Y: Integer);
+ var
+   s: Integer;
+ begin
+   s := X;
+   X := Y;
+   Y := X
+ end;
+</pre>
+<p>Something similar we can do with TListItem too.</p>
+<p>But just to save all strings (caption+sub items) somewhere is not enough because TListItem class have a lot of other information (image indexes, pointer as Data, etc)</p>
+<p>So correct way is to use Assign method:</p>
+<pre name="code" class="delphi">
+ procedure ExchangeItems(lv: TListView; const i, j: Integer);
+ var
+   tempLI: TListItem;
+ begin
+   lv.Items.BeginUpdate;
+   try
+     tempLI := TListItem.Create(lv.Items);
+     tempLI.Assign(lv.Items.Item[i]);
+     lv.Items.Item[i].Assign(lv.Items.Item[j]);
+     lv.Items.Item[j].Assign(tempLI);
+     tempLI.Free;
+   finally
+     lv.Items.EndUpdate
+   end;
+ end;
+</pre>
+<p>So structure is a same as in our sample for Integer. All what we added are</p>
+<p>BeginUpdate and EndUpdate (just allow to reduce a flickering)</p>
+<p>So if you want to exchange items in any ListView, just call this procedure... </p>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<html>
+<head>
+  <title>CrtSock &ndash; модуль для работы с сокетами в Delphi32</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">CrtSock &ndash; модуль для работы с сокетами в Delphi32</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Paul Toth</p>
+<p>WEB-сайт: www.multimania.com/tothpaul</p>
+<p>CrtSock. Модуль для работы с сокетами. </p>
+<p>Совместимость: Delphi 2+ </p>
+<p>Поддерживает TCP и UDP пакеты. </p>
+<p>Не использует winsock.pas, поскольку обращается непосредственно к wsock32.dll. </p>
+<p>Набор функций позволяет разрабатывать как клиентские, так и серверные приложения. </p>
+<p>Перечень включенных в модуль функций: </p>
+<pre name="code" class="delphi">
+// Server side :
+//  - start a server
+//  - wait for a client
+function StartServer(Port:word):integer;
+function WaitClient(Server:integer):integer;
+function WaitClientEx(Server:integer; var ip:string):integer;
+ 
+// Client side :
+//  - call a server
+function CallServer(Server:string;Port:word):integer;
+ 
+// Both side :
+//  - Assign CRT Sockets
+//  - Disconnect server
+procedure AssignCrtSock(Socket:integer;
+                        Var Input,Output:TextFile);
+procedure Disconnect(Socket:integer);
+ 
+// BroadCasting (UDP)
+function StartBroadCast(Port:word):integer;
+function SendBroadCast(Server:integer;
+                       Port:word; s:string):integer;
+function SendBroadCastTo(Server:integer;
+                         Port:word;
+                         ip,s:string):integer;
+function ReadBroadCast(Server:integer; Port:word):string;
+function ReadBroadCastEx(Server:integer;
+                         Port:word;
+                         var ip:string):string;
+ 
+// BlockRead
+function SockAvail(Socket:integer):integer;
+function DataAvail(Var F:TextFile):integer;
+Function BlockReadsock(Var F:TextFile;
+                       var s:string):boolean;
+ 
+Function send(socket:integer;
+              data:pointer;
+              datalen,
+              flags:integer):integer; stdcall; far;
+Function recv(socket:integer;
+              data:pchar;
+              datalen,
+              flags:integer):integer; stdcall; far;
+</pre>
+
+
+<p>Дополнительно в комплект входят модули для работы с FTP, HTTP, SMTP, POP3. </p>
+<p>В качестве примера приведена демонстрационная программа, использующая все эти возможности. </p>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

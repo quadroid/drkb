@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>TCustomSQLDataSet</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TCustomSQLDataSet</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Так как общим предком компонентов dbExpress объявлен класс TDataSet, то задачей класса TCustomSQLDataSet является не столько внесение новой </p>
+<p>функциональности, сколько корректное ограничение возможностей, заложенных в TDataSet. Непосредственно в приложениях этот класс не используется, но информация о нем полезна для понимания других компонентов dbExpress и для создания собственных компонентов на его основе. </p>
+<p>Класс TCustomSQLDataSet является общим предком для компонентов, инкапсулирующих запросы, таблицы и хранимые процедуры. Для их поддержки используются свойства: </p>
+<p>TSQLCommandType = (ctQuery, ctTable, ctStoredProc);&nbsp;&nbsp; property CommandType: TSQLCommandType; </p>
+<p>определяющее тип команды, направляемой серверу; </p>
+<p> property CoramandText: string; </p>
+<p>содержащее текст команды. </p>
+<p>Если серверу передается запрос SQL (CommandType = ctQuery), свойство CoramandText содержит текст запроса. Если это команда на получение таблицы, свойство CommandText содержит имя таблицы, а далее с использованием имени таблицы создается запрос SQL на получение всех полей этой таблицы. Если необходимо выполнить процедуру, свойство CommandText содержит имя этой процедуры. </p>
+<p>Текст команды, которая реально передается на сервер для выполнения, содержится в защищенном свойстве </p>
+<p>property NativeCommand: string; </p>
+<p>Для использования в табличном представлении существует свойство </p>
+<p>property SortFieldNames: string; </p>
+<p>определяющее порядок сортировки записей табличного набора данных. Свойство должно содержать список полей, разделенных точкой с запятой. Это свойство используется для создания выражения ORDER BY для генерируемой команды. </p>
+<p>Для обработки исключительных ситуаций в классах &#8212; потомках может быть использовано защищенное свойство </p>
+<p>property LastError: string; </p>
+<p>которое возвращает текст последней ошибки dbExpress. </p>
+<p>Для ускорения работы набора данных можно отключить получение от сервера метаданных об объекте запроса (таблицы, процедуры, полей, индексов), которые обычно направляются клиенту вместе с результатом запроса. Для этого свойству </p>
+<p>property NoMetadata: Boolean; </p>
+<p>присваивается значение True. </p>
+<p>Однако пользоваться им нужно осторожно, т. к. для некоторых видов команд метаданные необходимы (это операции с использованием индексов). </p>
+<p>Разработчик может управлять процессом получения метаданных. Для этого необходимо заполнить структуру </p>
+<pre name="code" class="delphi">TSchemaType = (stNoSchema, stTables, stSysTables, stProcedures, stColumns, stProcedureParams, stIndexes); 
+TSchemalnfo = record 
+  EType : TSchemaType;  
+  ObjectName : String;  
+  Pattern : String; 
+end;
+</pre>
+
+<p>которая доступна через защищенное свойство </p>
+<p>property Schemalnfo: TSQLSchemalnfo; </p>
+<p>а значит, может использоваться только при создании новых компонентов на основе TCustomSQLDataSet. </p>
+<p>Параметр FTуре определяет тип требуемой информации. Параметр ObjectName &#8212; имя таблицы или хранимой процедуры, если в параметре FType указаны поля, индексы или параметры процедур. </p>
+<p>Внимание </p>
+<p>Если компонент должен получать результирующий набор данных, параметр FType должен обязательно иметь значение stNoSchema. При изменении значения свойства CommandText это условие выполняется автоматически. </p>
+<p>Параметр Pattern определяет, какие ограничения накладываются на метаданные. Он содержит символьную маску, подобную свойству Mask многих визуальных компонентов. Последовательность символов маски обозначается символом %, единичный символ определяется символом . </p>
+<p>При необходимости использовать управляющие символы в качестве маскирующих, применяются двойные символы %% и _. </p>
+<p>Подобно свойству Tag класса TComponent, класс TCustomSQLDataSet имеет строковое свойство </p>
+<p>property DesignerData: string </p>
+<p>в котором разработчик может хранить любую служебную информацию. По существу, это просто лишняя строковая переменная, которую нет необходимости объявлять. </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

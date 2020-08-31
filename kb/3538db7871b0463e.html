@@ -1,0 +1,113 @@
+<html>
+<head>
+  <title>Как вывести Hint для ячейки TDBGrid?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как вывести Hint для ячейки TDBGrid?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Создайте на форме DataSource1, Table1, DataSource2, Table2, DBGrid1. Table1 и Table2 свяжите со своей базой данных. DataSource1 и DataSource2 свяжите соответственно с Table1 и Table2. DBGrid1 свяжите с DataSource1 Table2 и DataSource2 нужны для доступа к какой-нибудь ячейке. Другой способ без их использования: при отрисовке значений ячеек (соответствующее событие), необходимо запомнить значения всех ячеек, находящихся на экране и производить выбор среди них. </p>
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls,
+  Forms, Dialogs, Grids, DBGrids, Db, DBTables;
+ 
+type
+  TForm1 = class(TForm)
+    DataSource1: TDataSource;
+    Table1: TTable;
+    DBGrid1: TDBGrid;
+    Table2: TTable;
+    DataSource2: TDataSource;
+    procedure FormCreate(Sender: TObject);
+  private
+    { Private declarations }
+    procedure AppMess(var Msg: TMsg; var Handled: Boolean);
+  public
+    { Public declarations }
+end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+{$R *.DFM}
+ 
+procedure TForm1.AppMess(var Msg: TMsg; var Handled: Boolean);
+var
+  X, Y: integer;
+  gpt: TGridCoord;
+  s: string;
+  w, len: integer;
+begin
+  if Msg.message=WM_MOUSEMOVE then
+  begin
+    if Msg.hwnd=DBGrid1.Handle then
+    begin
+      x:=LoWord(Msg.lParam);
+      y:=HiWord(Msg.lParam);
+      gpt:=DBGrid1.MouseCoord(x,y);
+      {получить строку и солбец, в которых находится курсор}
+      if (gpt.x&gt;0) and (gpt.y&gt;0) then
+      begin
+        DataSource2.DataSet.First;
+        DataSource2.DataSet.MoveBy(gpt.y-1);
+        s:=Table2.Fields[gpt.x-1].asString;
+        w:=DBGrid1.Columns[gpt.x-1].Width;
+        {получить ширину столбца}
+        len:=DBGrid1.Canvas.TextWidth(s);
+        {получить длину строки в пикселах}
+        if len &gt; w then
+          DBGrid1.Hint:=s;
+        else
+          DBGrid1.Hint:='';
+      end;
+    end;
+  end;
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin 
+  DBGrid1.ShowHint := True;
+  Application.OnMessage := AppMess;
+end;
+ 
+end.
+</pre>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

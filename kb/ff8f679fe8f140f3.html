@@ -1,0 +1,95 @@
+<html>
+<head>
+  <title>Файловые потоки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Файловые потоки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Теперь разберем возможности работы потомка TStream - TFileStream - файловый поток. Этот класс был специально введен для работы с файлами. Для работы с файловым потоком Вам надо записать в Uses модули classes, Sysutils (classes - включает в себя собственно определение класса, Sysutils - некоторые константы необходимые для работы).</p>
+<p>Вот пример записи/перезаписи файла:</p>
+<pre name="code" class="delphi">Procedure WriteFileUsingStream(s, FileName:string);
+begin
+with TFileStream.create(FileName, fmCreate or fmOpenWrite) do
+try
+write(pointer(s)^,length(s));
+finally
+free;
+end;
+end;
+ 
+</pre>
+
+<p>Теперь небольшой разбор:</p>
+<p>TFileStream.create - конструктор класса, его вызов требует указания имени файла и опций его открытия, следующие опции определены:</p>
+<p>fmCreate = $FFFF;</p>
+<p>fmOpenRead = $0000;</p>
+<p>fmOpenWrite = $0001;</p>
+<p>fmOpenReadWrite = $0002;</p>
+<p>fmShareCompat = $0000;</p>
+<p>fmShareExclusive = $0010;</p>
+<p>fmShareDenyWrite = $0020;</p>
+<p>fmShareDenyRead = $0030;</p>
+<p>fmShareDenyNone = $0040;</p>
+<p>Теперь метод Write - этим методом в файл пишется любая информация из буфера любого типа, Вам надо указать только буфер и количество записываемых байтов. В данном случае используется переменная типа String в качестве буффера, но так как для длинных строк она представляет собой лишь указатель, то конструкция "pointer(s)^" заставляет обращаться именно к ее содержимому.</p>
+<p>А вот этот код демонстрирует чтение файла с использованием файлового потока:</p>
+<pre name="code" class="delphi">var p:PChar;
+begin
+GetMem(p, 255);
+with TFileStream.create('c:\myText.txt', fmOpenReadWrite) do
+try
+Seek(10,soFromBeginning);
+read(p^, 254);
+finally
+free;
+end;
+showmessage(p);
+FreeMem(p);
+end;
+ 
+</pre>
+<p>И пояснения к коду:</p>
+<p>1) Никаких проверок длину файла и его наличие здесь не делается - это демонстрационный код, а не готовая процедура чтения.</p>
+<p>2) Файл мы считываем в буфер типа PChar (с тем же успехом можно использовать массив или любой другой контейнер). Для тех кто не помнит - процедуры GetMem(p, 255) и FreeMem(p) - распределение памяти для строки и освобождение памяти.</p>
+<p>3) Метод потока Seek позволяет установить текущую позицию считывания/записи файла. Первый параметер - номер байта, второй - это от чего считать этот байт (у нас считать от начала файла), возможны варианты:</p>
+<p>soFromBeginning - от начала файла</p>
+<p>soFromCurrent - от текущей позиции считывания</p>
+<p>soFromEnd - от конца файла (в этом случае номер байта должен быть отрицательным или равным нулю)</p>
+<p>4) Собственно считывание из потока осуществляется методом read, в котором указывается в качестве параметров буфер в который мы читаем и желаемое количество байт для чтения. Метод read является функцией, которая возвращает количество байт реально прочитанных из потока. </p>
+<p>Заканчивая о файловых потоках хочу упомянуть о методе </p>
+<p>CopyFrom который позволяет перекачивать информацию из одного потока в другой и о свойствах:</p>
+<p>Size - размер файла</p>
+<p>Position - текущая позиция чтения/записи потока</p>
+<p>Работа с файловыми потоками весьма быстра, этот класс, являсь классом VCL, в то же время базируется на низкоуровневых функциях Windows, что обеспечивает очень высокую скорость работы и стабильность операций. К тому же многие компоненты и классы VCL поддерживаю прямое чтение и запись с файловыми потоками, что занчительно упрощает работу - например TStringList, TBlobField, TMemoField и другие.</p>
+<p>Файловые потоки могут быть рекомендованы к использованию в большинстве случаев для чтения и записи файлов (за исключением специфических ситуаций, требующих каких-то других подходов), другими словами если вам надо просто записать или считать файл, используйте файловые потоки. </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

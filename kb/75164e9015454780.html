@@ -1,0 +1,106 @@
+<html>
+<head>
+  <title>Как создать простейший эксперт?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как создать простейший эксперт?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+This unit can be compiled into a package and will then appear in the Delphi 
+Help menu. 
+} 
+unit SDCSimpleExpert; 
+ 
+interface 
+ 
+uses ToolsApi; 
+ 
+type 
+  TSDCSimpleExpert = class(TNotifierObject, IOTAMenuWizard, IOTAWizard) 
+  public 
+    function GetIDString: string; 
+    function GetName: string; 
+    function GetState: TWizardState; 
+    procedure Execute; 
+    function GetMenuText: string; 
+  end; 
+ 
+procedure Register; 
+ 
+implementation 
+ 
+uses Dialogs; 
+ 
+procedure Register; 
+begin 
+  {register expert} 
+  RegisterPackageWizard(TSDCSimpleExpert.Create); 
+end; 
+ 
+{ TSDCSimpleExpert } 
+ 
+procedure TSDCSimpleExpert.Execute; 
+begin 
+  {code to execute when menu item is clicked} 
+  ShowMessage('Hello SwissDelphiCenter Simple Expert.'); 
+end; 
+ 
+function TSDCSimpleExpert.GetIDString: string; 
+begin 
+  {unique expert identifier} 
+  Result := 'SwissDelphiCenter.SimpleExpert'; 
+end; 
+ 
+function TSDCSimpleExpert.GetMenuText: string; 
+begin 
+  {caption of menu item in help menu} 
+  Result := 'SwissDelphiCenter Simple Expert'; 
+end; 
+ 
+function TSDCSimpleExpert.GetName: string; 
+begin 
+  {name of the expert} 
+  Result := 'SwissDelphiCenter Simple Expert'; 
+end; 
+ 
+function TSDCSimpleExpert.GetState: TWizardState; 
+begin 
+  Result := [wsEnabled]; 
+end; 
+ 
+end. 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

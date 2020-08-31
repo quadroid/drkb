@@ -1,0 +1,112 @@
+<html>
+<head>
+  <title>Очистка строки (символьное значение числа) от пробелов, нулей и точки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Очистка строки (символьное значение числа) от пробелов, нулей и точки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Очистка строки (символьное значение числа) от пробелов, нулей и точки
+ 
+Функция возращает строку очищенную от символов: пробел, ноль, точка.
+ 
+Зависимости: нет
+Автор:       Виталий, center_sapr@mnogo.ru, Львов
+Copyright:   Witek
+Дата:        26 апреля 2002 г.
+***************************************************** }
+ 
+unit Unit2;
+ 
+interface
+ 
+function StrFl(st: string): string;
+ 
+implementation
+ 
+function StrFl(st: string): string;
+label
+  p1, p2, p3;
+var
+  poz: Byte;
+  k: integer;
+  stt: string;
+begin
+  k := Length(st);
+  if k &lt;= 1 then
+    goto p2;
+  p1:
+  stt := Copy(st, 1, 1); {Очистка от пробелов}
+  if stt = ' ' then
+  begin
+    st := Copy(st, 2, k - 1);
+    k := k - 1;
+    goto p1;
+  end;
+  stt := Copy(st, k, 1);
+  if stt = ' ' then
+  begin
+    st := Copy(st, 1, k - 1);
+    k := k - 1;
+    goto p1;
+  end;
+  p3:
+  poz := Pos('.', st); {Очистка от нулей}
+  if poz = 0 then
+    goto p2;
+  stt := Copy(st, k, 1);
+  if stt = '0' then
+  begin
+    st := Copy(st, 1, k - 1);
+    k := k - 1;
+    goto p3;
+  end;
+  if stt = '.' then {Очистка от точки}
+  begin
+    st := Copy(st, 1, k - 1);
+  end;
+  p2:
+  StrFl := st;
+end;
+ 
+end.
+//Пример результатов: 
+ 
+//5.000  -&gt; 5
+//5.001  -&gt; 5.001
+//05.100 -&gt; 05.1
+ 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

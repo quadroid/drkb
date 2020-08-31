@@ -1,0 +1,96 @@
+<html>
+<head>
+  <title>Выделение некоторых узлов другим шрифтом</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Выделение некоторых узлов другим шрифтом</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses 
+  CommCtrl; 
+ 
+procedure SetNodeBoldState(Node: TTreeNode; Value: Boolean); 
+var 
+  TVItem: TTVItem; 
+begin 
+  if not Assigned(Node) then Exit; 
+  with TVItem do 
+  begin 
+    mask := TVIF_STATE or TVIF_HANDLE; 
+    hItem := Node.ItemId; 
+    stateMask := TVIS_BOLD; 
+    if Value then state := TVIS_BOLD  
+    else  
+      state := 0; 
+    TreeView_SetItem(Node.Handle, TVItem); 
+  end; 
+end; 
+ 
+// Example: Make the first node bold. 
+// Beispiel: Erster Eintrag fett machen. 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  SetNodeBoldState(TreeView1.Items[0], True); 
+end;
+ 
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+&nbsp;</p>
+<hr />
+<pre name="code" class="delphi">
+uses CommCtrl;
+...
+procedure SetNodeState(node :TTreeNode; Flags: Integer);
+var
+  tvi: TTVItem;
+begin
+  FillChar(tvi, Sizeof(tvi), 0);
+  tvi.hItem := node.ItemID;
+  tvi.mask := TVIF_STATE;
+  tvi.stateMask := TVIS_BOLD or TVIS_CUT;
+  tvi.state := Flags;
+  TreeView_SetItem(node.Handle, tvi);
+end;
+ 
+//И вызываем: 
+ 
+SetNodeState(TreeView1.Selected, TVIS_BOLD); // Текст жиpным
+SetNodeState(TreeView1.Selected, TVIS_CUT); // Иконкy бледной (Ctrl+X)
+SetNodeState(TreeView1.Selected, TVIS_BOLD or TVIS_CUT); // Текст жиpным
+SetNodeState(TreeView1.Selected, 0); // Ни того, ни дpyгого
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

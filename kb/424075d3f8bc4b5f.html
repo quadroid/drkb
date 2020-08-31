@@ -1,0 +1,71 @@
+<html>
+<head>
+  <title>Позиция курсора в TRichEdit</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Позиция курсора в TRichEdit</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Так как вопрос давольно часто поднимается в форумах, то хотелось бы привести ответ на него. Итак, как же получить текущие координаты курсора (Row и Col) в TRichEdit ?</p>
+
+<p>Вот пример решения данной проблемы:</p>
+<pre name="code" class="delphi">
+Procedure TForm1.GetPosition(Sender: TRichEdit);
+var
+  iX,iY  : Integer;
+  TheRichEdit : TRichEdit;
+begin
+  iX := 0; iY := 0;
+  TheRichEdit := TRichEdit(Sender);
+  iY := SendMessage(TheRichEdit.Handle, EM_LINEFROMCHAR, TheRichEdit.SelStart,
+  0);
+  iX := TheRichEdit.SelStart - SendMessage(TheRichEdit.Handle, EM_LINEINDEX,
+  iY, 0);
+  Panel1.Caption := IntToStr(iY + 1) + ':' + IntToStr(iX + 1) ;
+end;
+ 
+procedure TForm1.RichEditMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  GetPosition(RichEdit);
+end;
+ 
+procedure TForm1.RichEditKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  GetPosition(RichEdit);
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

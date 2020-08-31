@@ -1,0 +1,139 @@
+<html>
+<head>
+  <title>Отладка приложений с технологией dbExpress</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Отладка приложений с технологией dbExpress</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Наряду с обычными методами отладки исходного кода, в dbExpress существует возможность контроля запросов, проходящих на сервер через соединение. Для этого используется компонент TSQLMonitor. </p>
+
+<p>Через свойство </p>
+
+<p>property SQLConnection: TSQLConnection; </p>
+
+<p>компонент связывается с отлаживаемым соединением. Затем компонент включается установкой Active = True. </p>
+
+<p>Теперь во время выполнения приложения сразу после открытия соединения свойство </p>
+
+<p>property TraceList: TStrings; </p>
+
+<p>будет заполняться информацией обо всех проходящих командах. Содержимое этого списка можно сохранить в файле при помощи метода </p>
+
+<p>procedure SaveToFile(AFileName: string); </p>
+
+<p>Эту же информацию можно автоматически добавлять в текстовый файл, определяемый свойством </p>
+
+<p>property FileName: string; </p>
+
+<p>но только тогда, когда свойство </p>
+
+<p>property AutoSave: Boolean; </p>
+
+<p>будет иметь значение True. Свойство </p>
+
+<p>property MaxTraceCount: Integer; </p>
+
+<p>определяет максимальное число контролируемых команд, а также управляет процессом контроля. При значении -1 ограничения снимаются, а при значении 0 контроль останавливается. Текущее число проверенных команд содержится в свойстве </p>
+
+<p>property TraceCount: Integer; </p>
+
+<p>Перед записью команды в список вызывается метод-обработчик </p>
+
+<p>TTraceEvent = procedure(Sender: TObject; CBInfo: pSQLTRACEDesc; var LogTrace: Boolean) of object;&nbsp; </p>
+
+<p>property OnTrace: TTraceEvent; </p>
+
+<p>а сразу после записи в список вызывается </p>
+
+<p>TTraceLogEvent = procedure (Sender: TObject; CBInfo: pSQLTRACEDesc) of object; </p>
+
+<p>property OnLogTrace: TTraceLogEvent; </p>
+
+<p>Таким образом, разработчик получает компактный и симпатичный компонент, позволяющий без усилий получать информацию о прохождении команд в соединении. </p>
+
+<p>Если же компонент TSQLMonitor не подходит, можно воспользоваться методом </p>
+
+<p>procedure SetTraceCallbackEvent(Event: TSQLCallbackEvent; IClientlnfo: Integer); </p>
+
+<p>компонента TSQLConnection. Параметр процедурного типа Event определяет функцию, которая будет вызываться при выполнении каждой команды. Параметр iclientinfo должен содержать любое число. </p>
+
+<p>Он позволяет разработчику самостоятельно определить функцию типа </p>
+
+<p>TSQLCallbackEvent: </p>
+
+<p>TRACECat = TypedEnum; </p>
+
+<p>TSQLCallbackEvent = function(CallType: TRACECat; CBInfo: Pointer): CBRType; stdcall; </p>
+
+<p>Эта функция будет вызываться каждый раз при прохождении команды. Текст команды будет передаваться в буфер CBInfo. Разработчику необходимо лишь выполнить запланированные действия с буфером внутри функции. </p>
+
+<p>Рассмотрим в качестве примера следующий исходный код. </p>
+
+<p>function GetTracelnfо(CallType: TRACECat; CBInfo: Pointer): CBRType;stdcall; </p>
+<p>begin </p>
+<p>  if Assigned(Forml.TraceList) then Forml.TraceList.Add(pChar(CBinfo)); </p>
+<p>end; </p>
+
+<p>procedure TForml.MyConnectionBeforeConnect(Sender: TObject); </p>
+<p>begin </p>
+<p>  TraceList := TStringList.Create;&nbsp; </p>
+<p>end; </p>
+
+<p>procedure TForml.MyConnectionAfterDisconnect(Sender: TObject); </p>
+<p>begin </p>
+<p>  if Assigned(TraceList) then </p>
+<p>  begin </p>
+<p> &nbsp;&nbsp; TraceList.SaveToFile('с:\Temp\TraceInfo.txt'); </p>
+<p> &nbsp;&nbsp; TraceList.Free; </p>
+<p>  end; </p>
+<p>end; </p>
+
+<p>procedure TForml.StartBtnClick(Sender: TObject); </p>
+<p>begin </p>
+<p>  MyConnection.SetTraceCallbackEvent(GetTracelnfo, 8); </p>
+<p>  MyConnection.Open; </p>
+<p>  {...} </p>
+<p>  MyConnection.Close; </p>
+<p>end; </p>
+
+<p>Перед открытием соединения в методе-обработчике BeforeConnection создается объект типа TStringList. После закрытия соединения этот объект сохраняется в файле и уничтожается. </p>
+
+<p>Перед открытием соединения (метод-обработчик нажатия кнопки Start) при помощи метода SetTraceCallbackEvent с соединением связывается функция GetTracelnfo. </p>
+
+<p>Таким образом, по мере прохождения команд информация о них будет накапливаться в списке. После закрытия соединения список сохраняется в текстовом файле. </p>
+
+<p id="note">Примечание&nbsp; </p>
+
+<p>В своей работе компонент TSQLMonitor также использует вызовы метода SetTraceCallbackEvent. Поэтому одновременно применять компонент и собственные функции нельзя. </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

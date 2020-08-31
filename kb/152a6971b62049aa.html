@@ -1,0 +1,575 @@
+<html>
+<head>
+  <title>Визуальный HTM- редактор своими руками</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Визуальный HTM- редактор своими руками</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Визуальный HTML редактор своими руками</p>
+Здравствуйте, дорогие друзья. Понадобилась мне недавно компонента визуального html редактора. Сколько в internete не искал я информации по этому поводу - не нашел. В смысле, не нашел приемлемого решения, ведь платить $19.99 за одну компоненточку жалко. Поэтому сейчас я отмниму хлеб у некоторых компоненто-писателей и расскажу вам, как можно сделать полноценный html редактор своими руками, тем более, что для этого практически ничего не нежно. </p>
+Нам понадобится самая малость. В первую очередь - delphi 5-7 (у меня стоит 7-я версия, и весь код тестировался именно в этой версии). Такое ограничение версий вызвано тем, что компонент twebbrowser впервые "прописался" на вкладке internet именно в 5-й версии (в 4-й его надо было устанавливать как компонент activex). Еще необходимо, чтобы в системе был установлен internet explorer 4 и выше, по тем причинам, что именно его части являются основой webbrowser'a. </p>
+Сначала нам надо перевести webbrowser в режим редактирования. Для этого у каждого документа (согласно объектной модели это document) существует свойство designmode. Если установить его в 'on', то наша компонента автоматически переключается в режим редактирования, а если установить его в 'off', то компонент вернется в режим просмотра. </p>
+Проверим это! Создадим новую форму, разместим на ней компоненту twebbrowser и несколько компонент tspeedbutton. Затем напишем такой код: </p>
+<pre name="code" class="delphi">unit main;
+&nbsp;
+interface
+...
+&nbsp;
+var
+form1: tform1;
+disp: idispatch;
+editor: ihtmldocument2;
+&nbsp;
+implementation
+&nbsp;
+{$r *.dfm}
+&nbsp;
+procedure tform1.webbrowser1documentcomplete(sender: tobject;
+const pdisp: idispatch; var url: olevariant);
+var
+currentwb: iwebbrowser;
+editor: ihtmldocument2;
+begin
+disp:=pdisp;
+end;
+&nbsp;
+procedure tform1.speedbutton1click(sender: tobject);
+var
+currentwb: iwebbrowser;
+begin
+currentwb := disp as iwebbrowser;
+editor:=(currentwb.document as ihtmldocument2);
+editor.designmode := 'on';
+&nbsp;
+end;
+procedure tform1.formcreate(sender: tobject);
+begin
+webbrowser1.navigate('about:&lt;html&gt;&lt;body&gt;&lt;/body&gt;&lt;/html&gt;');
+end;
+</pre>
+&nbsp;</p>
+Теперь по порядку о том, что мы написали. В событии oncreate формы мы загружаем в браузер простую страницу (напомню, что протокол about: позволяет загружать в браузер html строку). Это необходимо для того, чтобы в последующем мы могли обращаться к документу. Сразу после этого будет вызван обработчик события ondocumentcomplete. Но пока еще ничего не произошло. Внимательный читатель мог обратить внимание, что для перевода браузера в режим редактирования надо нажать кнопку 1. editor - это экземпляр нашего документа (document). Его свойство designmode устанавливается в 'on'. Теперь наш редактор практически готов. Он уже умеет править текст, копировать/вырезать/вставлять текст и картинки, делать текст жирным/подчеркнутым/наклонным. Для этого есть соответствующие комбинации клавиш. </p>
+Стандартые сочетания клавиш </p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>ctrl + c</p>
+</td>
+<td ><p>Копировать</p>
+</td>
+<td ><p>ctrl + x</p>
+</td>
+<td ><p>Вырезать</p>
+</td>
+<td ><p>ctrl + v</p>
+</td>
+<td ><p>Вставить</p>
+</td>
+</tr>
+<tr >
+<td ><p>ctrl + b</p>
+</td>
+<td ><p>Жирный текст</p>
+</td>
+<td ><p>ctrl + i</p>
+</td>
+<td ><p>Наклонный текст</p>
+</td>
+<td ><p>ctrl + u</p>
+</td>
+<td ><p>Подчеркнутый текст</p>
+</td>
+</tr>
+<tr >
+<td ><p>ctrl + z</p>
+</td>
+<td ><p>Отменить</p>
+</td>
+<td ><p>ctrl + y</p>
+</td>
+<td ><p>Повторить</p>
+</td>
+<td ><p>ctrl + k</p>
+</td>
+<td ><p>Гиперссылка</p>
+</td>
+</tr>
+<tr >
+<td ><p>ctrl + f</p>
+</td>
+<td ><p>Найти</p>
+</td>
+<td ><p>ctrl + a</p>
+</td>
+<td ><p>Выделить всё</p>
+</td>
+<td ><p>ctrl + left-click</p>
+</td>
+<td ><p>Выделить блок
+</td>
+</tr>
+</table>
+"Это, конечно, хорошо, что есть горячие клавиши, но мне не хотелось бы все их запоминать" - можете сказать вы. Хорошо. Тогда давайте разберем, как из delphi заставить webbrowser выполнять все эти действия. Для этого есть метод execcommand интерфейса ihtmltxtrange (он описан в модуле mshtml_tlb). Рассмотрим простой пример. </p>
+<pre name="code" class="delphi">procedure tform1.speedbutton2click(sender: tobject);
+var
+range: ihtmltxtrange;
+begin
+range:=(editor.selection.createrange as ihtmltxtrange);
+range.execcommand('bold',false,emptyparam)
+end;
+</pre>
+&nbsp;</p>
+Сначала в этой процедуре создается объект range. После этого вызывается метод execcommand:<br>
+function execcommand(cmdid: widestring; showui: wordbool; value: olevariant): wordbool;<br>
+cmdid &#8211; это строка идентификатор команды (в нашем примере 'bold' заставляет редактор переключаться между жирным и обычным начертанием текста); полный список команд смотри в приложении.<br>
+showui &#8211; show user interface - показывать интерфейс пользователя (если таковой имеется, как правило это различные диалоговые окна). Если параметр равен false, то команда выполняется без предупреждения.<br>
+<p>value &#8211; содержит дополнительную информацию в зависимости от команды. </p>
+Несколько слов об объекте range. Помимо уже знакомого нам execcommand этот объект обладает еще рядом свойств и методов, некоторые из которых сейчас рассмотрим. </p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>text</p>
+</td>
+<td ><p>widestring</p>
+</td>
+<td ><p>Содержит текст выделения (без тегов html)</p>
+</td>
+</tr>
+<tr >
+<td ><p>htmltext</p>
+</td>
+<td ><p>widestring</p>
+</td>
+<td ><p>Полный текст выделения</p>
+</td>
+</tr>
+<tr >
+<td ><p>movestart(const unit_:widestring;<br>
+<p>count:integer)</p>
+</td>
+<td ><p>procedure</p>
+</td>
+<td ><p>Перемещает начальную позицию выделения на count символов вправо (если count&lt;0, то влево), unit_-единицы измерения смещения (чаще всего используется 'character': 1 символ). При этом конечная позиция не смещается.</p>
+</td>
+</tr>
+<tr >
+<td ><p>movestart(const unit_:widestring;count:integer)</p>
+</td>
+<td ><p>procedure</p>
+</td>
+<td ><p>То же самое, только для конечной позиции выделения.</p>
+</td>
+</tr>
+<tr >
+<td ><p>pastehtml(const html: widestring);</p>
+</td>
+<td ><p>procedure</p>
+</td>
+<td ><p>Вставляет html-строку</p>
+</td>
+</tr>
+<tr >
+<td ><p>execcommandshowhelp(cmdid: widestring);</p>
+</td>
+<td ><p>function,<br>
+<p>wordbool</p>
+</td>
+<td ><p>Отображает помощь по команде, указанной в cmdid
+</td>
+</tr>
+</table>
+Пожалуй, на сегодня всё. Об остальных объектах (картинки, таблицы, элементы управления) поговорим в другой раз. Будут вопросы - пишите: samum2000@mail15.com.</p>
+Приложение.<br>
+<p>Доступные команды </p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>backcolor</p>
+</td>
+<td ><p>Устанавливает или получает цвет фона текущего выделения. value должно содержать имя цвета или его шеснадцитиричный rgb эквивалент (например, #ffcc00).</p>
+</td>
+</tr>
+<tr >
+<td ><p>bold</p>
+</td>
+<td ><p>Переключает начертание текста текущего выделения между полужирным и нормальным.</p>
+</td>
+</tr>
+<tr >
+<td ><p>copy</p>
+</td>
+<td ><p>Копирует выделение в буфер обмена</p>
+</td>
+</tr>
+<tr >
+<td ><p>createbookmark</p>
+</td>
+<td ><p>Получает имя якоря или создает его для текущего выделения. value - строка, содержащая имя якоря.</p>
+</td>
+</tr>
+<tr >
+<td ><p>createlink</p>
+</td>
+<td ><p>Получает url ссылки или создает новую ссылку. Параметр value должен содержать url.</p>
+</td>
+</tr>
+<tr >
+<td ><p>cut</p>
+</td>
+<td ><p>Вырезает текущее выделение в буфер обмена.</p>
+</td>
+</tr>
+<tr >
+<td ><p>delete</p>
+</td>
+<td ><p>Очищает текущее выделение (удаляет всё его содержимое).</p>
+</td>
+</tr>
+<tr >
+<td ><p>find</p>
+</td>
+<td ><p>Находит текст, заданный в параметре value в текущем выделении.</p>
+</td>
+</tr>
+<tr >
+<td ><p>fontname</p>
+</td>
+<td ><p>Устанавливает шрифт для текущего выделения. value содержит описание этого шрифта (как в теге font).</p>
+</td>
+</tr>
+<tr >
+<td ><p>fontsize</p>
+</td>
+<td ><p>Устанавливает размер шрифта. value - число от 1 до 7 включительно.</p>
+</td>
+</tr>
+<tr >
+<td ><p>forecolor</p>
+</td>
+<td ><p>Устанавливает цвет текста. value должно содержать имя цвета или его шеснадцитиричный rgb эквивалент (например, #ffcc00)</p>
+</td>
+</tr>
+<tr >
+<td ><p>formatblock</p>
+</td>
+<td ><p>Устанавливает или получает форматирование текущего блока. value может содержать теги-описатели.</p>
+</td>
+</tr>
+<tr >
+<td ><p>indent</p>
+</td>
+<td ><p>Увеличивает отступ выделенного текста на одну единицу приращения</p>
+</td>
+</tr>
+<tr >
+<td ><p>insertbutton</p>
+</td>
+<td ><p>Записывает идентификатор кнопки вместо текущего выделения. value - строка, содержащая идентификатор кнопки.</p>
+</td>
+</tr>
+<tr >
+<td ><p>insertfieldset</p>
+</td>
+<td ><p>То же для поля ввода.</p>
+</td>
+</tr>
+<tr >
+<td ><p>inserthorizontalrule</p>
+</td>
+<td ><p>То же для горизонтальной полосы.</p>
+</td>
+</tr>
+<tr >
+<td ><p>insertiframe</p>
+</td>
+<td ><p>То же для встроеных фреймов (iframe).</p>
+</td>
+</tr>
+<tr >
+<td ><p>insertimage</p>
+</td>
+<td ><p>То же для изображений.</p>
+</td>
+</tr>
+<tr >
+<td ><p>insertinputbutton</p>
+</td>
+<td ><p>То же для кнопки.</p>
+</td>
+</tr>
+<tr >
+<td ><p>insertinputcheckbox</p>
+</td>
+<td ><p>То же для чекбоксов (checkbox).</p>
+</td>
+</tr>
+<tr >
+<td ><p>insertinputfileupload</p>
+</td>
+<td ><p>То же для элемента выбора файла.</p>
+</td>
+</tr>
+<tr >
+<td ><p>insertinputhidden</p>
+</td>
+<td ><p>То же для скрытого поля (hidden)</p>
+</td>
+</tr>
+<tr >
+<td ><p>insertinputimage</p>
+</td>
+<td ><p>То же для изображения.</p>
+</td>
+</tr>
+<tr >
+<td ><p>insertinputpassword</p>
+</td>
+<td ><p>То же для поля ввода пароля.</p>
+</td>
+</tr>
+<tr >
+<td ><p>insertinputradio</p>
+</td>
+<td ><p>То же для радио-кнопок (radio)</p>
+</td>
+</tr>
+<tr >
+<td ><p>insertinputreset</p>
+</td>
+<td ><p>То же для кнопки reset.</p>
+</td>
+</tr>
+<tr >
+<td ><p>insertinputsubmit</p>
+</td>
+<td ><p>То же для кнопки submit.</p>
+</td>
+</tr>
+<tr >
+<td ><p>insertinputtext</p>
+</td>
+<td ><p>То же для поля ввода текста.</p>
+</td>
+</tr>
+<tr >
+<td ><p>insertparagraph</p>
+</td>
+<td ><p>Вставляет новый раздел (абзац).</p>
+</td>
+</tr>
+<tr >
+<td ><p>insertorderedlist</p>
+</td>
+<td ><p>Переключает стиль текущего выделения между списком и простым текстом.</p>
+</td>
+</tr>
+<tr >
+<td ><p>insertunorderedlist</p>
+</td>
+<td ><p>То же самое.</p>
+</td>
+</tr>
+<tr >
+<td ><p>insertselectdropdown</p>
+</td>
+<td ><p>Записывает элемент drop-down вместо текущего выделения. value должно содержать идентификатор элемента.</p>
+</td>
+</tr>
+<tr >
+<td ><p>inserttextarea</p>
+</td>
+<td ><p>То же для элемента textarea.</p>
+</td>
+</tr>
+<tr >
+<td ><p>italic</p>
+</td>
+<td ><p>Переключает начертание текста текущего выделения между наклонным и обычным.</p>
+</td>
+</tr>
+<tr >
+<td ><p>justifycenter</p>
+</td>
+<td ><p>Устанавливает выравнивание по центру для всего блока, в котором расположено текущее выделение.</p>
+</td>
+</tr>
+<tr >
+<td ><p>justifyleft</p>
+</td>
+<td ><p>Устанавливает выравнивание по левому краю для всего блока, в котором расположено текущее выделение.</p>
+</td>
+</tr>
+<tr >
+<td ><p>justifyright</p>
+</td>
+<td ><p>Устанавливает выравнивание по правому краю для всего блока, в котором расположено текущее выделение.</p>
+</td>
+</tr>
+<tr >
+<td ><p>outdent</p>
+</td>
+<td ><p>Уменьшает отступ для всего блока, в котором расположено выделение, на одну единицу.</p>
+</td>
+</tr>
+<tr >
+<td ><p>overwrite</p>
+</td>
+<td ><p>Переключается между режимами вставки текста и замены текста при вводе. value: true - замена, false - вставка.</p>
+</td>
+</tr>
+<tr >
+<td ><p>paste</p>
+</td>
+<td ><p>Вставляет текст из буфера обмена вместо текущего выделения.</p>
+</td>
+</tr>
+<tr >
+<td ><p>refresh</p>
+</td>
+<td ><p>Обновляет текущий документ.</p>
+</td>
+</tr>
+<tr >
+<td ><p>removeformat</p>
+</td>
+<td ><p>Удаляет из текущего фрагмента все теги форматирования</p>
+</td>
+</tr>
+<tr >
+<td ><p>selectall</p>
+</td>
+<td ><p>Выделяет все содержимое документа.</p>
+</td>
+</tr>
+<tr >
+<td ><p>unbookmark</p>
+</td>
+<td ><p>Удаляет все закладки из текущего выделения.</p>
+</td>
+</tr>
+<tr >
+<td ><p>underline</p>
+</td>
+<td ><p>Переключает начертание текста текущего выделения между подчеркнутым и обычным.</p>
+</td>
+</tr>
+<tr >
+<td ><p>unlink</p>
+</td>
+<td ><p>Удаляет все гиперссылки из текущего выделенного фрагмента.</p>
+</td>
+</tr>
+<tr >
+<td ><p>unselect</p>
+</td>
+<td ><p>Снимает выделение.
+</td>
+</tr>
+</table>
+
+Часть ii. </p>
+В прошлый раз речь шла о том, как работать с текстом в html редакторе. В этот раз мы поговорим о том, как работать с другими объектами html страниц - контролами. К ним относятся всевозможные элементы управления, изображения, фреймы, таблицы. </p>
+Рассмотрим общий принцип работы с этими элементами. Как и в случае с текстом, прежде всего надо создать объект-выделение (назовем его range):</p>
+range: ihtmlcontrolrange;</p>
+Интерфейс ihtmlcontrolrange предназначен специально для выполнения различных операций с выделенными объектами страницы, однако, его совершенно невозможно применять для работы с текстовым выделением - вы получите исключительную ситуацию eintfcasterror с сообщением о том, что выбраннй интерфейс не поддерживается (тоже самое будет, если использовать ihtmltxtrange для работы с контролами). Чтобы избегать подобных ситуаций, в интерфейсе ihtmlselectionobject введено поле type_: widestring. В зависимости от типа выделения оно будет содержать 'control' или 'text' (если ничего не выделено, то это поле будет содежать 'none'). Вот простой пример того, как можно вставить картинку в определенное место документа (как открыть документ в режиме редактирования было описано в первой статейке):</p>
+<pre name="code" class="delphi">
+procedure tform1.speedbutton13click(sender: tobject);
+var
+ctrlrange: ihtmlcontrolrange;
+textrange: ihtmltxtrange;
+begin
+if editor.selection.type_='control' then
+begin
+ctrlrange:=(editor.selection.createrange as ihtmlcontrolrange);
+if not ctrlrange.querycommandenabled('insertimage') then
+application.messagebox('not supported!','');
+else
+ctrlrange.execcommand('insertimage',false,'c:\my files\porshe1.jpg') end
+else
+begin
+textrange:=(editor.selection.createrange as ihtmltxtrange);
+textrange.execcommand('insertimage',false,'c:\my files\porshe1.jpg')
+end;
+end;
+</pre>
+&nbsp;</p>
+Обратите внимание на то, что когда веделен объект, мы используем метод querycommandenabled чтобы убедиться, что данную комманду можно выполнить над выделенным контролом. Это связано с тем, что, например, встроенный фрейм нельзя заменить на картинку. На самом деле это проверка необязательная, но я все же рекомендую её проводить во избежание неприятных последствий. Еще один метод - querycommandsupported(cmdid: widestring): boolean позволяет выянить, поддерживается ли данная комманда данным типом выделения. Такие же методы есть и у интерфейса ihtmltxtrange, но в данном случае в них нет необходимости.</p>
+С таблицами дело обстоит гораздо сложнеее. Контролы типа htmltable, htmlrow и htmlcell, согласно документации от microsoft, предназначены для создания таблиц при формировании страницы на стороне сервера. Соответсвенно, в нашем случае возникают некоторые трудности: в частности, как добавить полученную таблицу в документ (во всяком случае, у меня ничего не вышло). Как вариант я предлагаю следующее: создавать таблицу типа htmltable, работать с ней так, как будто мы формируем документ на сервере, а затем, использовать свойство outerhtml. Это поле содержит текстовое представление таблицы в формате html. Рассмотрим подробнее этот способ на примере: </p>
+<pre name="code" class="delphi">procedure tform1.speedbutton14click(sender: tobject);
+var 
+table: htmltable; 
+textrange: ihtmltxtrange; 
+row: htmltablerow; 
+col: htmltablecol; 
+i: integer; 
+begin 
+if editor.selection.type_&lt;&gt;'control' then 
+begin 
+table:=(editor.createelement('table') as htmltable); 
+for i:=0 to 3 do 
+begin 
+row:=(table.insertrow(i) as disphtmltablerow); 
+col:=(row.insertcell(0) as disphtmltablecol); 
+col.width:='200'; 
+col.style.bordercolor:='#ff0000'; 
+col.innertext:='Ячейка #'+inttostr(i); 
+end; 
+table.style.bordercolor:='#00ff00'; 
+textrange:=(editor.selection.createrange as ihtmltxtrange); 
+textrange.pastehtml(table.outerhtml); 
+end; 
+end; 
+</pre>
+&nbsp;</p>
+На мой взгляд, этот пример достаточно информативен. Очевидное преимущество использования объекта htmltable и сопутствующих ему объектов состоит в том, что программисту не надо беспокоится о том, как описать на html то или иное свойство таблицы, нет необходимости работать со строками, писать парсеры и т.п. - таблица сама себя опишет. Однако, очевидным недостатком такого метода является то, что в последствии невозможно будет обратиться к созданной таблице как к объекту, и изменить её програмным методом (использование парсеров и интерпритаторов кода в расчет брать не будем). <br>
+[Дополнение от 27.07.2004:<br>
+<p>Я еще несколько раз прочитал msdn и нашел таки способ нормально работать с таблицами и ячейками. Вот простой пример того, как можно заменить текст в уже созданной таблице: </p>
+<pre name="code" class="delphi">var
+i, j: integer;
+ovtable: olevariant;
+t: htmltable;
+begin
+// В документе должна быть таблица, описанная примерно так:
+//&lt;table ... id="mytable"&gt;
+&nbsp;
+ovtable := webbrowser1.oleobject.document.getelementsbyname('mytable').item(0);
+//webbrowser1.oleobject.document.getelementsbyname('mytable') - 
+//это коллекция элементов (ведь несколько элементов могут иметь 
+//id равный "mytable"
+for i := 0 to (ovtable.rows.length - 1) do
+for j := 0 to (ovtable.rows.item(i).cells.length - 1) do
+ovtable.rows.item(i).cells.item(j).innertext:='new text!';
+end;
+</pre>
+&nbsp;</p>
+То есть теперь у нас есть возможность как получать данные из таблицы, так и заносить их туда в любой момент времени. Все свойства соответствуют свойствам dom. Остается только сказать, что таким образом можно работать и с формами, и с изображениями, в общем со всем, что поддерживается в Объектной модели докумета (dom).]<br>
+Если вы знаете более изящный способ работы с таблицами, или можете чем-то дополнить изложенное выше, очень прошу вас написать мне на e-mail : samum2000@mail15.com<br>
+&nbsp;<br>
+<p>Источник: <a href="www.samum2000.narod.ru" target="_blank">www.samum2000.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

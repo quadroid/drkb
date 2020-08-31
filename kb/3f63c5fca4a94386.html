@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>Информация о BMP-файлах</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Информация о BMP-файлах</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{
+  This tip show, how to get the filesize, width, height, bitcount and color used 
+  from a bitmap. 
+ 
+  Dieses Beispiel zeigt, wie man Dateigrosse, breite, hohe, Farbtiefe und Farbanzahl 
+  von einem Bitmap ausliest. 
+}
+ 
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ var
+   fileheader: TBitmapfileheader;
+   infoheader: TBitmapinfoheader;
+   s: TFilestream;
+ begin
+   s := TFileStream.Create('c:\YourBitmap.bmp', fmOpenRead);
+   try
+     s.Read(fileheader, SizeOf(fileheader));
+     s.Read(infoheader, SizeOf(infoheader));
+   finally
+     s.Free;
+   end;
+   listbox1.Items.Clear;
+   listbox1.Items.Add('Filesize:    ' + IntToStr(fileheader.bfSize));
+   listbox1.Items.Add('Width:       ' + IntToStr(infoheader.biWidth));
+   listbox1.Items.Add('Height:      ' + IntToStr(infoheader.biHeight));
+   listbox1.Items.Add('BitCount:    ' + IntToStr(infoheader.biBitCount));
+   listbox1.Items.Add('Used:        ' + IntToStr(infoheader.biClrUsed));
+ end;
+ 
+ { 
+  BitCount: 
+  1 = black/white 
+  4 = 16 colors 
+  8 = 256 colors 
+}
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

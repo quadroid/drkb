@@ -1,0 +1,71 @@
+<html>
+<head>
+  <title>Добавление псевдонима с помощью функции DbiAddAlias</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Добавление псевдонима с помощью функции DbiAddAlias</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p id="author">Автор: Tom Stickle </p>
+<pre name="code" class="delphi">
+var
+  pszAliasName: PChar;  { Имя псевдонима }
+  pszDriverType: PChar; { Тип драйвера для псевдонима }
+  pszParams: PChar;     { Дополнительные параметры }
+  bPersist: Bool;       { Постоянный или временный псевдоним }
+  dbiRes: Integer;      { Возвращаемый код }
+begin
+  pszAliasName := strAlloc(25);
+  pszDriverType := strAlloc(25);
+  pszParams := strAlloc(100);
+ 
+  try
+    bPersist := True;
+    strPcopy(pszAliasName, 'Lance');
+    strPcopy(pszDriverType, 'PARADOX');
+    strPcopy(pszParams, 'PATH:' + 'c:\Paradox\');
+ 
+    dbiRes := DbiAddAlias(nil, pszAliasName, pszDriverType, pszParams,
+      bPersist);
+ 
+  finally
+    strDispose(pszAliasName);
+    strDispose(pszDriverType);
+    strDispose(pszParams);
+  end;
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

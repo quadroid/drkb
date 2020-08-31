@@ -1,0 +1,222 @@
+<html>
+<head>
+  <title>Как копировать / менять clipboard text без использования VCL?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как копировать / менять clipboard text без использования VCL?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls...;
+ 
+type
+  TForm1 = class(TForm)
+    Button1: TButton;
+    Button2: TButton;
+    function GetClipBoardText: string;
+    procedure SetClipBoardText(const Value: string);
+    procedure Open;
+    procedure SetBuffer(Format: Word; var Buffer; Size: Integer);
+    procedure Adding;
+    procedure Clear;
+    constructor CreateRes(Ident: Integer);
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+  private
+    FOpenRefCount: Integer;
+    FClipboardWindow: HWND;
+    FAllocated: Boolean;
+    FEmptied: Boolean;
+    FMessage: string;
+  public
+    { Public declarations }
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+resourcestring
+  SCannotOpenClipboard = 'Cannot open clipboard';
+ 
+implementation
+ 
+ 
+{$R *.dfm}
+ 
+//Create resource for resourceString
+constructor TForm1.CreateRes(Ident: Integer);
+begin
+  FMessage := LoadStr(Ident);
+end;
+ 
+//Status: Adding
+procedure TForm1.Adding;
+begin
+  if (FOpenRefCount &lt;&gt; 0) and not FEmptied then
+  begin
+    Clear;
+    FEmptied := True;
+  end;
+end;
+ 
+//Empty clipboard
+procedure TForm1.Clear;
+begin
+  Open;
+  try
+    EmptyClipboard;
+  finally
+    Close;
+  end;
+end;
+ 
+//Set buffer
+procedure TForm1.SetBuffer(Format: Word; var Buffer; Size: Integer);
+var
+  Data: THandle;
+  DataPtr: Pointer;
+begin
+  Open;
+  try
+    Data := GlobalAlloc(GMEM_MOVEABLE + GMEM_DDESHARE, Size);
+    try
+      DataPtr := GlobalLock(Data);
+      try
+        Move(Buffer, DataPtr^, Size);
+        Adding;
+        SetClipboardData(Format, Data);
+      finally
+        GlobalUnlock(Data);
+      end;
+    except
+      GlobalFree(Data);
+      raise;
+    end;
+  finally
+    Close;
+  end;
+end;
+ 
+//Open the clipboard
+procedure TForm1.Open;
+begin
+  if FOpenRefCount = 0 then
+  begin
+    FClipboardWindow := Application.Handle;
+    if FClipboardWindow = 0 then
+    begin
+      {$IFDEF MSWINDOWS}
+      FClipboardWindow := Classes.AllocateHWnd(MainWndProc);
+      {$ENDIF}
+      {$IFDEF LINUX}
+      FClipboardWindow := WinUtils.AllocateHWnd(MainWndProc);
+      {$ENDIF}
+      FAllocated := True;
+    end;
+    if not OpenClipboard(FClipboardWindow) then
+      raise Exception.CreateRes(@SCannotOpenClipboard);
+    FEmptied := False;
+  end;
+  Inc(FOpenRefCount);
+end;
+ 
+//Get the clipboard text
+function TForm1.GetClipBoardText: string;
+var
+  Data: THandle;
+begin
+  Open;
+  Data := GetClipboardData(CF_TEXT);
+  try
+    if Data &lt;&gt; 0 then
+      Result := PChar(GlobalLock(Data))
+    else
+      Result := '';
+  finally
+    if Data &lt;&gt; 0 then GlobalUnlock(Data);
+    Close;
+  end;
+end;
+ 
+procedure TForm1.SetClipBoardText(const Value: string);
+begin
+  //Set ClipboardText
+  SetBuffer(CF_TEXT, PChar(Value)^, Length(Value) + 1);
+end;
+ 
+//Get the clipboard text
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  ShowMessage(GetClipboardText);
+end;
+ 
+//Set the clipboard text
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  SetClipboardText('-&gt; Big-X &lt;-');
+end;
+ 
+end.
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+
+<hr />
+<pre name="code" class="delphi">
+procedure CopyStringToClipboard(s: string);
+var
+  hg: THandle;
+  P: PChar;
+begin
+  hg:=GlobalAlloc(GMEM_DDESHARE or GMEM_MOVEABLE, Length(S)+1);
+  P:=GlobalLock(hg);
+  StrPCopy(P, s);
+  GlobalUnlock(hg);
+  OpenClipboard(Application.Handle);
+  SetClipboardData(CF_TEXT, hg);
+  CloseClipboard;
+  GlobalFree(hg);
+end;
+ 
+</pre>
+
+<a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

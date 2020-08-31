@@ -1,0 +1,141 @@
+<html>
+<head>
+  <title>Взятие интеграла методом Симпсона</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Взятие интеграла методом Симпсона</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{**** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Взятие интеграла методом Симпсона
+ 
+Интеграл методом Симпсона
+A, B - интервал интегрирования
+N - число точек на интервале
+Func - функция, от которой берется интеграл.
+ 
+Возвращаемое значение - значение интеграла
+ 
+Зависимости: System
+Автор:       Mystic, mystic2000@newmail.ru, ICQ:125905046, Харьков
+Copyright:   Mystic
+Дата:        25 апреля 2002 г.
+********************************************** }
+ 
+type
+  TFunction = function(X: Extended; Arg: Pointer): Extended;
+ 
+function Simpson(A, B: Extended; N: Cardinal; Func: TFunction; Arg: Pointer): Extended;
+var
+  h: Extended;
+  X: Extended;
+  K: Extended;
+  I: Integer;
+begin
+  Assert(N&gt;0);
+  h := 0.5 * (B-A) / N;
+  Result := Func(A, Arg);
+  X := A + h;
+  for I := 1 to 2*N-1 do
+  begin
+    if I mod 2 = 0
+      then K := 2
+      else K := 4;
+    Result := Result + K*Func(X, Arg);
+    X := X + h;
+  end;
+  Result := Result + Func(B, Arg);
+  Result := h * Result / 3;
+end;
+</pre>
+<hr />
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Вычисление определённого интеграла методом Симпсона
+ 
+A, B - границы интегрирования
+Eps - заданная относительная точность вычисления
+F - подинтегральная функция
+ 
+Зависимости: нет
+Автор:       Dimka Maslov, mainbox@endimus.ru
+Copyright:   Dimka Maslov
+Дата:        26 ноября 2003 г.
+********************************************** }
+ 
+type
+ TDoubleFunc = function (X: Double): Double;
+ 
+function Integral(A, B, Eps: Double; F: TDoubleFunc): Double;
+ 
+ function InternalCalc(A, B: Double; F: TDoubleFunc; N: Integer): Double;
+ var
+  x, dx: Double;
+  i: Integer;
+ begin
+  dx := (B - A) / N;
+  Result := 0;
+  x := A;
+  for i := 1 to N do begin
+   Result := Result + dx * (F(x) + 4*F(x+dx/2) + F(x+dx)) / 6;
+   x := x + dx;
+  end; 
+ end;
+ 
+var
+ N: Integer;
+ Prev: Double;
+begin
+ Result := InternalCalc(A, B, F, 4);
+ N := 4;
+ repeat
+  Prev := Result;
+  N := N shl 1;
+  Result:= InternalCalc(A, B, F, N);
+ until (Result = 0) or (Abs((Result-Prev) / Result) &lt; Eps);
+end; 
+</pre>
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+function F(X: Double): Double;
+begin
+ Result := X * X * X;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+ Label1.Caption := FloatToStr(Integral(-10, 10, 0.00001, F));
+end; 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

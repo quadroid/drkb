@@ -1,0 +1,91 @@
+<html>
+<head>
+  <title>Drag &amp; Drop со списками</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Drag &amp; Drop со списками</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+ This example shows how to drag&amp;drop within a TListBox. 
+ The Demo Program also shows how to implement an autoscroll-feature. 
+}
+ 
+ procedure TForm1.ListBox1DragOver(Sender, Source: TObject; X, Y: Integer;
+   State: TDragState; var Accept: Boolean);
+ begin
+   Accept := Sender is TListBox;
+ end;
+ 
+ procedure TForm1.ListBox1DragDrop(Sender, Source: TObject; X, Y: Integer);
+ var
+   iTemp: Integer;
+   ptTemp: TPoint;
+   szTemp: string;
+ begin
+   { change the x,y coordinates into a TPoint record }
+   ptTemp.x := x;
+   ptTemp.y := y;
+ 
+   { Use a while loop instead of a for loop due to items possible being removed 
+   from listboxes this prevents an out of bounds exception }
+   iTemp := 0;
+    while iTemp &lt;= TListBox(Source).Items.Count-1 do
+   begin
+     { look for the selected items as these are the ones we wish to move }
+     if TListBox(Source).selected[iTemp] then
+     begin
+       { use a with as to make code easier to read }
+       with Sender as TListBox do
+       begin
+       { need to use a temporary variable as when the item is deleted the 
+        indexing will change }
+         szTemp := TListBox(Source).Items[iTemp];
+ 
+         { delete the item that is being dragged  }
+         TListBox(Source).Items.Delete(iTemp);
+ 
+       { insert the item into the correct position in the listbox that it 
+       was dropped on }
+         Items.Insert(itemAtPos(ptTemp, True), szTemp);
+       end;
+     end;
+     Inc(iTemp);
+   end;
+ end;
+</pre>
+
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+&nbsp;</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

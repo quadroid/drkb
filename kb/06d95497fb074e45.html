@@ -1,0 +1,287 @@
+<html>
+<head>
+  <title>Работа с ресурсами без TResourceSteram</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Работа с ресурсами без TResourceSteram</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>FindResource + LoadResource + LockResource</p>
+<p>&nbsp;<br>
+<p>Определяем размеры картинки хранящейся в ресурсах:</p>
+<pre name="code" class="delphi">
+function PictureSize: TSize;
+var
+  ResHandle: HWND;
+  ResData: HWND;
+  BMI: PBitmapInfo;
+begin
+  Result.cx := 0;
+  Result.cy := 0;
+  ResHandle := FindResource(HInstance,
+    MAKEINTRESOURCE(200), RT_BITMAP);
+  if ResHandle &lt;&gt; 0 then
+  begin
+    ResData := LoadResource(HInstance, ResHandle);
+    if ResData &lt;&gt; 0 then
+    try
+      BMI := LockResource(ResData);
+      if Assigned(BMI) then
+      try
+        Result.cx := BMI.bmiHeader.biWidth;
+        Result.cy := BMI.bmiHeader.biHeight;
+      finally
+        UnlockResource(ResData);
+      end;
+    finally
+      FreeResource(ResData);
+    end;
+  end;
+end;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+<p>Получаем список всех ресурсов</p>
+<pre name="code" class="delphi">
+function GetResourceList: Boolean;
+var
+  Errors: Cardinal;
+ 
+  function CallBack(hModule: HMODULE; lpType: PChar;
+    lpzName: LPTSTR; lParam: Longint): BOOL; stdcall;
+  var
+    Size: Cardinal;
+  begin
+    Result := True;
+    if Assigned(lpzName) then
+    begin
+      Size := Length(ResourceName);
+      Inc(Size);
+      SetLength(ResourceName, Size);
+      ResourceName[Size - 1] := ShortString(lpzName);
+      if  (ResourceName[Size - 1] &lt;&gt; 'RES_INI') and
+          (ResourceName[Size - 1] &lt;&gt; 'RES_MDB') then
+        Inc(Errors);
+    end;
+  end;
+ 
+begin
+  Result := True;
+  ResourceName := nil;
+  Errors := 0;
+  EnumResourceNames(HInstance, 'INSTALL', @CallBack, 0);
+  if (Length(ResourceName) &lt;&gt; 2) or (Errors &gt; 0) then
+  begin
+    MessageBox(Handle, PChar(ERR_CORRUPT), PChar(ERR_GLOBAL),
+      MB_OK + MB_ICONERROR);
+    Result := False;
+    PostQuitMessage(0); 
+  end;
+end;
+</pre>
+<p>&nbsp;<br>
+<p>Извлекаем ресурс в файл</p>
+<pre name="code" class="delphi">
+function ExtractResource: Boolean;
+const
+  ResName = 'RES_MDB';
+ 
+  function FileWrite(Handle: Integer; const Buffer; Count: LongWord): Integer;
+  const
+    BlockSize = 1024;
+ 
+  type
+    TArray = array of Byte;
+ 
+  var
+    Buff: array [0..BlockSize - 1] of Byte;
+    Counter,
+    CurCount, A, I: LongWord;
+  begin
+    Counter := 0;
+    Result := Count;
+    I := 10;
+    repeat
+      if Count - Counter &gt; BlockSize then
+        CurCount := BlockSize
+      else
+        CurCount := Count - Counter;
+ 
+      Move(TArray(@Buffer)[Counter], Buff[0], CurCount);
+      if WriteFile(THandle(Handle), Buff, CurCount, LongWord(Result), nil) then
+        Inc(Counter, CurCount)
+      else
+      begin
+        Result := -1;
+        Exit;
+      end;
+ 
+      A := Round((Counter / Count) * 100);
+      if A &gt; I then
+      begin
+        I := A;
+        SendMessage(Progress, PBM_SETPOS, A, 0);
+      end;
+ 
+    until Counter = Count;
+  end;
+ 
+var
+  ResHandle: HWND;
+  ResData: HWND;
+  LockRes: Pointer;
+  fHandle: Integer;
+  Size: Integer;
+begin
+  Result := False;
+  try
+    ResHandle := FindResource(HInstance,
+      PChar(ResName), 'INSTALL');
+    if ResHandle = 0 then Exit;
+    ResData := LoadResource(HInstance, ResHandle);
+    if ResData = 0 then Exit;
+    try
+      LockRes := LockResource(ResData);
+      if not Assigned(LockRes) then Exit;
+      try
+        fHandle := FileCreate(BasePath + '\MainDB.~mdb');
+        if fHandle = -1 then Exit;
+        try
+          Size := SizeofResource(HInstance, ResHandle);
+ 
+          if FileWrite(fHandle, LockRes^, Size) = -1 then Exit;
+ 
+          Result := True;
+          StatusDone := True;
+        finally
+          CloseHandle(THandle(fHandle));
+        end;
+      finally
+        UnlockResource(ResData);
+      end;
+    finally
+      FreeResource(ResData);
+    end;
+  finally
+    PostMessage(Handle, WM_NOTIFY_THREAD_RESULT, Integer(Result), 0);
+  end;
+end;
+</pre>
+<p>&nbsp;<br>
+<p>Отрисовываем картинку из ресурса на форме:</p>
+<pre name="code" class="delphi">
+procedure ShowPicture;
+ 
+  function Rect(Left, Top, Right, Bottom: Integer): TRect;
+  begin
+    Result.Left := Left;
+    Result.Top := Top;
+    Result.Right := Right;
+    Result.Bottom := Bottom;
+  end;
+ 
+var
+  Bitmap: HBITMAP;
+  BitmapSize: TSize;
+  DC, BitmapDC, OldDC: HDC;
+  bLeft, bTop: Cardinal;
+  _Rect: TRect;
+  S: String;
+  Pen: HPEN;
+begin
+  Bitmap := LoadBitmap(HInstance, MAKEINTRESOURCE(200));
+  if Bitmap &lt;&gt; 0 then
+  try
+    BitmapSize := PictureSize;
+    DC := GetDC(Handle);
+    try
+      BitmapDC := CreateCompatibleDC(DC);
+      try
+        OldDC := SelectObject(BitmapDC, Bitmap);
+        try
+          bLeft := (Width - BitmapSize.cx);
+          bTop := 0;
+          StretchBlt(DC, 0, 0, bLeft, BitmapSize.cy, BitmapDC, 0, 0, 1, BitmapSize.cy, SRCCOPY);
+          BitBlt(DC, bLeft, bTop, BitmapSize.cx, BitmapSize.cy, BitmapDC, 0, 0, SRCCOPY);
+ 
+          SetBkMode(DC, OPAQUE);
+          if hFontBold &lt;&gt; 0 then
+            SelectObject(DC, hFontBold);
+          S := INFO1;
+          _Rect := Rect(10, 6, 230, 31);
+          DrawText(DC, PChar(S), Length(S), _Rect, DT_WORDBREAK);
+ 
+          if hFontNormal &lt;&gt; 0 then
+            SelectObject(DC, hFontNormal);
+          S := INFO2;
+          _Rect := Rect(10, 40, 280, 70);
+          DrawText(DC, PChar(S), Length(S), _Rect, DT_WORDBREAK + DT_NOCLIP);
+          S := INFO3;
+          _Rect := Rect(10, 55, 280, 100);
+          DrawText(DC, PChar(S), Length(S), _Rect, DT_WORDBREAK + DT_NOCLIP);
+ 
+          Pen := CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNSHADOW));
+          try
+            SelectObject(DC, Pen);
+            MoveToEx(DC, 6, 127, nil);
+            LineTo(DC, 349, 127);
+          finally
+            DeleteObject(Pen);
+          end;
+ 
+          Pen := CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNHIGHLIGHT));
+          try
+            SelectObject(DC, Pen);
+            MoveToEx(DC, 348, 128, nil);
+            LineTo(DC, 5, 128);
+          finally
+            DeleteObject(Pen);
+          end;
+ 
+        finally
+        SelectObject(OldDC, Bitmap);
+        end;
+      finally
+        DeleteDC(BitmapDC);
+      end;
+    finally
+      ReleaseDC(Handle, DC);
+    end;
+  finally
+    DeleteObject(Bitmap);
+  end;
+end;
+</pre>
+<p>&nbsp;<br>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: Rouse_</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

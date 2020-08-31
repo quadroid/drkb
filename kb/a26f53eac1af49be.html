@@ -1,0 +1,63 @@
+<html>
+<head>
+  <title>Как получить URL?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить URL?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>TWebBrowser.После нажатия кнопки на web форме формируется ссылка на какуюто страницу с параметрами,а с этой страницы уже происходит перенаправление на результирующую страницу. Хотелось бы увидеть ссылку на страницу вместе с параметрами. </p>
+<pre name="code" class="delphi">
+function GetPostParam(const PostData: OleVariant): string;
+var
+  V: Variant;
+  P: PChar;
+  lb, hb, i: Integer;
+begin
+V:=Variant(TVarData(PostData).VPointer^);
+if VarIsArray(V) then begin
+ P:=VarArrayLock(V);
+  try
+   lb := VarArrayLowBound(V, 1);
+   hb := VarArrayHighBound(V, 1);
+   SetString(Result, P, hb - lb + 1);
+   for i := 1 to Length(Result) do if Result[i] = #0 then begin
+   SetLength(Result, i - 1); Break; end; Exit;
+  finally  VarArrayUnlock(V);   end;
+ end;
+Result:= '';
+end;
+</pre>
+
+<p id="author">Автор P.O.D.</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

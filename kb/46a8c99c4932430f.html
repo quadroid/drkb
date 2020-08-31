@@ -1,0 +1,55 @@
+<html>
+<head>
+  <title>TDBGrid.CutToClipboard</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TDBGrid.CutToClipboard</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Внутри TDBGrid "зашит" защищенный (protected) элемент управления типа TInPlaceEdit, потомок TCustomMaskEdit. Данный элемент управляется комбинацией клавиш [Shift]+[Ins] и [Shift]+[Del]. Но для нас не существует способа оперировать элементом, поскольку он является защищенным членом. </p>
+<p>Да, но вы можете сделать это обманным путем. Попробуйте так:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Paste1Click(Sender: TObject);
+begin
+  SendMessage(GetFocus, WM_PASTE, 0, 0);
+end;
+ 
+procedure TForm1.Copy1Click(Sender: TObject);
+begin
+  SendMessage(GetFocus, WM_COPY, 0, 0);
+end;
+</pre>
+
+<p>Эти методы привязаны к вашим пунктам меню. Они посылают сообщение окну с текущим фокусом. Если это элемент управления TInPlaceEdit, то мы добились того, чего хотели.</p>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

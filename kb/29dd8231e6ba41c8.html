@@ -1,0 +1,113 @@
+<html>
+<head>
+  <title>Требуется нажать в другом приложении пару кнопок</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Требуется нажать в другом приложении пару кнопок</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Требуется нажать в "другом" приложении пару кнопок (button). (кнопки не имеют hotkeys). Ищу окно так (Дельфи): </p>
+<pre name="code" class="delphi">
+if FindWindow(nil, 'Advanced Dialer')&lt;&gt; 0 then
+  ShowMessage('OK');
+</pre>
+
+
+<p>А теперь в найденном приложении надо нажать кнопку HangUp, подождать 5 сек. и нажать кнопку Dial. Подскажите плз. как это реализовать. Я не знаю, что там за кнопки... Если класс Button, то один вариант, если это конпки на тулбаре, то другой. Вот посмотри, я писал когда-то, лишнее стирать лень... реализуется 1-й и 2-й способ: </p>
+<pre name="code" class="delphi">
+function PressAbortAndReloadBtn: string;
+var
+  MenuHnd: THandle;
+  //описатель меню
+  ItemUint: UINT;
+  //идентификатор пункта меню
+  BtnHnd: THandle;
+begin
+  result := PRX_UNKNOWN_ERR;
+  GetProcList;
+  if Prx_MainWHnd &lt;&gt; 0 then
+  begin
+    BtnHnd := FindWindowEx(Prx_MainWHnd, 0, nil, PChar(PrxABtnName));
+    SendMessage(BtnHnd, BM_CLICK, 0, 0);
+    Sleep(100);
+    MenuHnd := GetMenu(Prx_MainWHnd);
+    if Menuhnd &lt;&gt; 0 then
+    begin
+      ItemUint := GetMenuItemID(Menuhnd, 4);
+      if ItemUint &lt;&gt; 0 then
+      begin
+        SendMessage(Prx_MainWHnd, WM_COMMAND, ItemUint, 0);
+        result := PRX_OK;
+      end
+      else
+        result := PRX_ITEM_NOT_FOUND;
+    end
+    else
+      result := PRX_MENU_NOT_FOUND;
+  end
+  else
+    result := PRX_NOT_FOUND;
+  if result &lt;&gt; PRX_OK then
+    WriteLog(result);
+end;
+ 
+// У себя делал так
+ 
+procedure ClickOnForm(wnd: HWND; caption: string);
+var
+  TheChildHandle: HWND;
+begin
+  TheChildHandle := FindWindowEx(wnd, 0, nil, PChar(caption));
+  SendMessage(TheChildHandle, WM_LButtonDown, 1, 1);
+  SendMessage(TheChildHandle, WM_LButtonUP, 1, 1);
+end;
+ 
+procedure TForm1.Button4Click(Sender: TObject);
+var
+  wnd: HWND;
+  caption: string;
+begin
+  wnd := GetTopWindow(0);
+  repeat
+    SetLength(caption, GetWindowtextLength(wnd));
+    GetWindowText(wnd, @caption[1], length(caption) + 1);
+ 
+    if (trim(caption) = 'Form caption') then
+      ClickOnForm(wnd, 'Button name');
+    wnd := GetNextWindow(wnd, GW_HWNDNEXT);
+  until wnd = 0;
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<html>
+<head>
+  <title>Как клонировать процесс?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как клонировать процесс?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  In Linux it is possible to duplicate a process with fork. In the original 
+  process, fork will return the handle to the duplicated process. The 
+  duplicated process will return zero. 
+} 
+ 
+program TestFork; 
+ 
+{$APPTYPE CONSOLE} 
+ 
+uses 
+  SysUtils, 
+  Libc; 
+ 
+var 
+  ForkedProcessHandle: __pid_t; 
+  bForked: Boolean; 
+ 
+procedure ForkNow; 
+begin 
+  bForked := true; 
+  ForkedProcessHandle := fork; 
+end; 
+ 
+function IsForked: Boolean; 
+begin 
+  Result := (ForkedProcessHandle = 0) and bForked; 
+end; 
+ 
+var 
+  Lf: Integer; 
+ 
+begin 
+  sigignore(SIGCHLD); 
+  bForked := false; 
+ 
+  WriteLn('do some stuff'); 
+ 
+  WriteLn('before fork'); 
+  ForkNow; 
+  WriteLn('after fork - we have dublicated the process'); 
+ 
+  if IsForked then begin 
+    WriteLn('do some stuff in forked process (wait 5s)'); 
+    for Lf := 0 to 50 do begin 
+      Write('f'); 
+      sleep(100); 
+    end; 
+  end else begin 
+    WriteLn('do stuff in original process (wait 10)'); 
+    for Lf := 0 to 100 do begin 
+      Write('o'); 
+      sleep(100); 
+    end; 
+  end; 
+ 
+  WriteLn; 
+ 
+  if IsForked then 
+    WriteLn('forked process end') 
+  else 
+    WriteLn('original process end'); 
+end. 
+ 
+ 
+{ 
+Output of this demo app: 
+ 
+do some stuff 
+before fork 
+after fork - we have dublicated the process 
+after fork - we have dublicated the process 
+do some stuff in forked process (wait 5s) 
+fdo stuff in original process (wait 10) 
+ooffooffooffooffooffooffooffooffooffooffooffooffooffooffooffooffooffooff 
+ooffooffooffooffooffooffooffoo 
+forked process end 
+ooooooooooooooooooooooooooooooooooooooooooooooooo 
+original process end 
+} 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

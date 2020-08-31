@@ -1,0 +1,88 @@
+<html>
+<head>
+  <title>Определить, что текстовое поле для ввода пароля</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Определить, что текстовое поле для ввода пароля</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// Determine, if a Edit Field has password characters 
+// Herausfinden, ob das Edit Feld Passwort Charakter hat 
+function HasPasswordChar(AHandle: HWND): Boolean;
+ var
+   dwStyle: DWORD;
+ begin
+   dwStyle := GetWindowLong(AHandle, GWL_STYLE);
+   Result := (dwStyle and ES_PASSWORD) = ES_PASSWORD;
+ end;
+ 
+ // Set password characters for the Edit Field 
+// Passwort Charakter fur ein Edit Feld setzen 
+procedure SetPasswordChar(AHandle: HWND; Value: Char);
+ var
+   S: String;
+   len: Integer;
+ begin
+   len := Sendmessage(AHandle, WM_GETTEXTLENGTH, 0, 0);
+   SetLength(S, len);
+   SendMessage(AHandle, WM_GETTEXT, len+1, lparam(@S[1]));
+   SendMessage(AHandle, EM_SETPASSWORDCHAR, Ord(Value), 0);
+   SendMessage(AHandle, WM_SETTEXT, 0, Integer(PChar(S)));
+ end;
+ 
+ // Cancel the password characters and reveal the text 
+// Password Charakter aufheben und den Text anzeigen 
+procedure CancelPasswordChar(AHandle: HWND);
+ var
+   S: string;
+   len: Integer;
+ begin
+   len := SendMessage(AHandle, WM_GETTEXTLENGTH, 0, 0);
+   SetLength(S, len);
+   SendMessage(AHandle, WM_GETTEXT, len + 1, lParam(@S[1]));
+   SendMessage(AHandle, EM_SETPASSWORDCHAR, 0, 0);
+   SendMessage(AHandle, WM_SETTEXT, 0, Integer(PChar(S)));
+ end;
+ 
+ // Example: 
+procedure TForm1.Button1Click(Sender: TObject);
+ var
+   wnd: HWND;
+ begin
+   wnd := FindWindowEx(GetForeGroundWindow, 0, 'TEdit', nil);
+   if wnd &lt;&gt; 0 then
+     SetPasswordChar(wnd,'*');
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

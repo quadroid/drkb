@@ -1,0 +1,109 @@
+<html>
+<head>
+  <title>Как связать TTreeView и TPageControl?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как связать TTreeView и TPageControl?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>На форме стоит TreeView, PageControl и кнопка.</p>
+<p>При смене страницы - меняется текущий узел, а при смене узла меняется страница. </p>
+<pre name="code" class="delphi">
+unit Unit1;
+
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ComCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    TreeView1: TTreeView;
+    Button1: TButton;
+    PageControl1: TPageControl;
+    procedure Button1Click(Sender: TObject);
+    procedure TreeView1Change(Sender: TObject; Node: TTreeNode);
+    procedure PageControl1Change(Sender: TObject);
+  private
+    procedure addItem(t: String);
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+Procedure TForm1.addItem(t:String);
+  var TabSheet:TTabSheet;
+      Node:TTreenode;
+begin
+  TabSheet:=TTabSheet.Create(Self);
+  TabSheet.PageControl:=PageControl1;
+  TabSheet.caption:=t;
+  Node:=TreeView1.Items.Add(nil, t);
+  Node.data:=TabSheet; //ассоциируем узел с страницей
+  TabSheet.tag:=Integer(Node); // ассоциируем страницу с узлом
+ 
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  TreeView1.HideSelection:=false;
+  addItem('Item1');
+  addItem('Item2');
+  addItem('Item3');
+  addItem('Item4');
+end;
+ 
+procedure TForm1.TreeView1Change(Sender: TObject; Node: TTreeNode);
+begin
+  PageControl1.ActivePage:=TTabSheet(Node.data);// Доступ к ассоциированной странице через узел
+end;
+ 
+procedure TForm1.PageControl1Change(Sender: TObject);
+begin
+  TreeView1.Selected:=TTreeNode(Pointer(PageControl1.ActivePage.tag));// Доступ к ассоциированному узлу через страницу
+end;
+ 
+end.
+</pre>
+
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

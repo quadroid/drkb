@@ -1,0 +1,144 @@
+<html>
+<head>
+  <title>Задать пароль на MS ACCESS через ADO</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Задать пароль на MS ACCESS через ADO</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+type
+  TPasswordAction = (paSet, paChange, paRemove);
+ 
+  ....
+ 
+function ChangeAccessDBPassword(DatabaseName: string; action: TPasswordAction;
+  OldPassword: string = ''; NewPassword: string = ''): boolean;
+var
+  DAO: _DBEngine;
+  db: Database;
+  ClassID: TGUID;
+  V35, V36: string;
+  oldPass, newPass: string;
+begin
+  Result := false;
+  V35 := 'DAO.DBEngine.35';
+  V36 := 'DAO.DBEngine.36';
+  try
+    try
+      ClassID := ProgIDToClassID(v36);
+    except
+      try
+        ClassID := ProgIDToClassID(v35);
+      except
+        raise;
+      end;
+    end;
+    DAO := CreateComObject(ClassID) as _DBEngine;
+    if action = paSet then
+    begin
+      db := DAO.OpenDatabase(DatabaseName, true, false, '');
+      db.NewPassword(#0, NewPassword);
+    end
+    else
+    begin
+      db := DAO.OpenDatabase(DatabaseName, true, false, ';pwd=' + OldPassword);
+      if action = paChange then
+        db.NewPassword(OldPassword, NewPassword)
+      else
+        db.NewPassword(OldPassword, #0);
+    end;
+    Result := true;
+  except
+    // выводим сообщение о ошибке
+    on E: Exception do
+    begin
+      Result := false;
+      ShowMessage(e.message);
+    end;
+  end;
+end.
+</pre>
+
+<p>Пример использования: <br>
+<p>устанавливаем новый пароль - БАЗА ДОЛЖНА БЫТЬ НЕ ЗАПАРОЛЕНА, иначе будет ошибка:)</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  newPass: string;
+begin
+  if InputQuery('New password', 'Enter new password', newPass) then
+    if ChangeAccessDBPassword(ExtractFilePath(ParamStr(0)) + 'db2.mdb', paSet,
+      '', newPass) then
+      ShowMessage('OK!')
+    else
+      ShowMessage('Error!');
+end;
+ 
+//изменяем пароль
+procedure TForm1.Button2Click(Sender: TObject);
+var
+  oldPass, newPass: string;
+begin
+  if InputQuery('Old password', 'Enter old password', oldPass) then
+    if InputQuery('New password', 'Enter new password', newPass) then
+      if ChangeAccessDBPassword(ExtractFilePath(ParamStr(0)) + 'db2.mdb',
+        paChange, oldPass, newPass) then
+        ShowMessage('OK!')
+      else
+        ShowMessage('Error!');
+end;
+ 
+//удаляем пароль
+procedure TForm1.Button3Click(Sender: TObject);
+var
+  oldPass: string;
+begin
+  if InputQuery('Password', 'Enter password', oldPass) then
+    if ChangeAccessDBPassword(ExtractFilePath(ParamStr(0)) + 'db2.mdb',
+      paRemove, oldPass, '') then
+      ShowMessage('OK!')
+    else
+      ShowMessage('Error!');
+end;
+ 
+</pre>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p class="p_Heading1">Автор:dron-s</p>
+&nbsp;<br>
+
+<p>&nbsp;<br>
+&nbsp;<br>
+&nbsp;<br>
+<p>&nbsp;</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

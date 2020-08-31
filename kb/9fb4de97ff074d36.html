@@ -1,0 +1,62 @@
+<html>
+<head>
+  <title>Функции и процедуры для работы с курсором</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Функции и процедуры для работы с курсором</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Функция CursorToIdent (Cursor: Longint;var Ident: string): Boolean;</p>
+<p>Функция возвращает строковое значение предопределенной константы, определяющее вид курсора. Числовое значение, определяющее вид курсора, передается в параметре Cursor. Строковое значение константы возвращается в параметре Ident. Если для указанного числового значения, определяющего вид курсора, есть соответствующая строковая константа, то функция возвращает True, а иначе - False.</p>
+<p>На практике возникают ситуации, когда необходимо, чтобы функция возвращала в результате строковое значение даже в том случае, когда для числового значения вида курсора, нет предопределенной строковой константы. В данных ситуациях используйте функцию CursorToString</p>
+<p>Функция CursorToString( Cursor: TCursor ): string;</p>
+<p>type TCursor = -32768...32767;</p>
+<p>Функция возвращает строковое значение константы или числа, соответствующих указанному виду курсора. Числовое значение, определяющее вид курсора, передается в параметре Cursor. Если указанному значению соответствует предопределенная строковая константа, то функция возвращает имя этой константы, иначе возвращается строковое представление значения переданного в параметре Cursor.</p>
+<p>Процедура GetCursorValues( Proc: TGetStrProc );</p>
+<p>type TGetStrProc = Procedure( const S: string ) of Object;</p>
+<p>Процедура передает каждое предопределенное в VCL имя курсора (значение предопределенной строковой константы, определяющей вид курсора) процедуре повторного вызова Proc. </p>
+<p>Функция IdentToCursor (const Ident: string;var Cursor: Longint ): Boolean;</p>
+<p>Функция возвращает числовое значение, соответствующее строковой константе, определяющей вид курсора. Строковое значение передается в параметре Ident. Числовое значение возвращается в переменной Cursor. При успешном выполнении функция возвращает True, а если значение Ident не является предопределенной константой, то функция возвращает False.Данная функция обратна по функциональности функции CursorToIdent. </p>
+<p>Функция StringToCursor( const S: string ): TCursor;</p>
+<p>type TCursor = -32768...32767;</p>
+<p>Функция преобразовывает строковое значение S, определяющее вид курсора, в значение типа TCursor. Функция обратна по функциональности функции CursorToString. Параметр S должен представлять собой либо предопределенную константу вида курсора, либо строковое представление соответствующего ему числового значения, в противном случае возникнет исключение EConvertError.</p>
+<pre name="code" class="delphi">
+var
+  I1,I2: Longint;
+begin
+  I1:= StringToCursor('crHelp'); // I1:= -20
+  I2:= StringToCursor('-20'); // I2:= -20
+end;
+</pre>
+
+<p>Взято с <a href="http://atrussk.ru/delphi/" target="_blank">http://atrussk.ru/delphi/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<html>
+<head>
+  <title>Вставка содержимого буфера как картинку в RTF</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Вставка содержимого буфера как картинку в RTF</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  b : tbitmap;
+  fr: TFormatRange;
+  r : TRect;
+begin
+  b:=tbitmap.create;
+  b.width:=rxrichedit1.width;
+  b.height:=rxrichedit1.height;
+  r:=rect(0,0,RXRichEdit1.Width*screen.Pixelsperinch,
+    RXRichEdit1.Height*screen.Pixelsperinch);
+  fr.hdc:=b.Canvas.handle;
+  fr.hdctarget:=b.Canvas.handle;
+  fr.rc:=r;
+  fr.rcpage:=r;
+  fr.chrg.cpMin:=0;
+  fr.chrg.cpMax:=-1;
+  Sendmessage(RXRichEdit1.handle,EM_FORMATRANGE,1,longint(@fr));
+  image1.Picture.assign(b);
+  b.free;
+end;
+ 
+ 
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

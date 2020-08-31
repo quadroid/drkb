@@ -1,0 +1,261 @@
+<html>
+<head>
+  <title>Как читать файлы Outlook Express</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как читать файлы Outlook Express</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>КАК ЧИТАТЬ ФАЙЛЫ OUTLOOK EXPRESS (.DBX) <br>
+<p>(формат файла *.DBX) </p>
+<p>1)Структура файла.</p>
+<p>Сообщения хранятся в таблицах, расположенных друг за другом, по порядку. Каждая таблица состоит из двух частей - заголовка и _входа_. Смещение первой таблицы от начала файла располагается со смещением $30 от начала файла и представляет собой знаковое 32-х битное число (тип integer или longint). Общее же количество записей (т.е. этих самых таблиц) расположено со смещением $C4 от начала файла, и представляет собой число типа integer (longint).</p>
+<p>Заголовок таблицы содержит количество _входов_, собственное смещение, а так же смещения предыдущей и следующей таблиц (все смещения, разумеется, от начала файла). Для чтения заголовка таблицы я использую такую структуру:</p>
+<pre name="code" class="delphi">
+Toe5_IndexHeader = record
+FilePos: longint; {Это смещение структуры, используется для контроля}
+Unknown1: longint; { ??? }
+PrevIndex: longint; {Смещение предыдущей таблицы}
+NextIndex: longint; {Смещение следующей таблицы}
+Count: longint; {Количество _входов_, реальное количество находится так: count shr 8}
+Unknown2: longint; { ??? }
+end; 
+</pre>
+
+<p>Чтобы получить реальное количество _входов_, значение поля count надо конвертировать . </p>
+<p>Каждый _вход_ содержит смещение (всегда от начала файла) заголовка письма (Message Header) и позицию другой индексной таблицы (эта таблица используется, чтобы обеспечить поддержку наследования (или связывания) сообщения, то есть любой заголовок сообщения, на который ссылается эта таблица - ребенок текущего сообщения). Вот структура входа:</p>
+<pre name="code" class="delphi">Toe5_IndexItem =record
+HeaderPos: longint; {Смещение (от начала файла) заголовка письма}
+ChildIndex: longint; {Смещение (от начала файла) дочерней индексной таблицы}
+Unknown: longint;
+end; 
+</pre>
+
+
+<p>На мой взгляд, лучшим методом чтения таблиц является рекурсивная функция (см. пример). </p>
+<p>Заголовок сообщения содержит некоторую информацию, которую Outlook Express использует, чтобы избежать доступа к сообщению, пока в этом нет особой необходимости. Эта структура разделена на три части: заголовок структуры, таблицу параметров типа DWORD и блок данных.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Заголовок структуры - это то, что вам необходимо прочитать в первую очередь, так как он определяет размер оставшихся двух частей. В её состав входят размер всей структуры (все 3 части), суммарный размер таблицы параметров, блока данных и количество параметров в таблице (я называю эти параметры флагами). </td></tr></table></div>THeaderData = record <br>
+position: longint; {смещение данной структуры от BOF, используется только для контроля}<br>
+DataLength: longint; {размер таблицы параметров и блока данных}<br>
+HeaderLength: WORD; {размер всех трех частей}<br>
+FlagCount: WORD; {количество элементов в таблице}<br>
+<p>end ; </p>
+Чтобы получить размер таблицы флагов, можно написать SizeOfTable:=FlagCount*SizeOf(DWord), a размер блока данных используйте DataLength-SizeOfTable. </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Каждый элемент таблицы параметров должен быть декодирован, для того, чтобы получить его идентификатор и значение: идентификатор находят как element and $FF, а значение флага - element shr 8. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Блок данных содержит такую информацию, как дата получения, отправки, тема, адресат, отправитель, аккаунт и т.д. Для её чтения используется таблица флагов (параметров). Вот пример таблицы параметров и соответствующего блока данных: </td></tr></table></div> &nbsp;&nbsp;&nbsp; Flags =&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </p>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 16</p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 80: 00000074 </p>
+ &nbsp;&nbsp;&nbsp; 81: 00000081</p>
+ &nbsp;&nbsp;&nbsp; 02: 00000000</p>
+ &nbsp;&nbsp;&nbsp; 84: 0002ECA0</p>
+ &nbsp;&nbsp;&nbsp; 05: 00000008</p>
+ &nbsp;&nbsp;&nbsp; 06: 00000025</p>
+ &nbsp;&nbsp;&nbsp; 07: 0000002D</p>
+ &nbsp;&nbsp;&nbsp; 08: 0000006E</p>
+ &nbsp;&nbsp;&nbsp; 0D: 0000008B</p>
+ &nbsp;&nbsp;&nbsp; 0E: 000000A5</p>
+ &nbsp;&nbsp;&nbsp; 90: 00000003</p>
+ &nbsp;&nbsp;&nbsp; 91: 0000376F</p>
+ &nbsp;&nbsp;&nbsp; 12: 000000D4</p>
+ &nbsp;&nbsp;&nbsp; 13: 000000DC</p>
+ &nbsp;&nbsp;&nbsp; 14: 00000102</p>
+ &nbsp;&nbsp;&nbsp; 1C: 0000012A</p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; Data Block:</p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 00 72 F3 E4 58 22 C0 01 41 63 74 69 76 65 57 65 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r&nbsp; o&nbsp; a&nbsp; X&nbsp; "&nbsp; A&nbsp; _&nbsp; A&nbsp; c&nbsp; t&nbsp; i&nbsp; v&nbsp; e&nbsp; W&nbsp; e </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 62 20 44 65 76 65 6C 6F 70 65 72 20 65 58 54 52 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp; b&nbsp;&nbsp;&nbsp;&nbsp; D&nbsp; e&nbsp; v&nbsp; e&nbsp; l&nbsp; o&nbsp; p&nbsp; e&nbsp; r&nbsp;&nbsp;&nbsp;&nbsp; e&nbsp; X&nbsp; T&nbsp; R </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 41 20 23 38 00 60 E2 F2 9C 90 35 C0 01 3C 4F 46 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp; A&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp; 8&nbsp;&nbsp;&nbsp;&nbsp; `&nbsp; a&nbsp; o&nbsp; ?&nbsp; ?&nbsp; 5&nbsp; A&nbsp; _&nbsp; &lt;&nbsp; O&nbsp; F </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 45 31 44 36 35 46 38 37 2E 32 39 39 31 37 34 31 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp; E&nbsp; 1&nbsp; D&nbsp; 6&nbsp; 5&nbsp; F&nbsp; 8&nbsp; 7&nbsp; .&nbsp; 2&nbsp; 9&nbsp; 9&nbsp; 1&nbsp; 7&nbsp; 4&nbsp; 1 </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 42 2D 4F 4E 38 35 32 35 36 39 35 46 2E 30 30 35 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp; B&nbsp; -&nbsp; O&nbsp; N&nbsp; 8&nbsp; 5&nbsp; 2&nbsp; 5&nbsp; 6&nbsp; 9&nbsp; 5&nbsp; F&nbsp; .&nbsp; 0&nbsp; 0&nbsp; 5 </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 43 33 46 41 36 40 70 69 6E 6E 61 63 6C 65 70 75 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp; C&nbsp; 3&nbsp; F&nbsp; A&nbsp; 6&nbsp; @&nbsp; p&nbsp; i&nbsp; n&nbsp; n&nbsp; a&nbsp; c&nbsp; l&nbsp; e&nbsp; p&nbsp; u </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 62 6C 69 73 68 69 6E 67 2E 63 6F 6D 3E 00 41 63 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp; b&nbsp; l&nbsp; i&nbsp; s&nbsp; h&nbsp; i&nbsp; n&nbsp; g&nbsp; .&nbsp; c&nbsp; o&nbsp; m&nbsp; &gt;&nbsp;&nbsp;&nbsp;&nbsp; A&nbsp; c </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 74 69 76 65 57 65 62 20 44 65 76 65 6C 6F 70 65 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp; t&nbsp; i&nbsp; v&nbsp; e&nbsp; W&nbsp; e&nbsp; b&nbsp;&nbsp;&nbsp;&nbsp; D&nbsp; e&nbsp; v&nbsp; e&nbsp; l&nbsp; o&nbsp; p&nbsp; e </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 72 20 65 58 54 52 41 20 23 38 00 41 63 74 69 76 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp; r&nbsp;&nbsp;&nbsp;&nbsp; e&nbsp; X&nbsp; T&nbsp; R&nbsp; A&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp; 8&nbsp;&nbsp;&nbsp;&nbsp; A&nbsp; c&nbsp; t&nbsp; i&nbsp; v </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 65 57 65 62 20 44 65 76 65 6C 6F 70 65 72 20 65 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp; e&nbsp; W&nbsp; e&nbsp; b&nbsp;&nbsp;&nbsp;&nbsp; D&nbsp; e&nbsp; v&nbsp; e&nbsp; l&nbsp; o&nbsp; p&nbsp; e&nbsp; r&nbsp;&nbsp;&nbsp;&nbsp; e </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 58 54 52 41 00 61 63 74 69 76 65 77 65 62 64 65 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp; X&nbsp; T&nbsp; R&nbsp; A&nbsp;&nbsp;&nbsp;&nbsp; a&nbsp; c&nbsp; t&nbsp; i&nbsp; v&nbsp; e&nbsp; w&nbsp; e&nbsp; b&nbsp; d&nbsp; e </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 76 65 6C 6F 70 65 72 65 78 74 72 61 40 70 69 6E </p>
+ &nbsp;&nbsp;&nbsp;&nbsp; v&nbsp; e&nbsp; l&nbsp; o&nbsp; p&nbsp; e&nbsp; r&nbsp; e&nbsp; x&nbsp; t&nbsp; r&nbsp; a&nbsp; @&nbsp; p&nbsp; i&nbsp; n </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 6E 61 63 6C 65 70 75 62 6C 69 73 68 69 6E 67 2E </p>
+ &nbsp;&nbsp;&nbsp;&nbsp; n&nbsp; a&nbsp; c&nbsp; l&nbsp; e&nbsp; p&nbsp; u&nbsp; b&nbsp; l&nbsp; i&nbsp; s&nbsp; h&nbsp; i&nbsp; n&nbsp; g&nbsp; . </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 63 6F 6D 00 00 23 5E 0F 8B 22 C0 01 41 63 74 69 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp; c&nbsp; o&nbsp; m&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp; ^&nbsp; _&nbsp; &#8249;  "&nbsp; A&nbsp; _&nbsp; A&nbsp; c&nbsp; t&nbsp; i </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 76 65 57 65 62 20 44 65 76 65 6C 6F 70 65 72 20 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp; v&nbsp; e&nbsp; W&nbsp; e&nbsp; b&nbsp;&nbsp;&nbsp;&nbsp; D&nbsp; e&nbsp; v&nbsp; e&nbsp; l&nbsp; o&nbsp; p&nbsp; e&nbsp; r&nbsp;&nbsp;&nbsp; </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 65 58 54 52 41 20 53 75 62 73 63 72 69 62 65 72 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp; e&nbsp; X&nbsp; T&nbsp; R&nbsp; A&nbsp;&nbsp;&nbsp;&nbsp; S&nbsp; u&nbsp; b&nbsp; s&nbsp; c&nbsp; r&nbsp; i&nbsp; b&nbsp; e&nbsp; r </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 20 00 3C 41 63 74 69 76 65 57 65 62 20 44 65 76 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;&nbsp; A&nbsp; c&nbsp; t&nbsp; i&nbsp; v&nbsp; e&nbsp; W&nbsp; e&nbsp; b&nbsp;&nbsp;&nbsp;&nbsp; D&nbsp; e&nbsp; v </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 65 6C 6F 70 65 72 20 65 58 54 52 41 20 53 75 62 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp; e&nbsp; l&nbsp; o&nbsp; p&nbsp; e&nbsp; r&nbsp;&nbsp;&nbsp;&nbsp; e&nbsp; X&nbsp; T&nbsp; R&nbsp; A&nbsp;&nbsp;&nbsp;&nbsp; S&nbsp; u&nbsp; b </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 73 63 72 69 62 65 72 20 3E 00 88 00 00 00 01 00 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp; s&nbsp; c&nbsp; r&nbsp; i&nbsp; b&nbsp; e&nbsp; r&nbsp;&nbsp;&nbsp;&nbsp; &gt;&nbsp;&nbsp;&nbsp;&nbsp; ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _&nbsp;&nbsp;&nbsp; </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 02 4E 00 00 00 00 F9 37 00 00 02 4E 00 00 01 00 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp; _&nbsp; N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; u&nbsp; 7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _&nbsp; N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _&nbsp;&nbsp;&nbsp; </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 </p>
+&nbsp;</p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 </p>
+&nbsp;</p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 </p>
+&nbsp;</p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 00 00 00 00 00 00 40 05 00 00 F9 37 00 00 00 00 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @&nbsp; _&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; u&nbsp; 7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 </p>
+&nbsp;</p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 </p>
+&nbsp;</p>
+&nbsp;</p>
+ &nbsp;&nbsp;&nbsp; 00 00 00 00 00 00 6D 70 </p>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; m&nbsp; p</p>
+&nbsp;</p>
+Теперь давайте разберёмся, что означает каждый флаг.</p>
+Для файла Folders.dbx:<br>
+&nbsp;<br>
+$2: смещение от начала блока данных, по которому расположено название папки (Nullterminated string)<br>
+$3: смещение от начала блока данных, по которому расположено имя файла, представляющего эту папку (это тоже Nullterminated string)<br>
+$6: не важный флаг. Если папка его имеет, то значит она - специальная папка, у неё нет собственного файла, и она используется лишь для организации;<br>
+$80: идентификатор папки;<br>
+<p>$81: идентификатор родительской папки (флаг $80 родительской папки).</p>
+Для других файлов:<br>
+&nbsp;<br>
+$1: Смещение от начала блока данных, по которому расположен статус сообщения.<br>
+$2: Смещение от начала блока данных, по которому расположена дата отправки (дата представлена в TFileTime)<br>
+$4: Иногда типа DWord не хватает, чтобы представить и идентификатор флага, и смещения тела сообщения от начала файла, тогда смещение, по которому расположено тело, размещается в блоке данных. Значение этого флага - смещение (от начала блока данных) по которому находится это значение.<br>
+$7: Смещение от начала блока данных, по которому расположен идентификатор письма MessageID (nullterminated string)<br>
+$8: Смещение от начала блока данных, по которому расположена тема сообщения (nullterminated string)<br>
+$9: Смещение от начала блока данных, по которому расположен параметр &#8220;From Reply&#8221; сообщения (nullterminated string)<br>
+$A: Смещение от начала блока данных, по которому расположены ссылки (References)сообщения (nullterminated string)<br>
+$B: Смещение от начала блока данных, по которому расположена новостная группа сообщения (null terminated string)<br>
+$D: Смещение от начала блока данных, по которому расположен адресат (null terminated string)<br>
+$E: Смещение от начала блока данных, по которому расположены данные &#8220;Reply to:&#8221; (null terminated string)<br>
+$12: Смещение от начала блока данных, по которому расположена дата получения (дата представлена в формате TFileTime)<br>
+$13: Смещение от начала блока данных, по которому расположен получатель (null terminated string)<br>
+$1A: Смещение от начала блока данных, по которому расположен аккаунт (null terminated string)<br>
+$1B: Смещение от начала блока данных, по которому расположен идентификатор аккаунта (null terminated string)<br>
+$80: Номер сообщения<br>
+$81: Используется для хранения статуса письма <br>
+$84: Смещение тела сообщения в файле<br>
+<p>$91: Размер сообщения. </p>
+Сообщения: Каждое письмо или сообщение групп новостей хранятся в блоках по 512 байт, у каждого блока есть заголовок. То есть каждое сообщение делится на части, и к каждой части добавляют заголовок (в котором содержится размер блока, размер занятой части блока, а так же положение следующего блока). Я использую такую структуру для чтения блоков (вместе с их заголовками): </p>
+Toe5_MsgItem = record<br>
+FilePos: longint; {смещение структуры от BOF, используется для контроля верности операций}<br>
+Unknown: longint; {я думаю, это размер блока данных}<br>
+ItemSize: longint; {использованная часть блока}<br>
+NextItem: longint; {смещение следующего блока от BOF, и 0, если это последний блок}<br>
+MsgContent: array[0..511] of Char; {блок, содержащий непосредственно данные}<br>
+<p>end ; </p>
+<p>2) Удаление сообщений.</p>
+<p>Когда какое либо сообщение удаляется, оно сначала помещается в папку "Удаленные", а физически - в соответствующий этой папке файл. Место же, которое занимало сообщение в прежнем файле, добавляется в список пустого пространства, и когда приходит новое сообщение, Outlook Express использует сначала это место. Смещение первого элемента в списке сободного места сохранено по смещению $48 от начала файла. Каждый элемент этого списка разделен на две части: заголовок и блок свободного пространства. Вот структура заголовка: </p>
+<pre name="code" class="delphi">Toe5_FreeSpace = record 
+FilePos: longint;{это смещение всей структуры от начала файла BOF, используется для контроля}
+ElementSize:longint; {размер структуры - заголовок и свободное место}
+FreeSpaceSize: longint;{Размер свободного пространства}
+PreviousElement: longint; {смещение (от начала файла) предыдущего элемента}
+NextElement: longint; {смещение следующего элемента}
+end ;
+</pre>
+
+<p>3) Даты.</p>
+<p>Все даты в заголовке сообщения сохранены в формате TFileTime, и основаном на UTC. Перед использованием это значение надо перевести в местное время. Вот небольшой пример того, как это можно сделать: </p>
+<pre name="code" class="delphi">function FiletimeToDatetime(const date: TFileTime): TDateTime;
+var
+st:TSystemTime;
+localft: TFileTime;
+begin
+FileTimeToLocalFileTime(date, localft); 
+FileTimeToSystemTime(localft, st);
+Result:=SystemTimeToDateTime(st);
+end; 
+</pre>
+
+<p>4)Статус сообщения.</p>
+<p>Для получения статуса сообщения можно использовать значение флага $81 следующим образом: </p>
+<p>&#8230;<br>
+x := &lt;значение флага $81&gt;<br>
+If (x AND constant) &lt;&gt;0 then<br>
+<p>&#8230; </p>
+<p>И на последок, некоторые константы:<br>
+DOWNLOADED = $1<br>
+MARKED = $20<br>
+(Отмечено флажком) READED = $80<br>
+DOWNLOAD_LATER = $100<br>
+NEWS_MSG = $800<br>
+Эти константы надо проверить:<br>
+ATTACHMENTS = $4000<br>
+REPLY =$80000<br>
+INSPECT_CONVERSATION = $400000<br>
+<p>IGNORE_CONVERSATION =$800000</p>
+<p>Модули к статье можно взять здесь</p>
+<p>Все дополнения, модификации, предложения, благодарности и т.п. просьба присылать на Samum2000@mail15.com (особенно к русскому переводу) или на walther_e@yahoo.com (на английском языке, касательно оригинала). <br>
+<p>Walther Estergaard Walther_e@yahoo.com </p>
+<p>Перевод:<br>
+<p>Боднар Денис aka Samum, Samum2000@mail15.com, ICQ: 278395965. </p>
+<p><a href="http://www.samum2000.narod.ru/articles/oedb.html" target="_blank">http://www.samum2000.narod.ru/articles/oedb.html</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

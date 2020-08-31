@@ -1,0 +1,71 @@
+<html>
+<head>
+  <title>Как узнать версию IE?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать версию IE?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses 
+  Registry; 
+ 
+function GetIEVersion(Key: string): string; 
+var 
+  Reg: TRegistry; 
+begin 
+  Reg := TRegistry.Create; 
+  try 
+    Reg.RootKey := HKEY_LOCAL_MACHINE; 
+    Reg.OpenKey('Software\Microsoft\Internet Explorer', False); 
+    try 
+      Result := Reg.ReadString(Key); 
+    except 
+      Result := ''; 
+    end; 
+    Reg.CloseKey; 
+  finally 
+    Reg.Free; 
+  end; 
+end; 
+ 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  ShowMessage('IE-Version: ' + GetIEVersion('Version')[1] + '.' + GetIEVersion('Version')[3]); 
+  ShowMessage('IE-Version: ' + GetIEVersion('Version')); 
+  // &lt;major version&gt;.&lt;minor version&gt;.&lt;build number&gt;.&lt;sub-build number&gt; 
+end; 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

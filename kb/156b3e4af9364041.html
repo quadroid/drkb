@@ -1,0 +1,88 @@
+<html>
+<head>
+  <title>Длинные подсказки на StatusBar'e</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Длинные подсказки на StatusBar'e</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Этот пример показывает, как сделать, чтобы на StatusBar выводилась длинная подсказка при поднесении мыши к объекту. </p>
+<pre name="code" class="delphi">
+public
+  procedure DoShowHint(Sender: TObject);
+ 
+...
+procedure TForm1.DoShowHint(Sender: TObject);
+begin
+  StatusBar1.SimpleText := Application.Hint;
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  Application.OnHint := DoShowHint;
+  Button1.Hint := 'Button 1|It is button 1';
+  Button2.Hint := 'Button 2|It is button 2';
+  Button3.Hint := 'Button 3|It is button 3';
+  Form1.ShowHint := true;
+end;
+ 
+</pre>
+<p>Символ "|" позволяет разделять две подсказки: та, что появляется на желтом фоне, и та, что лежит в Application.Hint. Для работы с частями подсказки существуют функции GetShortHint, GetLongHint. </p>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<pre name="code" class="delphi">
+private
+   procedure MyHint(Sender: TObject);
+ end;
+ 
+ 
+    implementation
+ 
+  {....}
+ 
+ procedure TForm1.FormCreate(Sender: TObject);
+ begin
+   Application.OnHint := MyHint;
+   ShowHint           := True;
+   Button1.Hint       := 'normal yellow hint|Text in Statusbar';
+   Button2.Hint       := 'only yellow hint|';
+   Button3.Hint       := '|text only in statusbar';
+   Edit1.Hint         := 'same text';
+ end;
+ 
+ procedure TForm1.MyHint(Sender: TObject);
+ begin
+   StatusBar1.SimpleText := Application.Hint;
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

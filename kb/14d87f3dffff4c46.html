@@ -1,0 +1,539 @@
+<html>
+<head>
+  <title>Алгоритм шифрования TEA</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Алгоритм шифрования TEA</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Немного модифицированный вариант для шифрования не особо критичных данных</p>
+<pre name="code" class="delphi">
+////////////////////////////////////////////////////////////////////////////////
+//
+//  ****************************************************************************
+//  * Unit Name : TEA
+//  * Purpose   : Модуль шифрования по алгоритму TEA
+//                (Tiny Encryption Algorithm)
+//  * Author    : Александр (Rouse_) Багель
+//  * Version   : 1.04
+//  * Home Page : http://rouse.drkb.ru
+//  ****************************************************************************
+//
+ 
+// Схема действия
+// В функцию передается массив данных
+// Генерируется уникальный 128 битный ключ для кодирования на основе GUID
+// Вычисляется размер данных, они должны быть кратны четному
+// кол-ву 32 битных блоков, недостающий обьем заполняется мусором
+// Первые три байта занимает заголовок ETA
+// В четвертую позицию данных добавляется значение указывающее объем мусора
+// Производится кодирование ранее сгенерированным ключем
+// Сам ключ кодируется внутренним ключем, делится на четыре части
+// 128 битный ключ разделяется на четыре 32 битных блока
+// Ключ добавляется в данные со сдвигом в любое место
+// в следующем порядке 4-ый, 3-ий, 1-ый, 2-ой блоки
+// На 14 ую позицию данных вставляется со сдвигом указатель на начало ключа
+// Итого в закодированном буффере находится помимо основной
+// еще и 21 байт служебной информации
+// Для раскодирования все действи производится в обратном порядке
+ 
+unit TEA;
+ 
+{$Q-} // Отключаем INTEGER OVERFLOW
+ 
+interface
+ 
+uses
+  Windows,
+  SysUtils,
+  Classes;
+ 
+const
+  Delta = $9E3779B9;  // Смещение контрольной суммы ~ 32 бит
+  Header = 'ETA'; // Enhanced TEA
+ 
+var
+  _k0: DWORD = 0;    // Главный 128 битный ключ (4 части по 32 бита)
+  _k1: DWORD = 0;    // Его нужно изменить на свой аналог...
+  _k2: DWORD = 0;
+  _k3: DWORD = 0;
+ 
+type
+  PHash = ^THash;
+  THash = array of Byte;
+  Int256 = array [0..31] of Byte;
+ 
+  procedure EnCript(var S: THash);
+  procedure EnCryptStream(Stream: TStream);
+  function DeCript(var S: THash): Boolean;
+  function DeCriptStream(Stream: TStream): Boolean;
+  procedure SetDefaultKey;
+  procedure SetKey(Value: Int256);
+ 
+implementation
+ 
+//  Установка ключа по умолчанию (DEMO - ключ)
+// =============================================================================
+procedure SetDefaultKey;
+begin                
+  _k0 := $982C98C1;    // Главный 128 битный ключ (4 части по 32 бита)
+  _k1 := $7F8F4D4B;    // Его нужно изменить на свой аналог...
+  _k2 := $BCAE3151;
+  _k3 := $971BC789;
+end;
+ 
+//  Установка рабочего ключа
+// =============================================================================
+procedure SetKey(Value: Int256);
+var
+  XorKey: DWORD;
+begin
+  // Ну например вот так :)
+  Move(Value[0], _k0, 4);
+  Move(Value[4], XorKey, 4);
+  _k0 := _k0 xor XorKey;
+  Move(Value[4], _k1, 4);
+  Move(Value[12], XorKey, 4);
+  _k1 := _k1 xor XorKey;
+  Move(Value[24], _k2, 4);
+  Move(Value[20], XorKey, 4);
+  _k2 := _k2 xor XorKey;
+  Move(Value[16], _k3, 4);
+  Move(Value[28], XorKey, 4);
+  _k3 := _k3 xor XorKey;
+end;
+ 
+////////////////////////////////////////////////////////////////////////////////
+//
+// ЧАСТЬ ПЕРВАЯ * * * КОДИРОВАНИЕ * * *
+ 
+procedure EnCript(var S: THash);
+var
+  InBuf,
+  OutBuf,
+  ResultBuf: THash;   // Входной, выходной и результирующий буфера
+  Y, Z, Sum: LongWord;        // Временные переменные для кодируемых блоков данных
+  k0, k1, k2 , k3: LongWord;  // Текущий ключ для шифрования
+  I, A, Len: Integer;         // Переменные для циклов
+  C: Byte;                    // Счетчик кол-ва мусора
+  Guid, Key: String;
+  G: TGUID;
+begin
+  // Проверка заданного ключа
+  if _k0 = 0 then SetDefaultKey;
+ 
+  // Проверка размера данных
+  if Length(S) = 0 then Exit;
+ 
+  Randomize;
+ 
+  CreateGUID(G); // Генерируем ключик на основе GUID - а :)
+  Guid := GUIDToString(G);
+  for I := 1 to Length(Guid) do
+    if Guid[I] in ['0'..'9', 'A'..'F'] then
+      Key := Key + Guid[I];      
+ 
+  k0 := StrToInt64('$' + Copy(Key, 1, 8));
+  k1 := StrToInt64('$' + Copy(Key, 9, 8));
+  k2 := StrToInt64('$' + Copy(Key, 17, 8));
+  k3 := StrToInt64('$' + Copy(Key, 25, 8));
+ 
+  C := 0; // Инициализируем счетчик дозаполнений
+  // Дозаполняем данные чтобы последний блок данных был равен 64 битам
+  while (Length(S) div 8) * 8 &lt;&gt; Length(S) do // 64 бита = 8 байтам :)
+  begin
+    Len := Length(S);
+    Inc(Len);
+    SetLength(S, Len);
+    S[Len - 1] := Random(255); // Заполняем случайными данными
+    Inc(C);
+  end;
+ 
+  Len := Length(S); // Вычисляем размер кодируемого блока
+  SetLength(InBuf, Len);  // Устанавливаем размер буферов
+ 
+  // Размер выходного буфера увеличен на 21 байт из-за
+  // 3 байта - заголовок ETA
+  // 1 байт - счетчик кол-ва мусора в конце буфера
+  // 16 байт - кодированный ключ - 4 Cardinal 
+  // 1 байт - метка расположения кодированного ключа
+  Inc(Len, 21);
+  SetLength(OutBuf, Len);
+  SetLength(ResultBuf, Len);
+ 
+  Inc(C);// Увеличим кол-во мусора для удаления самого поля счетчика
+  OutBuf[0] := Ord(Header[1]); // добавляем идентификатор
+  OutBuf[1] := Ord(Header[2]);
+  OutBuf[2] := Ord(Header[3]);
+  OutBuf[3] := C; // Добавляем счетчик мусора
+ 
+  Move(S[0], InBuf[0], Length(S));// Заполняем входной буфер данными
+ 
+  I := 0;
+  while I &lt; Len - 21 do // Непосредственно кодировка
+  begin
+    Move(InBuf[I], Y, 4);     // Берем первые 32 бита
+    Move(InBuf[I + 4], Z, 4); // Берем вторые 32 бита
+    // Кодируем
+    Sum := 0;
+    for A := 0 to 31 do  // 64 битный кодируемый блок (2 части по 32 бита)
+    begin
+      Inc(Sum, Delta);
+      Inc(Y, ((Z shl 4) + k0) xor (Z + Sum) xor ((Z shr 5) + k1));
+      Inc(Z, ((Y shl 4) + k2) xor (Y + Sum) xor ((Y shr 5) + k3));
+    end;
+    Move (Y, OutBuf[I + 4], 4); // Помещаем кодированные блоки в выходном буфер
+    Move (Z, OutBuf[I + 8], 4);
+    Inc(I, 8); // Пропускаем обработанный блок, переходим к следующему
+  end;
+ 
+  Sum := 0;
+  for A := 0 to 31 do  // Кодируем первые 2 части ключа внутренним ключем
+  begin
+    Inc(sum,Delta);
+    Inc(k0, ((k1 shl 4) + _k0) xor (k1 + Sum) xor ((k1 shr 5) + _k1));
+    Inc(k1, ((k0 shl 4) + _k2) xor (k0 + Sum) xor ((k0 shr 5) + _k3));
+  end;
+ 
+  Sum := 0;
+  for A := 0 to 31 do  // Кодируем вторые 2 части ключа внутренним ключем
+  begin
+    Inc(Sum, Delta);
+    Inc(k2, ((k3 shl 4) + _k0) xor (k3 + Sum) xor ((k3 shr 5) + _k1));
+    Inc(k3, ((k2 shl 4) + _k2) xor (k2 + Sum) xor ((k2 shr 5) + _k3));
+  end;
+ 
+  // Определяем позицию размещения ключа в блоке данных
+  Randomize;
+  if Len &lt; 255 then
+    I := Len
+  else
+    I := 255;
+  repeat
+    I := Random(I);
+    if I &lt; 4 then I := 4;
+  until I &lt; Len - 16; // &lt;- исправление глюка с шифрованием маленьких блоков данных
+ 
+  // Смещаем данные освобождая место для четырех
+  // частей ключа
+  Move(OutBuf[0], ResultBuf[0], I);
+  Move(OutBuf[I], ResultBuf[I + 16], Len - I - 17);
+ 
+  // Разбиваем четвертую четверть ключа на 4 восьмибитных части
+  ResultBuf[I]    := Byte(k3 shr 24);
+  ResultBuf[I + 1]  := Byte(k3 shr 16);
+  ResultBuf[I + 2]  := Byte(k3 shr 8);
+  ResultBuf[I + 3]  := Byte(k3);
+ 
+  // Разбиваем третью четверть ключа на 4 восьмибитных части
+  ResultBuf[I + 4]  := Byte(k2 shr 24);
+  ResultBuf[I + 5]  := Byte(k2 shr 16);
+  ResultBuf[I + 6]  := Byte(k2 shr 8);
+  ResultBuf[I + 7]  := Byte(k2);
+ 
+  // Разбиваем первую четверть ключа на 4 восьмибитных части
+  ResultBuf[I + 8]  := Byte(k0 shr 24);
+  ResultBuf[I + 9]  := Byte(k0 shr 16);
+  ResultBuf[I + 10] := Byte(k0 shr 8);
+  ResultBuf[I + 11] := Byte(k0);
+ 
+  // Разбиваем вторую четверть ключа на 4 восьмибитных части
+  ResultBuf[I + 12] := Byte(k1 shr 24);
+  ResultBuf[I + 13] := Byte(k1 shr 16);
+  ResultBuf[I + 14] := Byte(k1 shr 8);
+  ResultBuf[I + 15] := Byte(k1);
+ 
+  // Сдвигаем данные с 14 позиции на одну вправо для метки
+  // (буфер начинается с нуля)
+  for A := Len - 1 downto 14 do
+    ResultBuf[A] := ResultBuf[A - 1];
+ 
+  // Помещаем метку начала ключа (14-й байт)
+  ResultBuf[13] := I;
+ 
+  S := ResultBuf;
+end;
+ 
+//  Функция кодирует стрим с текущей позиции и до конца.
+//  Результат помещается в текущую позицию. Размеры стрима корректируются
+// =============================================================================
+procedure EnCryptStream(Stream: TStream);
+var
+  Template: THash;
+  Position: Int64;
+begin
+  if Stream = nil then
+    raise Exception.Create('Empty stream.');
+  Position := Stream.Position;
+  SetLength(Template, Stream.Size - Position);
+  Stream.Read(Template[0], Length(Template));
+  EnCript(Template);
+  Stream.Size := Position + Length(Template);
+  Stream.Position := Position;
+  Stream.Write(Template[0], Length(Template));
+end;
+ 
+////////////////////////////////////////////////////////////////////////////////
+//
+// ЧАСТЬ ВТОРАЯ * * * ДЕКОДИРОВАНИЕ * * *
+ 
+function DeCript (var S: THash): Boolean;
+var
+  InBuf,
+  OutBuf,
+  ResultBuf: THash; // Входной, выходной и результирующий буфера
+  Y , Z, Sum: LongWord;     // Временные переменные для кодируемых блоков данных
+  k0, k1, k2, k3: LongWord; // Текущий ключ для шифрования
+  I, A, Len: Integer;       // Переменные для циклов
+  AHeader: String;
+begin
+  Result := False;
+ 
+  // Проверка заданного ключа
+  if _k0 = 0 then SetDefaultKey;
+ 
+  Len := Length(S); // Вычисляем размер декодируемого блока
+ 
+  // Проверка размера
+  if Len &lt; 27 then Exit;
+  if Len &lt;&gt; (((Len - 21) div 8) * 8) + 21 then Exit;
+ 
+  // Проверка заголовка
+  AHeader := Char(S[0]) + Char(S[1]) + Char(S[2]);
+  if AHeader &lt;&gt; Header then Exit;
+ 
+  // Проверка позиции ключа
+  if not(S[13] in [4..255]) then Exit;
+  if S[13] + 16 &gt; Len then Exit;
+ 
+  // Проверка счетчика мусора
+  if S[3] &gt; 8 then Exit;
+ 
+  SetLength(InBuf, Len);  // Устанавливаем размер буферов
+ 
+  Move(S[0], InBuf[0], Len);// Заполняем входной буфер данными
+ 
+  I := InBuf[13]; // Узнаем начальную позицию ключа
+ 
+  // Удаляем метку на начало ключа
+  for A := 13 to Len - 2 do
+  begin
+    InBuf[A] := InBuf[A + 1];
+    InBuf[A + 1] := 0;
+  end;
+  Dec(Len);
+ 
+  // Извлекаем ключ
+  k3 :=(InBuf[I + 3] or (InBuf[I + 2] shl 8) or (InBuf[I + 1] shl 16) or (InBuf[I] shl 24));
+  k2 :=(InBuf[I + 7] or (InBuf[I + 6] shl 8) or (InBuf[I + 5] shl 16) or (InBuf[I + 4] shl 24));
+  k0 :=(InBuf[I + 11] or (InBuf[I + 10] shl 8) or (InBuf[I + 9] shl 16) or (InBuf[I + 8] shl 24));
+  k1 :=(InBuf[I + 15] or (InBuf[I + 14] shl 8) or (InBuf[I + 13] shl 16) or (InBuf[I + 12] shl 24));
+ 
+  // Удаляем ключ из блока данных
+  for A := I + 16 to Len do
+  begin
+    InBuf[A - 16] := InBuf[A];
+    InBuf[A] := 0;
+  end;
+  SetLength(OutBuf, Len);
+  ZeroMemory(OutBuf, Len);
+  Dec(Len, 16); // Удаляем размер ключа
+ 
+  // Декодируем первые две части ключа
+  Sum := Delta shl 5;
+  for A := 0 to 31 do
+  begin
+    Dec(k1, ((k0 shl 4) + _k2) xor (k0 + Sum) xor ((k0 shr 5) + _k3));
+    Dec(k0, ((k1 shl 4) + _k0) xor (k1 + Sum) xor ((k1 shr 5) + _k1));
+    Dec(Sum, Delta);
+  end;
+ 
+  // Декодируем вторые две части ключа
+  Sum := Delta shl 5;
+  for A := 0 to 31 do
+  begin
+    Dec(k3, ((k2 shl 4) + _k2) xor (k2 + Sum) xor ((k2 shr 5) + _k3));
+    Dec(k2, ((k3 shl 4) + _k0) xor (k3 + Sum) xor ((k3 shr 5) + _k1));
+    Dec(Sum, Delta);
+  end;
+ 
+  I := 0;
+  Dec(Len); // Удяляем из размера место счетчика мусора
+  Dec(Len, 3); // Удаляем из размера заголовок ETA
+  while I &lt; Len do // Непосредственно декодировка
+  begin
+    Move(InBuf[I + 4], Y, 4);  // Берем первые 32 бита
+    Move(InBuf[I + 8], Z, 4);  // Берем вторые 32 бита
+    // Декодируем
+    Sum := Delta shl 5;
+    for A := 0 to 31 do  // 64 битный кодируемый блок (2 части по 32 бита)
+    begin
+      Dec(Z, ((Y shl 4) + k2) xor (Y + Sum) xor ((Y shr 5) + k3));
+      Dec(Y, ((Z shl 4) + k0) xor (Z + Sum) xor ((Z shr 5) + k1));
+      Dec(Sum, Delta);
+    end;
+    Move(Y, OutBuf[I], 4);  // Запоминаем кодированные блоки в выходном буфере
+    Move(Z, OutBuf[I + 4], 4);
+    Inc(I, 8);              // Пропускаем обработанный блок, переходим к следующему
+  end;
+ 
+  // Отрезаем мусор (-1 потому что место для счетчика уже удалено из Len)
+  Len := Len - (InBuf[3] - 1);
+  SetLength(ResultBuf, Len);
+  Move(OutBuf[0], ResultBuf[0], Len);
+ 
+  // Выводим текст из выходного буфера
+  S := ResultBuf;
+  Result := True;
+end;
+ 
+//  Функция декодирует стрим с текущей позиции и до конца.
+//  Результат помещается в текущую позицию. Размеры стрима корректируются
+// =============================================================================
+function DeCriptStream(Stream: TStream): Boolean;
+var
+  Template: THash;
+  Position: Int64;
+begin
+  if Stream = nil then
+    raise Exception.Create('Empty stream.');
+  Position := Stream.Position;
+  SetLength(Template, Stream.Size - Position);
+  Stream.Read(Template[0], Length(Template));
+  Result := DeCript(Template);
+  Stream.Size := Position + Length(Template);
+  Stream.Position := Position;
+  Stream.Write(Template[0], Length(Template));
+end;
+ 
+end.
+ 
+</pre>
+
+<p id="author">Автор: Александр (Rouse_) Багель</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<hr />
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Алгоритм 128-битного шифрования (TEA)
+ 
+Зависимости: system
+Автор:       Valts Silaputnins, valts@velns.org
+Copyright:   Valts Silaputnins
+Дата:        19 августа 2002 г.
+********************************************** }
+ 
+unit ucrypt;
+ 
+interface
+type TEAKey = array [0..3] of cardinal;
+ 
+//Use 64-bit aligned data size (8,16...) or else some data will be left unencrypted!
+procedure TEA_Encode(Input,Output:pointer;size:integer;key:TEAKey);
+procedure TEA_Decode(Input,Output:pointer;size:integer;key:TEAKey);
+ 
+ 
+implementation
+type
+     TEAData = array[0..1] of cardinal;
+     PTEAKey = ^TEAKey;
+     PTEAData = ^TEAData;
+ 
+Procedure TEA_Cipher(v:PTEAData;var w:PTEAData;k:PTEAKey);
+var y,z,sum,delta,n:Cardinal;
+begin
+ y:=(v)[0]; z:=(v)[1];
+ sum:=0; delta:=$9E3779B9;
+ n:=32;
+ 
+ while (n &gt; 0) do begin
+   inc(y, (z shl 4 xor z shr 5) + z xor sum + (k)[sum and 3]);
+   inc(sum,delta);
+   inc(z,(y shl 4 xor y shr 5) + y xor sum + (k)[sum shr 11 and 3]);
+  dec(n);
+ end;
+ 
+ (w)[0]:=y; (w)[1]:=z;
+end;
+Procedure TEA_DeCipher(v:PTEAData;var w:PTEAData;k:PTEAKey);
+var y,z,sum,delta,n:Cardinal;
+begin
+ 
+   y:=v[0];
+   z:=v[1];
+   sum:=$0C6EF3720;
+   delta:=$9E3779B9;
+   n:=32;
+ 
+   while (n &gt; 0) do begin
+    dec(z,(y shl 4 xor y shr 5) + y xor sum + k[sum shr 11 and 3]);
+    dec(sum,delta);
+    dec(y,(z shl 4 xor z shr 5) + z xor sum + k[sum and 3]);
+    dec(n);
+   end;
+ 
+   w[0]:=y; w[1]:=z;
+ 
+ 
+end;
+procedure TEA_EnDec(encode:boolean;Input,Output:pointer;size:integer;key:TEAKey);
+var DataIn,DataOut:TEAData;
+    DOut:PTEAData;
+    i,sz:integer;
+begin
+    DOut:=@DataOut;
+    sz:=(size shr 3) shl 3;
+    i:=0;
+    repeat
+      DataIn[0]:=Cardinal((pointer(Cardinal(Input)+Cardinal(i)))^);
+      DataIn[1]:=Cardinal((pointer(Cardinal(Input)+Cardinal(i+4)))^);
+      if encode then TEA_Cipher(@DataIn,DOut,@key) else TEA_DECipher(@DataIn,DOut,@key);
+      Cardinal(pointer(Cardinal(Output)+Cardinal(i))^):=DataOut[0];
+      Cardinal(pointer(Cardinal(Output)+Cardinal(i+4))^):=DataOut[1];
+      inc(i,8);
+    until i&gt;=sz;
+ 
+end;
+procedure TEA_Encode(Input,Output:pointer;size:integer;key:TEAKey);
+begin
+ TEA_EnDec(true,Input,Output,size,key);
+end;
+ 
+procedure TEA_Decode(Input,Output:pointer;size:integer;key:TEAKey);
+begin
+ TEA_EnDec(false,Input,Output,size,key);
+end;
+ 
+end.
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

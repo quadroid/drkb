@@ -1,0 +1,85 @@
+<html>
+<head>
+  <title>Получить и установить системные цвета</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получить и установить системные цвета</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+var 
+ 
+  OldColor: TColor; 
+  Element: TColor = COLOR_BTNFACE; 
+ 
+  {....} 
+ 
+{ 
+  Set the color for a system element. SetSysColors function 
+  changes the current Windows session only. 
+  The new colors are not saved when Windows terminates. 
+  For a list of color elements see  Win32 API Help - Function GetSysColor 
+ 
+ 
+  Open the ColorDialog - and set the new color systemwide 
+} 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  if ColorDialog1.Execute then 
+  begin 
+    SetSysColors(1, Element, ColorDialog1.Color); 
+  end; 
+end; 
+ 
+{ 
+  Save the old color value of the element COLOR_BTNFACE to restore on Button2 click 
+} 
+ 
+procedure TForm1.FormShow(Sender: TObject); 
+begin 
+  OldColor := GetSysColor(COLOR_BTNFACE); 
+end; 
+ 
+{ 
+  Restore the old color value 
+  Stellt den alten Farbwert wieder her 
+} 
+ 
+procedure TForm1.Button2Click(Sender: TObject); 
+begin 
+  SetSysColors(1, Element, OldColor); 
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

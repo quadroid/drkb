@@ -1,0 +1,130 @@
+<html>
+<head>
+  <title>Подключение через TMySQLClient &amp; TMySQLResult</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Подключение через TMySQLClient &amp; TMySQLResult</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Решение нашел...</p>
+<p>1. Без использования dbExpress, а с использованием специальных классов TMySQLClien &amp; TMySQLResult.</p>
+<p>2. Все эти файлы ( файл приаттачит Secandr (90 кил)) надо положить либо в папку с проектом, либо в &lt;Delphi_dir&gt;/lib.</p>
+<p>3. Код:</p>
+<p>Сразу говорю, показал только основные моменты. Код, для определения ошибок и т.п. писать не стал.</p>
+<pre name="code" class="delphi">
+uses
+  .....
+ uMysqlClient, uMysqlCT, uMysqlErrors, uMysqlHelpers, uMysqlNet, uMysqlNewPassword, uMysqlSSL, uMysqlVio;
+ 
+type
+ ...
+   procedure QueryData( Query : string); // Результирующий запрос (заносим данные в таблицу)
+   procedure QueryNoData( Query : string ); // insetrt, delete - нет полученны данных 
+ ...
+ 
+var
+  ...
+ SQLConnection     : TMysqlClient; // Объявляем переменную для соединения.
+ Grid              : TStringGrid;
+  ...
+ 
+implementation
+....
+ 
+// Установка соединения
+SQLConnection := TMysqlClient.Create;
+ with SQLConnection do
+  begin
+   Host      := 'localhost';
+   User      := 'root';
+   Password  := '';
+   Db        := 'mysql';
+ 
+  try
+   connect;
+  Except On Exception Do
+   begin
+     Application.MessageBox( 'К сожалению, соединиться с MySQL-сервером не удалось. Проверьте правильность ввода всех параметров.' , 'Ошибка соединения' , 0 );
+    exit;
+   end;
+  end;
+ end;
+ 
+// Выполнение запроса:
+ 
+procedure TMainForm.QueryData( Query : string );
+var
+mysql_result : TMySQLResult;
+i , j : integer;
+OK : boolean;
+begin
+OK := true;
+ 
+try
+ mysql_result := SQLConnection.query( Query , true , OK );
+Except On Exception Do
+ begin
+  Application.MessageBox( 'Запрос не выполнилс.' , 'Ошибка соединения' , 0 );
+  exit;
+ end;
+end;
+ 
+with Grid do 
+ begin
+  ColCount := mysql_result.FieldsCount;
+  RowCount := mysql_result.RowsCount+1;
+ 
+  if RowCount = 1 then
+   FixedRows := 0
+  else
+   FixedRows := 1;
+ 
+  for i := 0 to mysql_result.RowsCount - 1 do
+    begin
+      for j := 0 to mysql_result.FieldsCount do
+        Cells[ j , i + 1 ] := mysql_result.FieldValue( j );
+      mysql_result.Next;
+    end;
+ end;
+ 
+mysql_result.free;
+end;
+ 
+procedure TMainForm.QueryNoData( Query : string );
+begin
+// Аналогично предыдущей процедуре, без внесения данных в таблицу. для запросов Insert, Update .....
+end;
+</pre>
+
+<p id="author">Автор Mal Hack </p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<html>
+<head>
+  <title>Функция конвертации текста HTML, содержащего строки вида  #123; в читабельбный вид</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Функция конвертации текста HTML, содержащего строки вида  #123; в читабельбный вид</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">Function PreDecode(s:string):string;
+  function AddNumericChar(I: Integer):string;
+  var
+    W: WideChar;
+    Buffer: array[0..10] of char;
+  begin
+    if I = 9 then result := ' '
+       else if I &lt; ord(' ') then  result := '?'  {control char}
+           else if (I &lt; 256)  then   result := Chr(I)
+    else
+    begin
+    W := WideChar(I);
+    SetString(result, Buffer, WideCharToMultiByte(CP_ACP, 0,
+          @W, 1, @Buffer, SizeOf(Buffer), nil, nil))
+    end;
+  end;
+ 
+var val,i,ik:integer; sq:string;
+begin
+  for i:=1 to Length(s) do
+  begin
+      if ( (s[i]='&amp;') and (s[i+1] ='#') ) then
+       begin
+          sq := Copy(s,i+2,length(s));
+          for ik:=1 to length(sq) do
+          begin
+            if not ( sq[ik] in ['0'..'9'] ) then
+            break;
+          end;
+          if  Copy(sq,1,ik-1) &lt;&gt; '' then
+          val := StrToInt( Copy(sq,1,ik-1) ) else val:=-1;
+          if ( (val &lt;&gt; -1) and (sq[ik] = ';')  )
+          then
+           begin
+             Result:=Result+AddNumericChar(val);
+             Delete(s,i,ik+1);
+            end;
+       end else  result:=Result+s[i];
+  end;
+ 
+end;
+</pre>
+<p id="author">Автор RAdmin</p>
+
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

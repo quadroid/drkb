@@ -1,0 +1,146 @@
+<html>
+<head>
+  <title>BMP &gt; DIB</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">BMP &gt; DIB</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Если файл хранится в формате BMP, как мне преобразовать его в DIB и как затем отобразить? </p>
+
+<p>Это не тривиально, но помочь нам смогут функции GetDIBSizes и GetDIB из модуля GRAPHICS.PAS. Приведу две процедуры: одну для создания DIB из TBitmap и вторую для его освобождения: </p>
+<pre name="code" class="delphi">
+{ Преобразование TBitmap в DIB }
+ 
+procedure BitmapToDIB(Bitmap: TBitmap;
+  var BitmapInfo: PBitmapInfo;
+  var InfoSize: integer;
+  var Bits: pointer;
+  var BitsSize: longint);
+begin
+  BitmapInfo := nil;
+  InfoSize := 0;
+  Bits := nil;
+  BitsSize := 0;
+  if not Bitmap.Empty then
+  try
+    GetDIBSizes(Bitmap.Handle, InfoSize, BitsSize);
+    GetMem(BitmapInfo, InfoSize);
+    Bits := GlobalAllocPtr(GMEM_MOVEABLE, BitsSize);
+    if Bits = nil then
+      raise
+        EOutOfMemory.Create('Не хватает памяти для пикселей изображения');
+    if not GetDIB(Bitmap.Handle, Bitmap.Palette, BitmapInfo^, Bits^) then
+      raise Exception.Create('Не могу создать DIB');
+  except
+    if BitmapInfo &lt;&gt; nil then
+      FreeMem(BitmapInfo, InfoSize);
+    if Bits &lt;&gt; nil then
+      GlobalFreePtr(Bits);
+    BitmapInfo := nil;
+    Bits := nil;
+    raise;
+  end;
+end;
+ 
+{ используйте FreeDIB для освобождения информации об изображении и битовых указателей }
+ 
+procedure FreeDIB(BitmapInfo: PBitmapInfo;
+  InfoSize: integer;
+  Bits: pointer;
+  BitsSize: longint);
+begin
+  if BitmapInfo &lt;&gt; nil then
+    FreeMem(BitmapInfo, InfoSize);
+  if Bits &lt;&gt; nil then
+    GlobalFreePtr(Bits);
+end;
+ 
+</pre>
+
+
+
+<p>Создаем форму с TImage Image1 и загружаем в него 256-цветное изображение, затем рядом размещаем TPaintBox. Добавляем следующие строчки к private-объявлениям вашей формы:</p>
+<pre name="code" class="delphi">
+ 
+{ Private declarations }
+BitmapInfo : PBitmapInfo ;
+InfoSize   : integer ;
+Bits       : pointer ;
+BitsSize   : longint ;
+</pre>
+
+
+
+
+<p>Создаем нижеприведенные обработчики событий, которые демонстрируют процесс отрисовки DIB:</p>
+
+<pre name="code" class="delphi">
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  BitmapToDIB(Image1.Picture.Bitmap, BitmapInfo, InfoSize,
+    Bits, BitsSize);
+end;
+ 
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+  FreeDIB(BitmapInfo, InfoSize, Bits, BitsSize);
+end;
+ 
+procedure TForm1.PaintBox1Paint(Sender: TObject);
+var
+  OldPalette: HPalette;
+begin
+  if Assigned(BitmapInfo) and Assigned(Bits) then
+    with BitmapInfo^.bmiHeader, PaintBox1.Canvas do
+    begin
+      OldPalette := SelectPalette(Handle,
+        Image1.Picture.Bitmap.Palette,
+        false);
+      try
+        RealizePalette(Handle);
+        StretchDIBits(Handle, 0, 0, PaintBox1.Width, PaintBox1.Height,
+          0, 0, biWidth, biHeight, Bits,
+          BitmapInfo^, DIB_RGB_COLORS,
+          SRCCOPY);
+      finally
+        SelectPalette(Handle, OldPalette, true);
+      end;
+    end;
+end;
+</pre>
+
+
+
+<p>Это поможет вам сделать первый шаг. Единственное, что вы можете захотеть, это создание собственного HPalette на основе DIB, вместо использования TBitmap и своей палитры. Функция с именем PaletteFromW3DIB из GRAPHICS.PAS как раз этим и занимается, но она не объявлена в качестве экспортируемой, поэтому для ее использования необходимо скопировать ее исходный код и вставить его в ваш модуль.</p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

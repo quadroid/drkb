@@ -1,0 +1,107 @@
+<html>
+<head>
+  <title>Как проверить инсталлирован ли MS Word?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как проверить инсталлирован ли MS Word?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses
+  ..., Registry;
+ 
+function IsMicrosoftWordInstalled: Boolean;
+var
+  Reg: TRegistry;
+  S: string;
+begin
+  Reg := TRegistry.Create;
+  with Reg do
+  begin
+    RootKey := HKEY_CLASSES_ROOT;
+    Result := KeyExists('Word.Application');
+    Free;
+  end;
+end;
+</pre>
+
+<hr />
+<pre name="code" class="delphi">
+function MSWordIsInstalled: Boolean;
+begin
+  Result := AppIsInstalled('Word.Application');
+end;
+ 
+function AppIsInstalled(strOLEObject: string): Boolean;
+var
+  ClassID: TCLSID;
+begin
+  Result := (CLSIDFromProgID(PWideChar(WideString(strOLEObject)), ClassID) = S_OK)
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+
+<hr />Как определить установлен ли на компьютере Word, запустить его и загрузить в него текст из программы? </p>
+
+<p>Пример: </p>
+
+<pre name="code" class="delphi">
+var
+ MsWord: Variant;
+...
+try
+ // Если Word уже запущен
+ MsWord := GetActiveOleObject('Word.Application');
+ // Взять ссылку на запущенный OLE объект
+ except
+  try
+  // Word не запущен, запустить
+  MsWord := CreateOleObject('Word.Application');
+  // Создать ссылку на зарегистрированный OLE объект
+  MsWord.Visible := True;
+   except
+    ShowMessage('Не могу запустить Microsoft Word');
+    Exit;
+   end;
+  end;
+ end;
+...
+MSWord.Documents.Add; // Создать новый документ
+MsWord.Selection.Font.Bold := True; // Установить жирный шрифт
+MsWord.Selection.Font.Size := 12; // установить 12 кегль
+MsWord.Selection.TypeText('Текст');
+</pre>
+
+<p>Источник: <a href="http://dmitry9.nm.ru/info/" target="_blank">http://dmitry9.nm.ru/info/</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

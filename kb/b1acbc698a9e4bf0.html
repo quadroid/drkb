@@ -1,0 +1,66 @@
+<html>
+<head>
+  <title>Как узнать, является ли окно Unicode?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать, является ли окно Unicode?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{
+  The IsWindowUnicode function
+  determines whether the specified window is a native Unicode window
+ 
+  The character set of a window is determined by the use of the RegisterClass function.
+  If the window class was registered with the ANSI version of RegisterClass (RegisterClassA),
+  the character set of the window is ANSI. If the window class was registered with the Unicode
+  version of RegisterClass (RegisterClassW), the character set of the window is Unicode.
+ 
+  The system does automatic two-way translation (Unicode to ANSI) for window messages.
+  For example, if an ANSI window message is sent to a window that uses the Unicode character set,
+  the system translates that message into a Unicode message before calling the window procedure.
+  The system calls IsWindowUnicode to determine whether to translate the message.
+ 
+}
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  {determine if the window is a Unicode window}
+  if (IsWindowUnicode(Form1.Handle)) then
+    Button1.Caption := 'This window is a Unicode window'
+  else
+    Button1.Caption := 'This window is not a Unicode window'
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

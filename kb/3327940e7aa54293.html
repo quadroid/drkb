@@ -1,0 +1,66 @@
+<html>
+<head>
+  <title>Как сделать текстовый список всех доступных свойств перечисляемого типа?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как сделать текстовый список всех доступных свойств перечисляемого типа?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>I need to get a list of strings (like a StringList) with the possible values for a TBrushStyle property (bsSolid, bsClear, bsHorizontal, for example). I want to build a ComboBox with this options. How can I set the property Items of my ComboBox directly with all the values from the enumerated type TBrushStyle? My ComboBox will be alike the Property Editor for this type.</p>
+
+<p>You can use runtime type information (RTTI) to do that. Below is an example:</p>
+
+<pre name="code" class="delphi">
+uses 
+  {...}, TypInfo
+ 
+procedure BrushStylesAsStrings(AList: TStrings);
+var
+  a: integer;
+  pInfo: PTypeInfo;
+  pEnum: PTypeData;
+begin
+  AList.Clear;
+  pInfo := PTypeInfo(TypeInfo(TBrushStyle));
+  pEnum := GetTypeData(pInfo);
+  with pEnum^ do
+  begin
+    for a := MinValue to MaxValue do
+      AList.Add(GetEnumName(pInfo, a));
+  end;
+end; 
+</pre>
+
+<p>Tip by Sen</p>
+<p>Взято из <a href="http://www.lmc-mediaagentur.de/dpool" target="_blank">http://www.lmc-mediaagentur.de/dpool</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

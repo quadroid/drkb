@@ -1,0 +1,62 @@
+<html>
+<head>
+  <title>Как получить полный исходник HTML?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить полный исходник HTML?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Взято из FAQ:<a href="http://blackman.km.ru/myfaq/cont4.phtml" target="_blank">http://blackman.km.ru/myfaq/cont4.phtml</a></p>
+<p>Перевод материала с сайта members.home.com/hfournier/webbrowser.htm </p>
+
+<p>В IE5, можно получить исходник используя свойство outerHTML тэгов</p>
+<p>HTML. В IE4 или IE3, Вам понадобится записать документ в файл, а затем</p>
+<p>загрузить файл в TMemo, TStrings, и т.д. </p>
+<pre name="code" class="delphi">
+var
+  HTMLDocument: IHTMLDocument2;
+  PersistFile: IPersistFile;
+begin
+...
+  HTMLDocument := WebBrowser1.Document as IHTMLDocument2;
+  PersistFile := HTMLDocument as IPersistFile;
+  PersistFile.Save(StringToOleStr('test.htm'), True); 
+  while HTMLDocument.readyState &lt; &gt; 'complete' do
+    Application.ProcessMessages;
+...
+end;
+</pre>
+
+
+<p id="author">Автор: Ron Loewy Обратите внимание: Вам понадобится импортировать библиотеку</p>
+<p>MSHTML и добавить MSHTML_TLB как ActiveX, в секцию Uses. </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

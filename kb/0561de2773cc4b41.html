@@ -1,0 +1,136 @@
+<html>
+<head>
+  <title>Рисование звезд и многоугольников</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Рисование звезд и многоугольников</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Рисование звёзд и многоугольников
+ 
+Зависимости: Windows, Graphics
+Автор:       Fenik, chook_nu@uraltc.ru, Новоуральск
+Copyright:   Автор Федоровских Николай
+Дата:        3 июня 2002 г.
+***************************************************** }
+ 
+procedure DrawStar(Canvas: TCanvas; Center, Pos: TPoint;
+  R2inPercent, Ends: Byte; DrawCircle: Boolean);
+{
+ Рисование звёзд и многоугольников
+ 
+ Center - центр фигуры;
+ Pos - точка, лежащая на внешнем радиусе;
+ R2inPercent - сколько процентов от внешнего радиуса составляет внутренний;
+ Ends - число концов (внешних углов) фигуры;
+ DrawCircle - описывать или нет возле фигуры окружность;
+ 
+ R2inPercent рекомендую брать в промежутке [0; 100].
+ Если R2inPercent = 100, то рисуется правильный многоугольник,
+ число углов которого равно Ends.
+ Все точки лежат на двух окружностях, чередуясь.
+}
+ 
+  function Max(A, B: Integer): Integer;
+  begin
+    if A &gt; B then
+      Result := A
+    else
+      Result := B;
+  end;
+ 
+  function ArcTan2(Y, X: Extended): Extended;
+  asm
+    FLD Y
+    FLD X
+    FPATAN
+    FWAIT
+  end;
+ 
+const
+  Rad = Pi / 180;
+var
+  R, r2, rd, len: Word;
+  i: Integer;
+  MemBS: TBrushStyle;
+  p: array of TPoint;
+  MemC: TColor;
+  a, ad: Double;
+begin
+  if Ends &lt; 2 then
+    Exit;
+  {начальный угол:}
+  a := ArcTan2(Center.y - Pos.y, Pos.x - Center.x) * (180 / Pi);
+  R := Max(Abs(Center.x - Pos.x), Abs(Center.y - Pos.y));
+  r2 := Round(R / 100 * R2inPercent); {внутренний радиус}
+  if R2inPercent &lt;&gt; 100 then
+    len := Ends * 2
+  else
+    len := Ends;
+  SetLength(p, len); {устанавливаем длину массива точек}
+  ad := 360 / len; {угол между рядом стоящими точками}
+  for i := 0 to len - 1 do
+  begin
+    {если i нечетный, то радиус внутренний, иначе - внешний}
+    if Odd(i) then
+      rd := r2
+    else
+      rd := R;
+    p[i].x := Trunc(Cos(a * Rad) * rd) + Center.x;
+    p[i].y := Trunc(Sin(a * Rad) * rd) + Center.y;
+    a := a + ad; {увеличиваем угол}
+  end;
+  {рисуем многоугольник}
+  Canvas.Polygon(p);
+  if DrawCircle then
+  begin
+    {Рисуем окружность}
+    MemC := Canvas.Brush.Color;
+    MemBS := Canvas.Brush.Style;
+    Canvas.Brush.Style := bsClear;
+    Canvas.Ellipse(Center.x - R, Center.y - R, Center.x + R, Center.y + R);
+    Canvas.Brush.Color := MemC;
+    Canvas.Brush.Style := MemBS;
+  end;
+end;
+</pre>
+
+<p>Пример использования: </p>
+<pre name="code" class="delphi">
+DrawStar(FBitmap.Canvas, Point(FBitmap.Width div 2, FBitmap.Height div 2),
+  Point(FBitmap.Width div 2, 0), 20, 12, False); 
+</pre>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

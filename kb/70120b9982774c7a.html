@@ -1,0 +1,155 @@
+<html>
+<head>
+  <title>Как проверить, является ли число простым?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как проверить, является ли число простым?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function IsPrime(N: Cardinal): Boolean; register; 
+  // test if N is prime, do some small Strong Pseudo Prime test in certain bounds 
+  // copyright (c) 2000 Hagen Reddmann, don't remove 
+asm 
+      TEST  EAX,1            { Odd(N) ?? } 
+      JNZ   @@1 
+      CMP   EAX,2            { N == 2 ?? } 
+      SETE  AL 
+      RET 
+@@1:  CMP   EAX,73           { N        JB    @@C } 
+      JE    @@E              { N == 73 ?? } 
+      PUSH  ESI 
+      PUSH  EDI 
+      PUSH  EBX 
+      PUSH  EBP 
+      PUSH  EAX              { save N as Param for @@5 } 
+      LEA   EBP,[EAX - 1]    {  M == N -1, Exponent } 
+      MOV   ECX,32           { calc remaining Bits of M and shift M' } 
+      MOV   ESI,EBP 
+@@2:  DEC   ECX 
+      SHL   ESI,1 
+      JNC   @@2 
+      PUSH  ECX              { save Bits as Param for @@5 } 
+      PUSH  ESI              {  save M' as Param for @@5 } 
+      CMP   EAX,08A8D7Fh     {  N = 9080191 ?? } 
+      JAE   @@3 
+      // now if (N       MOV   EAX,31 
+      CALL  @@5              { 31^((N-1)(2^s)) mod N } 
+      JC    @@4 
+      MOV   EAX,73           { 73^((N-1)(2^s)) mod N } 
+      PUSH  OFFSET @@4 
+      JMP   @@5 
+      // now if (N @@3:   MOV   EAX,2 
+      CALL  @@5 
+      JC    @@4 
+      MOV   EAX,7 
+      CALL  @@5 
+      JC    @@4 
+      MOV   EAX,61 
+      CALL  @@5 
+@@4:  SETNC AL 
+      ADD   ESP,4 * 3 
+      POP   EBP 
+      POP   EBX 
+      POP   EDI 
+      POP   ESI 
+      RET 
+// do a Strong Pseudo Prime Test 
+@@5:  MOV   EBX,[ESP + 12]     { N on stack } 
+      MOV   ECX,[ESP +  8]     { remaining Bits } 
+      MOV   ESI,[ESP +  4]     { M' } 
+      MOV   EDI,EAX            { T = b, temp. Base } 
+@@6:  DEC   ECX 
+      MUL   EAX 
+      DIV   EBX 
+      MOV   EAX,EDX 
+      SHL   ESI,1 
+      JNC   @@7 
+      MUL   EDI 
+      DIV   EBX 
+      AND   ESI,ESI 
+      MOV   EAX,EDX 
+@@7:  JNZ   @@6 
+      CMP   EAX,1      { b^((N -1)(2^s)) mod N ==  1 mod N ?? } 
+      JE    @@A 
+@@8:  CMP   EAX,EBP    { b^((N -1)(2^s)) mod N == -1 mod N ?? , EBP = N -1 } 
+      JE    @@A 
+      DEC   ECX        { second part to 2^s } 
+      JNG   @@9 
+      MUL   EAX 
+      DIV   EBX 
+      CMP   EDX,1 
+      MOV   EAX,EDX 
+      JNE   @@8 
+@@9:  STC 
+@@A:  RET 
+@@B:  DB    3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71 
+@@C:  MOV   EDX,OFFSET @@B 
+      MOV   ECX,18 
+@@D:  CMP   AL,[EDX + ECX] 
+      JE    @@E 
+      DEC   ECX 
+      JNL   @@D 
+@@E:  SETE  AL 
+end; 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  if IsPrime(3453451) then 
+    ShowMessage('yes'); 
+end; 
+ 
+{**** Another function ***} 
+ 
+function IsPrime(Prim: Longint): Boolean; 
+var 
+  Z: Real; 
+  Max: LongInt; 
+  Divisor: LongInt; 
+begin 
+  Prime := False; 
+  if (Prim and 1) = 0 then Exit; 
+  Z       := Sqrt(Prim); 
+  Max     := Trunc(Z) + 1; 
+  Divisor := 3; 
+  while Max &gt; Divisor do 
+  begin 
+    if (Prim mod Divisor) = 0 then Exit; 
+    Inc(Divisor, 2); 
+    if (Prim mod Divisor) = 0 then Exit; 
+    Inc(Divisor, 4); 
+  end; 
+  Prime := True; 
+end; 
+</pre>
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

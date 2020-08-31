@@ -1,0 +1,69 @@
+<html>
+<head>
+  <title>Как проиграть wave-ресурс?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как проиграть wave-ресурс?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Сначала делаешь файл SOUND.RC, в нем строка вида: MY_WAV RCDATA TEST.WAV</p>
+<p> Компилишь чем-нибyдь в *.RES</p>
+
+<p> Далее в тексте:</p>
+<pre name="code" class="delphi">
+{$R полное_имя_файла_с_ресурсом}
+ 
+var WaveHandle: THandle;
+  WavePointer: pointer;
+  ...
+    WaveHandle := FindResource(hInstance, 'MY_WAV', RT_RCDATA);
+  if WaveHandle &lt;&gt; 0 then
+    begin
+      WaveHandle := LoadResource(hInstance, WaveHandle);
+      if WaveHandle &lt;&gt; 0 then
+        begin;
+          WavePointer := LockResource(WaveHandle);
+ 
+          PlayResourceWave := sndPlaySound(WavePointer, snd_Memory or
+            SND_ASYNC);
+          UnlockResource(WaveHandle);
+          FreeResource(WaveHandle);
+        end;
+    end;
+</pre>
+
+
+<p>Serg Vostrikov</p>
+<p>(2:5053/15.3)</p>
+
+<p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<html>
+<head>
+  <title>О файле проекта</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">О файле проекта</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Известно, что delphi создает множество файлов с расширениями pas, dfm, dpr и т.д. Обычно программиста интересуют файлы кода (pas) и описания форм (dfm), а остальные остаются вне его поля зрения, а зря &#8212; они несут важную информацию, которую можно (а в ряде случаев &#8212; нужно) изменять. </p>
+<p>Начнем с файла проекта (dpr). Фактически он содержит собственно программу, в то время как связанные с проектом многочисленные файлы форм и dll представляют собой подпрограммы. </p>
+<p>Структура файла проекта, содержащего единственную форму, такова, как показано в листинге 1.</p>
+<p><b>Листинг 1</b></p>
+<pre name="code" class="delphi">
+program project1; 
+ 
+uses 
+  forms, 
+  unit1 in 'unit1.pas' {form1}; 
+ 
+{$r *.res} 
+ 
+begin 
+  application.initialize; 
+  application.createform(tform1, form1); 
+  application.run; 
+end. 
+</pre>
+<p>Проект (программа) начинается обращением к методу initialize глобального объекта application и заканчивается после завершения его метода run. Этот метод &#8212; центральный: он визуализирует главную форму приложения и осуществляет диспетчеризацию сообщений windows. От того, какая работа выполняется строками кода, расположенными перед обращением к нему, зависят время загрузки приложения, и вид экрана до появления главного окна. </p>
+<p>Метод initialize предусмотрен, как говорится, на всякий случай и по умолчанию ничего не осуществляет. Чтобы заставить его работать, следует поместить указатель на соответствующую процедуру без параметров в глобальную переменную initproc. Это можно сделать в секции инициализации любого модуля (код этих секций активизируется до начала работы основной программы) или непосредственно в теле главного проекта (листинг 2): </p>
+<p><b>Листинг 2</b></p>
+<pre name="code" class="delphi">
+procedure init; 
+begin 
+// Выполняет какую-то работу; 
+end; 
+ 
+begin 
+initproc := @init; 
+application.initialize; // Обращение к init 
+application.createform(tform1, form1); 
+application.run; 
+end. 
+</pre>
+<p>Разумеется, в этом последнем случае будет проще в первом операторе основной программы явно обратиться к процедуре init. Вообще говоря, в подавляющем большинстве случаев оператор application.initialize можно удалить без каких-либо последствий для программы.</p>
+<p><b>Сокращение времени загрузки</b></p>
+<p>В реальном проекте со множеством форм между обращениями к initialize и run обычно расположены многочисленные вызовы метода createform, с помощью которого создаются используемые в проекте формы. Каждый вызов этого метода увеличивает время загрузки приложения. В начальный момент на экране будет видно только одно окно главной формы приложения (оно создается первым обращением к createform), а остальные объекты-окна можно создавать в ходе работы программы перед визуализацией соответствующего окна. </p>
+<p>По умолчанию в переключателе auto create forms (вызывается с помощью опции project|options среды delphi) на закладке preference окна tools|environment установлен флажок, что заставляет delphi помещать любую новую форму в список auto-create forms и формировать соответствующий оператор обращения к createform в файле проекта. Если очистить этот переключатель перед началом работы над проектом или перенести ненужные формы в список available forms окна project|options, можно существенно (иногда &#8212; в десятки раз) сократить время загрузки приложения. </p>
+<p><b>Вид экрана до появления главного окна</b><br>
+<p>В приводимом ниже листинге 3 (пример заимствован из справочной системы delphi) в программе создается 5 окон. В форме form5 имеется индикатор progressbar1, с помощью которого визуализируется процесс загрузки программы, точнее &#8212; создания остальных окон.</p>
+<p><b>Листинг 3</b></p>
+<pre name="code" class="delphi">
+begin 
+  with tform5.create(nil) do 
+    try 
+      progressbar1.max := 100; 
+      show; // Показываем форму form5 с индикатором progressbar1 
+      update; // Прорисовываем форму form5 
+      application.createform(tform1, form1); 
+      progressbar1.stepby(25); 
+      application.createform(tform2, form2); 
+      progressbar1.stepby(25); 
+      application.createform(tform3, form3); 
+      progressbar1.stepby(25); 
+      application.createform(tform4, form4); 
+      progressbar1.stepby(25); 
+    finally 
+      free; // Разрушаем ненужную форму form5 
+    end; 
+  application.run; 
+end. 
+</pre>
+<p>Источник: http://www.delphi.h5.ru/ </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

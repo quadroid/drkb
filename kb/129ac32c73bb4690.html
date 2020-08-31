@@ -1,0 +1,80 @@
+<html>
+<head>
+  <title>Получить информацию о регистрации Windows</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получить информацию о регистрации Windows</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses
+   Registry;
+ 
+ 
+ procedure GetOwnerAndCompanyName(var sOwner, sOrganization: string);
+ var
+   reg: TRegistry;
+   vi: TOSVersionInfo;
+   sWindows: string;
+ begin
+   reg      := TRegistry.Create;
+   sWindows := '\Windows\';
+   try
+     vi.dwOSVersionInfoSize := SizeOf(vi);
+     getversionex(vi);
+     reg.RootKey := HKEY_LOCAL_MACHINE;
+     if (vi.dwPlatformId = VER_PLATFORM_WIN32_NT) then sWindows := '\Windows NT\';
+     if reg.OpenKey('Software\Microsoft' + sWindows + 'CurrentVersion', False) then
+     begin
+       // Name 
+      sOwner := reg.ReadString('RegisteredOwner');
+       // Organization 
+      sOrganization := reg.ReadString('RegisteredOrganization');
+     end;
+   finally
+     reg.Free;
+   end;
+ end;
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ var
+   sOwner, sOrganization: string;
+ begin
+   GetOwnerAndCompanyName(sOwner, sOrganization);
+   Edit1.Text := sOwner;
+   Edit2.Text := sOrganization;
+ end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<html>
+<head>
+  <title>Как определить, работает ли программа в виртуальной машине Connectrix?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как определить, работает ли программа в виртуальной машине Connectrix?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+ This function can be used to determine whether your program is 
+ running from within Connectrix's Virtual PC 
+} 
+ 
+function running_inside_vpc: boolean; assembler; 
+asm 
+ push ebp 
+ 
+ mov  ecx, offset @@exception_handler 
+ mov  ebp, esp 
+ 
+ push ebx 
+ push ecx 
+ push dword ptr fs:[0] 
+ mov  dword ptr fs:[0], esp 
+ 
+ mov  ebx, 0 // flag 
+ mov  eax, 1 // VPC function number 
+ 
+ // call VPC 
+ db 00Fh, 03Fh, 007h, 00Bh 
+ 
+ mov eax, dword ptr ss:[esp] 
+ mov dword ptr fs:[0], eax 
+ add esp, 8 
+ 
+ test ebx, ebx 
+ setz al 
+ lea esp, dword ptr ss:[ebp-4] 
+ mov ebx, dword ptr ss:[esp] 
+ mov ebp, dword ptr ss:[esp+4] 
+ add esp, 8 
+ jmp @@ret 
+ @@exception_handler: 
+ mov ecx, [esp+0Ch] 
+ mov dword ptr [ecx+0A4h], -1 // EBX = -1 -&gt; not running, ebx = 0 -&gt; running 
+ add dword ptr [ecx+0B8h], 4 // -&gt; skip past the detection code 
+ xor eax, eax // exception is handled 
+ ret 
+ @@ret: 
+end;
+</pre>
+
+<p id="author">Автор: p0s0l</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

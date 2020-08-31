@@ -1,0 +1,66 @@
+<html>
+<head>
+  <title>FindKey для нескольких полей</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">FindKey для нескольких полей</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+with Table1 do
+  begin
+    SetKey;
+    FieldByName('State').AsString := 'CA';
+    FieldByName('City').AsString := 'Scotts Valley';
+    GotoKey;
+  end;
+</pre>
+
+<p>Вы не можете использовать Findkey с файлами DBase более чем для одного поля.</p>
+<pre name="code" class="delphi">
+oEmetb.indexName:='PrimaryKey';
+if oEmeTb.findkey([prCLient,prDiv,prEme])then 
+</pre>
+
+<p>где findkey передаются параметры для Primary Keyfields. </p>
+
+<p>Я обращаю ваше внимание на то, что имя индекса (Index) чувствительно к регистру, так что будьте внимательны. </p>
+
+<p>Вы можете также воспользоваться oEmeTb.indexfieldnames, но убедитесь в том, что ваш список ключевых полей в точности соответствуют ключевым полям, которые вы ищете.</p>
+
+<pre name="code" class="delphi">
+oEmetb.indexfieldNames:='EmeClient;EmeDiv;EmeNo';
+if oEmeTb.findkey([123,'A',96])then
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

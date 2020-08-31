@@ -1,0 +1,85 @@
+<html>
+<head>
+  <title>Найти точку пересечения прямых</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Найти точку пересечения прямых</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// determine if 2 line cross given their end-points
+function LinesCross(LineAP1, LineAP2, LineBP1, LineBP2 : TPoint) : boolean;
+Var
+  diffLA, diffLB : TPoint;
+  CompareA, CompareB : integer;
+begin
+  Result := False;
+ 
+  diffLA := Subtract(LineAP2, LineAP1);
+  diffLB := Subtract(LineBP2, LineBP1);
+ 
+  CompareA := diffLA.X*LineAP1.Y - diffLA.Y*LineAP1.X;
+  CompareB := diffLB.X*LineBP1.Y - diffLB.Y*LineBP1.X;
+ 
+  if ( ((diffLA.X*LineBP1.Y - diffLA.Y*LineBP1.X) &lt; CompareA) xor
+       ((diffLA.X*LineBP2.Y - diffLA.Y*LineBP2.X) &lt; CompareA) ) and
+     ( ((diffLB.X*LineAP1.Y - diffLB.Y*LineAP1.X) &lt; CompareB) xor
+       ((diffLB.X*LineAP2.Y - diffLB.Y*LineAP2.X) &lt; CompareB) ) then
+    Result := True;
+end;
+ 
+function LineIntersect(LineAP1, LineAP2, LineBP1, LineBP2 : TPoint) : TPointFloat;
+Var
+  LDetLineA, LDetLineB, LDetDivInv : Real;
+  LDiffLA, LDiffLB : TPoint;
+begin
+  LDetLineA := LineAP1.X*LineAP2.Y - LineAP1.Y*LineAP2.X;
+  LDetLineB := LineBP1.X*LineBP2.Y - LineBP1.Y*LineBP2.X;
+ 
+  LDiffLA := Subtract(LineAP1, LineAP2);
+  LDiffLB := Subtract(LineBP1, LineBP2);
+ 
+  LDetDivInv := 1 / ((LDiffLA.X*LDiffLB.Y) - (LDiffLA.Y*LDiffLB.X));
+ 
+  Result.X := ((LDetLineA*LDiffLB.X) - (LDiffLA.X*LDetLineB)) * LDetDivInv;
+  Result.Y := ((LDetLineA*LDiffLB.Y) - (LDiffLA.Y*LDetLineB)) * LDetDivInv;
+end;
+ 
+function Subtract(AVec1, AVec2 : TPoint) : TPoint;
+begin
+  Result.X := AVec1.X - AVec2.X;
+  Result.Y := AVec1.Y - AVec2.Y;
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<html>
+<head>
+  <title>Как создать лупу для рабочего стола?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как создать лупу для рабочего стола?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Zarko Gajic</p>
+<pre name="code" class="delphi">
+// переменные
+var Srect,Drect,PosForme:TRect;
+    iWidth,iHeight,DmX,DmY:Integer;
+    iTmpX,iTmpY:Real;
+    C:TCanvas;
+    Kursor:TPoint;
+// Увеличиваем экран, если приложение не свёрнуто в иконку
+If not IsIconic(Application.Handle) then begin
+// Получаем координаты курсора
+  GetCursorPos(Kursor);
+ 
+// PosForm представляет прямоугольник с
+// координатами Form (image control).
+  PosForme:=Rect(Form1.Left,
+                 Form1.Top,
+                 Form1.Left+Form1.Width,
+                 Form1.Top+Form1.Height);
+ 
+//Показываем magnified screen 
+//если курсор за пределами формы.
+  If not PtInRect(PosForme,Kursor) then begin
+ 
+// Далее код можно использовать для увеличения выбранной
+// части экрана. С небольшими модификациями его можно
+// использовать для уменьшения
+// экрана
+  iWidth:=Image1.Width;
+  iHeight:=Image1.Height;
+  Drect:=Bounds(0,0,iWidth,iHeight);
+  iTmpX:=iWidth / (Slider.Position * 4);
+  iTmpY:=iHeight / (Slider.Position * 4);
+  Srect:=
+ 
+   Rect(Kursor.x,Kursor.y,Kursor.x,Kursor.y);
+  InflateRect(Srect,Round(iTmpX),Round(iTmpY));
+ 
+//Получаем обработчик(handle) окна рабочего стола.
+  C:=TCanvas.Create;
+  try
+   C.Handle:=GetDC(GetDesktopWindow);
+//Передаём часть изображения окна в TImage.
+   Image1.Canvas.CopyRect(Drect,C,Srect);
+  finally
+   C.Free;
+  end;
+ 
+  end;
+ 
+// Обязательно обрабатываем все сообщения Windows.
+  Application.ProcessMessages;
+ 
+end; // IsIconic
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

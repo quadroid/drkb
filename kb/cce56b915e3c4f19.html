@@ -1,0 +1,96 @@
+<html>
+<head>
+  <title>Получение узла в TTreeView по пути заголовков</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получение узла в TTreeView по пути заголовков</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Получение узла в TreeView по пути заголовков
+ 
+Функция выдает узел TTreeNode из дерева TreeView, находящийся по пути,
+указанному в Path, в котором разделителем уровней является символ Separator.
+Если узел не найден - выдается nil.
+Ограничение - заголовки узлов дерева не должны содержать символа Separator.
+ 
+Зависимости: ComCtrls, Classes, SysUtils
+Автор:       lipskiy, lipskiy@mail.ru, ICQ:51219290, Санкт-Петербург
+Copyright:   Собственное написание (lipskiy)
+Дата:        26 июня 2002 г.
+***************************************************** }
+ 
+function GetNodeInPath(Path: string; Separator: char; TreeView: TTreeView):
+  TTreeNode;
+var
+  List: TStringList;
+  Node: TTreeNode;
+  i: integer;
+  s: string;
+begin
+  Result := nil;
+  if (TreeView = nil) or (TreeView.Items.Count = 0) or (Path = '') or (Separator
+    = '') then
+    exit;
+  List := TStringList.Create;
+  // Меняем сепаратор на первод строки
+  s := StringReplace(Path, Separator, #13#10,[rfReplaceAll]);
+ // Получаем список уровней
+  List.Text := s;
+  // Начинаем с нулевой ноды дерева
+  Node := TreeView.Items[0];
+  // Проходим по всему списку уровней пути
+  for i := 0 to List.Count - 1 do
+  begin
+    // Ищем имя ноды на текущем уровне
+    while (Node &lt;&gt; nil) and (Node.Text &lt;&gt; List[i]) do
+      Node := Node.getNextSibling;
+    // Нода не найдена
+    if Node = nil then
+      break;
+    // Переходим на уровень ниже
+    if i &lt; List.Count - 1 then
+      Node := Node.getFirstChild;
+  end;
+  List.Free;
+  Result := Node;
+end;
+ 
+// Пример использования:
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  TreeView1.Selected := GetNodeInPath('Каталог\Подкаталог', '\', TreeView1);
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

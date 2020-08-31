@@ -1,0 +1,81 @@
+<html>
+<head>
+  <title>Создание UDF для InterBase</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создание UDF для InterBase</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+library nikelutils
+
+uses SysUtils, Classes;
+
+function MaxInt(var Int1, Int2: Integer): Integer;
+  far cdecl export;
+begin
+  if (Int1 &gt; Int2) then
+ &nbsp;&nbsp; Result := Int1
+  else
+ &nbsp;&nbsp; Result := Int2;
+end;
+
+function MinInt(var Int1, Int2: Integer): Integer;
+  far cdecl export;
+begin
+  if (Int1 &lt; Int2) then
+ &nbsp;&nbsp; Result := Int1
+  else
+ &nbsp;&nbsp; Result := Int2;
+end;
+
+exports
+  MaxInt;
+MinInt;
+
+begin
+end.
+</pre>
+
+<p>А это пишим в базе: </p>
+<pre name="code" class="sql">
+DECLARE EXTERNAL FUNCTION MAXINT INTEGER, INTEGER
+RETURNS INTEGER BY VALUE
+ENTRY_POINT "MaxInt" MODULE_NAME "nikelutils.dll";
+
+DECLARE EXTERNAL FUNCTION MININT INTEGER, INTEGER
+RETURNS INTEGER BY VALUE
+ENTRY_POINT "MinInt" MODULE_NAME "nikelutils.dll";
+ 
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<html>
+<head>
+  <title>Как прочитать очередь печати?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как прочитать очередь печати?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses 
+  Winspool, Printers; 
+ 
+function GetCurrentPrinterHandle: THandle; 
+var 
+  Device, Driver, Port: array[0..255] of Char; 
+  hDeviceMode: THandle; 
+begin 
+  Printer.GetPrinter(Device, Driver, Port, hDeviceMode); 
+  if not OpenPrinter(@Device, Result, nil) then 
+    RaiseLastWin32Error; 
+end; 
+ 
+function SavePChar(p: PChar): PChar; 
+const 
+  error: PChar = 'Nil'; 
+begin 
+  if not Assigned(p) then 
+    Result := error 
+  else 
+    Result := p; 
+end; 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+type 
+  TJobs  = array [0..1000] of JOB_INFO_1; 
+  PJobs = ^TJobs; 
+var 
+  hPrinter: THandle; 
+  bytesNeeded, numJobs, i: Cardinal; 
+  pJ: PJobs; 
+begin 
+  hPrinter := GetCurrentPrinterHandle; 
+  try 
+    EnumJobs(hPrinter, 0, 1000, 1, nil, 0, bytesNeeded, 
+      numJobs); 
+    pJ := AllocMem(bytesNeeded); 
+    if not EnumJobs(hPrinter, 0, 1000, 1, pJ, bytesNeeded, 
+      bytesNeeded, numJobs) then 
+      RaiseLastWin32Error; 
+ 
+    memo1.Clear; 
+    if numJobs = 0 then 
+      memo1.Lines.Add('No jobs in queue') 
+    else 
+      for i := 0 to Pred(numJobs) do 
+        memo1.Lines.Add(Format('Printer %s, Job %s, Status (%d): %s', 
+          [SavePChar(pJ^[i].pPrinterName), SavePChar(pJ^[i].pDocument), 
+          pJ^[i].Status, SavePChar(pJ^[i].pStatus)])); 
+  finally 
+    ClosePrinter(hPrinter); 
+  end; 
+end; 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

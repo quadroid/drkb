@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>RadioButtons in a TWebbrowser</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">RadioButtons in a TWebbrowser</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  Document: IHTMLDocument2;
+  rbTestList: IHTMLElementCollection;
+  rbTest: IHTMLOptionButtonElement;
+  I: Integer;
+begin
+  // Get a reference to the document
+  Document := WebBrowser1.Document as IHTMLDocument2;
+ 
+  // Get a reference to input-control (Radiobutton)
+  rbTestList := Document.all.item('rating', EmptyParam) as IHTMLElementCollection;
+ 
+  // Get current values.
+  for I := 0 to rbTestList.Length - 1 do
+  begin
+    // reference to the i. RadioButton
+    rbTest := rbTestList.item(I, EmptyParam) as IHTMLOptionButtonElement;
+ 
+    // Show a message if radiobutton is checked
+    if rbTest.Checked then
+      ShowMessageFmt('Der RadioButton mit dem Wert %s' +
+        ' ist ausgewahlt!', [rbTest.Value]);
+  end;
+ 
+  // Set new values
+  for I := 0 to rbTestList.Length - 1 do
+  begin
+    // reference to the i. RadioButton
+    rbTest := rbTestList.item(I, EmptyParam) as IHTMLOptionButtonElement;
+ 
+    // check radiobutton with value 3.
+    if rbTest.Value = '3' then
+      rbTest.Checked := True;
+  end;
+end;
+</pre>
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

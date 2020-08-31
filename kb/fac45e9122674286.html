@@ -1,0 +1,221 @@
+<html>
+<head>
+  <title>«Сквозь Вселенную» с дополнительными возможностями</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">«Сквозь Вселенную» с дополнительными возможностями</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; "Сквозь Вселенную" с дополнительными возможностями
+ 
+Демонстрационный пример, динамически рисующий "движение среди звёзд" с вращением.
+ 
+Зависимости: Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs
+Автор:       Dimka Maslov, mainbox@endimus.ru, ICQ:148442121, Санкт-Петербург
+Copyright:   Dimka Maslov
+Дата:        1 августа 2003 г.
+***************************************************** }
+ 
+unit Starfields;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs;
+ 
+type
+  TForm1 = class(TForm)
+    procedure FormCreate(Sender: TObject);
+    procedure FormPaint(Sender: TObject);
+    procedure FormResize(Sender: TObject);
+  private
+    procedure AB00(var Message); message $AB00;
+  public
+    { Public declarations }
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+type
+  TPoint = packed record
+    X, Y, Z, R, Phi: Double;
+  end;
+ 
+const
+  NumStars = 2000; // Количество звёзд,
+  // управляет общей плотностью звёздного поля
+ 
+  RangeY = 7000; // Максимальное расстояние от картинной плоскости до звезды,
+  // управляет плотностью звёзд в центре
+ 
+  RangeR = 7000; // Максимальное радиальное удаление от луча зрения до звезды,
+  // управляет плотностью звёзд по краям
+ 
+  Height = 5000; // Высота наблюдателя,
+  // управляет положением центра изображения по вертикали
+ 
+  Basis = 100; // Расстояние до картинной плоскости
+  // управляет соотношением количества звёзд в центре к их
+  // количеству по краям
+ 
+  DeltaY = 5; // Шаг изменения координаты, управляет скоростью движения
+  DeltaT = 0.01; // Приращение времени, управляет скоростью вращения
+  Period1 = 0.1; // Период вращения звёзд
+  Amplitude2 = 0.5; // Амплитуда вращательных колебаний звёзд
+  Period2 = 1.0; // Период вращательных колебаний
+  Period3 = 0.1; // Период изменения направления движения звёзд.
+ 
+  Direction = 1; // Направление движения 1 - к наблюдателю, -1 - от него
+ 
+var
+  Stars: array[1..NumStars] of TPoint;
+  Time: Double = 0;
+  X0: Integer = 0;
+  Y0: Integer = 0;
+ 
+procedure InitializeStars;
+var
+  i: Integer;
+begin
+  Randomize;
+  for i := 1 to NumStars do
+    with Stars[i] do
+    begin
+      Y := Random(RangeY);
+      R := RangeR - 2 * Random(RangeR);
+      Phi := Random(628) / 100;
+    end;
+end;
+ 
+procedure Perspective(const X, Y, Z, Height, Basis: Double; var XP, YP: Double);
+var
+  Den: Double;
+begin
+  Den := Y + Basis;
+  if Abs(Den) &lt; 1E-100 then
+    Den := 1E-100;
+  XP := Basis * X / Den;
+  YP := (Basis * Z + Height * Y) / Den;
+end;
+ 
+function KeyPressed(VKey: Integer): LongBool;
+asm
+   push eax
+   call GetKeyState
+   and eax, 0080h
+   shr al, 7
+end;
+ 
+procedure TForm1.AB00(var Message);
+begin
+  if KeyPressed(VK_ESCAPE) then
+    Close
+  else
+    Repaint;
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  InitializeStars;
+  DoubleBuffered := True;
+end;
+ 
+procedure TForm1.FormPaint(Sender: TObject);
+var
+  X, Y: Double;
+  L, T: Integer;
+  i: Integer;
+  D: Double;
+begin
+  for i := 1 to NumStars do
+  begin
+    Application.ProcessMessages;
+    with Stars[i] do
+    begin
+      D := Direction * sin(Period3 * Time);
+      Y := Y - D * DeltaY;
+      X := R * sin((Period1 * Time + Phi) + Amplitude2 * cos(Period2 * time));
+      Z := R * cos((Period1 * Time + Phi) + Amplitude2 * cos(Period2 * time));
+      if D &gt; 0 then
+      begin
+        if Y &lt; 0 then
+        begin
+          Y := RangeY;
+          R := RangeR - 2 * Random(RangeR);
+          // Phi := Random(628) / 100;
+        end;
+      end
+      else
+      begin
+        if Y &gt; RangeY then
+        begin
+          Y := 0;
+          R := RangeR - 2 * Random(RangeR);
+          // Phi := Random(628) / 100;
+        end;
+      end;
+    end;
+    Perspective(Stars[i].X, Stars[i].Y, Stars[i].Z, Height, Basis, X, Y);
+    L := X0 + Round(X);
+    T := Y0 - Round(Y);
+    Canvas.Pen.Color := clWhite;
+    if Stars[i].Y &lt; RangeY / 4 then
+    begin
+      Canvas.Rectangle(L, T, L + 2, T + 2);
+    end
+    else
+    begin
+      Canvas.MoveTo(L, T);
+      Canvas.LineTo(L + 1, T + 1);
+    end;
+  end;
+  PostMessage(Handle, $AB00, 0, 0);
+  Time := Time + DeltaT;
+end;
+ 
+procedure TForm1.FormResize(Sender: TObject);
+begin
+  X0 := ClientWidth div 2;
+  Y0 := ClientHeight * 3 div 2;
+end;
+ 
+end.
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

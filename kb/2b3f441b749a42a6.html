@@ -1,0 +1,87 @@
+<html>
+<head>
+  <title>Как получить размер GIF-картинки?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить размер GIF-картинки?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+type
+   TImageSize = record
+     Width: Integer;
+     Height: Integer;
+   end;
+ 
+ function ReadGIFSize(Stream: TStream): TImageSize;
+ type
+   TGifHeader = record
+     Signature: array [0..5] of Char;
+     Width, Height: Word;
+   end;
+ var
+   Header: TGifHeader;
+ begin
+   FillChar(Header, SizeOf(TGifHeader), #0);
+   Result.Width := -1;
+   Result.Height := -1;
+   with Stream do
+   begin
+     Seek(0, soFromBeginning);
+     ReadBuffer(Header, SizeOf(TGifHeader));
+   end;
+   if (AnsiUpperCase(Header.Signature) = 'GIF89A') or
+     (AnsiUpperCase(Header.Signature) = 'GIF87A') then
+   begin
+     Result.Width  := Header.Width;
+     Result.Height := Header.Height;
+   end;
+ end;
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ const
+   FileName = 'D:\test.gif';
+ var
+   fs: TFileStream;
+   gifsize: TImageSize;
+ begin
+   fs := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
+   try
+     gifsize := ReadGIFSize(fs);
+     ShowMessage(Format('Breite %d Hцhe %d', [gifsize.Width, gifsize.Height]));
+   finally
+     fs.Free;
+   end;
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

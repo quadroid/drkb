@@ -1,0 +1,50 @@
+<html>
+<head>
+  <title>Проблемы использования TRegistry под NT/2000/XP</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Проблемы использования TRegistry под NT/2000/XP</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>При использованиии компонента TRegistry под NT пользователь с права доступа ниже чем "администратор" не может получить доступа к информации реестра в ключе HKEY_LOCAL_MACHINE. Как это обойти? </p>
+<p>Проблема вызвана тем, что TRegistry всегда открывает реестр с параметром KEY_ALL_ACCESS (полный доступ), даже если необходим доступ KEY_READ (только чтение). Избежать этого можно используя функции API для работы с реестром (RegOpenKey и т.п.), или создать новый класс из компонента TRegestry, и изменить его так чтобы можно было задавать режим открытия реестра. </p>
+<p id="author">Автор: p0s0l</p>
+<p>Вообще-то можно ничего не переписывать:</p>
+<p>Reg := TRegistry.Create(KEY_READ);</p>
+<p>т.е. у TRegistry есть два конструктора - один без параметра, тогда доступ будет</p>
+<p>KEY_ALL_ACCESS, а другой конструктор - с параметром...</p>
+<p id="note">Примечание к примечанию Vit</p>
+<p>Дополнительные конструкторы появились только в последних версиях Дельфи</p>
+<hr />
+<p>Проблема вызвана тем, что TRegistry всегда открывает реестр с параметром KEY_ALL_ACCESS (полный доступ), даже если необходим доступ KEY_READ (только чтение). Избежать этого можно используя вместо TRegistry.OpenKey - TRegistry.OpenKeyReadOnly </p>
+<p>В справке про TRegistry указано неверно, что ключ открывается всегда с параметром KEY_ALL_ACCESS. В случае если открывать через TRegistry.OpenKeyReadOnly он откроется с параметром KEY_READ </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

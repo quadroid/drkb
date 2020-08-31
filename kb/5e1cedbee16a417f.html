@@ -1,0 +1,90 @@
+<html>
+<head>
+  <title>Права доступа NTFS</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Права доступа NTFS</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses ..., Aclapi, AccCtrl;
+ 
+ 
+function SetFileAccessRights(AFile, AUser: String; AMask: DWORD): Boolean;
+var
+  psd             : PSECURITY_DESCRIPTOR;
+  dwSize, dwError : DWord;
+  bDaclPresent    : Bool;
+  bDaclDefaulted  : Bool;
+  OldAcl          : PACL;
+  NewAcl          : PACL;
+  sd              : SECURITY_DESCRIPTOR;
+  ea              : EXPLICIT_ACCESS;
+begin
+  Result := False;
+  if WIN32Platform &lt;&gt; VER_PLATFORM_WIN32_NT then Exit;
+  psd := nil;
+  NewAcl := nil;
+  bDaclDefaulted := True;
+  if not GetFileSecurity(PChar(AFile), DACL_SECURITY_INFORMATION, Pointer(1),
+           0, dwSize) and (GetLastError = ERROR_INSUFFICIENT_BUFFER) 
+  then 
+  try
+    psd := HeapAlloc(GetProcessHeap, 8, dwSize);
+    if psd &lt;&gt; nil then 
+    begin
+      BuildExplicitAccessWithName(@ea, PChar(AUser), AMask,
+        SET_ACCESS, SUB_CONTAINERS_AND_OBJECTS_INHERIT{NO_INHERITANCE});
+      Result := GetFileSecurity(PChar(AFile), DACL_SECURITY_INFORMATION, psd, dwSize, dwSize) and
+        GetSecurityDescriptorDacl(psd, bDaclPresent, OldAcl, bDaclDefaulted) and
+        (SetEntriesInAcl(1, @ea, OldAcl, NewAcl) = ERROR_SUCCESS) and
+        InitializeSecurityDescriptor(@sd, SECURITY_DESCRIPTOR_REVISION) and
+        SetSecurityDescriptorDacl(@sd, True, NewAcl, False) and
+        SetFileSecurity(PChar(AFile), DACL_SECURITY_INFORMATION, @sd);
+    end;
+  finally  
+    if NewAcl &lt;&gt; nil then LocalFree(HLocal(NewAcl));
+    if psd &lt;&gt; nil then HeapFree(GetProcessHeap, 0, psd);    
+  end;
+end;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+&nbsp;<br>
+Параметры: путь к объекту, имя пользователя, маска доступа, ее расчитываешь вот так:<br>
+http://msdn.microsoft.com/library/default....access_mask.asp<br>
+&nbsp;<br>
+<p>&nbsp;</p>
+<p id="author">Автор: Александр (Rouse_) Багель</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a><br>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

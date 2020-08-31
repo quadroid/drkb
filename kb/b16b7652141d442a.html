@@ -1,0 +1,60 @@
+<html>
+<head>
+  <title>Настройка системы безопасности DCOM сервера</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Настройка системы безопасности DCOM сервера</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Алексей Вуколов</p>
+<p>Как я понял, основная проблема в DCOM, с которой сталкиваются разработчики - настройка системы безопасности. Далее описано, как были сделаны настройки безопасности у меня. </p>
+<p>Создана группа, в которую включены пользователи, которым нужен доступ к данному DCOM серверу (назовем ее DCOM_DEBUG).</p>
+<p>В DCOMCNFG : (это было добавлено и на сервере и на клиенте)</p>
+<p>DefaultSecurity -&gt; Default Access Permissions</p>
+<p>DCOM_DEBUG: Allow Access</p>
+<p>SYSTEM: Allow Access</p>
+<p>Everyone: Allow Access</p>
+<p>2.DefaultSecurity -&gt; Default Launch Permissions</p>
+<p>DCOM_DEBUG: Allow Launch</p>
+<p>SYSTEM: Allow Launch</p>
+<p>INTERACTIVE: Allow Launch</p>
+<p>Everyone: Allow Launch</p>
+<p>3.DefaultSecurity -&gt; Default Configuration Permissions</p>
+<p>SYSTEM: Full Control</p>
+<p>DCOM_DEBUG: Full Control</p>
+<p>Everyone: Full Control</p>
+<p>Установка этих параметров необходима, по-моему, потому, что контекст безопасности интерфейса передаваемого на сервер для нотификации клиента берется из установок по умолчанию.</p>
+<p>Только на сервере.</p>
+<p>Установки параметров безопасности для объекта были установлены точно такие же, за исключением того, что Everyone включена не была. На вкладке Identity был выбран пользователь, от имени которого запускается COM сервер. Одна тонкость: у пользователя, от имени которого запускается COM сервер должно быть право "Log on as batch job", иначе сервер не запустится (это право было дано всей группе DCOM_DEBUG). Если выбрать Interactive User, то сервер не запустится, в том случае если пользователь делает Logoff. В случае с Launching User происходили какие-то невнятные проблемы (видимо это было связано со спецификой решаемой мной задачи - DCOM сервер с поддержкой множественных клиентских соединений).</p>
+<p><a href="http://www.delphikingdom.com" target="_blank">http://www.delphikingdom.com</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

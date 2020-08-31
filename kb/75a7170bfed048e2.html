@@ -1,0 +1,71 @@
+<html>
+<head>
+  <title>TFileTime &gt; TDateTime</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TFileTime &gt; TDateTime</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function FileTimeToDateTime(FileTime: TFileTime): TDateTime;
+ var
+   ModifiedTime: TFileTime;
+   SystemTime: TSystemTime;
+ begin
+   Result := 0;
+   if (FileTime.dwLowDateTime = 0) and (FileTime.dwHighDateTime = 0) then
+     Exit;
+   try
+     FileTimeToLocalFileTime(FileTime, ModifiedTime);
+     FileTimeToSystemTime(ModifiedTime, SystemTime);
+     Result := SystemTimeToDateTime(SystemTime);
+   except
+     Result := Now;  // Something to return in case of error 
+  end;
+ end;
+ 
+ function DateTimeToFileTime(FileTime: TDateTime): TFileTime;
+ var
+   LocalFileTime, Ft: TFileTime;
+   SystemTime: TSystemTime;
+ begin
+   Result.dwLowDateTime  := 0;
+   Result.dwHighDateTime := 0;
+   DateTimeToSystemTime(FileTime, SystemTime);
+   SystemTimeToFileTime(SystemTime, LocalFileTime);
+   LocalFileTimeToFileTime(LocalFileTime, Ft);
+   Result := Ft;
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

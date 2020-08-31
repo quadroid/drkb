@@ -1,0 +1,174 @@
+<html>
+<head>
+  <title>Как отправить веб-форму на сервер?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как отправить веб-форму на сервер?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Как отправить вебформу на сервер при помощи TClientSocket (напрямую и через прокси)</p>
+<pre name="code" class="delphi">
+{ 
+Copyright (c) 1999 by E.J.Molendijk 
+ 
+Присоедините следующие события к Вашему ClientSocket: 
+procedure T...Form.ClientSocket1Write; 
+procedure T...Form.ClientSocket1Read; 
+procedure T...Form.ClientSocket1Disconnect; 
+procedure T...Form.ClientSocket1Error; 
+ 
+Так же пример показывает, как направлять передачу через прокси-сервер.
+ 
+ 
+Для отправки на вебсервер используется следующий формат:
+Напрямую: 'POST ' + PostAddr + 'HTTP/1.0' + HTTP_Data + Content 
+Через проксю:  'POST http://' Webserver + PostAddr + 'HTTP/1.0' + HTTP_Data + Content 
+} 
+ 
+ 
+Const 
+  WebServer = 'www.somehost.com'; 
+  WebPort   = 80; 
+  PostAddr  = '/cgi-bin/form'; 
+ 
+  { Следующие переменные используются только для вебсервера: } 
+  ProxyServer ='proxy.somewhere.com'; 
+  ProxyPort   = 3128; 
+ 
+  // В заголовке post необходимы некоторые данные
+  HTTP_Data = 
+    'Content-Type: application/x-www-form-urlencoded'#10+ 
+    'User-Agent: Delphi/5.0 ()'#10+    { Отрекламируем Delphi 5! } 
+    'Host: somewhere.com'#10+ 
+    'Connection: Keep-Alive'#10; 
+ 
+type 
+  T...Form = class(TForm) 
+    ... 
+  private 
+    { Private declarations } 
+    HTTP_POST   : String; 
+    FContent    : String; 
+    FResult     : String; // Эта переменная будет содержать ответ сервера
+  public 
+    { Public declarations } 
+  end; 
+ 
+ 
+{ Эти функции сделают некоторое url-кодирование } 
+{ Например.   'John Smith' =&gt; 'John+Smith'  } 
+function HTTPTran(St : String) : String; 
+var i : Integer; 
+begin 
+  Result:=''; 
+  for i:=1 to length(St) do 
+    if St[i] in ['a'..'z','A'..'Z','0','1'..'9'] then 
+      Result:=Result+St[i] 
+    else if St[i]=' ' then 
+      Result:=Result+'+' 
+    else 
+      Result:=Result+'%'+IntToHex(Byte(St[i]),2); 
+end; 
+ 
+procedure T...Form.ClientSocket1Write(Sender: TObject; 
+  Socket: TCustomWinSocket); 
+begin 
+  // Постим данные
+  Socket.SendText(HTTP_POST+FContent); 
+end; 
+ 
+procedure T...Form.ClientSocket1Read(Sender: TObject; 
+  Socket: TCustomWinSocket); 
+begin 
+  // Получаем результат
+  FResult:=FResult+Socket.ReceiveText; 
+end; 
+ 
+procedure T...Form.ClientSocket1Disconnect(Sender: TObject; 
+  Socket: TCustomWinSocket); 
+begin 
+  // ЗДЕСЬ МОЖНО ОБРАБОТАТЬ FResult // 
+end; 
+ 
+procedure T...Form.ClientSocket1Error(Sender: TObject; 
+  Socket: TCustomWinSocket; ErrorEvent: TErrorEvent; 
+  var ErrorCode: Integer); 
+begin 
+  ErrorCode := 0; // Игнорируем ошибки
+end; 
+ 
+ 
+{ 
+А эта подпрограмма, которую можно использовать для постинга данных формы.
+} 
+procedure T...Form.PostTheForm; 
+begin 
+  // Очищаем результаты
+  FResult:=''; 
+ 
+  // Вы можете ввести поля формы, которые необходимы
+  // Вот некоторые примеры:
+  FContent:= 
+   'Name='+    HTTPTran('John Smith')            +'&amp;'+ 
+   'Address='+ HTTPTran('1 Waystreet')          +'&amp;'+ 
+   'Email='+   HTTPTran('jsmith@somewhere.com') +'&amp;'+ 
+   'B1=Submit'+ 
+   #10; 
+ 
+  // Вычисляем длину содержимого
+  FContent:= 
+    'Content-Length: '+IntToStr(Length(FContent))+#10+#10+FContent; 
+ 
+  {-- Начало прокси ---} 
+  { если Вы используете прокси, то раскоментируйте этот код
+  ClientSocket1.Host := ProxyServer; 
+  ClientSocket1.Port := ProxyPort; 
+  HTTP_POST := 'POST http://'+WebServer+PostAddr+' HTTP/1.0'#10; 
+  {--- Конец прокси ---} 
+ 
+  {--- Начало соединения напрямую --- } 
+  { удалите этот код, еслы Вы будете использовать прокси }
+  ClientSocket1.Host := WebServer; 
+  ClientSocket1.Port := WebPort; 
+  HTTP_POST := 'POST '+PostAddr+' HTTP/1.0'#10; 
+  {--- Конец соединения напрямую ---} 
+ 
+  // Соединяем заголовок
+  HTTP_Post := HTTP_Post + HTTP_Data; 
+ 
+  // Пытаемся открыть соединение
+  ClientSocket1.Open; 
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

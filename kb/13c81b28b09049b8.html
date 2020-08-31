@@ -1,0 +1,61 @@
+<html>
+<head>
+  <title>Рисование без мерцания</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Рисование без мерцания</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Mike Scott </p>
+
+<p>...вот я и удивляюсь - почему я получаю мерцание, если я вызываю Repaint или Refresh, а не метод OnPaint напрямую? Или это просто "вариация на тему"? </p>
+
+<p>Имеются две фазы обновления окна. В первой фазе, при выводе окна, Windows посылает ему сообщение WM_ERASEBKGND, сообщающее о необходимости стирания фона перед процедурой рисования. Затем посылается сообщение WM_PAINT, служащее сигналом для закрашивания "переднего плана". </p>
+
+<p>Тем не менее, вы можете пропустить первую фазу, которая вызывает мерцание, одним из двух способов: первый способ заключается в том, что вы форсируете обновление сами, с помощью вызова функции Windows API InvalidateRect. На входе он получает дескриптор окна, указатель на закрашиваемую область - передаем NIL, если вы хотите отрисовать всю область окна - и третий параметр, сообщающий о необходимости очистки фона. Вот как раз последний параметр и должен содержать значение FALSE, если вы сами будете в методе Paint полностью отрисовывать всю область:</p>
+
+
+<p>InvalidateRect( Handle, NIL, FALSE ) ;</p>
+
+
+<p>Handle должен быть дескриптором формы или элемента управления. </p>
+
+<p>Описав первый способ, я скажу, что существует другое подходящее решение - использовать функциональность VCL. Вы можете указать VCL не стирать фон, добавляя [ csOpaque ] к значению свойства ControlStyle, как показано ниже:</p>
+
+
+<p>ControlStyle := ControlStyle + [ csOpaque ] ;</p>
+
+
+<p>Это ограничивает заполнение заднего фона, но вы все еще можете видеть процесс "наполнения" области изображением, т.е. процесс рисования. В этом случае вы можете отделаться от эффекта мельтешения, рисуя на TBitmap и выводя его затем на экран командой CopyRect. </p>
+
+<p>Если вы хотите углубиться в тему дальше, то я отошлю вас к моей статье "Optimizing Display Updates in Delphi" (Оптимизация обновления экрана в Delphi), опубликованной в первом выпуске журнала "Delphi magazine".</p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<html>
+<head>
+  <title>Отправка WinPopup сообщения через MailSlots</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Отправка WinPopup сообщения через MailSlots</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+ 
+
+ 
+var
+  MSHandle: THandle;
+  MSMessage: array [0..2] of String;
+  ResultMsMessage: String;
+  MSWrite: DWORD;
+  ServerName: String;
+begin
+  ServerName := Edit1.Text; // Имя компьютера
+  if ServerName = '' then ServerName := '*\';
+  if ServerName[Length(ServerName)] &lt;&gt; '\' then ServerName := ServerName + '\';
+  // Оккрываем на удаленном компьютере мэйслот для записи
+  MSHandle := CreateFile(PChar('\\' + ServerName + 'mailslot\messngr'),
+    GENERIC_WRITE, // or GENERIC_READ,
+    FILE_SHARE_READ,
+    nil,
+    OPEN_EXISTING,
+    FILE_ATTRIBUTE_NORMAL,
+    0);
+  if not Win32Check(MSHandle &lt;&gt; INVALID_HANDLE_VALUE) then Exit;
+  // Подготавливаем сообщение
+  MSMessage[0] := Edit2.Text; // От кого
+  MSMessage[1] := Edit3.Text; // Кому
+  MSMessage[2] := Memo1.Text; // Текст сообщение
+  // Преобразование в DOS кодировку
+  CharToOem(PChar(MSMessage[0]), PChar(MSMessage[0]));
+  CharToOem(PChar(MSMessage[1]), PChar(MSMessage[1]));
+  CharToOem(PChar(MSMessage[2]), PChar(MSMessage[2]));
+  ResultMsMessage := MSMessage[0] + #0 + MSMessage[1] + #0 + MSMessage[2];
+  // Пишем сообщение
+  WriteFile(MSHandle, Pointer(PChar(ResultMsMessage))^, Length(ResultMsMessage), MSWrite, nil);
+  Win32Check(MSWrite = Length(ResultMsMessage));
+  CloseHandle(MSHandle);
+end;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: Rouse_</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

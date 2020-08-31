@@ -1,0 +1,137 @@
+<html>
+<head>
+  <title>Работа с TaskBar</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Работа с TaskBar</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit TaskBar;
+ 
+interface
+ 
+uses Windows, ShellAPI;
+ 
+const
+  // Дублируем описания из ShellAPI, чтобы не писать его в Uses
+  // везде, где мы используем этот модуль
+  NIF_TIP = ShellAPI.NIF_TIP;
+  NIF_ICON = ShellAPI.NIF_ICON;
+ 
+function TaskBarAddIcon(
+  hWindow: THandle; // окно, создавшее значок
+  ID: Cardinal; // идентификатор значка
+  ICON: hIcon; // иконка
+  CallbackMessage: Cardinal; // сообщение, которое будет посылаться окну
+  Tip: PChar // ToolTip
+  ): Boolean;
+ 
+function TaskBarModifyIcon(
+  hWindow: THandle;
+  ID: Cardinal;
+  Flags: Cardinal;
+  ICON: hIcon;
+  Tip: PChar): Boolean;
+ 
+function TaskBarDeleteIcon(
+  hWindow: THandle;
+  ID: Integer): Boolean;
+ 
+implementation
+ 
+function TaskBarAddIcon(
+  hWindow: THandle;
+  ID: Cardinal;
+  ICON: hIcon;
+  CallbackMessage: Cardinal;
+  Tip: PChar): Boolean;
+var
+  NID: TNotifyIconData;
+begin
+  FillChar(NID, SizeOf(TNotifyIconData), 0);
+  with NID do
+  begin
+    cbSize := SizeOf(TNotifyIconData);
+    Wnd := hWindow;
+    uID := ID;
+    uFlags := NIF_MESSAGE or NIF_ICON or NIF_TIP;
+    uCallbackMessage := CallbackMessage;
+    hIcon := Icon;
+    lstrcpyn(szTip, Tip, SizeOf(szTip));
+  end;
+  Result := Shell_NotifyIcon(NIM_ADD, @NID);
+end;
+ 
+function TaskBarModifyIcon(
+  hWindow: THandle;
+  ID: Cardinal;
+  Flags: Cardinal;
+  ICON: hIcon;
+  Tip: PChar): Boolean;
+var
+  NID: TNotifyIconData;
+begin
+  FillChar(NID, SizeOf(TNotifyIconData), 0);
+  with NID do
+  begin
+    cbSize := SizeOf(TNotifyIconData);
+    Wnd := hWindow;
+    uID := ID;
+    uFlags := Flags;
+    hIcon := Icon;
+    lstrcpyn(szTip, Tip, SizeOf(szTip));
+  end;
+  Result := Shell_NotifyIcon(NIM_MODIFY, @NID);
+end;
+ 
+function TaskBarDeleteIcon(
+  hWindow: THandle;
+  ID: Integer): Boolean;
+var
+  NID: TNotifyIconData;
+begin
+  FillChar(NID, SizeOf(TNotifyIconData), 0);
+  with NID do
+  begin
+    cbSize := SizeOf(TNotifyIconData);
+    Wnd := hWindow;
+    uID := ID;
+  end;
+  Result := Shell_NotifyIcon(NIM_DELETE, @NID);
+end;
+ 
+end.
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

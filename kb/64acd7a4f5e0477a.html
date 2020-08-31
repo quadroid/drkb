@@ -1,0 +1,149 @@
+<html>
+<head>
+  <title>Преобразование строки в число</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Преобразование строки в число</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Преобразование сроки в число
+ 
+Преобразует строку в число, при этом удаля из строки все лишние символы
+ 
+Зависимости: нет
+Автор:       Separator, vilgelm@mail.kz, ICQ:162770303, Алматы
+Copyright:   Separator
+Дата:        7 мая 2003 г.
+***************************************************** }
+ 
+function StringToNumber(const Value: string): string;
+var
+  ResStr: string;
+  i, j, L: integer;
+  Ch: char;
+  E, DS: boolean;
+ 
+begin
+  Result := '0';
+  L := Length(Value);
+  if L &lt;&gt; 0 then
+  begin
+    SetLength(ResStr, L);
+    E := false;
+    DS := false;
+    j := 0;
+    for i := 1 to L do
+    begin
+      Ch := Value[i];
+      case Ch of
+        '0'..'9':
+          begin
+            Inc(j);
+            ResStr[j] := Ch
+          end; //'0'..'9': begin
+        '.', ',': if (not DS) and (not E) and (i &lt;&gt; L) then
+          begin
+            DS := true;
+            Ch := DecimalSeparator;
+            if j = 0 then
+            begin
+              Inc(j);
+              ResStr[j] := '0';
+            end; //if j = 0 then begin
+            Inc(j);
+            ResStr[j] := Ch
+          end; //'.', ',': if (not DS) and (i &lt;&gt; L) then begin
+        'e', 'E': if (not E) and (i &lt;&gt; L) then
+          begin
+            E := true;
+            Ch := 'E';
+            if j = 0 then
+            begin
+              Inc(j);
+              ResStr[j] := '0';
+            end; //if j = 0 then begin
+            Inc(j);
+            ResStr[j] := Ch
+          end //'.', ',': if (not DS) and (i &lt;&gt; L) then begin
+      end //case Ch of
+    end; //for i:= 1 to L do begin
+    if j &lt;&gt; 0 then
+    begin
+      if ResStr[j] = 'E' then
+        Dec(j);
+      if ResStr[j] = DecimalSeparator then
+        Dec(j);
+      SetLength(ResStr, j);
+      Result := ResStr
+    end //if j &lt;&gt; 0 then begin
+  end //if L &lt;&gt; 0 then begin
+end;
+Пример использования: 
+ 
+Edit1.Text = ',...,fgftgtr656,.567erdf..5,,632'
+Edit2.Text := StringToNumber(Edit1.Text);
+Edit2.Text = 0, 656567E5632
+</pre>
+<hr />
+<pre name="code" class="delphi">
+type 
+  TCharSet = set of Char; 
+ 
+function StripNonConforming(const S: string; 
+  const ValidChars: TCharSet): string; 
+var 
+  DestI: Integer; 
+  SourceI: Integer; 
+begin 
+  SetLength(Result, Length(S)); 
+  DestI := 0; 
+  for SourceI := 1 to Length(S) do 
+    if S[SourceI] in ValidChars then 
+    begin 
+      Inc(DestI); 
+      Result[DestI] := S[SourceI] 
+    end; 
+  SetLength(Result, DestI) 
+end; 
+ 
+function StripNonNumeric(const S: string): string; 
+begin 
+  Result := StripNonConforming(S, ['0'..'9']) 
+end;
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

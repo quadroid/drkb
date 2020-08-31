@@ -1,0 +1,134 @@
+<html>
+<head>
+  <title>Зеркальное преобразование</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Зеркальное преобразование</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure flip_horizontal(Quelle, Ziel: TBitMap);
+ begin
+   Ziel.Assign(nil);
+   Ziel.Width  := Quelle.Width;
+   Ziel.Height := Quelle.Height;
+   StretchBlt(Ziel.Canvas.Handle, 0, 0, Ziel.Width, Ziel.Height, Quelle.Canvas.Handle,
+     0, Quelle.Height, Quelle.Width, Quelle.Height, srccopy);
+ end;
+ 
+ procedure flip_vertikal(Quelle, Ziel: TBitMap);
+ begin
+   Ziel.Assign(nil);
+   Ziel.Width  := Quelle.Width;
+   Ziel.Height := Quelle.Height;
+   StretchBlt(Ziel.Canvas.Handle, 0, 0, Ziel.Width, Ziel.Height, Quelle.Canvas.Handle,
+     Quelle.Width, 0, Quelle.Width, Quelle.Height, srccopy);
+ end;
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ var
+   temp: TBitMap;
+ begin
+   temp := TBitMap.Create;
+   try
+     temp.Assign(Image1.Picture.BitMap);
+     flip_vertikal(Temp, Image1.Picture.Bitmap);
+   finally
+     Temp.Free;
+   end;
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+<hr />
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Зеркальное отражение изображения
+ 
+Зависимости: Windows, Graphics
+Автор:       Fenik, chook_nu@uraltc.ru, Новоуральск
+Copyright:   Автор: Федоровских Николай
+Дата:        16 июля 2002 г.
+***************************************************** }
+ 
+procedure FlipBitmap(Bitmap: TBitmap; FlipHor: Boolean);
+{Зеркальное отражение изображения.
+ Если FlipHor = True, то отражение по горизонтали,
+ иначе по вертикали.}
+var
+  x, y, W, H: Integer;
+  Pixel_1, Pixel_2: PRGBTriple;
+  MemPixel: TRGBTriple;
+begin
+  Bitmap.PixelFormat := pf24Bit;
+  W := Bitmap.Width - 1;
+  H := Bitmap.Height - 1;
+  if FlipHor then {отражение по горизонтали}
+    for y := 0 to H do
+    begin
+      {помещаем оба указателя на строку H:}
+      Pixel_1 := Bitmap.ScanLine[y];
+      Pixel_2 := Bitmap.ScanLine[y];
+      {помещаем второй указатель в конец строки:}
+      Inc(Pixel_2, W);
+      {цикл идёт только до середины строки:}
+      for x := 0 to W div 2 do
+      begin
+        {симметричные точки обмениваются цветами:}
+        MemPixel := Pixel_1^;
+        Pixel_1^ := Pixel_2^;
+        Pixel_2^ := MemPixel;
+        Inc(Pixel_1); {смещаем указатель вправо}
+        Dec(Pixel_2); {смещаем указатель влево}
+      end;
+    end
+  else {отражение по вертикали}
+    {цикл идёт только до средней строки:}
+    for y := 0 to H div 2 do
+    begin
+      {помещаем первый указатель на строку H,
+       а второй на строку симметричную H:}
+      Pixel_1 := Bitmap.ScanLine[y];
+      Pixel_2 := Bitmap.ScanLine[H - y];
+      for x := 0 to W do
+      begin
+        {симметричные точки обмениваются цветами:}
+        MemPixel := Pixel_1^;
+        Pixel_1^ := Pixel_2^;
+        Pixel_2^ := MemPixel;
+        Inc(Pixel_1); {смещаем указатель вправо}
+        Inc(Pixel_2); {смещаем указатель вправо}
+      end;
+    end;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

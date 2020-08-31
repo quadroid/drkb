@@ -1,0 +1,86 @@
+<html>
+<head>
+  <title>GIF для HTML в EXE</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">GIF для HTML в EXE</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Есть программа на Delphi, котоpая отображает какой-то html. В html используется gif-файл. Как в Delphi-пpоекте указать, чтобы этот gif находился в exe как некий кусок кода. А когда надо будет, записать его обратно в gif-файл без изменений, выковырнув из exe? </p>
+<p>Можно, используя RxLib. После его установки в меню View появится пунктик Project Resources. Hужно выбрать Project Resources-&gt;New-&gt;User Data и добавить нужный файл. В данном случае ресурс был назван "RCDATA_1". </p>
+<p>Если RxLib нет, то нужно создать файл описания ресурсов:</p>
+<pre name="code" class="delphi">
+=== Begin gifs.rc ===
+mygif rcdata "имя_gif-файла.gif"
+mygif1 rcdata "RCDATA_1"
+=== End dots.rc ===
+</pre>
+
+<p>Потом скомпилировать его командой brcc32 gifs.rc и получить gifs.res В начало модуля добавь строчку {$R gifs.res} </p>
+<p>В своей программе необходимо написать:</p>
+<pre name="code" class="delphi">
+var
+  rs: TResourceStream;
+  a: Pointer;
+begin
+  rs := TResourceStream.Create(hinstance, 'RCDATA_1', RT_RCDATA);
+  try
+    GetMem(a, rs.size);
+    rs.Read(a^, rs.size); {Теперь a - динамический указатель на код}
+    { Здесь делается все, что необходимо с кодом, используя указатель a }
+    FreeMem(a);
+  finally
+    rs.Free;
+  end;
+end;
+</pre>
+
+<p>А можно и так, если необходимо записать ресурс в файл:</p>
+<pre name="code" class="delphi">
+var
+  rs: TResourceStream;
+  fs: TFileStream;
+begin
+  rs := TResourceStream.Create(hInstance, 'mygif', RT_RCDATA);
+  fs := TFileStream.Create('имя_gif-файла.gif', fmCreate);
+  try
+    fs.CopyFrom(rs, rs.Size);
+  finally
+    fs.Free;
+    rs.Free;
+  end;
+end;
+</pre>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

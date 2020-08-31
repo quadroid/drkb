@@ -1,0 +1,134 @@
+<html>
+<head>
+  <title>Инкрементальный поиск в TListBox</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Инкрементальный поиск в TListBox</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Я видел приложение, в котором ListBox позволял осуществлять инкрементальный поиск. При вводе очередного символа он позиционирует вас к первой ячейке, начало значения которой совпадает с введенным пользователем текстом, или выделяет все строки с текстом, содержащим введенный текст. </p>
+<p>Как это осуществить на Delphi? </p>
+<p>Здесь придется немного воспользоваться Win API. Установите свойство формы KeyPreview в True и сделайте примерно следующее:</p>
+<pre name="code" class="delphi">
+unit LbxSrch;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Controls, Forms, StdCtrls;
+ 
+type
+  TFrmLbxSrch = class(TForm)
+    Edit1: TEdit;
+    Edit2: TEdit;
+    ListBox1: TListBox;
+    Label1: TLabel;
+    procedure FormKeyPress(Sender: TObject; var Key: Char);
+    procedure ListBox1Enter(Sender: TObject);
+  private { Private declarations }
+    FPrefix: array[0..255] of char;
+  public
+    { Public declarations }
+  end;
+ 
+var
+  FrmLbxSrch: TFrmLbxSrch;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TFrmLbxSrch.FormKeyPress(Sender: TObject; var Key: Char);
+{ Помните о том, что свойство KeyPreview должно быть установлено в True }
+var
+  curKey: array[0..1] of char;
+  ndx: integer;
+begin
+  if ActiveControl = ListBox1 then
+  begin
+    if key = #8 {Backspace (клавиша возврата)} then
+    begin
+      if FPrefix[0] &lt;&gt; #0 then
+      begin
+        FPrefix[StrLen(FPrefix) - 1] := #0;
+      end
+    end
+    else
+    begin
+      curKey[0] := Key;
+      curKey[1] := #0;
+      StrCat(FPrefix, curKey);
+      ndx := SendMessage(ListBox1.Handle, LB_FINDSTRING,
+        -1, longint(@FPrefix));
+      if ndx &lt;&gt; LB_ERR then
+        ListBox1.ItemIndex := ndx;
+    end;
+ 
+    Label1.Caption := StrPas(FPrefix);
+    Key := #0;
+  end;
+end;
+ 
+procedure TFrmLbxSrch.ListBox1Enter(Sender: TObject);
+begin
+  FPrefix[0] := #0;
+  Label1.Caption := StrPas(FPrefix);
+end;
+ 
+end.
+</pre>
+
+<p id="author">Автор: Ralph Friedman </p>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<hr /><p>Предположим, что ListBox сортируется, это не трудно. Вы должны разместить компонент Edit выше ListBox и создать следующий обработчик его случая OnChange:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Edit1Change(Sender: TObject);
+var
+  Ndx: Word;
+begin
+  with Sender as TEdit do
+  begin
+    Ndx := ListBox1.Items.Add(Text);
+    ListBox1.Items.Delete(Ndx);
+    if CompareText(Text, Copy(ListBox1.Items[Ndx], 1, Length(Text))) = 0 then
+      ListBox1.ItemIndex := Ndx
+    else
+      ListBox1.ItemIndex := -1;
+  end;
+end;
+</pre>
+
+<p>Пытаясь вставить часть текста, вы просто просматриваете список на предмет его наличия. Если актуальный элемент в этой позиции содержит "частичный" текст, мы выводим его, в противном случае делаем так, чтобы ListBox не имел выделенного (ItemIndex) элемента.</p>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

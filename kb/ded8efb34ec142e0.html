@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>Работа с ячейкой листа Microsoft Excel</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Работа с ячейкой листа Microsoft Excel</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Работа с ячейкой листа Microsoft Excel
+ 
+Получает и заносит число типа double в ячейку листа Microsoft Excel
+ 
+Зависимости: ComObj
+Автор:       lookin, lookin@mail.ru, Екатеринбург
+Copyright:   lookin
+Дата:        30 апреля 2002 г.
+********************************************** }
+ 
+//ВНИМАНИЕ: ОБЯЗАТЕЛЬНОЕ условие работы - наличие запущенного Excel 
+ 
+//получение double из заданной ячейки первого листа в заданной рабочей книге
+function DoubleValueFromExcelCell(ExcelWorkBook,ExcelCell: string): double;
+var i: integer;
+    Excel,v: Variant;
+begin
+  Excel:=GetActiveOleObject('Excel.Application');
+  for i:=1 to Excel.Application.Workbooks.Count do
+  if Excel.Application.Workbooks[i].FullName=ExcelWorkBook then begin
+  v:=Excel.Application.Workbooks[i].Sheets[1].Range[ExcelCell];
+  DoubleValueFromExcelCell:=VarAsType(v,varDouble); v:=0; Excel:=0; end;
+end;
+ 
+//занесение double в заданную ячейку первого листа в заданной рабочей книге
+procedure DoubleValueToExcelCell(Value: double; ExcelWorkBook,ExcelCell: string);
+var i: integer;
+    Excel,v: Variant;
+begin
+  Excel:=GetActiveOleObject('Excel.Application');
+  for i:=1 to Excel.Application.Workbooks.Count do
+  if Excel.Application.Workbooks[i].FullName=ExcelWorkBook then begin
+  Excel.Application.EditDirectlyInCell:=false; v:=Value;
+  Excel.Application.Workbooks[i].Sheets[1].Range[ExcelCell]:=v; end;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

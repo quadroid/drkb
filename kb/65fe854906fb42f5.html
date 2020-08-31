@@ -1,0 +1,176 @@
+<html>
+<head>
+  <title>Просмотр буфера обмена</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Просмотр буфера обмена</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Просмотр буфера обмена.
+ 
+Пример на основе простого модуля-класса, осуществляющего просмотр буфера обмена.
+ 
+Зависимости: clipboard
+Автор:       Sect, sect@mail.ru, Нижневартовск
+Copyright:   Советы по Delphi
+Дата:        16 июня 2002 г.
+********************************************** }
+ 
+unit ClipboardViewer;
+ 
+interface
+ 
+uses
+ 
+Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+Dialogs;
+ 
+type
+ 
+TForm1 = class(TForm)
+procedure FormCreate(Sender: TObject);
+procedure FormDestroy(Sender: TObject);
+private
+FNextViewerHandle : THandle;
+procedure WMDrawClipboard (var message : TMessage);
+message WM_DRAWCLIPBOARD;
+procedure WMChangeCBCHain (var message : TMessage);
+message WM_CHANGECBCHAIN;
+public
+end; 
+var
+ 
+Form1: TForm1;
+ 
+implementation
+{$R *.DFM}
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+ 
+// Проверяем работоспособность функции.
+// При невозможности просмотра буфера обмена
+// функция возвратит значение Nil.
+FNextViewerHandle := SetClipboardViewer(Handle);
+end;
+ 
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+ 
+// Восстанавливаем цепочки.
+ChangeClipboardChain(Handle, FNextViewerHandle);
+end;
+ 
+procedure TForm1.WMDrawClipboard (var message : TMessage);
+begin
+// Вызывается при любом изменении содержимого буфера обмена
+ 
+message.Result := SendMessage(WM_DRAWCLIPBOARD, FNextViewerHandle, 0, 0);
+end;
+ 
+procedure TForm1.WMChangeCBCHain (var message : TMessage);
+begin
+ 
+// Вызывается при любом изменении цепочек буфера обмена.
+if message.wParam = FNextViewerHandle then begin
+// Удаляем следующую цепочку просмотра. Корректируем внутреннюю переменную.
+FNextViewerHandle := message.lParam;
+// Возвращаем 0 чтобы указать, что сообщение было обработано
+message.Result := 0;
+end else begin
+// Передаем сообщение следующему окну в цепочке.
+message.Result := SendMessage(FNextViewerHandle, WM_CHANGECBCHAIN,
+message.wParam, message.lParam);
+ 
+end;
+end;
+ 
+ 
+end.
+</pre>
+<hr />
+<p id="author">Автор: Neil </p>
+<p>Просмотр буфера обмена в Delphi совсем не сложен. Вот участок кода программы, вешающий цепочки в буфере обмена и просто отображающий его текст. Расположите компонент Memo на главной форме нового проекта, присвойстве свойству Align значение alClient, добавьте необходимые private-поля и методы и создайте их реализацию следующим образом:</p>
+<pre name="code" class="delphi">
+...
+private
+  { Private declarations }
+  PrevHwnd: Hwnd;
+ 
+  procedure WMChangeCBChain(var Msg: TWMChangeCBChain);
+    message WM_CHANGECBCHAIN;
+ 
+  procedure WMDrawClipboard(var Msg: TWMDrawClipboard);
+    message WM_DRAWCLIPBOARD;
+...
+ 
+procedure TForm1.WMChangeCBChain(var Msg: TWMChangeCBChain);
+begin
+  if PrevHWnd = Msg.Remove then
+    PrevHWnd := Msg.Next;
+  if Msg.Remove &lt;&gt; Handle then
+    SendMessage(PrevHWnd, WM_CHANGECBCHAIN, Msg.Remove, Msg.Next);
+end;
+ 
+procedure TForm1.WMDrawClipboard(var Msg: TWMDrawClipboard);
+var
+  P: PChar;
+  H: THandle;
+begin
+  SendMessage(PrevHWnd, WM_DRAWCLIPBOARD, 0, 0);
+  if Clipboard.HasFormat(CF_TEXT) then
+  begin
+    H := Clipboard.GetAsHandle(CF_TEXT);
+    Len := GlobalSize(H) + 1;
+    P := GlobalLock(H);
+    Memo1.SetTextBuf(P);
+    GlobalUnlock(H);
+  end;
+  Msg.Result := 0;
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  PrevHwnd := SetClipboardViewer(Handle);
+end;
+ 
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+  ChangeClipboardChain(Handle, PrevHwnd);
+end;
+</pre>
+<p>Обращаю ваше внимание на то, что у меня не было никакой конкретной идеи прежде, чем я это сделал; я просто внимательно прочел файлы помощи по SetClipboardViewer и во всех связанных темах. </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

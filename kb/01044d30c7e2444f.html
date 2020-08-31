@@ -1,0 +1,97 @@
+<html>
+<head>
+  <title>Как сделать родительское окно с фоновым рисунком в клиентской области?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как сделать родительское окно с фоновым рисунком в клиентской области?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для того чтобы сделать это выполните следующие шаги: </p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp; Создайте новый проект. </p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp; Установите FormStyle формы в fsMDIForm </p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp; Разместите Image на форме и загрузите в него картинку. </p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp; Найдите { Private Declarations } в объявлении формы и добавьте следующие строки: </p>
+<pre name="code" class="delphi">
+                FClientInstance : TFarProc; 
+                 FPrevClientProc : TFarProc; 
+                 procedure ClientWndProc(var Message: TMessage); 
+</pre>
+
+<p> &nbsp;&nbsp;&nbsp;&nbsp; Добавьте следующие строки в разделе implementation: </p>
+<pre name="code" class="delphi">
+             procedure TMainForm.ClientWndProc(var Message: TMessage); 
+             var 
+               Dc : hDC; 
+               Row : Integer; 
+               Col : Integer; 
+             begin 
+               with Message do 
+                 case Msg of 
+                   WM_ERASEBKGND: 
+                   begin 
+                     Dc := TWMEraseBkGnd(Message).Dc; 
+                     for Row := 0 to ClientHeight div Image1.Picture.Height do 
+                       for Col := 0 to ClientWidth div Image1.Picture.Width do 
+                         BitBlt(Dc, 
+                            Col * Image1.Picture.Width, 
+                            Row * Image1.Picture.Height, 
+                            Image1.Picture.Width, 
+                            Image1.Picture.Height, 
+                            Image1.Picture.Bitmap.Canvas.Handle, 
+                            0, 
+                            0, 
+                            SRCCOPY); 
+                       Result := 1; 
+                   end; 
+                   else 
+                     Result := CallWindowProc(FPrevClientProc, 
+                                              ClientHandle, 
+                                              Msg, 
+                                              wParam, 
+                                              lParam); 
+               end; 
+             end; 
+</pre>
+
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; В методе формы OnCreate добавьте: </p>
+<pre name="code" class="delphi">
+                FClientInstance := MakeObjectInstance(ClientWndProc); 
+                FPrevClientProc := Pointer(GetWindowLong(ClientHandle, 
+                                           GWL_WNDPROC)); 
+                SetWindowLong(ClientHandle, 
+                              GWL_WNDPROC, LongInt(FClientInstance));  
+</pre>
+
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Добавьте к проекту новую форму и установите ее свойство FormStyle в </p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fsMDIChild. </p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; У Вас получился  MDI-проект с "обоями" в клиентской области MDI формы. </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

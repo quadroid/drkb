@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>Путь к папке My Computer</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Путь к папке My Computer</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses
+  ActiveX, ShlObj;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  pShell, ShellFolder: IShellFolder;
+  pidl: PITEMIDLIST;
+  PMalloc: IMalloc;
+  sName: string;
+  EnumIDList: IEnumIDList;
+  pceltFetched: ULONG;
+  lpName: TStrRet;
+  slDirectories: TStringList;
+begin
+  slDirectories := TStringList.Create;
+  try
+    SHGetDesktopFolder(ShellFolder);
+    SHGetSpecialFolderLocation(0,CSIDL_DRIVES, pidl);
+    SHGetMalloc(PMalloc);
+    ShellFolder.BindToObject(pidl, nil, IID_IShellFolder, Pointer(pShell));
+    pShell.EnumObjects(0,SHCONTF_FOLDERS, EnumIDList);
+    while EnumIDList.Next(1,pidl, pceltFetched) = S_ok do
+    begin
+      pceltFetched := 0;
+      lpName.uType := 0;
+      pShell.GetDisplayNameOf(pidl, SHGDN_FORPARSING, lpName);
+      sName := lpName.pOleStr;
+      slDirectories.Add(sName);
+    end;
+    ListBox1.Items.Assign(sldirectories);
+  finally
+    pMalloc._Release;
+    pMalloc := nil;
+    slDirectories.Free;
+  end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

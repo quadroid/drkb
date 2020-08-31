@@ -1,0 +1,95 @@
+<html>
+<head>
+  <title>Как получить список установленных модемов в Win95/98?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить список установленных модемов в Win95/98?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit PortInfo;
+ 
+interface
+ 
+uses Windows, SysUtils, Classes, Registry;
+ 
+function EnumModems: TStrings;
+ 
+implementation
+ 
+function EnumModems: TStrings;
+var
+  R: TRegistry;
+  s: ShortString;
+  N: TStringList;
+  i: integer;
+  j: integer;
+begin
+  Result := TStringList.Create;
+  R := TRegistry.Create;
+  try
+    with R do
+      begin
+        RootKey := HKEY_LOCAL_MACHINE;
+        if OpenKey('\System\CurrentControlSet\Services\Class\Modem', False) then
+          if HasSubKeys then
+            begin
+              N := TStringList.Create;
+              try
+                GetKeyNames(N);
+                for i := 0 to N.Count - 1 do
+                  begin
+                    closekey; { + }
+                    openkey('\System\CurrentControlSet\Services\Class\Modem', false); { + }
+                    OpenKey(N[i], False);
+                    s := ReadString('AttachedTo');
+                    for j := 1 to 4 do
+                      if Pos(Chr(j + Ord('0')), s) &gt; 0 then
+                        Break;
+                    Result.AddObject(ReadString('DriverDesc'), TObject(j));
+                    CloseKey;
+                  end;
+              finally
+                N.Free;
+              end;
+            end;
+      end;
+  finally
+    R.Free;
+  end;
+end;
+ 
+end.
+</pre>
+
+<p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

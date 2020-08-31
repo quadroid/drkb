@@ -1,0 +1,64 @@
+<html>
+<head>
+  <title>FreeUserPhysicalPages</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">FreeUserPhysicalPages</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Функция FreeUserPhysicalPages освобождает физические страницы памяти, которые были ранее выделены при помощи вызова {AllocateUserPhysicalPages}. Если текущие страницы были спроецированы в AWE-регион, то при вызове автоматически произойдет очишение проецирования. Заметим, что указанный вызов никак не затронет виртуальное адресное пространство, занимающее AWE-регион.</p>
+<pre name="code" class="delphi">
+function FreeUserPhysicalPages(
+  hProcess: THandle, // дескриптор процесса
+  var NumberOfPages: Cardinal, // количество страниц для освобождения
+  var UserPfnArray: DWORD // виртуальный адрес фреймов освобождаемых страниц
+): Boolean; stdcall;
+</pre>
+<p><b>Параметры</b></p>
+<p>hProcess [in]</p>
+<p>Дескриптор процесса. Функция освобождает память в виртуальном адресном пространстве этого процесса. </p>
+<p>NumberOfPages [in/out]</p>
+<p>Указывает размер физической памяти в страницах, которая будет освобождена. При возвращении с случае ошибки возвращает количество страниц в памяти, которые действительно были освобождены. </p>
+<p>UserPfnArray [in]</p>
+<p>Задает виртуальное адресное пространство, которое содержит фреймы страниц, которые должны быть освобождены. </p>
+<p><b>Возвращаемое значение</b></p>
+<p>При удачном завершении функция возвращает True.</p>
+<p>В случае возникновения ошибки функция вернет False. В этом случае параметр NumberOfPages показывает, сколько страниц было освобождено в действительности. Для получения расширенной информации об ошибке выполните вызов GetLastError.</p>
+<p><b>Описание</b></p>
+<p>В случае нескольких процессоров эта функция поддерживает согласованное выполнение на уровне аппаратного переводного буфера. При выходе из этой функции, для всех потоков и процессов гарантируется корректное проецирование.</p>
+<p><b>Требования</b></p>
+<p>Windows NT/2000: Требуется Windows NT 2000 или более поздняя версия </p>
+<p>Windows 95/98: Не поддерживается </p>
+<p>Бибиотека: Kernel32.dll </p>
+<p>Подключаемый модуль: Не описана</p>
+<p>© <a href="mailto:mystic2000@newmail.ru" target="_blank">Mystic</a>, 2002</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

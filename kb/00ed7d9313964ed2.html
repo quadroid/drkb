@@ -1,0 +1,133 @@
+<html>
+<head>
+  <title>Как отследить изменения дисплея?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как отследить изменения дисплея?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для этого необходимо создать обработчик для перехвата сообщения WM_DISPLAYCHANGE. Применяется это в тех случаях, если Ваше приложение зависит от разрешения экрана (например, приложение работает с графикой).</p>
+<p>Далее следует пример обработчика сообщения:</p>
+<pre name="code" class="delphi">
+type 
+TForm1 = class(TForm) 
+  Button1: TButton; 
+private 
+  procedure WMDisplayChange(var Message: TMessage); message WM_DISPLAYCHANGE; 
+public 
+{ Public declarations } 
+end; 
+ 
+var 
+Form1: TForm1; 
+ 
+implementation 
+ 
+{$R *.DFM} 
+ 
+procedure TForm1.WMDisplayChange(var Message: TMessage); 
+begin 
+  {Do Something here} 
+  inherited; 
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<hr /><p>Эта программа отслеживает изменение характеристик экрана. </p>
+<pre name="code" class="delphi">
+...
+private
+  procedure WMDISPLAYCHANGE(var Msg: TWMDISPLAYCHANGE);
+    message WM_DISPLAYCHANGE;
+...
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  bp: integer;
+begin
+  bp := GetDeviceCaps(GetDC(0), BITSPIXEL);
+  Form1.Caption := 'Бит на точку - ' + IntToStr(bp) +
+    ' (' + FloatToStr(IntPower(2, bp)) +
+    ' цветов). Разрешение ';
+  Form1.Caption := Form1.Caption + 
+ 
+    IntToStr(GetDeviceCaps(GetDC(0), HORZRES)) + 'X';
+  Form1.Caption := Form1.Caption + 
+    IntToStr(GetDeviceCaps(GetDC(0), VERTRES)) + ' ';
+end;
+ 
+procedure TForm1.WMDISPLAYCHANGE(var Msg: TWMDISPLAYCHANGE);
+var
+  bp: integer;
+begin
+  bp := Msg.BitsPerPixel;
+  Form1.Caption := 'Бит на точку - ' + IntToStr(bp) + 
+    ' (' + FloatToStr(IntPower(2, bp)) + 
+    ' цветов). Разрешение ';
+  Form1.Caption := Form1.Caption + IntToStr(Msg.Width) + 'X';
+ 
+  Form1.Caption := Form1.Caption + IntToStr(Msg.Height) + ' ';
+end;
+</pre>
+<p id="author">Автор советов: Даниил Карапетян</p>
+<p>e-mail: delphi4all@narod.ru</p>
+<p id="author">Автор справки: Алексей Денисов</p>
+<p>e-mail: aleksey@sch103.krasnoyarsk.su</p>
+<hr />
+<pre name="code" class="delphi">
+type
+  {...} 
+  private 
+    procedure WMDisplayChange(var msg: TMessage);
+      message WM_DISPLAYCHANGE; 
+  public 
+  {...} 
+  end; 
+end; 
+ 
+var 
+  Form1: TForm1; 
+ 
+implementation 
+ 
+{$R *.DFM} 
+ 
+procedure TForm1.WMDisplayChange(var msg: TMessage); 
+begin 
+  ShowMessage('Display settings changed!'); 
+  inherited; 
+end;
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

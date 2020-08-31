@@ -1,0 +1,87 @@
+<html>
+<head>
+  <title>Как принимать перетаскиваемые файлы из проводника?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как принимать перетаскиваемые файлы из проводника?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Вот пример с TListbox на форме:</p>
+<pre name="code" class="delphi">
+type 
+  TForm1 = class(TForm) 
+    ListBox1: TListBox; 
+    procedure FormCreate(Sender: TObject); 
+  protected 
+    procedure WMDROPFILES (var Msg: TMessage); message WM_DROPFILES; 
+  private 
+  public 
+  end; 
+ 
+var 
+  Form1: TForm1; 
+ 
+implementation 
+uses shellapi; 
+ 
+{$R *.DFM} 
+ 
+procedure TForm1.FormCreate(Sender: TObject); 
+begin 
+  DragAcceptFiles(Form1.Handle, true); 
+end; 
+ 
+procedure TForm1.WMDROPFILES (var Msg: TMessage); 
+var 
+  i, 
+  amount, 
+  size: integer; 
+  Filename: PChar; 
+begin 
+  inherited; 
+  Amount := DragQueryFile(Msg.WParam, $FFFFFFFF, Filename, 255); 
+  for i := 0 to (Amount - 1) do 
+  begin 
+    size := DragQueryFile(Msg.WParam, i , nil, 0) + 1; 
+    Filename:= StrAlloc(size); 
+    DragQueryFile(Msg.WParam,i , Filename, size); 
+    listbox1.items.add(StrPas(Filename)); 
+    StrDispose(Filename); 
+  end; 
+  DragFinish(Msg.WParam); 
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

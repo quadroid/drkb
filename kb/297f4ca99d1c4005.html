@@ -1,0 +1,47 @@
+<html>
+<head>
+  <title>Работа через Handle</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Работа через Handle</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Еще один способ работы с файлами - это открытие Handle на файл и работу через него. Тут есть 2 варианта - можно использовать функции Дельфи или использовать WinAPI напрямую.</p>
+<p>При использовании функций Дельфи можно применять следующие функции:</p>
+<p>  FileOpen(FileName, fmOpenWrite or fmShareDenyNone) - функция открывает файл и возвращает целое цисло - Handle на файл. Параметры функции - имя файла и тип доступа (все типы доступа я перечислил ранее). Если файл успешно открыт то Handle должен быть положительным цислом, отрицательное число - это код ошибки.</p>
+<p>Во всех остальных функциях используется именно значение Handle, возвращаемое этой функцией.</p>
+<p>  FileClose(Handle: Integer) - закрывает файл</p>
+<p>  FileRead(Handle: Integer; var Buffer; Count: Integer): Integer;</p>
+<p>  FileWrite(Handle: Integer; const Buffer; Count: Integer): Integer;</p>
+<p>Эти функции для чтения/записи файла, где Buffer любая переменная достаточного размера для чтения/записи куска информации (обычно типа PChar или массив), Count-количество байт, которое Вы желаете записать/прочитать. Функции возвращают количество байт которые реально были прочитанны или записаны.</p>
+<p>Этот тип доступа к файлам применяется весьма редко. Дело в том что он практически дублирует соответствующие функции WinAPI и к тому же обычно работает несколько медленнее, чем например потоки. И все же использование функций FileOpen и FileClose не лишено привлекательности. Наряду с тем что эти функции намного легче в использовании соответствующих функций WinAPI (можете сравнить - FileOpen имеет 2 параметра, cooтветствующая функция WinAPI - CreateFile имеет 7 параметров, большая часть из которых реально требуется лишь в ограниченном числе случаев) этот путь доступа открывает возможность прямого использования всех функций WinAPI про работе с файлами, которые требуют Handle на открытый файл.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

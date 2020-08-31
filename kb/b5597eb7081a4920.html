@@ -1,0 +1,125 @@
+<html>
+<head>
+  <title>Импортирование или обертка вызовов функций DLL</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Импортирование или обертка вызовов функций DLL</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Импортирование, или 'обертка' вызовов функций DLL </p>
+<p>Существует два метода для импорта и загрузки функций из Dynamic Link Library (DLL). Первый метод (который широко обсуждается в данном документе), называется "неявной" (Implicit) загрузкой. Неявная загрузка включает в себя статическую загрузку DLL при запуске программы, и получение доступа к функциям через интерфейс объектного Паскаля. Данный метод должен использоваться в случае, если приложение полностью зависит от загрузки DLL для соответствующего функционирования. Другой метод доступа называется "явной" загрузкой, поскольку DLL загружается динамически по требованию. Этот метод требует дополнительного кодирования и должен использоваться, если приложению нужно работать в случае, даже если DLL не смогла правильно загрузиться. </p>
+<p>Что такое "обертка" функциональных вызовов? </p>
+<p>Обертка функции, или набора функций, состоит из объявлений в секции interface и кода в секции implementation (вместе со связанными константами или типами), которые соответствуют функции, или набору функций, импортируемых из DLL. Обертка является простой декларацией в паскалевском модуле, которая обеспечивает точку входа в DLL. В Delphi обертка представляет собой файл модуля, содержащий код объектного паскаля. Группа разработчиков Delphi уже создала для вас обертку функций и стандартных элементов управления Windows. Но иногда возникает необходимость создания обертки для вызовов функций dll, но это в Delphi не обернуто по случаю сугубой индивидуальности каждой DLL и входящих в нее функций. </p>
+<p>Первым, и самым сложным шагом в данном процессе является получение информации о функциях. Один из лучших источников для получения документации об имеющихся (доступных) в DLL функций является World Wide Web. Начать поиск можно с MSDN, а если и там нет информации, то можно обратиться к многочисленным поисковым серверам, которые частенько находят нужную вам информацию. Для получения структуры вызовов функций ищите залоговочные файлы C++ в продуктах типа Borland C++ или MS Visual C++. Соглашения об вызовах и преобразованиях типов обычно способны разрешить конфликты и несовместимость вызовов между C++ и PASCAL. Хороший ресурс по вопросам совместимости между Delphi и C++ расположен на сайте Borland по адресу: http://www.borland.com/delphi/papers/brick.html. </p>
+<p>После того, как вы нашли необходимый пример, или документацию об экспортируемых DLL функциях, то следующим шагом будет создание нового модуля. Интерфейс модуля будет содержать константы и типы, необходимые для вызова отдельных функций DLL, и заголовки самих функций. Данные заголовки функций являются объектно-паскалевским интерфейсом, позволяющим другим приложениям Delphi вызывать функции рассматриваемой DLL. Как только секция модуля interface будет завершена, следующей секцией будет implementation. Секция модуля implementation содержит объявления импортируемых внешних функций. Эти заголовки не идентичны тем, которые расположены в секции модуля interface (которые содержат реальные идентификаторы функций плюс другую важную информацию для реализации). Для получения дополнительной информации по этой теме обратитесь к топику "DLLs:accessing procedures and functions" справки помощи по Delphi 3. </p>
+<p>Представим себе, что у нас есть функция с именем BOB в DLL с именем 'BLODGE.DLL'. (ниже приведены подробные и необходимые шаги, где подразумевается, что мы будем использовать неявную загрузку DLL): </p>
+<p>Поиск информации по Интернету показал, что функция BOB должна возвращать логическое значение и требует в качестве аргументов значения типа word и boolean. </p>
+<p>Создайте в Delphi новый файл модуля с именем 'UseBob.pas' (File|New и выберите unit) </p>
+<p>Следующая строка кода должна располагаться в секции interface нового модуля:</p>
+<p>function BOB(Fire: Word; Dances: Boolean): Boolean; stdcall; </p>
+<p>Следующая строка кода должна располагаться в секции implementation нового модуля:</p>
+<p>function BOB; external 'BLODGE'; </p>
+<p>Сохраните модуль с именем 'UseBob.pas'. </p>
+<p>Необходимо убедиться в том, что UseBob.pas расположен в каталоге текущего проекта, или находится в каталоге, прописанном в путях поиска Delphi. </p>
+<p>Добавьте к списку uses модуля нового проекта модуль 'UseBob'. Теперь функция BOB может быть вызвана из нового проекта подобно любой другой стандартной функции. </p>
+<p>Во время выполнения приложения BLODGE.DLL должен находится в пути текущих переменных окружения процесса.</p>
+<p>Для способа, при котором 'BLODGE.DLL' должна быть загружена явно, требуется дополнительное кодирование. Как было подчеркнуто выше, необходимо знание аргументов функций/процедур (и тип результата в случае функции). </p>
+<p>Ниже приведен модуль с реализацией вызова функции BOB, инициализируемый при нажатии на кнопку:</p>
+<pre name="code" class="delphi">
+unit UDLLTest;
+ 
+interface
+ 
+uses
+ 
+  Windows, Messages, SysUtils, Classes, Graphics, Controls,
+  Forms, Dialogs, StdCtrls;
+ 
+type
+ 
+  TForm1 = class(TForm)
+    Button1: TButton;
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+ 
+  { Вот типы, которые требуются для работы нашей функции bob }
+ 
+  TBOB = function(Fire: Word; Dances: Boolean): Boolean; stdcall;
+ 
+var
+ 
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+ 
+  BOB: TBOB;
+  hDLLInst: THandle;
+  IsAlive, IsDancing: Boolean;
+  Years: Word;
+ 
+begin
+ 
+  { Загружаем и получаем дескриптор нашего BLODGE.DLL }
+  hDLLInst := LoadLibrary('BLODGE.DLL');
+  { Если загрузка не была успешной, генерируем свое исключение }
+  if (hDLLInst &lt;= 0) then
+    raise exception.create('[Неудачный вызов LoadLibrary]');
+  { Попытаемся получить адрес функции BOB }
+  try
+    @BOB := GetProcAddress(hDLLInst, 'BOB');
+    if not assigned(BOB) then
+      raise exception.Create('[Неудачный вызов GetProcAddress]');
+    Years := 25;
+    IsDancing := True;
+    { Теперь мы можем выполнить функцию BOB }
+    IsAlive := BOB(Years, IsDancing);
+  finally
+    { Освобождаем дескриптор DLL }
+    FreeLibrary(hDLLInst);
+  end;
+end;
+ 
+end.
+</pre>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<html>
+<head>
+  <title>Доступ к страницам TTabbedNotebook</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Доступ к страницам TTabbedNotebook</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>При добавлении компонентов во время выполнения программы, вам необходимо присвоить для каждого компонента свойству parent (контейнер) _страницу_ компонента notebook, а не сам notebook. </p>
+
+<p>Вы можете сделать это следующим образом (пример дан для кнопки):</p>
+
+<pre name="code" class="delphi">
+MyButton := TButton.Create( Form1 );  {как обычно...}
+...
+...
+MyButton.Parent := TTabPage( TabbedNotebook1.Pages.Objects[n] );
+{ &lt;== где 'n' - индекс желаемой страницы ==&gt; }
+</pre>
+
+<p>Свойство notebook 'Pages' имеет тип StringList и содержит список заголовков и объектов 'TTabPage'. </p>
+
+<p>Я сам пользовался этой техникой несколько месяцев. Не могу вспомнить где я сам раздобыл эту информацию, но в документации про это ничего не сказано. Может кто-нибудь знает, где об этом написано? </p>
+
+<p>При добавлении компонента на страницу TabbedNotebook во время выполнения приложения, указатель на желаемую страницу для свойства Parent нового компонента должен быть назначен перед тем, как он будет реально показан. Способ получить доступ ко всем страницам TTabbedNotebook во время выполнения программы - с помощью свойства-массива Objects свойства TabbedNotebook Pages. Другими словами, страничные компоненты хранятся как объекты, присоединенные к имени страницы в списке строк свойства Pages. В следующим коде показано создание кнопки на второй странице компонента TabbedNotebook1:</p>
+
+<pre name="code" class="delphi">
+var
+NewButton : TButton;
+begin
+NewButton := TButton.Create(Self);
+NewButton.Parent := TWinControl(TabbedNotebook1.Pages.Objects[1])
+...
+</pre>
+
+<p>Вот как страница TNotebook может быть использована в качестве родителя для вновь создаваемого на ней компонента:</p>
+<pre name="code" class="delphi">
+NewButton.Parent := TWinControl(Notebook1.Pages.Objects[1])
+</pre>
+
+<p>Вот как страница (закладка) TTabSet может быть использована в качестве родителя для вновь создаваемого на ней компонента:</p>
+<pre name="code" class="delphi">
+NewButton.Parent := TWinControl(TabSet1.Tabs.Objects[1])
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

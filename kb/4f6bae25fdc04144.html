@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Как работать с выделенными запясями в TDBGrid?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как работать с выделенными запясями в TDBGrid?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{
+ In the "Object Inspector" set your DBGrid's Option for dgMultiSelect = True.
+ The Grid_Edit function calls for each selected DBGrid-Row a data-processing
+ function.
+ Return value is the number of processed rows.
+}
+ 
+function TForm1.Grid_Edit(dbgIn: TDBGrid; qryIn: TQuery): Longint;
+  // declared in the private section
+begin
+  Result := 0;
+  with dbgIn.DataSource.DataSet do
+  begin
+    First;
+    DisableControls;
+    try
+      while not EOF do
+      begin
+        if (dbgIn.SelectedRows.CurrentRowSelected = True) then
+        begin
+          { +++ Call here the data-processing function +++
+ 
+          }
+          Inc(Result);
+        end;
+        Next;
+      end;
+    finally
+      EnableControls;
+    end;
+  end;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  Form1.Caption := 'Processed: ' + IntToStr(Grid_Edit(DBGrid1, Query1));
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

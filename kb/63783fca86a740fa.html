@@ -1,0 +1,102 @@
+<html>
+<head>
+  <title>File list view in file dialogs</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">File list view in file dialogs</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// If an application asks user to select an icon, it's
+// more convenient for the user to see list of files as
+// large icons instead of small icons. Also, for selecting
+// an image file, user will be happier to choose an image
+// by seeing the thumbnails.
+ 
+// The standard file dialog initialy shows the files in
+// the LIST (small icon) style, and there is no documented
+// way to change this behavior. So, if user wants to see
+// the file list in another style, she/he should change
+// it manually by selecting the desired view style form
+// the provided popup menu.
+ 
+// Here is a workaround for this limitation to select the
+// reasonable view style for a file dialog.
+ 
+type
+  TFileViewStyle = (fvsIcons, fvsList, fvsDetails, fvsThumbnails, fvsTiles);
+ 
+function SetFileDialogViewStyle(Handle: THandle; ViewStyle: TFileViewStyle): Boolean;
+const
+  CommandIDs: array[TFileViewStyle] of Word = ($7029, $702B, $702C, $702D, $702E);
+var
+  NotifyWnd: THandle;
+begin
+  Result    := False;
+  NotifyWnd := FindWindowEx(GetParent(Handle), 0, 'SHELLDLL_DefView', nil);
+  if NotifyWnd &lt;&gt; 0 then
+  begin
+    SendMessage(NotifyWnd, WM_COMMAND, CommandIDs[ViewStyle], 0);
+    Result := True;
+  end;
+end;
+ 
+// Each time the file dialog opens, the above function should
+// be called to set the desired view style. The OnShow event
+// of the file dialogs seems to be the right place for this
+// purpose, however at that time the list is not created yet
+// and the function fails.
+ 
+// When the file list is created, the dialog raises two events:
+// OnFolderChange and OnSelectionChange events. We can use one
+// of these events for our purpose. However, we have to consider
+// that the function should be called just once for each show.
+ 
+// Here is a sample usage of the introduced function:
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  OpenDialog1.Tag := 0;
+  OpenDialog1.Execute;
+end;
+ 
+procedure TForm1.OpenDialog1FolderChange(Sender: TObject);
+begin
+  if OpenDialog1.Tag = 0 then
+  begin
+    SetFileDialogViewStyle(OpenDialog1.Handle, fvsIcons)
+    OpenDialog1.Tag := 1;
+  end;
+end;
+</pre>
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

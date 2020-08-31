@@ -1,0 +1,85 @@
+<html>
+<head>
+  <title>Получение размера памяти выделенный под Pointer</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получение размера памяти выделенный под Pointer</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Получение размера памяти выделенный под Pointer
+ 
+Функция возврящает количество байт выделенных под Pointer.
+Размер округляется в большую сторону до DWORD (4 байт).
+ 
+Зависимости: Windows
+Автор:       Мироводин Дмитрий, mirovodin@mail.ru
+Copyright:   Мироводин Дмитрий
+Дата:        16 октября 2003 г.
+***************************************************** }
+ 
+function GetPointerSize(const P: Pointer): Integer;
+begin
+  if P = nil then
+    Result := -1
+  else
+    Result := Integer(Pointer((Integer(p) - 4))^) and $7FFFFFFC - 4;
+end;
+Пример использования: 
+ 
+var
+  P: pointer;
+  PSize: integer;
+begin
+  GetMem(P, 1024); // Размер кратен 4
+  PSize := GetPointerSize(P);
+  ShowMessage(inttostr(PSize)); // Результат 1024 байта
+  FreeMem(P);
+end;
+ 
+...
+ 
+var
+  P: pointer;
+  PSize: integer;
+begin
+  // Размер НЕ КРАТЕН 4
+  GetMem(P, 6);
+  PSize := GetPointerSize(P);
+  // Результат 8 байта т.к. идет округление
+  ShowMessage(inttostr(PSize));
+  FreeMem(P);
+end;
+</pre>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

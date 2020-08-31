@@ -1,0 +1,64 @@
+<html>
+<head>
+  <title>Использование функций перечисления WinAPI</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Использование функций перечисления WinAPI</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для получения информации о множественных объектах Windows (окнах, принтерах, шрифтах, настройках экрана и так далее - всего несколько десятков вариантов) используются функции, начинающиеся с Enum. Эти функции работают по принципу, аналогичному итератору TCollection.FirstThat, то есть они вызывают функцию, переданную им в качестве параметра для каждого перечисляемого объекта, передавая ей в параметрах данные объекта и, в последнем параметре, указатель на пользовательские данные, переданный функции EnumXXX. Перечисление продолжается до тех пор, пока не будут перечислены все объекты. Немедленно прекратить перечисление можно, возвратив False. Ниже приведен пример заполнения списка ListBox1 данными по всем окнам Windows в виде " класс - заголовок" по нажатию кнопки Button1. </p>
+
+<pre name="code" class="delphi">
+function AddWinInfo(WinHandle: HWnd; List: TStringList): Boolean;
+stdcall;
+var
+  WinCaption,WinClass: array[0..255] of Char;
+begin
+  Result:=True;
+  GetClassName(WinHandle,WinClass,SizeOf(WinClass));
+  GetWindowText(WinHandle,WinCaption,SizeOf(WinCaption));
+  List.Add(WinClass+' - '+WinCaption);
+end;
+ 
+procedure TfrmMain.Button1Click(Sender: TObject);
+begin
+  with ListBox1,Items do
+  begin
+    Clear;
+    EnumWindows(@AddWinInfo,LParam(Items));
+  end;
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

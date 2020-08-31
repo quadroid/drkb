@@ -1,0 +1,86 @@
+<html>
+<head>
+  <title>Как удалить / восстановить файлы из корзины?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как удалить / восстановить файлы из корзины?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+program del;
+ 
+uses
+  ShellApi;
+ 
+//function SHFileOperation(const lpFileOp: TSHFileOpStruct): Integer; stdcall;
+ 
+var
+  T: TSHFileOpStruct;
+  P: string;
+begin
+  P := 'C:\Windows\System\EL_CONTROL.CPL';
+  with T do
+  begin
+    Wnd := 0;
+    wFunc := FO_DELETE;
+    pFrom := Pchar(P);
+    fFlags := FOF_ALLOWUNDO
+  end;
+  SHFileOperation(T);
+end.
+</pre>
+
+<p>Восстановление </p>
+
+<p>Есть некоторые причуды, и Вы должны помнить о следующем: </p>
+
+<p>Дайте полный путь для каждого файла. Не доверяйте текущей директории, даже если Вы ее изменили непосредственно перед вызовом функции. Функция WinAPI SHFileOperation не достаточно "умная" для использования текущей директории при отсутствии информации о предыдущей директории (для осуществления функции восстановления). Так, даже если используете флаг FOF_ALLOWUNDO, это не восстановит удаленные файлы из корзины, поскольку функция ничего не знает о предыдущем месторасположении файлов, и, таким образом, не сможет их восстановить файлы из корзины в их оригинальное месторасположение. Она просто удалит файлы из текущей директории. </p>
+<p>Microsoft скорректировала документацию о члене pFrom. Новая редакция сообщает о подробностях работы в пакетном режиме: необходимо разделить имя каждого файла символом NULL (#0) и добавить к концу списка двойной символ NULL. Терминатор из двух символов NULL необходим в любом случае: работаете вы с одним файлом, или же используете пакетный режим. Иногда это работает и без терминатора, но чаще нет. Это связано с тем, что функции при работе с памятью считывает данные из памяти, располагающейся до терминатора, а поскольку длина строки может не совпадать с распределенной памятью, то данные, находящиеся после терминатора, просто не обрабатываются. </p>
+<p>Пример правильного кодирования:</p>
+
+<pre name="code" class="delphi">
+var
+  FileList: string;
+  FOS: TShFileOpStruct;
+begin
+  FileList := 'c:\delete.me'#0'c:\windows\temp.$$$'#0#0;
+  { если Вы используете имена файлов в строковых переменных: }
+  FileList := Filename1 + #0 + Filename2 + #0#0;
+  FOS.pFrom := PChar(FileList);
+  // бла бла бла
+end;
+</pre>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

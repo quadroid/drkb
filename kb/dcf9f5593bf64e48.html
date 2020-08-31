@@ -1,0 +1,150 @@
+<html>
+<head>
+  <title>Создание курсора с процентом выполнения</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создание курсора с процентом выполнения</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Создание курсора с процентом выполнения
+ 
+Функция возвращает хэндл на созданный курсор Windows (hcursor, hicon)
+с процентным соотношением, указанным в min,max и pos.
+Своего рода ProgressBar, но только зашитый в курсор.
+ 
+Зависимости: Windows, SysUtils, Graphics, Classes
+Автор:       Роман Василенко, romix@nm.ru, Пятигорск
+Copyright:   Василенко Роман
+Дата:        07 мая 2002 г.
+********************************************** }
+ 
+//Используемые модули
+uses Windows, SysUtils, Graphics, Classes;
+ 
+ 
+//Сама функция
+function create_prc_cursor(min,max,pos:integer):hicon;
+var
+    cwidth, cheight:integer;
+    ii:iconinfo;
+    bmc,bmm:tbitmap;
+    icon:hicon;
+    tw:integer;
+    tx:string;
+ 
+function int_percent(umin,umax,upos,uabs:integer):integer;
+begin
+    result:=0;
+    if umax&lt;umin then exit;
+    if upos&lt;umin then exit;
+    if upos&gt;umax then begin
+        result:=100;
+        exit;
+    end;
+    if (umin=upos) and (umax=upos) then begin
+        result:=100;
+        exit;
+    end;
+    result:=round((upos-umin)/((umax-umin)/uabs));
+end;
+ 
+function create_curspace:tbitmap;
+begin
+    result:=tbitmap.create;
+    result.pixelformat:=pf4bit;
+    result.width:=cwidth;
+    result.height:=cheight;
+end;
+ 
+begin
+    cwidth:=getsystemmetrics(sm_cxcursor);
+    cheight:=getsystemmetrics(sm_cycursor);
+    bmc:=create_curspace;
+    bmm:=create_curspace;
+    with bmm.Canvas do begin
+        brush.color:=clwhite;
+        FillRect(rect(0,0,bmm.width,bmm.height));
+        brush.color:=clblack;
+        fillrect(rect(0,bmm.height-8,bmm.width,bmm.height));
+        brush.color:=clwhite;
+        framerect(rect(0,bmm.height-8,bmm.width,bmm.height));
+    end;
+    with bmc.canvas do begin
+        brush.color:=clblack;
+        FillRect(rect(0,0,bmc.width,bmc.height));
+        brush.color:=clwhite;
+        fillrect(rect(1+int_percent(min,max,pos,bmc.width-2),bmm.height-7,bmc.width-1,bmc.height-1));
+        brush.color:=clwhite;
+        framerect(rect(0,bmc.height-8,bmc.width,bmc.height));
+    end;
+    tx:=inttostr(int_percent(min,max,pos,100))+'%';
+    with bmm.canvas do begin
+        font.Size:=8;
+        font.style:=[fsbold];
+        font.color:=clwhite;
+        brush.color:=clwhite;
+        tw:=textwidth(tx);
+        textout((cwidth-tw) div 2,8,tx);
+    end;
+    with bmc.canvas do begin
+        font.Size:=8;
+        font.style:=[fsbold];
+        font.color:=clwhite;
+        brush.color:=clblack;
+        textout((cwidth-tw) div 2,8,tx);
+    end;
+ 
+    ii.fIcon:=false;
+    ii.hbmColor:=bmc.Handle;
+    ii.hbmMask:=bmm.handle;
+    ii.xHotspot:=0;
+    ii.yHotspot:=0;
+    icon:=createiconindirect(ii);
+    result:=copyicon(icon);
+    destroyicon(icon);
+    bmc.free;
+    bmm.Free;
+end; 
+</pre>
+
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+...
+screen.cursors[1]:=create_prc_cursor(0,100,25);
+screen.cursor:=crnone;
+screen.cursor:=1;
+... 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

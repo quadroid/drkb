@@ -1,0 +1,63 @@
+<html>
+<head>
+  <title>Список шрифтов, совместимых одновременно с экраном и с принтером</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Список шрифтов, совместимых одновременно с экраном и с принтером</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Эти установки должны показать шрифты совместимые либо с принтером либо с экраном. В примере диалог Windows ChooseFont вызывается напрямую чтобы показать список шрифтов, совместимых одновременно и с экраном и с принтером. </p>
+
+<p>Пример: </p>
+<pre name="code" class="delphi">
+uses Printers, CommDlg;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+ var cf: TChooseFont; lf: TLogFont; tf: TFont;
+begin
+  if PrintDialog1.Execute then
+  begin
+    cf.hdc := Printer.Handle;
+    cf.lpLogFont := @lf;
+    cf.iPointSize := Form1.Canvas.Font.Size * 10;
+    cf.Flags := CF_BOTH or CF_INITTOLOGFONTSTRUCT or
+     CF_EFFECTS or CF_SCALABLEONLY or CF_WYSIWYG;
+    cf.rgbColors := Form1.Canvas.Font.Color;
+    tf.COlor := cf.RgbColors;
+    Form1.Canvas.Font.Assign(tf);
+    tf.Free;
+    Form1.Canvas.TextOut(10, 10, 'Test');
+  end;
+end;
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

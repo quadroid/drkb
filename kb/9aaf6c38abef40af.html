@@ -1,0 +1,264 @@
+<html>
+<head>
+  <title>Выравнивание текста по ширине</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Выравнивание текста по ширине</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Текст выглядит лучше, если он выровнен по двух краям. Для этого пробелы в каждой строке нужно удлинять или укорачивать так, чтобы все строки имели одну длину. </p>
+<p>Здесь создана процедура GetLine, которая возвращает одну строку, начиная с заданного символа. Программа находит разницу между шириной текста и реальной длинной строки и при выводе компенсирует эту разницу удлинением пробелов. </p>
+<p>Эта программа выводит на экран текст из файла C:\text.txt, выравнивая его по двум краям. </p>
+<pre name="code" class="delphi">
+type
+  ...
+  TLine = record
+    s: string;
+    wrap: boolean;
+    length: integer;
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+const
+  FileName = 'C:\text.txt';
+ 
+var
+  s: string;
+  bm: TBitMap;
+  LineH: integer;
+  MaxTextWidth: integer;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  F: TFileStream;
+  buf: array [0..127] of char;
+ 
+  l: integer;
+begin
+  ScrollBar1.Kind := sbVertical;
+  bm := TBitMap.Create;
+  with bm.Canvas.Font do begin
+    Name := 'Serif';
+    Size := 12;
+  end;
+  LineH := bm.Canvas.TextHeight('123');
+ 
+  if not FileExists(FileName) then begin
+    ShowMessage('Can not find file ' + FileName);
+    Exit;
+  end;
+  F := TFileStream.Create(FileName, fmOpenRead);
+  repeat
+    l := F.Read(buf, 128);
+ 
+    if l = 128
+      then s := s + buf
+      else s := s + copy(buf, 1, l);
+  until l &lt; 128;
+  F.Destroy;
+end;
+ 
+procedure TForm1.FormResize(Sender: TObject);
+begin
+  PaintBox1.Left := 0;
+  PaintBox1.Top := 0;
+  PaintBox1.Height := Form1.ClientHeight;
+  PaintBox1.Width := Form1.ClientWidth - ScrollBar1.Width;
+  ScrollBar1.Left := PaintBox1.Width;
+  ScrollBar1.Top := 0;
+  ScrollBar1.Height := PaintBox1.Height;
+ 
+  bm.Width := PaintBox1.Width;
+  bm.Height := PaintBox1.Height;
+  ScrollBar1.Max := 1000;
+  MaxTextWidth := PaintBox1.Width - 20;
+end;
+ 
+function RealTextWidth(s: string): integer;
+var
+  i: integer;
+begin
+  result := bm.Canvas.TextWidth(s);
+  for i := 1 to Length(s) do
+    if s[i] = #9 then
+      inc(result, 40 - bm.Canvas.TextWidth(#9));
+end;
+ 
+function GetLine(index: integer): TLine;
+ 
+var
+  i: integer;
+  s1: string;
+  first: integer;
+begin
+  if (s[index] = #13) and (s[index + 1] = #10) then begin
+    result.s := '';
+    result.length := 2;
+    result.wrap := true;
+    Exit;
+  end;
+  first := index;
+  while (first &lt;= Length(s)) and (s[first] in [#32]) do inc(first);
+  i := first;
+  repeat
+    while (i &lt;= Length(s)) and (not (s[i] in [#9, #32])) and (s[i] &lt;&gt; #13) do
+ 
+      inc(i);
+    s1 := copy(s, first, i - index);
+    inc(i);
+  until (i &gt;= Length(s)) or (s[i-1] = #13) or (RealTextWidth(s1) &gt; MaxTextWidth);
+  if RealTextWidth(s1) &gt; MaxTextWidth then begin
+    result.wrap := false;
+    if i &lt; Length(s) then begin
+      dec(i, 2);
+      while (i &gt; 0) and (not (s[i] in [#9, #32])) do dec(i);
+      result.Length := i - index;
+ 
+      while (i &gt; 0) and (s[i] in [#9, #32]) do dec(i);
+    end;
+    result.s := copy(s, first, i - index + 1);
+    if result.s[length(result.s)] = #32 then
+      delete(result.s, length(result.s) , 1);
+  end else begin
+    result.length := i - index + 1;
+    s1 := copy(s, first, i - index + 1);
+    if length(s1) &gt; 0 then begin
+      if s1[Length(s1)] = #9
+ 
+        then delete(s1, Length(s1), 1);
+      if s1[length(s1) - 1] + s1[length(s1)] = #13#10
+        then delete(s1, length(s1) - 1, 2);
+    end;
+    result.s := s1;
+    result.wrap := true;
+  end;
+end;
+ 
+ 
+procedure draw;
+var
+  i, j: integer;
+  line: TLine;
+  OneWord: string;
+  LineN: integer;
+  SpaceCount: integer;
+  TextLeft: integer;
+  shift, allshift: integer;
+  d: integer;
+  LineCount: integer;
+ 
+begin
+  with bm.Canvas do begin
+    FillRect(ClipRect);
+    i := 1;
+    LineCount := 0;
+    for j := 1 to Form1.ScrollBar1.Position do begin
+      line := GetLine(i);
+      inc(i, line.length);
+      inc(LineCount);
+    end;
+    LineN := 0;
+    repeat
+      line := GetLine(i);
+      SpaceCount := 0;
+      TextLeft := 0;
+      for j := 1 to Length(line.s) do
+        if line.s[j] = #32 then inc(SpaceCount);
+ 
+      if line.wrap = false
+        then allshift := MaxTextWidth - RealTextWidth(line.s)
+        else allshift := 0;
+      if allshift &gt; 40 * SpaceCount then allshift := 0;
+      shift := 0;
+      for j := 1 to Length(line.s) do begin
+        if (not (line.s[j] in [#9, #32])) and (j &lt; Length(line.s)) then begin
+          OneWord := OneWord + line.s[j];
+ 
+        end else begin
+          OneWord := OneWord + line.s[j];
+          if OneWord = #9 then begin
+            inc(TextLeft, 40);
+          end else begin
+            if OneWord = #13#10 then begin
+              inc(LineN);
+            end else begin
+              TextOut(10 + TextLeft, LineN * LineH, OneWord);
+              if SpaceCount = 0
+ 
+                then d := 0
+                else d := (allshift - shift) div (SpaceCount);
+              inc(shift, d);
+              inc(TextLeft, TextWidth(OneWord) + d);
+              dec(SpaceCount);
+            end;
+          end;  
+          OneWord := '';
+        end;
+      end;
+      inc(i, line.length);
+      inc(LineN);
+    until (LineN * LineH &gt; Form1.PaintBox1.Height) or (i &gt;= Length(s));
+ 
+    repeat
+      line := GetLine(i);
+      inc(i, line.length);
+      inc(LineCount);
+    until i &gt;= Length(s);
+    inc(LineCount, LineN);
+    Form1.ScrollBar1.Max := LineCount -
+      Form1.PaintBox1.Height div LineH;
+  end;
+  Form1.PaintBox1.Canvas.Draw(0, 0, bm);
+end;
+ 
+procedure TForm1.PaintBox1Paint(Sender: TObject);
+begin
+  draw;
+end;
+ 
+procedure TForm1.ScrollBar1Change(Sender: TObject);
+ 
+begin
+  draw;
+end;
+</pre>
+<p id="author">Автор советов: Даниил Карапетян</p>
+<p>e-mail: delphi4all@narod.ru</p>
+<p id="author">Автор справки: Алексей Денисов</p>
+<p>e-mail: aleksey@sch103.krasnoyarsk.su</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

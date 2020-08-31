@@ -1,0 +1,105 @@
+<html>
+<head>
+  <title>Получение типа клавиатуры</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получение типа клавиатуры</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function GettingKeybType: string;  //Win95 or later and NT3.1 or later
+var
+  Flag:   integer;
+begin
+  Flag:=0;
+  Case GetKeyboardType(Flag) of
+    1:  Result:='IBM PC/XT or compatible (83-key) keyboard';
+    2:  Result:='Olivetti "ICO" (102-key) keyboard';
+    3:  Result:='IBM PC/AT (84-key) or similar keyboard';
+    4:  Result:='IBM enhanced (101- or 102-key) keyboard';
+    5:  Result:='Nokia 1050 and similar keyboards';
+    6:  Result:='Nokia 9140 and similar keyboards';
+    7:  Result:='Japanese keyboard';
+  end;
+end;
+</pre>
+
+
+<hr />
+<pre name="code" class="delphi">
+// The GetKeyboardType function retrieves information about the current keyboard. 
+ 
+function KeyBoardType: string;
+ begin
+   case GetKeyboardType(0) of
+     1: Result := 'IBM PC/XT or compatible (83-key) keyboard';
+     2: Result := 'Olivetti "ICO" (102-key) keyboard';
+     3: Result := 'IBM PC/AT (84-key) or similar keyboard';
+     4: Result := 'IBM enhanced or compatible';
+     5: Result := 'Nokia 1050 and similar keyboards';
+     6: Result := 'Nokia 9140 and similar keyboards';
+     7: Result := 'Japanese keyboard'
+       else
+          Result := 'Unrecognized keyboard type';
+   end;
+ end;
+ 
+ function KeyBoardSubype: Integer;
+ begin
+   Result := GetKeyboardType(1);
+ end;
+ 
+ function NumberOfFunctionKeys: string;
+ begin
+   case GetKeyboardType(3) of
+     1: Result := '20';
+     2: Result := '12/18';
+     3: Result := '10';
+     4: Result := '12';
+     5: Result := '10';
+     6: Result := '24';
+     7: Result := 'Hardware dependent'
+       else
+          Result := 'N/A';
+   end;
+ end;
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   label1.Caption := Format('Keyboard Type: %s', [KeyBoardType]);
+   Label2.Caption := Format('Keyboard Subtype: %d', [KeyBoardSubype]);
+   Label3.Caption := Format('Keyboard Subtype: %s', [NumberOfFunctionKeys]);
+ end;
+</pre>
+
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

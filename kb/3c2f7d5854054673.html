@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>Позиция дочерних MDI-окон</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Позиция дочерних MDI-окон</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Richard Cox </p>
+
+<p>Проблема, с котороя я столкнулся, заключается в том, что нижняя часть дочерней формы загораживает панель состояния родительской формы... </p>
+
+<p>У меня была аналогичная проблема -- она проявлялась при условии, когда свойство главной формы WindowState устанавливалось на wsMinimized. </p>
+
+<p>Вот мое решение: добавьте этот небольшой метод к вашей главной форме:</p>
+
+<pre name="code" class="delphi">
+interface
+ 
+procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
+ 
+implementation
+ 
+procedure TMainForm.CMShowingChanged(var Message: TMessage);
+var
+  theRect: TRect;
+begin
+  inherited;
+  theRect := GetClientRect;
+  AlignControls(nil, theRect);
+end;
+</pre>
+
+<p>Это работает, поскольку вызов AlignControls (в TForm) делает две вещи: </p>
+
+<p>выравнивает элементы управления (включая ваш проблемный StatusBar) и </p>
+<p>вновь позиционирует окно клиента относительно главной формы (оно ссылается на ClientHandle) после того, как элементы управления будут выравнены... что, впрочем, мы и хотели. </p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

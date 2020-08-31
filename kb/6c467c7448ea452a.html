@@ -1,0 +1,99 @@
+<html>
+<head>
+  <title>TWinControl</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TWinControl</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Класс TWinControl обеспечивает создание и использование оконных элементов управления (см. выше). Напомним, что оконный элемент управления имеет системный дескриптор окна hwnd. Однако оконными элементами являются не только формы и диалоги, но и большинство стандартных элементов управления. </p>
+<p>Новые механизмы, инкапсулированные в классе, обеспечивают выполнение характерных для оконных элементов функций: прием и передачу фокуса, отклик на действия мышью и ввод с клавиатуры и т. д. Рассмотрим основные свойства и методы класса. </p>
+<p>Дескриптор окна содержится в свойстве </p>
+<p>property Handle: HWND; </p>
+<p>При создании оконного элемента управления вызывается метод </p>
+<p>procedure CreateParams(var Params: TCreateParams); virtual; </p>
+<p>который заполняет структуру TCreateParams необходимыми значениями: </p>
+<pre name="code" class="delphi">
+type 
+TCreateParams = record  
+  Caption: PChar; 
+  Style: DWORD; 
+  ExStyle: DWORD; 
+  X, Y: Integer; 
+  Width, Height: Integer; 
+  WndParent: HWND; 
+  Param: Pointer 
+  WindowClass: TWndClass; 
+  WinClassName: array[0..63] of Char; 
+end;
+</pre>
+<p>Для создания дескриптора окна для элемента управления используется метод </p>
+<p>procedure CreateHandle; virtual; </p>
+<p>Операционная система создает дескриптор окна только вместе с самим окном. Поэтому метод CreateHandle только создает окно, а для присваивания свойству Handle значения дескриптора окна вызывает метод createwnd. </p>
+<p>Для передачи фокуса между элементами управления на одной форме часто используется клавиша &lt;Таb&gt;. Порядок перемещения фокуса между элементами определяется свойством </p>
+<p>type TTabOrder = -1..32767;&nbsp; </p>
+<p>property TabOrder: TTabOrder; </p>
+<p>В первую очередь фокус передается компоненту с минимальным значением свойства. Далее &#8212; по возрастанию значения. При переносе компонента на форму это значение задается автоматически в соответствии с числом компонентов на форме. </p>
+<p>Компонент можно заставить не откликаться на клавишу &lt;Таb&gt;. Для этого свойству </p>
+<p>property TabStop: Boolean; </p>
+<p>необходимо присвоить значение False. </p>
+<p>Для передачи фокуса прямо элементу управления применяется метод </p>
+<p>procedure SetFocus; virtual; </p>
+<p>Чтобы узнать, имеет ли элемент управления фокус, в настоящее время используется метод </p>
+<p>function Focused: Boolean; dynamic; </p>
+<p>Все оконные элементы имеют рамку по контуру (впрочем, она может быть не видна). Ее параметры задаются группой свойств: </p>
+<p>property BevelEdges: TBevelEdges;&nbsp; </p>
+<p>задает, какие стороны входят в рамку; </p>
+<p>property Bevellnner: TBevelCut; property BevelOuter: TBevelCut; </p>
+<p>задают внешний вид рамки; </p>
+<p>property BevelKind: TBevelKind; </p>
+<p>определяет стиль рамки; </p>
+<p>property BevelWidth: TBevelWidth; </p>
+<p>задает размер рамки. </p>
+<p> Свойство </p>
+<p>property Brush: TBrush; </p>
+<p>определяет параметры кисти (цвет и заполнение), которой рисуется фон элемента. </p>
+<p>Оконный элемент может содержать другие компоненты. Для управления ими применяется индексированный список указателей, представляющих свойство </p>
+<p>property Controls[Index: Integer]: TControl; </p>
+<p>Общее число дочерних элементов управления содержится в свойстве </p>
+<p>property ControlCount: Integer; </p>
+<p>Внешний вид оконного элемента определяется свойством </p>
+<p>property Ctl3D: Boolean </p>
+<p>При значении True элемент управления имеет трехмерный вид. Иначе элемент выглядит плоским. </p>
+<p>Для вызова темы контекстной помощи для конкретного элемента управления предназначено свойство </p>
+<p>type THelpContext = -MaxLonglnt..MaxLonglnt; </p>
+<p>property HelpContext: THelpContext; </p>
+<p>Значение свойства должно соответствовать номеру темы в файле помощи. </p>
+<p>В классе TwinControl добавлена возможность использования редакторов способа ввода (Input Method Editor, IME). Такие редакторы позволяют приспособить стандартную раскладку клавиатуры для символьных языков для ввода нестандартных символов (иероглифов и т. д.). Редакторы IMЕ представляют собой специально устанавливаемое в операционной системе программное обеспечение (ПО). Имя такого редактора задается в свойстве ImeName. Режим работы редактора определяется свойством ImeMode. </p>
+<p>В классе TwinControl добавлено еще несколько методов-обработчиков событий, обеспечивающих реакцию на ввод с клавиатуры, получение и потерю фокуса. </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<html>
+<head>
+  <title>Компонент PowerControl</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Компонент PowerControl</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Вопрос: А как реализовать в одном компоненте такие функции как выключение компьютера, перезагрузка, завершение сеанса работы пользователя, Eject CD, выключение питания монитора и т.д.? Ответ: предлагаем посмотреть следующий пример ...</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  PowerControl1.Action:=actCDEject;// Или... actLogOFF, actShutDown... 
+  PowerControl1.Execute; 
+end; 
+</pre>
+<p>Component Code: </p>
+<pre name="code" class="delphi">
+unit PowerControl; 
+ 
+interface 
+ 
+uses WinTypes, WinProcs, Messages, SysUtils, Classes, Controls, 
+     Forms, Graphics, MMSystem; 
+ 
+type 
+   TAction = (actLogOFF,actShutDown,actReBoot,actForce,actPowerOFF, 
+actForceIfHung,actMonitorOFF,actMonitorON,actCDEject,actCDUnEject); 
+ 
+type 
+  TPowerControl = class(TComponent) 
+    private 
+        FAction : TAction; 
+        procedure SetAction(Value : TAction); 
+    protected 
+    public 
+        function Execute : Boolean; 
+    published 
+        property Action : TAction read FAction write SetAction; 
+  end; 
+ 
+procedure Register; 
+ 
+implementation 
+ 
+procedure Register; 
+begin 
+     RegisterComponents('K2', [TPowerControl]); 
+end; 
+ 
+procedure TPowerControl.SetAction(Value : TAction); 
+begin 
+     FAction := Value; 
+end; 
+ 
+function TPowerControl.Execute : Boolean; 
+begin 
+    with (Owner as TForm) do 
+       case FAction of 
+         actLogOff: ExitWindowsEx(EWX_LOGOFF,1); 
+         actShutDown: ExitWindowsEx(EWX_SHUTDOWN,1); 
+         actReBoot: ExitWindowsEx(EWX_REBOOT,1); 
+         actForce: ExitWindowsEx(EWX_FORCE,1); 
+         actPowerOff: ExitWindowsEx(EWX_POWEROFF,1); 
+         actForceIfHung: ExitWindowsEx(EWX_FORCEIFHUNG,1); 
+         actMonitorOFF: SendMessage(Application.Handle, 
+                        WM_SYSCOMMAND, SC_MONITORPOWER, 0); 
+         actMonitorON: SendMessage(Application.Handle, WM_SYSCOMMAND, 
+                       SC_MONITORPOWER, -1); 
+         actCDEject: mciSendstring('SET CDAUDIO DOOR OPEN 
+                     WAIT',nil,0, Handle); 
+         actCDUnEject: mciSendstring('SET CDAUDIO DOOR CLOSED 
+                       WAIT',nil,0, Handle); 
+       end; {Case} 
+    Result := True; 
+end; 
+ 
+end.
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

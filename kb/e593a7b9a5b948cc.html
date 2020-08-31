@@ -1,0 +1,87 @@
+<html>
+<head>
+  <title>Как скрыть часики в панели задач?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как скрыть часики в панели задач?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Убираем часики:</p>
+<pre name="code" class="delphi">procedure TForm1.Button1Click(Sender: TObject);
+var hn: HWnd;
+begin
+  hn := FindWindowEx(FindWindowEx(FindWindow('Shell_TrayWnd', nil), 0, 'TrayNotifyWnd', nil), 0, 'TrayClockWClass', nil); 
+  if hn &lt;&gt; 0 then
+    ShowWindow(hn, SW_HIDE); //Bye,bye,Baby
+end;
+</pre>
+<p>Снова показываем:</p>
+<pre name="code" class="delphi">procedure TForm1.Button2Click(Sender: TObject);
+var hn: HWnd;
+begin
+  hn := FindWindowEx(FindWindowEx(FindWindow('Shell_TrayWnd', nil), 0, 'TrayNotifyWnd', nil), 0, 'TrayClockWClass', nil);
+  if hn &lt;&gt; 0 then
+    ShowWindow(hn, SW_SHOW); //Hello, again
+end;
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<hr />
+<pre name="code" class="delphi">
+function ShowTrayClock(bValue: Boolean) : Boolean; 
+var 
+  TrayWnd, TrayNWnd, ClockWnd: HWND; 
+begin 
+  TrayWnd  := FindWindow('Shell_TrayWnd', nil); 
+  TrayNWnd := FindWindowEx(TrayWnd, 0, 'TrayNotifyWnd', nil); 
+  ClockWnd := FindWindowEx(TrayNWnd, 0, 'TrayClockWClass', nil); 
+  Result := IsWindow(ClockWnd); 
+  if Result then 
+  begin 
+    ShowWindow(ClockWnd, Ord(bValue)); 
+    PostMessage(ClockWnd, WM_PAINT, 0, 0); 
+  end; 
+end; 
+ 
+// Example to hide they clock: 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+   ShowTrayClock(Boolean(0)); 
+end;
+</pre>
+
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

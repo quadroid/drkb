@@ -1,0 +1,47 @@
+<html>
+<head>
+  <title>Управление прокруткой TMemo</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Управление прокруткой TMemo</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+У меня имеется компонент TMemo, и мне необходимо автоматически "тормозить" программным способом его прокрутку при добавлении новой строки Memo.Lines.Add(Строка). </p>
+<p>В Delphi 2.0 простая установка 'SelStart:=0' НЕ срабатывает. Это ошибка в коде VCL. Значения различных частей 'сообщения' windows, используемые для "set selection" (установления выбранной части текста) в WIN32 были изменены (это использовалось для 'автоматической' прокрутки каретки/курсора, но больше не работает). </p>
+<p>Попробуйте добавить следующую строку ПОСЛЕ 'SelStart:=0;':</p>
+<pre name="code" class="delphi">SendMessage(Handle,EM_SCROLLCARET,0,0);
+</pre>
+<p>Это должно заставить компонент работать так, как вы и ожидаете. Я надеюсь что Borland знает об этой проблеме и скоро ее исправит. </p>
+<p>Здесь я должен пояснить, что ошибка как раз не в самом TMemo, а в TCustomEdit (в методе SetSelLength в stdctrls.pas). Поэтому данная проблема может наблюдаться во всех наследниках TCustomEdit (как TMemo).</p>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

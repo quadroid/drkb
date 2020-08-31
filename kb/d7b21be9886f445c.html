@@ -1,0 +1,107 @@
+<html>
+<head>
+  <title>Можно ли определить интернет адрес?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Можно ли определить интернет адрес?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ActiveX, SHDocVw, MSHTML_TLB, StdCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    Memo1: TMemo;
+    procedure FormCreate(Sender: TObject);
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+function GetHTMLCode(WB: IWebbrowser2; ACode: TStrings): Boolean;
+var
+  Range: IHTMLTxtRange;
+begin
+  Range := ((WB.Document as IHTMLDocument2).body as
+    IHTMLBodyElement).createTextRange;
+  ACode.Text :=  ACode.Text + Range.text;
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+var
+ ShellWindow: IShellWindows;
+ WB: IWebbrowser2;
+ spDisp: IDispatch;
+ IDoc1: IHTMLDocument2;
+ k: Integer;
+begin
+  ShellWindow := CoShellWindows.Create;
+  for k := 0 to ShellWindow.Count do
+  begin
+   spDisp := ShellWindow.Item(k);
+   if spDisp = nil then Continue;
+   spDisp.QueryInterface(IWebBrowser2, WB);
+   if WB &lt;&gt; nil then
+   begin
+     WB.Document.QueryInterface(IHTMLDocument2, iDoc1);
+     if iDoc1 &lt;&gt; nil then
+     begin
+       WB := ShellWindow.Item(k) as IWebbrowser2;
+       begin
+         Memo1.Lines.Add('****************************************');
+         Memo1.Lines.Add(WB.LocationURL);
+         Memo1.Lines.Add('****************************************');
+         GetHTMLCode(WB, Memo1.Lines);
+       end;
+     end;
+   end;
+  end;
+end;
+ 
+end.
+</pre>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: Rouse_</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

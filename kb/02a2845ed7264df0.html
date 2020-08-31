@@ -1,0 +1,67 @@
+<html>
+<head>
+  <title>Навигация в TWebBrowser по линкам</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Навигация в TWebBrowser по линкам</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  Flags, Headers, TargetFrameName, PostData: OLEVariant;
+  Url, Ref: string;
+  IEApp: OLEVariant;
+begin
+  try
+    IEApp := CreateOLEObject('InternetExplorer.Application');
+  except
+    Exit;
+  end;
+  IEApp.Visible := True;
+  IEApp.Top := 0;
+  IEApp.Left := 0;
+  IEApp.Width := Screen.Width;
+  IEApp.Height := Screen.Height;
+  Flags := '1';
+  TargetFrameName := '';
+  PostData := '';
+  Url := 'http://www.dach.de/weiterempfehlen.php';
+  Ref := 'http://www.dach.de/';
+  // u cannot navigate to the url above without this referer
+  Headers := 'Referer: ' + Ref + #10 + #13;
+  IEApp.Navigate(Url, Flags, TargetFrameName, PostData, Headers);
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

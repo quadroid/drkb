@@ -1,0 +1,87 @@
+<html>
+<head>
+  <title>Как можно открыть отчет (в режиме print preview а также print direct) в MS Access?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как можно открыть отчет (в режиме print preview а также print direct) в MS Access?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+var
+  Access: Variant;
+begin
+  // Открываем Access
+  try
+    Access := GetActiveOleObject('Access.Application');
+  except
+    Access := CreateOleObject('Access.Application');
+  end;
+  Access.Visible := True;
+ 
+  // Открываем базу данных
+  // Второй параметр указывает - будет ли база открыта в Exclusive режиме
+  Access.OpenCurrentDatabase('C:\My Documents\Books.mdb', True);
+ 
+  // открываем отч?т
+  {Значение второго пораметра может быть одним из следующих
+  acViewDesign, acViewNormal, or acViewPreview. acViewNormal,
+  которые устанавливаются по умолчанию, для печати отч?та.
+  Если Вы не используете библиотеку типов, то можете определить
+  эти значения следующими:
+ 
+  const
+  acViewNormal = $00000000;
+  acViewDesign = $00000001;
+  acViewPreview = $00000002;
+ 
+  Третий параметр - это имя очереди для текущей базы данных.
+  Четв?ртый параметр - это строка для SQL-евского WHERE -
+  то есть строка SQL, минус WHERE.}
+ 
+  Access.DoCmd.OpenReport('Titles by Author', acViewPreview, EmptyParam,
+    EmptyParam);
+ 
+  &lt; ... &gt;
+ 
+  // Закрываем базу данных
+  Access.CloseCurrentDatabase;
+ 
+  // Закрываем Access
+  {const
+  acQuitPrompt = $00000000;
+  acQuitSaveAll = $00000001;
+  acQuitSaveNone = $00000002;}
+  Access.Quit(acQuitSaveAll);
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<html>
+<head>
+  <title>Использование HTTP в Delphi</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Использование HTTP в Delphi</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Введение</p>
+<p>&nbsp;</p>
+<p>В связи с все большим вниманием, которое привлекает к себе Интернет, все больше людей становятся заинтересованы в сетевых технологиях. Данная статья посвящена программированию на Borland Delphi с использованием одного из самых популярных Интернет-протоколов - HTTP.</p>
+<p>А именно, здесь мы рассмотрим компонент TNMHTTP (NetMasters HTTP), который можно обнаружить на вкладке FastNet палитры компонентов Дельфи.</p>
+<p>Начнем с теории. Если Вы уже знаете, что такое HTTP и зачем он нужен, то пропустите следующий раздел.</p>
+<p>Зачем нужен HTTP</p>
+<p>&nbsp;</p>
+<p>Итак, где же используется HTTP? Если Вы хотя бы чуть-чуть заглядывали на Интернет-странички и встречались с термином Web, то наверняка обратили внимание на то, что адреса страничек, как правило, начинаются с http://. Протокол HTTP (HyperText Transfer Protocol) позволяет принимать и посылать не только гипертекстовые документы (типа html), но и любые другие (тексты (txt), изображения (gif, jpg), и т.д.). Ниже приведены типовые задачи, для выполнения которых необходимо использовать HTTP: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Браузеры - программы, позволяющие просматривать Интернет-странички; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Скачивальщики - программы, позволяющие скачивать из Интернета странички, рисунки и другие документы; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Чаты - программы, позволяющие общаться по сети. Часто документы HTTP используются для хранения сообщений (как, например, в конференциях). </td></tr></table></div><p>- Это лишь список некоторых из стандартных направлений программирования с использованием HTTP. Вы можете применять этот протокол для любых своих целей. Например, автоматические системы обновления данных, посылка запросов в Интернетовские базы, и еще множество всяческих других возможностей!</p>
+<p>Краткое описание свойств, методов и событий</p>
+<p>&nbsp;</p>
+<p>Ниже приведена таблица, содержащая наиболее краткое описание основных свойств, методов и событий компонента TNMHTTP:</p>
+<p>Свойства </p>
+<p>Body - строка, содержащая либо путь к файлу, в который будет записано тело http-документа (если св-во InputFileMode равно True), либо непосредственно само тело (если св-во InputFileMode равно False). Тип: string;</p>
+<p>Header - строка, содержащая либо путь к файлу, в который будет записан заголовок http-документа (если св-во InputFileMode равно True), либо непосредственно сам заголовок (если св-во InputFileMode равно False). Тип: string;</p>
+<p>HeaderInfo - структура, содержащая различную информацию о http-документе (подробней см. в help-файле). Тип: THeaderInfo;</p>
+<p>InputFileMode - тип записи результата. Значение True - запись в файлы, указанные в свойствах Body и Header, False - запись в сами эти свойства. Тип: Boolean;</p>
+<p>OutputFileMode - тип отсылаемых данных (методами Put, Post и Trace). Значение True - данные для отправки содержатся в файлах, указанных при вызове этих методов, а False - в самих аргументах этих методов. Тип: Boolean;</p>
+<p>Далее некоторые свойства, унаследованные от TPowerSock:</p>
+<p>BytesRecvd, BytesSent, BytesTotal - количество отправленных, принятых и общее количество байтов соотвественно. Тип: LongInt;</p>
+<p>Connected - показывает, установленно ли в данный момент соединение. Тип: Boolean;</p>
+<p>BeenCanceled - показывает, было ли прервано соединение с сервером. Тип: Boolean;</p>
+<p>Host - строка, содержащая хост-имя удаленного компьютера. Заполнять не надо, так как это свойство устанавливается автоматически при вызове методов Get, Put, Post и т.д. Тип: string. Port - Integer, содержащий порт удаленного компьютера (заполняется тоже автоматически);</p>
+<p>TimeOut - таймаут в миллисекундах. Тип: Integer;</p>
+<p>Еще есть множество свойств, но я пока остановлюсь на уже перечисленных. За дополнительной информацией обращайтесь к help-у по Дельфи.</p>
+<p>Методы </p>
+<p>Get(URL: string) - посылает запрос на указанный URL. Данные после выполнения этого запроса записываются в файлы или в сами свойства Body и Header (в зависимости от значения свойства InputFileMode);</p>
+<p>Head(URL: string) - посылает запрос на указанный URL. Данные после выполнения этого запроса записываются в файл или в само свойство Header (в зависимости от значения свойства InputFileMode). В отличие от метода Get, при вызове Head запрос отсылается только на заголовок http-документа;</p>
+<p>Post(URL, PostData: string) - посылает запрос на изменение http-документа (с адресом URL) на данные, содержащиеся в параметре PostData. Если OutputFileMode равен True, то в PostData должен содержаться путь к файлу, содержащему нужные данные.</p>
+<p>Put(URL, PutData: string) - посылает запрос на создание http-документа (с адресом URL), содержащего данные, переданные в параметре PutData. Если OutputFileMode равен True, то в PostData должен содержаться путь к файлу, содержащему нужные данные.</p>
+<p>Trace(URL, TraceData: string) - посылает запрос на получение отладочных данных (для отладки соединения с HTTP-сервером). Данные для запроса нужно указать в параметре TraceData. Если OutputFileMode равен True, то в TraceData должен содержаться путь к файлу, содержащему нужные данные.</p>
+<p>Delete(URL: string) - посылает запрос на удаление http-документа (с адресом URL).</p>
+<p>Далее некоторые методы, унаследованные от TPowerSock:</p>
+<p>Abort и Cancel - прерывают соединение и обмен данными;</p>
+<p>Disconnect - отсоединение от HTTP-сервера;</p>
+<p>События </p>
+<p>OnAuthenticationNeeded - возникает, когда сервер требует указания имени пользователя и пароля. В обработчике этого события (если оно возникнет) Вы должны ответить серверу, запонив нужными значениями соответствующие переменные. Примечание: Перед установлением соединения можно сразу заполнить поля UserID и Password в свойстве HeaderInfo;</p>
+<p>OnAboutToSend - возникает, когда компонент TNMHTTP собирается отправлять данные (запрос). В обработчике этого события можно заполнить дополнительной информацией свойство SendHeader;</p>
+<p>OnFailure - возникает, когда текущая операция завершилась неудачно, т.е. произошла ошибка;</p>
+<p>OnRedirect - возникает, сервер переадресовал ссылку с указанной URL на другую ссылку. Установив параметр handled в значение True можно запретить переадресацию и остановиться на запрошенной URL. Значение по умолчанию - False;</p>
+<p>OnSuccess - возникает, когда текущая операция завершилась успешно, т.е. запрос был выполнен без ошибок;</p>
+<p>Далее некоторые методы, унаследованные от TPowerSock:</p>
+<p>OnConnect - возникает, когда соединение с сервером успешно установлено;</p>
+<p>OnDisconnect - возникает, когда соединение с сервером завершено;</p>
+<p>OnConnectionFailed - возникает, когда соединение с сервером установить не удалось;</p>
+<p>OnError - возникает, когда последняя операция была завершена с ошибкой;</p>
+<p>OnHostResolved - возникает, когда от DNS получен IP-адрес указанного хоста;</p>
+<p>OnInvalidHost - возникает, когда DNS вернул ошибку при попытке определить IP-адрес указанного хоста;</p>
+<p>OnPacketRecvd - возникает, когда значения свойств BytesRecvd и BytesTotal изменены, т.е. была принята новая порция данных от сервера;</p>
+<p>OnPacketSent - возникает, когда значения свойств BytesSent и BytesTotal изменены, т.е. была отправлена новая порция данных на сервер;</p>
+<p>OnStatus - возникает, когда статус компонента был изменен (для обновления визуального оповещения пользователя);</p>
+<p>Практика и примеры</p>
+<p>&nbsp;</p>
+<p>Ну а теперь приступим к самому главному методу изучения - на примерах. Сразу замечу, что все приведенные здесь примеры можно скачать в полностью сделанных исходниках, щелкнув здесь.</p>
+<p>И самый первый пример - программа, позволяющая определить, существует ли заданный URL:</p>
+<p>Пример 1. Проверка существования указанной URL &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<pre name="code" class="delphi">
+{... Здесь идет заголовок файла и определение формы TForm1 и ее экземпляра Form1}
+ 
+{В форму нужно поместить кнопку TButton и одно поле TEdit. При нажатии на кнопку вызывается обработчик события OnClick - Button1Click. Перед этим в TEdit нужно ввести адрес URL.
+НЕ ЗАБУДЬТЕ ПОМЕСТИТЬ В ФОРМУ КОМПОНЕНТ TNMHTTP!}
+procedure Button1Click(Sender: TObject);
+begin
+  {Пытаемя получить заголовок}
+  NMHTTP1.Head(Edit1.Text);
+  {Если URL неверный, то здесь выскочит ошибка}
+end;
+</pre>
+
+<p>Пример 2. Скачивание указанной URL в заданный файл</p>
+<pre name="code" class="delphi">
+{... Здесь идет заголовок файла и определение формы TForm1 и ее экземпляра Form1}
+ 
+{В форму нужно поместить кнопку TButton и три поля TEdit. При нажатии на кнопку вызывается обработчик события OnClick - Button1Click. Перед этим в первый TEdit нужно ввести адрес URL, во второй - имя файла для заголовка, а в третий - имя файла для тела странички (html).
+НЕ ЗАБУДЬТЕ ПОМЕСТИТЬ В ФОРМУ КОМПОНЕНТ TNMHTTP!}
+procedure Button1Click(Sender: TObject);
+begin
+  {Пытаемся получить http-документ}
+  {Результат надо записать в файлы}
+  NMHTTP1.InputFileMode := True;
+  {А здесь указываем в какие именно файлы}
+  NMHTTP1.Header := Edit2.Text;
+  NMHTTP1.Body := Edit3.Text;
+  NMHTTP1.Get(Edit1.Text);
+end;
+</pre>
+
+<p>Пример 3. Одновременное скачивание указанных URL в заданный каталог</p>
+<pre name="code" class="delphi">
+{... Здесь идет заголовок файла и определение формы TForm1 и ее экземпляра Form1}
+ 
+{Описание класса отдельного процесса}
+type
+  THTTPThread = class(TThread)
+  private
+     {Для каждого процесса - создаем свой компонент TNMHTTP}
+    FHTTP: TNMHTTP;
+  protected
+{Execute вызывается при запуске процесса; override - заменяем существующую процедуру базового класса TThread}
+    procedure Execute; override;
+{DoWork - созданная нами функция, выполнение которой синхронизируется в Execute}
+    procedure DoWork;
+  public
+{URL - созданная нами строка, указывающая процессу, какой URL ему нужно скачать}
+    URL: string;
+  end;
+ 
+{В форму нужно поместить три кнопки TButton, одно поле TEdit и один список TListBox. При нажатии на кнопку Button1 вызывается обработчик события OnClick - Button1Click. Перед этим в TEdit нужно ввести путь к каталогу, в котором будут храниться скачанные файлы, а ListBox1 нужно заполнить списком URL-ов для скачивания (с помощью кнопок Add (Button2) и Delete (Button3)).}
+procedure TForm1.Button3Click(Sender: TObject);
+begin
+  {Удаление выделенного URL из списка}
+  if ListBox1.ItemIndex &gt;= 0 then
+    ListBox1.Items.Delete(ListBox1.ItemIndex);
+end;
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+  var s: string;
+begin
+  {Добавление URL в список}
+  s := InputBox('Добавить','Введите URL:','');
+  if s &lt;&gt; '' then
+    ListBox1.Items.Add(s);
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+  var i: Integer;
+begin
+  {Проверка на существование каталога}
+  if Length(Edit1.Text) &gt; 0 then
+    if not DirectoryExists(Edit1.Text) then
+      MkDir(Edit1.Text);
+  {Далее идет создание для каждого URL в списке своего процесса}
+  for i := 0 to ListBox1.Items.Count-1 do begin
+    with THTTPThread.Create(True) do begin
+      {Создаем приостановленную задачу, указываем ей ее URL и запускаем ее}
+      URL := ListBox1.Items[i];
+      Resume;
+    end;
+  end;
+end;
+ 
+  {Операторы процесса THTTPThread}
+ 
+procedure THTTPThread.Execute;
+begin
+  {Делаем так, чтобы каждый процесс выполнялся одновременно с другими (синхронизация)}
+  Synchronize(DoWork);
+end;
+ 
+procedure THTTPThread.DoWork;
+  var i: Integer;
+begin
+  {Создаем компонент TNMHTTP}
+  FHTTP := TNMHTTP.Create(Form1);
+  {Результат надо записывать в файлы}
+  FHTTP.InputFileMode := True;
+  {Подбираем имена для файлов}
+  i := 1;
+  while FileExists(Form1.Edit1.Text+'\page'+IntToStr(i)+'.htm') do
+    Inc(i);
+  {Указываем, в какие именно файлы класть результат}
+  FHTTP.Body := Form1.Edit1.Text+'\body'+IntToStr(i)+'.htm';
+  FHTTP.Header := Form1.Edit1.Text+'\header'+IntToStr(i)+'.txt';
+  {Пытаемся послать запрос}
+  FHTTP.Get(URL);
+  {Перед завершением процесса не забываем освободить память из-под компонента}
+  FHTTP.Free;
+end;
+</pre>
+
+<p>Замечания по алгоритмам типовых задач</p>
+<p>&nbsp;</p>
+<p>Если Вы собираетесь создать скачивалку сайтов, то Вам необходимо учитывать следующее (решить следующие проблемы): </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Нужно скачивать не только саму страничку в формате HTML, но и все входящие в нее рисунки (gif, jpg, и т.д.); </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>в некоторых случаях удобно скачивать не одну страничку, а несколько страниц, ссылки на которые находятся на первой из скачиваемых страничек. При этом нужно учитывать, что на страничке могут находиться и ссылки на другие сайты, поэтому необходимо анализировать скачиваемые ссылки (чтобы случайно не скачать весь Интернет). Для решения задачи со скачиванием нескольких страничек нужно использовать рекурсию; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>необходимо качественно информировать пользователя о ходе закачки. Т.е. показывать общее и скачанное количество информации; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>после скачивания нужно заменить Интернетовские ссылки на локальные, чтобы можно было просматривать странички в режиме offline. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td></td></tr></table></div><p>Эпилог</p>
+<p>&nbsp;</p>
+<p>В этой статье отображены основные приемы работы с компонентом TNMHTTP в Дельфи. Если у Вас есть вопросы - скидывайте их мне на E-mail: snick@mailru.com, а еще лучше - пишите в конференции этого сайта (Delphi. Общие вопросы), чтобы и другие пользователи смогли увидеть Ваш вопрос и попытаться на него ответить!</p>
+<p>Замечу, что TNMHTTP - не единственный компонент, релизующий доступ по протоколу HTTP. Есть и его аналоги с более расширенными возможностями, например, набор компонентов ICS (Internet Component Suite), в состав которого входит даже компонент FTPServer, позволяющий легко запрограммировать свой собственный сервер FTP для Windows. Этот набор можно скачать на сайте Delphi Super Page.</p>
+<p>Карих Николай. Московская область, г.Жуковский</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

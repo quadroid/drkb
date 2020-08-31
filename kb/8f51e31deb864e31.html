@@ -1,0 +1,87 @@
+<html>
+<head>
+  <title>Процедура заполнения компонента TTreeView данными из TDataSet-совместимой выборки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Процедура заполнения компонента TTreeView данными из TDataSet-совместимой выборки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Процедура заполнения компонента TTreeView данными из TDataSet-совместимой выборки
+ 
+Процедура заполнения компонента TTreeView данными из TDataSet-совместимой
+выборки типа: idNode int, idParentNode int, cNodeName varchar, ...
+ 
+Важно: корневой узел дерева должен быть первой записью выборки.
+ 
+Зависимости: Windows, SysUtils, DB, ComCtrls
+Автор:       Delirium, Master_BRAIN@beep.ru, ICQ:118395746, Москва
+Copyright:   Master BRAIN (Delirium)
+Дата:        18 октября 2002 г.
+***************************************************** }
+ 
+procedure FillTree(Tree: TTreeView; Query: TDataSet; idNode, idParent,
+  cNodeName: string);
+var
+  i: integer;
+begin
+  // Корневой узел, должен быть первым в выборке Query
+  Query.First;
+  Tree.Items.Clear;
+  Tree.Items.AddObject(nil, Query.FieldByName(cNodeName).AsString,
+    Pointer(Query.FieldByName(idNode).asInteger));
+  Query.Next;
+  while not Query.Eof do
+  begin
+    i := 0;
+    while i &lt; Tree.Items.Count do
+      if Tree.Items.Item[i].Data = Pointer(Query.FieldByName(idParent).asInteger)
+        then
+      begin
+        Tree.Items.AddChildObject(Tree.Items.Item[i],
+          Query.FieldByName(cNodeName).AsString,
+          Pointer(Query.FieldByName(idNode).asInteger));
+        break;
+      end
+      else
+        Inc(i);
+    Query.Next;
+  end;
+end;
+</pre>
+<p>Пример использования: </p>
+<pre name="code" class="delphi">
+FillTree(TreeView1, ADOQuery1, 'idDoc', 'idParentDoc', 'cDocument');
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

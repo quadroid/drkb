@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>TClientDataSet: утечка памяти при загрузке XML</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TClientDataSet: утечка памяти при загрузке XML</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Hапpимеp, если делаем: </p>
+
+<pre name="code" class="delphi">
+ClientDataSet.LoadFromFile('c:\tmp\1.xml');
+ClientDataSet.Close;
+</pre>
+
+
+<p>то видим, что память выделилась, но не освободилась. </p>
+
+<p>Если даже делать ClientDataSet.Create и ClientDataSet.Free то все pавно будут утечки. </p>
+
+<p>Пpобовал также пеpед закpытием: </p>
+<pre name="code" class="delphi">
+ClientDataSet.EmptyDataSet;
+ClientDataSet.CancelUpdates;
+ClientDataSet.LogChanges := False;
+ClientDataSet.MergeChangeLog;
+ClientDataSet.FieldDefs.Clear;
+ClientDataSet.IndexDefs.Clear;
+ClientDataSet.Params.Clear;
+ClientDataSet.Aggregates.Clear;
+ClientDataSet.IndexName := '';
+ClientDataSet.IndexFieldNames := '';
+</pre>
+
+
+<p>Все pавно не помогает. </p>
+
+<p>Решения не нашел. Тестировал под D5 под W2000, W98. Также брал midas.dll от D6. Проблема осталась. </p>
+
+<p>КОММЕНТАРИЙ </p>
+
+<p>Действительно, проверка показывает, что при загрузке данных из XML-файла последующее закрытие ClientDataSet не освобождает часть выделенной памяти. Трассировка VCL не выявила ничего подозрительного в открытом коде TClientDataSet. Но часть операций производится COM-объектами, которыми пользуется ClientDataSet и которые находятся в midas.dll. </p>
+
+<p>Установлено, что утечка памяти отсутствует, если данные в ClientDataSet поступают через провайдера, либо при загрузке из файла формата CDS (в котором ClientDataSet сохраняет данные по-умолчанию). </p>
+
+<p>Следовательно, мы имеем проблему при локальном использовании ClientDataSet с файлом XML. Вероятно, в midas.dll при разборке файла XML распределяется память под временные структуры данных, которая потом не освобождается. </p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

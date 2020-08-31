@@ -1,0 +1,60 @@
+<html>
+<head>
+  <title>Как получить Handle рабочего стола</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить Handle рабочего стола</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Рабочий стол перекрыт сверху компонентом ListView. Вам просто необходимо взять хэндл этого органа управления. Пример: </p>
+<pre name="code" class="delphi">
+function GetDesktopListViewHandle: THandle;
+var
+  S: string;
+begin
+  Result := FindWindow('ProgMan', nil);
+  Result := GetWindow(Result, GW_CHILD);
+  Result := GetWindow(Result, GW_CHILD);
+  SetLength(S, 40);
+  GetClassName(Result, PChar(S), 39);
+  if PChar(S) &lt;&gt; 'SysListView32' then
+    Result := 0;
+end;
+</pre>
+<p>После того, как Вы взяли тот хэндл, Вы можете использовать API этого ListView, определенный в модуле CommCtrl, для того, чтобы манипулировать рабочим столом. Смотрите тему "LVM_xxxx messages" в оперативной справке по Win32. </p>
+<p>К примеру, следующая строка кода: </p>
+<pre name="code" class="delphi">
+SendMessage(GetDesktopListViewHandle, LVM_ALIGN, LVA_ALIGNLEFT, 0);
+</pre>
+<p>разместит иконки рабочего стола по левой стороне рабочего стола Windows. </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

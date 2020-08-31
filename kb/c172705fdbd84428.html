@@ -1,0 +1,56 @@
+<html>
+<head>
+  <title>Групповые опперации с контролами</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Групповые опперации с контролами</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Если например эти 10 CheckBox все время используются для групповых операций, чтобы не перебирать компоненты можно сделать так.</p>
+<p>1) Берем ставим на форму 10 CheckBox</p>
+<p>2) объявляем массив</p>
+<pre name="code" class="delphi">
+var arr:array[1..10] of TCheckBox
+</pre>
+<p>3) Далее присваиваем указатели массиву:</p>
+<pre name="code" class="delphi">
+
+For i:=1 to 10 do
+  arr[i]:=FindComponent(Format('CheckBox%d',[i])) as TCheckBox;
+</pre>
+<p>Все, теперь к каждому CheckBox можно обратится как к элементу массива:</p>
+<p>arr[5].checked:=true;</p>
+<p>Так как здесь массив статический никаких действий по освобождению памяти делать не надо, по уничтожении компонентов деструктором формы элементы массива будут показывать вникуда. В любом случае этот массив занимает в памяти 40 байт - не большая плата за скорость и удобство.</p>
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

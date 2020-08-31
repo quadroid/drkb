@@ -1,0 +1,80 @@
+<html>
+<head>
+  <title>Как получить размер развернутого TComboBox?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить размер развернутого TComboBox?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В течение события FormShow, выпадающему списке дважды посылается сообщение CB_SHOWDROPDOWN , один раз, чтобы он открылся, а второй - чтобы свернулся. Затем посылается сообщение CB_GETDROPPEDCONTROLRECT, передающее адрес TRect. </p>
+
+<p>Когда вызов SendMessage возвращается, то TRect будет содержать прямоугольник, который соответствует раскрытому ComboBox-у относительно окна. Затем можно вызвать ScreenToClient для преобразования координат TRect-а в координаты относительно клиентской области формы.</p>
+<pre name="code" class="delphi">
+var 
+  R : TRect; 
+ 
+procedure TForm1.FormShow(Sender: TObject); 
+var 
+  T : TPoint; 
+begin 
+  SendMessage(ComboBox1.Handle, 
+              CB_SHOWDROPDOWN, 
+              1, 
+              0); 
+  SendMessage(ComboBox1.Handle, 
+              CB_SHOWDROPDOWN, 
+              0, 
+              0); 
+  SendMessage(ComboBox1.Handle, 
+              CB_GETDROPPEDCONTROLRECT, 
+              0, 
+              LongInt(@r)); 
+  t := ScreenToClient(Point(r.Left, r.Top)); 
+  r.Left := t.x; 
+  r.Top := t.y; 
+  t := ScreenToClient(Point(r.Right, r.Bottom)); 
+  r.Right := t.x; 
+  r.Bottom := t.y; 
+end; 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  Form1.Canvas.Rectangle(r.Left, 
+                         r.Top, 
+                         r.Right, 
+                         r.Bottom ); 
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

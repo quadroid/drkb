@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Получить содержимое TStringGrid или TDrawGrid в виде строки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получить содержимое TStringGrid или TDrawGrid в виде строки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+ This copies the contents of a TstringGrid/TDrawGrid (only Text!!) into a string. 
+ Tabs are inserted between the columns, CR+LF between rows. 
+}
+ 
+ use
+   Grids;
+ 
+ {...}
+ 
+ { we need this Cracker Class because the Col/RowCount property 
+  is not public in TCustomGrid }
+ type
+   TGridHack = class(TCustomGrid);
+ 
+ function GetstringGridText(_Grid: TCustomGrid): string;
+ var
+   Grid: TGridHack;
+   Row, Col: Integer;
+   s: string;
+ begin
+   // Cast the paramter to a TGridHack, so we can access protected properties 
+  Grid   := TGridHack(_Grid);
+   Result := '';
+   // for all rows, then for all columns 
+  for Row := 0 to Grid.RowCount - 1 do
+   begin
+     for Col := 0 to Grid.ColCount - 1 do
+     begin
+       // the first column does not need the tab 
+      if Col &gt; 0 then
+         Result := Result + #9;
+       Result := Result + Grid.GetEditText(Col, Row);
+     end;
+     Result := Result + #13#10;
+ end;
+ end;
+</pre>
+
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

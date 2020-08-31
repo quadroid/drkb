@@ -1,0 +1,67 @@
+<html>
+<head>
+  <title>Получение ссылки на экземпляр класса</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получение ссылки на экземпляр класса</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>...мне также понадобилось в подпрограмме получить ссылку на дочернее MDI-окно без сообщения подпрограмме с каким конкретно классом MDI необходимо работать. Что я сделал: я передавал в виде параметров тип дочернего MDI-окна и ссылку как нетипизированную переменную и затем обрабатывал это в подпрограмме.</p>
+
+<p>Вот пример. Эта подпрограмма работает с дочерним окном, которое может иметь только один экземпляр. Если оно не открыто, подпрограмма создаст его, если оно открыто, оно переместит его на передний план.</p>
+
+<pre name="code" class="delphi">
+procedure FormLoader(FormClassType: TFormClass; var FormName);
+begin
+  if TForm(FormName) = nil then
+    begin
+      Application.CreateForm(FormClassType, FormName);
+    end
+  else
+    begin
+      TForm(FormName).BringToFront;
+      TForm(FormName).WindowState := wsNormal;
+    end;
+end;
+ 
+Вот как это вызывать:
+ 
+procedure TfrmTest.sbOpenClick(Sender: TObject);
+begin
+  FormLoader(TfrmTest, frmTest);
+end;
+</pre>
+
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

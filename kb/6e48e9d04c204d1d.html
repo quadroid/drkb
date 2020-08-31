@@ -1,0 +1,116 @@
+<html>
+<head>
+  <title>Как найти все форматы бумаги, поддерживаемые принтером?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как найти все форматы бумаги, поддерживаемые принтером?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses 
+  Printers, WinSpool; 
+ 
+procedure GetPapernames(sl: TStrings); 
+type 
+  TPaperName      = array [0..63] of Char; 
+  TPaperNameArray = array [1..High(Word) div SizeOf(TPaperName)] of TPaperName; 
+  PPapernameArray = ^TPaperNameArray; 
+var 
+  Device, Driver, Port: array [0..255] of Char; 
+  hDevMode: THandle; 
+  i, numPaperformats: Integer; 
+  pPaperFormats: PPapernameArray; 
+begin 
+  Printer.PrinterIndex := -1; // Standard printer 
+  Printer.GetPrinter(Device, Driver, Port, hDevmode); 
+  numPaperformats := WinSpool.DeviceCapabilities(Device, Port, DC_PAPERNAMES, nil, nil); 
+  if numPaperformats  0 then  
+  begin 
+    GetMem(pPaperformats, numPaperformats * SizeOf(TPapername)); 
+    try 
+      WinSpool.DeviceCapabilities(Device, Port, DC_PAPERNAMES, 
+        PChar(pPaperFormats), nil); 
+      sl.Clear; 
+      for i := 1 to numPaperformats do sl.Add(pPaperformats^[i]); 
+    finally 
+      FreeMem(pPaperformats); 
+    end; 
+  end; 
+end; 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  GetPapernames(memo1.Lines); 
+end; 
+</pre>
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+<hr /><p>
+</p>
+<p>Вот пример, выводящий список форматов бумаги для принтера, установленного по умолчанию:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button2Click(Sender: TObject);
+type
+ 
+  TPaperName = array[0..63] of Char;
+  TPaperNameArray = array[1..High(Cardinal) div Sizeof(TPaperName)] of
+    TPaperName;
+  PPapernameArray = ^TPaperNameArray;
+var
+ 
+  Device, Driver, Port: array[0..255] of Char;
+  hDevMode: THandle;
+  i, numPaperformats: Integer;
+  pPaperFormats: PPapernameArray;
+begin
+ 
+  Printer.PrinterIndex := -1;
+  Printer.GetPrinter(Device, Driver, Port, hDevmode);
+  numPaperformats :=
+    WinSpool.DeviceCapabilities(Device, Port, DC_PAPERNAMES, nil, nil);
+  if numPaperformats &gt; 0 then
+    begin
+      GetMem(pPaperformats, numPaperformats * Sizeof(TPapername));
+      try
+        WinSpool.DeviceCapabilities(Device, Port, DC_PAPERNAMES,
+          Pchar(pPaperFormats), nil);
+        memo1.clear;
+        for i := 1 to numPaperformats do
+          memo1.lines.add(pPaperformats^[i]);
+      finally
+        FreeMem(pPaperformats);
+      end;
+    end;
+end;
+</pre>
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

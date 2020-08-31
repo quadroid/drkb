@@ -1,0 +1,64 @@
+<html>
+<head>
+  <title>Отследить завершение работы, перезагрузку, смену пользователя в Windows</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Отследить завершение работы, перезагрузку, смену пользователя в Windows</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p> &nbsp; &nbsp; &nbsp; &nbsp;Очень часто мы сталкиваемся с проблемой, когда наша программа будучи запущенная в фоне и/или свёрнутая, например, в панель задач должна что-то сделать, когда Windows выключается, перезагружается или просто меняется пользователь.</p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp;Если мы не будем отслеживать такую ситуацию, то в худшем случае у нас могут просто потеряться какие-либо данные или Windows просто не сможет выполнить перезагрузку до конца. Ей будет мешать наша программа. Не нужно думать, что Windows перед перезагрузкой рассылает приложениям сообщения о закрытии, так чтобы у тех выпаолнились обработчкики TForm.onCloseQuery/onClose.</p>
+<p>ОС Windows отсылает перед перезагрузкой, выключением или сменой пользователя сообщения WM_QUERYENDSESSION, а потом по его успешному завершению WM_ENDSESSION. Наше приложение должно поймать эти сообщения и отреагировать так чтобы дать понять, что мы согласны перезагружаться. В частности на сообщение WM_QUERYENDSESSION мы должны вернуть не 0:</p>The WM_QUERYENDSESSION message is sent when the user chooses to end the Windows session or when an application calls the ExitWindows function. If any application returns zero, the Windows session is not ended. Windows stops sending WM_QUERYENDSESSION messages as soon as one application returns zero.  &nbsp; &nbsp; &nbsp; 
+<p>Практически мы уже здесь можем завершить свою программу.</p>
+<p>В случае если те действия, которые выполняются при наступлении перезагрузки не велики по величине времени их выполнения, можно не обрабатывать WM_QUERYENDSESSION, а обойтись просто сообещением WM_ENDSESSION. В параметре WParam этого сообщения поступает как раз тот результат, который мы вернули (или не вернули) из сообщения WM_QUERYENDSESSION:</p>
+<pre name="code" class="delphi">
+protected procedure IsWindowsShutDown(var Msg: TMessage);WM_ENDSESSION;
+..
+ 
+ 
+ 
+procedure TForm1.IsWindowsShutDown(var Msg: TMessage);
+begin 
+  inherited;
+  if Msg.WParam = 1 then MainForm.Close; // выгружаем приложение 
+End;
+</pre>
+
+
+
+<p>Если нам нужно что-то сделать ещё (например удалить какой-либо файл или записать какую-нибудь информацию), применительно для вышеприведённого примера это можно сделать в обработчиках onCloseQuery/onClose формы.</p>
+<p>Процедуру IsWindowsShutDown() мы должны описать в классе того окна, которое будет принимать данное сообщение т.е. формы.</p>
+
+<p id="author">Автор: Song</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

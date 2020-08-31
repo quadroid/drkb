@@ -1,0 +1,106 @@
+<html>
+<head>
+  <title>Как программно добавить принтер?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как программно добавить принтер?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Чтобы программно добавить принтер, необходимо воспользоваться API функцией AddPrinter, которая имеет три параметра: </p>
+
+<table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>Имя принтера </td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>Уровень печати </td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="13">&#183;</td><td>Описание принтера </td></tr></table>
+<p>Следующий пример является надстройкой для этой функции. Для этого необходимо знать Имя принтера, которое будет отображаться в Проводнике, имя порта, к которому подключён принтер (т.е. LPT1:), имя драйвера (прийдётся посмотреть вручную) и имя процессора печати (который обычно "winprint"). </p>
+
+<pre name="code" class="delphi">
+unit unit_AddPrinter;
+ 
+interface
+ 
+function AddAPrinter(PrinterName, PortName,
+DriverName, PrintProcessor: string): boolean;
+ 
+implementation
+ 
+uses
+  SysUtils,
+  WinSpool,
+  Windows;
+ 
+function AddAPrinter(PrinterName, PortName,
+DriverName, PrintProcessor: string):     boolean;
+var 
+  pName: PChar; 
+  Level: DWORD; 
+  pPrinter: PPrinterInfo2; 
+begin 
+ 
+  pName := nil; 
+  Level := 2; 
+  New(pPrinter); 
+  pPrinter^.pServerName := nil; 
+  pPrinter^.pShareName := nil; 
+  pPrinter^.pComment := nil; 
+  pPrinter^.pLocation := nil; 
+  pPrinter^.pDevMode := nil;
+  pPrinter^.pSepFile := nil; 
+  pPrinter^.pDatatype := nil; 
+  pPrinter^.pParameters := nil; 
+  pPrinter^.pSecurityDescriptor := nil; 
+  pPrinter^.Attributes := 0;
+  pPrinter^.Priority := 0;
+  pPrinter^.DefaultPriority := 0;
+  pPrinter^.StartTime := 0;
+  pPrinter^.UntilTime := 0;
+  pPrinter^.Status := 0;
+  pPrinter^.cJobs := 0;
+  pPrinter^.AveragePPM :=0;
+ 
+  pPrinter^.pPrinterName := PCHAR(PrinterName);
+  pPrinter^.pPortName := PCHAR(PortName);
+  pPrinter^.pDriverName := PCHAR(DriverName);
+  pPrinter^.pPrintProcessor := PCHAR(PrintProcessor);
+ 
+  if AddPrinter(pName, Level, pPrinter) &lt;&gt; 0 then
+    Result := true
+  else
+  begin
+    // ShowMessage(inttostr(GetlastError));
+    Result := false;
+  end;
+end;
+ 
+end.
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

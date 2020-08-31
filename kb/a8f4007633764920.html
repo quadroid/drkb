@@ -1,0 +1,106 @@
+<html>
+<head>
+  <title>Преобразование изображения в оттенки серого</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Преобразование изображения в оттенки серого</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// Используется функция преобразования изображения в оттенки серого
+  // взятая из UBPFD - http://delphibase.endimus.com/
+  // автор: Николай Федоровских - mailto: chook_nu@uraltc.ru
+  procedure ModColors(Bitmap: TBitmap; Color: TColor);
+    function GetR(const Color: TColor): Byte;
+    //извлечение красного
+    begin
+      Result := Lo(Color);
+    end;
+    function GetG(const Color: TColor): Byte;
+    //извлечение зелёного
+    begin
+      Result := Lo(Color shr 8);
+    end;
+    function GetB(const Color: TColor): Byte;
+    //извлечение синего
+    begin
+      Result := Lo((Color shr 8) shr 8);
+    end;
+    function BLimit(B: Integer): Byte;
+    begin
+      if B &lt; 0 then Result := 0
+        else if B &gt; 255 then Result := 255
+          else Result := B;
+    end;
+  type TRGB = record
+         B, G, R: Byte;
+       end;
+       pRGB = ^TRGB;
+  var r1, g1, b1: Byte;
+      x, y: Integer;
+      Dest: pRGB;
+      A: Double;
+  begin
+    Bitmap.PixelFormat := pf24Bit;
+    r1 := Round(255 / 100 * GetR(Color));
+    g1 := Round(255 / 100 * GetG(Color));
+    b1 := Round(255 / 100 * GetB(Color));
+    for y := 0 to Bitmap.Height - 1 do begin
+      Dest := Bitmap.ScanLine[y];
+      for x := 0 to Bitmap.Width - 1 do begin
+        with Dest^ do begin
+          A := (r + b + g) / 300;
+          with Dest^ do begin
+            R := BLimit(Round(r1 * A));
+            G := BLimit(Round(g1 * A));
+            B := BLimit(Round(b1 * A));
+            // Небольшая поправка к оригинальной функции
+            if (R=255) and (G=255) and (B=255) then begin
+              R:= 216;
+              G:= 212;
+              B:= 240;
+            end;
+          end;
+        end;
+        Inc(Dest);
+      end;
+    end;
+  end;
+</pre>
+
+<p>пример использования:</p>
+<pre name="code" class="delphi">
+ModColors(BitMap, RGB(150,150,150));
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

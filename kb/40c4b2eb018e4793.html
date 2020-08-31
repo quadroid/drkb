@@ -1,0 +1,180 @@
+<html>
+<head>
+  <title>Как показать иконку, ассоциированную с данным типом файла?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как показать иконку, ассоциированную с данным типом файла?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses
+  ShellAPI;
+...
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  Icon: hIcon;
+  IconIndex: word;
+begin
+  IconIndex := 1;
+  Icon := ExtractAssociatedIcon(HInstance,
+    Application.ExeName, IconIndex);
+  DrawIcon(Canvas.Handle, 10, 10, Icon);
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Получение иконки для зарегистрированного расширения по его имени
+ 
+Функции в качестве параметра передаётся имя файла и в случае удачного выполнения
+она (функция) возвращает handle'р иконки (HICON). В случае, если в реестре небыло
+найдено расширения предложеного файла, функция возвращает 0.
+ 
+Также при успешном выполнении необходимо освободить хендлер. Для этого используется
+функция DestroyIcon(Handle:HICON).
+ 
+Зависимости: модуль Registry, модуль ShellAPI, модуль SysUtils и стандартные
+функции Pos, Delete, Copy, ExtractFileExt, ExtractIcon, StrToInt.
+ 
+Автор:       Poirot, poirot@rol.ru, Нижний Новгород
+Copyright:   Poirot (частично из Delphi 5. Руководство разработчика)
+Дата:        16 июня 2002 г.
+***************************************************** }
+ 
+function GetRegistryIconHandle(FileName: string): HICON;
+var
+  R: TRegistry;
+  Alias, //псевдвним для расширения в реестре
+  IconPath: string; //путь для файла с иконкой
+  IconNum, //номер иконки в файле
+  QPos: Integer; //позиция запятой в записи реестра
+begin
+  IconNum := 0;
+ 
+  R := TRegistry.Create;
+ 
+  try
+    R.RootKey := HKEY_CLASSES_ROOT;
+ 
+    //чтение псевданима
+    if R.OpenKey('\' + ExtractFileExt(FileName), True) then
+      Alias := R.ReadString('');
+    R.CloseKey;
+ 
+    //чтение записи об иконке
+    if R.OpenKey('\' + Alias + '\DefaultIcon', True) then
+      IconPath := R.ReadString('');
+    R.CloseKey;
+ 
+    //поиск запятой
+    QPos := Pos(',', IconPath);
+ 
+    //чтение номера иконки в файле если она имеется
+    if QPos &lt;&gt; 0 then
+    begin
+      IconNum := StrToInt(Copy(IconPath, QPos + 1, 4));
+      IconPath := Copy(IconPath, 1, QPos - 1)
+    end;
+ 
+  finally
+    R.Free;
+  end;
+ 
+  //передача хендлера иконки как рещультат выполнения
+  Result := ExtractIcon(hInstance, PChar(IconPath), IconNum);
+end;
+Пример использования: 
+ 
+GetRegistryIconHandle('c:\winnt\win.ini');
+</pre>
+&nbsp;</p>
+<hr />
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Получение системной иконки, ассоциированной с файлом в данной системе
+ 
+Функция позволяет получить такую же иконку любой директории или любого файла,
+какую вы видите в "проводнике". Размеры - 16 * 16 (по умолчанию) или 32 * 32
+(второй параметр - itLarge)
+ 
+Зависимости: Юниты VCL + ComObj, ActiveX, ShellApi, ShlObj;
+Автор:       Дмитрий Баранов, kda@pisem.net, Москва
+Copyright:   Взято из MSDN
+Дата:        20 мая 2002 г.
+***************************************************** }
+ 
+type
+  TIconType = (itSmall, itLarge);
+ 
+function GetIcon(const FileName: string; const IconType: TIconType = itSmall):
+  TIcon;
+var
+  FileInfo: TShFileInfo;
+  ImageList: TImageList;
+  IT: DWORD;
+begin
+  // CoInitialize; лучше - поместите вызов этой ф. в раздел initialization
+  IT := SHGFI_SMALLICON;
+  Result := TIcon.Create;
+  ImageList := TImageList.Create(nil);
+  if (IconType = itLarge) then
+  begin
+    IT := SHGFI_LARGEICON;
+    ImageList.Height := 32;
+    ImageList.Width := 32;
+  end;
+  FillChar(FileInfo, Sizeof(FileInfo), #0);
+  ImageList.ShareImages := true;
+  ImageList.Handle := SHGetFileInfo(
+    PChar(FileName),
+    SFGAO_SHARE,
+    FileInfo,
+    sizeof(FileInfo),
+    IT or SHGFI_SYSICONINDEX
+    );
+  ImageList.GetIcon(FileInfo.iIcon, Result);
+  ImageList.Free;
+  { Не забывайте освободить полученную иконку }
+end;
+Пример использования: 
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  Icon: TIcon;
+begin
+  Self.Icon := GetIcon('C:\');
+end;
+ 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

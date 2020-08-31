@@ -1,0 +1,92 @@
+<html>
+<head>
+  <title>Найти все ссылки в TMemo</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Найти все ссылки в TMemo</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  For this tip you need Memo1, ListBox1, Label1, Button1. 
+ 
+}
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ var
+    i, p: Integer;
+   s: string;
+ begin
+   ListBox1.Clear;
+   for i := 0 to Memo1.Lines.Count - 1 do
+   begin
+     if Pos('http://', Memo1.Lines.Strings[i]) &gt; 0 then
+     begin
+       s := '';
+       {If the current line contains a "http://", read on until a space is found 
+ 
+       Die aktuelle Zeile wird nach der Zeichenfolge "http://" durchsucht 
+       und bei Erfolg ab der gefundenen Position ausgelesen, bis ein 
+       Leerzeichen auftritt...}
+ 
+       for p := Pos('http://', Memo1.Lines.Strings[i]) to
+         Length(Memo1.Lines.Strings[i]) do
+         if Memo1.Lines.Strings[i][p] &lt;&gt; ' ' then
+           s := s + Memo1.Lines.Strings[i][p]
+       else
+         break;
+ 
+        {Remove some characters if address doesn't end with a space 
+ 
+       Falls die gefundene Adresse nicht mit einem Leerzeichen abschlie?t, 
+       werden hier noch anhangende Textzeichen entfernt...}
+ 
+       while Pos(s[Length(s)], '..;!")]}?''&gt;') &gt; 0 do
+         Delete(s, Length(s), 1);
+       // Add the Address to the list... 
+      //Gefundene Adresse in die Liste aufnehmen... 
+      ListBox1.Items.Add(s);
+     end;
+   end;
+ 
+   // Show the number of Addresses in Label1 
+  // Die Zahl der gefundenen Adressen in Label1 anzeigen... 
+ 
+  if ListBox1.Items.Count &gt; 0 then
+     label1.Caption := IntToStr(ListBox1.Items.Count) +
+       ' Adresse(n) gefunden.'
+   else
+     label1.Caption := 'Keine Adresse gefunden.';
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

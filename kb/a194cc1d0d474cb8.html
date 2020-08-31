@@ -1,0 +1,153 @@
+<html>
+<head>
+  <title>Как создать новый DSN из программы?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как создать новый DSN из программы?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+type
+
+ 
+  TSQLConfigDataSource =
+    function(hwndParent: Integer;
+    fRequest: Integer;
+    lpszDriverString: string;
+    lpszAttributes: string): Smallint; stdcall;
+ 
+function SQLConfigDataSource(hwndParent: Integer; fRequest: Integer;
+  lpszDriverString: string; lpszAttributes: string): Integer; stdcall;
+var
+  func: TSQLConfigDataSource;
+  OdbccpHMODULE: HMODULE;
+ 
+begin
+  OdbccpHMODULE := LoadLibrary('c:\WINDOWS\SYSTEM\odbccp32.dll');
+  if OdbccpHMODULE = 0 then raise Exception.Create(SysErrorMessage(GetLastError));
+  func := GetProcAddress(OdbccpHMODULE, PChar('SQLConfigDataSource'));
+  if @func = nil then
+    raise Exception.Create('Error Getting adress for SQLConfigDataSource' +
+      SysErrorMessage(GetLastError));
+  Result := func(hwndParent, fRequest, lpszDriverString, lpszAttributes);
+  FreeLibrary(OdbccpHMODULE);
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  if SQLConfigDataSource(0, 1, 'Microsoft Excel Driver (*.xls)', Format('DSN=%s;DBQ=%s;DriverID=790', ['MyDSNName', 'c:\temp\temp.xls'])) &lt;&gt; 1 then
+    ShowMessage('Cannot create ODBC alias');
+end;
+</pre>
+<p>PS. Ecли вы собираетесь работать с этим DSN через BDE, то надо закрыть и открыть Session, иначе он не будет доступен.</p>
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<p id="author">Автор: Olivio Moura</p>
+<p>Этот пример показывает один из способов создания ODBC драйвера для доступа к файлу Access MDB. Подобная операция применима к большинству файлов баз данных. Естевственно, Вам потребуется MDB файл, для того, чтобы связать его с DSN.</p>
+<pre name="code" class="delphi">
+const 
+  ODBC_ADD_DSN        = 1;    // Добавляем источник данных 
+  ODBC_CONFIG_DSN     = 2;    // Конфигурируем (редактируем) источник данных 
+  ODBC_REMOVE_DSN     = 3;    // Удаляем источник данных 
+  ODBC_ADD_SYS_DSN    = 4;    // Добавляем системный DSN 
+  ODBC_CONFIG_SYS_DSN = 5;    // Конфигурируем системный DSN 
+  ODBC_REMOVE_SYS_DSN = 6;    // удаляем системный DSN 
+ 
+type 
+  TSQLConfigDataSource = function( hwndParent: HWND; 
+                                   fRequest: WORD; 
+                                   lpszDriver: LPCSTR; 
+                                   lpszAttributes: LPCSTR ) : BOOL; stdcall; 
+ 
+ 
+procedure Form1.FormCreate(Sender: TObject); 
+var 
+  pFn: TSQLConfigDataSource; 
+  hLib: LongWord; 
+  strDriver: string; 
+  strHome: string; 
+  strAttr: string; 
+  strFile: string; 
+  fResult: BOOL; 
+  ModName: array[0..MAX_PATH] of Char; 
+  srInfo : TSearchRec; 
+begin 
+  Windows.GetModuleFileName( HInstance, ModName, SizeOf(ModName) ); 
+  strHome := ModName; 
+  while ( strHome[length(strHome)] &lt;&gt; '\' ) do 
+    Delete( strHome, length(strHome), 1 ); 
+  strFile := strHome + 'TestData.MDB';   // Тестовая база данных (Axes = Access) 
+  hLib := LoadLibrary( 'ODBCCP32' );    // загружаем библиотеку (путь по умолчанию) 
+  if( hLib &lt;&gt; NULL ) then 
+  begin 
+    @pFn := GetProcAddress( hLib, 'SQLConfigDataSource' ); 
+    if( @pFn &lt;&gt; nil ) then 
+    begin 
+      // начинаем создание DSN 
+      strDriver := 'Microsoft Access Driver (*.mdb)'; 
+      strAttr := Format( 'DSN=TestDSN'+#0+ 
+                         'DBQ=%s'+#0+ 
+                         'Exclusive=1'+#0+ 
+                         'Description=Test Data'+#0+#0, 
+                         [strFile] ); 
+      fResult := pFn( 0, ODBC_ADD_SYS_DSN, @strDriver[1], @strAttr[1] ); 
+      if( fResult = false ) then ShowMessage( 'Ошибка создания DSN (Datasource) !' ); 
+ 
+      // test/create MDB file associated with DSN 
+      if( FindFirst( strFile, 0, srInfo ) &lt;&gt; 0 ) then 
+      begin 
+        strDriver := 'Microsoft Access Driver (*.mdb)'; 
+        strAttr := Format( 'DSN=TestDSN'+#0+ 
+                           'DBQ=%s'+#0+ 
+                           'Exclusive=1'+#0+ 
+                           'Description=Test Data'+#0+ 
+                           'CREATE_DB="%s"'#0+#0, 
+                           [strFile,strFile] ); 
+        fResult := pFn( 0, ODBC_ADD_SYS_DSN, @strDriver[1], @strAttr[1] ); 
+        if( fResult = false ) then ShowMessage( 'Ошибка создания MDB (файла базы данных) !' ); 
+      end; 
+      FindClose( srInfo ); 
+ 
+      end; 
+ 
+    FreeLibrary( hLib ); 
+  end 
+  else 
+  begin 
+    ShowMessage( 'Невозможно загрузить ODBCCP32.DLL' ); 
+  end; 
+end;
+</pre>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

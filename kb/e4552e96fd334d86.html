@@ -1,0 +1,81 @@
+<html>
+<head>
+  <title>Как прочитать адрес отправителя?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как прочитать адрес отправителя?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{
+  If you tried to work with messages from Delphi, you know that received message have the
+  SenderName property (name of sender) but doesn't allow to read the real address of sender.
+  Something like SenderAddress is not available.
+ 
+  There exist a few methods to retrieve this information:
+ 
+  1. help file says that sender is in Recipients collection
+  with Type property - 0 (olOriginator).
+  But this way does work for any version of MS Outlook.
+  So just iterate thru collection of Recipients and find an item with Type=0
+  couldn't return required value
+ 
+  2. as alternative you can read a ReplyTo property - there you'll receive an address
+  (but generally ReplyTo and Sender could be different).
+  For example, in messages which I send from own mail account these values are different.
+ 
+  3. to create a new MailItem (just will be destroyed without saving in end of work),
+  define a Recipient as value which you received from SenderName of your original
+  message and call a Resolve method - after that you'll recieve a correct email address of this sender.
+ 
+  4. more correct and fast solution is the next:
+}
+ 
+var
+ s: string;
+ objCDO: OLEVariant;
+begin
+  objCDO := CreateOLEObject('MAPI.Session');
+  objCDO.Logon('', '', False, False);
+  objMsg := objCDO.GetMessage(itemOL.EntryID, itemOL.Parent.StoreID);
+ 
+  s := objMsg.Sender.Address;
+  ShowMessage(s);
+  objMsg := Unassigned;
+  objCDO := Unassigned;
+end
+ 
+ 
+{ where itemOL is a MailItem which contain a SenderName but doesn't contain a SenderAddress }
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

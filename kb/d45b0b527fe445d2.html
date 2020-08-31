@@ -1,0 +1,49 @@
+<html>
+<head>
+  <title>Принципы построения API-библиотеки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Принципы построения API-библиотеки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Стандартным видом API-программирования является структурное программирование. Примеры такого программирования на Win32 API есть практически в любой книжке по Borland Pascal, Borland C++, Microsoft Visual C++ и другим системам разработки. Множество примеров API-программирования на С содержится в поставке Microsoft Visual C++. </p>
+<p>Структурное программирование с оконными функциями, процедурами обработки команд, не в состоянии обеспечить быструю и эффективную разработку программ. В современной ситуации большинство программистов привыкло к объектно-ориентированному методу, с возможностью инкапсуляции, наследования и переопределения методов объектов. Такое программирование оказывается наиболее эффективным. </p>
+<p>Кроме того, для построения эффективной API-библиотеки прежде всего нужно выяснить, какие задачи при работе с Win32 API являются наиболее трудоемкими. Практика показывает, что наиболее неудобным и трудоемким элементом является реализация основного диспетчера логики программы - оконной функции. Реализация этой функции в качестве метода класса, а не простой глобальной функции, позволила бы улучшить структуру кода и облегчить программирование путем инкапсулирования всех переменных внутри оконного класса. </p>
+<p>Программирование может быть еще более облегчено, есть возпользоваться механизмом message-процедур языка Object Pascal. Вызов этих процедур полностью лежит на компиляторе и корневом объекте TObject и включает в себя методы Dispatch, DefaultHandler, а также все методы, объявленные с директивой message. Такое решениее позволит полностью отказаться от громоздкого оператора case в оконной функции. </p>
+<p>Учитывая все вышеперечисленное автором была создана компактная библиотека оконных классов WinLite. Эта библиотека является минимальной, она не вводит более высоких уровней абстракции чем существуют в Win32 API - она только облегчает работу, переводом программирования в объектно-ориентированное русло. Размер библиотеки очень небольшой и вся она помещается в один модуль. Библиотека реализует базовый класс TLiteFrame и построенные на основе него оконные классы: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>TLiteWindow - класс окна, с возможностью subclass'инга; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>TLiteDialog - класс немодального диалога; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>TLiteDialogBox - класс модального диалога. </td></tr></table></div><p>Библиотека может быть использована совместно с VCL. На первый взгляд, это возможность является абсурдной и ненужной, так как об экономии размера в этом случае не может быть и речи. Однако, иногда бывают моменты, когда реализация специфических оконных элементов на основе объектов TWinControl или TCustomControl может быть затруднена или неэффективна из-за их сложности и неочевидного поведения. В этом случае, можно реализовать такой элемент на базе класса TLiteWindow - он будет вести себя стандартным образом, как и полагается вести себя стандартному оконному элементу Win32. </p>
+<p>Благодаря своей простой архитектуре библиотека может быть использована в многопоточной программе. Конечно, вы не сможете вызывать методы классов одного потока из другого потока без соответствующей синхронизации. Однако, вы можете беспрепятственно создавать оконные классы в различных потоках без блокировки и синхронизации, а также посылать сообщения оконным классам в другом потоке. </p>
+<p>Практический совет: при API-программировании программист должен сам следить за корректным освобождением многочисленных ресурсов, которые занимает программа во время выполнения. Поэтому, для облегчения этой задачи используйте какую-либо контролирующую утилиту, например MemProof или Numega BoundsChecker. Корректное освобождение занятых ресурсов крайне необходимо ! </p>
+<p>К тому же, прежде чем вы решите работать над своим проектом в русле Win32 API, подумайте, а зачем вам это нужно? В подавляющем числе случаев размер программы не имеет никакого значения. Я не хочу сказать, что API-программирование сложнее чем VCL-программирование. Во многих случаях легче изучить и написать 10 вызовов API с кучей аргументов и понимать, что происходит, чем написать 1 вызов простой, на первый взгляд, VCL-инструкции и потом долго исследовать дебри VCL в поисках ответа. Просто API-программирование - это другая культура, к которой вы, возможно, не привыкли. И первоначальная работа может вызвать у вас сильное разочарование. API-программирование требует дотошности, кропотливости и внимательного изучения документации. </p>
+<p>Те же, кто отважился программировать на API, наряду с библиотекой WinLite могут совместно использовать невизуальные классы как из состава VCL (модули SysUtils, Classes), так и многие сторонние - естественно, что размер вашей программы при этом увеличится. </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Невизуальные классы библиотеки ACL - http://a-press.parad.ru/pc/bokovikov/delphi/acl/acl.zip </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Невизуальные классы библиотеки XCL - http://xcl.cjb.net </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>JEDI Code Library - http://www.delphi-jedi.com </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Системные компоненты на Torry - www.torry.ru </td></tr></table></div><p>Для редактирования шаблонов диалогов можно использовать любой редактор ресурсов, например Borland Resource WorkShop, правда он несколько неудобен, а окончательный </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

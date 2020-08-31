@@ -1,0 +1,75 @@
+<html>
+<head>
+  <title>Как предотвратить Shutdown?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как предотвратить Shutdown?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{
+The WM_QUERYENDSESSION message is sent to all applications
+when the user chooses to end the session or when an application calls the
+ExitWindows function.
+If any application returns zero, the session is not ended.
+The system stops sending WM_QUERYENDSESSION messages as soon as one application
+returns zero.
+After processing this message, the system sends the WM_ENDSESSION message with the
+wParam parameter set to the results of the WM_QUERYENDSESSION message.
+ 
+Windows NT/2000/XP: When an application returns TRUE for this message,
+it receives the WM_ENDSESSION message and it is terminated,
+regardless of how the other applications respond to the WM_QUERYENDSESSION message.
+ 
+Windows 95/98/Me: After all applications return TRUE for this message,
+they receive the WM_ENDSESSION and they are terminated.
+}
+ 
+private
+  procedure WMQueryEndSession (var Msg : TWMQueryEndSession); message WM_QueryEndSession;
+end;
+ 
+Implementation
+ 
+procedure TForm1.WMQueryEndSession (var Msg : TWMQueryEndSession);
+begin
+  if MessageDlg('Close Windows now/ Windows beenden?',
+                            mtConfirmation,
+                            [mbYes,mbNo], 0) = mrNo then
+      Msg.Result := 0
+   else
+      Msg.Result := 1;
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

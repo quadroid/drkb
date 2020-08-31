@@ -1,0 +1,109 @@
+<html>
+<head>
+  <title>Как получить список загруженных драйверов?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить список загруженных драйверов?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{
+  This code takes advantage of the undocumented NtQuerySystemInformation
+  API to obtain a list of loaded drivers under Windows NT.
+}
+ 
+const
+  DRIVER_INFORMATION = 11;
+ 
+type
+  TPDWord = ^DWORD;
+ 
+  TDriverInfo = packed record
+    Address: Pointer;
+    Unknown1: DWORD;
+    Unknown2: DWORD;
+    EntryIndex: DWORD;
+    Unknown4: DWORD;
+    Name: array [0..MAX_PATH + 3] of Char;
+  end;
+ 
+var
+  NtQuerySystemInformation: function (infoClass: DWORD;
+  buffer: Pointer;
+  bufSize: DWORD;
+  returnSize: TPDword): DWORD; stdcall = nil;
+ 
+  function GetDriverInfo: string;
+  var 
+    temp, Index, numBytes, numEntries: DWORD;
+    buf: TPDword;
+    driverInfo: ^TDriverInfo;
+  begin
+    if @NtQuerySystemInformation = nil then
+      NtQuerySystemInformation := GetProcAddress(GetModuleHandle('ntdll.dll'),
+        'NtQuerySystemInformation');
+ 
+    // Obtain required buffer size
+    NtQuerySystemInformation(DRIVER_INFORMATION, @temp, 0, @numBytes);
+    // Allocate buffer
+    buf := AllocMem(numBytes * 2);
+ 
+    NtQuerySystemInformation(DRIVER_INFORMATION, buf, numBytes * 2, @numBytes);
+    numEntries := buf^;
+    driverInfo := Pointer(DWORD(buf) + 12);
+    Result     := '';
+    for Index := 1 to numEntries do 
+    begin
+      Result := Result + #$D#$A + 'Address: $' + IntToHex(DWORD(driverInfo^.Address), 8) +
+        'Name: "' + (driverInfo^.Name) + '"';
+      Inc(driverInfo);
+    end;
+    Delete(Result, 1, 2);
+    FreeMem(buf);
+  end;
+ 
+  procedure TForm1.Button1Click(Sender: TObject);
+  begin
+    ListBox1.Items.Add(GetDriverInfo)
+  end;
+ 
+ 
+  // Thanks to Madshi for helping me translate from C++ Code
+  // Original Code (C++) :
+  //                             NtDriverList v1.0
+  //                      Copyright 1998, 1999 Yariv Kaplan
+  //                             WWW.INTERNALS.COM
+</pre>
+
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a> </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

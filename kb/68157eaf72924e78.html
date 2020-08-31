@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>Быстрая обработка CSV файла</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Быстрая обработка CSV файла</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>Классы Tstrings/TStringlist имеют свойство commatext, которое автоматически разделяет строки, содержащие разделители, на отдельные части. Пример показывает как считать CSV файл. В Конечном итоге, автоматически разделённые строки содержатся в TStringlist. </p>
+<pre name="code" class="delphi">
+var
+  ts: tstringlist;
+  S: string;
+  Tf: Textfile;
+begin
+  Ts := Tstringlist.create;
+  Assignfile(tf, 'filename');
+  Reset(tf);
+  while not eof(tf) do
+  begin
+    Readln(tf,S);
+    Ts.CommaText := S;
+    //ProcessLine;
+  end;
+  closefile(tf);
+  ts.free;
+end;
+</pre>
+
+
+<p>Так же операцию можно производить в обратном порядке. </p>
+
+<p>Свойство Commatext поддерживает разделители как в виде запятых, так и двойных кавычек: 1,2,3,4 и "1","2","3","4" </p>
+
+<p>Например, строка вида "1","2,3","4" будет разделена на три элемента, которые заключены в кавычки (средняя запятая будет проигнорирована). Чтобы включить кавычку в конечный результ, нужно поставить две кавычки подряд: "1",""2" (результат будет 1 и "2 ). </p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

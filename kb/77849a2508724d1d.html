@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>Как поместить графическое изображение в TDBGrid?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как поместить графическое изображение в TDBGrid?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Использование свойства Canvas компонента TDBGrid в методе OnDrawColumnCell позволяет не только выводить в ячейке текст методом TextOut, но и размещать в ячейках графические изображения. В этом случае используется метод Draw свойства Canvas. </p>
+
+<p>Модифицируем наш пример, добавив в форму компонент TImageList и поместив в него несколько изображений. </p>
+
+<p>Модифицируем код нашего приложения: </p>
+
+<p>Соответствующий код для Delphi имеет вид: </p>
+<pre name="code" class="delphi">
+procedure TForm1.DBGridDrawColumnCell(Sender: TObject; const Rect: TRect;
+DataCol: Integer; Column: TColumn;  State: TGridDrawState);
+var
+  Im1: TBitmap;
+begin
+  Im1 := TBitmap.Create;
+  if Column.FieldName = 'VenueNo' then
+    with DBGrid1.Canvas do
+    begin
+      Brush.Color := clWhite;
+      FillRect(Rect);
+      if Table.FieldByName('VanueNo').Value = 1 then
+        ImageList1.GetBitmap(0, Im1)
+      else
+        ImageList1.GetBitmap(2, Im1);
+      Draw(round((Rect.Left + Rect.Right - Im1.Width) / 2), Rect.Top, Im1);
+    end;
+end;
+</pre>
+
+
+<p>Теперь в TDBGrid в колонке VenueNo находятся графические изображения.</p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<html>
+<head>
+  <title>Обратный поиск строки в TRichEdit</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Обратный поиск строки в TRichEdit</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{+------------------------------------------------------------ 
+ | Function FindTextBackwards 
+ | 
+ | Parameters : 
+ |   findWhat: text to find 
+ |   inString: string to find it in 
+ |   startAt : character index to start at (1-based) 
+ |   caseSensitive: determines whether search is case-sensitive 
+ |   words   : if true the characters immediately surrounding 
+ |             a found location must not be alphanumeric 
+ | Returns    : 
+ |   character index (1-based) of first character of a found 
+ |   location, or 0, if the text was not found. 
+ | Description: 
+ |   Performs a simple sequential search for a string in a larger 
+ |   string, starting at the specified position and working towards 
+ |   the start of the string. 
+ | Error Conditions: none 
+ | Created: 27.02.99 by P. Below 
+ +------------------------------------------------------------}
+ 
+ function FindTextBackwards(findWhat, inString : string;
+   startAt : integer;
+   caseSensitive, words : boolean): integer;
+ var
+   i, patternlen, findpos : integer;
+   lastchar, firstchar : char;
+ begin
+   Result := 0;  { assume failure }
+   patternlen := Length(findWhat);
+ 
+   { Do a few sanity checks on the parameters }
+   if (patternlen = 0) or
+     (startAt &lt; patternlen) or
+     (Length(inString) &lt; patternlen) then
+     Exit;
+ 
+   if not caseSensitive then
+    begin
+     { convert both strings to lower case }
+     findWhat := AnsiLowercase(findWhat);
+     inString := AnsiLowercase(inString);
+   end; { If }
+ 
+   i := startAt;
+   lastchar := findWhat[patternlen];
+   firstchar := findWhat[1];
+ 
+   while (Result = 0) and (i &gt;= patternlen) do
+    begin
+     if inString[i] = lastchar then
+      begin
+       findPos := i - patternlen + 1;
+       if inString[findPos] = firstchar then
+        begin
+         { We have a candidate. Compare the substring of length 
+          patternlen starting at findPos with findWhat. With 
+          AnsiStrLComp we can do that without having to copy 
+          the substring to a temp string first. }
+         if AnsiStrLComp(@findWhat[1], @inString[findPos],
+           patternlen) = 0 then
+          begin
+           { We have a match! }
+           Result := findPos;
+ 
+           if words then
+            begin
+             { Check the characters surrounding the hit. For the hit 
+              to constitute a word they must not be alphanumeric. }
+             if (findPos &gt; 1) and
+               IsCharAlphanumeric(inString[findPos - 1]) then
+              begin
+               { Not a match after all, &lt;sigh&gt;. }
+               Result := 0;
+             end { If }
+             else
+              begin
+               if (i &lt; Length(inString)) and
+                 IsCharAlphanumeric(inString[i + 1]) then
+                begin
+                 { Not a match after all, &lt;sigh&gt;. }
+                 Result := 0;
+               end; { If }
+             end; { Else }
+           end; { If }
+         end; { If }
+       end; { If }
+     end; { If }
+     Dec(i);
+   end; { While }
+ end; { FindTextBackwards }
+ 
+ procedure TForm1.Button1Click(Sender : TObject);
+ var
+   findPos : integer;
+ begin
+   findPos := FindTextBackwards(findEdit.Text,
+     richedit1.Text,
+     richedit1.selstart + 1,
+     caseCheckbox.Checked,
+     wordsCheckbox.Checked);
+   if findPos &gt; 0 then
+    begin
+     with richedit1 do
+      begin
+       selstart := findPos - 1;
+       sellength := findEdit.GetTextLen;
+       Perform(em_scrollcaret, 0, 0);
+       SetFocus;
+     end;
+   end
+   else
+     ShowMessage('Text not found');
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

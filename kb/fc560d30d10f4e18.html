@@ -1,0 +1,126 @@
+<html>
+<head>
+  <title>Как избежать использования неактуальных указателей?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как избежать использования неактуальных указателей?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Я создал простой модуль и разработал несколько простых методов, помогающих избежать использования неактуальных (в оригинале было "stale" - черствый, несвежий) указателей. Я настоятельно рекомендую добавить во все модули, содержащие указатели или объектные переменные секцию инициализации ('initialization') и установить все указатели (объектные переменные это те же реальные указатели) в nil. Что это даст: прежде чем хотя бы один указатель будет использован, он обязательно будет проверен, освобожден и установлен в nil. Затем, после освобождения указателей, просто установите их в nil. Мой модуль содержит функцию Nilify() для установки указателей в nil, а также специальные версии методов Free, Dispose, и FreeMem (названные NilXXX) для проверки значения nil перед освобождением памяти, и установления указателя в nil сразу после того, как он был освобожден. Я также включил специальную версию Assigned(), названную IsNil(), которая вместо переменного (var) параметра получает константу, которую вы можете затем использовать в своих свойствах, и т.п.</p>
+<p>Этот модуль, конечно, ничего не делает с VCL, но тем не менее вы можете иметь неактуальные указатели и с VCL... Строгое соблюдение функций модуля сделает вас уверенным в отсутствии ошибок при работе с указателями. Единственное условие использования модуля - в случае любых изменений кода с вашей стороны или наличия каких-либо замечаний или предложений пришлите их пожалуйста мне. Пользуйтесь на здоровье!</p>
+
+<pre name="code" class="delphi">
+unit Pointers;
+ 
+ 
+{
+Автор: David S. Becker (dsb@plaza.ds.adp.com)
+Дата: 1/27/97
+Авторские права: Нет
+Дистрибутивные права: Свободные, неограниченное использование, в случае любых изменений кода
+с вашей стороны или наличия каких-либо замечаний или предложений пришлите их пожалуйста мне.
+ 
+Данный модуль создавался для помощи в управлении указателями и объектами. Так как
+компилятор не инициализирует указатели и объекты в nil и не сбрасывает
+их в nil при освобождении, существует вероятность применения неактуального
+указателя. По этой причине я рекомендую добавление секции 'initialization'
+во все модули и вызове Nilify() для всех указателей/объектов в данном модуле.
+Это позволит быть уверенным, что все указатели/объекты стартуют как nil.
+Кроме того, вместо стандартных аналогов, вы можете использовать NilFree
+(для объектов), NilDispose (для указателей, создаваемых с помощью New),
+и NilFreeMem (для указателей, создаваемых с помощью GetMem). Эти процедуры
+безопасны при вызове nil-вых указателей/объектов, так как перед выполнением
+любых действий они проверяют их на nil. После освобождения распределенной
+указателем/объектом памяти они сбрасываются в nil. Строгое соблюдение функций
+модуля значительно снижает риск использования неактуального указателя.
+(Конечно, вы еще можете получить неактуальные указатели из VCL, т.к.
+они, естественно, не используют данные функции.)
+}
+ 
+interface
+ 
+{ Проверка указателя на nil }
+{ ПРИМЕЧАНИЕ: Данная функция отличается от Assigned() тем, что Assigned() }
+{ требует переменную, а IsNil() нет.                                      }
+function IsNil(const p: Pointer): Boolean;{ Устанавливает указатель в nil }
+procedure Nilify(var p);{ Освобождает не-nil объект и устанавливает его в nil }
+procedure NilFree(o: TObject);{ Освобождает не-nil указатель, созданный с помощью New 
+                                и устанавливает его в nil }
+procedure NilDispose(var p: Pointer);{ Освобождает не-nil указатель и устанавливает его в nil }
+procedure NilFreeMem(var p: Pointer; size: Word);
+ 
+implementation
+ 
+function IsNil(const p: Pointer): Boolean;
+begin
+  Result := (p = nil);
+end;
+ 
+procedure Nilify(var p);
+begin
+  Pointer(p) := nil;
+end;
+ 
+procedure NilFree(o: TObject);
+begin
+  if not IsNil(o) then
+    begin
+      o.Free;
+      Nilify(o);
+    end;
+end;
+ 
+procedure NilDispose(var p: Pointer);
+begin
+  if not IsNil(p) then
+    begin
+      Dispose(p);
+      Nilify(p);
+    end;
+end;
+ 
+procedure NilFreeMem(var p: Pointer; size: Word);
+begin
+  if not IsNil(p) then
+    begin
+      FreeMem(p, size);
+      Nilify(p);
+    end;
+end;
+ 
+end.
+</pre>
+
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

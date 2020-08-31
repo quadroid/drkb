@@ -1,0 +1,129 @@
+<html>
+<head>
+  <title>Генерация еженедельных списков задач</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Генерация еженедельных списков задач</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p id="author">Автор: Mike Orriss </p>
+<p>Мне необходима программа, которая генерировала бы еженедельные списки задач. Программа должна просто показывать количество недель в списке задач и организовывать мероприятия, не совпадающие по времени. В моем текущем планировщике у меня имеется 12 групп и планы на 11 недель. </p>
+<p>Мне нужен простой алгоритм, чтобы решить эту проблему. Какие идеи? </p>
+<p>Вот рабочий код (но вы должны просто понять алгоритм работы):</p>
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    ListBox1: TListBox;
+    Edit1: TEdit;
+    Button1: TButton;
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+const
+  maxTeams = 100;
+var
+  Teams: array[1..maxTeams] of integer;
+  nTeams, ix, week, savix: integer;
+ 
+function WriteBox(week: integer): string;
+var
+  str: string;
+  ix: integer;
+begin
+  Result := Format('Неделя=%d ', [week]);
+  for ix := 1 to nTeams do
+  begin
+    if odd(ix) then
+      Result := Result + ' '
+    else
+      Result := Result + 'v';
+    Result := Result + IntToStr(Teams[ix]);
+  end;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  nTeams := StrToInt(Edit1.Text);
+  if Odd(nTeams) then
+    inc(nTeams); {должны иметь номера каждой группы}
+  ListBox1.Clear;
+  for ix := 1 to nTeams do
+    Teams[ix] := ix;
+  ListBox1.Items.Add(WriteBox(1));
+ 
+  for week := 2 to nTeams - 1 do
+  begin
+    Teams[1] := Teams[nTeams - 1];
+      {используем Teams[1] в качестве временного хранилища}
+    for ix := nTeams downto 2 do
+      if not Odd(ix) then
+      begin
+        savix := Teams[ix];
+        Teams[ix] := Teams[1];
+        Teams[1] := savix;
+      end;
+    for ix := 3 to nTeams - 1 do
+      if Odd(ix) then
+      begin
+        savix := Teams[ix];
+        Teams[ix] := Teams[1];
+        Teams[1] := savix;
+      end;
+    Teams[1] := 1; {восстанавливаем известное значение}
+    ListBox1.Items.Add(WriteBox(week));
+  end;
+end;
+ 
+end. 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

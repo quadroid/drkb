@@ -1,0 +1,91 @@
+<html>
+<head>
+  <title>Импорт большого CSV файла</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Импорт большого CSV файла</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+var s: string; f: TextFile;
+  AssignFile(f, 'D:\\INPUT.TXT');
+    Reset(f);
+    while not EOF(f) do
+      begin
+        ReadLn(s, f);
+        ShowMessage(GetField(s, 1)); {The first field\}
+        ShowMessage(GetField(s, 6)); {The sixth field\}
+        ShowMessage(GetField(s, 25)); {will return '' if no 25 column...\}
+      end;
+    CloseFile(f);
+ 
+{ ==== This function will return a field from a delimited string. ==== \}
+ 
+function GetField(InpString: string; fieldpos: Integer): string;
+var
+  c: Char;
+  curpos, i: Integer;
+begin
+  curpos := 1;
+  for i := 1 to fieldpos do
+    begin
+      result := ''; if curpos &gt; Length(InpString) then Break;
+      repeat
+        c := InpString[curpos]; Inc(curpos, 1);
+        if (c = '"') or (c = #13) or (c = #10) then c := ' ';
+        if c &lt;&gt; ',' then result := result + c;
+      until (c = ',') or (curpos &gt; Length(InpString))
+    end;
+  if (curpos &gt; Length(InpString)) and (i &lt; fieldpos) then result := '';
+  result := Trim(result);
+end;
+ 
+{ ==== This function will trim a string removing spaces etc. ==== \}
+ 
+function Trim(inp_str: string): string;
+var
+  i: Integer;
+begin
+  for i := 1 to Length(inp_str) do
+    if inp_str[i] &lt;&gt; ' ' then Break;
+  if i &gt; 1 then Delete(inp_str, 1, i - 1);
+  for i := Length(inp_str) downto 1 do
+    if inp_str[i] &lt;&gt; ' ' then Break;
+  if i &lt; Length(inp_str) then Delete(inp_str, i + 1, Length(inp_str));
+  result := inp_str;
+  if result = ' ' then result := '';
+end;
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

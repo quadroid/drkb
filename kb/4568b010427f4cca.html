@@ -1,0 +1,180 @@
+<html>
+<head>
+  <title>Переворачиваем рабочий стол</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Переворачиваем рабочий стол</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: William Egge </p>
+<p>Весёлая программка, которая позволяет подшутить над Вашими друзьями:-]. Пример переворачивает десктоп и держит его в таком положение, до тех пор пока не кликнуть по нему мышкой. По мимо этого код содержит в себе довольно интересные моменты. </p>
+<p>В примере используется TDesktopCanvas, который получить доступ к десктопу через объект TCanvas. </p>
+<p>Так же в примере используется TQuickPixel, который позволяет увеличить скорость доступа к пикселям. </p>
+<p>Скачайте исходник, откомпилируйте его, и поместите программку в папку "Автозагрузка" на компьютере Вашего друга и смело идите по своим делам :-). </p>
+<p>Для завершения работы программки достаточно кликнуть по перевёрнутому экрану. </p>
+<p>А теперь давайте разберёмся с исходником: </p>
+<p>Класс TQuickPixel был сделан для быстрого доступа к пикселям, чтобы не возиться со строками развёртки. Для увеличения производительности, данный класс кэширует строки развёртки. Единственный недостаток данного класса заключается в том, что он устанавливает Ваш Bitmap в 24 бита. </p>
+<p>Ниже представлен собственно сам код TQuickPixel. </p>
+<pre name="code" class="delphi">
+unit QuickPixel;
+ 
+interface
+uses
+  Windows, Graphics;
+ 
+type
+  TQuickPixel = class
+  private
+    FBitmap: TBitmap;
+    FScanLines: array of PRGBTriple;
+    function GetPixel(X, Y: Integer): TColor;
+    procedure SetPixel(X, Y: Integer; const Value: TColor);
+    function GetHeight: Integer;
+    function GetWidth: Integer;
+  public
+    constructor Create(const ABitmap: TBitmap);
+    property Pixel[X, Y: Integer]: TColor read GetPixel write SetPixel;
+    property Width: Integer read GetWidth;
+    property Height: Integer read GetHeight;
+  end;
+ 
+implementation
+ 
+{ TQuickPixel }
+ 
+constructor TQuickPixel.Create(const ABitmap: TBitmap);
+var
+  I: Integer;
+begin
+  inherited Create;
+  FBitmap:= ABitmap;
+  FBitmap.PixelFormat:= pf24bit;
+  SetLength(FScanLines, FBitmap.Height);
+  for I:= 0 to FBitmap.Height-1 do
+    FScanLines[I]:= FBitmap.ScanLine[I];
+end;
+ 
+function TQuickPixel.GetHeight: Integer;
+begin
+  Result:= FBitmap.Height;
+end;
+ 
+function TQuickPixel.GetPixel(X, Y: Integer): TColor;
+var
+  P: PRGBTriple;
+begin
+  P:= FScanLines[Y];
+  Inc(P, X);
+  Result:= (P^.rgbtBlue shl 16) or (P^.rgbtGreen shl 8) or P^.rgbtRed;
+end;
+ 
+function TQuickPixel.GetWidth: Integer;
+begin
+  Result:= FBitmap.Width;
+end;
+ 
+procedure TQuickPixel.SetPixel(X, Y: Integer; const Value: TColor);
+var
+  P: PRGBTriple;
+begin
+  P:= FScanLines[Y];
+  Inc(P, X);
+  P^.rgbtBlue:= (Value and $FF0000) shr 16;
+  P^.rgbtGreen:= (Value and $00FF00) shr 8;
+  P^.rgbtRed:= Value and $0000FF;
+end;
+ 
+end.
+</pre>
+<p>Ну, надеюсь, вы с ним разобрались, перейдём же к самому проекту. Свойство окна BorderStyle установите в bsNone, свойство FormStyle - в fsStayOnTop, а свойству WindowState задайте значение wsMaximized. Вынесите на форму компонент TImage, его свойство Align выставьте в alClient, по нажатию на TImage напишите: </p>
+<p>Close;</p>
+<p>Затем следующим образом опишите обработчик создания окна [событие OnCreate()]: </p>
+<pre name="code" class="delphi">
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  B: TBitmap;
+  Desktop: TDesktopCanvas;
+  QP: TQuickPixel;
+  X, Y: Integer;
+  EndCopyIndex: Integer;
+  Temp: TColor;
+begin
+  Left:= 0;
+  Top:= 0;
+  Width:= Screen.Width;
+  Height:= Screen.Height;
+  B:= nil;
+  Desktop:= nil;
+  try
+    Desktop:= TDesktopCanvas.Create;
+    B:= TBitmap.Create;
+    B.Width:= Screen.Width;
+    B.Height:= Screen.Height;
+    B.Canvas.CopyRect(Rect(0, 0, B.Width, B.Height),
+    Desktop, Rect(0, 0, B.Width, B.Height));
+    B.PixelFormat:= pf24bit;
+    QP:= TQuickPixel.Create(B);
+    try
+      for Y:= 0 to (QP.Height div 2)-1 do
+      begin
+        EndCopyIndex:= (QP.Height-1)-Y;
+        for X:= 0 to QP.Width-1 do
+        begin
+          Temp:= QP.Pixel[X, Y];
+          QP.Pixel[X, Y]:= QP.Pixel[X, EndCopyIndex];
+          QP.Pixel[X, EndCopyIndex]:= Temp;
+        end;
+      end;
+    finally
+      QP.Free;
+    end;
+    with Image1.Picture.Bitmap do
+    begin
+      Width:= Image1.Width;
+      Height:= Image1.Height;
+      Canvas.CopyRect(Rect(0, 0, Width, Height), B.Canvas,
+      Rect(0, 0, Width, Height));
+    end;
+  finally
+    B.Free;
+    Desktop.Free;
+  end;
+end;
+</pre>
+<p>Проверьте, все ли модули у вас подключены. Раздел uses должен выглядеть так: </p>
+<pre name="code" class="delphi">
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls,
+  Forms, Dialogs, ExtCtrls, DesktopCanvas, QuickPixel;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<html>
+<head>
+  <title>Предотвратить работу с командами буфера обмена в TEdit</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Предотвратить работу с командами буфера обмена в TEdit</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit MyEdit;
+ 
+ interface
+ 
+ uses
+   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+   Dialogs, stdctrls, clipbrd;
+ 
+ type
+   TPreventNotifyEvent = procedure(Sender: TObject; Text: string; var Accept: Boolean) of object;
+ 
+ type
+   TMyEdit = class(TCustomEdit)
+   private
+     FPreventCut: Boolean;
+     FPreventCopy: Boolean;
+     FPreventPaste: Boolean;
+     FPreventClear: Boolean;
+ 
+     FOnCut: TPreventNotifyEvent;
+     FOnCopy: TPreventNotifyEvent;
+     FOnPaste: TPreventNotifyEvent;
+     FOnClear: TPreventNotifyEvent;
+ 
+     procedure WMCut(var Message: TMessage); message WM_CUT;
+     procedure WMCopy(var Message: TMessage); message WM_COPY;
+     procedure WMPaste(var Message: TMessage); message WM_PASTE;
+     procedure WMClear(var Message: TMessage); message WM_CLEAR;
+   protected
+     { Protected declarations }
+   public
+     { Public declarations }
+   published
+     property PreventCut: Boolean read FPreventCut write FPreventCut default False;
+     property PreventCopy: Boolean read FPreventCopy write FPreventCopy default False;
+     property PreventPaste: Boolean read FPreventPaste write FPreventPaste default False;
+     property PreventClear: Boolean read FPreventClear write FPreventClear default False;
+     property OnCut: TPreventNotifyEvent read FOnCut write FOnCut;
+     property OnCopy: TPreventNotifyEvent read FOnCopy write FOnCopy;
+     property OnPaste: TPreventNotifyEvent read FOnPaste write FOnPaste;
+     property OnClear: TPreventNotifyEvent read FOnClear write FOnClear;
+   end;
+ 
+ procedure Register;
+ 
+ implementation
+ 
+ procedure TMyEdit.WMCut(var Message: TMessage);
+ var
+   Accept: Boolean;
+   Handle: THandle;
+   HandlePtr: Pointer;
+   CText: string;
+ begin
+   if FPreventCut then
+     Exit;
+   if SelLength = 0 then
+     Exit;
+   CText := Copy(Text, SelStart + 1, SelLength);
+   try
+     OpenClipBoard(Self.Handle);
+     Accept := True;
+     if Assigned(FOnCut) then
+       FOnCut(Self, CText, Accept);
+     if not Accept then
+       Exit;
+     Handle := GlobalAlloc(GMEM_MOVEABLE + GMEM_DDESHARE, Length(CText) + 1);
+     if Handle = 0 then
+       Exit;
+     HandlePtr := GlobalLock(Handle);
+     Move((PChar(CText))^, HandlePtr^, Length(CText));
+     SetClipboardData(CF_TEXT, Handle);
+     GlobalUnlock(Handle);
+     CText := Text;
+     Delete(CText, SelStart + 1, SelLength);
+     Text := CText;
+   finally
+     CloseClipBoard;
+   end;
+ end;
+ 
+ 
+ procedure TMyEdit.WMCopy(var Message: TMessage);
+ var
+   Accept: Boolean;
+   Handle: THandle;
+   HandlePtr: Pointer;
+   CText: string;
+ begin
+   if FPreventCopy then
+     Exit;
+   if SelLength = 0 then
+     Exit;
+   CText := Copy(Text, SelStart + 1, SelLength);
+   try
+     OpenClipBoard(Self.Handle);
+     Accept := True;
+     if Assigned(FOnCopy) then
+       FOnCopy(Self, CText, Accept);
+     if not Accept then
+       Exit;
+     Handle := GlobalAlloc(GMEM_MOVEABLE + GMEM_DDESHARE, Length(CText) + 1);
+     if Handle = 0 then
+       Exit;
+     HandlePtr := GlobalLock(Handle);
+     Move((PChar(CText))^, HandlePtr^, Length(CText));
+     SetClipboardData(CF_TEXT, Handle);
+     GlobalUnlock(Handle);
+   finally
+     CloseClipBoard;
+   end;
+ end;
+ 
+ 
+ procedure TMyEdit.WMPaste(var Message: TMessage);
+ var
+   Accept: Boolean;
+   Handle: THandle;
+   CText: string;
+   LText: string;
+   AText: string;
+ begin
+   if FPreventPaste then
+     Exit;
+   if IsClipboardFormatAvailable(CF_TEXT) then
+   begin
+     try
+       OpenClipBoard(Self.Handle);
+       Handle := GetClipboardData(CF_TEXT);
+       if Handle = 0 then
+         Exit;
+       CText := StrPas(GlobalLock(Handle));
+       GlobalUnlock(Handle);
+       Accept := True;
+       if Assigned(FOnPaste) then
+         FOnPaste(Self, CText, Accept);
+       if not Accept then
+         Exit;
+       LText := '';
+       if SelStart &gt; 0 then
+         LText := Copy(Text, 1, SelStart);
+       LText := LText + CText;
+       AText := '';
+       if (SelStart + 1) &lt; Length(Text) then
+         AText := Copy(Text, SelStart + SelLength + 1, Length(Text) - SelStart + SelLength + 1);
+       Text := LText + AText;
+     finally
+       CloseClipBoard;
+     end;
+   end;
+ end;
+ 
+ 
+ procedure TMyEdit.WMClear(var Message: TMessage);
+ var
+   Accept: Boolean;
+   CText: string;
+ begin
+   if FPreventClear then
+     Exit;
+   if SelStart = 0 then
+     Exit;
+   CText  := Copy(Text, SelStart + 1, SelLength);
+   Accept := True;
+   if Assigned(FOnClear) then
+     FOnClear(Self, CText, Accept);
+   if not Accept then
+     Exit;
+   CText := Text;
+   Delete(CText, SelStart + 1, SelLength);
+   Text := CText;
+ end;
+ 
+ 
+ procedure Register;
+ begin
+   RegisterComponents('Samples', [TMyEdit]);
+ end;
+ 
+ end.
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

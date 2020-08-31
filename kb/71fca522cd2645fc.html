@@ -1,0 +1,76 @@
+<html>
+<head>
+  <title>Как заставить TEdit не пикать при нажатии недопустимых клавиш?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как заставить TEdit не пикать при нажатии недопустимых клавиш?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Перехватите событие KeyPress и установите key = #0 для недопустимых клавиш.</p>
+<pre name="code" class="delphi">
+procedure TForm1.Edit1KeyPress(Sender: TObject; var Key: Char);
+begin
+  if ((UpCase(Key) &lt; 'A') or (UpCase(Key) &gt; 'Z')) then Key := #0;
+end; 
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+
+<hr />
+<pre name="code" class="delphi">
+// Either disable the Beep in the OnKeyPress handler: 
+ 
+procedure TForm1.Edit1KeyPress(Sender: TObject; var Key: Char);
+ begin
+   if key = #13 then // #13 = Return 
+  begin
+     key := #0;
+     // Code... 
+  end;
+ end;
+ 
+ // Or in the OnKeyDown-Handler: 
+ 
+procedure TForm1.Edit1KeyDown(Sender: TObject; var Key: Word;
+   Shift: TShiftState);
+ var
+   Mgs: TMsg;
+ begin
+   if Key = VK_RETURN then
+     PeekMessage(Mgs, 0, WM_CHAR, WM_CHAR, PM_REMOVE);
+ end;
+</pre>
+
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<html>
+<head>
+  <title>Что Delphi знает об ассемблере</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Что Delphi знает об ассемблере</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Павел </p>
+<p>Сегодня мы рассмотрим вопрос применения ассемблера в программах, написанных на Delphi. </p>
+<p>Итак, что же Delphi "знает" об ассемблере? </p>
+<p>Команды процесора </p>
+<p>Ура, начиная с шестой версии, в популярном продукте Borland реализована поддержка всех команд процессора, включая команды расширений MMX, SSE, 3DNow! Теперь нет необходимости вместо простой команды rdtsc писать dw 310Fh . </p>
+<p>Доступ к переменным </p>
+<p>Delphi позволяет легко обращаться по имени к глобальным или локальным переменным: </p>
+<pre name="code" class="delphi">var
+  i: integer;
+begin
+  i := 0;
+  asm
+    mov eax,i
+    inc eax
+    mov i,eax
+  end;
+end;
+</pre>
+<p>Доступ к параметрам </p>
+<p>К переменным, передаваемым процедуре в качастве параметров доступ осуществляется также легко: </p>
+<pre name="code" class="delphi">procedure SomeProc(i: integer);
+begin
+  asm
+    mov eax,i
+    inc eax
+    mov i,eax
+  end;
+and;
+</pre>
+<p>Передача параметров по ссылке </p>
+<p>Если параметр процедуры или функции объявляется как var, то вместо значения переменной передается указатель на эту переменную. Поэтому внутри ассемблерного блока этот параметр будет представлять собой 32-разрядный указатель вместо собственно переменной. Поэтому обращаться к параметру, переданному как var надо следующим образом: </p>
+<pre name="code" class="delphi">procedure SomeProc(var i: integer);
+begin
+  asm
+    mov eax,i
+    inc dword ptr [eax]
+  end;
+end;
+</pre>
+<p>Регистровое соглашение о вызове </p>
+<p>В языке Object Pascal, использующемся в Delphi, по умолчанию действует регистровое соглашение о вызове. Согласно этому соглашению, первые три 32-разрядных параметра передаются в регистры eax,edx и ecx. Следовательно, если функция объявлена следующим образом </p>
+<p>function SomeFunc(i1, i2, i3 : integer): integer;</p>
+<p>то можно расчитывать, что переменная i1 содержится в регистре eax, i2 - в edx, i3 - в ecx. </p>
+<p>Если объявлен некий метод </p>
+<p>procedure TSomeObject.SomeProc(i1, i2 : integer);</p>
+<p>то i1 передается в edx, i2 - в ecx, а в eax передается неявно заданный параметр Self! </p>
+<p>Доступ к полям записи </p>
+<p>Обращение к полям записи также достаточно просто: </p>
+<pre name="code" class="delphi">type
+  TSomeRec = record
+    i: integer;
+    c: char;
+  end;
+procedure SomeProc(var SomeRec: TSomeRec);
+begin
+  asm
+    mov [eax].TSomeRec.i, 33
+    mov [eax].TSomeRec.c,'a'
+  end;
+end;
+</pre>
+<p>Локальные метки </p>
+<p>Хотя использование меток и считается дурным тоном в программировании на языках высокого уровня, в ассеблерных программах без них не обойтись. Внутри блока asm..end можно, без предварительного объявления, использовать метки, начинающиеся с символа '@'. </p>
+<p>Сохранение регистров </p>
+<p>В ассемблерных процедурах и функциях нужно сохранять регистры EDI, ESI, ESP, EBP, and EBX и свободно оперировать регистрами EAX, ECX, and EDX. </p>
+<p>Вызов динамических и виртуальных методов </p>
+<p>Существуют две директивы для доступа к динамическим и виртуальным метолам из ассемблерных вставок. </p>
+<p>VMTOFFSET - возвращает смещение (в байтах) указателя виртуального метода относительно начала таблицы виртуальных методов (VMT). </p>
+<p>DMTINDEX - возвращает индекс динамического метода в таблице динамических методов. </p>
+<p>Примеры вызовов виртуального и динамического методов: </p>
+<pre name="code" class="delphi">procedure CallDynamicMethod(e: TExample);
+asm
+  push esi
+  mov  eax,e
+  mov  esi, DMTINDEX TExample.DynamicMethod
+  call System.@CallDynaInst
+  pop  esi
+end;
+ 
+procedure CallVirtualMethod(e: TExample);
+asm
+  mov     eax, e
+  mov     edx, [eax]
+  call    dword ptr [edx + VMTOFFSET TExample.VirtualMethod]
+end;
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

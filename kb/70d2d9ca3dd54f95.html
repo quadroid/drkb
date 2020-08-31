@@ -1,0 +1,80 @@
+<html>
+<head>
+  <title>Как работать с джойстиком?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как работать с джойстиком?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses MMSYSTEM; 
+var 
+  MyJoy: TJoyInfo; 
+  ErrorResult: MMRESULT; 
+begin 
+  ErrorResult := joyGetPos(joystickid1, @MyJoy); 
+  if ErrorResult = JOYERR_NOERROR then 
+  begin 
+    TrackBar1.Position := MyJoy.wypos; 
+    TrackBar2.Position := MyJoy.wxpos; 
+    RadioButton1.Checked := (MyJoy.wbuttons and joy_button1) &gt; 0; 
+    RadioButton2.Checked := (MyJoy.wbuttons and joy_button2) &gt; 0; 
+  end  
+else 
+   case ErrorResult of 
+     MMSYSERR_NODRIVER: ShowMessage('No Joystick driver present'); 
+     MMSYSERR_INVALPARAM: ShowMessage('Invalid Joystick Paramameters'); 
+     JOYERR_UNPLUGGED: ShowMessage('Joystick is Unplugged'); 
+   else  
+     ShowMessage('Unknown error with Joystick'); 
+ end; 
+ 
+end;
+</pre>
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+<hr />
+<pre name="code" class="delphi">
+var
+  myjoy: tjoyinfo;
+begin
+  joygetpos(joystickid1, @myjoy);
+  trackbar1.position := myjoy.wypos;
+  trackbar2.position := myjoy.wxpos;
+  radiobutton1.checked := (myjoy.wbuttons and joy_button1) &gt; 0;
+  radiobutton2.checked := (myjoy.wbuttons and joy_button2) &gt; 0;
+end;
+</pre>
+<p>Не забудьте включить MMSYSTEM в список используемых (USES) модулей</p>
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

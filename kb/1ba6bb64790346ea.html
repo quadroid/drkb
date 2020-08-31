@@ -1,0 +1,133 @@
+<html>
+<head>
+  <title>Алгоритм пламени</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Алгоритм пламени</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Заведем два массива 1 и 2 - один массив будет содержать текущий кадр пламени,а во второй мы будем заносить результаты вычислений. Создадим палитру пламени от 250 до 100 это будет сплошной белый цвет - пламя в очаге. Далее белый, плавно проходя через желтый, перейдет в красный и черный. Эту палитру можете посмотреть если определен Debug. </p>
+<p>В чем состоит основа алгоритма - для каждой точки из массива 1, мы делаем следующее : берем сумму всех окружающих ее точек и делим на их количество. Для хорошего качества точек берем 8. Что же получается? Если очаг пламени организовать внизу, т.е. внизу на каждом шаге случайно ставить точки с большим значением, усреденные суммы дадут нужное затухание. Т.к. мы ставим в очаге точки случайно , то появляются красивые языки. </p>
+<p>Последовательность действий: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Массив 1 содержит текущий кадр пламени. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Создаем в массиве 1 внизу случайные очаги ( просто ставим точки) </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Каждый элемент массива 2 получаем как усреденную сумму, соответствующих элементов окружающий данный в массиве 1 </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Массив 2 копируем на экран </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Переносим массив 2 в массив 1 </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Переход на начало </td></tr></table></div><p>Для программы требуется модуль demovga.pas</p>
+<pre name="code" class="delphi">
+{.$DEFINE DEBUG} 
+Program Fire; 
+ 
+Uses DemoVga,Crt; 
+ 
+Type 
+   PFireMem = ^TFireMem; 
+   TFireMem = Array[0..201,0..319] Of Byte; 
+Var 
+   FireMem        : PFireMem; 
+   I,J            : Integer; 
+   R,G,B,dR,dG,dB : Real; 
+ 
+Procedure PlotFireHead; 
+Var 
+  I : Integer; 
+Begin 
+ For I := 0 To 319 Do 
+  If Random( 2) = 1 Then Begin 
+   FireMem^[ 199] [ I] := 255; 
+   FireMem^[ 198] [ I] := 255; 
+  End; 
+End; 
+ 
+Procedure FireLoop; Assembler; 
+Asm 
+   Push    DS 
+   Les           DI,DBuffer 
+   Lds           SI,FireMem 
+   Add           SI,320*2 
+   Mov           CX,64000 
+@@F: 
+   Xor           AX,AX 
+   Add           AL,[SI-321] 
+   Adc           AH,0 
+   Add           AL,[SI-320] 
+   Adc           AH,0 
+   Add           AL,[SI-319] 
+   Adc           AH,0 
+   Add           AL,[SI-1] 
+   Adc           AH,0 
+   Add           AL,[SI+1] 
+   Adc           AH,0 
+   Add           AL,[SI+319] 
+   Adc           AH,0 
+   Add           AL,[SI+320] 
+   Adc           AH,0 
+   Add           AL,[SI+321] 
+   Adc           AH,0 
+   Shr           AX,3 
+   Or           AL,AL 
+   Jz           @@1 
+   Dec           AL 
+@@1: 
+   Stosb 
+   Inc           SI 
+   Loop    @@F 
+   Pop           DS 
+End; 
+ 
+Begin 
+ InitDemoPart; 
+ GetMem( FireMem, 65000); 
+ R := 0; G := 0; B := 0; 
+ dR := 0.63; dG := 0.91; dB := 1.5; 
+ For I := 1 To 100 Do Begin 
+  SetRGBColor( I, Round( R), Round( G), Round( B)); 
+  R := R + dR; 
+  If I &gt; 30 Then G := G + dG; 
+  If I &gt; 60 Then B := B + dB; 
+ End; 
+ For I := 100 To 250 Do SetRGBColor( I, 60, 60, 60); 
+{$IFDEF DEBUG} 
+ For I := 1 To 100 Do 
+  For J := 1 To 100 Do 
+   Mem[$A000: J * 320 + I] := I; 
+ ReadKey; 
+{$ENDIF} 
+ FillChar( FireMem^, 65000, 0); 
+ Repeat 
+  PlotFireHead; 
+  FireLoop; 
+  Move( DBuffer^, FireMem^, 64000); 
+  Move( DBuffer^, Ptr( $A000, 0)^, 64000-320*4); 
+ Until KeyPressed; 
+ ReadKey; 
+ FreeMem( FireMem, 65000); 
+ RestoreDemo; 
+End; 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

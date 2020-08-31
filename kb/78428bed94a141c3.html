@@ -1,0 +1,65 @@
+<html>
+<head>
+  <title>Как определить реальный размер поля типа BLOB, которое сохранено в таблице?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как определить реальный размер поля типа BLOB, которое сохранено в таблице?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Ниже приведена функция GetBlobSize, которая возвращает размер данного BLOB или MEMO поля.</p>
+
+<p>Пример вызова:</p>
+
+<pre name="code" class="delphi">
+function GetBlobSize(Field: TBlobField): Longint;
+begin
+  with TBlobStream.Create(Field, bmRead) do
+  try
+    Result := Seek(0, 2);
+  finally
+    Free;
+  end;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+ { This sets the Edit1 edit box to display the size of }
+ { a memo field named Notes.                           }
+ 
+  Edit1.Text := IntToStr(GetBlobSize(Notes));
+end;
+</pre>
+
+
+<p>Copyright © 1996 Epsylon Technologies</p>
+<p>Взято из FAQ Epsylon Technologies (095)-913-5608; (095)-913-2934; (095)-535-5349</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

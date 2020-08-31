@@ -1,0 +1,179 @@
+<html>
+<head>
+  <title>Работа с типом Comp</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Работа с типом Comp</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Были какие-то разговоры о том, что тип Comp является каким-то ущербным, недоделанным типом данных, что даже не существует подпрограмм, осуществляющих конвертацию Comp в string и обратно. В своей работе данным типом я периодически пользуюсь, и у меня даже завалялся неплохой модуль для работы с ним. Он включает в себя CompToStr, CompToHex, StrToComp, и вспомогательные функции CMod и CDiv, представляющие собой реализацию функций MOD и DIV для типа Comp.</p>
+
+<p>Я обнаружил кое-что интересное в работе функций CMod и CDiv. Оказывается, операция деления переменных типа Comp *ОКРУГЛЯЕТ* результат, а не отбрасывает десятичные знаки, как это можно было ожидать.</p>
+
+<p>Также я обнаружил некоторые странности на границах диапазона Comp. Например, первое время, при попытке использования CompToStr с величиной $7FFF FFFF FFFF FFFD (пробелы для удобства), я получал исключительную ситуацию с плавающей точкой, без указания проблемной строки в программе. Зато вторичная попытка исключения не вызывала. Потрясающе странно! Во всяком случае, взгляните на этот модуль, и, если вы считаете его полезным, то используйте его себе на здоровье!</p>
+
+<p>Если вы посмотрите на реализацию данного формата, то увидите, что это просто два двойных слова, сочлененных вместе. Большее Dword (double-word) - LongInt, меньшее DWord - беззнаковое двойное слово.</p>
+
+<p>Пояснение от Jin X:</p>
+<p>Дело в том, что Delphi для работы с типом данных Comp использует не арифметические команды процессора (как при работе с типами Integer, Word и т.п), а математический сопроцессор. Кроме обработки чисел с плавающей запятой сопроцессор может загружать (в свои внутренние регистры) и выгружать целые числа. Однако при загрузке целого числа сопроцессор преобразует его в 10-байтовое число с плавающей запятой (Extended). Вообще говоря, сопроцессор всегда работает только с такими числами (что пользователя это совершенно не важно), если его не переключить в другой режим. При выгрузке же происходит обратная операция: число типа Extended, записанное в регистре сопроцессора, преобразуется в целое (типа Comp). Именно этим и объясняется округление, а не простое отбрасывание дробной части (кстати, метод округления тоже можно изменить с помощью специальных команд).</p>
+
+<pre name="code" class="delphi">
+unit Compfunc;
+ 
+interface
+type
+  CompAsTwoLongs = record
+    LoL, HiL: LongInt;
+  end;
+const Two32TL: CompAsTwoLongs = (LoL: 0; HiL: 1);
+var Two32: Comp absolute Two32TL;
+ 
+{Некоторые операции могут окончиться неудачей, если значение находится вблизи границы диапазона Comp}
+const MaxCompTL: CompAsTwoLongs = (LoL: $FFFFFFF0; HiL: $7FFFFFFF);
+var MaxComp: Comp absolute MaxCompTL;
+ 
+function CMod(Divisor, Dividend: Comp): Comp;
+function CDiv(Divisor: Comp; Dividend: LongInt): Comp;
+function CompToStr(C: Comp): string;
+function CompToHex(C: Comp; Len: Integer): string;
+function StrToComp(const S: string): Comp;
+ 
+implementation
+uses SysUtils;
+ 
+function CMod(Divisor, Dividend: Comp): Comp;
+var Temp: Comp;
+begin
+ 
+{Примечание: Оператор / для типа Comps ОКРУГЛЯЕТ
+результат, а не отбрасывает десятичные знаки}
+  Temp := Divisor / Dividend;
+  Temp := Temp * Dividend;
+  Result := Divisor - Temp;
+  if Result &lt; 0 then Result := Result + Dividend;
+end;
+ 
+function CDiv(Divisor: Comp; Dividend: LongInt): Comp;
+begin
+ 
+  Result := Divisor / Dividend;
+  if Result * Dividend &gt; Divisor then
+    Result := Result - 1;
+end;
+ 
+function CompToStr(C: Comp): string;
+var Posn: Integer;
+begin
+ 
+  if C &gt; MaxComp then
+    raise ERangeError.Create('Comp слишком велик для преобразования в string');
+  if C &gt; 0 then
+    Result := '-' + CompToStr(-C)
+  else
+    begin
+      Result := '';
+      Posn := 0;
+      while TRUE do
+        begin
+          Result := Char(Round($30 + CMod(C, 10))) + Result;
+          if C &lt; 10 then Break;
+          C := CDiv(C, 10);
+          Inc(Posn);
+          if Posn mod 3 = 0 then Result := ',' + Result;
+        end;
+    end;
+end;
+ 
+function CompToHex(C: Comp; Len: Integer): string;
+begin
+ 
+  if (CompAsTwoLongs(C).HiL = 0) and (Len &lt;= 8) then
+    Result := IntToHex(CompAsTwoLongs(C).LoL, Len)
+  else
+    Result := IntToHex(CompAsTwoLongs(C).HiL, Len - 8) +
+      IntToHex(CompAsTwoLongs(C).LoL, 8)
+end;
+ 
+function StrToComp(const S: string): Comp;
+var Posn: Integer;
+begin
+ 
+  if S[1] = '-' then
+    Result := -StrToComp(Copy(S, 2, Length(S) - 1))
+  else if S[1] = '$' then {Шестнадцатиричная строка}
+  try
+    if Length(S) &gt; 9 then
+      begin
+{Если строка некорректна, исключение сгенерирует StrToInt}
+        Result := StrToInt('$' + Copy(S, Length(S) - 7, 8));
+        if Result &gt; l 0 then Result := Result + Two32;
+{Если строка некорректна, исключение сгенерирует StrToInt}
+        CompAsTwoLongs(Result).HiL :=
+          StrToInt(Copy(S, 1, Length(S) - 8))
+      end
+    else
+      begin
+{Если строка некорректна, исключение сгенерирует StrToInt}
+        Result := StrToInt(S);
+        if Result &lt; 0 then Result := Result + Two32;
+      end;
+  except
+    on EConvertError do
+      raise
+        EConvertError.Create(S + ' некорректный Comp');
+  end
+  else {Десятичная строка}
+    begin
+      Posn := 1;
+      Result := 0;
+      while Posn &lt;= Length(S) do
+        case S[Posn] of
+          ',': Inc(Posn);
+          '0'..'9':
+            begin
+              Result := Result * 10 + Ord(S[Posn]) - $30;
+              Inc(Posn);
+            end;
+        else
+          raise EConvertError.Create(S +
+            ' некорректный Comp');
+        end;
+    end;
+end;
+ 
+end.
+</pre>
+
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

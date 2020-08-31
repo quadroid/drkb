@@ -1,0 +1,127 @@
+<html>
+<head>
+  <title>Как получить имя программы, с которой ассоциировано то или иное расширение?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить имя программы, с которой ассоциировано то или иное расширение?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Олег Кулабухов </p>
+<pre name="code" class="delphi">
+uses
+{$IFDEF WIN32}
+  Registry; {We will get it from the registry}
+{$ELSE}
+  IniFiles; {We will get it from the win.ini file}
+{$ENDIF}
+ 
+{$IFNDEF WIN32}
+const
+  MAX_PATH = 144;
+{$ENDIF}
+ 
+function GetProgramAssociation(Ext: string): string;
+var
+{$IFDEF WIN32}
+  reg: TRegistry;
+  s: string;
+{$ELSE}
+  WinIni: TIniFile;
+  WinIniFileName: array[0..MAX_PATH] of char;
+  s: string;
+{$ENDIF}
+begin
+{$IFDEF WIN32}
+  s := '';
+  reg := TRegistry.Create;
+  reg.RootKey := HKEY_CLASSES_ROOT;
+  if reg.OpenKey('.' + ext + '\shell\open\command',
+    false) &lt;&gt; false then
+  begin
+    {The open command has been found}
+    s := reg.ReadString('');
+    reg.CloseKey;
+  end
+  else
+  begin
+    {perhaps thier is a system file pointer}
+    if reg.OpenKey('.' + ext,
+      false) &lt;&gt; false then
+    begin
+      s := reg.ReadString('');
+      reg.CloseKey;
+      if s &lt;&gt; '' then
+      begin
+        {A system file pointer was found}
+        if reg.OpenKey(s + '\shell\open\command',
+          false) &lt;&gt; false then
+          {The open command has been found}
+          s := reg.ReadString('');
+        reg.CloseKey;
+      end;
+    end;
+  end;
+  {Delete any command line, quotes and spaces}
+  if Pos('%', s) &gt; 0 then
+    Delete(s, Pos('%', s), length(s));
+  if ((length(s) &gt; 0) and
+    (s[1] = '"')) then
+    Delete(s, 1, 1);
+  if ((length(s) &gt; 0) and
+    (s[length(s)] = '"')) then
+    Delete(s, Length(s), 1);
+  while ((length(s) &gt; 0) and
+    ((s[length(s)] = #32) or
+    (s[length(s)] = '"'))) do
+    Delete(s, Length(s), 1);
+{$ELSE}
+  GetWindowsDirectory(WinIniFileName, sizeof(WinIniFileName));
+  StrCat(WinIniFileName, '\win.ini');
+  WinIni := TIniFile.Create(WinIniFileName);
+  s := WinIni.ReadString('Extensions',
+    ext,
+    '');
+  WinIni.Free;
+  {Delete any command line}
+  if Pos(' ^', s) &gt; 0 then
+    Delete(s, Pos(' ^', s), length(s));
+{$ENDIF}
+  result := s;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  ShowMessage(GetProgramAssociation('gif'));
+end;
+ 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

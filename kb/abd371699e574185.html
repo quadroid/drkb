@@ -1,0 +1,65 @@
+<html>
+<head>
+  <title>Как заблокировать TDBGrid от автодобавления новой записи?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как заблокировать TDBGrid от автодобавления новой записи?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Добавьте в обработчик события вашего TTable "BeforeInsert" следующую строку:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Tbable1BeforeInsert(DataSet: TDataset);
+begin
+  Abort;  // &lt;&lt;---эту строчку
+end;
+</pre>
+
+<p>Осуществляем перехват нажатия клавиши и проверку на конец файла (end-of-file):</p>
+<pre name="code" class="delphi">
+procedure TForm8.DBGrid1KeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if (Key = VK_DOWN) then
+  begin
+    TTable1.DisableControls;
+    TTable1Next;
+    if TTable1.EOF then
+      Key := 0
+    else
+      TTable1.Prior;
+    TTable1.EnableControls;
+  end;
+end;
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

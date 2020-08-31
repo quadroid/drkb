@@ -1,0 +1,70 @@
+<html>
+<head>
+  <title>Преобразование 3D-координат точки в 2D-координаты в перспективе</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Преобразование 3D-координат точки в 2D-координаты в перспективе</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Преобразование 3D-координат точки в 2D-координаты в перспективе
+ 
+Процедура преобразует 3D-координаты точки в 2D-координаты на "картинной
+плоскости" в перспективе. В качестве параметров процедура принимает
+координаты точки в пространстве (X - горизонтальная перпендикулярно 
+лучу зрения, Y - горизонтальная вдоль луча зрения, Z - вертикальная) 
+начало координат - точка пересечения луча зрения с картинной плоскостью; 
+Height - высоту наблюдателя;
+Basis - расстояние от наблюдателя до картинной плоскости;
+результаты вычисления записываются в переменные XP и YP - координаты
+точки на картинной плоскости.
+ 
+Зависимости: нет
+Автор:       Dimka Maslov, mainbox@endimus.ru, ICQ:148442121, Санкт-Петербург
+Copyright:   Dimka Maslov, 1995
+Дата:        29 апреля 2002 г.
+********************************************** }
+ 
+procedure Perspective(const X, Y, Z, Height, Basis: Double;
+  var XP, YP: Double);
+var
+ Den: Double;
+begin
+ Den:=Y+Basis;
+ if Abs(Den)&lt;1e-100 then Den:=1e-100;
+ XP:=Basis*X/Den;
+ YP:=(Basis*Z+Height*Y)/Den;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

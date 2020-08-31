@@ -1,0 +1,45 @@
+<html>
+<head>
+  <title>Информация о TDataLink</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Информация о TDataLink</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: James Thorpe (CSA Australasia) </p>
+<p>Вот тексовое описание TDatalink, которое взято из моего учебного материала. Оригинал имеет еще несколько диаграмм и рисунков, которые не могут быть включены в данный совет. Также рекомендую заглянуть в исходный код модуля DB.PAS. </p>
+<p>TFieldDatalink - производный класс от TDataLink, являющийся базовым классом для объекта, используемого компонентами для работы с базами данных и осуществляющий функцию связи с набором данных DataSet (TTable или TQuery). DataLink используется DataSet'ом для информирования всех БД-компонентов об изменении записи, о необходимости обновления записи перед помещением ее в базу данных, о том, что DataSet сменила свое состояние на активное или неактивное, и т.д.. И наоборот, DataLink используется БД-компонентами для обновления DataSet, например, его статуса. </p>
+<p>DataSet может быть связан с несколькими источниками данных DataSource, каждый DataSource может быть связан с несколькими DataLink, и каждый DataLink может быть связан с единственным БД-компонентом. В большинстве случаев, отдельный компонент использует только один DataLink, тем не менее, имеются компоненты, такие как, например, DBLookupList или DBLookupCombo, использующих два DataLink. В этих элементах управления первый DataLink используется для чтения данных из lookup DataSet, второй DataLink используется для записи этих данных (при их изменении) во второй имеющийся DataSet. Каждый DataSet поддерживает связанный с ним список DataSource и, аналогично этому, каждый DataSource поддерживает список связанных с ним Datalink'ов. </p>
+<p>В момент, когда DataSet должен уведомить БД-компоненты о наступлении какого-то события, например, при изменении пользователем какой-либо записи, он рассылает это сообщение всем DataSource, находящимся в его списке. Каждый DataSource затем повторяет этот процесс и рассылает сообщение всем Datalink'ам, находящимся в его списке. Другими словами, связь не зависит от элемента управления, при этом логика программирования должна отслеживать передачу сообщения каждому элементу управления, пользующемуся услугами DataLink и изолировать только те события, на которые элементу необходимо отреагировать. Связывая компонент с набором данных другим способом, мы не получим в свое распоряжение столько управляющих функций, гибкости и мониторинга, сколько даст нам один DataSet, соединенный с помощью DataLink. </p>
+<p>Кроме функции обеспечения поддержания коммуникационного канала между DataSet и ДБ-компонентами, DataLink также обеспечивает управление буфером для каждого компонента. Большинство элементов управления, таких как, например, TDBEdit, отображающий только отдельно взятую запись, буферизация не требуется, тем не менее, таким компонентам, как, например, TDBGrid и TDBLookupList, отображающим множество записей, буферизация нужна. Физически DataLink данные не буферизирует, эта функция выполняется DataSet. Всесто этого DataLink поддерживает виртуальный буфер, который, в сущности, небольшое "окно" в физический буфер DataSet. Размер этого виртуального буфера может быть установлен с помощью свойства DataLinks BufferCount, а количество записей, реально в нем хранимых, с помощью свойства RecordCount.</p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

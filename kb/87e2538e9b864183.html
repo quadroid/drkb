@@ -1,0 +1,57 @@
+<html>
+<head>
+  <title>Проблема потери фокуса для TEdit</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Проблема потери фокуса для TEdit</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+To Reproduce the Problem:</p>
+<p>1. Drop two TEdits onto a form.</p>
+<p>2. In the OnExit Event of Edit1 add the following code:</p>
+<pre name="code" class="delphi">
+Application.MessageBox( 'Title','...', mb_ok );
+</pre>
+<p>3. Run the application.</p>
+<p>4. First select Edit1 then Edit2</p>
+<p>5. The Message box is shown.</p>
+<p>Click the OK button, and the Caret has dissapeared!</p>
+<p>6. How to handle this:</p>
+<pre name="code" class="delphi">
+ procedure TForm1.Edit1Exit(Sender: TObject);
+ begin
+  Application.MessageBox('qq','qq',mb_ok);
+  if Assigned(ActiveControl) then
+    PostMessage(ActiveControl.Handle,WM_SETFOCUS,0,0);
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

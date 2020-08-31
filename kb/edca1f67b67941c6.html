@@ -1,0 +1,80 @@
+<html>
+<head>
+  <title>Как изменить языковый драйвер в runtime?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как изменить языковый драйвер в runtime?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure SetLanguage(Tbl: TTable; Lang: DbiName);
+var
+  pOptDesc: pFLDDesc;
+  pOptData: pBYTE;
+  hDb: hDbiDb;
+  TblDesc: CRTblDesc;
+  Dir: string;
+begin
+  pOptDesc := AllocMem(sizeof(FLDDesc));
+  pOptData := AllocMem(20);
+  SetLength(Dir, dbiMaxNameLen + 1);
+  Tbl.Active := True;
+  Check(DbiGetDirectory(Tbl.DBHandle, False, PChar(Dir)));
+  SetLength(Dir, StrLen(PChar(Dir)));
+  try
+    FillChar(TblDesc, sizeof(CRTblDesc), #0);
+    Tbl.DisableControls;
+    Tbl.Close;
+    Check(DbiOpenDatabase(nil, nil, dbiReadWrite, dbiOpenExcl, nil, 0, nil, nil,
+      hDb));
+    Check(DbiSetDirectory(hDb, PChar(Dir)));
+    pOptDesc.iOffset := 0;
+    pOptDesc.iLen := Length(Lang) + 1;
+    StrPCopy(pOptDesc.szName, 'LANGDRIVER');
+    StrPCopy(PChar(pOptData), Lang);
+    TblDesc.iOptParams := 1;
+    TblDesc.pfldOptParams := pOptDesc;
+    TblDesc.pOptData := pOptData;
+    StrPCopy(TblDesc.szTblName, Tbl.TableName);
+    StrCopy(TblDesc.szTblType, szParadox);
+    Check(DbiDoRestructure(hDb, 1, @TblDesc, nil, nil, nil, False));
+  finally
+    Check(DbiCloseDatabase(hDb));
+    FreeMem(pOptDesc, sizeof(FLDDesc));
+    FreeMem(pOptData, 20);
+    Tbl.EnableControls;
+  end;
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

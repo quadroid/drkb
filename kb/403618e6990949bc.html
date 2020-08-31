@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Как показать видео на полном экране?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как показать видео на полном экране?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+const
+  longName: PChar = 'f:\media\ANIM1.MPG'; {Your complete FileName}
+var
+  ret, shortName: PChar;
+  err: DWord;
+begin
+  {Getting the short Name (8:3) of selected file}
+  shortName := strAlloc(521);
+  GetShortPathName(longName, shortname, 512);
+  {Sending a close Command to the MCI}
+  ret := strAlloc(255);
+  err := mciSendString(pchar('close movie'), 0, 0, 0);
+  {No error check because at the first call there is no MCI device to close}
+  {Open a new MCI Device with the selected movie file}
+  err := mciSendString(pchar('open ' + shortName + ' alias movie'), 0, 0, 0);
+  shortName := nil;
+  {If an Error was traced then display a MessageBox with the mciError string}
+  if err &lt;&gt; 0 then
+  begin
+    mciGetErrorString(err, ret, 255);
+    messageDlg(ret, mtInformation, [mbOk], 0);
+  end;
+  {Sending the "play fullscreen command to the Windows MCI}
+  err := mciSendString(pchar('play movie fullscreen'), 0, 0, 0);
+  {Use the following line instead of the above one if you want to play 
+        it in screen mode}
+  err := mciSendString(pchar('play movie'), 0, 0, 0);
+  {If an Error was traced then display a MessageBox with the mciError string}
+  if err &lt;&gt; 0 then
+  begin
+    mciGetErrorString(err, ret, 255);
+    messageDlg(ret, mtInformation, [mbOk], 0);
+  end;
+  ret := nil;
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

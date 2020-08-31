@@ -1,0 +1,98 @@
+<html>
+<head>
+  <title>Как настроить табуляцию в компоненте TMemo?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как настроить табуляцию в компоненте TMemo?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Пошлите в Memo сообщение EM_SETTABSTOPS</p>
+
+<p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
+<hr />
+<pre name="code" class="delphi">
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  DialogUnitsX: LongInt;
+  PixelsX: LongInt;
+  i: integer;
+  TabArray: array[0..4] of integer;
+begin
+  Memo1.WantTabs := true;
+  DialogUnitsX := LoWord(GetDialogBaseUnits);
+  PixelsX := 20;
+  for i := 1 to 5 do
+    begin
+      TabArray[i - 1] := ((PixelsX * i) * 4) div DialogUnitsX;
+    end;
+  SendMessage(Memo1.Handle,
+    EM_SETTABSTOPS, 5, LongInt(@TabArray));
+  Memo1.Refresh;
+end;
+</pre>
+
+<p>Взято из </p>
+DELPHI VCL FAQ Перевод с английского &nbsp; &nbsp; &nbsp; 
+<p>Подборку, перевод и адаптацию материала подготовил Aziz(JINX)</p>
+<p>специально для <a href="http://delphi.vitpc.com/" target="_blank">Королевства Дельфи</a></p>
+
+
+<hr />
+<p>Для этого надо послать сообщение EM_SetTabStops компоненте TMemo, в котором необходимо указать два параметра. Количество передаваемых значений и величины табуляций. </p>
+
+<p>Если первый параметр равняется нулю, то второй параметр игнорируется и величина табуляции сбрасывается в значение по умолчанию (32). Иначе, устанавливается величина указанная во втором параметре, причем, при единичном значении все величины табуляций будут равны, а при большем значении величины берутся из переданного массива. </p>
+
+<pre name="code" class="delphi">
+{Установка одной величины табуляции}
+const
+  TabInc: LongInt = 40;
+ 
+begin
+  SendMessage(Memo1.Handle, EM_SetTabStops, 1, Longint(@TabInc));
+end;
+ 
+...
+ 
+{Установка двух величин табуляции}
+const
+  TabInc: array [1..2] of LongInt = (10, 30);
+ 
+begin
+  SendMessage(Memo1.Handle, EM_SetTabStops, 2, Longint(@TabInc));
+end;
+ 
+ 
+</pre>
+<a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

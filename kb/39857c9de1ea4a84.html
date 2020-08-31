@@ -1,0 +1,111 @@
+<html>
+<head>
+  <title>Как использовать CreateWindow(Ex)?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как использовать CreateWindow(Ex)?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: lel  </p>
+<pre name="code" class="delphi">
+program winmin;
+ 
+uses
+ windows,
+ messages;
+var   wc : TWndClassEx;
+MainWnd : HW   Mesg : TMsg;   
+ 
+function WindowProc(wnd:HWND; Msg : Integer; Wparam:Wparam;
+ Lparam:Lparam):Lresult;
+stdcall;
+Begin
+case msg of
+wm_destroy :
+ Begin
+  postquitmessage(0); exit;
+  Result:=0;
+ End;
+ 
+ else Result:=DefWindowProc(wnd,msg,wparam,lparam);
+end;
+ 
+End;
+var xPos,yPos,nWidth,nHeight : Integer;
+begin
+wc.cbSize:=sizeof(wc);
+wc.style:=cs_hredraw or cs_vredraw;
+wc.lpfnWndProc:=@WindowProc;
+wc.cbClsExtra:=0;
+wc.cbWndExtra:=0;
+wc.hInstance:=HInstance;
+wc.hIcon:=LoadIcon(0,idi_application);
+wc.hCursor:=LoadCursor(0,idc_arrow);
+wc.hbrBackground:=COLOR_BTNFACE+1;
+wc.lpszMenuName:=nil;
+wc.lpszClassName:='WinMin : Main';
+ 
+RegisterClassEx(wc);
+xPos:=100;
+yPos:=150;
+nWidth:=400;
+nHeight:=250;
+ 
+MainWnd:=CreateWindowEx(
+0,              
+'WinMin : Main',
+'Win Min',        
+ws_overlappedwindow,
+xPos, 
+yPos,
+nWidth,   
+nHeight,        
+0,               
+0,                  
+Hinstance,          
+nil                 
+);
+ 
+ 
+ShowWindow(Mai! nWnd,CmdShow);
+While GetMessage(Mesg,0,0,0) do
+begin
+ TranslateMessage(Mesg);
+ DispatchMessage(Mesg);
+end;
+ 
+end.
+ 
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

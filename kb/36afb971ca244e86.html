@@ -1,0 +1,100 @@
+<html>
+<head>
+  <title>Использование указателей на целое</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Использование указателей на целое</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Сначала вы должны создать тип:</p>
+<pre name="code" class="delphi">
+Type Pinteger : ^Integer;
+ 
+Var MyPtr : Pinteger;
+</pre>
+
+<p>Мне кажется, что в начале вы использовали плохой пример, имеет смысл использовать 32-битный указатель для 16-битной величины или распределять 10 байт для переменной. </p>
+
+<p>Pascal позволяет вам использовать методы NEW и DISPOSE, которые автоматически распределяют и освобождают правильные размеры блока. </p>
+
+<p>Например:</p>
+<pre name="code" class="delphi">
+NEW(MyPtr) = GetMem(MyPtr, Sizeof(MyPtr))
+</pre>
+
+<p>Возможно, вы захотите подсчитать количество целочесленных переменных. В этом случае ознакомьтесь с возможностями TList. Пока лучше используйте линейный массив (или указатель на первый элемент, чтобы вычислить их количество, достаточно разделить количество занимаемой массивом памяти на количество элементов). </p>
+
+<p>Для полноты, это должно быть:</p>
+
+<pre name="code" class="delphi">
+NEW(MyPtr) = GetMem(MyPtr, SizeOf(MyPtr^));
+</pre>
+
+<p>SizeOf(MyPtr) всегда будет равен 4 байта, как 16-битный указатель. </p>
+
+<p>Если я правильно разобрался в том, что вы хотите (динамический массив целых, количество элеметнов которого может быть известно только во время выполнения приложения), вы можете сделать так:</p>
+
+<pre name="code" class="delphi">
+Type
+  pIntArr = ^IntArr;
+  IntArr  = Array[1..1000] of Integer;
+Var
+  MyPtr : pIntArr;
+Begin
+  GetMem(MyPtr, 10); { 10 = SizeOf(Integer) * 5 !!)
+  { MyPtr[2]:=1; }
+  // &lt;&lt;&lt;&lt; Заполняем массив &gt;&gt;&gt;&gt;
+  MyPtr[2]^:=1;
+  FreeMem(MyPtr,10);
+End;
+</pre>
+
+<p>Технология похожа на ту, которая Delphi использует при работе с pchar. Синтаксис очень похож:</p>
+
+<pre name="code" class="delphi">
+type
+  intarray = array[0..20000] of integer;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  xptr:  ^IntArray;
+begin
+  GetMem(xptr, 10);
+  xptr^[idx] := 1;  { где idx от 0 до 4, поскольку мы
+                      имеем 10 байте = 5 целых }
+  FreeMem(xptr, 10);
+end;
+</pre>
+
+<p>Обратите внимание на то, в вам в действительности нет необходимости распределять массив для 20,000 элементов, но проверка диапазона Delphi не будет работать, если диапазон равен 20,000. (Предостережение будущим пользователям!) </p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

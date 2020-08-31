@@ -1,0 +1,215 @@
+<html>
+<head>
+  <title>Глобальный класс TApplication</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Глобальный класс TApplication</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Предлагаю вам ознакомиться с приведенной таблицей событий этого объекта:</p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>События </p>
+</td>
+<td ><p>Возникает </p>
+</td>
+</tr>
+<tr >
+<td ><p>OnActionExecute: TActionEvent </p>
+</td>
+<td ><p>Происходит при вызове метода Execute перед обработкой списка событий. </p>
+</td>
+</tr>
+<tr >
+<td ><p>OnActionUpdate: TNotifyEvent </p>
+</td>
+<td ><p>Происходит при вызове метода Update; </p>
+</td>
+</tr>
+<tr >
+<td ><p>OnActivate: TNotifyEvent </p>
+</td>
+<td ><p>При переходе приложения в активное состояние. </p>
+</td>
+</tr>
+<tr >
+<td ><p>OnDeactivate:TNotifyEvent </p>
+</td>
+<td ><p>При переключении на другое приложение Windows </p>
+</td>
+</tr>
+<tr >
+<td ><p>OnException: TExceptionEvent </p>
+</td>
+<td ><p>При возникновении исключительной ситуации </p>
+</td>
+</tr>
+<tr >
+<td ><p>OnHelp: THelpEvent </p>
+</td>
+<td ><p>При запросе приложением справочной системы. </p>
+</td>
+</tr>
+<tr >
+<td ><p>OnHint: TNotifyEvent </p>
+</td>
+<td ><p>При перемещении мыши над компонентом, у которого есть строка подсказки (Hint) </p>
+</td>
+</tr>
+<tr >
+<td ><p>OnIdle: TNotifyEvent </p>
+</td>
+<td ><p>При отсутствии работы у приложения </p>
+</td>
+</tr>
+<tr >
+<td ><p>OnMessage: TMessageEvent </p>
+</td>
+<td ><p>При получении сообщения Windows </p>
+</td>
+</tr>
+<tr >
+<td ><p>OnMinimize: TNotifyEvent </p>
+</td>
+<td ><p>При минимизации приложения </p>
+</td>
+</tr>
+<tr >
+<td ><p>OnRestore: TNotifyEvent </p>
+</td>
+<td ><p>При восстановлении приложения в нормальный размер </p>
+</td>
+</tr>
+<tr >
+<td ><p>OnShowHint: TShowHintEvent </p>
+</td>
+<td ><p>При выводе строки подсказки (Hint) </p>
+</td>
+</tr>
+</table>
+<p>Для примера хочу предложить вам пример программы, которая при простое увеличивает счетчик на единицу, а при нажатии клавиши перестает это делать. Поставьте на форму одну кнопку и метку. Свойство Caption метки должно быть равно '0';</p>
+<pre name="code" class="delphi">
+unit Unit1;
+interface
+ 
+uses
+Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+StdCtrls;
+ 
+type
+TForm1 = class(TForm)
+  Button1: TButton;
+  Label1: TLabel;
+  procedure Button1Click(Sender: TObject);
+private
+{ Private declarations }
+  procedure count(Sender:TObject; var Done:boolean);
+  procedure stop(var Msg:TMsg; var Handled:boolean);
+public
+{ Public declarations }
+end;
+ 
+var
+Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+procedure Tform1.Count;
+begin
+  label1.Caption:=IntToStr(StrToInt(label1.caption)+1);//увеличиваем счетчик
+  Done:=false;
+end;
+ 
+procedure TForm1.stop(var Msg:Tmsg; var Handled:boolean);
+begin
+  if Msg.message=WM_KEYDOWN then 
+  begin //нажата любая клавиша
+    Application.OnMessage:=nil;//сообщение не обрабаьывать
+    Application.OnIdle:=nil;//Отменить фоновую работу
+    Handled:=true;//сообщение обработано
+  end;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  Application.OnIdle:=count;//процедура обработки простоя
+  Application.OnMessage:=Stop;//процедура обработки сообщений
+end;
+ 
+end.
+</pre>
+
+<p>Еще у объекта TApplication есть ряд полезных свойств. Их названия и смысл приведены в таблице.</p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: colla: 7px 0px 7px 0px;">Свойств: 7px 0px 7px 0px;">Описание </p>
+</td>
+</tr>
+<tr >
+<td ><p>HelpFile: String </p>
+</td>
+<td ><p>Имя файла контекстной помощи, которое используется приложением </p>
+</td>
+</tr>
+<tr >
+<td ><p>Hint: String </p>
+</td>
+<td ><p>Строка подсказки </p>
+</td>
+</tr>
+<tr >
+<td ><p>HintHidePause: Integer </p>
+</td>
+<td ><p>Время, в течении которого подсказка будет отображаться. По умолчанию 2500 мсек. </p>
+</td>
+</tr>
+<tr >
+<td ><p>HintPause: Integer </p>
+</td>
+<td ><p>Время, через которое подсказка появится при перемещении курсора над объектом. По умолчанию 500 мсек. </p>
+</td>
+</tr>
+<tr >
+<td ><p>HintShortPause: Integer </p>
+</td>
+<td ><p>Используется для уменьшения мерцания курсора при перемещении мыши над объектом. По умолчанию 50 мсек. </p>
+</td>
+</tr>
+<tr >
+<td ><p>ShowHint: Boolean </p>
+</td>
+<td ><p>Разрешает выводить подсказку для всего приложения (по умолчанию). Установив в False, вы запретите вывод подсказок для всего приложения </p>
+</td>
+</tr>
+</table>
+
+<p>(С) Автор статьи: Михаил Христосенко // Development и Дельфи (http://delphid.dax.ru/). </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

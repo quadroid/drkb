@@ -1,0 +1,78 @@
+<html>
+<head>
+  <title>Opening PowerPoint</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Opening PowerPoint</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Opening PowerPoint (early binding)</p>
+<p>Before you can use this method, you must have imported the type library (MSPpt8.olb for PowerPoint 97).</p>
+<p>One way of starting PowerPoint is to try the GetActiveObject call, to get a running instance of PowerPoint, but put a call to CoApplication.Create in an except clause. But except clauses are slow, and can cause problems within the IDE for people who like Break On Exceptions set to True. The following code removes the need for a try...except clause, by avoiding using OleCheck on GetActiveObject in the case when PowerPoint is not running.</p>
+<pre name="code" class="delphi">
+uses Windows, ComObj, ActiveX, OfficePowerPoint_TLB;
+ 
+var 
+  PowerPoint: _Application;
+  AppWasRunning: boolean; // tells you if you can close PowerPoint when you've finished
+  Unknown: IUnknown; 
+  Result: HResult; 
+begin 
+  AppWasRunning := False;
+  Result := GetActiveObject(CLASS_Application, nil, Unknown);
+  if (Result = MK_E_UNAVAILABLE) then
+    PowerPoint := CoApplication.Create
+  else begin
+    { make sure no other error occurred during GetActiveObject }
+    OleCheck(Result);
+    OleCheck(Unknown.QueryInterface(_Application, PowerPoint));
+    AppWasRunning := True;
+  end;
+  PowerPoint.Visible := TOleEnum(msoTrue);
+  ...
+</pre>
+&nbsp;</p>
+
+<p>Without using the type library</p>
+<p>Automation is so much easier and faster using type libraries (early binding) that you should avoid managing without if at all possible. But if you really can't, here's how to get started:</p>
+<pre name="code" class="delphi">
+var 
+  PowerPoint: Variant; 
+begin 
+  try 
+    PowerPoint := GetActiveOleObject('PowerPoint.Application');    
+  except 
+    PowerPoint := CreateOleObject('PowerPoint.Application');    
+  end; 
+  PowerPoint.Visible := True; 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<html>
+<head>
+  <title>Как использовать верхние и нижние индексы?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как использовать верхние и нижние индексы?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>RichEdit поддерживает верхние/нижние индексы;</p>
+<p>Вот как это делается:</p>
+<pre name="code" class="delphi">
+uses RichEdit;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  CF: TCharFormat;
+begin
+  cf.cbSize := sizeof(cf);
+  cf.dwMask := CFM_OFFSET;
+  cf.yOffset := 70; // смещение по y; положительное/отрицательное для смещение верх/вниз
+  RichEdit1.Perform(EM_SETCHARFORMAT, SCF_SELECTION, integer(@cf));
+end;
+</pre>
+
+
+<p>SCF_ALL применить ко всему тексту</p>
+<p>SCF_SELECTION применить к веделенному тексту</p>
+<p>SCF_WORD | SCF_SELECTION применить к выделенным словам</p>
+
+<p>Взято из MSDN. Проверено на Delphi7. Это работает. Попробый сделать сам, чтобы верхние/нижние индексы имели меньший размер. </p>
+
+<p>Тем более это работает в rxRichEdit. </p>
+
+<p id="author">Автор: Seti</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+<hr />
+<pre name="code" class="delphi">
+// yOffset values 
+type
+   TCharacterFormat = (CFM_Superscript, CFM_Subscript, CFM_Normal);
+ 
+ procedure RE_SetCharFormat(RichEdit: TRichEdit; CharacterFormat: TCharacterFormat);
+ var
+   // The CHARFORMAT structure contains information about 
+  // character formatting in a rich edit control. 
+  Format: TCharFormat;
+ begin
+   FillChar(Format, SizeOf(Format), 0);
+   with Format do
+   begin
+     cbSize := SizeOf(Format);
+     dwMask := CFM_OFFSET;
+     // Character offset, in twips, from the baseline. 
+    // If the value of this member is positive, 
+    // the character is a superscript; 
+    // if it is negative, the character is a subscript. 
+    case CharacterFormat of
+       CFM_Superscript: yOffset := 60;
+       CFM_Subscript: yOffset := -60;
+       CFM_Normal: yOffset := 0;
+     end;
+   end;
+   // The EM_SETCHARFORMAT message sets character formatting in a rich edit control. 
+  // SCF_SELECTION: Applies the formatting to the current selection 
+  Richedit.Perform(EM_SETCHARFORMAT, SCF_SELECTION, Longint(@Format));
+ end;
+ 
+ // Examples: 
+// Beispiele: 
+ 
+// Apply Superscript to the current selection 
+// Markierte Zeichen hoch stellen 
+procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   RE_SetCharFormat(RichEdit1, CFM_Superscript);
+ end;
+ 
+ // Apply Subscript to the current selection 
+// Markierte Zeichen tief stellen 
+procedure TForm1.Button2Click(Sender: TObject);
+ begin
+   RE_SetCharFormat(RichEdit1, CFM_Subscript);
+ end;
+</pre>
+
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

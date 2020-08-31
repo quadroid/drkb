@@ -1,0 +1,75 @@
+<html>
+<head>
+  <title>Как очистить кэш в IE?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как очистить кэш в IE?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В примере описывается как программно в Internet Explorer нажать кнопку "Clear cache".</p>
+<p>Вам нужно будет использовать WinINet в Вашей TfrmMain: </p>
+<pre name="code" class="delphi">
+Uses WinINet; 
+</pre>
+<p>и добавить к TButton следующий обработчик btnEmptyCache: </p>
+
+<pre name="code" class="delphi">
+Procedure TfrmMain.btnEmptyCacheClick( Sender : TObject ); 
+Var 
+    lpEntryInfo : PInternetCacheEntryInfo; 
+    hCacheDir   : LongWord; 
+    dwEntrySize : LongWord; 
+    dwLastError : LongWord; 
+Begin 
+    dwEntrySize := 0; 
+    FindFirstUrlCacheEntry( NIL, TInternetCacheEntryInfo( NIL^ ), dwEntrySize ); 
+    GetMem( lpEntryInfo, dwEntrySize ); 
+    hCacheDir := FindFirstUrlCacheEntry( NIL, lpEntryInfo^, dwEntrySize ); 
+    If ( hCacheDir &lt;&gt; 0 ) Then 
+        DeleteUrlCacheEntry( lpEntryInfo^.lpszSourceUrlName ); 
+    FreeMem( lpEntryInfo ); 
+    Repeat 
+        dwEntrySize := 0; 
+        FindNextUrlCacheEntry( hCacheDir, TInternetCacheEntryInfo( NIL^ ), dwEntrySize ); 
+        dwLastError := GetLastError(); 
+        If ( GetLastError = ERROR_INSUFFICIENT_BUFFER ) Then Begin 
+            GetMem( lpEntryInfo, dwEntrySize ); 
+            If ( FindNextUrlCacheEntry( hCacheDir, lpEntryInfo^, dwEntrySize ) ) Then 
+                DeleteUrlCacheEntry( lpEntryInfo^.lpszSourceUrlName ); 
+            FreeMem(lpEntryInfo); 
+        End; 
+    Until ( dwLastError = ERROR_NO_MORE_ITEMS ); 
+End;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

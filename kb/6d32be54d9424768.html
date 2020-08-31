@@ -1,0 +1,73 @@
+<html>
+<head>
+  <title>Выводим цветной текст на форме под любым углом</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Выводим цветной текст на форме под любым углом</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Lutfi Baran</p>
+
+<p>Пример демонстрирует вывод теста случайным образом на форме под определённым углом. Добавляем в форму компонент TButton и в событие OnClick следующий код:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  logfont: TLogFont;
+  font: Thandle;
+  count: integer;
+begin
+  LogFont.lfheight := 20;
+  logfont.lfwidth := 20;
+  logfont.lfweight := 750;
+  LogFont.lfEscapement := -200;
+  logfont.lfcharset := 1;
+  logfont.lfoutprecision := out_tt_precis;
+  logfont.lfquality := draft_quality;
+  logfont.lfpitchandfamily := FF_Modern;
+  font := createfontindirect(logfont);
+  Selectobject(Form1.canvas.handle, font);
+  SetTextColor(Form1.canvas.handle, rgb(0, 0, 200));
+  SetBKmode(Form1.canvas.handle, transparent);
+  for count := 1 to 100 do
+  begin
+    canvas.textout(Random(form1.width), Random(form1.height), 'Hello');
+    SetTextColor(form1.canvas.handle, rgb(Random(255), Random(255), Random
+      (255)));
+  end;
+  Deleteobject(font);
+end;
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

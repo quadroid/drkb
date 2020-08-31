@@ -1,0 +1,55 @@
+<html>
+<head>
+  <title>Определение и использование курсора</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Определение и использование курсора</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Сначала (поскольку многие попадаются в эту ловушку) убедитесь в том, что имя .RES-файла, в котором вы храните ваш курсор, отличается от имени .RES-файла вашего проекта, т.е., если ваш проект имеет имя MyApp.DPR, то не используйте для хранения новых ресурсов файл MyApp.RES. Вы должны создать отдельный .RES-файл с другим именем (например, MyApp01.RES) и включить его в ваш проект, например так:</p>
+implementation
+{$R MyApp01.Res}
+<p>&nbsp;</p>
+<p>Вы не можете назначить курсор свойству компонента Cursor или DragCursor из .RES-файла напрямую, необходимо выполнить несколько промежуточных шагов. В каждом проекте Delphi определяет глобальный объект с именем Screen (тип TScreen), который, между прочим, определяет массив курсоров, называемый, как ни странно, Cursors. Когда вы щелкаете на свойстве Cursor/DragCursor в Инспекторе объектов, выпадающий список и есть список элементов указанного массива. </p>
+<p>Для предустановленных курсоров Delphi использует элементы массива с индексами начиная с -1 и ниже (т.е. только отрицательные числа), поэтому собственные курсоры вы можете размещать с порядковым номером, начинающимся с нуля и выше. </p>
+<p>Для начала определите константу, допустим так:</p>
+Const
+<p>  MyCursor = 1;</p>
+<p>Далее необходимо загрузить курсор. Сделать это можно в обработчике события формы OnCreate:</p>
+
+<p>Screen.Cursors[MyCursor] := LoadCursor(HInstance, 'MYCURSOR'); </p>
+<p>Затем просто установите в свойстве DragCursor любого элемента управления:</p>
+
+<p>MyListbox.DragCursor := MyCursor;</p>
+<p id="note">Примечание: имя вашего курсора всегда должно писаться в ВЕРХНЕМ регистре, как при вызове LoadCursor, так и в его названии в .RES-файле. </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

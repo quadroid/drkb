@@ -1,0 +1,176 @@
+<html>
+<head>
+  <title>Работа с удаленными записями</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Работа с удаленными записями</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TForm1.Table1AfterOpen(DataSet: TDataset);
+begin
+  SetDelete(Table1, TRUE);
+end;
+ 
+procedure SetDelete(oTable: TTable; Value: Boolean);
+var
+  rslt: DBIResult;
+  szErrMsg: DBIMSG;
+begin
+  try
+    oTable.DisableControls;
+    try
+      rslt := DbiSetProp(hDBIObj(oTable.Handle), curSOFTDELETEON,
+        LongInt(Value));
+      if rslt &lt;&gt; DBIERR_NONE then
+      begin
+        DbiGetErrorString(rslt, szErrMsg);
+        raise Exception.Create(StrPas(szErrMsg));
+      end;
+    except
+      on E: EDBEngineError do
+        ShowMessage(E.Message);
+      on E: Exception do
+        ShowMessage(E.Message);
+    end;
+  finally
+    oTable.Refresh;
+    oTable.EnableControls;
+  end;
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+<hr />В таблицах dBASE записи не удаляются до тех пор, пока таблица не будет упакована. Пока же это не произойдет, удаленные записи остаются в таблице, только имеют при этом флажок "к удалению". Для того, чтобы показать эти существующие, но не отображаемые записи, существует функция ShowDeleted(), которая использует функцию BDE API DbiSetProp(), показывающая записи, помеченные к удалению. При использовании этой функции нет необходимости закрывать и вновь открывать таблицу. ShowDeleted() в качестве параметров передается TTable и логическое значение. Логический параметр указывает на необходимость показа удаленных записей. </p>
+
+<p>Демонстрационный проект:</p>
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ExtCtrls, DBCtrls, Grids, DBGrids, DB, DBTables;
+ 
+type
+  TForm1 = class(TForm)
+    Table1: TTable;
+    DataSource1: TDataSource;
+    DBGrid1: TDBGrid;
+    DBNavigator1: TDBNavigator;
+    CheckBox1: TCheckBox;
+    procedure CheckBox1Click(Sender: TObject);
+  public
+    procedure ShowDeleted(Table: TTable; ShowDeleted: Boolean);
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+uses DBITYPES, DBIERRS, DBIPROCS;
+ 
+{$R *.DFM}
+ 
+procedure TForm1.ShowDeleted(Table: TTable; ShowDeleted: Boolean);
+var
+  rslt: DBIResult;
+  szErrMsg: DBIMSG;
+begin
+  Table.DisableControls;
+  try
+    Check(DbiSetProp(hDBIObj(Table.Handle), curSOFTDELETEON,
+      LongInt(ShowDeleted)));
+  finally
+    Table.EnableControls;
+  end;
+  Table.Refresh;
+end;
+ 
+procedure TForm1.CheckBox1Click(Sender: TObject);
+begin
+  ShowDeleted(Table1, CheckBox1.Checked);
+end;
+ 
+end.
+</pre>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a>
+
+<hr />Показ меток удаленных записей в dBASE-файлах </p>
+
+<p>Для начала вы должны включить SoftDeletes, после чего вы сможете просматривать записи, помеченные к удалению. В противном случае, вы их не увидите. По умолчанию, для файлов DBF, SoftDeletes установлен в False. Вот логика работы:</p>
+
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  B: BOOL;
+  W: Word;
+begin
+  Check(DbiSetProp(hDBIObj(Table1.Handle), curSOFTDELETEON,
+    longint(True)));
+  { Проверяем, что это работает }
+  Check(DbiGetProp(hDBIObj(Table1.Handle), curSOFTDELETEON, @B,
+    sizeof(B), W));
+  if B = False then
+    Label2.Caption := 'Не помечена'
+  else
+    Label2.Caption := 'Помечена';
+end;
+</pre>
+
+
+<p>Когда указатель на запись указывает на запись, которую вы хотите удалить, используйте следующую логику:</p>
+
+<p>Table1.UpdateCursorPos;</p>
+<p>Check(DbiUndeleteRecord(Table1.Handle));</p>
+
+<p>Метод UpdateCursorPos устанавливает основной курсор BDE на позицию курсора текущей записи, который существуют только для того, чтобы все работало правильно. Вам нужно только вызвать этот метод прямым вызовом одной из BDE API функций (такой как, например, DbiUndeleteRecord). </p>
+
+<p>Ну и, наконец, чтобы все работало, поместите модули DBIPROCS и DBITYPES с список USES. </p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+<hr />Взято из "Dtopics Database 1.10 from 3K computer Consultancy": </p>
+
+<p>Пакование таблиц</p>
+<pre name="code" class="delphi">
+ 
+with Table1 do
+  StrPCopy(TName, TableName);
+Result := DBIPackTable(DbHandle, Handle, TName, szDBASE, TRUE);
+</pre>
+
+
+<p>Задание видимости удаленных записей - вкл/выкл (например, dBase SET DELETED ON/OFF)</p>
+
+<p>DbiSetProp( hDBIObj(Table1.Handle), curSOFTDELETEON, LongInt(bValue));</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

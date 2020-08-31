@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>Изменить шрифт TStatusBar</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Изменить шрифт TStatusBar</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  To use this example, you need a TStatusBar and at least one Panel. 
+  Then change the style of StatusBar1.Panels[0] to 
+  psOwnerDraw and add the code below to the OnDrawPanel handler. 
+}
+ 
+ procedure TForm1.StatusBar1DrawPanel(StatusBar: TStatusBar;
+   Panel: TStatusPanel; const Rect: TRect);
+ var
+   SomeText: string;
+ begin
+   if Panel = StatusBar1.Panels[0] then
+   begin
+     SomeText    := 'Hello!';
+     Panel.Width := Trunc(StatusBar1.Canvas.TextWidth(SomeText) * 1.5);
+     with StatusBar.Canvas do
+      begin
+       Brush.Color := clWhite;
+       FillRect(Rect);
+       Font.Name  := 'Arial';
+       Font.Color := clRed;
+       Font.Style := Font.Style + [fsItalic, fsBold];
+       TextRect(Rect, Rect.Left + 1, Rect.Top, SomeText);
+     end;
+   end;
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

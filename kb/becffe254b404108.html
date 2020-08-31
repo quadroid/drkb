@@ -1,0 +1,83 @@
+<html>
+<head>
+  <title>Позиционирование каретки в TStringGrid</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Позиционирование каретки в TStringGrid</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  The following code allows you to position the caret 
+  in a cell (InplaceEditor) of a StringGrid. 
+  We need a Cracker class to access the InplaceEditor. 
+ 
+}
+ 
+ type
+   TGridCracker = class(TStringGrid);
+ 
+    {...}
+ 
+ implementation
+ 
+ {...}
+ 
+ procedure SetCaretPosition(Grid: TStringGrid; col, row, x_pos: Integer);
+ begin
+   Grid.Col := Col;
+   Grid.Row := Row;
+   with TGridCracker(Grid) do
+     InplaceEditor.SelStart := x_pos;
+ end;
+ 
+ // Get the Caret position from the focussed cell 
+// Ermittelt die Caret-Position der aktuellen Zelle 
+function GetCaretPosition(Grid: TStringGrid): Integer;
+ begin
+   with TGridCracker(Grid) do
+     Result := InplaceEditor.SelStart;
+ end;
+ 
+ // Example / Beispiel: 
+ 
+// Set the focus on col 1, row 3 and position the caret at position 5 
+// Fokusiert die Zelle(1,3) und setzt den Cursor auf Position 5 
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   StringGrid1.SetFocus;
+   SetCaretPosition(StringGrid1, 1, 3, 5);
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

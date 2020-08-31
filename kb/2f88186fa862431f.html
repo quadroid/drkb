@@ -1,0 +1,70 @@
+<html>
+<head>
+  <title>Создание приложения клиента</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создание приложения клиента</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Перейдем к написанию приложения клиента. Если у нас есть модуль Project_TLB, то оно ничем не будет отличаться от предыдущего примера. Более интересен случай, когда мы имеем только исполнимый файл с сервером. Зарегистрируем этот сервер и выберем в меню Delphi IDE команду Project -&gt; Import Type Library</p>
+<p>В открывшемся окне найдем строку с описанием библиотеки типов требуемого сервера:</p>
+<p><img src="pic/clip0234.gif" width="477" height="581" border="0" alt="clip0234"></p>
+<p>Если включен флажок Generate Component Wrappers, то в импортированный модуль будет добавлен код для создания компонента Delphi, который можно бросить на форму и он автоматически создаст требуемый COM-сервер и позволит обращаться к его методам. В противном случае будет сгенерирован модуль, содержащий описание всех имеющихся в библиотеке типов интерфейсов.</p>
+<p>Далее Вы должны определить, что Вы собираетесь сделать с выбранной библиотекой</p>
+Install &nbsp; &nbsp; &nbsp; &nbsp;Создает модуль с описанием интерфейсов и автоматически регистрирует требуемые компоненты в IDE. После этого Вам остается лишь бросить их на форму. &nbsp; &nbsp; &nbsp; 
+Create Unit &nbsp; &nbsp; &nbsp; &nbsp;Создает интерфейсный модуль, но не устанавливает его в IDE. Это удобно, если Вам нужны только описания интерфейсов, либо если Вы хотите вручную установить его в package, отличающуюся от используемой по умолчанию &nbsp; &nbsp; &nbsp; 
+<p>Таким образом, для распространения и использования сервера не нужно ничего, кроме его исполнимого модуля. Но самое главное даже не это. Гораздо более важно, что Вы можете импортировать и использовать в своей программе любой из имеющихся на компьютере COM-серверов. Естественно, что при передаче своей программы клиенту Вы должны установить на его компьютере соответствующий COM-сервер.</p>
+<p><img src="pic/clip0235.gif" width="438" height="215" border="0" alt="clip0235"></p>
+<p>Для примера, используем в своем приложении процессор регулярных выражений VBScript. Импортируем библиотеку типов «Microsoft VBScript Regular Expressions»</p>
+<p>При этом будет создан файл VBScript_RegExp_TLB.pas</p>
+<p>Создадим форму и добавим следующий код для проверки вхождения текста в Exit1 в текст Edit2:</p>
+<pre name="code" class="delphi">
+uses
+  VBScript_RegExp_TLB;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  RE: IRegExp;
+begin
+  RE := CoRegExp.Create;
+  RE.Pattern := Edit1.Text;
+  if RE.Test(Edit2.Text) then
+    Caption := 'TRUE'
+  else
+    Caption := 'FALSE';
+end;
+</pre>
+
+
+<p>Это все! Мы получили в своем приложении поддержку регулярных выражений такую же, которая включена в скриптовые языки Microsoft (VBScript и JScript).</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

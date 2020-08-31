@@ -1,0 +1,165 @@
+<html>
+<head>
+  <title>Событие Key Press и курсорные клавиши в TMemo</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Событие Key Press и курсорные клавиши в TMemo</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Мне необходимо обновлять текущую строку в во время перемещения по ним с помощью курсорных клавиш. </p>
+<p>Вам повезло. Совсем недавно мне пришлось помучиться с этой задачкой. Я переместил функции в отдельный модуль. Для тестирования кода создайте пустую форму с одним компонентом Tmemo. </p>
+<p>Вам потребуется перехватывать ряд событий. В приведенном ниже коде я создал обработчиков всех возможных для данной операции событий, выберите себе необходимые сами. Некоторые из событий могут иметь общий обработчик. </p>
+<p>Данный пример отображает в заголовке текущие координаты курсора (столбец, строка). </p>
+<p>Я не стал отображать координаты, когда текст выбран, поскольку не был уверен как этим оперировать без рассогласования... </p>
+<p>Сообщайте мне о любых возникающих проблемах, но я уверен что это должно работать как положено.</p>
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses
+ 
+  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
+  Forms, Dialogs, StdCtrls;
+ 
+type
+ 
+  TForm1 = class(TForm)
+    Memo1: TMemo;
+    procedure Memo1Change(Sender: TObject);
+    procedure Memo1Click(Sender: TObject);
+    procedure Memo1Enter(Sender: TObject);
+    procedure Memo1KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure Memo1KeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure Memo1MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure Memo1MouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+  private
+    { Private declarations }
+    function GetLineIndex: Word;
+    function GetStrInsertIndex: Word;
+    procedure GetCursorCoord;
+  public
+    { Public declarations }
+  end;
+ 
+var
+ 
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+function TForm1.GetLineIndex: Word;
+begin
+ 
+  Result := SendMessage(Memo1.handle, EM_LINEFROMCHAR, memo1.selstart, 0);
+end;
+ 
+function TForm1.GetStrInsertIndex: word;
+begin
+  GetStrInsertIndex :=
+    memo1.Selstart - SendMessage(Memo1.handle, EM_LINEINDEX, GetLineIndex, 0)
+end;
+ 
+procedure TForm1.GetCursorCoord;
+var
+  LineIndex: word;
+ 
+  LineChar: byte;
+  SelSt: word;
+begin
+  SelSt := Memo1.selstart;
+  LineIndex := GetLineIndex;
+  Linechar := GetStrInsertIndex;
+ 
+  if Memo1.seltext &gt; '' then
+    Caption := 'Выбранный текст'
+  else
+    Caption := 'Колонка ' + inttostr(LineChar + 1) + ' , ' +
+ 
+    'Строка ' + inttostr(Lineindex + 1);
+end;
+ 
+procedure TForm1.Memo1Change(Sender: TObject);
+begin
+  GetCursorCoord;
+end;
+ 
+procedure TForm1.Memo1Click(Sender: TObject);
+begin
+  GetCursorCoord;
+end;
+ 
+procedure TForm1.Memo1Enter(Sender: TObject);
+begin
+  GetCursorCoord;
+end;
+ 
+procedure TForm1.Memo1KeyDown(Sender: TObject; var Key: Word;
+ 
+  Shift: TShiftState);
+begin
+  GetCursorCoord;
+end;
+ 
+procedure TForm1.Memo1KeyUp(Sender: TObject; var Key: Word;
+ 
+  Shift: TShiftState);
+begin
+  GetCursorCoord;
+end;
+ 
+procedure TForm1.Memo1MouseDown(Sender: TObject; Button: TMouseButton;
+ 
+  Shift: TShiftState; X, Y: Integer);
+begin
+  GetCursorCoord;
+end;
+ 
+procedure TForm1.Memo1MouseUp(Sender: TObject; Button: TMouseButton;
+ 
+  Shift: TShiftState; X, Y: Integer);
+begin
+  GetCursorCoord;
+end;
+ 
+end.
+ 
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

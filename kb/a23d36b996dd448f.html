@@ -1,0 +1,111 @@
+<html>
+<head>
+  <title>Получить дескриптор окна, которое владеет кнопками запущенных программ на панели задач</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получить дескриптор окна, которое владеет кнопками запущенных программ на панели задач</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  In this article, I wish to describe the useful undocumented function 
+  GetTaskmanWindow. The GetTaskmanWindow function returns a handle to 
+  the window that ownes the taskbar buttons. 
+  Here is the quoting about taskbar from Microsoft MSDN: 
+  "The Microsoft® Windows® interface includes a special application desktop 
+  toolbar called the taskbar. 
+  The taskbar can be used for such tasks as switching between open 
+  windows and starting new applications..." 
+  and "The taskbar includes the Start menu, taskbar buttons, 
+  a shortcut menu, and a status area...". 
+  Unfortunately, Win32 API doesn't contain documented 
+  function that can be used for accessing to the 
+  taskbar so we should again use an undocumented way. 
+ 
+  Here is the prototype for GetTaskmanWindow: 
+ 
+   function GetTaskmanWindow (): HWND; 
+ 
+  As always, Microsoft doesn't provide us with the exports symbols 
+  in the User32.lib for this function, so we should load them dynamically using the 
+  GetProcAddress and GetModuleHandle functions: 
+}
+ 
+ // getaskmanwnd.cpp (Windows NT/2000) 
+// 
+// This example will show you how you can obtain a handle to the 
+// Windows Taskbar window. 
+// Translated from C to Delphi by Thomas Stutz 
+// Original Code: 
+// (c)1999 Ashot Oganesyan K, SmartLine, Inc 
+// mailto:ashot@aha.ru, http://www.protect-me.com, http://www.codepile.com 
+ 
+ 
+function TaskmanWindow: HWND;
+ type
+   TGetTaskmanWindow = function(): HWND; stdcall;
+ var
+   hUser32: THandle;
+   GetTaskmanWindow: TGetTaskmanWindow;
+ begin
+   Result := 0;
+   hUser32 := GetModuleHandle('user32.dll');
+   if (hUser32 &gt; 0) then
+   begin
+     @GetTaskmanWindow := GetProcAddress(hUser32, 'GetTaskmanWindow');
+     if Assigned(GetTaskmanWindow) then
+     begin
+       Result := GetTaskmanWindow;
+     end;
+   end;
+ end;
+ 
+ procedure ShowTaskmanWindow(bValue: Boolean);
+ var
+   hTaskmanWindow: Hwnd;
+ begin
+   hTaskmanWindow := TaskmanWindow;
+   if hTaskmanWindow &lt;&gt; 0 then
+   begin
+     ShowWindow(GetParent(hTaskmanWindow), Ord(bValue));
+   end;
+ end;
+ 
+ // Example to Hide the Taskman Window 
+procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   ShowTaskmanWindow(False);
+ end;
+ 
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

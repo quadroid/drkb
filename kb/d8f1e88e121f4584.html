@@ -1,0 +1,86 @@
+<html>
+<head>
+  <title>Как быстро выводить графику?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как быстро выводить графику?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Как быстро выводить графику (a то Canvas очень медленно работает)&nbsp; </p>
+
+<p>Вот пример заполнения формы точками случайного цвета:</p>
+
+<pre name="code" class="delphi">
+type
+  TRGB = record
+    b, g, r: byte;
+  end;
+  ARGB = array[0..1] of TRGB;
+  PARGB = ^ARGB;
+ 
+var
+  b: TBitMap;
+ 
+procedure TForm1.FormCreate(sender: TObject);
+begin
+  b := TBitMap.Create;
+  b.pixelformat := pf24bit;
+  b.width := Clientwidth;
+  b.height := Clientheight;
+end;
+ 
+procedure TForm1.Tim1OnTimer(sender: TObject);
+var
+  p: PARGB;
+  x, y: integer;
+begin
+  for y := 0 to b.height - 1 do
+  begin
+    p := b.scanline[y];
+    for x := 0 to b.width - 1 do
+    begin
+      p[x].r := random(256);
+      p[x].g := random(256);
+      p[x].b := random(256);
+    end;
+  end;
+  canvas.draw(0, 0, b);
+end;
+ 
+procedure TForm1.FormDestroy(sender: TObject);
+begin
+  b.free;
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

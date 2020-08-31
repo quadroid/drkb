@@ -1,0 +1,88 @@
+<html>
+<head>
+  <title>Как вставить свой курсор из внешнего файла?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как вставить свой курсор из внешнего файла?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Используя процедуру LoadCursorFromFile</p>
+<pre name="code" class="delphi">
+var
+  h: hcursor;
+begin
+  h := LoadCursorFromFile('D:\mc.cur');
+  Screen.Cursors[1] := h;
+  Form1.Cursor := 1;
+end;
+</pre>
+
+<hr />
+<pre name="code" class="delphi">
+var h: THandle;
+begin
+  h := LoadImage(0, 'c:\Cursor.cur', IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE or
+    LR_LOADFROMFILE);
+  if h = 0 then
+    ShowMessage('Cursor not loaded!!!')
+  else
+    begin
+      Screen.Cursors[1] := h;
+      Form1.Cursor := 1;
+    end;
+end;
+</pre>
+
+<hr />Этот пример позволяет также использовать анимированные курсоры (*.ani)!</p>
+
+<p>Вот кусок кода для загрузки анимированного курсора, который можно вставить в обработку события активизации формы :</p>
+<pre name="code" class="delphi">
+var
+  h: THandle;
+  name: array[0..255] of char;
+begin
+  StrPCopy(name, 'Animcurs.ani');
+  h := LoadImage(0, name, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE or
+    LR_LOADFROMFILE);
+  if h &lt;&gt; 0 then
+    begin
+      Screen.Cursors[1] := h;
+      Screen.Cursor := 1;
+    end
+  else
+    Screen.Cursor := crDefault;
+end;
+</pre>
+
+
+<p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

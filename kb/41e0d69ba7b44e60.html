@@ -1,0 +1,76 @@
+<html>
+<head>
+  <title>Как проверять корректность доступа к базе данных?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как проверять корректность доступа к базе данных?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Следующая функция проверяет доступ к базе данных и выдает возможные причины, если доступ не удается осуществить. Функция возвращает значение True в случае успешной операции и False в противном случае. </p>
+<pre name="code" class="delphi">
+function TBDEDirect.CheckDatabase: Boolean;
+var DS: TDataSource;
+begin
+  Result := False;
+  DS := GetDataSource;
+  if DS = nil then
+    begin
+      MessageDlg('Не установлена связь с элементом-источником данных.'+
+        'Проверьте установку свойства DataSource.',
+        mtError, [mbOK], 0);
+      Exit;
+    end;
+  if DS.DataSet = nil then
+    begin
+      MessageDlg('Доступ к базе данных невозможен.', mtError,[mbOK], 0);
+      Exit;
+    end;
+  if TDBDataSet(DS.DataSet).Database = nil then
+    begin
+      MessageDlg('Доступ к базе данных невозможен.', mtError,[mbOK], 0);
+      Exit;
+    end;
+  if TDBDataSet(DS.DataSet).Database.Handle = nil then
+    begin
+      MessageDlg('Дескриптор (Handle) БД недоступен.', mtError,[mbOK], 0);
+      Exit;
+    end;
+  if DS.DataSet.Handle = nil then
+    begin
+      MessageDlg('Дескриптор курсора (Cursor-Handle) недоступен.', mtError, mbOK], 0);
+      Exit;
+    end;
+  Result := True;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

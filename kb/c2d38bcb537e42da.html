@@ -1,0 +1,57 @@
+<html>
+<head>
+  <title>Двоичный (бинарный) поиск элемента в массиве</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Двоичный (бинарный) поиск элемента в массиве</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Если у нас есть массив, содержащий упорядоченную последовательность данных, то очень эффективен двоичный поиск.</p>
+<p>Переменные Lb и Ub содержат, соответственно, левую и правую границы отрезка массива, где находится нужный нам элемент. Мы начинаем всегда с исследования среднего элемента отрезка. Если искомое значение меньше среднего элемента, мы переходим к поиску в верхней половине отрезка, где все элементы меньше только что проверенного. Другими словами, значением Ub становится (M &#8211; 1) и на следующей итерации мы работаем с половиной массива. Таким образом, в результате каждой проверки мы вдвое сужаем область поиска. Так, в нашем примере, после первой итерации область поиска &#8211; всего лишь три элемента, после второй остается всего лишь один элемент. Таким образом, если длина массива равна 6, нам достаточно трех итераций, чтобы найти нужное число.</p>
+<p>Двоичный поиск - очень мощный метод. Если, например, длина массива равна 1023, после первого сравнения область сужается до 511 элементов, а после второй - до 255. Легко посчитать, что для поиска в массиве из 1023 элементов достаточно 10 сравнений.</p>
+<p>Кроме поиска бывает нужно вставлять и удалять элементы. К сожалению, массив плохо приспособлен для выполнения этих операций. О повышении эффективности операций вставки/удаления можно прочитать в разделе про структуры данных. </p>
+<pre name="code" class="delphi">
+int function BinarySearch (Array A, int Lb, int Ub, int Key);
+  begin
+  do forever
+    M = (Lb + Ub)/2;
+    if (Key &lt; A[M]) then
+      Ub = M - 1;
+    else if (Key &gt; A[M]) then
+      Lb = M + 1;
+    else
+      return M;
+    if (Lb &gt; Ub) then
+    return -1;
+  end;
+</pre>
+<p><a href="http://algolist.manual.ru" target="_blank">http://algolist.manual.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

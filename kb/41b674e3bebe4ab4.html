@@ -1,0 +1,92 @@
+<html>
+<head>
+  <title>Как заменить данные в столбце компонента TDBGrid?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как заменить данные в столбце компонента TDBGrid?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Нередко в колонке DBGrid нужно вывести не реальное значение, хранящееся в поле соответствующей таблицы, а другие данные, соответствующие имеющимся (например, символьную строку вместо ее числового кода). В этом случае также используется метод TextOut свойства Canvas компонента TDBGrid: </p>
+
+<p>Соответствующий код для Delphi имеет вид: </p>
+
+<pre name="code" class="delphi">
+procedure TForm1.DBGridDrawColumnCell(Sender: TObject; const Rect: TRect;
+DataCol: Integer; Column: TColumn;  State: TGridDrawState);
+begin
+  if Column.FieldName = 'VenueNo' then
+    with DBGrid1.Canvas do
+    begin
+      Brush.Color := clWhite;
+      FillRect(Rect);
+      if Table.FieldByName('VanueNo').Value = 1 then
+      begin
+        Font.Color := clRed;
+        TextOut(Rect.Right - 2 - DBGrid1.Canvas.TextWidth('our vanue'),
+        Rect.Top + 2, 'our vanue');
+      end
+      else
+        TextOut(Rect.Right - 2 - DBGrid1.Canvas.TextWidth('other vanue'),
+        Rect.Top + 2, 'other vanue');
+    end;
+end;
+</pre>
+
+<p>Еще один пример &#8211; использование значков из шрифтов Windings или Webdings в качестве подставляемой строки. </p>
+
+<p>Соответствующий код для Delphi имеет вид: </p>
+<pre name="code" class="delphi">
+procedure TForm1.DBGridDrawColumnCell(Sender: TObject; const Rect: TRect;
+DataCol: Integer; Column: TColumn;  State: TGridDrawState);
+begin
+  if Column.FieldName = 'VenueNo' then
+    with DBGrid1.Canvas do
+    begin
+      Brush.Color := clWhite;
+      FillRect(Rect);
+      Font.name := 'Windings';
+      Font.Size := -14;
+      if Table.FieldByName('VanueNo').Value = 1 then
+      begin
+        Font.Color := clRed;
+        TextOut(Rect.Right - 2 - DBGrid1.Canvas.TextWidth('J'),
+        Rect.Top + 2, 'J');
+      end
+      else
+        TextOut(Rect.Right - 2 - DBGrid1.Canvas.TextWidth('F'),
+        Rect.Top + 2, 'F');
+    end;
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<html>
+<head>
+  <title>Блокирование закладок TPageControl</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Блокирование закладок TPageControl</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit GSPageControl;
+
+ 
+interface
+ 
+uses
+  Windows, Messages, Types, SysUtils, Classes, Controls, ComCtrls, CommCtrl;
+ 
+type
+  TGSPageControl = class(TPageControl)
+  private
+    FNewPageIndex, FNotifyIndex: Integer;
+    FTab:boolean;
+  protected
+    function GetTabFromCursor: Integer;
+    function CanChange: Boolean; override;
+    procedure WMKeyDown(var Message: TWMKey); message WM_KEYDOWN;
+    procedure CMDialogKey(var Message: TCMDialogKey); message CM_DIALOGKEY;
+  public
+    property NewPageIndex: Integer read FNewPageIndex;
+    constructor Create(AOwner: TComponent); override;
+  end;
+ 
+procedure Register;
+ 
+implementation
+ 
+procedure Register;
+begin
+  RegisterComponents('Samples', [TGSPageControl]);
+end;
+ 
+{ TGSPageControl }
+ 
+function TGSPageControl.CanChange: Boolean;
+begin
+  if fTab then FNewPageIndex:=FNotifyIndex else
+  FNewPageIndex := GetTabFromCursor;
+  if FNewPageIndex = -1 then
+    FNewPageIndex := FNotifyIndex;
+  Result := inherited CanChange;
+  FNewPageIndex := -1;
+  fTab:=false;
+end;
+ 
+procedure TGSPageControl.CMDialogKey(var Message: TCMDialogKey);
+begin
+  fTab:=true;
+  if (Focused or Windows.IsChild(Handle, Windows.GetFocus)) and
+    (Message.CharCode = VK_TAB) and (GetKeyState(VK_CONTROL) &lt; 0) then
+    FNotifyIndex := FindNextPage(ActivePage, True, False).TabIndex;
+  inherited;
+end;
+ 
+constructor TGSPageControl.Create(AOwner: TComponent);
+begin
+  inherited;
+  FNotifyIndex := 0;
+  FNewPageIndex := 0;
+  FTab:=false;
+end;
+ 
+function TGSPageControl.GetTabFromCursor: Integer;
+var
+  HitTestInfo: TTCHitTestInfo;
+  P: TPoint;
+begin
+  GetCursorPos(P);
+  HitTestInfo.pt := Self.ScreenToClient(P);
+  HitTestInfo.flags := TCHT_ONITEM;
+  Result := SendMessage(Self.Handle, TCM_HITTEST, 0, Integer(@HitTestInfo));
+end;
+ 
+procedure TGSPageControl.WMKeyDown(var Message: TWMKey);
+begin
+  with Message do
+    case Message.CharCode of
+      37: FNotifyIndex := FindNextPage(ActivePage, False, False).TabIndex;
+      39: FNotifyIndex := FindNextPage(ActivePage, True, False).TabIndex;
+    end;
+  inherited;
+end;
+ 
+end.
+</pre>
+<p>&nbsp;<br>
+<p>Использование:</p>
+<pre name="code" class="delphi">
+procedure TForm1.GSPageControl1Changing(Sender: TObject;
+  var AllowChange: Boolean);
+begin
+ AllowChange:=GSPageControl1.Pages[GSPageControl1.NewPageIndex].Enabled
+end;
+</pre>
+<p>&nbsp;<br>
+&nbsp;<br>
+<p id="author">Авторы: Rouse_, Krid </p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

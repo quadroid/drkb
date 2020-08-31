@@ -1,0 +1,88 @@
+<html>
+<head>
+  <title>Примеры работы с репортами</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Примеры работы с репортами</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>In the next small example I'll demonstrate how you can call the report in MS Access: </p>
+
+<pre name="code" class="delphi">
+var
+  Access: Variant;
+begin
+  // open the Access application
+  try
+    Access := GetActiveOleObject('Access.Application');
+  except
+    Access := CreateOleObject('Access.Application');
+  end;
+  Access.Visible := True;
+ 
+  // open the database
+  //The second parameter specifies whether you want to open the database in Exclusive mode
+ 
+  Access.OpenCurrentDatabase('C:\My Documents\Books.mdb', True);
+ 
+// open the report
+{The value for the second parameter should be one of
+acViewDesign, acViewNormal, or acViewPreview. acViewNormal, which is the default, prints the report immediately. If you are not using the type library, you can define these values like this:
+ 
+const
+acViewNormal = $00000000;
+acViewDesign = $00000001;
+acViewPreview = $00000002;
+ 
+  The third parameter is for the name of a query in the current
+  database.The fourth parameter is for a SQL WHERE clause - the string must be valid
+  SQL, minus the WHERE.}
+ 
+  Access.DoCmd.OpenReport('Titles by Author', acViewPreview,
+    EmptyParam, EmptyParam);
+ 
+  { ... }
+    // close the database
+  Access.CloseCurrentDatabase;
+ 
+  // close the Access application
+    {const
+      acQuitPrompt = $00000000;
+      acQuitSaveAll = $00000001;
+      acQuitSaveNone = $00000002;}
+  Access.Quit(acQuitSaveAll);
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

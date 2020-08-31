@@ -1,0 +1,83 @@
+<html>
+<head>
+  <title>Как вызвать метод предка?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как вызвать метод предка?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>1) Есть Class1, с методом Mtd.</p>
+<p>2) Есть Class2 унаследованный от Class1, метод Mtd перезаписан</p>
+<p>3) В программе используется переменная типа Class2</p>
+<p>Можно ли из программы вызвать Mtd от Class1, Другими словами, можно ли вызвать перезаписанный метод класса-предка?</p>
+<p>Способ 1(только для не виртуальных методов)</p>
+<pre name="code" class="delphi">
+var
+  a:class2;
+begin
+a:=class2.Create;
+class1(a).mtd;
+....
+end;
+</pre>
+
+<p id="author">Автор: Fantasist</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<p>Способ со статическим приведением годится только для</p>
+<p>не виртуальных методов, имеющих одно имя.</p>
+<p>Вызов же виртуальных методов от статического типа не зависит.</p>
+<p>В твоём простейшем случае достаточно написать inherited Mtd;</p>
+<p>(ты его можешь вызвать из любого метода TClass2, не только из Mtd).</p>
+<p>Трудности возникнут, когда нужно вызвать метод "дедушки" или "прадедушки" и т.д.</p>
+<p>Один из способов, описанных в литературе, - временная замена</p>
+<p>VMT объекта на "дедушку" и обратно. Но если у дедушки такого метода не было - будет облом.</p>
+<p>Я предпочитаю такой способ:</p>
+<pre name="code" class="delphi">
+type
+
+ 
+ TProc = procedure of object;
+procedure TClassN.SomeMethod;
+var
+ Proc: TProc;
+begin
+ TMethod(Proc).Code := @TClass1.Mtd; // Статический адрес
+ TMethod(Proc).Data := Self;
+ Proc();
+end;
+</pre>
+
+<p id="author">Автор ответа: Le Taon</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

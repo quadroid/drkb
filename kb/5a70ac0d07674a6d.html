@@ -1,0 +1,221 @@
+<html>
+<head>
+  <title>Поддерживается ли MMX?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Поддерживается ли MMX?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function SupportsMMX: Boolean;
+begin
+  Result := False;
+  try
+    asm
+      push     eax
+      push     ebx
+      push     ecx
+      push     edx
+      pushfd
+      pop      eax
+      mov      ebx,eax
+      xor      eax,$00200000
+      push     eax
+      popfd
+      pushfd
+      pop      eax
+      xor      eax,ebx
+      je       @NoMMX
+      mov      eax,$01
+      test     edx,$800000
+      jz       @NoMMX
+      mov byte ptr[Result],1
+ 
+  @NoMMX:
+      pop      edx
+      pop      ecx
+      pop      ebx
+      pop      eax
+ end;
+  except;
+  end;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  if SupportsMMX then ShowMessage('Computer supports MMX');
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+
+<hr />
+
+<p>Наша программа выполняет несложную операцию по определению наличия в процессоре технологии MMX, но при помощи этого кода можно узнать и много других характеристик процессора, путем посылки в регистр eax значений от 0 до 2 и при этом тестированием отдельных бит таких регистров как eax,ebx,ecx и edx командой bt (bit test), но наша задача заключается в том, чтоб показать различные способы подключения к delphi ассемблерного кода. </p>
+
+<p>Для создания объектного модуля нужен файл TASM32.EXE, линковать объектный модуль файлом TLINK.EXE ненужно. </p>
+
+<p>Например: </p>
+
+
+<p>TASM32.EXE /ml CPU2.ASM</p>
+
+
+<p>Полученный объектный модуль на ассемблере CPU2.OBJ </p>
+
+<pre name="code" class="delphi">
+.586 ; Будут использоваться дополнительные команды 586 
+.MODEL use32 small ; Модель памяти small используется для 
+; большинства программ на ассемблере 
+stack 100h ; Выделяем область памяти под стек 256 байт
+.data
+.code
+start:
+DelCpu proc 
+PUBLIC DelCpu ; объявляем процедуру видимую за пределами 
+; данного модуля 
+xor edx,edx ; обнуляем регистр edx для помещения в него 
+; результатов команды cpuid 
+mov eax,1 ; засылаем в eax 1 для заполнения регистра edx 
+; соответствующими полями после выполнения 
+; cpuid команды 
+cpuid ; команда идентификация процессора 
+bt edx,23 ; команда для тестирования отдельных бит в 
+; операнде, в нашем случае проверяем в edx 23 бит 
+; и если он устанавнен в 1 значит технология MMX 
+; в процессоре есть, а если 0 то нет. Эта команда 
+; также присваивает флагу переноса cf значение 
+; проверяемого бита 
+jnc no ; проверяем значение флага cf если оно равно 0 то 
+; на перейти на метку (no), если 1 то продолжаем 
+mov eax,1 ; в ассемблере для возврата результата в функцию 
+; нужно результат поместить в регистр eax, что мы 
+; и делаем 
+jmp exit ; безусловный переход на выход
+no:
+mov eax,0 
+exit:
+ret ; выход из процедуры
+DelCpu endp
+end start
+</pre>
+
+
+
+<p>Модуль на Delphi </p>
+
+<p>Очень важный момент, когда будете подключать модуль директивой {$L cpu2.obj} нужно чтоб все строки кода были или закомментированы или чтоб их еще не было вообще. </p>
+
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    Edit1: TEdit;
+    Button1: TButton;
+    procedure Button1Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+end;
+ 
+var
+  Form1: TForm1;
+  rez: DWORD;
+ 
+implementation
+{$L cpu2.obj} //подключение нашего asm модуля к delphi
+{$R *.dfm}
+ 
+function DelCpu: DWORD; external; // объявляем функцию DelCpu
+// внешней
+// ну дальше все понятно
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  rez:=DelCpu;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  if rez = 1 then
+    edit1.Text:='MMX-технология есть'
+  else
+    edit1.Text:='MMX-технологии нет';
+end;
+ 
+end.
+ 
+ 
+</pre>
+<a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+<hr />
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Определение поддержки MMX
+ 
+Зависимости: Types
+Автор:       Gua, gua@ukr.net, ICQ:141585495, Simferopol
+Copyright:   Unknown
+Дата:        17 июля 2002 г.
+***************************************************** }
+ 
+function CheckMMX: Boolean;
+var
+  TempCheck: dword;
+begin
+  TempCheck := 1;
+  asm
+  push ebx
+  mov eax,1
+  db $0F,$A2
+  test edx,$800000
+  jz @NOMMX
+  mov edx,0
+  mov TempCheck,edx
+  @NOMMX:
+  pop ebx
+  end;
+  CheckMMX := (TempCheck = 0);
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

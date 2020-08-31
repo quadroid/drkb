@@ -1,0 +1,53 @@
+<html>
+<head>
+  <title>Разделяемые элементы управления для TTabbedNotebook</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Разделяемые элементы управления для TTabbedNotebook</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Вы могли бы получить тот же эффект, устанавливая элементы управления на панели или в другом контейнере, который не является дочерним по отношению к Notebook, но находится наверху. Поскольку элементы не являются дочерними по отношению к страницам, то их никак не затронет изменение страниц, и вы можете управлять ими из кода. Видимость же такова, что кажется, что каждая страница компонента содержит тот же самый набор компонентов. </p>
+<p>Что делаю я -- располагаю разделяемые элементы управления на форме, а не на конкретной странице TTabbedNotebook. Для того, чтобы сделать это, вам необходимо установить свойство TTabbedNotebook Align на что-то другое, отличное от alClient -- например, если разделяемые элементы управления расположены в нижней части формы, используйте для TTabbedNotebook значение alTop, и отодвиньте нижнюю границу чуть повыше, чтобы в образовавшейся области без труда разместились бы разделяемые элементы управления. </p>
+<p>Если вы хотите сделать так, чтобы "разделяемые" элементы управления имитировали свое нахождение на каждой странице TTabbedNotebook, оставьте их на форме, но поместите их на передний план, и передвиньте TTabbedNotebook снова в нижнюю часть формы. </p>
+<p>У меня это работает. Я еще не испытывал нужду в разделяемых элементах управления для _набора_ страниц, но первая идея, которая приходит мне в голову, заключается в установке свойства Visible для каждого компонента в true/false в обработчике события TTabbedNotebook OnChange. </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr />
+<p>Вероятно, самым лучшим решением будет размещение разделяемых компонентов непосредственно на форме, и дальнейшее их перемещение в коде на TabbedNotebook, тем самым делая их видимыми на нескольких страницах компонента. </p>
+<p>Для любых закладок, где разделяемые компоненты НЕ должны появляться, установите их свойство Visible в False, сделать это лучше всего в обработчике события TabbedNotebook OnChange. </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr />
+<p>Компоненты, которые вы хотите показывать на всех страницах, должны принадлежать родителю TTabbedNotebook (в общем случае TForm, на которой расположен компонент), и, очевидно, они должны быть размещены ПОЗАДИ TTabbedNotebook. Самым простым способом сделать это, как я выяснил, является следующий способ: разместите на форме TTabbedNotebook, но оставьте возможность задать ему родителя (например, пока не устанавливайте ему свойство .Align), затем разместите кнопки (или что там у вас) в области родителя, затем установите свойство .Align у TTabbedNotebook, после чего элементы управления, которые вы разместили, окажутся позади TTabbedNotebook, и будут видны на всех его страницах (действительно, они будут располагаться "наверху" TTabbedNotebook. Если вы уже разместили компоненты, то лучшим решением будет использование для TTabbedNotebook команды меню "Edit/Send to Back", при котором нижние компоненты "всплывут" наверх. Также, возможно непосредственно отредактировать файл .DFM и убедиться в том, что родительский порядок компонентов собледен в полной мере. </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

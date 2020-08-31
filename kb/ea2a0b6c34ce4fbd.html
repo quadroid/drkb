@@ -1,0 +1,84 @@
+<html>
+<head>
+  <title>How to scale bitmap by percent?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">How to scale bitmap by percent?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ .... }
+  private
+    function ScalePercentBmp(bitmp: TBitmap; iPercent: Integer): Boolean;
+{ .... }
+ 
+function TForm1.ScalePercentBmp(bitmp: TBitmap;
+  iPercent: Integer): Boolean;
+var
+  TmpBmp: TBitmap;
+  ARect: TRect;
+  h, w: Real;
+  hi, wi: Integer;
+begin
+  Result := False;
+  try
+    TmpBmp := TBitmap.Create;
+    try
+      h := bitmp.Height * (iPercent / 100);
+      w := bitmp.Width * (iPercent / 100);
+      hi := StrToInt(FormatFloat('#', h)) + bitmp.Height;
+      wi := StrToInt(FormatFloat('#', w)) + bitmp.Width;
+      TmpBmp.Width := wi;
+      TmpBmp.Height := hi;
+      ARect := Rect(0, 0, wi, hi);
+      TmpBmp.Canvas.StretchDraw(ARect, Bitmp);
+      bitmp.Assign(TmpBmp);
+    finally
+      TmpBmp.Free;
+    end;
+    Result := True;
+  except
+    Result := False;
+  end;
+end;
+</pre>
+
+<pre name="code" class="delphi">
+// Example:
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  ScalePercentBmp(Image1.Picture.Bitmap, 33);
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

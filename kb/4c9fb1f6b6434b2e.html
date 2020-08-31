@@ -1,0 +1,94 @@
+<html>
+<head>
+  <title>Диалог подключения сетевого диска</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Диалог подключения сетевого диска</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TStartForm.NetBtnClick(Sender: TObject);
+var
+  OldDrives: TStringList;
+  i: Integer;
+begin
+  OldDrives := TStringList.Create;
+  // Запоминаем список дисков
+  OldDrives.Assign(Drivebox.Items);
+  // Показываем диалог подключения
+  if WNetConnectionDialog(Handle, RESOURCETYPE_DISK) = NO_ERROR then
+  begin
+    // Обновляем список дисков
+    DriveBox.TextCase := tcLowerCase;
+    for i := 0 to DriveBox.Items.Count - 1 do
+    begin
+      // Ищем свободный логический диск
+      if Olddrives.IndexOf(Drivebox.Items[i]) = -1 then
+      begin
+        // Показываем первый найденный логический диск
+        DriveBox.ItemIndex := i;
+        // Каскадируем обновление на список подключенных каталогов и др.
+        DriveBox.Drive := DriveBox.Text[1];
+      end;
+    end;
+    DriveBox.SetFocus;
+  end;
+  OldDrives.Free;
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+<hr />
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Открытие диалогового окна «Подключение сетевого диска»
+ 
+Зависимости: Windows
+Автор:       Dimka Maslov, mainbox@endimus.ru, ICQ:148442121, Санкт-Петербург
+Copyright:   Dimka Maslov
+Дата:        21 мая 2002 г.
+********************************************** }
+ 
+function MapNetworkDrive(Wnd: HWND = 0): DWORD;
+begin
+ if Wnd = 0 then Wnd:=FindWindow('Shell_TrayWnd',''); Result:=WNetConnectionDialog(Wnd, RESOURCETYPE_DISK);
+end; 
+</pre>
+
+
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+MapNetworkDrive(Application.Handle); 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

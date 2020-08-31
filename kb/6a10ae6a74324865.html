@@ -1,0 +1,208 @@
+<html>
+<head>
+  <title>Сортировка методом Шелла</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сортировка методом Шелла</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Быстрый алгоритм сортировки больших массивов
+ 
+Сортировка вариантного массива методом Шелла.
+ 
+Зависимости: Variants
+Автор:       Delirium, Master_BRAIN@beep.ru, ICQ:118395746, Москва
+Copyright:   Delirium (Master BRAIN)
+Дата:        4 июня 2002 г.
+********************************************** }
+ 
+procedure Sorting(Down:boolean;var Data:Variant);
+Var Skach,m,n:integer;
+    St:boolean;
+    Tmp:Variant;
+begin
+Skach:=VarArrayHighBound(Data,1)-1;
+While Skach&gt;0 do
+ begin
+ Skach:=Skach div 2;
+ repeat
+  St:=True;
+  for m:=0 to VarArrayHighBound(Data,1)-1-Skach do
+   begin
+   n:=m+Skach;
+   if ( Down and (Data[n]&lt;Data[m]) )
+   or ( (not Down) and (Data[n]&gt;Data[m]) ) then
+    begin
+    Tmp:=Data[m];
+    Data[m]:=Data[n];
+    Data[n]:=Tmp;
+    St:=False;
+    end;
+   end;
+  until St;
+ end;
+end; 
+</pre>
+
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var A:Variant;
+    i:integer;
+begin
+A:=VarArrayCreate([0, Memo1.Lines.Count-1], varVariant);
+for i:=0 to Memo1.Lines.Count-1 do A[i]:=Memo1.Lines.Strings[i];
+Sorting(True,A);
+for i:=0 to Memo1.Lines.Count-1 do Memo1.Lines.Strings[i]:=A[i];
+end; 
+</pre>
+<hr />
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Сортировка различными методами
+ 
+Сортировка одномерного массива значений типа Double методами:
+4) Сортировка Шелла (ShellSort);
+ 
+Зависимости: Math
+Автор:       iZEN, izen@mail.ru
+Copyright:   адаптация для Delphi
+Дата:        14 сентября 2004 г.
+********************************************** }
+ 
+{ Сортировка ShellSort }
+procedure ShellSort(var data: array of double);
+var
+  lo, hi, i, j, incr: Integer;
+  t: double;
+begin
+  lo := Low(data);//минимальный индекс массива
+  hi := High(data);//максимальный индекс массива
+  incr := hi div 2; // начальный инкремент
+  while (incr &gt; lo)
+  do begin
+     i := incr;
+     while (i &lt;= hi)
+     do begin // Внутренний цикл простых вставок
+        j := i - incr;
+        while (j &gt; lo - 1)
+        do if (data[j] &gt; data[j+incr])
+           then begin
+                t := data[j];
+                data[j] := data[j+incr];
+                data[j+incr] := t;
+                j := j - incr;
+                end
+           else j := lo - 1;//Останов
+        Inc(i);
+        end;
+     incr := incr div 2;
+     end;
+end;
+</pre>
+<hr />
+<p>Соpтиpовка Шелла. Это еще одна модификация пyзыpьковой соp- тиpовки. Сyть ее состоит в том, что здесь выполняется сpавнение ключей, отстоящих один от дpyгого на некотоpом pасстоянии d. Ис- ходный pазмеp d обычно выбиpается соизмеpимым с половиной общего pазмеpа соpтиpyемой последовательности. Выполняется пyзыpьковая соpтиpовка с интеpвалом сpавнения d. Затем величина d yменьшается вдвое и вновь выполняется пyзыpьковая соpтиpовка, далее d yмень- шается еще вдвое и т.д. Последняя пyзыpьковая соpтиpовка выполня- ется пpи d=1. Качественный поpядок соpтиpовки Шелла остается O(N^2), сpеднее же число сpавнений, опpеделенное эмпиpическим пy- тем - log2(N)^2*N. Ускоpение достигается за счет того, что выяв- ленные "не на месте" элементы пpи d&gt;1, быстpее "всплывают" на свои места. </p>
+<p>Пpимеp иллюстpиpyет соpтиpовкy Шелла. </p>
+<pre name="code" class="delphi">
+{===== Пpогpаммный пpимеp =====}
+ { Соpтиpовка Шелла }
+ Procedure Sort( var a : seq);
+ Var d, i, t : integer;
+    k : boolean; { пpизнак пеpестановки }
+   begin
+   d:=N div 2;  { начальное значение интеpвала }
+ 
+   while d&gt;0 do begin { цикл с yменьшением интеpвала до 1 }
+ 
+     { пyзыpьковая соpтиpовка с интеpвалом d }
+     k:=true;
+     while k do begin  { цикл, пока есть пеpестановки }
+       k:=false; i:=1;
+       for i:=1 to N-d do begin
+         { сpавнение эл-тов на интеpвале d }
+         if a[i]&gt;a[i+d] then begin
+           t:=a[i]; a[i]:=a[i+d]; a[i+d]:=t; { пеpестановка }
+           k:=true;  { пpизнак пеpестановки }
+           end; { if ... }
+         end; { for ... }
+       end; { while k }
+     d:=d div 2;  { yменьшение интеpвала }
+     end;  { while d&gt;0 }
+ end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr />
+<pre name="code" class="delphi">
+{ 
+ The following procedure sorts an Array with the 
+ fast Shell-Sort algorithm. 
+ Invented by Donald Shell in 1959, 
+ the shell sort is the most efficient of the O(n2) 
+ class of sorting algorithms 
+}
+ 
+ 
+ Procedure Sort_Shell(var a: array of Word);
+ var
+   bis, i, j, k: LongInt;
+   h: Word;
+ begin
+   bis := High(a);
+   k := bis shr 1;// div 2 
+  while k &gt; 0 do
+   begin
+     for i := 0 to bis - k do
+     begin
+       j := i;
+       while (j &gt;= 0) and (a[j] &gt; a[j + k]) do
+       begin
+         h := a[j];
+         a[j] := a[j + k];
+         a[j + k] := h;
+         if j &gt; k then
+           Dec(j, k)
+         else
+           j := 0;
+       end; // {end while] 
+    end; // { end for} 
+    k := k shr 1; // div 2 
+  end;  // {end while} 
+ 
+end;
+ 
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

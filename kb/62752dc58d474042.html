@@ -1,0 +1,223 @@
+<html>
+<head>
+  <title>Операции с числами в разных системах счисления</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Операции с числами в разных системах счисления</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// Модуль для работы с натуральными числами в различных системах исчисления
+ 
+// Далее, если говорится, что Система Исчисления (СИ) задается строкой (CharSet)
+// то имеется в виду, что эта строка содержит символы требуемой СИ, начиная с нуля
+// Примеры CharSet (стандартный вид)
+// Двоичная          - '01'
+// Восьмиричная      - '01234567'
+// Десятичная        - '0123456789'
+// Шестнадцатиричная - '0123456789ABCDEF'
+// Можно использовать и нестандартные виды, например для двоичной 'ab', а для
+// троичной 'abc' - данному модулю все равно.
+ 
+// "-Ричность" СИ ограничена только наличием доступных различных символов.
+// Работа с числами в определенной СИ производится как со строками, потому величина
+// чисел значения почти не имеет, но это отрицательно сказывается на времени работы
+// функций (особенно на умножении).
+unit MyUnit;
+ 
+interface
+ 
+function Convert(Num, SetIn, SetOut: String): String;
+function MySum (Num1, Num2, CharSet: String): String;
+function MyMulti (Num1, Num2, CharSet: String): String;
+function MyOrd(A: Char; CharSet: String): Integer;
+function MyChr(Num: Integer; CharSet: String): Char;
+ 
+implementation
+ 
+// Функция возвращает позицию символа A в строке CharSet (начиная с 0)
+function MyOrd(A: Char; CharSet: String): Integer;
+var
+  i: Integer;
+begin
+  Result := 0;
+  for i := 1 to Length(CharSet) do
+  begin
+    if CharSet[i] = A then begin
+      Result := i-1;
+      exit;
+    end
+  end;
+end;
+ 
+// Функция возвращает символ из строки CharSet по номеру Num (~CharSet[Num+1])
+function MyChr(Num: Integer; CharSet: String): Char;
+begin
+  Result := CharSet[Num mod Length(CharSet) + 1];
+end;
+ 
+// Функция возвращает число без ведущих нулей, то есть ShortNum('0000123')='123'
+function ShortNum(Num, CharSet: String): String;
+var
+  k, j: Integer;
+begin
+  Result := '';
+  k := 1;
+  while Num[k] = MyChr(0, CharSet) do
+    k := k + 1;
+  for j := k to Length(Num) do Result := Result + Num[j];
+end;
+ 
+// Функция выполняет сложение двух чисел Num1 и Num2 в СИ, задаваемой CharSet
+function MySum (Num1, Num2, CharSet: String): String;
+var
+  i, Pos, Add, L, L_CharSet: Integer;
+  N1 , N2 , O, Res: String;
+begin
+ 
+  // Далее потребуется что бы первое число по длине было не менее второго,
+  // если не так, то меняем местами
+  if Length(Num1)&gt;=Length(Num2) then
+  begin
+    N1 := Num1;
+    N2 := Num2;
+  end
+  else
+  begin
+    N1 := Num2;
+    N2 := Num1;
+  end;
+ 
+  L:= Length(N1);
+  L_CharSet := Length(CharSet);
+  O:=MyChr(0, CharSet); // 0 - в СИ, определяемой CharSet
+ 
+  //Уравнняем второе до длины первого нулями справа: 10 = 010
+  for i := Length(N2) to L-1 do
+    N2 := O + N2;
+ 
+  Add:=0;
+ 
+  //Суммирование с младших разрядов, Add - добавка от предыдущих разрядов
+  // для следующего. Напр. для 10-чной СИ: 9+7 - Add = 1, 4+5 - Add=0
+  for i := L downto 1 do
+  begin
+    Pos := MyOrd(N1[i], CharSet)+MyOrd(N2[i], CharSet) + Add;
+    Add := 0;
+    while Pos &gt;= L_CharSet do
+     begin
+     Pos := Pos mod L_CharSet;
+     Add := Add + 1;
+     end;
+ 
+  Res := MyChr(Pos, CharSet) + Res;
+  end;
+ 
+If Add&lt;&gt;0
+   then Result := MyChr(Add, CharSet) + Res
+   else Result := Res;
+end;
+ 
+// Функция выполняет умножение двух чисел Num1 и Num2 в СИ, задаваемой CharSet
+function MyMulti (Num1, Num2, CharSet: String): String;
+var
+  i, e, Res, N1, N2: String;
+begin
+  N1 := ShortNum(Num1, CharSet);
+  N2 := ShortNum(Num2, CharSet);
+ 
+  i :='';
+  Res := '';
+ 
+  //e - единица СИ, определяемая CharSet
+  e := MyChr(1,CharSet);
+ 
+  //Умножение Num1 на Num2 - это Num1 сложеное Num2 раз в СИ, определяемой CharSet
+  while (i &lt;&gt; N2) do
+  begin
+    Res := MySum(Res, N1, CharSet);
+    i := MySum(i, e, CharSet);
+  end;
+ 
+  Result := Res;
+end;
+ 
+// Функция выполняет преобразование одноразрядного числа A, заданного
+// в СИ, определяемой SetIn, в число в СИ, определяемой SetOut
+function f0(A: Char; SetIn, SetOut: String): String;
+var
+  Pos, j, L: Integer;
+  Res: String;
+begin
+  L := Length(SetOut);
+  Pos := MyOrd(A, SetIn);
+ 
+  for j := 1 To Pos div (L-1) do
+    Res := MySum(Res, MyChr(L-1, SetOut), SetOut);
+ 
+  Result := MySum(Res, MyChr(Pos mod (L-1), SetOut), SetOut);
+end;
+ 
+// Функция выполняет преобразование числа Num, заданного
+// в СИ, определяемой SetIn, в число в СИ, определяемой SetOut
+function Convert(Num, SetIn, SetOut: String): String;
+var
+  Base, Multiplier, N, Res: String;
+  i: Integer;
+begin
+  // Num = MultilplierN * Base^N + ... + Multiplier0 * Base^0
+  // Base - основание СИ, это всегда &lt;последний символ CharSet&gt;+&lt;нулевой символ&gt; ~ 10
+  // MultiplierI - множитель при соответствующей степени
+  // Напр. для 10-чной СИ  -  123 = 1 * 10^2 + 2 * 10^1 + 3 * 10^0
+  // Тут Base = 10, Multiplier = {1, 2, 3}
+ 
+  Base := MySum(f0(MyChr(Length(SetIn)-1, SetIn), SetIn, SetOut), MyChr(1, SetOut), SetOut);
+  N := MyChr(1, SetOut); // = Base^0, потом будем домножать на Base (в соотв. СИ)
+  Res := '';
+ 
+  // Обрабатываем входящее число с хвоста
+  for i := Length(Num) downto 1 do
+  begin
+    Multiplier := f0(Num[i], SetIn, SetOut);
+    Res := MySum(Res, MyMulti(Multiplier, N, SetOut), SetOut);
+    N := MyMulti(Base, N, SetOut);
+  end;
+ 
+  Result := Res;
+end;
+ 
+end.
+</pre>
+&nbsp;</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: Zoobastik</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

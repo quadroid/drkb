@@ -1,0 +1,80 @@
+<html>
+<head>
+  <title>Массив без ограничения типа и размера</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Массив без ограничения типа и размера</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<pre name="code" class="delphi">
+//к примеру опишем свой тип
+type
+ 
+  MyType = record
+    zap1: longword;
+    zap2: char;
+    zap3: string[10];
+  end;
+ 
+//опишем НЕОГРАНИЧЕННЫЙ массив переменный типа MyType
+//хотя, может использоваться абсолютно любой
+var
+  m: array of MyType;
+ 
+  ....
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var i: byte;
+begin
+  for i := 0 to 9 do // нумерация элементов начинается с нуля!
+ 
+    begin
+      SetLength(m, Length(m) + 1); // увеличение длины массива на 1
+      m[i].zap1 := i; //  присвоение
+      m[i].zap2 := chr(i); //          полям
+      m[i].zap3 := inttostr(i); //              значений
+    end;
+end;
+ 
+....
+ 
+SetLength(m, 0); // освобождение памяти
+end.
+</pre>
+
+<p>C Уважением,</p>
+<p>Сергей Дьяченко, sd@arzamas.nnov.ru</p>
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

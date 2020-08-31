@@ -1,0 +1,83 @@
+<html>
+<head>
+  <title>Транзакции</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Транзакции</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Подобно своим аналогам в BDE и ADO компонент TSQLConnection поддерживает механизм транзакций и делает это сходным образом. </p>
+
+<p>Начало, фиксацию и откат транзакции выполняют методы </p>
+
+<pre name="code" class="delphi">
+procedure StartTransaction(TransDesc: TTransactionDesc); 
+procedure Commit(TransDesc: TTransactionDesc);  
+procedure Rollback(TransDesc: TTransactionDesc); 
+</pre>
+
+<p>При этом запись TTransactionDesc возвращает параметры транзакции: </p>
+<pre name="code" class="delphi">
+TTransIsolationLevel = (xilDIRTYREAD, xilREADCOMMITTED, xilREPEATABLEREAD, xilCUSTOM); 
+TTransactionDesc = packed record 
+  TransactionID : LongWord; 
+  GloballD : LongWord; 
+  IsolationLevel : TTransIsolationLevel; 
+  Customlsolation : LongWord; 
+end; 
+</pre>
+
+<p>Запись содержит уникальный в рамках соединения идентификатор транзакции TransactionID И уровень изоляции Транзакции IsolationLevel. При уровне изоляции xilCustom определяется параметр Customlsolation. Идентификатор GiobaliD используется при работе с сервером Oracle. </p>
+
+<p>Некоторые серверы БД не поддерживают транзакции, и для определения этого факта используется свойство </p>
+
+<p>property TransactionsSupported: LongBool; </p>
+
+<p>Если соединение уже находится в транзакции, свойству </p>
+
+<p>property InTransaction: Boolean; </p>
+
+<p>присваивается значение True. Поэтому, если сервер не поддерживает множественные транзакции, всегда полезно убедиться, что соединение не обслуживает начатую транзакцию: </p>
+<pre name="code" class="delphi">
+var Translnfo: TTransactionDesc; 
+(...) 
+if Not MyConnection.InTransaction then 
+  try 
+    MyConnection.StartTransaction(Translnfo); {...} 
+    MyConnection.Commit(Translnfo); 
+  except 
+    MyConnection.Rollback(Translnfo);  
+  end; 
+</pre>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

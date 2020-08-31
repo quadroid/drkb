@@ -1,0 +1,80 @@
+<html>
+<head>
+  <title>Поддержка библиотеки сжатия ZLib</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Поддержка библиотеки сжатия ZLib</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В Delphi 7 официально включена поддержка библиотеки сжатия ZLib. Если у вас более старшая версия посмотрите модули ZLib в дестрибутиве среды (они должны быть на диске но подключать прийдеться самому). </p>
+<p>Библиотеки под разные платформы, среды разработок и документация на сайте www.gzip.org/zlib. </p>
+<p>Степень сжатия превосходит алгоритм zip. Максимальная степень сжатия по алгоритму ZLib приближается к степени сжатия упаковщиком RAR.</p>
+<p>Модули Zlib, ZlibConst.</p>
+<p>При использовании необходимо подключить в описании Uses модуль ZLib.</p>
+<p>пример использования:</p>
+<p>Компресия одного потока в другой:</p>
+<pre name="code" class="delphi">
+ComressStream( aSource, aTarget : TStream; compressionRate : TCompressionLevel );
+var comprStream : TCompressionStream;
+begin
+   // compression level : (clNone, clFastest, clDefault, clMax)
+   comprStream := TCompressionStream.Create( compressionRate, aTarget );
+  try
+   comprStream.CopyFrom( aSource, aSource.Size );
+   comprStream.CompressionRate;
+  finally
+   comprStream.Free;
+  End;
+End;
+</pre>
+<p>Декомпресия одного потока в другой:</p>
+<pre name="code" class="delphi">DecompressStream(aSource, aTarget: TStream);
+var decompStream : TDecompressionStream;
+           nRead : Integer;
+          buffer : array[0..1023] of Char;
+begin
+   decompStream := TDecompressionStream.Create( aSource );
+  try
+    repeat
+      nRead:=decompStream.Read( buffer, 1024 );
+      aTarget.Write( buffer, nRead );
+    Until nRead = 0;
+  finally
+   decompStream.Free;
+  End;
+End;
+</pre>
+
+<p id="author">Автор RoboSol</p>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

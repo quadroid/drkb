@@ -1,0 +1,57 @@
+<html>
+<head>
+  <title>Преобразование координат в параметрах событий OnDragOver и OnDragDrop в координаты формы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Преобразование координат в параметрах событий OnDragOver и OnDragDrop в координаты формы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Neil </p>
+<p>Поверьте, достаточно просто преобразовать X,Y координаты, передаваемые в параметрах событий OnDragOver и OnDragDrop, в координаты формы. </p>
+<p>Работайте со свойствами Left и Top компонента, над которым перемещается курсор. Приведу простой пример. Поместите на форму компонент Memo и присвойте свойству Align значение alTop. Поместите на форму панель, также присвойсте свойству Align значение alTop и задайте небольшое значение свойству Height, скажем 6 или 7 пикселей. Установите DragMode на dmAutomatica и DragCursor на crVSplit. Поместите другой Memo-компонент и установите Align на alClient. Одновременно выберите оба Memo-компонента, панель и создайте общий обработчик события OnDragOver как показано ниже:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Memo1DragOver(Sender, Source: TObject; X, Y: Integer;
+  State: TDragState; var Accept: Boolean);
+begin
+  if Source = Panel1 then
+    with Sender as TControl do
+    begin
+      Accept := True;
+      Memo1.Height := Y + Top;
+    end
+  else
+    Accept := False;
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

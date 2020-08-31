@@ -1,0 +1,61 @@
+<html>
+<head>
+  <title>При чтении почты POP3 отделять Attachment и сохранять в файл</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">При чтении почты POP3 отделять Attachment и сохранять в файл</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>При чтении почты POP3 отделять Attachment и сохранять в файл</p>
+Почту читаю, используя компонент tnmpop3 (стандартный в поставке d5), еще пробовал использовать библитеку indy, но не помогло. А проблема заключается в том, что после прочтения письма, невозможно отделить аттачмент от тела. Но это происходит не со всеми письмами. Если я отправлю письмо с аттачем, то я могу его нормально читать и разбирать, а если отправляет Заказчик, то получается то, что я описал. Причем, outlook и thebat, эти письма нормально читают и аттач МОЖНО сохранить. </p>
+<pre name="code" class="delphi">
+for intindex := 0 to pred(msg.messageparts.count) do
+begin
+if (msg.messageparts.items[intindex] is tidattachment) then
+begin //general attachment
+tidattachment(msg.messageparts.items[intindex]).savetofile(
+tidattachment(msg.messageparts.items[intindex]).filename);
+tidattachment.create(msg1.messageparts,
+tidattachment(msg.messageparts.items[intindex]).filename);
+end
+else
+begin //body text
+if msg.messageparts.items[intindex] is tidtext then
+begin
+memo1.lines.clear;
+memo1.lines.addstrings(tidtext(msg.messageparts.items[intindex]).body);
+end
+end;
+end;
+</pre>
+<p><a href="http://articles.org.ru/" target="_blank">http://articles.org.ru/</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

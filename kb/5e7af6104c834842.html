@@ -1,0 +1,89 @@
+<html>
+<head>
+  <title>Как скопировать структуру таблицы?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как скопировать структуру таблицы?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<pre name="code" class="delphi">
+{ 
+  As we know, Paradox Tables consist in a table file and some corresponding index files 
+  there are many way to copy them: 
+    1. Using TBatchMover (at DataAccess Pallete) with Mode : BatCopy 
+       But you can't copy the tables corresponding index files, TBatchMove just 
+       copies the structure and data. 
+    2. Using FileCopy 
+       But you can't copy the tables corresponding index files automatically, 
+       you should define each files 
+    .. and many more 
+ 
+  The Simple way is: 
+ 
+  Put two TTables on your form, name it as tbSource and tbTarget. 
+  Then, put this procedure under implementation area 
+} 
+ 
+type 
+  TForm1 = class(TForm) 
+    tbSource: TTable; 
+    tbTarget: TTable; 
+    // ... 
+  end; 
+ 
+implementation 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  tbSource.TableName := 'Source.DB';  // The name of your tables which you want to copy from 
+  tbTarget.TableName := 'Target.DB';  // The name of your tables which you will to copy to 
+                                      // You Can  set the tbSource.DataBaseName to an existing path/Alias 
+                                      //    where you store your DB 
+                                      // You Can  set the tbTarget.DataBaseName to an existing path/Alias 
+                                      //    where you want to store the duplicate DB 
+  tbSource.StoreDefs := True; 
+  tbTarget.StoreDefs := True; 
+  tbSource.FieldDefs.Update; 
+  tbSource.IndexDefs.Update; 
+  tbTarget.FieldDefs := tbSource.FieldDefs; 
+  tbTarget.IndexDefs := tbSource.IndexDefs; 
+  tbTarget.CreateTable; 
+  //Actually you can set these code up to only 5 lines :) 
+end; 
+ 
+ 
+End. 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

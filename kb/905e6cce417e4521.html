@@ -1,0 +1,51 @@
+<html>
+<head>
+  <title>Алгоритм обхода препятствий</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Алгоритм обхода препятствий</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Предлагаемый алгоритм обхода препятствий - это, так называемый, обобщенный алгоритм Дейкстры. В англоязычной литературе он называется алгоритмом A*. </p>
+
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>1. Карта разбита на квадратные части, назовем их клетками. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>2. Каждая клетка имеет несколько показателей: </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 72px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>1) стоимость прохождения по этой клетке, </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 72px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>2) предыдущая клетка - клетка из которой пришли в эту клетку, </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 72px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>3) статус клетки (непосещенная, граничная, отброшенная), </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 72px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>4) оценка пройденного пути, </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 72px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>5) оценка оставшегося пути. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>3. Имеется две клетки - начальная и конечная. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>4. Сосед клетки - клетка в которую можно попасть из рассматриваемой за 1 шаг. </td></tr></table></div><p>Общий принцип: на каждой итерации из всех граничных точек выбирается та, для которой сумма уже пройденного пути и пути до конца по прямой является минимальной, и от нее осуществляется дальнейшее продвижение. </p>
+<p>Алгоритм этот проще реализовать, чем описать:</p>
+<p>Start - начальная клетка<br>
+Finish - конечная клетка.<br>
+Алгоритм итерационный<br>
+1 шаг: Помечаем Start как граничную точку.<br>
+2 шаг: Среди всех граничных точек находим Клетку1 - клетку с минимальной суммой оценки пройденного пути g и оценки оставшегося пути h.<br>
+3 шаг: Для Клетки 1 рассматриваем соседей. Если сосед имеет статус непосещенного, то мы обозначаеми его как граничную клетку, и указываем Клетку1 как предыдущую для него. Оценку g1 для соседа принимаем равной g+p, где p-стоимость прохождения по клетке сосед, а g - оценка пройденного пути для Клетки1 . Оценка h для любой клетки равна длине кратчайшего пути (по прямой от рассматриваемой клетки до клетки Finish) Рассматриваемую Клетку1 помечаем как отброшенную. <br>
+4 шаг: Если на предыдущем шаге один из соседей оказался равен клетке Finish, то путь найден. Если ни одного нового соседа не существует, то нет и пути. <br>
+<p>5 шаг: Переход на шаг 2. </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

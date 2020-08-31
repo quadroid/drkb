@@ -1,0 +1,57 @@
+<html>
+<head>
+  <title>Как вывести цветной текст в TStatusBar?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как вывести цветной текст в TStatusBar?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Статусбар, это стандартный элемент управления Windows и как все отображает шрифт, заданный в параметре clBtnText, который устанавливается через Панель управления. Поумолчанию этот цвет чёрный, но он может менятся в зависимоти пользовательской темы. StatusBar и связанные с ним панели имеют возможность самостоятельной перерисовки (owner-draw), позволяющей рисовать текст различными цветами. Для этого необходимо в TStatusBar.Panels установить свойство Style в OwnerDraw.</p>
+
+<pre name="code" class="delphi">
+procedure TForm1.StatusBar1DrawPanel(StatusBar: TStatusBar; 
+  Panel: TStatusPanel; const Rect: TRect); 
+begin 
+  if Panel = StatusBar.Panels[0] then begin 
+    StatusBar.Canvas.Font.Color := clRed; 
+    StatusBar.Canvas.TextOut(Rect.Left, Rect.Top, 'Panel - 0') 
+  end else begin 
+    StatusBar.Canvas.Font.Color := clGreen; 
+    StatusBar.Canvas.TextOut(Rect.Left, Rect.Top, 'Panel - 1'); 
+  end; 
+end;
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

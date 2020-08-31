@@ -1,0 +1,206 @@
+<html>
+<head>
+  <title>Преобразование выражения к Обратной Польской Нотации</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Преобразование выражения к Обратной Польской Нотации</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Преобразование выражения к Обратной Польской Нотации
+ 
+Для работы функции необходимо определить тип:
+type
+OperList = array of widestring;
+ 
+Параметром функции служит массив из переменных и операторов. 
+Результат - массив из переменных и операторов
+ 
+Зависимости: SysUtils
+Автор:       avr555, avr555@mail.ru, ICQ:15782989
+Copyright:   Переделано с http://algolist.manual.ru/syntax/revpn.php
+Дата:        26 мая 2002 г.
+********************************************** }
+ 
+function ConvertToRPN(AStr:OperList):OperList;
+var
+  i,k:integer;
+  Stack : OperList; //Stack
+  AResult : OperList; //Tmp for result
+ 
+  function Prior(AOper:widestring):integer;
+  begin
+    {Приоритет операции:
+ 
+      NOT - 8
+      унарный "-" - 7
+      "*", "/" - 6
+      "+", "-" - 5
+      "&gt;", "&lt;", "=",
+      "&lt;&gt;", "&gt;=",
+      "&lt;=" - 4
+      "AND" - 3
+      "OR" - 2
+      "(", ")" - 1
+    }
+ 
+    AOper := trim(AOper);
+    result := -1;
+ 
+    if AOper = 'NOT' then Result := 8;
+    if (AOper = '*') or (AOper = '/') then Result := 6;
+    if (AOper = '+') or (AOper = '-') then Result := 5;
+    if (AOper = '&gt;') or (AOper = '&lt;') or (AOper = '&lt;&gt;') or (AOper = '&gt;=')
+      or (AOper = '&lt;=') or (AOper = '=') then Result := 4;
+ 
+    if AOper = 'AND' then Result := 3;
+    if AOper = 'OR' then Result := 2;
+    if (AOper = '(') or (AOper = ')') then Result := 1;
+  end;
+ 
+  procedure AddToStack(AOper:widestring);
+  begin
+    {Добавление элементы в стек}
+    SetLength(Stack,High(Stack)+2);
+    Stack[High(Stack)] := AOper;
+  end;
+ 
+  procedure AddToResult(AOper:widestring);
+  begin
+    SetLength(AResult,High(AResult)+2);
+    AResult[High(AResult)] := AOper;
+  end;
+ 
+begin
+  {Конвертирование строку в Обратную Польскую Нотацию
+    Возвращает - массив
+ 
+    Алгоритм:
+      а) если стек пуст, то опеpация из входной стpоки пеpеписывается в стек;
+      б) опеpация выталкивает из стека все опеpации с большим или pавным
+         пpиоpитетом в выходную стpоку;
+      в) если очеpедной символ из исходной стpоки есть откpывающая скобка,
+         то он пpоталкивается в стек;
+      г) закpывающая кpуглая скобка выталкивает все опеpации из стека до
+         ближайшей откpывающей скобки, сами скобки в выходную стpоку не
+         пеpеписываются, а уничтожают дpуг дpуга.
+  }
+  Result := nil;
+  AResult := nil;
+  i := 0;
+  while i &lt;= High(AStr) do
+  begin
+    if Prior(AStr[i]) = -1 then //Значит просто переменная
+       AddToResult(AStr[i])
+    else //Операции
+    begin
+      if High(Stack) = -1 then {a}
+        AddToStack(AStr[i])
+      else
+      begin
+        if AStr[i] = '(' then {в}
+          AddToStack(AStr[i])
+        else
+        begin
+ 
+          if AStr[i] = ')' then {г}
+          begin
+            k := High(Stack);
+            while (k&gt;=0) and (Stack[k] &lt;&gt; '(') do
+            begin
+              AddToResult(Stack[k]);
+              SetLength(Stack,High(Stack)); //Удаляем элемент из стека
+              k := k - 1;
+            end;
+            //Удаляем открывающуюся скобку
+            SetLength(Stack,High(Stack)); //Удаляем элемент из стека
+ 
+          end
+          else
+          begin
+            k := High(Stack);
+            while (k&gt;=0) and (Prior(Stack[k]) &gt;= Prior(AStr[i])) do {б}
+            begin
+              AddToResult(Stack[k]);
+              SetLength(Stack,high(Stack)); //Удаляем элемент из стека
+              k := k - 1;
+            end;
+            AddToStack(AStr[i]); //Если не скобка просто добавляем в стек
+          end;
+        end;
+ 
+      end;
+ 
+    end;
+ 
+    i := i + 1;
+  end; //while
+  //Сбрасываем все оставшееся из стека
+  for i := high(Stack) downto 0 do
+  begin
+    AddToResult(Stack[i]);
+  end;
+ 
+  result := AResult;
+end; 
+</pre>
+
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+procedure test;
+var 
+  s,s1:widestring;
+  tmp,
+  rtmp : OperList;
+  i:integer;
+begin
+  s := '(A+B)*(C+D)-E';
+  tmp := nil;
+  rtmp := nil;
+ 
+  for i:= 1 to Length(S) do
+  begin
+    SetLength(tmp, high(tmp)+2);
+    tmp[high(tmp)] := S[i];
+  end;
+  rtmp := ConvertToRPN(tmp);
+  s1 := '';
+ 
+  for i := 1 to High(rtmp) do
+  begin
+    s1 := s1 + rtmp[i];
+  end;
+end; 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

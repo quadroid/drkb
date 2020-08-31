@@ -1,0 +1,97 @@
+<html>
+<head>
+  <title>Удаление лишних пробелов в строке</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Удаление лишних пробелов в строке</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; удаление лишних пробелов в строке
+ 
+удаляет из строки лишние пробелы без использования всяких указателей и т.д.
+ 
+Зависимости: стандартные модули
+Автор:       Артем, boss1999@mail.ru, москва
+Copyright:   собственное описание (Артем)
+Дата:        24 сентября 2003 г.
+***************************************************** }
+ 
+{процедура удаления лишних пробелов в строке (см. function Sha_SpaceCompress)}
+var
+  c, i: integer;
+  stt, st, st1: string;
+begin
+  c := 0;
+  st := edit1.Text;
+ 
+  for i := 1 to Length(st) do
+  begin
+ 
+    stt := copy(st, i, 1);
+    if (stt = ' ') and (c &gt;= 1) then
+    begin
+      st1 := st1;
+      c := c + 1;
+    end
+    else if (stt = ' ') and (c = 0) then
+    begin
+      c := c + 1;
+      st1 := st1 + stt;
+    end
+    else if (stt &lt;&gt; ' ') then
+    begin
+      c := 0;
+      st1 := st1 + stt;
+    end
+  end;
+ 
+  edit2.text := st1;
+end;
+</pre>
+<hr />
+<pre name="code" class="delphi">
+Function DeleteUselessSpaces(s:String):string;
+
+begin
+  Repeat
+    Result:=s;
+    s:=StringReplace(Result,'  ',' ',[rfReplaceAll]); //заменяем все двойные пробелы на одинарные
+  Until Result=s; //повторяем до тех пор пока есть двойные пробелы 
+end;
+</pre>
+<p id="author">Автор: Vit</p>
+
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

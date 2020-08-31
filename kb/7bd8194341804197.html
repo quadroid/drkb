@@ -1,0 +1,410 @@
+<html>
+<head>
+  <title>Как перемещать компонент во время работы программы?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как перемещать компонент во время работы программы?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Олег Кулабухов  </p>
+<p>Нижеприведенный пример показывает как перемещать компонент при перетаскивании его нажатой левой кнопкой мыши при нажатом Ctrl.</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1MouseDown(Sender: TObject; Button:
+  TMouseButton; Shift: TShiftState; X, Y: Integer);
+{$IFNDEF WIN32}
+var
+  pt: TPoint;
+{$ENDIF}
+begin
+  if ssCtrl in Shift then
+  begin
+    ReleaseCapture;
+    SendMessage(Button1.Handle, WM_SYSCOMMAND, 61458, 0);
+{$IFNDEF WIN32}
+    GetCursorPos(pt);
+    SendMessage(Button1.Handle,
+      WM_LBUTTONUP,
+      MK_CONTROL,
+      Longint(pt));
+{$ENDIF}
+  end;
+end;
+ 
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+&nbsp;</p>
+<hr />
+<p>Перетаскивание компонентов в окне приложения </p>
+<p>Например: перемещение компонентов с помощью мыши по площади формы в среде разработки Delphi. <br>
+<p>Нарисовать в графическом редакторе картинку, сохранить ее в файле с расширенем .bmp.</p>
+<p>&nbsp;<br>
+Поместить в форме 4 компонента типа TImage.<br>
+<p>При создании формы (событие формы onCreate) приложения разделить созданную картинку на 4 части и поместить каждую в компоненту Image:</p>
+<pre name="code" class="delphi">
+var
+  Pict: TImage;
+  beginPict := TImage.Create(Self);
+  Pict.AutoSize :=
+    true;
+  Pict.Picture.LoadFromFile('Cus5.bmp');
+  Image1.Canvas.CopyRect(Image1.ClientRect,
+    Pict.Canvas, Rect(0, 0, Pict.Width div 2, Pict.Height div
+    2));
+  Image2.Canvas.CopyRect(Image2.ClientRect, Pict.Canvas, Rect(Pict.Width
+    div 2, 0, Pict.Width, Pict.Height div
+    2));
+  Image3.Canvas.CopyRect(Image3.ClientRect, Pict.Canvas, Rect(0, Pict.Height
+    div 2, Pict.Width div
+    2, Pict.Height));
+  Image4.Canvas.CopyRect(Image4.ClientRect,
+    Pict.Canvas, Rect(Pict.Width div 2, Pict.Height div 2, Pict.Width,
+      Pict.Height
+    ));
+  Pict.Free;
+end;
+</pre>
+<p>Все методы используют глобальные переменные: </p>
+<pre name="code" class="delphi">
+var
+  move: boolean; //определяет режим буксировки, она будет устанавливаться
+  в True вначале и в False в концеX0, Y0: Integer;
+    //запоминание координат курсора мыши
+</pre>
+<p>Метод 1:<br>
+<p>Буксировка начинается при нажатии левой кнопки мыши на соответствующем компоненте Image. Поэтому начало определяется событием onMouseDown, обработчик котрого имеет вид: </p>
+<pre name="code" class="delphi">
+procedure
+  TForm1.Image1MouseDown(Sender: TObject; Button: TMouseButton; Shift:
+  TShiftState; X, Y: Integer);
+beginif Button &lt;&gt; mbLeft then
+  exit;
+X0 := X;
+Y0 := Y;
+move := true;
+(Sender as
+  TControl).BringToFront;
+end;
+</pre>
+<p>Сначала в этой процедуре проверяется, нажата ли именно левая кнопка мыши, затем запоминаются координаты мыши именно в этот момент. Задается режим буксировки &#8211; переменная move := true. Последний оператор выдвигает методом BringToFront компонент, в котором произошло событие, на передний план. Это позволит ему в дальнейшем перемещаться поверх других аналогичных компонентов. <br>
+<p>Во время буксировки компонента работает его обработчик события onMouseMove, имеющий вид: </p>
+<pre name="code" class="delphi">
+procedure
+  TForm1.Image1MouseMove(Sender: TObject; Shift: TShiftState; X, Y:
+  Integer);
+beginif move&amp;nbsp;
+then with (Sender as TControl)
+  doSetBounds(Left + X - X0, Top + Y - Y0, Width, Height)
+  end;
+</pre>
+<p>Метод SetBounds изменяет координаты левого верхнего угла на величину сдвига курсора мыши (X - X0 для координаты X и Y - Y0 для координаты Y). Тем самым поддерживается постоянное расположение точки курсора в системе координат компонента, т.е. компонент перемещается вслед за курсором. Ширина Width и высота Height компонента остаются неизменными.<br>
+<p>По окончании буксировки, когда пользователь отпустит кнопку мыши, наступит событие . Обработчик этого события onMouseUp должен сожержать всего один оператор: </p>
+<pre name="code" class="delphi">
+procedure TForm1.Image1MouseUp(Sender: TObject; Button:
+  TMouseButton; Shift: TShiftState; X, Y: Integer);
+beginmove :=
+  false;
+end;
+</pre>
+<p>Этот оператор указывает указывает приложению на конец буксировки. Тогода при последующих событиях onMouseMove их обработчик перестанет изменять координаты компонента.<br>
+Метод 2:<br>
+<p>Основной недостаток рассмотренного метода буксировки &#8211; некоторое дрожание изображения при перемещении. Устранить его можно, если перемещать не сам компонент, а его контур, при этом сам компонент перемещается только один раз &#8211; в момент окончания буксировки, когда требуемое положение уже выбрано. В этом варианта используются методы рисования на канве. Для их применения требуется еще одна глобальная переменная: </p>
+<p>var</p>
+<p>  rec: Trect;</p>
+<p>Переменная rec будетиспользоваться для запоминания положения перемещаемого курсора компонента.<br>
+<p>Начинается процесс буксировки,как и ранее, с события onMouseDown: </p>
+<pre name="code" class="delphi">
+procedure TForm1.Image4MouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+beginif
+  Button &lt;&gt; mbLeft then exit;
+X0 := X;
+&amp;nbsp;
+Y0 := Y;
+rec := (Sender as
+  TControl).BoundsRect;
+move := true;
+end;
+Оператор: rec := (Sender as
+  TControl).BoundsRect;
+</pre>
+<p>запоминает в переменной rec исходное положение компонента. В процедуре отсутствует также опереатор BringToFront, поскольку сам компонент не будет перемещаться.<br>
+<p>При дальнейшем перемещении мыши срабатывает обработчик события onMouseMove: </p>
+<pre name="code" class="delphi">
+procedure
+  TForm1.Image4MouseMove(Sender: TObject; Shift: TShiftState; X, Y:
+  Integer);
+beginif not move then
+  exit;
+Canvas.DrawFocusRect(rec);
+with rec dobeginleft := left + X
+  - X0;
+right := right + X - X0;
+&amp;nbsp;
+top := top + Y - Y0;
+&amp;nbsp;
+bottom := bottom +
+  Y - Y0;
+X0 := X;
+Y0 := Y;
+end;
+Canvas.DrawFocusRect(rec);
+end;
+</pre>
+<p>В этой процедуре перерисовывается и сдвигается только прямоугольник контура компонента с помощью метода DrawFocusRect. Первое обращение к этому методу стирает прежнее изображение контура, поскольку повторная прорисовка того же изображения по операции ИЛИ(or) стирает нанесенное ранее изображение. Затем изменяются значения, хранимые в переменной rec, и той же функцией DrawFocusRect осуществляется прорисовка сдвинутого прямоугольника. При этом сам компонент остается на месте.<br>
+<p>Когда пользователь отпускает кнопку мыши, наступает событие onMouseUp: </p>
+<pre name="code" class="delphi">
+procedure
+  TForm1.Image4MouseUp(Sender: TObject; Button: TMouseButton; Shift:
+    TShiftState;
+  X, Y: Integer);
+beginCanvas.DrawFocusRect(rec); { if not (ssAlt in
+Shift) then} with (Sender as TControl) do
+  beginSetBounds(rec.Left + X -
+    X0, rec.Top + Y - Y0, Width, Height);
+BringToFront;
+end;
+move := false;
+end;
+</pre>
+<p>Первый ее оператор стирает последнее изображение контура, а второй оператор перемещает компонент в новую позицию. В обработчике события onMouseUp можно предусмотреть условияотказа от перемещения: например, нажатая клавиша Alt (см. оператор в фигурных скобках).<br>
+<p>Полный текст приложения: </p>
+<pre name="code" class="delphi">
+unit UMove;
+interfaceusesWindows, Messages,
+SysUtils, Classes, Graphics, Controls, Forms, Dialogs, Menus, ExtCtrls,
+ExtDlgs;
+typeTForm1 = class(TForm)Image1: TImage;
+  Image2:
+  TImage;
+  Image3: TImage;
+  Image4: TImage;
+  procedure
+    Image1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState;
+      X,
+    Y: Integer);
+  procedure Image1MouseMove(Sender: TObject; Shift: TShiftState;
+    X, Y: Integer);
+  procedure Image1MouseUp(Sender: TObject; Button:
+    TMouseButton; Shift: TShiftState; X, Y: Integer);
+  procedure
+    FormCreate(Sender: TObject);
+  procedure Image4MouseDown(Sender: TObject;
+    Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+  procedure
+    Image4MouseMove(Sender: TObject; Shift: TShiftState; X, Y:
+    Integer);
+  procedure Image4MouseUp(Sender: TObject; Button:
+    TMouseButton; Shift: TShiftState; X, Y: Integer);
+private { Private
+declarations } public { Public declarations }
+end;
+varForm1:
+TForm1;
+implementation{$R *.DFM}var
+  move: boolean;
+  X0, Y0:
+  Integer;
+  rec: Trect;
+ 
+procedure TForm1.Image1MouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+beginif
+  Button &lt;&gt; mbLeft then exit;
+X0 := X;
+Y0 := Y;
+move :=
+  true;
+(Sender as TControl).BringToFront;
+end;
+ 
+procedure
+  TForm1.Image1MouseMove(Sender: TObject; Shift: TShiftState; X, Y:
+  Integer);
+beginif move then with (Sender as TControl)
+  doSetBounds(Left + X - X0, Top + Y - Y0, Width,
+  Height)
+end;
+ 
+procedure TForm1.Image1MouseUp(Sender: TObject; Button:
+  TMouseButton; Shift: TShiftState; X, Y: Integer);
+beginmove :=
+  false;
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  Pict: TImage;
+  beginPict := TImage.Create(Self);
+  Pict.AutoSize :=
+    true;
+  Pict.Picture.LoadFromFile('Cus5.bmp');
+  Image1.Canvas.CopyRect(Image1.ClientRect,
+    Pict.Canvas, Rect(0, 0, Pict.Width div 2, Pict.Height div
+    2));
+  Image2.Canvas.CopyRect(Image2.ClientRect, Pict.Canvas, Rect(Pict.Width
+    div 2, 0, Pict.Width, Pict.Height div
+    2));
+  Image3.Canvas.CopyRect(Image3.ClientRect, Pict.Canvas, Rect(0, Pict.Height
+    div 2, Pict.Width div
+    2, Pict.Height));
+  Image4.Canvas.CopyRect(Image4.ClientRect,
+    Pict.Canvas, Rect(Pict.Width div 2, Pict.Height div 2, Pict.Width,
+      Pict.Height
+    ));
+  Pict.Free;
+end;
+ 
+procedure TForm1.Image4MouseDown(Sender:
+  TObject; Button: TMouseButton; Shift: TShiftState; X, Y:
+  Integer);
+beginif Button &lt;&gt; mbLeft then exit;
+X0 := X;
+Y0 :=
+  Y;
+rec := (Sender as TControl).BoundsRect;
+move :=
+  true;
+end;
+ 
+procedure TForm1.Image4MouseMove(Sender: TObject; Shift:
+  TShiftState; X, Y: Integer);
+beginif not move then
+  exit;
+Canvas.DrawFocusRect(rec);
+with rec dobeginleft := left + X
+  - X0;
+right := right + X - X0;
+top := top + Y - Y0;
+bottom :=
+  bottom + Y - Y0;
+X0 := X;
+Y0 :=
+  Y;
+end;
+Canvas.DrawFocusRect(rec);
+end;
+ 
+procedure
+  TForm1.Image4MouseUp(Sender: TObject; Button: TMouseButton; Shift:
+    TShiftState;
+  X, Y: Integer);
+beginCanvas.DrawFocusRect(rec);
+if not (ssAlt in
+  Shift)thenwith(Sender as TControl) do beginSetBounds(rec.Left + X -
+  X0, rec.Top + Y - Y0, Width, Height);
+BringToFront;
+end;
+move :=
+false;
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+&nbsp;</p>
+<hr />
+<p>Перетаскивание элементов управления c рамкой контура </p>
+<p>...как перетаскивать элементы управления с контурной рамкой по их форме, "приклеенной" к курсору? Решение, найденное вами, работать не будет, поскольку таскаемая рамка не обязательно может находиться в пределах области компонента (а вы отрисовываете ее только на компоненте). </p>
+<p>В общих чертах, вы должны рисовать на всей поверхности формы и даже рабочего стола, для чего необходимо сделать растровую КОПИЮ окна или десктопа и рисовать на ней. Вот что нам нужно. </p>
+<p>Начните со свеженькой формы. Бросьте на нее компонент Notebook и установите его свойство Align в alClient. Разработайте форму на первой странице компонента Notebook. Создайте вторую страницу в Notebook, поместите туда Paintbox и установите его свойство Align в alClient. Далее добавьте нижеследующие строчки в секцию Private вашей формы:</p>
+<pre name="code" class="delphi">
+Img : TBitmap;
+DragX, DragY, DragW, DragH, XOff, YOff : Integer;
+</pre>
+<p>В обработчике формы OnCreate:</p>
+<pre name="code" class="delphi">
+Img := TBitmap.Create;
+</pre>
+<p>В общем, для всех перетаскиваемых компонентов, обработчике события OnMouseDown:</p>
+<pre name="code" class="delphi">
+IF NOT (ssShift IN Shift) THEN Exit;
+Img := GetFormImage;
+Notebook1.PageIndex := 1;
+WITH Sender AS TControl DO
+BEGIN
+DragW := Width;
+DragH := Height;
+XOff:= X;
+YOff := Y;
+BeginDrag(True);
+END;
+</pre>
+<p>В общем, для всех перетаскиваемых компонентов, обработчике события EndDrag:</p>
+<pre name="code" class="delphi">
+Notebook1.PageIndex := 0;
+WITH Sender AS Tcontrol DO
+BEGIN
+Left := X-Xoff;
+Top := Y-YOff;
+END;
+</pre>
+<p>Поместите следующую строку в обработчик события OnPaint компонента PaintBox:</p>
+<p>PaintBox1.Canvas.Draw(0, 0, Img);</p>
+<p>И наконец, если вам еще это не надоело, поместите следующую строчку в обработчик OnDragOver компонента PaintBox:</p>
+<pre name="code" class="delphi">
+IF (X=DragX) AND (Y=DragY) THEN Exit;
+WITH PaintBox1.Canvas DO
+BEGIN
+DrawFocusRect(Bounds(DragX-XOff, DragY-YOff, DragW, DragH);
+DragX := X; DragY := Y;
+DrawFocusRect(Bounds(DragX-XOff, DragY-YOff, DragW, DragH);
+END;
+</pre>
+<p>ФУ!! Но это работает! Я не хотел убирать в компонентах возможность перетаскивания их мышью обычным способом, поэтому для включения дополнительной характеристики необходимо при старте держать нажатой клавишу Shift. Попробуйте это!</p>
+<p>Я пытаюсь "потаскать" TPanel, используемую в качестве ToolBar и всегда почему-то получаю иконку с перечеркнутым кругом. Я понимаю, что это означает невозможность перетаскивания. К сожалению, в документации я ничего не нашел как решить эту проблему. Я пробовал и ручные, и автоматические настройки (DragMode = dmManual/dmAutomatic - В.О.), но все без толку. </p>
+<p>Иногда я вообще не могу "оторвать" TPanel! </p>
+<p>Начнем с самого начала. Причина того, что вы получаете курсор "crNoDrop" в том, что под курсором элемент управления не готов принять перетаскиваемый компонент. Чтобы исправить эту ситуацию, дважды щелкните (в Инспекторе Объектов) на событии формы или компонента OnDragOver и установите параметр Accept в, например так:</p>
+<pre name="code" class="delphi">
+procedure TForm1.FormDragOver(Sender, Source: TObject; X, Y: Integer;
+State: TDragState; var Accept: Boolean);
+begin
+  Accept := true ;
+end;
+</pre>
+<p>Благодарю за пример создания прямоугольника при перетаскивании. Ваши инструкции помогли мне первое время и я легко интегрировал ваш код в мое приложение. Но если вы не возражаете, я хотел бы получить другой небольшой совет .... есть ли возможность во время операции перетаскивания (PaintBox1DragOver) работать с элементами управления, находящимимя под PainBox с тем, чтобы они также изменяли курсор и также могли бы принимать перетаскиваемый элемент? Когда перетаскиваемый элемент выдает сообщение EndDrag, параметр Target должен быть PaintBox (логически). </p>
+<p>Можно как-то определить, с каким конкретно элементом управления, расположенным под PainBox, взаимодействует в данный момент перетаскиваемый элемент (для его акцептования)? Я опять что-то упустил, но я не знаю как это сделать. </p>
+<p>Вы можете получить координаты в методе OnDragOver при сравнении BoundsRect с областью компонентов. Например, вы не хотите принимать перетаскиваемый компонент кнопкой, перекрывающей любую другую имеющуюся кнопку. В обработчике OnDragOver напишите примерно следующее:</p>
+<pre name="code" class="delphi">
+FOR N := 0 TO ComponentCount-1 DO
+  IF COmponents[N] IS TButton THEN
+    IF IntersectRect(DummyRect, TControl(Components[N]).BoundsRect,
+      (Bounds(X-XOff, Y-YOff, DragW, DragH)) &gt;0 THEN
+        Accept := False;
+</pre>
+<p>В этом случае курсор будет изменяться на перечеркнутый кружок при пересечении перетаскиваемым элементом границы интересующей вас кнопки. Вы должны сделать аналогичную логику или в обработчике EndDrag или OnDragDrop компонента PainBox. </p>
+<p id="author">Автор: NEil </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

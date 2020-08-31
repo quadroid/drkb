@@ -1,0 +1,88 @@
+<html>
+<head>
+  <title>Как использовать клавишу-акселератор в TTabSheet?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как использовать клавишу-акселератор в TTabSheet?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>Как использовать клавишу-акселератор в TTabsheets? Я добавляю клавишу-акселератор в заголовок каждого Tabsheet моего PageControl, но при попытке переключать страницы этой клавишей программа пикает и ничего не происходит. </p>
+
+<p>Можно перехватить сообщение CM_DIALOGCHAR.</p>
+<pre name="code" class="delphi">
+type
+  TForm1 = class(TForm)
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    TabSheet3: TTabSheet;
+  private
+  {Private declarations}
+    procedure CMDialogChar(var Msg: TCMDialogChar);
+      message CM_DIALOGCHAR;
+  public
+  {Public declarations}
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+{$R *.DFM}
+ 
+procedure TForm1.CMDialogChar(var Msg: TCMDialogChar);
+var
+  i: integer;
+begin
+  with PageControl1 do
+    begin
+      if Enabled then
+        for i := 0 to PageControl1.PageCount - 1 do
+          if ((IsAccel(Msg.CharCode, Pages[i].Caption)) and
+            (Pages[i].TabVisible)) then
+            begin
+              Msg.Result := 1;
+              ActivePage := Pages[i];
+              exit;
+            end;
+    end;
+  inherited;
+end;
+</pre>
+<p>Взято из </p>
+DELPHI VCL FAQ Перевод с английского &nbsp; &nbsp; &nbsp; 
+<p>Подборку, перевод и адаптацию материала подготовил Aziz(JINX)</p>
+<p>специально для <a href="http://delphi.vitpc.com/" target="_blank">Королевства Дельфи</a></p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

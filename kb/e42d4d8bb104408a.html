@@ -1,0 +1,95 @@
+<html>
+<head>
+  <title>Как заменить строку в матрице?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как заменить строку в матрице?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+program Matrices;
+ 
+{$APPTYPE CONSOLE}
+ 
+uses
+  SysUtils;
+ 
+type
+  TMatrixRow = Array of Double;  {preferrable to Real}
+  TMatrix = Array of TMatrixRow;
+ 
+ 
+procedure MatrixExchangeRows(M: TMatrix; First, Second: Integer);
+var
+  Help: TMatrixRow;
+begin
+  if (First &lt; 0) or (First &gt; High(M)) or (Second &lt; 0) or (Second &gt; High(M)) then
+    Exit;  {or whatever you like.}
+  {Only pointers are exchanged!}
+  Help := M[First];
+  M[First] := M[Second];
+  M[Second] := Help;
+end;
+ 
+ 
+procedure MatrixWrite(M: TMatrix);
+var
+  Row, Col: Integer;
+begin
+  for Row := 0 to High(M) do
+  begin
+    for Col := 0 to High(M[Row]) do
+      Write(M[Row, Col]:10:2);
+    Writeln;
+  end;
+  Writeln;
+end;
+ 
+var
+  Matrix: TMatrix;
+  Row, Column: Integer;
+ 
+begin
+  Randomize;
+  SetLength(Matrix, 4, 4);
+  for Row := 0 to High(Matrix) do
+    for Column := 0 to High(Matrix[Row]) do
+      Matrix[Row, Column] := Random * 1000.0;
+  MatrixWrite(Matrix);
+  MatrixExchangeRows(Matrix, 1, 2);
+  MatrixWrite(Matrix);
+  Readln;
+end.
+</pre>
+
+<p>Взято из <a href="http://www.lmc-mediaagentur.de/dpool" target="_blank">http://www.lmc-mediaagentur.de/dpool</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

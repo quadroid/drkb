@@ -1,0 +1,125 @@
+<html>
+<head>
+  <title>Печать содержимого TDBGrid через Quick Report</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Печать содержимого TDBGrid через Quick Report</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Rafael Ribas Aguilу</p>
+
+<p>Частенько у пользователя возникает необходимость распечатать отчёт из базы данных. Естественно, что он начинает просить Вас добавить такую возможность в приложение. Как оказалось, при помощи TQuickRep данную задачу можно очень легко решить.</p>
+
+<p>Итак, приступим. Для начала создайте новую форму, назвав её TGridReport, и поместите на неё TQuickRep. Переименуйте QuickRep в GridRep. Затем сделайте следующию процедуру, которая получает в качестве параметра DBGrid:</p>
+
+<pre name="code" class="delphi">
+procedure TGridReport.Preview(Grid: TDBGrid); 
+var 
+  i, CurrentLeft, CurrentTop : integer; 
+  BMark: TBookmark; 
+begin 
+  GridRep.Dataset:=Grid.DataSource.DataSet; 
+ 
+  if not GridRep.Bands.HasColumnHeader then 
+    GridRep.Bands.HasColumnHeader:=true; 
+ 
+  if not GridRep.Bands.HasDetail then 
+    GridRep.Bands.HasDetail:=true; 
+ 
+  GridRep.Bands.ColumnHeaderBand.Height:=Abs(Grid.TitleFont.Height) + 10; 
+  GridRep.Bands.DetailBand.Height:=Abs(Grid.Font.Height) + 10; 
+  CurrentLeft := 12; 
+  CurrentTop := 6; 
+ 
+  {Запись, на которой пользователь останавливается в DBGrid} 
+  BMark:=Grid.DataSource.DataSet.GetBookmark; 
+  {Запретим мерцание грида в процессе работы отчёта} 
+  Grid.DataSource.DataSet.DisableControls; 
+  try 
+    for i:=0 to Grid.FieldCount - 1 do 
+    begin 
+      if (CurrentLeft + Canvas.TextWidth(Grid.Columns[i].Title.Caption)) &gt; 
+        (GridRep.Bands.ColumnHeaderBand.Width) then 
+      begin 
+        CurrentLeft := 12; 
+        CurrentTop := CurrentTop + Canvas.TextHeight('A') + 6; 
+        GridRep.Bands.ColumnHeaderBand.Height := GridRep.Bands.ColumnHeaderBand.Height + 
+          (Canvas.TextHeight('A') + 10); 
+        GridRep.Bands.DetailBand.Height := GridRep.Bands.DetailBand.Height + 
+          (Canvas.TextHeight('A') + 10); 
+      end; 
+      {Создадим заголовок отчёта при помощи QRLabels} 
+      with TQRLabel.Create(GridRep.Bands.ColumnHeaderBand) do 
+      begin 
+        Parent := GridRep.Bands.ColumnHeaderBand; 
+        Color := GridRep.Bands.ColumnHeaderBand.Color; 
+        Left := CurrentLeft; 
+        Top := CurrentTop; 
+        Caption:=Grid.Columns[i].Title.Caption; 
+      end; 
+      {Создадим тело отчёта при помощи QRDBText} 
+      with TQRDbText.Create(GridRep.Bands.DetailBand) do 
+      begin 
+        Parent := GridRep.Bands.DetailBand; 
+        Color := GridRep.Bands.DetailBand.Color; 
+        Left := CurrentLeft; 
+        Top := CurrentTop; 
+        Alignment:=Grid.Columns[i].Alignment; 
+        AutoSize:=false; 
+        AutoStretch:=true; 
+        Width:=Grid.Columns[i].Width; 
+        Dataset:=GridRep.Dataset; 
+        DataField:=Grid.Fields[i].FieldName; 
+        CurrentLeft:=CurrentLeft + (Grid.Columns[i].Width) + 15; 
+      end; 
+    end; 
+ 
+    lblPage.Left := bdTitle.Width - lblPage.Width - 10; 
+    lblDate.Left := bdTitle.Width - lblDate.Width - 10; 
+ 
+    {Далее вызовем метод предварительного просмотра из QuickRep} 
+    GridRep.PreviewModal; {либо, если желаете, то PreviewModal} 
+ 
+  finally 
+    with Grid.DataSource.DataSet do 
+    begin 
+      GotoBookmark(BMark); 
+      FreeBookmark(BMark); 
+      EnableControls; 
+    end; 
+  end; 
+end; 
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

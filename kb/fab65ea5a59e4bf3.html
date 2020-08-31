@@ -1,0 +1,81 @@
+<html>
+<head>
+  <title>Как убить задачу, зная только имя .exe?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как убить задачу, зная только имя .exe?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+nbsp;
+
+<pre name="code" class="delphi">
+{Эта небольшая функция закрывает приложения, соответствующие заданному имени .exe. 
+  Пример: KillTask('notepad.exe'); 
+          KillTask('iexplore.exe'); } 
+uses 
+  Tlhelp32, Windows, SysUtils; 
+ 
+function KillTask(ExeFileName: string): integer; 
+const 
+  PROCESS_TERMINATE=$0001; 
+var 
+  ContinueLoop: BOOL; 
+  FSnapshotHandle: THandle; 
+  FProcessEntry32: TProcessEntry32; 
+begin 
+  result := 0; 
+ 
+  FSnapshotHandle := CreateToolhelp32Snapshot 
+                     (TH32CS_SNAPPROCESS, 0); 
+  FProcessEntry32.dwSize := Sizeof(FProcessEntry32); 
+  ContinueLoop := Process32First(FSnapshotHandle, 
+                                 FProcessEntry32); 
+ 
+  while integer(ContinueLoop) &lt;&gt; 0 do 
+  begin 
+    if ((UpperCase(ExtractFileName(FProcessEntry32.szExeFile)) = 
+         UpperCase(ExeFileName)) 
+     or (UpperCase(FProcessEntry32.szExeFile) = 
+         UpperCase(ExeFileName))) then 
+      Result := Integer(TerminateProcess(OpenProcess( 
+                        PROCESS_TERMINATE, BOOL(0), 
+                        FProcessEntry32.th32ProcessID), 0)); 
+    ContinueLoop := Process32Next(FSnapshotHandle, 
+                                  FProcessEntry32); 
+  end; 
+ 
+  CloseHandle(FSnapshotHandle); 
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

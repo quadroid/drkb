@@ -1,0 +1,93 @@
+<html>
+<head>
+  <title>Как получить переменные окружения типа PATH и PROMPT?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить переменные окружения типа PATH и PROMPT?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Вариант 1:</p>
+
+<p>Для этого используется API функция GetEnvironmentVariable.</p>
+
+<p>GetEnvironmentVariable возвращает значения:</p>
+
+<p>- В случае удачного выполнения функции, возвращаемое значение содержит количество символов, хранящихся в буфере, не включая последнего нулевого.</p>
+
+<p>- Если указанная переменная окружения для текущего процесса не найдена, то возвращаемое значение равно нулю.</p>
+
+<p>- Если буфер не достаточного размера, то возвращаемое значение равно требуемому размеру для хранения строки значения и завершающего нулевого символа.</p>
+
+<pre name="code" class="delphi">
+function GetDOSEnvVar(const VarName: string): string; 
+var 
+  i: integer; 
+begin 
+  Result := ''; 
+  try 
+    i := GetEnvironmentVariable(PChar(VarName), nil, 0); 
+ 
+    if i &gt; 0 then 
+      begin 
+        SetLength(Result, i); 
+        GetEnvironmentVariable(Pchar(VarName), PChar(Result), i); 
+      end; 
+  except 
+    Result := ''; 
+  end; 
+end; 
+</pre>
+
+
+<hr />
+<p>Вариант 2:</p>
+<pre name="code" class="delphi">
+procedure TMainFrm.AddVarsToMemo(Sender: TObject); 
+var 
+  p : pChar; 
+begin 
+  Memo1.Lines.Clear; 
+  Memo1.WordWrap := false; 
+  p := GetEnvironmentStrings; 
+  while p^ &lt;&gt; #0 do begin 
+    Memo1.Lines.Add(StrPas(p)); 
+    inc(p, lStrLen(p) + 1); 
+  end; 
+FreeEnvironmentStrings(p); 
+end; 
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

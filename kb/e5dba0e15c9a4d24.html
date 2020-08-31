@@ -1,0 +1,76 @@
+<html>
+<head>
+  <title>Установка ODBC &ndash; Watcom SQL</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Установка ODBC &ndash; Watcom SQL</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Johannes M. Becher (CODATA GmbH Krefeld, Germany) </p>
+<p>...если вам нужно знать, что творится за сценой, нужно просто взглянуть на эти два файла, оба человеко-читаемых, оба расположенных в вашей директории Windows. </p>
+<p>A) ODBCINST.INI - описание всех установленных драйверов ODBC </p>
+<p>Секция [ODBC Drivers] в каждой строчке описывает один драйвер. Здесь прописано формальное имя драйвера, использующегося позже для идентификации драйвера. </p>
+<p>Каждый драйвер, как вы увидите позже, имеет собственную секцию, к примеру, вот секция для Watcom :</p>
+<p> &nbsp;&nbsp; {1} [Watcom SQL 4.0]</p>
+<p> &nbsp;&nbsp; {2} Driver=D:\WIN31\SYSTEM\WOD40W.DLL</p>
+<p> &nbsp;&nbsp; {3} Setup=D:\WIN31\SYSTEM\WOD40W.DLL</p>
+<p>Строка 1 содержит имя секции драйвера из [ODBC Drivers].<br>
+Строка 2 сообщает Windows о том, где следует искать DLL, содержащую методы, применяемые ODBC для доступа к базам данных Watcom.<br>
+<p>Строка 3 сообщает Windows о том, где следует искать DLL, содержащую методы, применяемые ODBC для административных целей. </p>
+<p>Все, что имеется в файле ODBCINST.INI - теперь содержится в файле #2 (таком же легком для изучения): </p>
+<p>B) ODBC.INI - описание всех ваших баз данных (источников данных, говоря языком ODBC) </p>
+<p>Секция [ODBC Data Sources] в каждой строчке описывает одну базу данных; формат:<br>
+{описание базы данных} = {описание драйвера из ODBCINST.INI}<br>
+<p>Данный файл сообщает ODBC, к каким базам данных вы хотите иметь доступ и какой драйвер для каждой конкретной базы данных для этого необходим. </p>
+<p>Каждая база данных, как вы увидите позже, имеет собственную секцию, к примеру, вот секция PB Demo: </p>
+<p> &nbsp;&nbsp; {1} [Powersoft Demo DB=Watcom SQL 4.0]</p>
+<p> &nbsp;&nbsp; {2} DatabaseFile=E:\PB4\EXAMPLES\PSDEMO.DB</p>
+<p> &nbsp;&nbsp; {3} DatabaseName=PSDEMODB</p>
+<p> &nbsp;&nbsp; {4} UID=dba</p>
+<p> &nbsp;&nbsp; {5} PWD=sql</p>
+<p> &nbsp;&nbsp; {6} Driver=D:\WIN31\SYSTEM\WOD40W.DLL</p>
+<p> &nbsp;&nbsp; {7} Start=D:\WSQL40\DBSTARTW -d -c512</p>
+<p>Строка 1 содержит ссылку на секцию [ODBC Data Sources].<br>
+Строка 2 содержит физический путь к файлу базы данных.<br>
+Строка 3 - описание, только для вашего чтения.<br>
+Строка 4 - User ID, которое Watcom применяет для установления связи.<br>
+Строка 5 - Пароль, используемый для установления соединения.<br>
+- Это не очень секретно; если вы оставите эту строку пустой, Watcom сам спросит пароль при получении доступа к базе данных.<br>
+Строка 6 содержит имя драйвера (снова - сравните с OBDCINST.INI)<br>
+<p>Строка 7 содержит имя движка базы данных для ее запуска (это необходимо лишь для баз данных SQL, например, в версии Client / Server). </p>
+<p>Все это может быть отредактировано как вручную (в любом текстовом редакторе), так и в ODBCADM (ODBC Administration). Что касается меня лично, то я более не использую ODBCADM; я ощущаю себя гораздо лучше, если имею больший контроль над INI-файлами, редактируя строки вручную. </p>
+<p>Структура секций в файле ODBC.INI может отличаться для разных драйверов, поэтому вам необходимо научиться ориентироваться по ключевым словам, описанным выше. </p>
+<p>Предупреждение: весь опубликованный мною материал получен путем моих собственных исследований, вследствие чего я не могу гарантировать его достоверность. По крайней мере я успешно использую его для получения доступа к ODBC уже более года.</p>
+
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

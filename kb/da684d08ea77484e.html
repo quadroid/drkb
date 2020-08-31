@@ -1,0 +1,223 @@
+<html>
+<head>
+  <title>Создание Plug-In в виде COM-Сервера</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создание Plug-In в виде COM-Сервера</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Попробуем теперь реализовать Plug-In к своей программе, в виде COM-сервера и сравним код, полученный в этом случае с кодом, полученным при «ручном» программировании. В начале создадим модуль с описанием интерфейсов:</p>
+<pre name="code" class="delphi">
+unit PluginInterface;
+ 
+interface
+ 
+const
+  Class_TAPI: TGUID = '{A132D1A1-721C-11D4-84DD-E2DEF6359A17}';
+ 
+type
+  IAPI = interface
+  ['{64CFF1E0-61A3-11D4-84DD-B18D6F94141F}']
+    procedure ShowMessage(const S: String);
+  end;
+ 
+ 
+  ILoadFilter = interface
+  ['{64CFF1E1-61A3-11D4-84DD-B18D6F94141F}']
+    procedure Init(const FileName: String);
+    function GetNextLine(var S: String): Boolean;
+  end;
+ 
+implementation
+ 
+end.
+</pre>
+
+
+<p>Обратите внимание, что метод ILoadFilter.Init больше не получает ссылки на внутренний API программы &#8211; он будет реализован в виде COM-объекта.</p>
+<p>Создадим DLL c COM-сервером, реализующим ILoadFilter. Для этого создадим новую ActiveX library и добавим в неё COM-объект TLoadFilter. Установим ThreadingModel в Single, поскольку использования сервера в потоках не предполагается. После этого реализуем методы интерфейса ILoadFilter.</p>
+<pre name="code" class="delphi">
+unit Unit3;
+ 
+interface
+ 
+uses
+  Windows, ActiveX, Classes, ComObj, PluginInterface;
+ 
+type
+  TLoadFilter = class(TComObject, ILoadFilter)
+  private
+    FAPI: IAPI;
+    F: TextFile;
+    Lines: Integer;
+    InitSuccess: Boolean;
+   protected
+    procedure Init(const FileName: String);
+    function GetNextLine(var S: String): Boolean;
+  public
+    destructor Destroy; override;
+  end;
+ 
+const
+  Class_LoadFilter: TGUID = '{A132D1A2-721C-11D4-84DD-E2DEF6359A17}';
+ 
+ 
+implementation
+ 
+uses ComServ, SysUtils;
+</pre>
+
+
+<p>Деструктор и метод GetNextLine аналогичны предыдущему примеру:</p>
+<pre name="code" class="delphi">
+ 
+destructor TLoadFilter.Destroy;
+begin
+  if InitSuccess then
+    CloseFile(F);
+  inherited;
+end;
+ 
+function TLoadFilter.GetNextLine(var S: String): Boolean;
+begin
+  if InitSuccess then begin
+    Inc(Lines);
+    Result := not Eof(F);
+    if Result then begin
+      Readln(F, S);
+      FAPI.ShowMessage('Загружено ' + IntToStr(Lines) + ' строк.');
+    end;
+  end else
+    Result := FALSE;
+end;
+</pre>
+
+<p>В методе Init имеется существенное отличие &#8211; теперь ссылку на внутреннее API программы мы получаем при помощи COM. Это освобождает нас от необходимости передавать ссылку в модуль расширения.</p>
+<pre name="code" class="delphi">
+procedure TLoadFilter.Init(const FileName: String);
+begin
+  FAPI := CreateComObject(Class_TAPI) as IAPI;
+  {$I-}
+  AssignFile(F, FileName);
+  Reset(F);
+  {$I+}
+  InitSuccess := IOResult = 0;
+  if not InitSuccess then
+    FAPI.ShowMessage('Ошибка инициализации загрузки');
+end;
+</pre>
+
+
+<p>В конце модуля код, автоматически сгенерированный Delphi для создания фабрики объектов</p>
+<pre name="code" class="delphi">
+initialization
+  TComObjectFactory.Create(ComServer, TLoadFilter, Class_LoadFilter,
+    'LoadFilter', '', ciMultiInstance, tmSingle);
+end.
+</pre>
+
+
+<p>Компилируем DLL и регистрируем её при помощи regsvr32.</p>
+<p>Поскольку программа может поддерживать множество различных фильтров, организуем их подключение через INI файл следующего вида:</p>
+
+<p>[Filters]</p>
+<p>TXT={A132D1A2-721C-11D4-84DD-E2DEF6359A17}</p>
+
+<p>Параметром строки служит CLSID сервера, реализующего фильтр. В нашем случае это будет содержание константы Class_LoadFilter. Для подключения дополнительных фильтров необходимо создать DLL с сервером, реализующим ILoadFilter, зарегистрировать её в системе и добавить CLSID сервера в INI-файл.</p>
+<p>Теперь можно приступать к написанию программы-клиента. Она аналогична используемой в предыдущем примере. Добавим в неё COM-сервер, реализующий внутреннее API.</p>
+<p>За исключением кода, сгенерированного COM объект полностью аналогичен объекту, приведенному ранее. Константу&nbsp; Class_TAPI вынесем в модуль PluginInterface, чтобы сделать её доступной для модулей расширения.</p>
+<pre name="code" class="delphi">
+unit Unit2;
+ 
+interface
+ 
+uses
+  Windows, ActiveX, Classes, ComObj, PluginInterface;
+ 
+type
+  TTAPI = class(TComObject, IAPI)
+  protected
+    procedure ShowMessage(const S: String);
+  end;
+ 
+implementation
+ 
+uses Forms, ComServ, Unit1;
+ 
+{ TTAPI }
+ 
+procedure TTAPI.ShowMessage(const S: String);
+begin
+  (Application.MainForm as TForm1).StatusBar1.SimpleText := S;
+end;
+ 
+initialization
+  TComObjectFactory.Create(ComServer, TTAPI, Class_TAPI,
+    'TAPI', '', ciMultiInstance, tmSingle);
+end.
+ 
+</pre>
+
+<p>Теперь все готово к реализации функциональности клиента. Для экономии места приведем лишь метод LoadData</p>
+<pre name="code" class="delphi">
+procedure TForm1.LoadData(FileName: String);
+var
+  PlugInName: String;
+  Filter: ILoadFilter;
+  S, Ext: String;
+begin
+  Memo1.Lines.Clear;
+  Memo1.Lines.BeginUpdate;
+  try
+    Ext := ExtractFileExt(FileName);
+    Delete(Ext, 1, 1);
+    with TIniFile.Create(ExtractFilePath(ParamStr(0)) + 'plugins.ini') do
+    try
+      PlugInName := ReadString('Filters', Ext, '');
+    finally
+      Free;
+    end;
+    Filter := CreateComObject(StringToGUID(PlugInName)) as ILoadFilter;
+    Filter.Init(FileName);
+    while Filter.GetNextLine(S) do
+      Memo1.Lines.Add(S);
+  finally
+    Memo1.Lines.EndUpdate;
+  end;
+end;
+</pre>
+
+
+<p>Очевидно, что код метода стал гораздо короче и читабельнее. COM взял на себя всю черновую работу по поиску загрузке и выгрузке DLL, поиску и созданию объектов.</p>
+<p>!  &nbsp; &nbsp; &nbsp; &nbsp;Поскольку в EXE и DLL используются длинные строки, не забудьте включить в список uses обоих проектов модуль ShareMem</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

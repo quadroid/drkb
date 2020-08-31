@@ -1,0 +1,163 @@
+<html>
+<head>
+  <title>Перевернуть строку</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Перевернуть строку</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: ___Nikolay</p>
+<pre name="code" class="delphi">
+// Перевернуть строку
+function ReverseString(s: string): string;
+var
+  i: integer;
+begin
+  Result := '';
+  if Trim(s) &lt;&gt; '' then
+    for i := Length(s) downto 1 do
+      Result := Result + s[i];
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr />
+<p id="author">Автор: Profit Manson </p>
+<pre name="code" class="delphi">
+function ReverseString(s: string): string;
+var
+  i: integer;
+  c: char;
+begin
+  if s &lt;&gt; '' then
+    for i := 1 to Length(s) div 2 do
+    begin
+      c := s[i];
+      s[i] := s[Length(s) + 1 - i];
+      s[Length(s) + 1 - i] := c;
+    end;
+  Result := s;
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr />
+<pre name="code" class="delphi">
+function ReverseString(const s: string): string;
+ var
+   i, len: Integer;
+ begin
+   len := Length(s);
+   SetLength(Result, len);
+   for i := len downto 1 do
+   begin
+     Result[len - i + 1] := s[i];
+   end;
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+<hr />
+<pre name="code" class="delphi">
+ function ReverseString(const Str: string): string;
+ // by Ido Kanner 
+var
+   ch: Char;
+   i, Size: Integer;
+ begin
+   Result := Str;
+   Size   := Length(Result);
+   if (Size &gt;= 2) then
+   // 2 or more chars 
+  begin
+     // For 1 to middle of the string 
+    for i := 1 to (Size div 2) do
+     begin
+       // Lets get the charecter of the current place in the string 
+      ch := Result[i];
+       // Place the Current pos of the char 
+      // with the char of it's mirror place... 
+      Result[i] := Result[Size - (i - 1)];
+       // In the mirror place we will put char of the 
+      // Original place... And we switched places !!! 
+      Result[Size - (i - 1)] := ch;
+     end
+   end;
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+<hr />
+<pre name="code" class="delphi">
+ function ReverseString(S: string): string;
+ // by Rudy Velthuis 
+var
+   P, Q: PChar;
+   C: Char;
+ begin
+   Result := S;
+   if Length(Result) = 0 then Exit;
+   P := PChar(Result);
+   Q := P + Length(Result) - 1;
+   while P &lt; Q do
+   begin
+     C := P^;
+     P^ := Q^;
+     Q^ := C;
+     Inc(P);
+     Dec(Q);
+   end;
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+<hr />
+<pre name="code" class="delphi">
+ procedure ReverseString(var S: string);
+ // by Rudy Velthuis 
+var
+   P, Q: PChar;
+   C: Char;
+ begin
+   if Length(S) = 0 then Exit;
+   P := PChar(S);
+   Q := P + Length(S) - 1;
+   while P &lt; Q do
+   begin
+     C := P^;
+     P^ := Q^;
+     Q^ := C;
+     Inc(P);
+     Dec(Q);
+   end;
+ end;
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

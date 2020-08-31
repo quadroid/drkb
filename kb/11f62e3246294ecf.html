@@ -1,0 +1,189 @@
+<html>
+<head>
+  <title>DXInput</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">DXInput</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Daddy<br>
+<p>WEB-сайт: http://daddy.mirgames.ru </p>
+<p>В этой статье мы рассмотрим методы управления объектами в играх с помощью клавиатуры, мыши и джойстика..<br>
+1. Клавиатура.<br>
+<p>Опрос нажатия клавиши ведется через DXInput.States: </p>
+<pre name="code" class="delphi">
+if &lt;тикер&gt; in DXInput.States then
+begin
+   //действие
+end
+</pre>
+<p>,где </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>&lt;тикер&gt; есть зарезервированное слово: </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>isUp - по умолчанию "стрелка вверх" </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>isDown - по умолчанию "стрелка вниз" </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>isRight - по умолчанию "стрелка вправо" </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>isLeft - по умолчанию "стрелка влево" </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>IsButton1 - по умолчанию "Space" </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>IsButton2 - по умолчанию "Enter" </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>IsButton3-IsButton32 - по умолчанию не определены </td></tr></table></div><p>Для сравнения два равноценных условия:</p>
+<pre name="code" class="delphi">
+//c использования DXInput
+if isUp in DXInput.States then
+begin
+//действие
+end  //а это - без
+if Key=VK_UP then
+begin
+//действие
+end
+</pre>
+
+<p>Чтобы определить "тикер": DXInput.Keyboard.KeyAssigns[&lt;тикер&gt;,X]:= &lt;кнопка&gt; ,где: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>X - значение от 0 до 2 (то есть на каждый "тикер" можно присвоить до трех &lt;кнопок&gt;) </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>&lt;кнопка&gt; - код кнопки (например ord('Q')).</td></tr></table></div><p id="note">Примечание: буквенные клавиши указываются в верхнем регистре, т.е. </p>
+<p>DXInput.Keyboard.KeyAssigns[isButton10,X]:=ord('q')</p>
+<p>не будет реагировать на нажатие клавиши 'q' .<br>
+<p>Кнопки Ctrl, Alt, Shift можно опросить обычным способом:</p>
+<pre name="code" class="delphi">
+If (ssCtrl in Shift) then ...
+If (ssAlt in Shift) then ...
+If (ssShift in Shift) then ...
+</pre>
+
+<p>Небольшой примерчик. Зарекрепим за тикером isUp - кнопки "E","I" и "стрелка вверх":</p>
+<pre name="code" class="delphi">
+ 
+procedure TForm1.DXTimerTimer(Sender: TObject; LagCount: Integer);
+begin
+   if not DXDraw.CanDraw then exit;
+   //обновим состояние DXInput (нужно делать при каждом тике таймера)
+   DXInput.Update;
+   DXDraw.Surface.Fill(0);
+   If isUP in DXInput.States then
+      With DXDraw.Surface.Canvas do
+      begin
+         Brush.Style := bsClear;
+         Font.Color := clWhite;
+         Font.Size := 12;
+         TextOut(50,50,'UP pressed');
+         Release;
+      end;
+   DXDraw.Flip;
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+   DXInput.Keyboard.KeyAssigns[isUp,0]:=ord('E');
+   //за [isUp,1] - по умолчанию зарезервирована "стрелка вверх", оставим ее.
+   DXInput.Keyboard.KeyAssigns[isUp,2]:=ord('I');
+end;
+</pre>
+<p>2. Мышь<br>
+&nbsp;<br>
+DXinput.Mouse.X - положение курсора по горизонтали<br>
+DXinput.Mouse.Y - положение курсора по вертикали<br>
+DXinput.Mouse.Z - положение курсора по третьей оси<br>
+&nbsp;<br>
+<p>Небольшой примерчик:</p>
+<pre name="code" class="delphi">
+var
+   Form1: TForm1;
+   MouseX,MouseY:integer;
+   LeftB,RightB:boolean;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TForm1.DXTimerTimer(Sender: TObject; LagCount: Integer);
+var Shift: TShiftState;
+begin
+   if not DXDraw.CanDraw then exit;
+   DXInput.Update;
+   DXDraw.Surface.Fill(0);
+   With DXDraw.Surface.Canvas do
+   begin
+      Brush.Style := bsClear;
+      Font.Color := clWhite;
+      Font.Size := 12;
+      If LeftB then
+         TextOut(0,0,'Left');
+      If RightB then
+         TextOut(50,0,'Right');
+      TextOut(0,50,IntToStr(MouseX)+','+IntToStr(MouseY));
+      Release;
+   end;
+   DXDraw.Flip;
+end;
+ 
+procedure TForm1.DXDrawMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+begin
+   MouseX:=X;
+   MouseY:=Y;
+end;
+ 
+procedure TForm1.DXDrawMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+   If ssLeft in Shift then LeftB:=true;
+   If ssRight in Shift then RightB:=true;
+end;
+ 
+procedure TForm1.DXDrawMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+   LeftB:=false; RightB:=false;
+end;
+</pre>
+
+<p>3. Джойстик<br>
+&nbsp;<br>
+Настроим джойстик:<br>
+DXinput.Joystick.RangeX = 0 - 1000, устанавливает диапазон изменения значений по горизонтальной оси от X до -X<br>
+DXinput.Joystick.RangeY = 0 - 1000, устанавливает диапазон изменения значений по вертикальной оси от Y до -Y<br>
+DXinput.Joystick.RangeZ = 0 - 1000, устанавливает диапазон изменения значений по третьей оси от Z до -Z<br>
+&nbsp;<br>
+DXinput.Joystick.DeadzoneX = 0 - 100, устанавливает чувствительность по горизонтальной оси<br>
+DXinput.Joystick.DeadzoneY = 0 - 100, устанавливает чувствительность по вертикальной оси<br>
+DXinput.Joystick.DeadzoneZ = 0 - 100, устанавливает чувствительность по третьей оси<br>
+0 - самое чувствительное значение.<br>
+&nbsp;<br>
+Читаем положение рукоятки:<br>
+DXinput.Joystick.X - по горизонтальной оси<br>
+DXinput.Joystick.Y - по вертикальной оси<br>
+DXinput.Joystick.Z - по третьей оси<br>
+&nbsp;<br>
+<p>Z - используется в случае наличия на джойстике соответствующей ручки. Этот кусок кода сканирует кнопки на джойстике:</p>
+<pre name="code" class="delphi">
+for i := 0 to DXInput1.Joystick.ButtonCount do
+begin
+   if DXInput1.Joystick.Buttons[i] = True then
+   begin
+      //Кнопка нажата. Действие.
+   end;
+end;
+</pre>
+
+<p id="note">Примечание: Руль можно считать частным случаем джойстика. При этом штурвал - горизонтальная ось (X), педаль газа и педаль тормоза - вертикальная ось (Y). </p>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

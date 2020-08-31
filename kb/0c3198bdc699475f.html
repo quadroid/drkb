@@ -1,0 +1,78 @@
+<html>
+<head>
+  <title>Как управлять сервисом на другом компьютере в Windows 2000?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как управлять сервисом на другом компьютере в Windows 2000?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Требуется написать управление сервисом, запущеном на другом компьютере. С помошью чего это лучеше сделать?&nbsp; </p>
+<pre name="code" class="delphi">
+uses
+  Windows, Messages, SysUtils,
+  StdCtrls, SvcMgr;
+var
+  ssStatus: TServiceStatus;
+  schSCManager,
+    schService: SC_HANDLE;
+ 
+begin
+  schSCManager := OpenSCManager(PChar('Comp1'), //имя компьютера, nil - local machine
+    nil, // ServicesActive database
+    SC_MANAGER_ALL_ACCESS); // full access rights
+ 
+  if schSCManager = 0 then exit; //Ошибка?
+ 
+  schService := OpenService(
+    schSCManager, // SCM database
+    PChar('SQLServerAgent'), // посмотри имя в Services. В данном случае - MS Server Agent
+    SERVICE_ALL_ACCESS);
+ 
+  if schService = 0 then exit; //Ошибка?
+ 
+  if not QueryServiceStatus(
+    schService, // handle to service
+    ssStatus) then // address of status information structure
+    exit; //Ошибка?
+ 
+  case ssStatus.dwCurrentState of
+    :
+      SERVICE_RUNNING: ShowMessage('Работает!');
+    SERVICE_STOPPED: ShowMessage('Выключен');
+// ну и т.д.
+  end;
+end;
+</pre>
+
+
+<p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

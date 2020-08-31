@@ -1,0 +1,87 @@
+<html>
+<head>
+  <title>Сканирование доменов локальной сети</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сканирование доменов локальной сети</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Переменная List заполняется списком доменов. Функция возвращает код ошибки обращения к сети. </p>
+<pre name="code" class="delphi">
+Function FillNetLevel(xxx: PNetResource; list: TStrings) : Word;
+Type
+    PNRArr = ^TNRArr;
+    TNRArr = array[0..59] of TNetResource;
+Var
+   x: PNRArr;
+   tnr: TNetResource;
+   I : integer;
+   EntrReq,
+   SizeReq,
+   twx: Integer;
+   WSName: string;
+begin
+     Result := WNetOpenEnum(RESOURCE_GLOBALNET, RESOURCETYPE_ANY,
+                                RESOURCEUSAGE_CONTAINER, xxx, twx);
+     If Result = ERROR_NO_NETWORK Then Exit;
+     if Result = NO_ERROR then
+     begin
+            New(x);
+            EntrReq := 1;
+            SizeReq := SizeOf(TNetResource)*59;
+            while (twx &lt;&gt; 0) and 
+                  (WNetEnumResource(twx, EntrReq, x, SizeReq) &lt;&gt; ERROR_NO_MORE_ITEMS) do
+            begin
+                  For i := 0 To EntrReq - 1 do
+                  begin
+                   Move(x^[i], tnr, SizeOf(tnr));
+                   case tnr.dwDisplayType of
+                    RESOURCEDISPLAYTYPE_DOMAIN:
+                    begin
+                       if tnr.lpRemoteName &lt;&gt; '' then
+                           WSName:= tnr.lpRemoteName
+                           else WSName:= tnr.lpComment;
+                       list.Add(WSName);
+                    end;
+                    else FillNetLevel(@tnr, list);
+                   end;
+                  end;
+            end;
+            Dispose(x);
+            WNetCloseEnum(twx);
+     end;
+end;
+</pre>
+
+
+<p>Источник: <a href="http://dmitry9.nm.ru/info/" target="_blank">http://dmitry9.nm.ru/info/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

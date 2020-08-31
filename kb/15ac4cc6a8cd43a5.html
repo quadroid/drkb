@@ -1,0 +1,134 @@
+<html>
+<head>
+  <title>Получение списка DLL, загруженных приложением</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получение списка DLL, загруженных приложением</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Simon Carter</p>
+
+<p>Иногда бывает полезно знать какими DLL-ками пользуется Ваше приложение. Давайте посмотрим как это можно сделать в Win NT/2000.</p>
+
+<p>Пример функции</p>
+<pre name="code" class="delphi">
+unit ModuleProcs; 
+ 
+interface 
+ 
+uses Windows, Classes; 
+ 
+type 
+  TModuleArray = array[0..400] of HMODULE; 
+  TModuleOption = (moRemovePath, moIncludeHandle); 
+  TModuleOptions = set of TModuleOption; 
+ 
+function GetLoadedDLLList(sl: TStrings; 
+  Options: TModuleOptions = [moRemovePath]): Boolean; 
+ 
+implementation 
+ 
+uses SysUtils; 
+ 
+function GetLoadedDLLList(sl: TStrings; 
+  Options: TModuleOptions = [moRemovePath]): Boolean; 
+type 
+EnumModType = function (hProcess: Longint; lphModule: TModuleArray; 
+  cb: DWord; var lpcbNeeded: Longint): Boolean; stdcall; 
+var 
+  psapilib: HModule; 
+  EnumProc: Pointer; 
+  ma: TModuleArray; 
+  I: Longint; 
+  FileName: array[0..MAX_PATH] of Char; 
+  S: string; 
+begin 
+  Result := False; 
+ 
+  (* Данная функция запускается только для Widnows NT *) 
+  if Win32Platform &lt;&gt; VER_PLATFORM_WIN32_NT then 
+    Exit; 
+ 
+  psapilib := LoadLibrary('psapi.dll'); 
+  if psapilib = 0 then 
+    Exit; 
+  try 
+    EnumProc := GetProcAddress(psapilib, 'EnumProcessModules'); 
+    if not Assigned(EnumProc) then 
+      Exit; 
+    sl.Clear; 
+    FillChar(ma, SizeOF(TModuleArray), 0); 
+    if EnumModType(EnumProc)(GetCurrentProcess, ma, 400, I) then 
+    begin 
+      for I := 0 to 400 do 
+        if ma[i] &lt;&gt; 0 then 
+        begin 
+          FillChar(FileName, MAX_PATH, 0); 
+          GetModuleFileName(ma[i], FileName, MAX_PATH); 
+          if CompareText(ExtractFileExt(FileName), '.dll') = 0 then 
+          begin 
+            S := FileName; 
+            if moRemovePath in Options then 
+              S := ExtractFileName(S); 
+            if moIncludeHandle in Options then 
+              sl.AddObject(S, TObject(ma[I])) 
+            else 
+              sl.Add(S); 
+          end; 
+        end; 
+    end; 
+    Result := True; 
+  finally 
+    FreeLibrary(psapilib); 
+  end; 
+end; 
+ 
+end. 
+</pre>
+
+<p>Для вызова приведённой функции надо сделать следующее: </p>
+
+<p>Добавить listbox на форму (Listbox1) </p>
+<p>Добавить кнопку на форму (Button1) </p>
+
+<p>Обработчик события OnClick для кнопки будет выглядеть следующим образом</p>
+
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  GetLoadedDLLList(ListBox1.Items, [moIncludeHandle, moRemovePath]); 
+end; 
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

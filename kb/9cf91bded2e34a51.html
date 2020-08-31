@@ -1,0 +1,354 @@
+<html>
+<head>
+  <title>2D Бампмэппинг (Bumpmapping)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">2D Бампмэппинг (Bumpmapping)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+2D Бампмэппинг ( Bumpmapping ) <img src="pic/embim1831.gif" width="1" height="1" vspace="1" hspace="1" border="0" alt=""><br>
+<img src="pic/embim1832.png" width="160" height="1" vspace="1" hspace="1" border="0" alt=""><br>
+
+<p>Чтобы сделать правильный 2d бампмэппинг надо посчитать нормаль для каждого пиксела в bumpmap (карте высот) и для вычисления цвета каждого пиксела использовать угол между источником света и данной нормалью. </p>
+<p>Для бампмэппинга в нашем случае используется источник света, бесконечно близкий к освещаемой плоскости: координаты нормали nx и ny просто разность высот между соседними пикселaми в bumpmap по осям X и Y. </p>
+<p>Так как нормаль - просто вектор направления, и ее длина равна единице, то nz=1-sqrt(nx2 + ny2).</p>
+<p>&nbsp;<br>
+
+<p>1. Заранее вычисляем интенсивность света (light map) по вышеприведенной формуле. (Световое пятно с максимальной интенсивностью в центре). Полагаем как обычно, что интенсивность зависит от n_z. Пусть размер таблички будет для удобства 256x256.</p>
+<p>2. Подбирая из lightmap интенсивность по формуле: outvalue = lightmap[n_x+128][n_y+128] (если использовать нормали в диапазоне -128...+127) мы получим корректную картину освещения для бесконечно близкого источника. </p>
+<p>&nbsp;<br>
+n_x = bumpmap[x+1][y] - bumpmap[x-1][y] <br>
+n_y = bumpmap[x][y+1] - bumpmap[x][y-1] <br>
+&nbsp;<br>
+Конечный цвет определяется так: <br>
+outvalue:=lightmap[(n_x-(lightx-currentx))][(n_y-(lighty-currenty))]. <br>
+Также нужно проверить, находимся ли мы внутри диапазона lightmap. <br>
+&nbsp;<br>
+Вот пример: <br>
+
+<pre name="code" class="delphi">
+Program Bumpy_Surface;
+ 
+{Hичего не USES}
+ 
+type Tscr=array[0..199,0..319] of byte;
+ 
+     SegmentT = Array[0..65534] of byte;
+ 
+     Virseg = ^SegmentT;
+ 
+var
+ 
+scr:Tscr absolute $A000:0000;
+ 
+buf:Tscr;
+ 
+  ilx,ily:integer;
+ 
+  i,j,k,nx,ny,nz,rx,ry,x,y,lx,ly,x1,y1:integer;
+ 
+  tx,ty,tz:real;
+ 
+var segm,offs:integer;
+ 
+ Segment : Virseg;
+ 
+ litemap : word;
+ 
+Procedure SetUpSegment(VAR segname:virseg;VAR add : word);
+ 
+begin GetMem (Segname,65534); add := seg (Segname^); end;
+ 
+Procedure wait; assembler;
+ 
+asm mov dx,3DAh;
+ 
+@l1:in al,dx;and al,08h;jnz @l1;
+ 
+@l2:in al,dx;and al,08h;jz @l2;end;
+ 
+Procedure SetMode (Mode:word);assembler; asm mov ax,Mode; int 10h end;
+ 
+Procedure FillBox(x,y,w,h:integer; color:byte);
+ 
+var i,j,k:integer;
+ 
+begin for i:=y to y+h-1 do for j:=x to x+w-1 do buf[i,j]:=color; end;
+ 
+Procedure Print(x,y:integer; s:string; xs,ys:integer; color:byte);
+ 
+var i,j,k,c,px,py:integer; b:byte;
+ 
+begin px:=x;py:=y; for k:=1 to length(s) do begin c:=ord(s[k]);
+ 
+for i:=0 to 7
+ do begin b:=mem[segm:offs+c*8+i]; for j:=0 to 7 do begin
+ 
+if b shl j and 128&lt;&gt;0 
+     then FillBox(x,y,xs,ys,color); x:=x+xs; end;
+ 
+x:=px; y:=y+ys; end; y:=py; px:=px+xs*8; x:=px; end;
+ 
+end;
+ 
+Procedure SetGradientPalette; var k,r,g,b:byte;
+ 
+begin asm mov  dx,03c8h; xor  al,al;out  dx,al;end;
+ 
+r:=0; g:=0; for k:=0 to 255 do begin b:=(k*63 div 255);
+ 
+{r:=b; g:=b;{} if k&gt;200 then begin r:=r+1;g:=g+1;end;
+ 
+asm mov dx,03c9h; mov al,r;out dx,al;
+ 
+mov al,g;out dx,al; mov al,b;out dx,al end;
+ 
+end;end;
+ 
+Procedure Blur;
+ 
+var i,j,k:integer;
+ 
+begin for i:=0 to 199 do for j:=0 to 319 do
+ 
+buf[i,j]:=(buf[i-1,j]+buf[i+1,j]+buf[i,j-1]+buf[i,j+1]) div 4;
+ 
+end;
+ 
+Procedure ASMBumpmapping;assembler;
+ 
+asm
+ 
+{few times faster ;) }
+ 
+    mov ax, seg buf
+ 
+    mov es,ax
+ 
+    mov ax, offset buf
+ 
+    mov bx,320*3
+ 
+    add ax,bx
+ 
+    mov di,ax
+ 
+    mov si,bx
+ 
+    mov dx,199
+ 
+    sub dx,5
+ 
+@1: mov cx,320
+ 
+@2: xor bh,bh; xor ah,ah;
+ 
+    mov al, es:[di+1]
+ 
+    mov bl, es:[di-1]
+ 
+    sub ax,bx
+ 
+    sub ax,320; add ax,cx; add ax,lx; add ax,128;
+ 
+    cmp ax,255; jc @ok1; mov ax,255; @ok1:
+ 
+    push ax
+ 
+    xor ah,ah;
+ 
+    mov al, es:[di+320]
+ 
+    mov bl, es:[di-320]
+ 
+    sub ax,bx
+ 
+    sub ax,197; add ax,dx; add ax,ly; add ax,128;
+ 
+    cmp ax,255; jc @ok2; mov ax,255; @ok2:
+ 
+    pop bx
+ 
+    mov bh,bl; mov bl,al
+ 
+    push es
+ 
+    mov ax, litemap
+ 
+    mov es,ax
+ 
+    and bx,0FFFEh
+ 
+    mov bx,[es:bx]
+ 
+    mov ax, 0A000h
+ 
+    mov es,ax
+ 
+    mov [es:si],bx
+ 
+    pop es
+ 
+    inc di
+ 
+    inc si
+ 
+    loop @2
+ 
+    dec dx;
+ 
+    jnz @1
+ 
+    mov ax,$0a000
+ 
+    mov es,ax
+ 
+    xor ax,ax
+ 
+    mov [es:si-1],ax
+ 
+end;{asm Bumpmaping}
+ 
+Procedure Bumpmapping;
+ 
+begin
+ 
+{Bumpmapping}
+ 
+for y:=0+3 to 199-3 do begin
+ 
+for x:=0 to 319 do begin
+ 
+nx:=buf[y+1,x]-buf[y-1,x];
+ 
+ny:=buf[y,x+1]-buf[y,x-1];
+ 
+nx:=nx-x+lx;
+ 
+ny:=ny-y+ly;
+ 
+nx:=nx+128;
+ 
+ny:=ny+128;
+ 
+if (nx&lt;0) or (nx&gt;255) then nx:=0;
+ 
+if (ny&lt;0) or (ny&gt;255) then ny:=0;
+ 
+scr[y,x]:=mem[litemap:nX+nY*256]; end;
+ 
+end;{ Bumpmapping }
+ 
+end;
+ 
+BEGIN
+ 
+{Достанем адрес знакогенератора}
+ 
+asm 
+mov ax,$1130;
+mov bh,03h;
+int 10h;
+mov segm,es;
+mov offs,bp;
+end;
+ 
+{установим режим и палитру}
+ 
+setmode($13); setgradientpalette;
+ 
+{Cгенерируем световое пятно}
+ 
+SetUpSegment(Segment,litemap);
+ 
+for y:=0 to 255 do for x:=0 to 255 do begin
+ 
+tX:=(x-128)/128.0;
+ 
+tY:=(y-128)/128.0;
+ 
+tZ:=1-sqrt(tX*tX+tY*tY);
+ 
+if (tZ&lt;0) then tZ:=0; mem[litemap:x+y*256]:=round(tz*254); end;
+ 
+{ Очистим буфер }
+ 
+fillchar(buf,64000,0);
+ 
+{набросаем точек}
+ 
+  for i:=0 to 10000 do fillbox(random(320),random(200),1,1,255);
+ 
+{...и размоем их}
+ 
+blur;
+ 
+{Hапишем текст}
+ 
+  print(60,65,'BUMPY',5,5,255);
+ 
+  print(47,115,'SURFACE',4,4,255);
+ 
+{...и опять размоем}
+ 
+blur;blur;blur;
+ 
+ilx:=5;ily:=5;
+ 
+ly:=100;lx:=80;
+ 
+REPEAT
+ 
+{move(buf,scr,64000);}
+ 
+ wait;
+ 
+{Bumpmapping;}
+ 
+ASMBumpmapping;
+ 
+ lx:=lx+ilx;if (lx&gt;320) or (lx&lt;0) then ilx:=-ilx;
+ 
+ ly:=ly+ily;if (ly&gt;200) or (ly&lt;0) then ily:=-ily;
+ 
+UNTIL port[$60]=1;{ESC}
+ 
+{сбросим буфер клавиатуры}
+ 
+memw[$000:$041a]:=memw[$000:$041c];
+ 
+setmode($3);
+END.
+</pre>
+
+
+<a href="http://algolist.manual.ru" target="_blank">http://algolist.manual.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

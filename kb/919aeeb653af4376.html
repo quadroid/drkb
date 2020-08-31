@@ -1,0 +1,90 @@
+<html>
+<head>
+  <title>Использование записей для хранения информации полей</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Использование записей для хранения информации полей</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+ { 
+   You sometimes wish to store multiple information in a given class like 
+   in the example: alltogether when it belongs together. 
+   Thus accessing this information from out of the class can be achieved 
+   using property declaration. Its a good way to "clean your code" and 
+   make it as "logic" as possible. 
+   You also may have to store or load information from your class using 
+   file or stream technology. This can be done at once for the recorded 
+   information from within the given class. 
+}
+ 
+ type
+   TPersonRecord = Record
+      FirstName: String;
+      LastName: String;
+      BirthDate: TDate;
+      End;
+ 
+   TForm4 = class(TForm)
+     Button1: TButton;
+     procedure Button1Click(Sender: TObject);
+   private
+     fActualUser: TPersonRecord;
+     ...
+     procedure SaveActualUser(S: TFileStream); // it's an example 
+    procedure LoadActualUser(S: TFileStream);
+     ...
+   public
+     property FirstName: string read  fActualUser.FirstName
+                                write fActualUser.FirstName;
+     property LastName : string read  fActualUser.LastName
+                                write fActualUser.LastName;
+     property BirthDate: TDate  read  fActualUser.BirthDate
+                                write fActualUser.BirthDate;
+   end;
+ 
+ procedure TForm4.SaveActualUser(S: TFileStream);
+ begin
+   // All that stuff at once in your Stream 
+  S.Write(fActualUser, SizeOf(fActualUser))
+ end;
+ 
+ procedure TForm4.LoadActualUser(S: TFileStream);
+ begin
+   // All that stuff at once back in your class 
+  S.Read(fActualUser, SizeOf(fActualUser));
+ end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

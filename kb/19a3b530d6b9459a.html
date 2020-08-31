@@ -1,0 +1,115 @@
+<html>
+<head>
+  <title>Отмена вставки нового узла в TreeView по нажатию кнопки Esc</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Отмена вставки нового узла в TreeView по нажатию кнопки Esc</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit BetterTreeView;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  ComCtrls, CommCtrl;
+ 
+type
+  TTVNewEditCancelEvent = procedure( Sender: TObject;
+    Node: TTreeNode; var Delete: Boolean) of object;
+  TBetterTreeView = class(TTreeView)
+  protected
+    FIsEditingNew: Boolean;
+    FOnEditCancel: TTVChangedEvent;
+ 
+    FOnNewEditCancel: TTVNewEditCancelEvent;
+    procedure Edit(const Item: TTVItem); override;
+  public
+    function NewChildAndEdit(Node: TTreeNode; const S: String)
+      : TTreeNode;
+  published
+    property IsEditingNew: Boolean read FIsEditingNew;
+    property OnEditCancel: TTVChangedEvent
+      read FOnEditCancel write FOnEditCancel;
+    property OnNewEditCancel: TTVNewEditCancelEvent
+      read FOnNewEditCancel write FOnNewEditCancel;
+  end;
+ 
+implementation
+ 
+procedure TBetterTreeView.Edit(const Item: TTVItem);
+var
+  Node: TTreeNode;
+  Action: Boolean;
+begin
+  with Item do begin
+    { Get the node }
+    if (state and TVIF_PARAM) &lt;&gt; 0 then
+      Node := Pointer(lParam)
+    else
+      Node := Items.GetNode(hItem);
+ 
+    if pszText = nil then begin
+      if FIsEditingNew then begin
+        Action := True;
+        if Assigned(FOnNewEditCancel) then
+          FOnNewEditCancel(Self, Node, Action);
+        if Action then
+ 
+          Node.Destroy
+      end
+      else
+        if Assigned(FOnEditCancel) then
+          FOnEditCancel(Self, Node);
+    end
+    else
+      fFinherited;
+  end;
+  FIsEditingNew := False;
+end;
+ 
+function TBetterTreeView.NewChildAndEdit
+  (Node: TTreeNode; const S: String): TTreeNode;
+begin
+  SetFocus;
+  Result := Items.AddChild(Node, S);
+  FIsEditingNew := True;
+  Node.Expand(False);
+  Result.EditText;
+  SetFocus;
+end;
+ 
+end.
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

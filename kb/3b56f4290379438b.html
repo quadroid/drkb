@@ -1,0 +1,55 @@
+<html>
+<head>
+  <title>Как гарантированно сделать backup?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как гарантированно сделать backup?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Как гарантированно сделать backup/restore БД InterBase с опцией 'Replace existing database' и записями протоколов в файлы с гарантированным отстрелом пользователей? </p>
+
+<p>Att.bat:</p>
+<p>at 01:00 /INTERACTIVE "e:\IB_DATA\BR.BAT"</p>
+<p>BR.bat:</p>
+<p>del e:\IB_DATA\b.txt</p>
+<p>del e:\IB_DATA\r.txt</p>
+<p>del e:\ib_data\AR_IB.PRV</p>
+<p>del e:\IB_DATA\AR_IB.GBK</p>
+<p>d:\ib_42\bin\gfix -shut -force 1 e:\ib_data\AR_IB.GDB -user "SYSDBA" -password "oooo"</p>
+<p>net stop "InterBase Server"</p>
+<p>copy e:\ib_data\AR_IB.GDB e:\ib_data\AR_IB.PRV</p>
+<p>net start "InterBase Server"</p>
+<p>d:\ib_42\bin\gbak e:\ib_data\AR_IB.GDB e:\ib_data\AR_IB.GBK -user "SYSDBA" -password "oooo" -B -L -Y "e:\IB_DATA\b.txt"</p>
+<p>d:\ib_42\bin\gbak e:\ib_data\AR_IB.GBK e:\ib_data\AR_IB.GDB -user "SYSDBA" -password "oooo" -P 4096 -V -R -Y "e:\IB_DATA\r.txt"</p>
+<p>Sergey Klochkovski</p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

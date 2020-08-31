@@ -1,0 +1,94 @@
+<html>
+<head>
+  <title>Как прочитать название порта принтера?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как прочитать название порта принтера?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ ... }
+ 
+uses
+  printers, winspool;
+ 
+function GetCurrentPrinterHandle: THandle;
+const
+  Defaults: TPrinterDefaults = (pDatatype: nil; pDevMode: nil; DesiredAccess:
+    PRINTER_ACCESS_USE or PRINTER_ACCESS_ADMINISTER);
+var
+  Device, Driver, Port: array[0..255] of char;
+  hDeviceMode: THandle;
+begin
+  Printer.GetPrinter(Device, Driver, Port, hDeviceMode);
+  if not OpenPrinter(@Device, Result, @Defaults) then
+    RaiseLastWin32Error;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+ 
+  procedure Display(const prefix: string; S: PChar);
+  begin
+    memo1.lines.add(prefix + string(S));
+  end;
+ 
+var
+  pInfo: PPrinterInfo2;
+  bytesNeeded: DWORD;
+  hPrinter: THandle;
+  i: Integer;
+begin
+  for i := 0 to printer.Printers.Count - 1 do
+  begin
+    Printer.PrinterIndex := i;
+    hPrinter := GetCurrentPrinterHandle;
+    try
+      GetPrinter(hPrinter, 2, nil, 0, @bytesNeeded);
+      pInfo := AllocMem(bytesNeeded);
+      try
+        GetPrinter(hPrinter, 2, pInfo, bytesNeeded, @bytesNeeded);
+        Display('ServerName: ', pInfo^.pServerName);
+        Display('PrinterName: ', pInfo^.pPrinterName);
+        Display('ShareName: ', pInfo^.pShareName);
+        Display('PortName: ', pInfo^.pPortName);
+      finally
+        FreeMem(pInfo);
+      end;
+    finally
+      ClosePrinter(hPrinter);
+    end;
+  end;
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

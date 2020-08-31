@@ -1,0 +1,117 @@
+<html>
+<head>
+  <title>Explode / Implode a string</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Explode / Implode a string</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>// 1. ...............................................</p>
+<pre name="code" class="delphi">
+type
+  TStrArray = array of string;
+ 
+function Explode(var a: TStrArray; Border, S: string): Integer;
+var
+  S2: string;
+begin
+  Result  := 0;
+  S2 := S + Border;
+  repeat
+    SetLength(A, Length(A) + 1);
+    a[Result] := Copy(S2, 0,Pos(Border, S2) - 1);
+    Delete(S2, 1,Length(a[Result] + Border));
+    Inc(Result);
+  until S2 = '';
+end;
+</pre>
+<p>// How to use it:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  S: string;
+  A: TStrArray;
+  AnzTokens, i: Integer;
+begin
+  S := 'Ein=Text=durch=Geleichzeichen=getrennt';
+  AnzTokens := Explode(A, '=', S);
+  for i := 0 to AnzTokens -1 do
+    Memo1.Lines.Add(A[i]);
+end;
+</pre>
+<p>// 2. ...............................................</p>
+<pre name="code" class="delphi">
+{
+  * These 2 functions are from the programming language PHP, unite certainly well-known.
+  * Now one can use it also in Delphi:)
+}
+ 
+{...}
+ 
+//* Needed type declaration
+type
+  TExplodeArray = array of String;
+ 
+{...}
+ 
+function Implode(const cSeparator: String; const cArray: TExplodeArray): String;
+var
+  i: Integer;
+begin
+  Result := '';
+  for i := 0 to Length(cArray) -1 do begin
+    Result := Result + cSeparator + cArray[i];
+  end;
+  System.Delete(Result, 1, Length(cSeparator));
+end;
+ 
+function Explode(const cSeparator, vString: String): TExplodeArray;
+var
+  i: Integer;
+  S: String;
+begin
+  S := vString;
+  SetLength(Result, 0);
+  i := 0;
+  while Pos(cSeparator, S) &gt; 0 do begin
+    SetLength(Result, Length(Result) +1);
+    Result[i] := Copy(S, 1, Pos(cSeparator, S) -1);
+    Inc(i);
+    S := Copy(S, Pos(cSeparator, S) + Length(cSeparator), Length(S));
+  end;
+  SetLength(Result, Length(Result) +1);
+  Result[i] := Copy(S, 1, Length(S));
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

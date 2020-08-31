@@ -1,0 +1,57 @@
+<html>
+<head>
+  <title>Переход с Oracle на InterBase</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Переход с Oracle на InterBase</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Shawn Wu </p>
+
+<p>Я пытаюсь преобразовать мою базу данных на Oracle в базу данных local Interbase server. Все таблицы Oracle ссылаются на имя схемы. Interbase поддерживает такого типа имена схем? </p>
+
+<p>Нет, Interbase не использует понятие классификатора таблицы (владельца), как это делают другие сервера, например, Oracle или Sybase. Наилучшее решение в этом случае - использование директив компиляции, позволяющее контролировать соглашение о стиле имен Oracle или Interbase, используемое в генерируемом .exe-файле. </p>
+
+<p>Также, Delphi читает все атрибуты Oracle типа Number и конвертирует их в FloatField. Interbase при этом использует тип SmallIntField. Так, для преобразования необходимо пройтись по всем таблицам, удалить поля и затем снова их добавить. Можно это сделать как-то по-человечески? </p>
+
+<p>Если я правильно понял то, что вы хотели сказать, то этот вопрос относится к специфике Interbase. Например, Interbase использует короткое поле (short field) с масштабированием вместо реального типа, если заданная при создании таблицы точность не превышает 10. [например, CREATE TABLE xxx (FLOATFIELD NUMERIC (5, 2)) обычно означает реальный тип с точностью 5 цифр с 2-мя цифрами после запятой. Но Interbase знает, что сможет поместить 5 цифр в короткое поле, поэтому она создаст короткое поле и запись и смасштабирует его с коэффициентом 2.] Проблема в следующем: BDE "спрашивает" Interbase о полях таблицы и их типах, Interbase честно рапортует, что поля имеют тип short, т.е. они "короткие". Но BDE ничего не знает о масштабировании. </p>
+
+<p>Чтобы обойти этот неприятный момент, необходимо создать поле с точностью более 10, заставляя Interbase делать поля реального, а не короткого типа. </p>
+
+<p>Могу ли я менять один тип SQL на другой, или это - несбыточная мечта? </p>
+
+<p>Проблема в том, что каждый производитель создал свой диалект и реализацию SQL, который не обязательно был совместимым с SQL других производителей, особенно в рамках расширений "стандартного" SQL. </p>
+
+<p>Существует ли возможность инкапсуляции общего кода для работы с базой данных от специфических реализаций конкретных версий баз, что позволило бы клиенту легко переходить от одного типа таблиц к другому? </p>
+
+<p>Как я уже говорил выше: директивы компилятора.</p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

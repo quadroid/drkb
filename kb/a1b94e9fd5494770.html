@@ -1,0 +1,178 @@
+<html>
+<head>
+  <title>Как сделать TProgressBar таким же, как на заставке Windows XP</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как сделать TProgressBar таким же, как на заставке Windows XP</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, XPMan, ComCtrls, StdCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    Button1: TButton;
+    ProgressBar1: TProgressBar;
+    Button2: TButton;
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+const
+  PBS_MARQUEE = $08;
+  PBM_SETMARQUEE = WM_USER + 10;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  FSpeed: Integer;
+begin
+  FSpeed := 100;
+  SetWindowLong(ProgressBar1.Handle, GWL_STYLE,
+    GetWindowLong(ProgressBar1.Handle, GWL_STYLE) Or PBS_MARQUEE);
+  { Включить }
+  SendMessage(ProgressBar1.Handle, PBM_SETMARQUEE, 1, FSpeed);
+end;
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  { Выключить }
+  SendMessage(ProgressBar1.Handle, PBM_SETMARQUEE, 0, 0);
+end;
+ 
+end.
+</pre>
+<p id="author">Автор: Rrader</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+&nbsp;</p>
+<hr />
+<pre name="code" class="delphi">
+{ 
+  Use this ProgressBar when you do not know the amount of progress toward 
+  completion but wish to indicate that progress is being made. 
+ 
+  This ProgressBar works only on Windows XP and the ComCtl32.dll version 
+  6.00 or later is needed. To use the new ComCtrl you have to provide the manifest. 
+  In Delphi 7 just drop TXPManifest on the form. For prior versions of Delphi 
+  you have to include the XP manifest resource. 
+}
+ 
+ 
+ unit MarqueeProgressBar;
+ 
+ interface
+ 
+ uses
+   SysUtils, Windows, Classes, Controls, ComCtrls, Messages;
+ 
+ type
+   TMarqueeProgressBar = class(TProgressBar)
+   private
+     FActive: Boolean;
+     FAnimationSpeed: Integer;
+     procedure SetActive(const Value: Boolean);
+     procedure SetAnimationSpeed(const Value: Integer);
+     procedure UpdateProgressBar;
+   protected
+     procedure CreateParams(var Params: TCreateParams); override;
+   public
+     constructor Create(AOwner: TComponent); override;
+   published
+     property Active: Boolean read FActive write SetActive;
+     property AnimationSpeed: Integer read FAnimationSpeed write SetAnimationSpeed;
+   end;
+ 
+ const
+   PBS_MARQUEE  = $08;
+   PBM_SETMARQUEE = WM_USER + 10;
+ 
+ procedure Register;
+ 
+ implementation
+ 
+ procedure Register;
+ begin
+   RegisterComponents('SwissDelphiCenter', [TMarqueeProgressBar]);
+ end;
+ 
+ constructor TMarqueeProgressBar.Create(AOwner: TComponent);
+ begin
+   inherited;
+   FAnimationSpeed := 60;
+ end;
+ 
+ procedure TMarqueeProgressBar.CreateParams(var Params: TCreateParams);
+ begin
+   inherited;
+   Params.Style := Params.Style or PBS_MARQUEE;
+ end;
+ 
+ procedure TMarqueeProgressBar.SetActive(const Value: Boolean);
+ begin
+   FActive := Value;
+   UpdateProgressBar;
+ end;
+ 
+ procedure TMarqueeProgressBar.SetAnimationSpeed(const Value: Integer);
+ begin
+   FAnimationSpeed := Value;
+   UpdateProgressBar;
+ end;
+ 
+ procedure TMarqueeProgressBar.UpdateProgressBar;
+ begin
+   if FActive then
+     SendMessage(Self.Handle, PBM_SETMARQUEE, 1, FAnimationSpeed)
+   else
+     SendMessage(Self.Handle, PBM_SETMARQUEE, 0, 0);
+ end;
+ 
+ end.
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,477 @@
+<html>
+<head>
+  <title>Основы программирования OpenGL в Borland Delphi (Статья)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Основы программирования OpenGL в Borland Delphi (Статья)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: i-s-v</p>
+Публикуется с сокращениями (Vit)</p>
+<p>На кого рассчитана статья</p>
+<p>Я рассчитываю на то, что вы знакомы с азами создания приложений в С++Builder или Delphi и совсем не знаете OpenGL.</p>
+<p>Введение</p>
+<p>OpenGL (Open Graphics Library) &#8211; популярная библиотека для работы с 3D графикой. Стандарт OpenGL появился в 1992 году благодаря компании Silicon Graphics и сейчас переживает годы своего самого бурного развития.</p>
+<p>Чуть-чуть побольше узнать об OpenGL и о том, как с ним работать в VC, можно, почитав wat&#8217;а: http://www.gamedev.ru/coding/11203.shtml</p>
+<p>Я хочу показать, как работать с этой библиотекой в таких популярных и, на мой взгляд, очень удобных средах разработки, как Delphi и С++Builder.</p>
+<p>Эта - первая - статья посвящена в основном инициализации OpenGL.</p>
+<p>Инициализация</p>
+<p>Первым делом нужно подключить заголовочные файлы:</p>
+<pre name="code" class="delphi">
+uses OpenGL;
+</pre>
+<p>Если вы используете Delphi, то всё необходимое для работы с OpenGL находится в модуле OpenGL.dcu. А если вы используете С++Builder, то подключать придётся несколько файлов:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>gl.h и glu.h содержат прототипы основных функций OpenGL определённых в opengl32.dll и glu32.dll. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>glaux.h содержит вспомогательные (auxiliary) функции (glaux.dll). В этой статье я не буду использовать glaux.h, т.к. его функции не доступны в Delphi, да и не люблю я эту библиотеку. Кроме того основные задачи glaux (как, в прочем, и аналогичной, но более качественной, библиотеки GLUT) &#8211; это создание окон, таймеров, обработка клавиатуры и мыши, всё это есть в ИСР (Интегральная Среда Разработки) Delphi или С++Builder. </td></tr></table></div><p>После подключения заголовочных файлов нужно установить формат пикселей. Я для этой цели использую следующую функцию:</p>
+<pre name="code" class="delphi">
+      function bSetupPixelFormat(DC:HDC):boolean;
+      var
+          pfd:PIXELFORMATDESCRIPTOR;
+          ppfd:PPIXELFORMATDESCRIPTOR;
+          pixelformat:integer;
+      begin
+          ppfd := @pfd;
+          ppfd.nSize := sizeof(PIXELFORMATDESCRIPTOR);
+          ppfd.nVersion := 1;
+          ppfd.dwFlags :=  PFD_DRAW_TO_WINDOW xor
+                           PFD_SUPPORT_OPENGL xor
+                           PFD_DOUBLEBUFFER;
+          ppfd.dwLayerMask := PFD_MAIN_PLANE;
+          ppfd.iPixelType := PFD_TYPE_RGBA;
+          ppfd.cColorBits := 16;           
+          ppfd.cDepthBits := 16;
+          ppfd.cAccumBits := 0;
+          ppfd.cStencilBits := 0;
+          pixelformat := ChoosePixelFormat(dc, ppfd);
+          if pixelformat=0 then
+          begin
+              MessageBox(0, 'ChoosePixelFormat failed', 'Error', MB_OK);
+              bSetupPixelFormat:=FALSE;
+              exit;
+          end;
+          if SetPixelFormat(dc, pixelformat, ppfd)=false then
+          begin
+              MessageBox(0, 'SetPixelFormat failed', 'Error', MB_OK);
+              bSetupPixelFormat:=FALSE;
+              exit;
+          end;
+          bSetupPixelFormat:=TRUE;
+      end;
+</pre>
+<p>Вряд ли вам придётся менять что-нибудь в этой функции, но кое-что о структуре PIXELFORMATDESCRIPTOR сказать надо.</p>
+<p>cColorBits &#8211; глубина цвета</p>
+<p>cDepthBits &#8211; размер буфера глубины (Z-Buffer)</p>
+<p>cStencilBits &#8211; размер буфера трафарета (мы его пока не используем)</p>
+<p>iPixelType &#8211; формат указания цвета. Может принимать значения PFD_TYPE_RGBA (цвет указывается четырьмя параметрами RGBA - красный, зленный, синий и альфа) и PFD_TYPE_COLORINDEX (цвет указывается индексом в палитре). Как вы видите, я использую RGBA, и вам придётся поступить также, т.к. если вы захотите использовать COLORINDEX, то вам придётся изменить мою функцию: добавить пару флагов и дать начальные значения ещё нескольким переменным.</p>
+<p>Более подробную информацию смотрите в справочнике или в MSDN.</p>
+<p>Функция ChoosePixelFormat подбирает формат пикселей, максимально удовлетворяющий нашим требованиям, и возвращает его дескриптор, а SetPixelFormat устанавливает его в контексте устройства (dc).</p>
+<p>После того как в контексте устройства установлен формат пикселей, нужно создать контекст воспроизведения (Rendering Context) для этого в OpenGL определены следующие функции:</p>
+<pre name="code" class="delphi">
+  function wglCreateContext(dc: HDC): HGLRC;
+  function wglMakeCurrent(dc: HDC; glrc: HGLRC):Boolean;
+</pre>
+<p>Наверное, объяснять их значение не стоит</p>
+<p>Теперь перейдём к форме. В объявлении класса формы в области private добавьте следующее:</p>
+<pre name="code" class="delphi">
+  ghRC:HGLRC;
+  ghDC:HDC;
+  procedure Draw;
+</pre>
+<p>ghRC &#8211; указатель на контекст воспроизведения (Rendering Context)</p>
+<p>ghDC &#8211; дескриптор устройства (для нас &#8211; просто указатель на окно)</p>
+<p>Процедура Draw будет отвечать за рисование.</p>
+<p>Далее заполняем FormCreate:</p>
+<pre name="code" class="delphi">
+      procedure TForm1.FormCreate(Sender: TObject);
+      var
+         p: TGLArrayf4;
+         d: TGLArrayf3;
+      begin
+         ghDC := GetDC(Handle);
+         if bSetupPixelFormat(ghDC)=false then
+           Close();
+         ghRC := wglCreateContext(ghDC);
+         wglMakeCurrent(ghDC, ghRC);
+         glClearColor(0.0, 0.0, 0.0, 0.0);
+         FormResize(Sender);
+         glEnable(GL_COLOR_MATERIAL);
+         glEnable(GL_DEPTH_TEST);
+         glEnable(GL_LIGHTING);
+         glEnable(GL_LIGHT0);
+           p[0]:=3;
+           p[1]:=3;
+           p[2]:=3;
+           p[3]:=1;
+           d[0]:=-1;
+           d[1]:=-1;
+           d[2]:=-3;
+         glLightfv(GL_LIGHT0,GL_POSITION,@p);
+         glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION,@d);
+      end;
+</pre>
+<p>Вы видите, что тут вызывается FromResize, который мы ещё не описали. Надо это исправить. Поместите туда следующий код:</p>
+<pre name="code" class="delphi">
+  glViewport( 0, 0, Width, Height );
+  glMatrixMode( GL_PROJECTION );
+  glLoadIdentity();
+  glOrtho(-5,5, -5,5, 2,12);
+  gluLookAt(0,0,5, 0,0,0, 0,1,0);
+  glMatrixMode( GL_MODELVIEW );
+</pre>
+<p>Теперь, наверное, надо кое-что объяснить.</p>
+<p>glClearColor устанавливает цвет (в нашем случае чёрный), которым будет заполняться экран при очищении. У этой процедуры &#8211; 4 параметра, что соответствует RGBA. Вместо нее можно написать glClearIndex(0.0). Эта процедура устанавливает индекс цвета в палитре.</p>
+<p>glViewport устанавливает область вывода &#8211; область, в которую OpenGL будет выводить изображение. В нашем случае &#8211; вся форма.</p>
+<p>glMatrixMode устанавливает режим матрицы видового преобразования. Не забивайте ей себе голову, просто запомните, что, если вы меняете тип проецирования, положение или направление камеры, то параметр должен быть GL_PROJECTION. После того, как вы завершили свои изменения, вызовите эту процедуру с параметром GL_MODELVIEW.</p>
+<p>glLoadIdentity заменяет текущую матрицу видового преобразования на единичную (матрицу идентичности), т.е. просто сбрасывает ваши изменения.</p>
+<p>glOrtho устанавливает режим ортогонального (прямоугольного) проецирования. Это значит, что изображение будет рисоваться как в изометрии. 6 параметров типа GLdouble (или просто double): left, right, bottom, top, near, far определяют координаты соответственно левой, правой, нижней, верхней, ближней и дальней плоскостей отсечения, т.е. всё, что окажется за этими пределами, рисоваться не будет. На самом деле эта процедура просто устанавливает масштабы координатных осей. Для того чтобы установить перспективное проецирование, используются процедуры glFrustum и gluPerspective, но о них &#8211; потом.</p>
+<p>gluLookAt устанавливает параметры камеры: первая тройка &#8211; её координаты, вторая &#8211; вектор направления, третья &#8211; направление оси Y.</p>
+<p>В OpenGL всё включается и выключается (разрешается и запрещается) процедурами glEnable и glDisable. Таким образом, мы разрешили тест глубины (GL_DEPTH_TEST), чтобы изображение было объёмным, разрешили давать нашим объектам какой-то цвет (GL_COLOR_MATERIAL), разрешили освещение (GL_LIGHTING) и включили &#171;лампочку &#8470;0&#187; (GL_LIGHT0).</p>
+<p>glLightfv устанавливает свойства &#171;лампочек&#187;: позицию и направление света.</p>
+<p>После того, как вы завершили работу с OpenGL, нужно освободить занятые ресурсы: освободить контекст, вызвав wglMakeCurrent с параметром ноль для идентификатора контекста OpenGL и разрушить этот контекст функцией wglDeleteContext. Кроме того нужно удалить дескриптор ghDC. Так как обычно работу с OpenGL завершается при завершении работы приложения, то соответствующий код нужно поместить в FormClose:</p>
+<pre name="code" class="delphi">
+      procedure TForm1.FormClose(Sender: TObject; var Action: 
+        TCloseAction);
+      begin
+        if ghRC&lt;&gt;0 then
+        begin
+          wglMakeCurrent(ghDC,0);
+          wglDeleteContext(ghRC);
+        end;
+        if ghDC&lt;&gt;0 then
+          ReleaseDC(Handle, ghDC);
+      end;
+</pre>
+<p>А теперь, давайте уже что-нибудь нарисуем!</p>
+<p>Пример</p>
+<p>Давайте нарисуем сферу, а потом заставим её крутиться. Итак, всё, что нам понадобится &#8211; это форма и таймер.</p>
+<img src="pic/clip0013.png" width="184" height="101" border="0" alt="clip0013"></p>
+<p>Установите интервал таймера на 10 миллисекунд (нам этого будет вполне достаточно). Теперь скопируйте все представленные выше фрагменты кода в соответствующие места. В процедуре Timer1Timer напишите одну сточку: Draw(); (в Delphi без скобок).</p>
+<p>Теперь нам осталось только что-нибудь нарисовать, т.е. отредактировать функцию Draw.</p>
+<pre name="code" class="delphi">
+      procedure TForm1.Draw;
+      var
+        quadObj :GLUquadricObj;
+      begin
+        glClear(GL_DEPTH_BUFFER_BIT xor GL_COLOR_BUFFER_BIT);
+        quadObj:=gluNewQuadric;
+        gluQuadricDrawStyle(quadObj, GLU_FILL);
+        glColor3f(1,0,0);
+        gluSphere(quadObj, 2,10,10);
+          glRotatef(3, 0,1,0);
+        gluDeleteQuadric(quadObj);
+        SwapBuffers(ghDC);
+      end;
+</pre>
+<p>Всё, можно нажимать F9!!!</p>
+<img src="pic/clip0014.png" width="313" height="279" border="0" alt="clip0014"></p>
+<p>А теперь кое-что поясню (в процедуре Draw не встретилось ни одной знакомой строчки).</p>
+<p>glClear сбрасывает значения всего перечисленного в качестве параметров (в нашем случае очищает буфер цвета и буфер глубины). Этой процедуре передавать много всяких буферов для очистки, но лично я использую только 3: GL_DEPTH_BUFFER_BIT, GL_COLOR_BUFFER_BIT, иногда GL_STENCIL_BUFFER_BIT (буфер трафарета).</p>
+<p>glColor устанавливает цвет фигуры. Существует следующий синтаксис как для glColor, так и для других функций OpenGL:</p>
+<p>gl&lt;name&gt;[n][type]</p>
+<p>Поясняю, каждая функция OpenGL начинается с префикса &#171;gl&#187;. Далее следует название функции. После названия &#8211; количество параметров (если функция определена для разного кол-ва параметров). И, наконец, переменными какого типа являются параметры:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>b &#8211; GLbyte байт </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>s &#8211; GLshort короткое целое </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>i &#8211; GLint целое </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>f &#8211; GLfloat дробное </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>d &#8211; GLdouble дробное с двойной точностью </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>ub &#8211; GLubyte беззнаковый байт </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>us &#8211; GLushort беззнаковое короткое целое </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>ui &#8211; GLuint беззнаковое целое </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>v &#8211; вектор &#8211; массив из n элементов указанного типа </td></tr></table></div><p>Итак, glColor3f означает, что цвет задаётся тремя компонентами типа GLfloat.</p>
+<p>Для рисования сферы мы используем механизм из glu32.dll. Создаём объект типа GLUquadricObj и инициализируем его функцией gluNewQuadric. Далее устанавливаем стиль фигуры функцией gluQuadricDrawStyle (quadObj, GLU_FILL). Стиль может быть GLU_FILL, GLU_LINE или GLU_POINT. Что каждый из них значит, проверьте сами.</p>
+<p>gluSphere &#8211; делает из quadObj сферу. Три последних параметра &#8211; это радиус и количество разбиений поперёк и вдоль оси Z соответственно. Я взял маленькое число разбиений, чтобы было видно, что сфера крутится.</p>
+<p>И не забудем освободить память, занимаемую под quadObj - gluDeleteQuadric(quadObj).</p>
+<p>glRotatef &#8211; заставляет нашу сферу крутиться. О том, как это делается - в следующей статье.</p>
+<p>И, наконец, SwapBuffers (ghDC) выводит всё на экран.</p>
+
+<p>Часть 1. Координаты и всё, что с ними связано</p>
+<p>Системы координат</p>
+<p>Рассматривая какой-либо трёхмерный объект, мы всегда определяем его положение и размеры относительно некоторой привычной, и удобной в настоящий момент системы координат, связанной с реальным миром. Такая исходная система координат в компьютерной графике является правосторонней и называется мировой системой координат. Для того, чтобы можно было изобразить объект на экране, его необходимо предварительно перевести (или преобразовать) в другую систему координат, которая связана с точкой наблюдения и носит название видовой системы координат. Эта система координат является левосторонней. И, наконец, любое трёхмерное изображение мы всегда рисуем на двумерном экране, который имеет свою экранную систему координат. (Этот абзац я списал у Ю.Тихомирова).</p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td >Правосторонняя система координат (мировая)</p>
+</td>
+<td >Левосторонняя система координат (видовая)</p>
+</td>
+</tr>
+<tr >
+<td ><img src="pic/clip0015.png" width="234" height="187" border="0" alt="clip0015"></p>
+</td>
+<td ><img src="pic/clip0016.png" width="204" height="186" border="0" alt="clip0016">
+</td>
+</tr>
+</table>
+<p>По умолчанию, плоскость xOy параллельна экрану, а ось Z направлена в мировых координатах к нам, в видовых - от нас.</p>
+<p>Переход к новым координатам</p>
+<p>В OpenGL все объекты рисуются в начале координат, т.е. в точке (0,0,0). Для того, чтобы изобразить объект в точке (x1,y1,z1), надо переместить начало координат в эту точку, т.е. перейти к новым координатам. Для этого в OpenGL определены две процедуры:</p>
+<p>glTranslate[f d](Dx, Dy, Dz) &#8211; сдвигает начало координат на (Dx, Dy, Dz)</p>
+<p>glRotate[f d](j, x,y,z) &#8211; поворачивает систему координат на угол j (в градусах) против часовой стрелки вокруг вектора (x,y,z)</p>
+<p id="note">Примечание: [f d] &#8211; означает, что в конце может быть либо буква &#8220;f&#8221;, либо &#8220;d&#8221;.</p>
+<p>Теперь стоит сказать ещё о двух процедурах:</p>
+<p>glPushMatrix</p>
+<p>glPopMatrix</p>
+<p>Первая предназначена, для сохранения, а вторая &#8211; для восстановления текущих координат. Очень удобно с помощью glPushMatrix сохранить текущие координаты, потом сдвигаться и вертеться как угодно, а после, вызовом glPopMatrix, вернуться к исходным координатам. Параметров у этих процедур нет.</p>
+<p>Часть 2. Простейшие фигуры</p>
+<p>Простейшие объёмные фигуры</p>
+<p>В примере из прошлой статьи мы создали сферу. Для этого мы использовали механизм из glu32.dll. Алгоритм был такой:</p>
+<p>1. Создаём объект типа GLUquadricObj</p>
+<p>2. Инициализируем его функцией gluNewQuadric</p>
+<p>3. Устанавливаем стиль фигуры функцией gluQuadricDrawStyle(quadObj, GLU_FILL). Стиль может быть GLU_FILL, GLU_LINE, GLU_SILHOUETTE или GLU_POINT. Что каждый из них значит, проверьте сами.</p>
+<p>4. Делаем из quadObj (объекта типа GLUquadricObj) сферу, цилиндр, конус, диск или часть диска. Для этого определены следующие функции:</p>
+&#183; gluSphere (quadObj, radius, slices, loops). Три последних параметра &#8211; это радиус и количество разбиений поперёк и вдоль оси Z соответственно.</p>
+&#183; gluCylinder (quadObj, baseRadius, topRadius, height, slices, loops). После quadObj идут следующие параметры: радиус нижнего основания, радиус верхнего основания, высота и количество разбиений поперёк и вдоль оси Z соответственно. Очевидно, что эта функция задаёт как цилиндр, так и конус.</p>
+&#183; gluDisk (quadObj, innerRadius, outerRadius, slices, loops). Здесь после quadObj указываются внутренний и внешний радиусы диска.</p>
+&#183; gluPartialDisk (quadObj, innerRadius, outerRadius, slices, loops, startAngle, sweepAngle). Здесь добавляются два параметра: угол (в градусах), с которого начнётся рисование диска, и угол, которым рисование закончится.</p>
+<p>5. Освобождаем память, занимаемую под quadObj функцией gluDeleteQuadric(quadObj).</p>
+<p>Теперь вы можете рисовать простые трёхмерные фигуры!</p>
+<p>Примитивы</p>
+<p>Любую трёхмерную фигуру, какая бы сложная она не была, можно разбить на двухмерные (плоские) составляющие. Эти составляющие я и буду называть примитивами, хотя некоторые авторы считают, что примитивами следует обозвать вышеперечисленные трёхмерные фигуры.</p>
+<p>Примитивы определяются одной или несколькими точками, которые в OpenGL задаются внутри командных скобок glBegin/glEnd:</p>
+<pre name="code" class="delphi">
+procedure glBegin(mode);
+procedure glEnd;
+</pre>
+<p>Параметр mode показывает, какие примитивы будут рисоваться. Доступны следующие значения:</p>
+<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
+<tr >
+<td ><p>GL_POINTS</p>
+</td>
+<td ><p>Каждая вершина &#8211; отдельная точка</p>
+</td>
+</tr>
+<tr >
+<td ><p>GL_LINES</p>
+</td>
+<td ><p>Каждая пара вершин &#8211; отдельная линия. Если число вершин нечётно, то последняя игнорируется</p>
+</td>
+</tr>
+<tr >
+<td ><p>GL_LINE_STRIP</p>
+</td>
+<td ><p>Последовательность связанных отрезков. Первые две вершины &#8211; первый отрезок. Третья вершина определяет второй отрезок с началом в конце первого и концом в этой вершине и т.д</p>
+</td>
+</tr>
+<tr >
+<td ><p>GL_LINE_LOOP</p>
+</td>
+<td ><p>Аналогичен GL_LINE_STRIP, только последняя вершина соединяется отрезком с первой.</p>
+</td>
+</tr>
+<tr >
+<td ><p>GL_TRIANGLES</p>
+</td>
+<td ><p>Каждая тройка вершин &#8211; отдельный треугольник</p>
+</td>
+</tr>
+<tr >
+<td ><p>GL_TRIANGLE_STRIP</p>
+</td>
+<td ><p>Группа связанных треугольников. Первые три вершины &#8211; первый треугольник. Вторая, третья и четвёртая вершины - второй треугольник и т.д.</p>
+</td>
+</tr>
+<tr >
+<td ><p>GL_TRIANGLE_FAN</p>
+</td>
+<td ><p>Также группа связанных треугольников. Первые три вершины &#8211; первый треугольник. Первая, вторая и четвёртая вершины - второй треугольник и т.д.</p>
+</td>
+</tr>
+<tr >
+<td ><p>GL_QUADS</p>
+</td>
+<td ><p>Каждые четыре вершины &#8211; отдельный четырёхугольник.</p>
+</td>
+</tr>
+<tr >
+<td ><p>GL_QUAD_STRIP</p>
+</td>
+<td ><p>Группа связанных четырёхугольников. Первые четыре вершины &#8211; первый четырёхугольник. Третья, четвёртая, пятая и шестая вершины &#8211; второй четырёхугольник и т.д.</p>
+</td>
+</tr>
+<tr >
+<td ><p>GL_POLYGON</p>
+</td>
+<td ><p>Рисует отдельный выпуклый многоугольник (один).</p>
+</td>
+</tr>
+</table>
+<p>Особое внимание нужно уделить GL_QUAD_STRIP. Здесь не совсем понятный, но очень удобный порядок указания вершин:</p>
+<img src="pic/clip0017.png" width="169" height="137" border="0" alt="clip0017"></p>
+<p>У каждого примитива есть минимальное число вершин. Если указанное число вершин меньше минимального для данного примитива, то примитив не рисуется.</p>
+<p>Осталось только сказать, как задать вершину. Для этого определена следующая процедура:</p>
+<p>glVertex[2 3 4][s i f d][v](coord)</p>
+<p>Вершина определяется четырьмя параметрами: координаты x, y, z и параметр w &#8211; коэффициент, на который делится каждая из координат, т.е. w определяет масштаб. По умолчанию z=0, w=1, т.е когда вы вызываете, например, glVertex2f(1,1) на самом деле вызывается glVertex4f(1,1,0,1).</p>
+<p>С каждой вершиной связаны некоторые данные:</p>
+<p>&#183; Текущий цвет &#8211; цвет вершины (окончательный цвет высчитывается с учётом света). Цвет задаётся процедурой glColor*</p>
+<p>&#183; Текущие координаты текстуры &#8211; координаты текстуры, соответствующие этой вершине. Задаются процедурой glTexCoord*</p>
+<p>&#183; Текущая нормаль &#8211; вектор нормали, соответствующий данной вершине. Задаётся процедурой glNormal*</p>
+<p>&#183; Текущая позиция растра &#8211; используется для определения положения растра при работе с пикселями и битовыми массивами. задаётся процедурой glRasterPos*</p>
+<p id="note">Примечание: вместо звёздочки &#8216;*&#8217; ставятся соответствующие суффиксы; такое сокращение принято во многих документациях по OpenGL.</p>
+<p>Точки</p>
+<p>Нарисовать точку очень просто. Следующий код изображает 10 точек разного размера.</p>
+<pre name="code" class="delphi">
+      procedure TForm1.Draw;
+      var
+        i:byte;
+      begin
+        glClear(GL_DEPTH_BUFFER_BIT or GL_COLOR_BUFFER_BIT);
+        glColor3f(1,1,1);
+        for i:=0 to 9 do
+        begin
+          glPointSize((i+1)*4);
+          glBegin(GL_POINTS);
+            glVertex2f(i,i);
+          glEnd;
+        end;
+        SwapBuffers(ghDC);
+      end;
+</pre>
+<p id="note">Примечание: в FormResize я вызвал glOrtho следующим образом - glOrtho(-1,12, -1,12, 2,12). Это &#8211; для того, чтобы все точки поместились в окне.</p>
+<img src="pic/clip0018.png" width="313" height="279" border="0" alt="clip0018"></p>
+<p>Для изменения размера точки используется процедура glPointSize(size). Параметр size задаёт диаметр точки.</p>
+<p>В этом примере все точки квадратные. В OpenGL разрешено сглаживание (smoothening) как точек, так и более сложных объектов. Как и всё в OpenGL, этот режим включается и выключается процедурами glEnable/glDisable. Для точек это делается так:</p>
+<p>glEnable(GL_POINT_SMOOTH);</p>
+<p>Вставив эту строчку где-нибудь перед рисованием точек, получим:</p>
+<img src="pic/clip0019.png" width="313" height="279" border="0" alt="clip0019"></p>
+<p>Откровенно говоря, у меня OpenGL делает это довольно плохоL, возможно ваша реализация справляется с этим лучше.</p>
+<p>Линии</p>
+<p>С линиями &#8211; не на много сложнее. Вместо размера у линии указывается ширина:</p>
+<p>glLineWidth(width)</p>
+<p>сглаживание разрешается следующим образом:</p>
+<p>glEnable(GL_LINE_SMOOTH)</p>
+<p>Но на этом возможности линий не заканчиваются. Я уже рассказал, как можно нарисовать две или даже три линии, указав всего три вершины (вызываем glBegin с параметром GL_LINE_STRIP или GL_LINE_LOOP), но и это ещё не всё! В OpenGL можно указать штриховку линии! Делается это процедурой glLineStipple(factor, pattern). Здесь pattern &#8211; 16-разрядная битовая маска. Например, чтобы нарисовать пунктирную линию, маску надо задать равной 255, что в шестнадцатеричной системе счисления соответствует 00FF, а в двоичной &#8211; 0000000011111111. А целое factor показывает, сколько раз будет повторяться каждый бит маски.</p>
+<p>Осталось только разрешить штриховать линии: glEnable(GL_LINE_STIPPLE).</p>
+<p>Пример.</p>
+<pre name="code" class="delphi">
+      glEnable(GL_LINE_SMOOTH);
+      glLineStipple(1,255);
+      glEnable(GL_LINE_STIPPLE);
+      glBegin(GL_LINES);
+        glVertex2f(0,2);
+        glVertex2f(10,6);
+      glEnd;
+</pre>
+<p>Вот, что получится:</p>
+<img src="pic/clip0020.png" width="312" height="161" border="0" alt="clip0020"></p>
+<p>Полигоны</p>
+<p>Теперь перейдём к плоским фигурам: треугольникам, четырёхугольникам и произвольным выпуклым многоугольникам. С ними можно делать всё то же, что и с линиями (только сглаживание включается и выключается процедурами glEnable/glDisable с параметром GL_POLYGON_SMOOTH), плюс ещё одна процедура: glPolygonMode(face, mode). Второй параметр &#8211; mode &#8211; указывает, как будет рисоваться полингон (по русски - многоугольник). Он может принимать значения GL_POINT(рисуются только точки), GL_LINE(только линии) или GL_FILL(заполненный полигон). А первый параметр &#8211; face &#8211; показывает, какой стороне полигона применяется режим mode: GL_FRONT(к лицевой), GL_BACK(к тыльной) или GL_FRONT_AND_BACK(к обеим).</p>
+<p>Давайте нарисуем треугольник. Вот как будет выглядеть функция Draw:</p>
+<pre name="code" class="delphi">
+      procedure TForm1.Draw;
+      begin
+        glClear(GL_DEPTH_BUFFER_BIT or GL_COLOR_BUFFER_BIT);
+        glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+        glBegin(GL_TRIANGLES);
+          glColor3f(1,0,0);
+          glVertex2f(0,2);
+          glColor3f(0,1,0);
+          glVertex2f(8,9);
+          glColor3f(0,0,1);
+          glVertex2f(10,4);
+        glEnd;
+        SwapBuffers(ghDC);
+      end;
+</pre>
+<p>Я уже говорил, что каждая вершина может иметь свой цвет, этим я здесь и воспользовался. И вот что получилось:</p>
+<img src="pic/clip0021.png" width="313" height="279" border="0" alt="clip0021"></p>
+<p>Каждой вершине указывать цвет совсем не обязательно. Если вы хотите нарисовать треугольник одного цвета, то этот цвет указывается один раз &#8211; перед рисованием самого примитива.</p>
+<p>Забегая вперёд, скажу, что плавного перетекания цветов как на рисунке может и не быть, если перед рисованием вызвать процедуру glShadeModel(GL_FLAT), по умолчанию её параметр &#8211; GL_SMOOTH. Эта процедура указывает, сглаживать или нет углы между смежными полигонами. Вот картинки для иллюстрации её действия:</p>
+<img src="pic/clip0022.png" width="202" height="179" border="0" alt="clip0022"><img src="pic/embim1796.png" width="202" height="179" vspace="1" hspace="1" border="0" alt=""></p>
+<p>Раз уж я сказал о штриховке линий, то нужно сказать и о трафарете &#8211; штриховке для полигонов. Он включается командой glEnable(GL_POLYGON_STIPPLE). Также как и с линиями, трафарет задаётся массивом, который определяет битовую маску. Размер трафарета - 32x32 бита, т.е. размер массива будет 128 байт.</p>
+<p>Мне было лень прописывать каждый из 128 байт маски по отдельности, и я сформировал её в цикле, и вот результат:</p>
+<pre name="code" class="delphi">
+      procedure TForm1.Draw;
+      var
+        stip:array [1..16,1..8] of GLubyte;
+        i,k:byte;
+      begin
+        glClear(GL_DEPTH_BUFFER_BIT or GL_COLOR_BUFFER_BIT);
+        // формируем маску
+        for k:=1 to 16 do
+          for i:=1 to 8 do
+            stip[k][i]:=k-i;
+        glEnable(GL_POLYGON_STIPPLE);
+        glPolygonStipple(@stip);
+        glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+        glColor3f(1,0,0);
+        glBegin(GL_TRIANGLES);
+          glVertex2f(0,2);
+          glVertex2f(8,9);
+          glVertex2f(10,4);
+        glEnd;
+        SwapBuffers(ghDC);
+      end;
+</pre>
+<p>Вот результат:</p>
+<img src="pic/clip0023.png" width="293" height="270" border="0" alt="clip0023"></p>
+<p>Вообще маска формируется один раз, поэтому, если вы перенесёте код её формирования в другое место (например в FormCreate), то программа будет работать быстрее.</p>
+<p>Ещё хотелось бы сказать о массивах OpenGL. Этот метод позволяет хранить все вершины объекта в массиве, причем в этом массиве можно хранить не только координаты вершин, но и их атрибуты (иногда это бывает полезно). Но товарищи из Borland&#8217;а решили, что нам это не нужно и не объявили соответствующие процедуры и константы. Без этого легко можно обойтись, но всё-таки обидноL.</p>
+<p>Параллелепипед</p>
+<p>Не знаю, заметили вы или нет, но GLU не позволяет создавать параллелепипеды. Давайте это исправим: напишем процедуру, рисующую параллелепипед.</p>
+<pre name="code" class="delphi">
+      procedure piped(a,b,c:GLfloat);
+      begin
+        glShadeModel(GL_FLAT);
+        glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+        glBegin(GL_QUAD_STRIP);
+          glVertex3f(-a/2,-b/2,-c/2);
+          glVertex3f(-a/2,-b/2, c/2);
+          glVertex3f(-a/2, b/2,-c/2);
+          glVertex3f(-a/2, b/2, c/2);
+          glVertex3f( a/2, b/2,-c/2);
+          glVertex3f( a/2, b/2, c/2);
+          glVertex3f( a/2,-b/2,-c/2);
+          glVertex3f( a/2,-b/2, c/2);
+          glVertex3f(-a/2,-b/2,-c/2);
+          glVertex3f(-a/2,-b/2, c/2);
+        glEnd;
+        glBegin(GL_QUADS);
+          glVertex3f(-a/2,-b/2, c/2);
+          glVertex3f(-a/2, b/2, c/2);
+          glVertex3f( a/2, b/2, c/2);
+          glVertex3f( a/2,-b/2, c/2);
+          glVertex3f(-a/2,-b/2,-c/2);
+          glVertex3f(-a/2, b/2,-c/2);
+          glVertex3f( a/2, b/2,-c/2);
+          glVertex3f( a/2,-b/2,-c/2);
+        glEnd;
+      end;
+</pre>
+<p>Можно проверять!</p>
+<p>glOrtho вызовем также, как и в примере со сферой: glOrtho(-5,5, -5,5, 1,12).</p>
+<p>А в Draw напишем следующее:</p>
+<pre name="code" class="delphi">
+      glColor3f(0.6,0.7,0.9);
+      glPushMatrix;
+        glRotatef(10, 0,0,1);
+        glRotatef(25, 0,1,0);
+        glRotatef(20, 1,0,0);
+        piped(5,1.2,3.5);
+      glPopMatrix;
+</pre>
+<p>И получим картинку:</p>
+<img src="pic/clip0024.png" width="260" height="237" border="0" alt="clip0024"></p>
+<p>На этом я, пожалуй, закончу.</p>
+<p>Луковкин Сергей,<br>
+<a href="mailto:gluk-02@yandex.ru">gluk-02@yandex.ru</a></p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

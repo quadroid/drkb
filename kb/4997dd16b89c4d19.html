@@ -1,0 +1,161 @@
+<html>
+<head>
+  <title>FTP</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">FTP</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Как я сказал во введении, FTP означает File Transfer Protocol, который описан в RFC 959. Модель связи FTP может быть реализована с помощью сокетов, но это более низкоуровневое решение и если вы посмотрите спецификацию, то поймети, что написание программы FTP клиента с нуля не такая уж простая задача. С другой стороны, мы можем использовать NetManage TFTP компонент из Delphi 2.01 (и выше) и C++Builder. Я пробовал использовать этот компонент несколько раз, и нашел его просто глюкавым, особенно для файлов свыше 10 Kb. Я могу понять, почему Microsoft (первый разработчик Internet Solutions Pack) не захотела использовать его и продала затем NetManage, которая тоже не справилась с ним и продала далее фирме NetMasters. Проблема в том, что Internet Solutions Pack - хотя и бесплатный - основан на наборе с ограничениями ActiveX, и каждая компания которая использует его также имеет более лучшее решение (обычно не бесплатно). Поддержка и документация всегда отвратительная... </p>
+Так что же, назад к низкоуровневому программированию? Ни в коем случае. Как всегда на помощь приходит Microsoft </p>
+3.2. WinInet</p>
+Некоторое время назад, Microsoft выпустила WinInet, который ни что иное как промежуточный слой между высоким и нижним уровнем программирования Internet API специально для Win32 программистов. WinInet Является интерфейсом высокого уровня для протоколов нижнего уровня, таких как HTTP и FTP. Использование его действительно просто, и хорошо, что модуль WinInet.PAS с API определениями уже включен в Delphi 2.x и выше!</p>
+Имеется также большой документ, описывающий все детали WinInet API, который может быть найден на сайте Microsoft (но его местонахождение постоянно меняется, так что нужно использовать систему поиска, для загрузки&nbsp; последней версии документа). </p>
+От переводчика: можно взять на моем сайте со страницы http://nps.vnet.ee/internet.html</p>
+3.3. DrBob FTP</p>
+WinInet использует не что, что они назвали Интернет хендл "internet handle" (очень похоже на Windows handles), и все API функции или нуждаются или возвращают Интернет хендл. Например, что бы открыть новую WinInet сессию, нам нужно вызвать функцию InternetOpen, которая вернет Интернет хендл, который мы должны использовать до конца сессии (и передавать другим API функциям). Для освобождения хендла, мы всегда должны вызывать функцию InternetCloseHandle (после получения хендла мы можем его использовать, но мы обязаны написать блок try-finally, где должны освободить хендл в разделе finally). </p>
+Для открытия удаленного файла (или URL) в Интернете, мы должны вызвать функцию InternetOpenURL, которая опять вернет нам хендл. Теперь, для загрузки удаленного файла (URL) на нашу локальную машину, нам осталось сделать только некоторое количество вызовов функции InternetReadFile, очень похожей на функцию BlockRead, которая копирует данные из удаленного файла в буфер данных. Мы можем использовать BlockWrite для записи из буфера в локальный файл, и все это с помощью всего лишь трех WinInet функций (четыре, если считать функцию InternetCloseHandle), мы можем написать простую, но очень быструю FTP программу следующим образом: </p>
+<pre name="code" class="delphi">
+  program DrBobFTP;
+  {$APPTYPE CONSOLE}
+  {$I+}
+  uses
+    Windows, WinInet;
+ 
+    procedure CopyURL(const URL, OutputFile: String);
+    const
+      BufferSize = 1024;
+    var
+      hSession, hURL: HInternet;
+      Buffer: Array[0..Pred(BufferSize)] of Byte;
+      BufferLength: DWORD;
+      f: File;
+    begin
+      hSession := InternetOpen('DrBob',INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
+      try
+        hURL := InternetOpenURL(hSession, PChar(URL), nil,0,0,0);
+        try
+          Assign(f, OutputFile);
+          Rewrite(f,1);
+          repeat
+            InternetReadFile(hURL, @Buffer, BufferSize, BufferLength);
+            write('.');
+            BlockWrite(f, Buffer, BufferLength)
+          until BufferLength = 0;
+          Close(f);
+          writeln('OK') { if we get here, we succeeded }
+        finally
+          InternetCloseHandle(hURL)
+        end
+      finally
+        InternetCloseHandle(hSession)
+      end
+    end;
+ 
+  begin
+    if ParamCount &lt;2 &gt;then
+    begin
+      writeln('Usage: DrBobFTP URL Filename');
+      writeln('Example: DrBobFTP http://www.drbob42.com/ftp/headconv.zip hc.zip')
+    end
+    else
+      CopyURL(ParamStr(1), ParamStr(2))
+  end.
+</pre>
+&nbsp;</p>
+Конечно, для выполнения данной программы мы также обязаны иметь WinInet.DLL, которая также может быть найдена на Microsoft web сайте. </p>
+&nbsp;</p>
+<hr />3.4.4. FTP Upload/Download</p>
+Иногда вам просто нужно загружать файлы из Интернета. В терминах Интернета, это означает, что вам нужно использовать FTP клиента. И если вы не желаете, подобно мне использовать настоящего FTP клиента, то просто напишите, как и я своего собственного клиента... </p>
+3.4.4.1. FTP</p>
+Как я сказал во введении, FTP означает File Transfer Protocol, который описан в which RFC 959. Модель связи FTP может быть реализована с помощью сокетов, но это более низкоуровневое решение и если вы посмотрите спецификацию, то поймети, что написание программы FTP клиента с нуля не такая уж простая задача. С другой стороны, мы можем использовать NetManage TFTP компонент из Delphi 2.01 (и выше) и C++Builder. Я пробовал использовать этот компонент несколько раз, и нашел его просто глюкавым, особенно для файлов свыше 10 Kb. Я могу понять, почему Microsoft (первый разработчик Internet Solutions Pack) не захотела использовать его и продала затем NetManage, которая тоже не справилась с ним и продала далее фирме NetMasters. Проблема в том, что Internet Solutions Pack - хотя и бесплатный - основан на наборе с ограничениями ActiveX, и каждая компания которая использует его также имеет более лучшее решение (обычно не бесплатно). Поддержка и документация всегда отвратительная... </p>
+Так что же, назад к низкоуровневому программированию? Ни в коем случае. Как всегда на помощь приходит Microsoft </p>
+3.4.4.2. WinInet</p>
+Некоторое время назад, Microsoft выпустила WinInet, который ни что иное, как промежуточный слой между высоким и нижним уровнем программирования Internet API специально для Win32 программистов. WinInet Является интерфейсом высокого уровня для протоколов нижнего уровня, таких как HTTP и FTP. Использование его действительно просто, и хорошо, что модуль WinInet.PAS с API определениями уже включен в Delphi 2.x и выше!</p>
+Имеется также большой документ, описывающий все детали WinInet API, который может быть найден на сайте Microsoft (но его местонахождение постоянно меняется, так что нужно использовать систему поиска, для загрузки&nbsp; последней версии документа). </p>
+От переводчика: можно взять на моем сайте со страницы http://nps.vnet.ee/internet.html</p>
+3.4.4.3. DrBob FTP</p>
+WinInet использует не что, что они назвали Интернет хендл "internet handle" (очень похоже на Windows handles), и все API функции или нуждаются или возвращают Интернет хендл. Например, что бы открыть новую WinInet сессию, нам нужно вызвать функцию InternetOpen, которая вернет Интернет хендл, который мы должны использовать до конца сессии (и передавать другим API функциям). Для освобождения хендла, мы всегда должны вызывать функцию InternetCloseHandle (после получения хендла мы можем его использовать, но мы обязаны написать блок try-finally, где должны освободить хендл в разделе finally). </p>
+Для открытия удаленного файла (или URL) в Интернете, мы должны вызвать функцию InternetOpenURL, которая опять вернет нам хендл. Теперь, для загрузки удаленного файла (URL) на нашу локальную машину, нам осталось сделать только некоторое количество вызовов функции InternetReadFile, очень похожей на функцию BlockRead, которая копирует данные из удаленного файла в буфер данных. Мы можем использовать BlockWrite для записи из буфера в локальный файл, и все это с помощью всего лишь трех WinInet функций (четыре, если считать функцию InternetCloseHandle), мы можем написать простую, но очень быструю FTP программу следующим образом: </p>
+<pre name="code" class="delphi">
+program DrBobFTP;
+  {$APPTYPE CONSOLE}
+  {$I+}
+  uses
+    Windows, WinInet;
+ 
+    procedure CopyURL(const URL, OutputFile: String);
+    const
+      BufferSize = 1024;
+    var
+      hSession, hURL: HInternet;
+      Buffer: Array[0..Pred(BufferSize)] of Byte;
+      BufferLength: DWORD;
+      f: File;
+    begin
+      hSession := InternetOpen('DrBob',INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
+      try
+        hURL := InternetOpenURL(hSession, PChar(URL), nil,0,0,0);
+        try
+          Assign(f, OutputFile);
+          Rewrite(f,1);
+          repeat
+            InternetReadFile(hURL, @Buffer, BufferSize, BufferLength);
+            write('.');
+            BlockWrite(f, Buffer, BufferLength)
+          until BufferLength = 0;
+          Close(f);
+          writeln('OK') { if we get here, we succeeded }
+        finally
+          InternetCloseHandle(hURL)
+        end
+      finally
+        InternetCloseHandle(hSession)
+      end
+    end;
+ 
+  begin
+    if ParamCount &lt;2 &gt;then
+    begin
+      writeln('Usage: DrBobFTP URL Filename');
+      writeln('Example: DrBobFTP http://www.drbob42.com/ftp/headconv.zip hc.zip')
+    end
+    else
+      CopyURL(ParamStr(1), ParamStr(2))
+  end.
+</pre>
+&nbsp;</p>
+Конечно, для выполнения данной программы мы также обязаны иметь WinInet.DLL, которая также может быть найдена на Microsoft web сайте. </p>
+&nbsp;</p>
+<p>Интернет решения от доктора Боба (http://www.drbob42.com)</p>
+<p>(c) 2000, Анатолий Подгорецкий, перевод на русский язык (<a href="http://nps.vnet.ee/ftp" target="_blank">http://nps.vnet.ee/ftp</a>)</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

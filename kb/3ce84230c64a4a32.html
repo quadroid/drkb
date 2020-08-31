@@ -1,0 +1,57 @@
+<html>
+<head>
+  <title>Как сделать popup меню при щелчке иконке в tray?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как сделать popup меню при щелчке иконке в tray?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Многие программы показывают Pop-Up меню при щелчке на их иконке,&nbsp; помещенной на Tray, как этого добиться ?</p>
+
+<p>Вы&nbsp; должны&nbsp; обрабатывать сообщение, указанное вами при добавлении&nbsp;&nbsp; иконки&nbsp; на Tray. При значении (UINT)lParam, равном WM_RBUTTONDOWN&nbsp; (это обычно дял Pop-Up меню по правой кнопке), или любому другому&nbsp; необходимому&nbsp;&nbsp; вам,&nbsp; вы&nbsp; должны&nbsp; вызовом&nbsp; функции&nbsp; GetCursorPos()&nbsp; получить&nbsp; позицию&nbsp; курсора в момент события (вряд ли пользователь&nbsp;&nbsp;&nbsp;&nbsp; успеет&nbsp; убрать&nbsp; мышь&nbsp; за время обработки сообщения, особенно если&nbsp;&nbsp; он ожидает меню), получить вескриптор Pop-Up меню одним из многих&nbsp; способов&nbsp; (LoadMenu(),&nbsp; GetSubMenu(),&nbsp; CreateMenu(),&nbsp; и&nbsp; т.д.)&nbsp; и&nbsp;&nbsp;&nbsp; выполнить следующий код:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </p>
+<pre name="code" class="delphi">
+SetForegroundWindow(hWnd);
+TrackPopupMenuEx(hMenu,TPM_HORIZONTAL|TPM_LEFTALIGN,x, y,hWnd, NULL);
+DestroyMenu(hMenu);
+PostMessage(hWnd,WM_USER,0,0);    
+</pre>
+
+<p>где&nbsp; hWnd&nbsp; -&nbsp; дескриптор окна, которое будет обрабатывать команду&nbsp; меню,&nbsp; </p>
+<p>hMenu - дескриптор меню, </p>
+<p>x&nbsp; и&nbsp; y&nbsp; -&nbsp; позиция&nbsp; курсора. </p>
+
+<p>Для подробностей смотрите Win32 SDK Help по функции TrackPopupMenuEx.</p>
+
+<p>Взято из FAQ: </p>
+<a href="http://blackman.km.ru/myfaq/cont4.phtml]http://blackman.km.ru/myfaq/cont4.phtml" target="_blank">http://blackman.km.ru/myfaq/cont4.phtml]http://blackman.km.ru/myfaq/cont4.phtml</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

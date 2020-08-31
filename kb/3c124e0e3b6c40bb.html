@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>Запуск процесса в контексте другого пользователя</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Запуск процесса в контексте другого пользователя</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<pre name="code" class="delphi">
+uses
+  JwaWinBase; ( http://members.chello.nl/m.vanbrakel2/ )
+ 
+//...
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var 
+  si: STARTUPINFOW; 
+  pif: PROCESS_INFORMATION; 
+  res: Bool;
+  s: string;
+begin
+  //set StartUpInfoW first
+  si.cb := SizeOf(startupinfow);
+  si.dwFlags  := STARTF_USESHOWWINDOW;
+  si.wShowWindow := SW_SHOWDEFAULT;
+  si.lpReserved := nil;
+  si.lpDesktop := nil;
+  si.lpTitle := 'Konsole';
+  // run CreateProcessWithLogonW...
+  res := CreateProcessWithLogonW('Security', 'ArViCor', 'test', LOGON_WITH_PROFILE,
+    'c:\win2kas\system32\regedt32.exe', nil
+    , CREATE_DEFAULT_ERROR_MODE, nil, nil, si, pif);
+  if booltostr(res) = '0' then 
+  begin
+ 
+    //if an error occures, show the error-code
+    //this code can be 'translated' with 'net helpmsg ' on command-prompt
+    str(GetLastError, s);
+    ShowMessage('CreateProcessWithLogonResult: ' + booltostr(res) + #10 +
+      'GetLastError: ' + s);
+  end;
+end;
+</pre>
+
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

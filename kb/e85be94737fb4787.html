@@ -1,0 +1,99 @@
+<html>
+<head>
+  <title>Алгоритм шифрование XOR</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Алгоритм шифрование XOR</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+program Crypt;
+{$APPTYPE CONSOLE}
+ 
+uses Windows;
+ 
+var
+  key, text, longkey, result : string;
+  i : integer;
+  toto, c : char;
+  F : TextFile;
+begin
+  writeln('Enter the key:');
+  readln(key);
+  writeln('Enter the text:');
+  readln(text);
+ 
+  for i := 0 to (length(text) div length(key)) do
+    longkey := longkey + key;
+ 
+  for i := 1 to length(text) do
+  begin
+    // XOR алгоритм
+    toto := chr((ord(text[i]) xor ord(longkey[i])));
+    result := result + toto;
+  end;
+  writeln('The crypted text is:');
+  writeln(result);
+  write('Should i save it to result.txt ?');
+  read(c);
+  if c in ['Y','y'] then
+  begin
+    AssignFile(F,'result.txt');
+    Rewrite(F);
+    Writeln(F,result);
+    CloseFile(F);
+  end;
+end.
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr />
+<p id="author">Автор: Igor N. Semenushkin </p>
+<p>Вот ужасно простой пример XOR шифрования - работает без глюков.</p>
+<pre name="code" class="delphi">
+var
+  key, text, longkey, result: string;
+  i: integer;
+  toto, c: char;
+begin
+  for i := 0 to (length(text) div length(key)) do
+    longkey := longkey + key;
+  for i := 1 to length(text) do
+  begin
+    toto := chr((ord(text[i]) xor ord(longkey[i]))); // XOR алгоритм
+    result := result + toto;
+  end;
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

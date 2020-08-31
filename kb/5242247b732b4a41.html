@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>Функция передачи строк (а заодно и числа) между программами через SendMessage</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Функция передачи строк (а заодно и числа) между программами через SendMessage</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+Function SendString(TargetWnd, SourceWnd: THandle; N: Integer; Const S: String): Integer;
+Var
+  CD: TCopyDataStruct;
+Begin
+  CD.dwData := N;
+  CD.cbData := Length(S);
+  If CD.cbData = 0  Then
+    CD.lpData := NIL
+  Else CD.lpData := @S[1];
+  Result := SendMessage(TargetWnd, WM_COPYDATA, SourceWnd, Integer(@CD));
+End;
+...
+Procedure WMCopyData(Var Msg: TWMCopyData); Message WM_COPYDATA;
+...
+Procedure TForm1.WMCopyData(var Msg: TWMCopyData);
+Var
+ { Строка }
+  S: String;
+ { Число }
+  N: Integer;
+Begin
+  If (Msg.CopyDataStruct^).lpData = NIL Then S := ''; 
+  SetLength(S,Msg.CopyDataStruct^.cbData);
+  S := String((Msg.CopyDataStruct^).lpData);
+  N := (Msg.CopyDataStruct^).dwData;
+End;
+</pre>
+<p id="author">Автор: Rrader</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

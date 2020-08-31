@@ -1,0 +1,90 @@
+<html>
+<head>
+  <title>Можно ли обратиться к колонке или строке grid'а по заголовку?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Можно ли обратиться к колонке или строке grid'а по заголовку?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В следующем примере приведены две функции: GetGridColumnByName() и GetGridRowByName(), которые возвращают колонку или строку, имеющую заданный заголовок (caption). </p>
+<pre name="code" class="delphi">
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  StringGrid1.Rows[1].Strings[0] := 'This Row';
+  StringGrid1.Cols[1].Strings[0] := 'This Column';
+end;
+ 
+function GetGridColumnByName(Grid: TStringGrid; ColName: string): integer;
+var
+  i: integer;
+begin
+  for i := 0 to Grid.ColCount - 1 do
+    if Grid.Rows[0].Strings[i] = ColName then
+      begin
+        Result := i;
+        exit;
+      end;
+  Result := -1;
+end;
+ 
+function GetGridRowByName(Grid: TStringGrid; RowName: string): integer;
+var
+  i: integer;
+begin
+  for i := 0 to Grid.RowCount - 1 do
+    if Grid.Cols[0].Strings[i] = RowName then
+      begin
+        Result := i;
+        exit;
+      end;
+  Result := -1;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  Column: integer;
+  Row: integer;
+begin
+  Column := GetGridColumnByName(StringGrid1, 'This Column');
+  if Column = -1 then
+    ShowMessage('Column not found')
+  else
+    ShowMessage('Column found at ' + IntToStr(Column));
+  Row := GetGridRowByName(StringGrid1, 'This Row');
+  if Row = -1 then
+    ShowMessage('Row not found')
+  else
+    ShowMessage('Row found at ' + IntToStr(Row));
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

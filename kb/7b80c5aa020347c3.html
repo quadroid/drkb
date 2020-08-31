@@ -1,0 +1,81 @@
+<html>
+<head>
+  <title>Смешать два изображения</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Смешать два изображения</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Вадим Исаенко</p>
+<p>WEB-сайт: http://v-isa.narod.ru </p>
+<p>Модуль MyGraph.pas включает в себя только одну процедуру, позволяющую смешать 2 изображения. Такая функция может быть полезна для получения различных эффектов, а также для нанесения на изображение "водяных знаков". </p>
+<pre name="code" class="delphi">
+unit MyGraph;
+ 
+interface
+ 
+uses Graphics;
+ 
+procedure MixBMP(BM1, BM2: TBitMap; var BM: TBitMap);
+ 
+implementation
+ 
+procedure MixBMP(BM1, BM2: TBitMap; var BM: TBitMap);
+var
+  I, J: Integer;
+  MinW, MinH: Integer;
+begin
+  BM := TBitMap.Create;
+  if BM1.Width &lt; BM2.Width then
+    MinW := BM1.Width
+  else
+    MinW := BM2.Width;
+  if BM1.Height &lt; BM2.Height then
+    MinH := BM1.Height
+  else
+    MinH := BM2.Height;
+  BM.Width := MinW;
+  BM.Height := MinH;
+  for I := 0 to MinW do
+    for J := 0 to MinH do
+      if (Odd(I) and Odd(J)) or ((not (Odd(I))) and (not (Odd(J)))) then
+        BM.Canvas.Pixels[I, J] := BM1.Canvas.Pixels[I, J]
+      else
+        BM.Canvas.Pixels[I, J] := BM2.Canvas.Pixels[I, J];
+end;
+ 
+begin
+end.
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

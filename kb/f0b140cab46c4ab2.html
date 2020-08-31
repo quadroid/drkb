@@ -1,0 +1,197 @@
+<html>
+<head>
+  <title>Создание компонентов в Delphi</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создание компонентов в Delphi</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Перед созданием своего компонента нужно выбрать для него предка. Кто же может быть предком для вашего компонента?&nbsp; Как правило, используются в виде предков TComponent, TControl, TWinControl, TGraphicControl, TCustomXXXXXX, а также все компоненты палитры компонентов. Возьмем для примера компонент TOpenDialog, который находится на странице Dialogs палитры компонентов. Он хорошо справляется со своей задачей, но у него есть одно маленькое неудобство. Каждый раз, когда его используешь необходимо каждый раз изменять значение свойства Options. И причем это, как правило, одни и те же действия. </p>
+<pre name="code" class="delphi">
+OpenDialog1.Options := OpenDialog1.Options + [ofFileMustExist, ofPathMustExist];
+</pre>
+<p>чтобы файл, который мы пытаемся открыть с помощью этого диалогового окна, действительно существовал на диске.<br>
+Задание для себя мы уже выбрали, осталось за малым - создать компонент. Заготовку для компонента создаем, выбирая из меню команду Component/New Component... и в диалоговом окне выбираем <br>
+Ancestor type: TOpenDialog<br>
+Class Name: TOurOpenDialog<br>
+Palette Page: Our Test<br>
+Нажали Ok и у нас появился шаблон нашего будущего компонента.<br>
+&nbsp;<br>
+<p>Переопределяем конструктор у этого компонента, т.е. в секции public вставляем строку:</p>
+<pre name="code" class="delphi">
+constructor Create(AOwner: TComponent); override;
+</pre>
+<p>нажатие на этой строке Ctrl + Shift + C создает шаблон для этого метода, внутри которого мы вставляем такие строки:<br>
+<p>&nbsp;</p>
+<pre name="code" class="delphi">
+inherited Create(AOwner); {Вызываем унаследованный конструктор}
+Options := Options + [ofFileMustExist, ofPathMustExist]; {Выполняем необходимые нам действия}
+</pre>
+<p>&nbsp;<br>
+Обратите внимание: Комбинации клавиш Ctrl + Shift + стрелки вверх/вниз позволяют перемещаться между объявлением метода и его реализацией.<br>
+&nbsp;<br>
+Установка созданного компонента Component/Install Component...<br>
+Install Into New Package<br>
+Package file name: C:\Program Files\Borland\Delphi4\Lib\OurTest.dpk<br>
+Package description: Our tested package<br>
+&nbsp;<br>
+Вам не нравится, что у нашего компонента иконка такая же как у стандартного? Тогда создадим для него свою собственную. Для этого нам необходимо вызвать Tools/Image Editor. Создаем новый *.dcr файл. <br>
+<p>Вставляем в него рисунок Resource/New/Bitmap. Устанавливаем размер картинки 24x24 точек. А дальше - ваше творчество... Обратите внимание: цвет точек, совпадающий с цветом точки в левом нижнем углу рисунка, будет считаться ПРОЗРАЧНЫМ! После того как вы создали свой рисунок, переименуйте его из Bitmap1 в TOurOpenDialog и сохраните файл с именем OurOpenDialog.dcr. Удалите компонент из пакета и установите его снова (только в этом случае добавится и ссылка на *.dcr файл). Compile, Install и удачи!</p>
+<pre name="code" class="delphi">
+{======================================================}
+unit OurOpenDialog;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs;
+
+type
+  TOurOpenDialog = class(TOpenDialog)
+  private
+    { Private declarations }
+  protected
+    { Protected declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+  published
+    { Published declarations }
+  end;
+
+procedure register;
+
+implementation
+
+procedure register;
+begin
+  RegisterComponents('Samples', [TOurOpenDialog]);
+end;
+
+{ TOurOpenDialog }
+
+constructor TOurOpenDialog.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner); {Вызываем
+унаследованный конструктор}
+  Options := Options + [ofFileMustExist, ofPathMustExist]; 
+  {Выполняем необходимые нам действия}
+end;
+end.
+</pre>
+<p>Объявление компонента состоит из секций, таких как private, protected, public и published. Что они означают? <br>
+Это директивы видимости. Все что объявлено в секции private, доступно только внутри модуля в котором объявлен класс (приватные объявления). Здесь как правило объявляются переменные, в которых хранятся значения свойств, а также методы (процедуры или функции) доступа к ним. Все что объявлено в секции protected, доступно как и в секции private, а также наследникам данного класса (интерфейс разработчика). Здесь можно объявить методы доступа к значениям свойств (если вы хотите позволить изменять эти методы потомкам вашего компенента), <br>
+а также свойства, методы и события (методы реакции на события) в компонентах типа TCustomXXX. <br>
+Все что объявлено в секции public, доступно любому пользователю компонента (интерфейс этапа выполнения). <br>
+<p>Здесь объявляются, как правило методы. В секции published можно объявлять только свойства и события (они объявляются в виде свойств). Они доступны во время проектирования приложения (интерфейс этапа проектирования). </p>
+<p class="p_Heading1">&nbsp;</p>
+<p class="p_Heading1">Свойства</p>
+<p>Свойства типа масив - обычные массива Object Pascal, но в отличии от последних могут индексироваться не только числовыми значениями но и строковыми. К сожалению этот тип свойства требует пользовательского редактора свойств (в инспекторе объектов редактор свойства имеет кнопку с тремя точками [...]), по-этому в указанном ниже примере свойство ArrayProp объявлено в секции public. </p>
+<pre name="code" class="delphi">
+type
+  TOurComponent = class(TComponent)
+  private
+    { Private declarations }
+    FArrayProp: array[0..9] of integer;
+    function GetArrayProp(aIndex: integer): integer;
+    procedure SetArrayProp(aIndex: integer; const
+Value: integer);
+  protected
+    { Protected declarations }
+  public
+    { Public declarations }
+    property ArrayProp[aIndex: integer]: integer read
+GetArrayProp 
+    write SetArrayProp;
+  published
+    { Published declarations }
+  end;
+</pre>
+<p>Спецификаторы свойств</p>
+<p>Спецификатор default указывает сохранять значение свойства в файле формы или нет. Если значение свойства совпадает со значением default - значение в файле формы не сохраняется, если значения не равны - сохраняется. Это можно проверить, положив компонент на форму и выбрать правой кнопкой мыши пункт меню "View as Text". Default не устанавливает первоначальное значение свойства к указанному. Это необходимо сделать в конструкторе компонента.</p>
+<pre name="code" class="delphi">unit OurComponent;
+ 
+interface
+ 
+uses Windows, SysUtils, Classes, Graphics, Forms, Controls;
+ 
+type
+  TOurComponent = class(TComponent)
+  private
+    { Private declarations }
+    FMyInteger: Integer;
+  protected
+    { Protected declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+  published
+    { Published declarations }
+    property MyInteger: Integer read FMyInteger
+write FMyInteger default 10;
+  end;
+ 
+implementation
+ 
+constructor TOurComponent.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FInteger := 10;
+end;
+ 
+end.
+</pre>
+<p>Спецификатор nodefault отменяет заданное по умолчанию значение свойства. Этот спецификатор, как правило, используется для отмены заданого по умолчанию значения унаследованного свойства.</p>
+<p>&nbsp;<br>
+<p>Например:</p>
+<pre name="code" class="delphi"> property AutoSize nodefault;
+</pre>
+<p>Спецификатор stored указывает когда сохранять в файле формы значение свойства. После stored может стоять true (всегда сохранять), false (никогда не сохранять) или название функции, которая возвращает логический результат.</p>
+<pre name="code" class="delphi">
+property OneProp: integer read FOneProp
+write
+SetOneProp 
+stored False;
+    property TwoProp: integer read FTwoProp
+write
+SetTwoProp 
+stored True;
+    property ThreeProp: integer read FThreeProp
+write SetThreeProp 
+stored Fuct;
+</pre>
+
+<p>Дата: 12.02.2004<br>
+<p id="author">Автор: Александр Василевский</p>
+<p>Источник: <a href="http://alvas.hypermart.net/" target="_blank">http://alvas.hypermart.net/</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

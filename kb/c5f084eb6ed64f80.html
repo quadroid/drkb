@@ -1,0 +1,64 @@
+<html>
+<head>
+  <title>Можно ли работать и создавать, редактировать документы, используя объект Word.Basic?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Можно ли работать и создавать, редактировать документы, используя объект Word.Basic?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Можно работать с документами Word, используя Word.Basic. Для этого вначале создаем объект W:=CreateOleObject('Word.Basic'). Чтобы открыть файл, используем W.FileOpen('Путь и имя файла'). Для сохранения файла используем W.FileSave. Для поиска строки используем W.EditFind ('текст'), после чего оцениваем результат поиска W.EditFindFound и т.д. Объект Word.Application имеет больше возможностей, поэтому лучше использовать его.</p>
+&nbsp;<br>
+<p>Уточнение по работе с "Офисом XP" (замечание автора)</p>
+Для работы в "Офисе XP" пришлось аргументы типа real заменить аргументами типа extended. Это пришлось сделать во всех функциях, особенно там, где необходимо установить координаты расположения объектов. Смотрите пример изменения координат и размеров объекта TextBox:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 0px;"><pre name="code" class="delphi">
+Function SetPosZizeTextBox(TextBox:variant;
+  Left,Top,Width,Height:real):boolean;
+ const msoTextBox=17;
+ var l_,t_,w_,h_:Extended;
+begin
+ SetPosZizeTextBox:=true;
+ try
+  l_:=Left; t_:=Top; w_:=Width; h_:=Height;
+  if w.ActiveDocument.Shapes.Item(TextBox).Type=msoTextBox
+ &nbsp; then begin
+ &nbsp;&nbsp; W.ActiveDocument.Shapes.Item(TextBox).Left:=l_;
+ &nbsp;&nbsp; W.ActiveDocument.Shapes.Item(TextBox).Top:=t_;
+ &nbsp;&nbsp; W.ActiveDocument.Shapes.Item(TextBox).Width:=w_;
+ &nbsp;&nbsp; W.ActiveDocument.Shapes.Item(TextBox).Height:=h_;
+ &nbsp; end
+ &nbsp; else SetPosZizeTextBox:=false;
+ except
+  SetPosZizeTextBox:=false;
+ end;
+End;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

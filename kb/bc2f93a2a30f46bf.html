@@ -1,0 +1,88 @@
+<html>
+<head>
+  <title>Удаление ненужных подстрок из строки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Удаление ненужных подстрок из строки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure RemoveInvalid(what, where: string): string;
+// what - удаляемая подстрока, where - обрабатываемая строка
+var
+  tstr: string;
+begin
+  tstr:=where;
+  while pos(what, tstr)&gt;0 do
+    tstr:=copy(tstr,1,pos(what,tstr)-1) +
+  copy(tstr,pos(what,tstr)+length(tstr),length(tstr));
+  Result:=tstr;
+end; 
+ 
+ 
+ 
+ 
+//Применение: 
+ 
+ 
+ 
+NewStr:=RemoveInvalid('&lt;брак&gt;','Этот &lt;брак&gt; в моей строке, и я хочу
+удалить из нее этот &lt;брак&gt;');
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+<hr /><p>Используйте стандартную функцию Pascal DELETE...</p>
+<p>Пользуясь тем же примером, вы можете сделать так....</p>
+<pre name="code" class="delphi">Target:='&lt;брак&gt;';
+While POS(Target,string)&gt;0 do
+begin
+  P := POS(Target,string);
+  DELETE(string,P,Length(Target));
+end;
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+<hr />
+<p>Всё даже проще:</p>
+<pre name="code" class="delphi">
+
+Result:=StringReplace(ИсходнаяСтрока,ТоЧтоНадоУдалить,'',[rfReplaceAll])
+</pre>
+
+<p id="author">Автор: Vit</p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<html>
+<head>
+  <title>Пример создания хранимой процедуры</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Пример создания хранимой процедуры</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="sql">
+Create Procedure MyStoredProcedure
+  @Parameter1 varchar(50),
+  @Parameter2 int,
+  @OutputParameter varchar(100) output
+As
+Begin
+   Set @Parameter1=isNull(@Parameter1, '')
+   Set @OutputParameter=@Parameter1+cast(@Parameter2 as varchar(10))
+   Return 0
+End
+</pre>
+
+<p>Примечания:</p>
+
+<p>1) Begin..End для обрамления процедуры не обязательны. Дельфи приучил меня </p>
+их использовать и мне легче читать с ними код, но вполне можно обходится и без них.
+На ваше усмотрение:
+<p>&nbsp;</p>
+<pre name="code" class="sql">
+Create Procedure MyStoredProcedure
+  @Parameter1 varchar(50),
+  @Parameter2 int,
+  @OutputParameter varchar(100) output
+As
+   Set @Parameter1=isNull(@Parameter1, '')
+   Set @OutputParameter=@Parameter1+cast(@Parameter2 as varchar(10))
+   Return 0
+</pre>
+
+<p>&nbsp;</p>
+<p>2) Хранимая процедура всегда должна создаваться отдельным SQL запросом. Нельзя создать одним запросом несколько хранимых процедур. При написании скрипта для Query Analyser для создания нескольких процедур можно использовать директиву GO, которая воспринимается Query Analyser'ом как разделить отдельных запросов:</p>
+<pre name="code" class="sql">
+Create Procedure MyStoredProcedure
+  @Parameter1 varchar(50),
+  @Parameter2 int,
+  @OutputParameter varchar(100) output
+As
+Begin
+   Set @Parameter1=isNull(@Parameter1, '')
+   Set @OutputParameter=@Parameter1+cast(@Parameter2 as varchar(10))
+   Return 0
+End
+Go
+ 
+Create Procedure MyStoredProcedure2
+As
+Select GetDate()
+Go
+</pre>
+
+<p>Директива GO не является оператором SQL и при выполнения запроса из клиентского приложения не будет пониматься. Кроме того директиву GO невозможно закоментировать.</p>
+
+<hr />
+
+<p>Пример её вызова:</p>
+
+<pre name="code" class="sql">
+Declare @Param1 varchar(50), @Param2 int, @OutputParam varchar(100)
+ 
+Select @Param1='Просто строка ', @Param2=2
+ 
+Exec MyStoredProcedure
+  @Parameter1=@Param1,
+  @Parameter2=@Param2,
+  @OutputParameter=@OutputParam output
+ 
+Select @OutputParam
+</pre>
+
+<p id="author">Автор: Vit</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

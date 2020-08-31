@@ -1,0 +1,60 @@
+<html>
+<head>
+  <title>Подмена данных в визуальных DB-компонентах</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Подмена данных в визуальных DB-компонентах</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>у всех TField существует свойство DisplayText которое используется всеми визуальными компонентами чувствительными к данным (DataAware), в том числе и TDBGrid'ом. Т.е. TDBGrid выводит именно это свойство. В свою очередь, значение этого свойства по умолчанию равно значению из поля БД, с учетом свойства DisplayFormat (у кого оно есть). Но это по умолчанию.</p>
+<p>Реально-же, у всех TField есть событие OnGetText. Если оно определено для поля, то DisplayText этого поля будет возвращать то, что вернет OnGetText.</p>
+<p>Словами слишком запутанно, проще на примере:</p>
+<p>Если поля созданы в дизайнере, то требуемому полю (например FFF) вешаем обработчик FFFOnGetText событию OnGetText.</p>
+<p>Если-же поля создаются динамически, то соответственно вешаем обработчик динамически.</p>
+<p>Пример обработчика:</p><pre name="code" class="delphi">
+procedure FFFOnGetText(Sender: TField; var Text: string; DisplayText: Boolean); 
+begin 
+  if DisplayText then Text := AnsiUpperCase(Text); 
+end;
+</pre>
+
+<p>С таким обработчиком, в поле FFF DBGrid'а, все символы будут заглавными, вне зависимости какие они в БД.</p>
+<p>Естественно в БД они не меняются. При этом возникает интересный эффект. Если вы начнете редактировать поле FFF, то оно приобретет вид такой как в БД , до тех пор пока Вы не закончите редактирование.</p>
+<p>Естественно это работает и для TDBEdit и пр.</p>
+
+<p>Этот способ удобно применять когда нужно выполнить только текстовое преобразование для отображения значения поля.</p>
+
+
+<p id="author">Автор: Петрович</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

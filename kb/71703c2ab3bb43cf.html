@@ -1,0 +1,88 @@
+<html>
+<head>
+  <title>Поиск n-ого вхождения подстроки в строку</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Поиск n-ого вхождения подстроки в строку</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Поиск N-ого вхождения подстроки в строку
+ 
+Зависимости: SysUtils
+Автор:       panov, panov@hotbox.ru, Екатеринбург
+Copyright:   panov
+Дата:        19 апреля 2002 г.
+***************************************************** }
+ 
+function SearchString(const FindStr, SourceString: string; Num: Integer):
+  Integer;
+var
+  FirstSym: PChar; //Ссылка на первый символ
+ 
+  function MyPos(const FindStr, SourceString: PChar; Num: Integer): PChar;
+  begin
+    Result := AnsiStrPos(SourceString, FindStr);
+      //Поиск вхождения подстроки в строку
+    if (Result = nil) then
+      Exit; //Подстрока не найдена
+    Inc(Result); //Смещаем указатель на следующий символ
+    if Num = 1 then
+      Exit; //Если нужно первое вхождение - заканчиваем
+    if num &gt; 1 then
+      Result := MyPos(FindStr, Result, num - 1);
+    //Рекурсивный поиск следующего вхождения
+  end;
+ 
+begin
+  FirstSym := PChar(SourceString);
+  //Присваиваем адрес первого символа исходной строки
+  Result := MyPos(PChar(FindStr), PChar(SourceString), Num) - FirstSym;
+  //Номер позиции в строке
+  if Result &lt; 0 then
+    Result := 0; //Возвращаем номер позиции
+end;
+//Пример использования: 
+ 
+var
+  StrF, StrSrc: string;
+  n: Integer;
+begin
+  ...
+  StrF := 'стр';
+  StrSrc := 'Поиск подстроки в строке';
+  n := SearchString(StrF, StrSrc, 2); //n будет равна 19
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

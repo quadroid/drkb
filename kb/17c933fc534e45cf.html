@@ -1,0 +1,170 @@
+<html>
+<head>
+  <title>Определить, установлен ли Adobe Flash</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Определить, установлен ли Adobe Flash</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+program SeekFlash;
+ 
+ uses
+   Forms, Windows, INIFiles, SysUtils, Dialogs, ShellApi;
+ 
+ {$R *.RES}
+ 
+ type
+   TVersionInfo = record
+     dwSignature,
+     dwStrucVersion,
+     dwFileVersionMS,
+     dwFileVersionLS,
+     dwProductVersionMS,
+     dwProductVersionLS,
+     dwFileFlagsMask,
+     dwFileFlags,
+     dwFileOS,
+     dwFileType,
+     dwFileSubtype,
+     dwFileDateMS,
+     dwFileDateLS: DWORD;
+   end;
+ 
+ 
+ var
+   //Reg:TRegistry; 
+  Ini: TIniFile;
+   Text: array[1..4] of string;
+ 
+   AppPath, IniFile, MySec: string;
+   SetupFile, RunFile, SetupClass: string;
+ 
+   VersionStr, BrowserStr: string;
+ 
+   {RegSubKey,} OpenBrowser, PlugInName, UseExt: string;
+   MainVersion: Word;
+   // FoundOne :Boolean; 
+ 
+  PVer, DPchar, POpenBrowser: PChar;
+   MyPoint: Pointer;
+   PLen: Cardinal;
+   version: ^TVersionInfo;
+   DumD: DWORD;
+   LWord, HWord: Word;
+ 
+   CheckHandle: Hwnd;
+ 
+   //--------------------------- 
+  //Gets the Plugin (file-) Version 
+  //--------------------------- 
+procedure GetVersion(pluginName: string);
+ begin
+   DPChar := StrAlloc(255);
+   DPchar := PChar(PluginName);
+ 
+   PVer := StrAlloc(getFileVersionInfoSize(DPchar, Plen));
+   getFileVersionInfo(DPChar, 0, 255, PVer);
+   VerQueryValue(Pver, '\', MyPoint, Plen);
+ 
+   Version := myPoint;
+ 
+   dumD  := Version.dwFileVersionMS;
+   hword := dumD shr 16;
+   lword := dumD and 255;
+ 
+   MainVersion := hword;
+   VersionStr  := IntToStr(Hword) + '.' + IntToStr(LWord);
+ 
+   dumD  := Version.dwFileVersionLs;
+   hword := dumD shr 16;
+   lword := dumD and 255;
+ 
+   versionStr := versionStr + '.' + IntToStr(Hword) + '.' + IntToStr(lWord);
+ end;
+ 
+ begin
+   appPath := extractFileDir(Application.exeName);
+ 
+ 
+   // runFile:= 'test.htm'; 
+  //runFile must be a html File to determin wich browser(NC or IE) is used 
+  POpenBrowser := StrAlloc(255);
+   FindExecutable(PChar(extractFileName(runFile)),
+     PChar(extractFileDir(runFile)), POpenBrowser);
+   OpenBrowser := POpenBrowser;
+ 
+   if not Fileexists(openBrowser) then
+   begin
+     MessageDlg(Text[4], mtInformation, [mbOK], 0);
+     halt;
+   end;
+ 
+ 
+   //set the FileLocations for Netscape or IE 
+  if Pos('NETSCAPE.EXE', uppercase(trim(OpenBrowser))) &lt;&gt; 0 then
+   begin //found Netscape 
+    BrowserStr := 'Netscape Comunicator';
+     PlugInName := Copy(OpenBrowser, 1, Pos('NETSCAPE.EXE',
+       uppercase(trim(OpenBrowser))) - 1);
+     PluginName := PlugInName + 'Plugins\NPSWF32.dll';
+   end
+   else
+   //found IEExplorer 
+  begin
+     BrowserStr := 'Internet Explorer';
+ 
+     DPChar := StrAlloc(255);
+     GetSystemDirectory(DPChar, 255);
+     PluginName := DPChar + '\Macromed\Flash\swflash.ocx';
+     DPChar     := nil;
+   end;
+ 
+   GetVersion(pluginName);
+ 
+   //returned Version Number, may be checked 
+  while mainVersion &lt; 4 do
+   begin
+     if messagedlg(Text[2], mtInformation, [mbYes, mbNo], 0) = 6 then
+     begin
+       //installFlash; 
+    end
+     // if message 
+    else
+       halt;
+ 
+     getVersion(pluginName);
+   end; // while mainVer 
+end.
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

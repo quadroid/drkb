@@ -1,0 +1,61 @@
+<html>
+<head>
+  <title>Создание RES-файла с помощью BRCC.EXE</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создание RES-файла с помощью BRCC.EXE</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Данный метод обходит проблемы, связанные с Image Editor. </p>
+
+<p>В каталоге \DELPHI\BIN имеется утилита коммандной строки, названная BRCC.EXE, позволяющая создавать из файлов, содержащих изображения/иконки, RES-файлы, в обход Image Editor. (Тем не менее, Image Editor хорошо работает при создании или редактировании файлов с изображениями или курсорами. Проблемой был импорт.) </p>
+
+<p>Resource File Compiler описан в справке Windows API help в главе Windows Tools (где вы также можете прочесть о RC.EXE как о BRCC.EXE!). Это сэкономит вам какое-то время! </p>
+
+<p>Сначала, используя Блокнот, создайте файл определения ресурса (Resource Definition) (текстовый) с именем, скажем, MYRES.RC (с обязательным расширением RC). Разместите, каждую на отдельной строке, ссылки на изображения, иконки, и т.п., которые вы хотели бы включить в RES-файл, например:</p>
+
+<p>BITMAP1 BITMAP&nbsp; &lt;путь&gt;&lt;имя файла&gt;</p>
+<p>BITMAP2 BITMAP&nbsp; &lt;путь&gt;&lt;имя файла&gt;</p>
+<p>CURSOR1 CURSOR&nbsp; &lt;путь&gt;&lt;имя файла&gt;</p>
+<p>ICON1&nbsp;&nbsp; ICON&nbsp;&nbsp;&nbsp; &lt;путь&gt;&lt;имя файла&gt;</p>
+
+<p>Затем (это не обязательно, но сохранит массу времени, особенно если вы экспериментируете), в том же каталоге создайте BAT-Файл, вызывающий программу для компиляции каждого ресурса:</p>
+<p>"C:\DELPHI\BIN\BRCC/R %1"</p>
+
+<p>Назовите его, скажем, MAKERES.BAT. </p>
+
+<p>Перейдите в DOS и в каталоге проекта введите "MAKERES MYRES.RC". </p>
+
+<p>Заданные ресурсы будут скомпилированы в новый файл MYRES.RES, который может быть прилинкован к вашему проекту как и прежде. Используйте Image Editor для проверки и редактирования.</p>
+
+<p id="author">Автор: Bob Villiers </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

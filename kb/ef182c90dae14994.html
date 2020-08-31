@@ -1,0 +1,132 @@
+<html>
+<head>
+  <title>Внутренний интерфейс Drag &amp; Drop</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Внутренний интерфейс Drag &amp; Drop</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Внутренний интерфейс Drag&amp;Drop</p>
+<p>Для библиотеки VCL фирмой Borland реализована собственная версия интерфейса Drag&amp;Drop (переводится как "перетащить"). Интерфейс этот внутренний &#8212; передавать и принимать можно любые управляющие элементы Delphi внутри формы' (кроме самой формы). Он реализован без использования соответствующих функций API Windows &#8212; их нужно применять при организации общения с другими задачами путем перетаскивания.</p>
+<p>Нажав левую кнопку мыши над элементом управления, мы можем "перетащить" его на любой другой элемент. С точки зрения программиста это означает, что в моменты перетаскивания и отпускания клавиши генерируются определенные события, которыми передается вся необходимая информация &#8212; указатель на перетаскиваемый объект, текущие координаты курсора и др. Получателем событий является тот элемент, на котором в данный момент находится курсор. Обработчик такого события должен сообщить системе, принимает ли данньш элемент управления "посылку" или нет. При отпускании кнопки над принимающим элементом управления генерируется еще одно или два события, в зависимости от готовности приемника.</p>
+<p>Способ работы с этим интерфейсом в VCL определяется свойством:</p>
+<pre name="code" class="delphi">
+property DragMode: TDragMode;
+TDragMode = (dmManual, dmAutomatic);
+</pre>
+<p>Для автоматического включения механизмов, имеющихся в VCL, необходимо, чтобы свойство компонента DragMode было установлено в dmAutomatic. Это означает, что на всех стадиях перетаскивания нужные функции вызываются без участия программиста. Его задача состоит только в том, чтобы определить методы-обработчики соответствующих событий. В режиме dmManual (принимаемом по умолчанию) все необходимые вызовы функций нужно делать самому.</p>
+<p>Рассмотрим подробнее формат обработчиков трех основных событий интерфейса Drag&amp;Drop.</p>
+<p>Во время перетаскивания при перемещении курсора мыши с перетаскиваемым элементом над другим элементом управления, а также при отпускании кнопки для последнего возникает событие:</p>
+<pre name="code" class="delphi">
+property OnDragOver: TDragOverEvent;
+TDragOverEvent = procedure(Sender, Source: TObject; X, Y: Integer;
+State: TDragState; var Accept: Boolean) of object;
+</pre>
+<p>Параметры события:</p>
+<p>Sender &#8212; элемент, над которьм находится курсор;</p>
+<p>Source &#8212; перетаскиваемый элемент;</p>
+<p>X, Y &#8212; координаты курсора (в системе координат клиентской области Sender);</p>
+<p>State &#8212; одно из трех состояний:</p>
+<pre name="code" class="delphi">
+TDragState = (dsDragEnter, dsDragLeave, dsDragMove) ;
+</pre>
+<p>Существует одно исключение из этого правила, касающееся компонента TOLEContainer он может принимать объекты OLE m других выполняющихся приложений.</p>
+<p>dsDragEnter &#8212; курсор мыши появился над элементом;</p>
+<p>dsDragMove &#8212; курсор мыши переместился над элементом;</p>
+<p>dsDragLeave &#8212; курсор мыши ушел с элемента или была отпущена кнопка.</p>
+<p>Обработчик этого события должен возвратить решение, примет ли данный элемент объект Source или нет, в булевой переменной Accept. Если обработчик этого события отсутствует, то элемент управления не может работать приемником, т. е. на него нельзя "перетащить".</p>
+<p>Во время перетаскивания над элементом управления он может изменить вид курсора, сигнализируя о готовности приема. Предназначенный для этого случая курсор описывается свойством:</p>
+<p>property DragCursor: TCursor;</p>
+<p>Если компонент не является приемником Drag&amp;Drop, или обработчик события OnDragOver отсутствует или возвращает False, то появляется другой курсор (по умолчанию crNoDrop).</p>
+<p>Событие:</p>
+<pre name="code" class="delphi">
+property OnDragDrop: TDragDropEvent ;
+TDragDropEvent = procedure(Sender, Source: TObject; X, Y: Integer) of object;
+</pre>
+<p>возникает во время перетаскивания при отпускании левой кнопки мыши над элементом, готовым к приему. Параметры его имеют тот же смысл, что и в предыдущем случае.</p>
+<p>В приведенном примере вы можете перетащить одну из геометрических фигур в вашей форме (компонент TShape) на статический текст Label 1. Для этого в Label 1 описано два метода: Label IDragOver сигнализирует о готовности принять только компоненты класса TShape, a Label IDragDrop вычисляет площадь фигуры в квадратных сантиметрах в зависимости от ее вида (эллипс, прямоугольник, прямоугольник с закругленными углами).</p>
+<pre name="code" class="delphi">
+procedure TPormI -LabellDragOver (Sender, Source: TObject; X, Y: Integer;
+State: TDragState; var Accept: Boolean);
+begin 
+  Accept := Source is TShape;
+end;
+ 
+procedure TFormI .LabellDragDrop (Sender, Source: TObject; X, Y: Integer);
+  var f : single; i : Integer;
+begin
+  with Source as TShape do 
+    begin 
+      i := Width; 
+      if i &gt; Height then i:= Height;
+      case Shape of 
+        stRectangle: f := Width*Height;
+        stSquare: f := i * i;
+        stCircle: f := Pi * i*i / 4;
+        stEllipse: f := Pi * Widths-Height / 4;
+        stRoundRect, stRoundSquare:
+          begin
+            if Shape = stRoundRect then f := Width*Height else f := i * i;
+            i :=        (i - Pen.Width + 1) div 4;
+            f :=        f - (4-Pi)*i*i;
+          end;
+      end;
+    end;
+  f := f / Sqr(Forml.PixelsPerInch / 2.54);
+  Labell-Caption := FloatToStrF(f, ffFixed, 5,        2)+ ' кв.см';
+end;
+</pre>
+<p>При завышении перетаскивания, вне зависимости от готовности приемника всегда возникает еще одно событие:</p>
+<pre name="code" class="delphi">
+property OnEndDrag: TEndDragEvent;
+TEndDragEvent =procedure(Sender, Target: TObject; X, Y: Integer) of object;
+</pre>
+<p>Его параметры идентичны описанным выше.</p>
+<p>Для управления перетаскиванием вручную (в режиме dmManual) есть следующие возможности. Начало перетаскивания происходит при вызове метода:</p>
+<pre name="code" class="delphi">
+procedure BeginDrag(Immediate: Boolean);
+</pre>
+<p>Программист должен связать вызов этого метода с каким-либо событием в системе. (Если свойство DragMode установлено в dmAutomatic, BeginDrag вызывается функцией окна при нажатии левой кнопки мыши). Параметр Immediate определяет, когда именно возникает состояние Drag&amp;Drop: в случае True немедленно, в случае False &#8212; после смещения мыши с нажатой левой кнопкой на 5 точек по любой из осей. Последний вариант дает возможность использовать нажатие левой кнопки и для перетаскивания, и для регистрации щелчков на элементе управления (скажем, на кнопке). В режиме dmAutomatic такой возможности нет. Метод:</p>
+<pre name="code" class="delphi">
+procedure DragDrop(DragObject: TObject; X, Y: Integer); dynamic;
+</pre>
+<p>вызывает обработчик события OnDragDrop, а производит все завершающие действия метод</p>
+<pre name="code" class="delphi">
+procedure EndDrag(Drop: Boolean);
+</pre>
+<p>Он инициирует события OnDragDrop (при возможности приема) и OnEndDrag.</p>
+<p>Метод</p>
+<pre name="code" class="delphi">
+function Dragging: Boolean;
+</pre>
+<p>возвращает True, если данный элемент в настоящий момент перетаскивается.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

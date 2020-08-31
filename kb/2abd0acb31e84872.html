@@ -1,0 +1,69 @@
+<html>
+<head>
+  <title>Получить количество вложенных ключей и значений ветви реестра</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получить количество вложенных ключей и значений ветви реестра</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses Registry;
+ 
+// Количество вложенных ключей и значений
+procedure TForm1.Button1Click(Sender: TObject);
+const
+  sKey = '\SOFTWARE\Microsoft\Windows\CurrentVersion';
+var
+  rReg: TRegistry;
+  ki: TRegKeyInfo;
+begin
+  rReg := TRegistry.Create;
+  with rReg do
+  begin
+    RootKey := HKEY_LOCAL_MACHINE;
+    if KeyExists(sKey) then
+    begin
+      OpenKey(sKey, false);
+      GetKeyInfo(ki);
+      CloseKey;
+ 
+      lbSubkeys.Caption := IntToStr(ki.NumSubKeys);
+      lbValues.Caption := IntToStr(ki.NumValues);
+    end;
+  end;
+  rReg.Free;
+end;
+</pre>
+<p id="author">Автор: ___Nikolay</p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

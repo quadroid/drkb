@@ -1,0 +1,73 @@
+<html>
+<head>
+  <title>Компоненты вывода</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Компоненты вывода</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Описание TRvRenderPreview </p>
+<p>Компонент TRvRenderPreview берет файл, созданный компонентом TRvNDRWriter и посылает его на экран для просмотра. TRvRenderPreview имеет много методов и событий, которые позволяют программисту создавать сложный, настраиваемый пользовательский интерфейс.</p>
+<p>Свойства TRvRenderPreview </p>
+<p>ScrollBox определяет компонент TscrollBox, на котором и рисуется отчет. </p>
+<p>FileName и StreamMode используются аналогично TRvNDRWriter и TRvRenderPreview. </p>
+<p>GridHoriz и GridVert определяют горизонтальное и вертикальное расстояние, в дюймах или метрике, между каждой отметкой, рисуемой с помощью GridPen. </p>
+<p>RulerType совместно с настройками, удобен для разработки точных отчетов, без необходимости производить тестовую печать. </p>
+<p>MarginMethod  и MarginPercent определяет и размер непечатных границ листа. </p>
+<p>ShadowDepth определяет количество пикселей для тени листа.</p>
+<p>Monochrome определяет, что вывод на должен быть монохромным или цветным битмапом. Сбрасывается при вызове NextPage или PrevPage.</p>
+<p>ZoomInc определяет величину увеличения или уменьшения для ZoomIn и ZoomOut при изменении процента текущего zoom, ZoomFactor.</p>
+<p>События TRvRenderPreview </p>
+<p>OnPageChange вызывается, когда сменяется текущая страница и позволяет программисту обновить пользовательский интерфейс для нового номера страницы. </p>
+<p>OnZoomChange вызывается, когда изменяется текущий коэффициент масштабирования, ZoomFactor, что позволяет программисту обновить пользовательский интерфейс для нового коэффициента масштабирования.</p>
+<p>Описание TRvRenderPrinter </p>
+<p>Компонент TRvRenderPrinter принимает файл созданный компонентом TRvNDRWriter и посылает его на текущий принтер. TRvRenderPrinter часто используется для печати из окна просмотра. TRvRenderPrinter это простой компонент, но и он имеет методы и свойства для управления печатью.</p>
+<p>Свойства и события TRvRenderPrinter </p>
+<p>FileName это имя файла отчета созданного компонентом TRvNDRWriter, если StreamMode равен smMemory или smFile. Потоковый режим smUser используется, когда программист хочет предоставить свой собственный потоковый объект (любой наследник от TStream) , назначив свойство Stream компоненту TRvNDRWriter, TRvRenderPrinter и/или TRvRenderPreview. У компоненты TrvRenderPrinter отсутствую свои события. Для посылки отчета на принтер сделайте вызов Execute или ExecuteCustom.</p>
+<p>Описание TRvRenderPDF </p>
+<p>Компонент TRvRenderPDF позволяет создавать документы PDF (Adobe Acrobat) прямо из отчета. Шрифты могут быть встроены в документ PDF, путем установки свойства EmbedFonts в TRUE. Качество рисунков, включенных в PDF файл можно установить через указание процента качества в свойстве ImageQuality. Сжатые PDF документы можно создать, если установить свойство UseCompression в TRUE, подключив ZLib в uses и определив событие OnCompress так: </p>
+<pre name="code" class="delphi">
+With TCompressionStream.Create(clMax, OutStream) do try
+  CopyFrom(InStream, InStream.Size);
+finally
+  Free;
+end; { with }
+</pre>
+
+<p>Самый простой путь создания возможностей вывода в приложении &#8211; это бросить компонент на форму, которая автоматически зарегистрирует этот формат и стандартные диалоги настройки и просмотра в TRvSystem. Если требуется более автоматический вывод, то можно вызвать метод Render с передачей или объекта NDR TStream или имени файла NDR как единственный параметр.</p>
+<p>Описание TRvRenderHTML </p>
+<p>Компонент TRvRenderHTML преобразовывает поток NDR или файл в HTML страницы. Поддержаны текст, графика, линии и прямоугольники. Результат вывода в формате HTML 4.0 и разработан так, что бы вывод на печать был максимально точным.</p>
+<p>Описание TRvRenderRTF </p>
+<p>Компонент TRvRenderRTF преобразовывает поток NDR или файл в формат RTF. Результат вывода в формате RTF и разработан так, что бы вывод на печать был максимально точным. Элементы в документе включаются как отдельные кадры "frames", для поддержки точного позиционирования на странице.</p>
+<p>Описание TRvRenderText </p>
+<p>Компонент TRvRenderText преобразовывает поток NDR или файл в текстовый формат. Поддержаны только текстовые элементы, все остальные объекты, такие как графика или линии игнорируются. Свойство CPI позволяет указать количество символов на дюйм и свойство LPI позволяет указать количество строк на дюйм на выходное устройство. Примечание: конечный вывод на принтер может не совпадать с установками CPI или LPI поскольку в файл не вставляются никакие команды форматирования.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

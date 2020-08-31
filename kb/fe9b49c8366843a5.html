@@ -1,0 +1,358 @@
+<html>
+<head>
+  <title>Мониторинг изменений на диске</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Мониторинг изменений на диске</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Как определяешь наличие новых файлов? По таймеру или через ReadDirectoryChangesW? Если по таймеру, то оставь его и попробуй вот такой код (тебя интересует флаг FILE_NOTIFY_CHANGE_CREATION):<br>
+<p>&nbsp;</p>
+<pre name="code" class="delphi">unit Unit1;
+ 
+
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls;
+ 
+type
+  PFileNotifyInformation = ^TFileNotifyInformation;
+  TFileNotifyInformation = record
+    NextEntryOffset: DWORD;
+    Action: DWORD;
+    FileNameLength: DWORD;
+    FileName: array [0..MAX_PATH - 1] of WideChar;
+  end;
+ 
+  TForm1 = class(TForm)
+    Memo1: TMemo;
+    procedure FormCreate(Sender: TObject);
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+const
+  Filter =  FILE_NOTIFY_CHANGE_FILE_NAME or
+            FILE_NOTIFY_CHANGE_DIR_NAME or
+            FILE_NOTIFY_CHANGE_ATTRIBUTES or
+            FILE_NOTIFY_CHANGE_SIZE or
+            FILE_NOTIFY_CHANGE_LAST_WRITE or
+            FILE_NOTIFY_CHANGE_LAST_ACCESS or
+            FILE_NOTIFY_CHANGE_CREATION or
+            FILE_NOTIFY_CHANGE_SECURITY;
+var
+  Dir: THandle;
+  Notify: TFileNotifyInformation;
+  BytesReturned: DWORD;
+begin
+  Dir := CreateFile('d:\', GENERIC_READ,
+    FILE_SHARE_READ or FILE_SHARE_WRITE or FILE_SHARE_DELETE,
+    nil, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, 0);
+  if Dir &lt;&gt; INVALID_HANDLE_VALUE then
+  try
+    if not ReadDirectoryChangesW(Dir, @Notify, SizeOf(TFileNotifyInformation),
+      False, Filter, @BytesReturned, nil, nil) then
+      raise Exception.Create(SysErrorMessage(GetLastError))
+    else
+      case Notify.Action of
+        FILE_ACTION_ADDED: ShowMessage('New file' + Notify.FileName);
+        FILE_ACTION_REMOVED: ShowMessage('Delete file' + Notify.FileName);
+        FILE_ACTION_MODIFIED: ShowMessage('Modify file' + Notify.FileName);
+        FILE_ACTION_RENAMED_OLD_NAME: ShowMessage('Old Name file' + Notify.FileName);
+        FILE_ACTION_RENAMED_NEW_NAME: ShowMessage('New Name file' + Notify.FileName);
+      end;
+  finally
+    CloseHandle(Dir);
+  end;
+end;
+ 
+end.
+</pre>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: Rouse_</p>
+
+<hr /><pre name="code" class="delphi">unit wfsU;
+&nbsp;
+interface
+&nbsp;
+type
+ // Структура с информацией об изменении в файловой системе (передается в callback процедуру)
+&nbsp;
+  PInfoCallback = ^TInfoCallback;
+  TInfoCallback = record
+ &nbsp;&nbsp; FAction&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : Integer; // тип изменения (константы FILE_ACTION_XXX)
+ &nbsp;&nbsp; FDrive&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : string;&nbsp; // диск, на котором было изменение
+ &nbsp;&nbsp; FOldFileName : string;&nbsp; // имя файла до переименования
+ &nbsp;&nbsp; FNewFileName : string;&nbsp; // имя файла после переименования
+  end;
+&nbsp;
+  // callback процедура, вызываемая при изменении в файловой системе
+  TWatchFileSystemCallback = procedure (pInfo: TInfoCallback);
+&nbsp;
+{ Запуск мониторинга файловой системы
+  Праметры:
+  pName&nbsp;&nbsp;&nbsp; - имя папки для мониторинга
+  pFilter&nbsp; - комбинация констант FILE_NOTIFY_XXX
+  pSubTree - мониторить ли все подпапки заданной папки
+  pInfoCallback - адрес callback процедуры, вызываемой при изменении в файловой системе}
+procedure StartWatch(pName: string; pFilter: cardinal; pSubTree: boolean; pInfoCallback: TWatchFileSystemCallback);
+// Остановка мониторинга
+procedure StopWatch;
+&nbsp;
+implementation
+&nbsp;
+uses
+  Classes, Windows, SysUtils;
+&nbsp;
+const
+  FILE_LIST_DIRECTORY&nbsp;&nbsp; = $0001;
+&nbsp;
+type
+  PFileNotifyInformation = ^TFileNotifyInformation;
+  TFileNotifyInformation = record
+ &nbsp;&nbsp; NextEntryOffset : DWORD;
+ &nbsp;&nbsp; Action&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : DWORD;
+ &nbsp;&nbsp; FileNameLength&nbsp; : DWORD;
+ &nbsp;&nbsp; FileName&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : array[0..0] of WideChar;
+  end;
+&nbsp;
+  WFSError = class(Exception);
+&nbsp;
+  TWFS = class(TThread)
+  private
+ &nbsp;&nbsp; FName&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : string;
+ &nbsp;&nbsp; FFilter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : Cardinal;
+ &nbsp;&nbsp; FSubTree&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : boolean;
+ &nbsp;&nbsp; FInfoCallback&nbsp;&nbsp; : TWatchFileSystemCallback;
+ &nbsp;&nbsp; FWatchHandle&nbsp;&nbsp;&nbsp; : THandle;
+ &nbsp;&nbsp; FWatchBuf&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : array[0..4096] of Byte;
+ &nbsp;&nbsp; FOverLapp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : TOverlapped;
+ &nbsp;&nbsp; FPOverLapp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : POverlapped;
+ &nbsp;&nbsp; FBytesWritte&nbsp;&nbsp;&nbsp; : DWORD;
+ &nbsp;&nbsp; FCompletionPort : THandle;
+ &nbsp;&nbsp; FNumBytes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : Cardinal;
+ &nbsp;&nbsp; FOldFileName&nbsp;&nbsp;&nbsp; : string;
+ &nbsp;&nbsp; function CreateDirHandle(aDir: string): THandle;
+ &nbsp;&nbsp; procedure WatchEvent;
+ &nbsp;&nbsp; procedure HandleEvent;
+  protected
+ &nbsp;&nbsp; procedure Execute; override;
+  public
+ &nbsp;&nbsp; constructor Create(pName: string; pFilter: cardinal; pSubTree: boolean; pInfoCallback: TWatchFileSystemCallback);
+ &nbsp;&nbsp; destructor Destroy; override;
+  end;
+&nbsp;
+&nbsp;
+var
+  WFS : TWFS;
+&nbsp;
+procedure StartWatch(pName: string; pFilter: cardinal; pSubTree: boolean; pInfoCallback: TWatchFileSystemCallback);
+begin
+ WFS:=TWFS.Create(pName, pFilter, pSubTree, pInfoCallback);
+end;
+&nbsp;
+procedure StopWatch;
+var
+  Temp : TWFS;
+begin
+  if Assigned(WFS) then
+  begin
+ &nbsp; PostQueuedCompletionStatus(WFS.FCompletionPort, 0, 0, nil);
+ &nbsp; Temp := WFS;
+ &nbsp; WFS:=nil;
+ &nbsp; Temp.Terminate;
+  end;
+end;
+&nbsp;
+constructor TWFS.Create(pName: string; pFilter: cardinal; pSubTree: boolean; pInfoCallback: TWatchFileSystemCallback);
+begin
+  inherited Create(True);
+  FreeOnTerminate:=True;
+  FName:=IncludeTrailingBackslash(pName);
+  FFilter:=pFilter;
+  FSubTree:=pSubTree;
+  FOldFileName:=EmptyStr;
+  ZeroMemory(@FOverLapp, SizeOf(TOverLapped));
+  FPOverLapp:=@FOverLapp;
+  ZeroMemory(@FWatchBuf, SizeOf(FWatchBuf));
+  FInfoCallback:=pInfoCallback;
+  Resume
+end;
+&nbsp;
+destructor TWFS.Destroy;
+begin
+  PostQueuedCompletionStatus(FCompletionPort, 0, 0, nil);
+  CloseHandle(FWatchHandle);
+  FWatchHandle:=0;
+  CloseHandle(FCompletionPort);
+  FCompletionPort:=0;
+  inherited Destroy;
+end;
+&nbsp;
+function TWFS.CreateDirHandle(aDir: string): THandle;
+begin
+Result:=CreateFile(PChar(aDir), FILE_LIST_DIRECTORY, FILE_SHARE_READ+FILE_SHARE_DELETE+FILE_SHARE_WRITE,
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; nil,OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS or FILE_FLAG_OVERLAPPED, 0);
+end;
+&nbsp;
+procedure TWFS.Execute;
+begin
+  FWatchHandle:=CreateDirHandle(FName);
+  WatchEvent;
+end;
+&nbsp;
+procedure TWFS.HandleEvent;
+var
+  FileNotifyInfo : PFileNotifyInformation;
+  InfoCallback&nbsp;&nbsp; : TInfoCallback;
+  Offset&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : Longint;
+begin
+  Pointer(FileNotifyInfo) := @FWatchBuf[0];
+  repeat
+ &nbsp;&nbsp; Offset:=FileNotifyInfo^.NextEntryOffset;
+ &nbsp;&nbsp; InfoCallback.FAction:=FileNotifyInfo^.Action;
+ &nbsp;&nbsp; InfoCallback.FDrive:=FName;
+ &nbsp;&nbsp; SetString(InfoCallback.FNewFileName,FileNotifyInfo^.FileName,FileNotifyInfo^.FileNameLength);
+ &nbsp;&nbsp; InfoCallback.FNewFileName:=Trim(InfoCallback.FNewFileName);
+ &nbsp;&nbsp; case FileNotifyInfo^.Action of
+ &nbsp;&nbsp;&nbsp;&nbsp; FILE_ACTION_RENAMED_OLD_NAME: FOldFileName:=Trim(WideCharToString(@(FileNotifyInfo^.FileName[0])));
+ &nbsp;&nbsp;&nbsp;&nbsp; FILE_ACTION_RENAMED_NEW_NAME: InfoCallback.FOldFileName:=FOldFileName;
+ &nbsp;&nbsp; end;
+ &nbsp;&nbsp; FInfoCallback(InfoCallback);
+ &nbsp;&nbsp; PChar(FileNotifyInfo):=PChar(FileNotifyInfo)+Offset;
+  until (Offset=0) or Terminated;
+end;
+&nbsp;
+procedure TWFS.WatchEvent;
+var
+ CompletionKey: Cardinal;
+begin
+  FCompletionPort:=CreateIoCompletionPort(FWatchHandle, 0, Longint(pointer(self)), 0);
+  ZeroMemory(@FWatchBuf, SizeOf(FWatchBuf));
+  if not ReadDirectoryChanges(FWatchHandle, @FWatchBuf, SizeOf(FWatchBuf), FSubTree,
+ &nbsp;&nbsp; FFilter, @FBytesWritte,&nbsp; @FOverLapp, nil) then
+  begin
+ &nbsp;&nbsp; raise WFSError.Create(SysErrorMessage(GetLastError));
+ &nbsp;&nbsp; Terminate;
+  end else
+  begin
+ &nbsp;&nbsp; while not Terminated do
+ &nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp; GetQueuedCompletionStatus(FCompletionPort, FNumBytes, CompletionKey, FPOverLapp, INFINITE);
+ &nbsp;&nbsp;&nbsp;&nbsp; if CompletionKey&lt;&gt;0 then
+ &nbsp;&nbsp;&nbsp;&nbsp; begin
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Synchronize(HandleEvent);
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ZeroMemory(@FWatchBuf, SizeOf(FWatchBuf));
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FBytesWritte:=0;
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ReadDirectoryChanges(FWatchHandle, @FWatchBuf, SizeOf(FWatchBuf), FSubTree, FFilter,
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @FBytesWritte, @FOverLapp, nil);
+ &nbsp;&nbsp;&nbsp;&nbsp; end else Terminate;
+ &nbsp;&nbsp; end
+  end
+end;
+&nbsp;
+end.
+</pre>
+<p>&nbsp;<br>
+<p>Пример использования:</p>
+<pre name="code" class="delphi">unit Unit1;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    Memo1: TMemo;
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+uses wfsU;
+ 
+ procedure MyInfoCallback(pInfo: TInfoCallback);
+ const
+    Action: array[1..3] of String = ('Создание: %s', 'Удаление: %s', 'Изменение: %s');
+ begin
+    case pInfo.FAction of
+      FILE_ACTION_RENAMED_NEW_NAME: Form1.Memo1.Lines.Add(Format('Переименование: %s в %s',
+          [pInfo.FDrive+pInfo.FOldFileName,pInfo.FDrive+pInfo.FNewFileName]));
+    else
+      if pInfo.FAction&lt;FILE_ACTION_RENAMED_OLD_NAME then
+        Form1.Memo1.Lines.Add(Format(Action[pInfo.Faction], [pInfo.FDrive+pInfo.FNewFileName]));
+    end;
+ end;
+ 
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  // мониторим, например, изменения всех папок на диске C: (создание, удаление, переименование)
+ StartWatch('C:\', FILE_NOTIFY_CHANGE_DIR_NAME, True, @MyInfoCallback);
+end;
+ 
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+ StopWatch
+end;
+ 
+end.
+</pre>
+<p>&nbsp;<br>
+<p>PS: только для NT/2000/XP/2003 </p>
+<p>&nbsp;
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: Krid</p>
+&nbsp;<br>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

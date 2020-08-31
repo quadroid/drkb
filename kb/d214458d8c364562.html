@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>Указание языка помещенного в clipboard текста</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Указание языка помещенного в clipboard текста</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Столкнулся с проблемой вставки в Clipboard русского текста в Win2K, WinXP. Залез в DRKB.. Ну да, там вариант предложен довольно смешной (создать TRichEdit, вставить в него clipboard, весь текст пометить русским, и вернуть в clipboard)... Всё бы ничего, но если у меня программа без форм, да и без окон вообще, то TRichEdit не создаётся ('Control has no parent window') . Почитал хелп, посмотрел, что именно Вынь сует в буфер на разных языках, и нашёл простой и красивый способ. Имхо, ему там и место - в разделе "Буфер обмена".<br>
+&nbsp;<br>
+Как вставить русский текст в буфер обмена Windows 2000, Windows XP<br>
+&nbsp;<br>
+Для указания языка текста в clipboard используется специальный формат CF_LOCALE. Данные в этом формате - это LocaleID: word. При вставке текста в формате CF_TEXT, или CF_OEMTEXT, нужно просто добавить LocaleID в формате CF_LOCALE, после чего Windows сможет правильно преобразовать имеющийся текст в недостающие форматы (например в CF_UNICODETEXT), да и просто будет корректно вставлен в самом CF_TEXT.
+<p>&nbsp;</p>
+<pre name="code" class="delphi">
+procedure CopyDataToClipboard(fmt: word; s: string);
+var
+    hg: THandle;
+    P: PChar;
+begin
+    hg:=GlobalAlloc(GMEM_DDESHARE or GMEM_MOVEABLE, Length(S)+1);
+    P:=GlobalLock(hg);
+    StrPCopy(P, s);
+    GlobalUnlock(hg);
+    Clipboard.Open;
+    SetClipboardData(fmt, hg); // fmt = CF_UNICODETEXT | CF_OEMTEXT | CF_TEXT | CF_LOCALE
+    Clipboard.Close;
+    GlobalFree(hg);
+end;
+ 
+procedure CopyStringToClipboard(const s: string);
+var Locale: word;
+begin
+    //Set CF_TEXT &amp; CF_LOCALE
+    CopyDataToClipboard(CF_TEXT, s);
+    Locale := GetSystemDefaultLangID;  //Get it as you please. even hard-coded ;) $0419 = LANG_RUSSIAN (f.e.)
+    CopyDataToClipboard(CF_LOCALE, Chr(Lo(Locale))+Chr(Hi(Locale)));
+end;
+</pre>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: Mechanic</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

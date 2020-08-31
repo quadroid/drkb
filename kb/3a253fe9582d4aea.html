@@ -1,0 +1,50 @@
+<html>
+<head>
+  <title>Включение манифеста Windows XP в ресурсы приложения</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Включение манифеста Windows XP в ресурсы приложения</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Так как использование стандартного компонента TXPManifest требует настройки исходного манифеста Delphi для каждого проекта, было бы неплохо изыскать более удобный способ. В качестве альтернативы вы можете подключить манифест к файлу вашего проекта и по мере надобности редактировать его, не опасаясь, что ваша забывчивость может отразиться на версиях в манифестах других приложений. </p>
+<p>Для начала необходимо создать исходный файл ресурса RC, включающий единственную строку: </p>
+<p>1 24 "ХР.manifest" </p>
+<p>где 1 &#8212; номер ресурса версии библиотеки ComCtl32.dll, а 24 &#8212; номер ресурса манифеста (нумерация соответствует заголовочным файлам, распространяемых Microsoft); "ХР.manifest" &#8212; имя файла с документом XML, содержащим манифест. Естественно, манифест нужно настроить в соответствии с потребностями вашего проекта. </p>
+<p>Теперь нужно откомпилировать файл ресурса при помощи строчного компилятора-ресурсов \Delphi7\Bin\brcc32.exe и разместить его в папке проекта. </p>
+<p>И последняя операция &#8212; добавьте в исходный код файла проекта директиву подключения ресурса манифеста: </p>
+<pre name="code" class="delphi">
+{$R xpmanifest.res} 
+</pre>
+
+<p>В результате при компиляции проекта манифест из ресурса будет добавлен в исполняемый файл приложения. </p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

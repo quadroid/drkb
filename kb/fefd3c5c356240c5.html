@@ -1,0 +1,146 @@
+<html>
+<head>
+  <title>Как разрезать wav файл?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как разрезать wav файл?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+type
+  TWaveHeader = record
+    ident1: array[0..3] of Char;       // Must be "RIFF"
+    len: DWORD;                        // remaining length after this header
+    ident2: array[0..3] of Char;       // Must be "WAVE"
+    ident3: array[0..3] of Char;       // Must be "fmt "
+    reserv: DWORD;                     // Reserved Size
+    wFormatTag: Word;                  // format type
+    nChannels: Word;                   // number of channels (i.e. mono, stereo, etc.)
+    nSamplesPerSec: DWORD;             //sample rate
+    nAvgBytesPerSec: DWORD;            //for buffer estimation
+    nBlockAlign: Word;                 //block size of data
+    wBitsPerSample: Word;              //number of bits per sample of mono data
+    cbSize: Word;                      //the count in bytes of the size of
+    ident4: array[0..3] of Char;       //Must be "data"
+end;
+ 
+</pre>
+
+<p>You can load the file header with this function:</p>
+
+<pre name="code" class="delphi">
+function GetWaveHeader(FileName: TFilename): TWaveHeader;
+const
+  riff = 'RIFF';
+  wave = 'WAVE';
+var
+  f: TFileStream;
+  w: TWaveHeader;
+begin
+  if not FileExists(Filename) then
+    exit;
+ 
+  try
+    f := TFileStream.create(Filename, fmOpenRead);
+    f.Read(w, Sizeof(w));
+ 
+    if w.ident1 &lt;&gt; riff then
+    begin
+      Showmessage('This is not a RIFF File');
+      exit;
+    end;
+ 
+    if w.ident2 &lt;&gt; wave then
+    begin
+      Showmessage('This is not a valid wave file');
+      exit;
+    end;
+ 
+  finally
+    f.free;
+  end;
+ 
+  Result := w;
+end;
+</pre>
+
+
+<p>Now we have all for creating the code for spliting the wave file:</p>
+
+<pre name="code" class="delphi">
+ 
+function SplitWave(Source, Dest1, Dest2: TFileName; Pos: Integer): Boolean;
+var
+  f1, f2, f3: TfileStream;
+  w: TWaveHeader;
+  p: Integer;
+begin
+  Result:=False
+ 
+  if not FileExists(Source) then
+    exit;
+ 
+  try
+    w := GetWaveHeader(Source);
+ 
+    p := Pos - Sizeof(TWaveHeader);
+ 
+    f1 := TFileStream.create(Source, fmOpenRead);
+    f2 := TFileStream.create(Dest1, fmCreate);
+    f3 := TFileStream.create(Dest2, fmCreate);
+ 
+    {++++++++++Create file 1 ++++++++++++++++}
+    w.len := p;
+    f2.Write(w, Sizeof(w));
+    f1.position := Sizeof(w);
+    f2.CopyFrom(f1, p);
+    {++++++++++++++++++++++++++++++++++++++++}
+ 
+    {+++++++++++Create file 2 +++++++++++++++}
+    w.len := f1.size - Pos;
+    f3.write(w, Sizeof(w));
+    f1.position := Pos;
+    f3.CopyFrom(f1, f1.size - pos);
+    {++++++++++++++++++++++++++++++++++++++++}
+  finally
+    f1.free;
+    f2.free;
+    f3.free;
+  end;
+ 
+  Result:=True;
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

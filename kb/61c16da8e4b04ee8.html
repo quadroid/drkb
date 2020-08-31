@@ -1,0 +1,143 @@
+<html>
+<head>
+  <title>Как узнать имя домена Windows NT/2000?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать имя домена Windows NT/2000?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function GetNTDomainName: string; 
+var hReg: TRegistry; 
+begin 
+hReg := TRegistry.Create; 
+hReg.RootKey := HKEY_LOCAL_MACHINE; 
+hReg.OpenKey('SOFTWARE\Microsoft\Windows NT\CurrentVersion 
+\Winlogon', false ); 
+Result := hReg.ReadString( 'DefaultDomainName' ); 
+hReg.CloseKey; 
+hReg.Destroy; 
+end; 
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<hr />
+<pre name="code" class="delphi">
+function NetServerGetInfo (serverName : PWideChar; level : Integer;
+        var bufptr : Pointer) : Cardinal; stdcall; external 'NETAPI32.DLL';
+function NetApiBufferFree (buffer : Pointer) : Cardinal; stdcall; external 'NETAPI32.DLL';
+ 
+type
+  SERVER_INFO_503 = record
+    sv503_sessopens : Integer;
+    sv503_sessvcs : Integer;
+    sv503_opensearch : Integer;
+    sv503_sizreqbuf : Integer;
+    sv503_initworkitems : Integer;
+    sv503_maxworkitems : Integer;
+    sv503_rawworkitems : Integer;
+    sv503_irpstacksize : Integer;
+    sv503_maxrawbuflen : Integer;
+    sv503_sessusers : Integer;
+    sv503_sessconns : Integer;
+    sv503_maxpagedmemoryusage : Integer;
+    sv503_maxnonpagedmemoryusage : Integer;
+    sv503_enablesoftcompat :BOOL;
+    sv503_enableforcedlogoff :BOOL;
+    sv503_timesource :BOOL;
+    sv503_acceptdownlevelapis :BOOL;
+    sv503_lmannounce :BOOL;
+    sv503_domain : PWideChar;
+    sv503_maxcopyreadlen : Integer;
+    sv503_maxcopywritelen : Integer;
+    sv503_minkeepsearch : Integer;
+    sv503_maxkeepsearch : Integer;
+    sv503_minkeepcomplsearch : Integer;
+    sv503_maxkeepcomplsearch : Integer;
+    sv503_threadcountadd : Integer;
+    sv503_numblockthreads : Integer;
+    sv503_scavtimeout : Integer;
+    sv503_minrcvqueue : Integer;
+    sv503_minfreeworkitems : Integer;
+    sv503_xactmemsize : Integer;
+    sv503_threadpriority : Integer;
+    sv503_maxmpxct : Integer;
+    sv503_oplockbreakwait : Integer;
+    sv503_oplockbreakresponsewait : Integer;
+    sv503_enableoplocks : BOOL;
+    sv503_enableoplockforceclose : BOOL;
+    sv503_enablefcbopens : BOOL;
+    sv503_enableraw : BOOL;
+    sv503_enablesharednetdrives : BOOL;
+    sv503_minfreeconnections : Integer;
+    sv503_maxfreeconnections : Integer;
+  end;
+  PSERVER_INFO_503 = ^SERVER_INFO_503;
+ 
+ 
+function Get_Computer_Name: string;
+var
+  dwlen: DWORD;
+begin
+  dwlen := MAX_COMPUTERNAME_LENGTH + 1;
+  Setlength(Result, dwlen);
+  GetComputerName(pchar(Result), dwlen);
+  Result := StrPas(pchar(Result));
+end;
+ 
+function GetDomainName : string;
+var
+  err : Integer;
+  buf : pointer;
+  fDomainName: string;
+  wServerName : WideString;
+begin
+  wServerName := Get_Computer_Name;
+  err := NetServerGetInfo (PWideChar (wServerName), 503, buf);
+  if err = 0 then
+  try
+    fDomainName := PSERVER_INFO_503 (buf)^.sv503_domain;
+  finally
+    NetAPIBufferFree (buf)
+  end;
+  result := fDomainName;
+end;
+ 
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  Label1.Caption := GetDomainName;
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

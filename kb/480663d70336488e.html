@@ -1,0 +1,143 @@
+<html>
+<head>
+  <title>Получение параметра из строки по его индексу</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получение параметра из строки по его индексу</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Получение параметра из строки по его индексу, а также получение общего числа параметров в строке
+ 
+В юните представлены две функции, одна из которых, GetParamFromString, позволяет получить параметр из строки, по индексу этого параметра (индексация начинается с 1). Параметров в строке, я называю части строк, разделённые каким-нибудь оговорённым разделителем, например символом ";".
+К пример строка "fex;9x-1;code" имеет три параметра: 
+fex
+9x-1
+code.
+ 
+Описание аргументов функции GetParamFromString:
+SourceStr - строка, содержащая в себе параметры;
+Delimiter - разделитель параметров в строке;
+Ind - индекс запрашиваемого параметра.
+ 
+Функция GetParamsCount просто возвращает количество параметров в строке.
+Описание аргументов функции GetParamsCount:
+SourceStr - строка, содержащая в себе параметры;
+Delimiter - разделитель параметров в строке;
+ 
+Зависимости: Windows
+Автор:       VID, ICQ:132234868, Махачкала
+Copyright:   (c) не моё
+Дата:        26 апреля 2004 г.
+********************************************** }
+ 
+unit getstrparam;
+ 
+interface
+ 
+  uses Windows;
+ 
+  function GetParamsCount (const SourceStr, Delimiter:String): integer;
+  function GetParamFromString(const SourceStr,Delimiter:String; Ind:integer):string;
+ 
+implementation
+ 
+function GetDTextItem(DText,delimeter:pchar;var idx:integer):Pchar;
+var nextpos:Pchar;i,len, p:integer;
+begin
+  result:=DText;
+  len:=length(delimeter);
+  if (len=0) or (DText='') then exit;
+  i:=1;
+  while TRUE do
+  begin
+    p:=pos(delimeter,result);
+    if (p&lt;&gt;0) then
+      nextpos:=pointer(integer(result)+p-1)
+    else nextpos:=pointer(integer(result)+length(result));
+    if (i=idx) or (p=0) then break;
+    result:=pointer(integer(nextpos)+len);
+    inc(i);
+  end;
+  if i=idx then byte(nextpos^):=0 else byte(result^):=0;
+end;
+ 
+function GetDTextCount(DText,delimeter:pchar):integer;
+var subpos:Pchar;i,len:integer;
+begin
+  result:=0;
+  len:=length(delimeter);
+  if (len=0) or (DText='') then exit;
+  subpos:=DText;
+  i:=pos(delimeter,subpos);
+  while i&lt;&gt;0 do
+  begin
+    inc(result);
+    subpos:=pointer(integer(subpos)+i+len-1);
+    i:=pos(delimeter,subpos);
+  end;
+  if (byte(subpos^))&lt;&gt;0 then inc(result);
+end;
+ 
+function GetParamsCount (const SourceStr, Delimiter:String): integer;
+begin
+  Result:=GetDTextCount(PChar(SourceStr), PChar(Delimiter));
+end;
+ 
+function GetParamFromString(const SourceStr,Delimiter:String; Ind:integer):string;
+var TmpS, TmpRes:PChar;
+    LRes:integer;
+begin
+  GetMem (Tmps, Length(SourceStr)+1);
+  try
+    CopyMemory(Tmps, PChar(SourceStr), Length(SourceStr));
+    Byte(Pointer(Integer(Tmps)+Length(SourceStr))^):=0;
+    TmpRes:=GetDTextItem(TmpS, PChar(Delimiter), Ind);
+    LRes:=Length(TmpRes);
+    SetLength(Result,LRes);
+    CopyMemory(@Result[1], TmpRes, LRes);
+  finally
+    FreeMem(TmpS);
+  end;
+end;
+ 
+end. 
+</pre>
+
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+showmessage(GetParamFromString('1;2a;3;4', ';',2));
+showmessage(inttostr(GetParamsCount('1;2;3;4', ';'))); 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

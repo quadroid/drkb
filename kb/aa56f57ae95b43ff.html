@@ -1,0 +1,122 @@
+<html>
+<head>
+  <title>Как посчитать корни квадратного уравнения?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как посчитать корни квадратного уравнения?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit SqRoot_;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, OleCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    Edit1: TEdit;
+    Edit2: TEdit;
+    Edit3: TEdit;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    Button1: TButton;
+    Label5: TLabel;
+    Button2: TButton;
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+// решает квадратное уравнение
+ 
+procedure SqRoot(a, b, c: real; var x1, x2: real; var ok: boolean);
+    { a,b,c - коэффициенты уравнения
+      x1,x2 - корни уравнения
+      ok = True  - решение есть
+      ok = False - решения нет }
+var
+  d: real; // дискриминант
+begin
+  d := Sqr(b) - 4 * a * c;
+  if d &lt; 0
+    then
+    ok := False // уравнение не имеет решения
+  else
+  begin
+    ok := True;
+    x1 := (-b + Sqrt(d)) / (2 * a);
+    x2 := (b + Sqrt(d)) / (2 * a);
+  end;
+end;
+{$R *.dfm}
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  k1, k2: real; // корни уравнения
+  rez: boolean; // True - решение есть, False - решения нет
+  mes: string; // сообщение
+begin
+  SqRoot(StrToFloat(Edit1.Text), StrToFloat(Edit2.Text),
+    StrToFloat(Edit3.Text), k1, k2, rez);
+  if rez then
+    mes := 'Корни уравнения' + #13 +
+      'x1=' + FloatToStrF(k1, ffGeneral, 4, 2) + #13 +
+      'x2=' + FloatToStrF(k2, ffGeneral, 4, 2) + #13
+  else
+    mes := 'Уравнение не имеет решения';
+ 
+  label5.Caption := mes;
+end;
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  winhelp(Form1.Handle, 'sqroot.hlp', HELP_CONTEXT, 1);
+end;
+ 
+end.
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

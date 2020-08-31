@@ -1,0 +1,190 @@
+<html>
+<head>
+  <title>Создание консольных приложений</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создание консольных приложений</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Михаил Чумак  </p>
+<p>Создание консольных приложений. (Об этом в советах немножко есть, но очень не конкретно) </p>
+<p>Как уже отмечалось в совете [000092] (да и в Хелпе) в консольных приложениях в Delphi можно использовать в принципе весь дельфийский арсенал. Правда и работать они будут лишь под Windows. (Кстати этот способ можно применить для модернизации программ на Паскале под Windows). </p>
+<p>Этот код был использован для вывода результатов работы программы проверки (неважно чего) чтобы не приходилось смотреть файл с результатами. Главная проблема была в том, что консоль (если запуск был из Windows) оставалась висеть позади формы до её закрытия. Вреда конечно никакого, но не приятно. Если же запуск из Нортона или т.п., то всё идёт нормально.</p>
+<pre name="code" class="delphi">
+program MyProgram;
+ 
+{$APPTYPE CONSOLE}
+ 
+uses
+ 
+  Windows, Forms, Dialogs, SysUtils, StdCtrls, Controls; // и (или) т.п.
+ 
+...
+ 
+var
+  ...
+  SH, SW: integer;
+  MainForm: TForm; // если нужна форма
+  Memo: TMemo;
+  // могут быть также любые другие визуальные компоненты
+  ...
+ 
+  // здесь могут быть процедуры и функции, т.е вс? как в обычном Паскале
+ 
+begin
+ 
+  ... // здесь какой-то код
+ 
+  { а здесь, перед выводом формы, есть два пути:}
+  { так}
+ 
+  // Отцепиться от консоли, т.е она просто исчезнет (в случае запуска из Windows)
+  // и останется только форма
+  FreeConsole;
+  { или так}
+  //  Handle:= GetForegroundWindow; // Получить Handle консоли
+  //  ShowWindow(Handle, SW_HIDE);  // Спрятать консоль
+  // а в конце, перед завершением
+  //  ShowWindow(Handle, SW_SHOW); // Показать консоль
+ 
+  { для помещения формы в центр экрана}
+  SH := Screen.Height;
+  SW := Screen.Width;
+ 
+  MainForm := TForm.Create(nil);
+  with MainForm do
+  try
+    BorderStyle := bsSizeable;
+    Height := 390;
+    Width := 390;
+    Left := (SW - Width) div 2;
+    Top := (SH - Height) div 2;
+    Caption := 'Моя программа';
+    // здесь могут быть и другие компоненты
+    Memo := TMemo.Create(MainForm);
+    with Memo do
+    begin
+      Parent := MainForm;
+      Align := alClient;
+      BorderStyle := bsNone;
+      Font.Name := 'Courier New Cyr';
+      Font.Size := 9;
+      ScrollBars := ssVertical;
+      Lines.LoadFromFile('MyProgram.txt');
+    end;
+    ShowModal;
+  finally
+    Free;
+  end;
+ 
+  { или можно вывести сообщение, например в случае неудачи (или наоборот)}
+ 
+  with CreateMessageDialog('Текст сообщения', mtInformation, [mbOk]) do
+  try
+    Caption := 'Заголовок';
+    ShowModal;
+  finally
+    Free;
+  end;
+ 
+  ...
+ 
+  //  это для второго пути, иначе она так и останется висеть св?рнутой
+  //  ShowWindow(Handle, SW_SHOW); // Показать консоль
+ 
+end.
+</pre>
+
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr />
+<p id="author">Автор: Павел </p>
+<p>А теперь забудьте обо всех этих кнопочках, пиктограммах и пропахших мышами приложениях - настоящие программисты и пользователи обожают текстовый режим! Если же говорить серьезно, иногда программы в текстовом режиме могут быть полезными. Примерам таких программ несть числа, и основная проблема всегда заключалась в том, что они запускались в окне DOS и не имели доступа к Windows API или к таким ресурсам, как принтеры и память (не говоря уже о том, что это были 16-разрядные приложения с 640-килобайтовым ограничением на используемую память). Теперь, когда Delphi поддерживает создание консольных приложений, можно создавать 32-разрядные текстовые приложения с использованием линейной модели памяти и с возможностью работать с Windows API и применять ресурсы Обычно консольные приложения используются, когда не нужно вводить информацию большого объема и требования к интерфейсу сведены к минимуму. Ну и заметим к тому же, что простенькое "Hello, world!", созданное путем размещения компонента TLabel в форме, будет иметь размер около 150 Кбайт, в то время как консольное "Hello, world!" уложится в 10... </p>
+<p>Пример консольного приложения </p>
+<p>Лучший способ изучить консольные приложения- создать пресловутое "Hello, world!". Для создания его вручную сделайте следующее. </p>
+<p>1. Выберите команду File/New Application. </p>
+<p>2. Выберите команду File/Remove From Project, и появится диалоговое окно, Remove From Project, показанное на рис. 1.15. </p>
+<p>3. В проекте содержится один модуль формы. Выберете его и щелкните на кнопке ОК. Появится диалоговое окно Save changes to Unit1.pas? </p>
+<p>4. Щелкните на кнопке No, и форма будет удалена из проекта. </p>
+<p>Сохраните проект как EgConsoleHello. </p>
+<p>Хотя мы создаем "бесформенное" приложение, оно все еще не является консольным и использует GUI, а значит, сравнимо по размеру с бронтозавром. Выберите команду View/Project Source, и в редакторе появится следующий текст. </p>
+<pre name="code" class="delphi">
+program EgConsoleHello;
+uses
+  Forms;
+{$R *.RES}
+begin
+  Application.Initialize;
+  Application.Run;
+end;
+</pre>
+
+<p>Этого слишком много, чтобы быть достаточным. Вы видите, что подключен модуль Forms, однако он не используется, поэтому данную строку можно удалить. Строки с Application используются для инициализации OLE-сервера и вывода главной формы. Поскольку мы не используем ни того, ни другого, удалите и эти строки. Последнее действие - объяснить компилятору, что мы хотим создать обычное, простое, незамысловатое консольное приложение. Этого можно достичь с помощью команды $APPTYPE. Код в результате будет выглядеть так. </p>
+<pre name="code" class="delphi">
+program EgConsoleHello;
+{$APPTYPE CONSOLE}
+{$R *.RES}
+begin
+end;
+</pre>
+
+<p>Ax да! Мы же собирались вывести свое приветствие! Для этого добавьте между begin и end строку </p>
+<p>  WriteLn ('Hello, world!'); </p>
+<p>Сохраните, скомпилируйте и запустите проект из командной строки. Надеюсь, вам понравилось? И еще одно замечание - консольные приложения используют стандартные потоки ввода-вывода, а значит, вы можете использовать функции Read, ReadLn, Write и WriteLn. </p>
+<p>Функции Windows API для консольного приложения </p>
+<p>Вы можете делать гораздо больше в консольном приложении, чем просто считывать и выводить текст. Вам доступно около 40 функций Windows API для работы с дисплеем, например изменение атрибутов выводимых символов или изменение размеров консоли. </p>
+<p>В листинге 1.1 изменяется текст, выводимый в заголовке консольного окна. Вы можете найти этот пример на дополнительно распространяемой дискете в папке EgConsoleTitle. </p>
+<p>Листинг 1.1. Изменение заголовка консольного окна </p>
+<pre name="code" class="delphi">
+program EgConsoleTitle;
+{$APPTYPE CONSOLE}
+uses
+  Windows, SysUtils;
+{$R *.RES}
+var
+  sNewTitle, sErrMsg: string;
+begin
+  sNewTitle := 'Welcome to Con5ole World';
+  if not SetConsoleTitle(PChar(sNewTitle)) then
+  begin
+    sErrMsg := 'Unable to set caption - ' + SysErrorMessage(GetLastError);
+    MessageBox(0, PChar(sErrMsg), 'Error', MB_ICONEXCLAMATION + MB_OK);
+  end;
+  ReadLn;
+end.
+</pre>
+
+<p>Здесь функция API SetConsoleTitle возвращает False, если назначить новый заголовок невозможно. GetLastError возвращает числовое значение последней ошибки API, которое SysErrorMessage конвертирует в строку для вывода на экран. </p>
+<p>Совет: Поставляемая с Delphi система справки по Win32 содержит функции консольного API. Для доступа к ним выведите пункт Console Reference и щелкните на кнопке. </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

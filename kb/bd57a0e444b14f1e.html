@@ -1,0 +1,81 @@
+<html>
+<head>
+  <title>Как сохранить веб-страничку в JPG?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как сохранить веб-страничку в JPG?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Взято из FAQ:<a href="http://blackman.km.ru/myfaq/cont4.phtml" target="_blank">http://blackman.km.ru/myfaq/cont4.phtml</a></p>
+<p>Перевод материала с сайта members.home.com/hfournier/webbrowser.htm </p>
+<pre name="code" class="delphi">
+procedure generateJPEGfromBrowser(browser: iWebBrowser2; jpegFQFilename: String;
+srcHeight: Integer; srcWidth: Integer; tarHeight: Integer; tarWidth: Integer);
+var
+sourceDrawRect : TRect;
+targetDrawRect: TRect;
+sourceBitmap: TBitmap;
+targetBitmap: TBitmap;
+jpeg: TJPEGImage;
+viewObject: IViewObject;
+begin
+sourceBitmap := TBitmap.Create ;
+targetBitmap := TBitmap.Create ;
+jpeg := TJPEGImage.Create ;
+try
+try
+sourceDrawRect := Rect(0,0, srcWidth , srcHeight );
+sourceBitmap.Width := srcWidth ;
+sourceBitmap.Height := srcHeight ; viewObject := browser as IViewObject; if viewObject = nil then
+Exit; OleCheck(viewObject.Draw(DVASPECT_CONTENT, 1, nil, nil, self.Handle,
+sourceBitmap.Canvas.Handle, @sourceDrawRect, nil, nil, 0)); // Изменяем размер исходного битмапа для коне?ного битмапа
+targetDrawRect := Rect(0,0, tarWidth, tarHeight);
+targetBitmap.Height := tarHeight;
+targetBitmap.Width := tarWidth;
+targetBitmap.Canvas.StretchDraw(targetDrawRect, sourceBitmap); // Созда?м JPEG из Bitmap и сохраняем его
+jpeg.Assign(targetBitmap) ;
+makeFileWriteable(jpegFQFilename);
+jpeg.SaveToFile (jpegFQFilename);
+finally
+jpeg.free;
+sourceBitmap.free ;
+targetBitmap.free;
+end;
+except
+// Обработка ошибок
+end;
+end;
+</pre>
+
+
+<p id="author">Автор: Donall Burns</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<html>
+<head>
+  <title>How to list all reports and forms</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">How to list all reports and forms</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Once you've opened a database, you can use the Access application's Reports and Forms properties to list the open reports and forms: </p>
+<pre name="code" class="delphi">
+ for i := 0 to Access.Reports.Count - 1 do
+    Memo1.Lines.Add(Access.Reports[i].Name);
+ for i := 0 to Access.Forms.Count - 1 do
+    Memo1.Lines.Add(Access.Forms[i].Name);
+</pre>
+<p>But note that these properties return only the open reports and forms in a database. To get the closed ones you have to use DAO97.pas (or DAO_TLB.pas for Delphi 4) and access the Documents collection: </p>
+<pre name="code" class="delphi">
+uses DAO97;
+var
+  i: integer;
+  Cont: Container;
+begin
+  Cont := Access.CurrentDB.Containers.Item['Reports'];
+  for i := 0 to Cont.Documents.Count - 1 do
+    Memo1.Lines.Add(Cont.Documents[i].Name);
+  Cont := Access.CurrentDB.Containers.Item['Forms'];
+  for i := 0 to Cont.Documents.Count - 1 do
+    Memo1.Lines.Add(Cont.Documents[i].Name);
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

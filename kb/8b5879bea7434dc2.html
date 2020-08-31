@@ -1,0 +1,58 @@
+<html>
+<head>
+  <title>Поиск файлов</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Поиск файлов</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Теперь поговорим о поиске файлов. Для этой цели могут использоваться процедуры FindFirst, FindNext, FindClose, при участии переменной типа TSearchRec которая хранит информацию о текущем статусе поиска и характеристики последнего найденного файла.</p>
+<p>Пример иллюстрирующий поиск всех файлов и каталогов в определенном каталоге:</p>
+<pre name="code" class="delphi">Var SearchRec:TSearchRec;
+...
+If FindFirst('c:\Windows\*.*', faAnyFile, SearchRec)=0 then
+repeat
+{Вот здесь мы можем делать с найденным файлом что угодно
+SearchRec.name - имя файла
+ExpandFileName(SearchRec.name) - имя файла с полным путем} 
+until FindNext(SearchRec) &lt;&gt; 0;
+FindClose(SearchRec);
+</pre>
+
+<p>Примечания по приведенному коду:</p>
+<p>1) Первыми в список могут попадать файлы с именами "." и ".." - это ДОСовские имена для переходов на "родительский уровень", иногда нужна обработка для их игнорирования.</p>
+<p>2) FindFirst в качестве первого параметра принимает шаблон для поиска, так как он был принят для ДОС. Если шаблон не включает путь то файлы будут искаться в текущем каталоге.</p>
+<p>3) FindFirst требует задания атрибута для файла - здесь мы искали все файлы, если надо какие-то определенные (например только скрытые, или только каталоги) то надо это указать, список всех атрибутов я уже приводил выше.</p>
+<p>4) SearchRec переменная связывает во едино FindFirst и FindNext, но требует ресурсов для своей работы, поэтому желательно ее освободить после поиска процедурой FindClose(SearchRec) - на самом деле утечки памяти небольшие, но если программа работает в цикле и долгое время пожирание ресурсов будет значительным.</p>
+<p>5)FindFirst/FindNext - работают не открывая файлы, поэтому они корректно находят даже Swap файлы Windows... </p>
+<p>Поиск файлов по дереву каталогов с заходом в подкаталоги разобран <a href="b81.htm">здесь</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

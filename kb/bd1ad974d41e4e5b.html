@@ -1,0 +1,115 @@
+<html>
+<head>
+  <title>Вычисление определенного интеграла методом трапеций с заданной точностью</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Вычисление определенного интеграла методом трапеций с заданной точностью</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Вычисление определенного интеграла методом трапеций с заданной точностью
+ 
+Просто расчет площади под функцией, параметры: a,b - пределы интегрирования, a&lt;=b
+eps - допустимая погрешность, практически гарантируется, что расхождение результата с истинным значением интеграла не превосходит по модулю указанную величину. Только не переборщите :-))
+intF - подинтегральная функция. Естественно, желательно задавать функции, интегрируемые в смысле Римана. Объявление смотри в примере.
+Примечание: Несобственные интегралы не считаем :-)
+Проверок на переполнение нет, да и вообще нет проверок...
+ 
+Зависимости: Ну какие могут быть зависимости?
+Автор:       Romkin, romkin@pochtamt.ru, Москва
+Copyright:   Romkin 2002
+Дата:        19 ноября 2002 г.
+********************************************** }
+ 
+unit intfunc;
+ 
+interface
+ 
+type
+  TIntFunc = function(X: Double):Double;
+ 
+function TrapezeInt(a,b:Double; eps: Double; IntF: TIntFunc): Double;
+ 
+implementation
+ 
+function TrapezeInt(a,b:Double; eps: Double; IntF: TIntFunc): Double;
+var
+  //S - площадь на предыдущей итерации,
+  //x - текущее значение аргумента
+  //base - высота трапеции
+  //n - число трапеций, удваивается на каждой итерации
+  S, x, base: Double;
+  i, n: Integer;
+begin
+  //Сначала приближение одной трапецией
+  base := b-a; 
+  Result := (IntF(a) + IntF(b))/2 * base;
+  eps := eps / 10; //Вообще говоря, величина делителя зависит от функции
+  n := 1;
+  repeat
+    S := Result; 
+    base := base / 2;
+    n := n * 2;
+    //Новая площадь вычисляется на основе старой
+    Result := Result / 2;
+    //Ниже - просто вычисляем площади новых трапеций
+    for i := 1 to n div 2 do
+    begin
+      x := a + base * (i * 2 - 1);
+      Result := Result + IntF(x) * base;
+    end;
+  until abs(S-Result) &lt;= eps;
+end;
+ 
+end. 
+</pre>
+
+<p> Пример использования:</p>
+<pre name="code" class="delphi">
+uses intFunc;
+ 
+function intSin(x: Double): Double;
+begin
+  Result := sin(x);
+end;
+ 
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  Edit1.Text := FloatToStr(TrapezeInt(0,Pi, 0.00001, intSin));
+  //результат у меня получился 1.99999990195429 - с запасом
+  //Точный ответ - 2.0
+end; 
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

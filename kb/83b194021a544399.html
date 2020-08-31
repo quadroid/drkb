@@ -1,0 +1,113 @@
+<html>
+<head>
+  <title>Как присвоить событие в runtime?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как присвоить событие в runtime?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Пример стандартного присвоения события в run-time:</p>
+<pre name="code" class="delphi">
+type
+
+ 
+  TForm1 = class(TForm)
+    Button1: TButton;
+    procedure FormCreate(Sender: TObject);
+  private
+    procedure Click(Sender: TObject);
+  end;
+ 
+var  Form1: TForm1;
+ 
+implementation
+ 
+procedure TForm1.Click(Sender: TObject);
+begin
+  // do something
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  button1.OnClick:=Click;
+end;
+ 
+end.
+</pre>
+
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<p>А как сделать чтобы "procedure Click" была не методом класса, а отдельно стоящей функцией?</p>
+<pre name="code" class="delphi">
+
+ 
+procedure Click(Self: TObject; Sender: TObject);
+begin
+  ...
+end;
+ 
+var
+  evhandler: TNotifyEvent;
+  TMethod(evhandler).Code := @Click;
+  TMethod(evhandler).Data := nil;
+  Button1.OnClick := evhandler;
+ 
+  Без извращений можно так:
+ 
+  TDummy = class
+    class procedure Click(Sender: TObject);
+  end;
+ 
+  Button1.OnClick := TDummy.Click;
+</pre>
+<p id="author">Автор ответа: Le Taon</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<p>По идее, при вызове OnClick первым параметром будет запихнут указатель на экземпляр того класса который в этом OnClick хранится . Я в низкоуровневой реализации не силен, но кажись, так как параметры в процедурах в Delphi передаются через регистры, то ничего страшного не произойдет. </p>
+<pre name="code" class="delphi">
+
+procedure C(Self:pointer;Sender:TObject);
+begin
+  TButton(Sender).Caption:='ee';
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  @Button1.OnClick:=@c;
+end;
+</pre>
+<p>Self тут у нас будет равен nil, а Sender как раз и получается Sender'ом. </p>
+<p id="author">Автор: Fantasist</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

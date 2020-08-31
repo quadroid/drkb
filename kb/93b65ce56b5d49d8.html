@@ -1,0 +1,86 @@
+<html>
+<head>
+  <title>Приложение с различным разрешением монитора?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Приложение с различным разрешением монитора?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Из рассылки "Мастера DELPHI. Новости мира компонент, FAQ, статьи..."</p>
+<p>Приложение, адекватно отображающееся на экранах с различным разрешением монитора?</p>
+<pre name="code" class="delphi">unit Main;
+interface
+uses
+Windows, Messages, SysUtils, Classes, Graphics,
+Controls, Forms, Dialogs, StdCtrls;
+ 
+type
+TForm1 = class(TForm)
+Button1: TButton;
+Edit1: TEdit;
+procedure Button1Click(Sender: TObject);
+procedure FormCreate(Sender: TObject);
+private
+{Отлавливаем, сообщение о изменении разрешения экрана}
+procedure WMDisplayChange(var message: TMessage); message WM_DISPLAYCHANGE;
+public
+W, H: integer;
+end;
+var Form1: TForm1;
+implementation
+{$R *.DFM}
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+Width := Round(Width * 1.5);
+Height := Round(Height
+* 1.5);
+ScaleBy(150, 100)
+end;
+procedure TForm1.WMDisplayChange(var message: TMessage);
+begin
+inherited;
+Width := Round(Width * LOWORD(message.LParam) / W);
+Height := Round(Height * HIWORD(message.LParam) / H);
+ScaleBy(LOWORD(message.LParam), W);
+W := Screen.Width;
+H := Screen.Height;
+end;
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+W := Screen.Width;
+H := Screen.Height;
+end;
+end.
+</pre>
+
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

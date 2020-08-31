@@ -1,0 +1,109 @@
+<html>
+<head>
+  <title>Как получить короткий путь файла, если есть длинный, и на оборот?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить короткий путь файла, если есть длинный, и на оборот?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// Короткий
+GetShortPathName(LongPath) 
+ 
+// Наоборот длинный
+GetFullPathName(ShortPath)
+</pre>
+
+<hr />
+<pre name="code" class="delphi">
+function sfn(const LongName: String): String;
+ 
+
+ 
+// Возвращает LongFileName преобразованное в соответствующее короткое имя
+var i :Integer;
+begin
+  SetLength(Result,Length(LongName));
+  i := GetShortPathName(pChar(LongName),pChar(Result),Length(Result));
+  if  i &gt; Length(Result)  then begin
+    SetLength(Result,i);
+    i := GetShortPathName(pChar(LongName),pChar(Result),Length(Result));
+  end;
+  SetLength(Result,i);
+end;
+ 
+function ShortToLongFileName(FileName: string): string;
+// Возвращает FileName преобразованное в соответствующее длинное имя
+var
+  KernelHandle: THandle;
+  FindData: TWin32FindData;
+  Search: THandle;
+  GetLongPathName: function(lpszShortPath: PChar; lpszLongPath: PChar;
+                            cchBuffer: DWORD): DWORD; stdcall;
+begin
+  KernelHandle := GetModuleHandle('KERNEL32');
+  if KernelHandle &lt;&gt; 0 then
+    @GetLongPathName := GetProcAddress(KernelHandle, 'GetLongPathNameA');
+ 
+  // Использю GetLongPathName доступную в windows 98 и выше чтобы
+  // избежать проблем доступа к путям UNC в системах NT/2K/XP
+  if Assigned(GetLongPathName) then begin
+    SetLength(Result, MAX_PATH + 1);
+    SetLength(Result, GetLongPathName(PChar(FileName), @Result[1], MAX_PATH));
+  end
+  else begin
+    Result := '';
+ 
+    // Поднимаюсь на одну дирректорию выше от пути к файлу и запоминаю
+    // в result.  FindFirstFile возвратит длинное имя файла полученное
+    // из короткого.
+    while (True) do begin
+      Search := Windows.FindFirstFile(PChar(FileName), FindData);
+ 
+      if Search = INVALID_HANDLE_VALUE then Break;
+ 
+      Result := String('\') + FindData.cFileName + Result;
+      FileName := ExtractFileDir(FileName);
+      Windows.FindClose(Search);
+ 
+      // Нахожу имя диска с двоеточием.
+      if Length(FileName) &lt;= 2 then Break;
+    end;
+ 
+    Result := ExtractFileDrive(FileName) + Result;
+  end;
+end;
+ 
+</pre>
+<p id="author">Автор: Alex&amp;Co </p>
+<p>Сайт: <a href="http://alex-co.com.ru " target="_blank">http://alex-co.com.ru </a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

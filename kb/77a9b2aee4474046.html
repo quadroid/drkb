@@ -1,0 +1,128 @@
+<html>
+<head>
+  <title>Как открыть CD-ROM, если их несколько в системе?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как открыть CD-ROM, если их несколько в системе?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// DriveTools 1.0                                                               *
+//                 (c) 1999 Jan Peter Stotz                                     *
+// If you find bugs, has ideas for missing featurs, feel free to contact me     *
+//                           jpstotz@gmx.de                                     *
+// Date last modified:   May 22, 1999                                           *
+ 
+unit DriveTools;
+ 
+interface
+ 
+uses
+ 
+  Windows, SysUtils, MMSystem;
+ 
+function CloseCD(Drive: Char): Boolean;
+function OpenCD(Drive: Char): Boolean;
+ 
+implementation
+ 
+function OpenCD(Drive: Char): Boolean;
+var
+ 
+  Res: MciError;
+  OpenParm: TMCI_Open_Parms;
+  Flags: DWord;
+  S: string;
+  DeviceID: Word;
+begin
+ 
+  Result := false;
+  S := Drive + ':';
+  Flags := mci_Open_Type or mci_Open_Element;
+  with OpenParm do
+  begin
+    dwCallback := 0;
+    lpstrDeviceType := 'CDAudio';
+    lpstrElementName := PChar(S);
+  end;
+  Res := mciSendCommand(0, mci_Open, Flags, Longint(@OpenParm));
+  if Res &lt;&gt; 0 then
+    exit;
+  DeviceID := OpenParm.wDeviceID;
+  try
+    Res := mciSendCommand(DeviceID, MCI_SET, MCI_SET_DOOR_OPEN, 0);
+    if Res = 0 then
+      exit;
+    Result := True;
+  finally
+    mciSendCommand(DeviceID, mci_Close, Flags, Longint(@OpenParm));
+  end;
+end;
+ 
+function CloseCD(Drive: Char): Boolean;
+var
+ 
+  Res: MciError;
+  OpenParm: TMCI_Open_Parms;
+  Flags: DWord;
+  S: string;
+  DeviceID: Word;
+begin
+ 
+  Result := false;
+  S := Drive + ':';
+  Flags := mci_Open_Type or mci_Open_Element;
+  with OpenParm do
+  begin
+    dwCallback := 0;
+    lpstrDeviceType := 'CDAudio';
+    lpstrElementName := PChar(S);
+  end;
+  Res := mciSendCommand(0, mci_Open, Flags, Longint(@OpenParm));
+  if Res &lt;&gt; 0 then
+    exit;
+  DeviceID := OpenParm.wDeviceID;
+  try
+    Res := mciSendCommand(DeviceID, MCI_SET, MCI_SET_DOOR_CLOSED, 0);
+    if Res = 0 then
+      exit;
+    Result := True;
+  finally
+    mciSendCommand(DeviceID, mci_Close, Flags, Longint(@OpenParm));
+  end;
+end;
+ 
+end.
+</pre>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

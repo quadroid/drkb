@@ -1,0 +1,139 @@
+<html>
+<head>
+  <title>Как узнать, находится ли дискета в дисководе?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как узнать, находится ли дискета в дисководе?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+type
+  TDriveState(DS_NO_DISK, DS_UNFORMATTED_DISK, DS_EMPTY_DISK,
+    DS_DISK_WITH_FILES);
+ 
+function DriveState(driveletter: Char): TDriveState;
+var
+  mask: string[6];
+  sRec: TSearchRec;
+  oldMode: Cardinal;
+  retcode: Integer;
+begin
+  oldMode: = SetErrorMode(SEM_FAILCRITICALERRORS);
+  mask := '?:\*.*';
+  mask[1] := driveletter;
+{$I-} { не возбуждаем исключение при неудаче }
+  retcode := FindFirst(mask, faAnyfile, SRec);
+  FindClose(SRec);
+{$I+}
+  case retcode of
+    0: Result := DS_DISK_WITH_FILES; { обнаружен по крайней мере один файл }
+    -18: Result := DS_EMPTY_DISK; { никаких файлов не обнаружено, но ok }
+    -21: Result := DS_NO_DISK; { DOS ERROR_NOT_READY }
+  else
+    Result := DS_UNFORMATTED_DISK; { в моей системе значение равно -1785!}
+  end;
+  SetErrorMode(oldMode);
+end; { DriveState }
+</pre>
+
+
+<p>Я тестировал код под Win NT 3.5, так что проверьте его на ошибки в ситуациях, когда дискета отсутствует или неотформатирована под Win 3.1 и WfW 3.11, если, конечно, это необходимо. </p>
+
+<p>Ревизия для Win95:</p>
+
+<pre name="code" class="delphi">
+case RetCode of
+  0: Result := DS_DISK_WITH_FILES;
+  -18: Result := DS_EMPTY_DISK;
+  else
+    Result := DS_NO_DISK;
+end;
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+<hr />
+<pre name="code" class="delphi">
+function DiskInDrive(const Drive: char): Boolean;
+var
+  DrvNum: byte;
+  EMode: Word;
+begin
+  result := false;
+  DrvNum := ord(Drive);
+  if DrvNum &gt;= ord('a') then
+    dec(DrvNum, $20);
+  EMode := SetErrorMode(SEM_FAILCRITICALERRORS);
+  try
+    if DiskSize(DrvNum - $40) &lt;&gt; -1 then
+      result := true
+    else
+      messagebeep(0);
+  finally
+    SetErrorMode(EMode);
+  end;
+end;
+</pre>
+
+<p>...можно для пущей функциональности добавить ряд строк:</p>
+
+<pre name="code" class="delphi">
+function DiskInDrive(const Drive: char): Boolean;
+var
+  DrvNum: byte;
+  EMode: Word;
+begin
+  result := true; // было false
+  DrvNum := ord(Drive);
+  if DrvNum &gt;= ord('a') then
+    dec(DrvNum, $20);
+  EMode := SetErrorMode(SEM_FAILCRITICALERRORS);
+  try
+    while DiskSize(DrvNum - $40) = -1 do
+    begin // при неудаче выводим диалог
+      if (Application.MessageBox('Диск не готов...' + chr(13) + chr(10) +
+        'Повторить?', PChar('Диск ' + UpperCase(Drive)), mb_OKCANCEL +
+        mb_iconexclamation {IconQuestion}) = idcancel) then
+      begin
+        Result := false;
+        Break;
+      end;
+    end;
+  finally
+    SetErrorMode(EMode);
+  end;
+end;
+</pre>
+
+
+<p id="author">Автор: <a href="mailto:inrus51@poikc.bashnet.ru" target="_blank">Галимарзанов Фанис</a> </p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

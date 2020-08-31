@@ -1,0 +1,108 @@
+<html>
+<head>
+  <title>Как выключить звук?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как выключить звук?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses 
+  MMSystem; 
+ 
+function GetMasterMute( 
+  Mixer: hMixerObj; 
+  var Control: TMixerControl): MMResult; 
+  // Returns True on success 
+var 
+  Line: TMixerLine; 
+  Controls: TMixerLineControls; 
+begin 
+  ZeroMemory(@Line, SizeOf(Line)); 
+  Line.cbStruct := SizeOf(Line); 
+  Line.dwComponentType := MIXERLINE_COMPONENTTYPE_DST_SPEAKERS; 
+  Result := mixerGetLineInfo(Mixer, @Line, 
+    MIXER_GETLINEINFOF_COMPONENTTYPE); 
+  if Result = MMSYSERR_NOERROR then 
+  begin 
+    ZeroMemory(@Controls, SizeOf(Controls)); 
+    Controls.cbStruct := SizeOf(Controls); 
+    Controls.dwLineID := Line.dwLineID; 
+    Controls.cControls := 1; 
+    Controls.dwControlType := MIXERCONTROL_CONTROLTYPE_MUTE; 
+    Controls.cbmxctrl := SizeOf(Control); 
+    Controls.pamxctrl := @Control; 
+    Result := mixerGetLineControls(Mixer, @Controls, 
+      MIXER_GETLINECONTROLSF_ONEBYTYPE); 
+  end; 
+end; 
+ 
+procedure SetMasterMuteValue( 
+  Mixer: hMixerObj; 
+  Value: Boolean); 
+var 
+  MasterMute: TMixerControl; 
+  Details: TMixerControlDetails; 
+  BoolDetails: TMixerControlDetailsBoolean; 
+  Code: MMResult; 
+begin 
+  Code := GetMasterMute(0, MasterMute); 
+  if Code = MMSYSERR_NOERROR then 
+  begin 
+    with Details do 
+    begin 
+      cbStruct := SizeOf(Details); 
+      dwControlID := MasterMute.dwControlID; 
+      cChannels := 1; 
+      cMultipleItems := 0; 
+      cbDetails := SizeOf(BoolDetails); 
+      paDetails := @BoolDetails; 
+    end; 
+    LongBool(BoolDetails.fValue) := Value; 
+    Code := mixerSetControlDetails(0, @Details, 
+MIXER_SETCONTROLDETAILSF_VALUE); 
+  end; 
+  if Code &lt;&gt; MMSYSERR_NOERROR then 
+    raise Exception.CreateFmt('SetMasterMuteValue failure, '+ 
+      'multimedia system error #%d', [Code]); 
+end; 
+ 
+// Example: 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  SetMasterMuteValue(0, CheckBox1.Checked); // Mixer device #0 mute on/off 
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

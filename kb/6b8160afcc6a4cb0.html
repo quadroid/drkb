@@ -1,0 +1,86 @@
+<html>
+<head>
+  <title>Как использовать переменную для имени процедуры?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как использовать переменную для имени процедуры?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Взято из FAQ: <a href="http://blackman.km.ru/myfaq/cont4.phtml" target="_blank">http://blackman.km.ru/myfaq/cont4.phtml</a></p>
+<p>Каким образом можно использовать переменную типа String в качестве имени процедуры?</p>
+<p>Если все процедуры, которые вы собираетесь вызывать, имеют список с одними и теми же параметрами (или все без параметров), то это не трудно. Для этого необходимы: процедурный тип, соответствующий вашей процедуре, например: </p>
+<pre name="code" class="delphi">
+type
+
+ 
+TMacroProc = procedure(param: Integer); 
+//массив, сопоставляющий имена процедур их адресам во время выполнения приложения: 
+TMacroName = string[32];
+TMacroLink = record
+name: TMacroName;
+proc: TMacroProc;
+end;
+TMacroList = array [1..MaxMacroIndex] of TMacroLink; 
+ 
+const
+Macros: TMacroList = (
+(name: 'Proc1'; proc: Proc1),
+(name: 'Proc2'; proc: Proc2),
+...
+); //интерпретатор функций, типа: 
+ 
+procedure CallMacro(name: String; param: Integer);
+var
+i: Integer;
+begin
+for i := 1 to MaxMacroIndex do
+if CompareText(name, Macros[i].name) = 0 then 
+begin
+Macros[i].proc(param);
+break;
+end;
+end; 
+ 
+{Макропроцедуры необходимо объявить в секции Interface модуля или с ключевым словом Far, например: }
+procedure Proc1(n: Integer); far;
+begin
+...
+end; 
+ 
+procedure Proc2(n: Integer); far;
+begin
+...
+end; 
+</pre>
+
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<html>
+<head>
+  <title>Серии коллекции</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Серии коллекции</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Серии коллекции</p>
+Рассмотрим серии коллекции - графики, набор фигур на диаграмме. Доступ к коллекциям получаем через объект SeriesCollection. Количество их зависит от размеров области данных диаграммы на рабочем листе. Чтобы получить его значение, считаем поле Count объекта SeriesCollection. Функция SeriesCount (для работы в среде Delphi) возвращает количество серий.</p>
+<pre name="code" class="delphi">Function SeriesCount (Name:variant):integer;
+begin
+ SeriesCount:=-1;
+ try
+  SeriesCount:=E.Charts.Item[name].SeriesCollection.Count;
+ except
+  SeriesCount:=-1;
+ end;
+End;
+</pre>
+&nbsp;</p>
+Рассмотрим вид коллекции - вид фигур в коллекции (куб, пирамида и др.). Я насчитал шесть видов. Для своих приложений можем использовать функцию BarShapeSeries для выбора любого из шести видов.</p>
+<pre name="code" class="delphi">Function BarShapeSeries (Name:variant;series,BarShape:integer):boolean;
+begin
+ BarShapeSeries:=true;
+ try
+  E.Charts.Item[name].SeriesCollection.Item[series].BarShape:=BarShape;
+ except
+  BarShapeSeries:=false;
+ end;
+End;
+</pre>
+&nbsp;</p>
+Остальные параметры: параметры границы и областей коллекции аналогичны параметрам любых областей диаграммы. Привожу их краткий список в виде операторов для Delphi:</p>
+<pre name="code" class="delphi">E.Charts.Item[name].SeriesCollection.Item[series].Border.Color:=Color;
+E.Charts.Item[name].SeriesCollection.Item[series].Border.Weight:=Weight;
+E.Charts.Item[name].SeriesCollection.Item[series].Border.LineStyle:=LineStyle;
+E.Charts.Item[name].SeriesCollection.Item[series].Interior.Color:=Color;
+E.Charts.Item[name].SeriesCollection.Item[series].Interior.Pattern:=Pattern;
+E.Charts.Item[name].SeriesCollection.Item[series].Interior.PatternColor:=PatternColor;
+E.Charts.Item[name].SeriesCollection.Item[series].Fill.UserPicture(PictureFile:=File_);
+E.Charts.Item[name].SeriesCollection.Item[series].Fill.Visible:=True;
+</pre>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<html>
+<head>
+  <title>Доступ к ячейкам Excel</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Доступ к ячейкам Excel</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Когда мы уже умеем открывать книгу, выбирать рабочий лист и сохранять книгу, то чтобы создать простой документ в Excel, необходимо и достаточно научиться записывать информацию в ячейки таблицы. Шаблоны многих документов уже разработаны и представлены в разнообразных справочных системах, и целесообразно научиться использовать их в своих приложениях.</p>
+Лист книги Excel состоит из множества строк и столбцов, пересечения которых представляют собой отдельные ячейки или множество ячеек, если пересекается множество строк и столбцов. Каждая ячейка может содержать информацию в виде данных различного типа или формул. Кроме данных, ячейка имеет другие свойства, которые определяют ее размер, цвет, стиль, формат данных и другие параметры.</p>
+Доступ к ячейке или ячейкам в Excel предоставляет объект Range. Этот объект обладает всеми необходимыми свойствами и методами, чтобы писать, читать из ячейки и изменять все ее свойства. Для того, чтобы просто записать информацию в ячейку, необходимо присвоить объекту Range значение, записанное в переменной типа variant. Например: Range['A1']:=123.25; или Range['A1']:='ячейка';. Для записи (чтения) в ячейку из приложений на Delphi разработаем несколько функций. Аргумент (range:string) этих функций может принимать значения, которые соответствуют одной ячейке (например 'A1') или группе ячеек (например 'A1:D5').</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 0px;"><pre name="code" class="delphi">
+Function SetRange (sheet:variant;range:string;
+  value_:variant):boolean;
+begin
+ SetRange:=true;
+ try
+  E.ActiveWorkbook.Sheets.Item[sheet].Range[range]:=value_;
+ except
+  SetRange:=false;
+ end;
+End;
+</pre>
+Читать информацию одновременно можно только из одной ячейки. Если попытаться читать из группы ячеек, то можно получить ошибку. Поэтому аргумент range:string в функции GetRange принимает только такие значения, как, например 'A1'. В этих функциях чтения и записи, а также и во всех последующих аргумент sheet может принимать как числовые значения (номер листа), так и строковые (имя листа).</p>
+<pre name="code" class="delphi">
+Function GetRange (sheet:variant;range:string):variant;
+begin
+ try
+  GetRange:=E.ActiveWorkbook.Sheets.Item[sheet].Range[range];
+ except
+  GetRange:=null;
+ end;
+End;
+</pre>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

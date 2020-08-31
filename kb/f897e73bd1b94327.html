@@ -1,0 +1,57 @@
+<html>
+<head>
+  <title>Проблемы с TCanvas.StretchDraw при рисовании иконок</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Проблемы с TCanvas.StretchDraw при рисовании иконок</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>При попытке использовать метод TCanvas.StretchDraw чтобы нарисовать иконку</p>
+<p>увеличенной ее размер не изменяется. Что делать?</p>
+
+<p>Иконки всегда рисуются размером принятым в системе по умолчанию. Чтобы показать увеличенный вид иконки скоприуйте ее на bitmap, а зате используйте метод TCanvas.StretchDraw.</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  TheBitmap: TBitmap;
+begin
+  TheBitmap := TBitmap.Create;
+  TheBitmap.Width := Application.Icon.Width;
+  TheBitmap.Height := Application.Icon.Height;
+  TheBitmap.Canvas.Draw(0, 0, Application.Icon);
+  Form1.Canvas.StretchDraw(Rect(0, 0, TheBitmap.Width * 3, TheBitmap.Height * 3),
+    TheBitmap);
+  TheBitmap.Free;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<html>
+<head>
+  <title>Как изменить оконную процедуру для TForm?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как изменить оконную процедуру для TForm?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Переопределите в подклассе TForm оконную процедуру WinProc класса. В примере оконная процедура переопределяется для того чтобы реагировать на сообщение WM_CANCELMODE, показывающее, что выполняется messagebox или какой-либо еще диалог. </p>
+<pre name="code" class="delphi">
+type
+  TForm1 = class(TForm)
+    Button1: TButton;
+    procedure WndProc(var Message: TMessage); override;
+    procedure Button1Click(Sender: TObject);
+  private
+  {Private declarations}
+  public
+  {Public declarations}
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TForm1.WndProc(var Message: TMessage);
+begin
+  if Message.Msg = WM_CANCELMODE then
+    begin
+      Form1.Caption := 'A dialog or message box has popped up';
+    end
+  else
+    inherited // &lt;- остальное сделает родительская процедура
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  ShowMessage('Test Message');
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

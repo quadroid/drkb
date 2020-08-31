@@ -1,0 +1,352 @@
+<html>
+<head>
+  <title>Решение СЛАУ, вычисление обратных матриц и определителей с использованием LU-разложения</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Решение СЛАУ, вычисление обратных матриц и определителей с использованием LU-разложения</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit LU_Utils;
+ 
+interface
+uses Classes;
+type
+  TDblArr = array of Double;
+  TIntArr = array of Integer;
+  TDblMatr = array of array of Double;
+ 
+procedure CopyMatr(Src, Dest: TDblMatr);
+ 
+//исходная матрица разрушается, при необходимости нужно сделать копию
+procedure LUDecomp(Matr: TDblMatr; Indx: TIntArr; var DSign: Integer);
+procedure LUBackSubst(Matr: TDblMatr; Indx: TIntArr; Reslt: TDblArr);
+ 
+//решение системы линейных уравнений. XY на входе - правые части,
+//на выходе - вектор решений
+//LU-разложение матрицы может использоваться многократно с
+//разными правыми частями (при модификации кода)
+procedure SLAUSolver(Matr: TDblMatr; XY: TDblArr);
+ 
+//исходная матрица заменяется обратной
+procedure MatrInverse(Matr: TDblMatr);
+ 
+//исходная матрица сохраняется
+function Determinant(Matr: TDblMatr): Double;
+ 
+implementation
+uses SysUtils;
+ 
+procedure CopyMatr(Src, Dest: TDblMatr);
+var
+  n, i: Integer;
+begin
+  n := Length(Src);
+  for i := 0 to n - 1 do
+    Move(Src[i, 0], Dest[i, 0], n * SizeOf(Double));
+end;
+ 
+procedure LUDecomp(Matr: TDblMatr; Indx: TIntArr; var DSign: Integer);
+const
+  Tiny = 1.0E-40;
+var
+  n, k, j, imax, i: Integer;
+  sum, dum, big: Double;
+  VV: TDblArr;
+  DumPtr: Pointer;
+begin
+  n := Length(Matr);
+  SetLength(VV, n);
+  DSign := 1;
+ 
+  for i := 0 to n - 1 do begin
+    big := 0;
+    for j := 0 to n - 1 do
+      if (abs(Matr[i, j]) &gt; big) then
+        big := Abs(Matr[i, j]);
+    if (big = 0.0) then
+      raise Exception.Create('Stopped. Matrix is singular!!!');
+    VV[i] := 1 / big;
+  end;
+ 
+  for j := 0 to n - 1 do begin
+    for i := 0 to j - 1 do begin
+      sum := Matr[i, j];
+      for k := 0 to i - 1 do
+        sum := sum - Matr[i, k] * Matr[k, j];
+      Matr[i, j] := sum;
+    end;
+ 
+    big := 0;
+    for i := j to n - 1 do begin
+      sum := Matr[i, j];
+      for k := 0 to j - 1 do
+        sum := sum - Matr[i, k] * Matr[k, j];
+      Matr[i, j] := sum;
+      dum := VV[i] * abs(sum);
+      if (dum &gt; big) then begin
+        big := dum;
+        imax := i;
+      end;
+    end;
+ 
+    if (j &lt;&gt; imax) then begin
+      DumPtr := Pointer(Matr[imax]);
+      Pointer(Matr[imax]) := Pointer(Matr[j]);
+      Pointer(Matr[j]) := DumPtr;
+      DSign := -DSign;
+      VV[imax] := VV[j]
+    end;
+ 
+    Indx[j] := imax;
+    if (Matr[j, j] = 0) then
+      Matr[j, j] := Tiny;
+    if (j &lt;&gt; n - 1) then begin
+      dum := 1 / Matr[j, j];
+      for i := j + 1 to n - 1 do
+        Matr[i, j] := Matr[i, j] * dum;
+    end;
+  end;
+end;
+ 
+procedure LUBackSubst(Matr: TDblMatr; Indx: TIntArr; Reslt: TDblArr);
+var
+  n, j, ip, ii, i: Integer;
+  sum: Double;
+begin
+  n := Length(Matr);
+  ii := -1;
+ 
+  for i := 0 to n - 1 do begin
+    ip := Indx[i];
+    sum := Reslt[ip];
+    Reslt[ip] := Reslt[i];
+    if (ii &lt;&gt; -1) then
+      for j := ii to i - 1 do
+        sum := sum - Matr[i, j] * Reslt[j]
+    else
+      if (sum &lt;&gt; 0.0) then
+        ii := i;
+    Reslt[i] := sum;
+  end;
+ 
+  for i := n - 1 downto 0 do begin
+    sum := Reslt[i];
+    if (i &lt; n - 1) then
+      for j := i + 1 to n - 1 do
+        sum := sum - Matr[i, j] * Reslt[j];
+    Reslt[i] := sum / Matr[i, i];
+  end
+end;
+ 
+procedure SLAUSolver(Matr: TDblMatr; XY: TDblArr);
+var
+  Indx: TIntArr;
+  DSign: Integer;
+begin
+  SetLength(Indx, Length(XY));
+  LUDecomp(Matr, Indx, DSign);
+  LUBackSubst(Matr, Indx, XY);
+end;
+ 
+procedure MatrInverse(Matr: TDblMatr);
+var
+  n, i, j: Integer;
+  Indx: TIntArr;
+  Col: TDblArr;
+  DSign: Integer;
+  Temp: TDblMatr;
+begin
+  n := Length(Matr);
+  SetLength(Indx, n);
+  SetLength(Col, n);
+  SetLength(Temp, n, n);
+  LUDecomp(Matr, Indx, DSign);
+  for j := 0 to n - 1 do begin
+    for i := 0 to n - 1 do
+      Col[i] := 0;
+    Col[j] := 1;
+    LUBackSubst(Matr, Indx, Col);
+    for i := 0 to n - 1 do
+      Temp[i, j] := Col[i];
+  end;
+  CopyMatr(Temp, Matr);
+  Temp := nil;
+end;
+ 
+function Determinant(Matr: TDblMatr): Double;
+var
+  n, j: Integer;
+  Indx: TIntArr;
+  DSign: Integer;
+  Temp: TDblMatr;
+begin
+  n := Length(Matr);
+  SetLength(Indx, n);
+  SetLength(Temp, n, n);
+  CopyMatr(Matr, Temp);
+  LUDecomp(Temp, Indx, DSign);
+  Result := DSign;
+  for j := 0 to n - 1 do
+    Result := Result * Temp[j, j];
+end;
+ 
+end.
+</pre>
+
+<pre name="code" class="delphi">
+unit Unit1;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, LU_Utils, StdCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    Memo1: TMemo;
+    Button1: TButton;
+    Button2: TButton;
+    Button3: TButton;
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+function ShowArr(Arr: TDblArr): string;
+var
+  i: Integer;
+begin
+  Result := '';
+  for i := 0 to Length(Arr) - 1 do
+    Result := Result + FormatFloat('0.0000', Arr[i]) + '  ';
+end;
+ 
+procedure ShowMatr(Matr: TDblMatr; Strings: TStrings);
+var
+  n, i, j: Integer;
+  s: string;
+begin
+  n := Length(Matr);
+  for i := 0 to n - 1 do begin
+    s := '';
+    for j := 0 to n - 1 do
+      s := s + FormatFloat('0.0000', Matr[i, j]) + '  ';
+    Strings.Add(s);
+  end;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  M:TDblMatr;
+  B:TDblArr;
+begin
+SetLength(M,3,3);
+SetLength(B,3);
+  M[0, 0] := 0.5;
+  M[0, 1] := 2;
+  M[0, 2] := -1;
+  M[1, 0] := -15;
+  M[1, 1] := -0.1;
+  M[1, 2] := 3.2;
+  M[2, 0] := 0.7;
+  M[2, 1] := 4.1;
+  M[2, 2] := -0.2;
+  B[0] := 11.4;
+  B[1] := -196.02;
+  B[2] := 10.22;
+  Memo1.Clear;
+  ShowMatr(M, Memo1.Lines);
+  Memo1.Lines.Add('');
+  SLAUSolver(M, B);
+  ShowMatr(M, Memo1.Lines);
+  Memo1.Lines.Add('');
+  Memo1.Lines.Add(ShowArr(B));
+end;
+ 
+procedure TForm1.Button2Click(Sender: TObject);
+var
+  M:TDblMatr;
+begin
+  SetLength(M,3,3);
+  M[0, 0] := 1;
+  M[0, 1] := 1;
+  M[0, 2] := 1;
+  M[1, 0] := 1;
+  M[1, 1] := 2;
+  M[1, 2] := 1;
+  M[2, 0] := 1;
+  M[2, 1] := 1;
+  M[2, 2] := 3;
+  Memo1.Clear;
+  ShowMatr(M, Memo1.Lines);
+  Memo1.Lines.Add('');
+  MatrInverse(M);
+  ShowMatr(M, Memo1.Lines);
+end;
+ 
+procedure TForm1.Button3Click(Sender: TObject);
+var
+  M:TDblMatr;
+begin
+  SetLength(M,3,3);
+  M[0, 0] := 1;
+  M[0, 1] := 0;
+  M[0, 2] := 1;
+  M[1, 0] := 0;
+  M[1, 1] := 2;
+  M[1, 2] := 0;
+  M[2, 0] := 1;
+  M[2, 1] := 0;
+  M[2, 2] := 3;
+  Memo1.Clear;
+  ShowMatr(M, Memo1.Lines);
+  Memo1.Lines.Add('');
+  Memo1.Lines.Add(FormatFloat('0.0000', Determinant(M)));
+end;
+ 
+end.
+</pre>
+<p id="author">Автор: MBo</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

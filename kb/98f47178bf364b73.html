@@ -1,0 +1,320 @@
+<html>
+<head>
+  <title>Использование Debug API</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Использование Debug API</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+С чего все начиналось: </p>
+<p>С начала. Мне нужно было написать перехватчик вызовов WinSock. Дабы любая программа могла работать через SOCKS5-проксик. Я посчитал, что перехват вызовов DLL'ки проще, чем судорожные попытки написать драйвер (да и сейчас так считаю). Енота, правда, ехидно улыбалась и говорила "ну-ну", но я-таки справился. SOCKS сниффер еще пишу, но в принципах перехвата уже разобрался :-) [Енота: разобраться-то он действительно разобрался, а соксифиера нет до сих пор...] </p>
+<p>Как все будет: </p>
+<p>Я предпочитаю не писать сухие статьи с кучей теории. Поскольку я люблю читать работающий исходный код, то и здесь будет только исходный код. Все пояснения я буду вставлять прямо в исходник - в виде комментариев. Впрочем, не надейтесь, что вам будет достаточно выдрать отсюда исходник, и он скомпилится. :-) Это не потому, что я специально что-то скрыл, а потому, что я вырезал кучу вспомогательных процедур, которые каждый может написать сам. Если вы, все же, паталогически ленивы - скачайте архив с полными рабочими исходниками. Оттуда точно заработает. </p>
+<p>Исходники: </p>
+<p>Наконец-то... начнем. </p>
+<pre name="code" class="delphi">
+procedure DoDebugLoop;
+{ собственно, это главная процедура перехватчика.
+большую часть времени он крутится именно в ней }
+var
+  Event: TDebugEvent;
+  { стандартная Win32 структура. для интересующихся:}
+  ЕDebugEvent = record
+    dwDebugEventCode: DWORD; // тип пришедшего события
+    dwProcessId: DWORD;   // Id прерванного процесса
+    dwThreadId: DWORD; // Id прерванного потока
+    case Integer of
+      0: (Exception: TExceptionDebugInfo);
+      1: (CreateThread: TCreateThreadDebugInfo);
+      2: (CreateProcessInfo: TCreateProcessDebugInfo);
+      3: (ExitThread: TExitThreadDebugInfo);
+      4: (ExitProcess: TExitThreadDebugInfo);
+      5: (LoadDll: TLoadDLLDebugInfo);
+      6: (UnloadDll: TUnloadDLLDebugInfo);
+      7: (DebugString: TOutputDebugStringInfo);
+      8: (RipInfo: TRIPInfo);
+      // эти части смотрите сами - не могу же я все разжевывать! :-)
+  end;
+</pre>
+<p>следует добавить, что Microsoft - ребята странные. Функция GetThreadContext, при помощи которой реализуется пошаговая отладка и просмотр регистров, требует на входе хэндл процесса. а нам дают только его Id. после безуспешных поисков функции типа ConvertThreadIdToHandle [Енота: мечтатель, однако...] я решил, что придется заводить список запущенных потоков. в событии CREATE_THREAD_DEBUG_EVENT нам дают-таки хэндл. придется запоминать все созданные потоки (не забывая их забывать ( сорри :-) в EXIT_THREAD_DEBUG_EVENT). позже Sleepyhead сказал, что я все придумал очень правильно (ай да Кэтмар! ай да сукин сын! простите, классика :-) - так люди и делают. ну он большой, ему виднее :-) } </p>
+<p>dwContinueStatus: DWORD; </p>
+<p>{ как системе обрабатывать событие в ContinueDebugEvent. обнаружилось, что если это событие - не исключение (EXCEPTION_DEBUG_EVENT), то этот флажок системе "по сараю". а если исключение, то есть два варианта: DBG_CONTINUE - наш "отладчик" успешно обработал все сам, и DBG_EXCEPTION_NOT_HANDLED, что значиит - передать исключение системе на обработку } </p>
+<p>CurThread: DWORD; </p>
+<p>{ хэндл потока, найденный в нашем списке потоков (см. замечание чуть повыше) } </p>
+<p>HProc: DWORD; </p>
+<p>{ хэндл процесса, который мы отлаживаем } </p>
+<p>Context: TContext; </p>
+<p>{ контекст потока. проще говоря - содержание его регистров } </p>
+<p>ThreadList: array[0..99] of record Id, Handle: DWORD; end; </p>
+<p>{ тот самый пресловутый список потоков, который мы своими ручками будем создавать и поддерживать. в принципе, это должен быть список или динамический массив, ибо количество потоков, которые может создать программа, заранее не известно, но не будем заморачиваться. код-то демонстрационный! } </p>
+<p>RetAddr: DWORD; </p>
+<p>{ здесь будет храниться адрес возврата из перехваченной API-функции (так, на всякий случай. чтобы вы видели, как и откуда его можно добыть) } </p>
+<p>BPAddr: DWORD; </p>
+<p>{ в учебных целях мы будем перехватывать только одну функцию. поэтому вместо списка обойдемся просто переменной. здесь будет храниться адрес первого байтика перехваченной функции } </p>
+<p>OrigByte: Byte; </p>
+<p>{ а здесь будет храниться сам первый байтик } </p>
+<p>RestoreBreak: Boolean; </p>
+<p>{ флажок, который указывает обработчику события EXCEPTION_SINGLE_STEP надо ли восстанавливать точку останова. весь перехват выглядит так: </p>
+<p>нашли стартовый адрес процедуры (это можно сделать просмотром таблицы экспорта у соответствующей DLL-ки. как именно - здесь не пишу. или разбирайтесь сами, или качайте мои исходники - там все есть. не то чтобы мне жалко, но к Debug API это имеет отношение весьма косвенное. опять же, если народ будет очень интересоваться, сделаю статью с quick overview формата PE); </p>
+<p>запомнили ее первый байт; </p>
+<p>записали вместо первого байта код $CC (это Int3 - DEBUG_EXCEPTION); </p>
+<p>по приходу DEBUG_EXCEPTION: </p>
+<p>проверили, точно ли мы прервались на адресе нашей точки останова. если нет - не делаем ничего. иначе: </p>
+<p>восстановили первый байт; </p>
+<p>установили флажок SINGLE_STEP; </p>
+<p>установили флажок ResoteBreak; </p>
+<p>ожидаем прихода события EXCEPTION_SINGLE_STEP; </p>
+<p>по приходу EXCEPTION_SINGLE_STEP: </p>
+<p>если установлен флажок RestoreBreak: </p>
+<p>вернули на место $CC; </p>
+<p>сбросили флажок ResoteBreak; } </p>
+<p>ProcessFinished: Boolean; </p>
+<p>{ флажок, указывающий, завершился ли отлаживаемый процесс. Sleepyhead говорит, что иногда процесс не завершается корректно (к примеру, отладчик, который отлаживает отладчик, который отлаживает отладчик... [Енота: GNU's not Unix :-)]), поэтому если процесс не завершится сам, мы прибьем его руками } </p>
+<pre name="code" class="delphi">
+begin
+  FillChar(ThreadList, SizeOf(ThreadList), 0);
+ 
+  HProc := 0;
+  { хэндл процесса, который будем отлаживать.
+  пока процесс не запущенным считается,
+  соответственно - хэндла нету }
+  ProcessFinished := True;
+  { поскольку процесс не запустился,
+  то он считается завершенным :-) }
+  BPAddr := 0;
+  { точку останова уточним,
+  когда загрузится нужная DLL }
+  RestoreBreak := False;
+ 
+  repeat
+    if not WaitForDebugEvent(Event, INFINITE) then
+      break;
+    { ожидаем прихода отладочного события. в реальном отладчике здеесь
+    вместо INFINITE лучше задать маленькую константу, ожидать в цикле,
+    там же в цикле организовывать взаимодействие с юзверем. или вообще
+    для интерфейса отдельный поток создать }
+    dwContinueStatus := DBG_EXCEPTION_NOT_HANDLED;
+    { поскольку большинство исключений мы не обрабатываем,
+    то по умолчанию так и говорим системе }
+    CurThread := GetThreadHandleFromList(ThreadList, Event.dwThreadId);
+    { просто поиск в массиве ThreadList. Id нам известен, ищем хэндл }
+    case Event.dwDebugEventCode of
+      { проверим - а что, собственно случилось? }
+      CREATE_PROCESS_DEBUG_EVENT:
+      { запустился новый процесс. запомним его хэндл, и сбросим флажок ProcessFinished }
+      begin
+        HProc := Event.CreateProcessInfo.HProcess;
+        ProcessFinished := False;
+        AddThreadToList(ThreadList, Event.dwThreadId, Event.CreateProcessInfo.hThread);
+      end;
+      EXIT_PROCESS_DEBUG_EVENT:
+      { процесс завершился - значит, можно смело закрывать наш перехватчик.
+      заодно установим флажок ProcessFinished }
+      begin
+        ProcessFinished := True;
+        ContinueDebugEvent(Event.dwProcessId, Event.dwThreadId, DBG_CONTINUE);
+        { это на всякий случай - чтобы ось точно прибила и процесс, и отладчик.
+        в принципе, оно не надо, но смотри выше комментарий к ProcessFinished }
+        break; { все, из цикла отладки можно смело выходить }
+      end;
+      CREATE_THREAD_DEBUG_EVENT:
+        { процесс запустил новый поток. здесь у нас есть единственная возможность
+        запомнить его хэндл. так и делаем }
+        AddThreadToList(ThreadList, Event.dwThreadId, Event.CreateThread.hThread);
+      EXIT_THREAD_DEBUG_EVENT:
+        { процесс завершил исполнение потока. забудем его хэндл }
+        DeleteThreadFromList(ThreadList, Event.dwThreadId);
+      LOAD_DLL_DEBUG_EVENT:
+        { процесс загрузил какую-то DLL'ку. проверим, не та ли
+        это, которая нам нужна. если та, установим точку останова.
+        текст процедуры смотрите ниже }
+        ProcessDLLExport(HProc, DWORD(Event.LoadDll.lpBaseOfDll));
+      UNLOAD_DLL_DEBUG_EVENT:
+        { процесс выгрузил какую-то DLL'ку. по-правилам,
+        это надо бы обработать, но поскольку я перехватываю вызовы kernel32.dll,
+        который всегда (за очень-очень редким исключением :-) линкуется статически,
+        то это событие я просто игнорирую. а вообще-то надо запомнить
+        адрес загрузки нужной нам DLL в LOAD_DLL_DEBUG_EVENT
+        (ибо это единственный способ идентифицировать DLL'ку),
+        а здесь проверять - не наша ли это. если наша - обнулить BPAddr.
+        можете дописать сами - как любят говорить авторы книг:
+        "в качестве упражнения" :-) [Енота: ага. а сам, когда видит
+        в книге эту фразу, разражается потоком нецензурной лексики :-)] }
+        WriteLn('unloading DLL: ', IntToHex(DWORD(Event.UnloadDll.lpBaseOfDll), 8));
+      EXCEPTION_DEBUG_EVENT:
+        { какое-то исключение. проверим поточнее... }
+        case Event.Exception.ExceptionRecord.ExceptionCode of
+        EXCEPTION_BREAKPOINT:
+        { это - точка останова. здесь мы уточним: наша или нет. дело в том,
+        что система сама генерирует это событие, когда процесс загрузился,
+        но перед тем, как он запущен (полсе того, как системный загрузчик
+        загрузил процесс и все его DLL'ки. как раз перед тем, как исполнить
+        первую инструкцию процесса). плюс - мало ли, какой код внутри
+        исследуемого процесса может быть? так что... }
+        begin
+          dwContinueStatus := DBG_CONTINUE;
+          { скажем системе, что это исключение мы обработали сами, пусть не напрягается }
+          Context.ContextFlags := CONTEXT_CONTROL or CONTEXT_INTEGER or CONTEXT_SEGMENTS;
+          GetThreadContext(CurThread, Context);
+          { получили контекст прерванного потока. больше всего нас интересуют IP и Flags.
+          остальные регистры запросили просто для полноты картины }
+          if (BPAddr &lt;&gt; 0) and (Context.EIP = BPAddr + 1) then
+          begin
+            { если мы уже установили нашу точку останова и прервались именно на ней... }
+            RetAddr := ReadProcessLong(HProc, Context.ESP);
+            { то получим адрес возврата из перехваченной нами функции.
+            он нам не нужен, на самом-то деле, это просто пример - откуда его брать.
+            если вам нужны параметры - ReadProcessLong(HProc, Context.ESP + 4)
+            будет первым, ...+ 8) - вторым, и так далее... кстати, ReadProcessLong -
+            просто обертка для системной функции ReadProcessMemory. читает 4 байтика.
+            для удобства. думаю, что у вас не будет проблем сделать себе такую же :-) }
+            WriteLn('Return address: 0x', IntToHex(RetAddr, 8));
+            { дальше - уменьшим IP на еденичку (чтобы исполнить ту инструкцию,
+            которую мы заменили на нашу точку останова)... реально, EIP-1
+            хранится в BPAddr. так и запишем... }
+            Context.EIP := BPAddr;
+            { ...и восстановим оригинальный первый байтик этой инструкции }
+            WriteProcessByte(HProc, BPAddr, OrigByte);
+            { установим флажок для того, чтобы система генерировала
+            событие EXCEPTION_SINGLE_STEP. в этом событии надо будет вернуть
+            точку останова на место, иначе перехват состоится ровно один раз :-)
+            [Енота: а то бы читатель сам не догадался...] }
+            RestoreBreak := True;
+            Context.EFlags := Context.EFlags or EFLAGS_TRACE;
+            { вышеприведенной инструкцией мы сообщаем системе,
+            что хотим получать по событию (EXCEPTION_SINGLE_STEP) после каждой
+            исполненной в отлаживаемом процессе машинной команды. кстати,
+            значение константы EFLAGS_TRACE = $100 }
+            Context.ContextFlags := CONTEXT_CONTROL;
+            SetThreadContext(CurThread, Context);
+            { установим новое значение регистров потока }
+          end;
+        end;
+        EXCEPTION_SINGLE_STEP:
+        { выполнена одна машинная команда. скорее всего,
+        возниконовение этого события - результат выполнения нашей точки останова,
+        но кто знает? проверим флажки. если надо - восстановим точку останова }
+        begin
+          dwContinueStatus := DBG_CONTINUE;
+          { скажем системе, что это исключение мы обработали сами, пусть не напрягается }
+          Context.ContextFlags := CONTEXT_CONTROL;
+          GetThreadContext(CurThread, Context);
+          if RestoreBreak and (Context.EIP &gt;= BPAddr) and (Context.EIP &lt;= BPAddr + 32) then
+          begin
+            { это действительно "наше" событие. восстановим точку останова,
+            чтобы перехватчик работал и дальше }
+            OrigByte := WriteInt3(HProc, BPAddr);
+            RestoreBreak := False;
+ 
+            Context.EFlags := Context.EFlags and not EFLAGS_TRACE;
+            { сбросим флажок трассировки, ибо больше это событие нам не надо }
+          end
+          else
+            if RestoreBreak then
+              Context.EFlags := Context.EFlags or EFLAGS_TRACE;
+          { вернем флажок трассировки, если событие не наше -
+          нам ведь надо нашего дождаться. у меня система сама скидывает сей флаг,
+          так что на всякий случай... }
+ 
+          Context.ContextFlags := CONTEXT_CONTROL;
+          SetThreadContext(CurThread, Context);
+        end;
+      end;
+    end;
+ 
+    if not ContinueDebugEvent(Event.dwProcessId, Event.dwThreadId, dwContinueStatus) then
+      break;
+    { все. смело позволяем отлаживаемому процессу исполняться дальше }
+  until
+    False;
+  { сюда мы попадем только при каком-нибудь сбое или завершении процесса.
+  на всякий случай (по совету SleepyHead'а) проверим: а точно наш
+  отлаживаемый процесс завершился? если нет - прибьем руками }
+  if not ProcessFinished then
+  begin
+    repeat
+      TerminateProcess(HProc, RetAddr);
+      if not WaitForDebugEvent(Event, INFINITE) then
+        break;
+      if (Event.dwDebugEventCode = EXIT_PROCESS_DEBUG_EVENT) then
+        break;
+      if not ContinueDebugEvent(Event.dwProcessId, Event.dwThreadId, DBG_CONTINUE) then
+        break;
+    until
+      False;
+    ContinueDebugEvent(Event.dwProcessId, Event.dwThreadId, DBG_CONTINUE);
+  end;
+  { все. закончили :-) }
+end;
+ 
+{ а вот процедурка, которая устанавливает точку останова }
+procedure ProcessDLLExport(PrcH, Base: DWORD);
+var
+  DLLName: string;
+  ExpTbl: TExportHeader;
+  N: DWORD;
+begin
+  if (BPAddr &lt;&gt; 0) then
+    exit;
+  { если уже установлена - не делать ничего }
+  if not FindExportTable(PrcH, Base, ExpTbl) then
+    exit;
+  { если не смогли найти в DLL'ке таблицу экспорта (мало ли...) -
+  тоже ничего не делать }
+  DLLName := ANSILowerCase(GetASCIIZString(PrcH, ExpTbl.NameRVA + Base));
+  { получили имя DLL'ки }
+  if (DLLName &lt;&gt; 'kernel32.dll') then
+    exit;
+  { не наша? если да - снова не делаем ничего }
+  N := FindExportIndexByName(PrcH, Base, 'AllocConsole', ExpTbl);
+  N := FindExportByIndex(PrcH, Base, N, ExpTbl);
+  { нашли по таблице экспорта точку входа (если не нашли -
+  опять же ничего делать не надо }
+  if (N = 0) then
+    exit;
+  { а если нашли - запомним необходимую информацию и установим останов }
+  BPAddr := N;
+  OrigByte := WriteInt3(PrcH, N);
+  { WriteInt3 просто возвращает в качестве результата старый байтик,
+  и на его место записывает код $CC - инструкция Int3. когда система
+  встречает эту инструкцию, она генерирует исключение EXCEPTION_BREAKPOINT }
+end;
+</pre>
+
+<p>Все. Не так страшен черт, как его малюют [Енота: или: не так страшен Гейтс... :-)]. Остались мелочи. </p>
+<p>Если вы запускаете процесс сами, не забудьте указать в CreateProcess флажок DEBUG_ONLY_THIS_PROCESS, чтобы отладчик мог работать, и чтобы процессы, которые может запустить отлаживаемая программа не отлаживались нами (а зачем нам дочерние процессы? если хотим перехватывать вызовы и в них, проще будет ловить непосредственно CreateProcess, и для каждого "новорожденного" запускать свою копию отладчика. Тем более, что если мы присоединяемся к уже запущенному процессу, то система по умолчанию ставит флажок DEBUG_ONLY_THIS_PROCESS. Так что перехватывать CreateProcess надежнее). </p>
+<p>Если же вы хотите присоединиться к уже запущенному процессу, то узнайте его Id (с помощью TaskManager в NT или программно), и смело пишите DebugActiveProcess(ProcessId). В дальнейшем никаких различий между работой с процессом, запущенным нами и процессом, к которому мы присоединились "на лету" уже нет. </p>
+<p>И еще: учтите, что если наш отладчик завершится, то система автоматически прибьет и процесс, который мы имели счастье отлаживать. Способа "отсоединиться" от процесса нет: взялся за гуж, не говори, что не дюж. :-) </p>
+<p>Также замечу, что полезно обрабатывать возможные ошибки при вызове системных функций. Здесь я их - в основном - смело игнорирую, но вам бы лучше так не поступать. </p>
+<p>Полные рабочие исходники можно взять с нашего сайта: http://www.piranha-home.org. Если кто-то поможет в деле перевода статьи на английский - буду очень благодарен</p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

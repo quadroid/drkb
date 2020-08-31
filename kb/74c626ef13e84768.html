@@ -1,0 +1,170 @@
+<html>
+<head>
+  <title>Cоздание документа MS Word</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Cоздание документа MS Word</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Труд программиста оценивается только пользователями и почти всегда по конечному результату. Используя материалы первой и второй частей статьи "Суперфункции", мы уже имеем возможность предоставить пользователю свою программу формирования простого документа в редакторе Word в законченном виде.</p>
+В первой части мы разработали и использовали функции создания и сохранения документа, а также функции записи текста, но этого недостаточно для подготовки даже простого документа. Каким набором функций нужно пользоваться, чтобы подготовить, например, документ типа "Платежное поручение"?</p>
+Поставим задачу: создание документа "Платежное поручение", - и определим, какие функции для этого необходимы. Сам по себе документ "Платежное поручение" является табличным, т.е. в определенную таблицу вписаны значения некоторых текстовых и числовых переменных. К тому же этот документ не является многострочным. Можно найти еще массу примеров таких документов, поэтому технология подготовки "Платежного поручения" подойдет к большому количеству аналогичных документов. </p>
+Одним из способов, который можно применить для подготовки простых документов, является заполнение шаблона. Шаблон представляет собой некоторый документ, часть которого выполнена в виде таблицы, определенные ячейки которой заполнены наборами символов (словами). Обозначим эти слова как переменные, вместо которых будут подставляться реальные значения из программы в момент формирования документа. Способ с использованием переменных удобен тем, что он позволяет легко изменить документ, не изменяя программу формирования. Так как мы используем шаблон (подготовленный в виде документа Word), то для работы с ним необходима функция открытия ранее созданного документа. Функции поиска текста и перевода курсора в начало документа необходима для поиска слов-переменных для дальнейшей замены их реальными данными. Также может быть необходима функция задания шрифта и вывода на печать готового документа.</p>
+Определим функцию открытия ранее созданного документа OpenDoc. Для этого используем метод Open коллекции Documents, которая нами уже использовалась в функции создания нового документа. Функция Open, кроме обязательного аргумента (имени файла), может иметь ряд дополнительных аргументов, которые определяют режим открытия. Она возвращает ссылку на объект типа Document, но в нашем случае будем использовать только обязательный аргумент.</p>
+<pre name="code" class="delphi">
+Function OpenDoc (file_:string):boolean;
+ Var Doc_:variant;
+begin
+ OpenDoc:=true;
+ try
+  Doc_:=W.Documents;
+  Doc_.Open(file_);
+ except
+  OpenDoc:=false;
+ end;
+End;
+</pre>
+Фрагмент из двух операторов</p>
+<pre name="code" class="delphi">
+Doc_:=W.Documents;
+Doc_.Open(file_);
+</pre>
+можно заменить одним </p>
+W.Documents.Open(file_);</p>
+Для перевода курсора в начало документа используем свойства End и Start объекта W.Selection. Эту функцию необходимо использовать каждый раз перед началом поиска текста, чтобы поиск осуществлялся с начала документа. Свойства End и Start объекта Selection можно использовать и для выделения диапазона текста, при этом в Start записывается номер начального символа фрагмента в тексте, а в End - номер конечного. В данном случае необходимо в оба поля записать нули.</p>
+<pre name="code" class="delphi">
+Function StartOfDoc:boolean;
+begin
+ StartOfDoc:=true;
+ try
+  W.Selection.End:=0;
+  W.Selection.Start:=0;
+ except
+  StartOfDoc:=false;
+ end;
+End;
+</pre>
+Функция поиска (FindTextDoc) фрагмента текста состоит из трех операторов. Первый и второй задают направление поиска (от начала к концу) и фрагмент для поиска, соответственно. Третий оператор выполняет поиск и возвращает результат. Функция возвращает True, если поиск удачный, и False - если нет. Во всех трех операторах используем поля и методы объекта Selection.</p>
+<pre name="code" class="delphi">
+Function FindTextDoc (text_:string):boolean;
+begin
+ FindTextDoc:=true;
+ Try
+  W.Selection.Find.Forward:=true;
+  W.Selection.Find.Text:=text_;
+  FindTextDoc := W.Selection.Find.Execute;
+ except
+  FindTextDoc:=false;
+ end;
+End;
+</pre>
+Функция FindTextDoc находит и выделяет фрагмент текста в документе. Для того, чтобы вставить новый текст вместо выделенного, создадим еще одну функцию. PasteTextDoc состоит из двух операторов, удаления выделенного фрагмента и вставки нового текста с положения курсора. Оба эти оператора используют объект Selection объекта W. Действие этой функции отличается от SetTextToDoc тем, что она вставляет изменения вместо выделенного фрагмента текста.</p>
+<pre name="code" class="delphi">
+Function PasteTextDoc (text_:string):boolean;
+begin
+ PasteTextDoc:=true;
+ Try
+  W.Selection.Delete;
+  W.Selection.InsertAfter (text_);
+ except
+  PasteTextDoc:=false;
+ end;
+End;
+</pre>
+Но более удобной была бы функция, которая одновременно подставляла бы новый текст на место найденного фрагмента. Создадим такую функцию.</p>
+<pre name="code" class="delphi">
+Function FindAndPasteTextDoc
+ (findtext_,pastetext_:string): boolean;
+begin
+ FindAndPasteTextDoc:=true;
+ try
+  W.Selection.Find.Forward:=true;
+  W.Selection.Find.Text:= findtext_;
+  if W.Selection.Find.Execute then begin
+   W.Selection.Delete;
+   W.Selection.InsertAfter (pastetext_);
+  end else FindAndPasteTextDoc:=false;
+ except
+  FindAndPasteTextDoc:=false;
+ end;
+End;
+</pre>
+&nbsp;</p>
+И последнее, печать документа. В данной части рассмотрим только процедуру активизации диалогового окна печати. Этот диалог активизируется через метод Show объекта Dialogs(wdDialogFilePrint).Show. С помощью объекта Dialogs можно вызвать практически любое диалоговое окно Word'а, но об этих возможностях поговорим позже.</p>
+Функция будет выглядеть следующим образом:</p>
+<pre name="code" class="delphi">
+Function PrintDialogWord:boolean;
+ Const wdDialogFilePrint=88;
+begin
+ PrintDialogWord:=true;
+ try
+  W.Dialogs.Item(wdDialogFilePrint).Show;
+ except
+  PrintDialogWord:=false;
+ end;
+End;
+</pre>
+Имея необходимый набор функций, можно приступать к написанию программы (процедуры) создания простого документа Word средствами Delphi. Как говорилось ранее, для формирования документа нам необходим шаблон - текст в формате Word (файл с расширением doc, rtf). Создадим вручную этот файл и разместим его, например, на диске C: "C:\Шаблон платежного поручения.doc". Полный пример с исходными текстами можно взять на моей домашней странице (www.kornjakov.ru/st1_2.zip), а здесь, с целью экономии объема, представлен только фрагмент документа (см.рис.).</p>
+<img src="pic/clip0068.gif" width="449" height="120" border="0" alt="clip0068"></p>
+Общий алгоритм формирования документа таков:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Открываем шаблон, используя функцию открытия ранее созданного документа. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Ищем слова-переменные и подставляем вместо них реальные значения, например, из базы данных. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Сохраняем документ под новым именем. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Печатаем документ, если это необходимо. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Закрываем документ. </td></tr></table></div>Документ готов, и с ним можно работать как обычно, копировать, переименовывать и др.</p>
+Описанный выше алгоритм реализуем в виде небольшой программы. Для этого создаем новый проект и переписываем все функции (также и ранее созданные в первой части статьи) в модуль формы. Создаем на форме кнопку и в процедуру обработки ее нажатия пишем следующий программный код.</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+ if CreateWord then begin
+  VisibleWord(true);
+  If OpenDoc('c:\Шаблон платежного поручения.rtf') then begin
+   messagebox(0,'Переходим к заполнению шаблона','Шаблон открыт',0);
+   StartOfDoc; while not
+    FindAndPasteTextDoc('###№ П.П.&amp;','21') do;
+   StartOfDoc; while not
+    FindAndPasteTextDoc('###Дата&amp;','21.05.2003') do;
+   StartOfDoc; while not
+    FindAndPasteTextDoc('###Вид платежа&amp;','обычный') do;
+   StartOfDoc; while not
+    FindAndPasteTextDoc('###Сумма прописью&amp;','Сто пятьдесят рублей 40 коп.') do;
+   SaveDocAs('c:\Платежное поручение.rtf');
+   messagebox(0,'Переходим к печати документа',
+    'Документ сформирован и сохранен',0);
+   PrintDialogWord;
+   CloseDoc;
+  end;
+  CloseWord;
+ end;
+end;
+</pre>
+&nbsp;</p>
+Данная процедура сформирует документ и откроет окно диалога печати.</p>
+Мы сформировали простой документ, но обычно сложные документы содержат таблицы, графики, рисунки и другие компоненты. Все эти компоненты также можно создавать и настраивать из внешних программ, используя объекты и коллекции объекта Application. Все эти вопросы будут рассмотрены в следующей части статьи, там же в качестве примера рассмотрим создание документа, содержащего таблицу. По всем вопросам, касающимся материала этой статьи, вы можете обратиться к автору по адресу www.kornjakov.ru или _kvn@mail.ru.</p>
+Василий КОРНЯКОВ</p>
+Литература: Н. Елманова, С. Трепалин, А. Тенцер "Delphi 6 и технология COM" "Питер" 2002.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

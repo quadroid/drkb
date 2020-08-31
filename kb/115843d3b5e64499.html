@@ -1,0 +1,61 @@
+<html>
+<head>
+  <title>Как выполнить какой-то процесс тогда, когда пользователь не работает с моим приложением?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как выполнить какой-то процесс тогда, когда пользователь не работает с моим приложением?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Создайте процедуру, которая будет вызываться при событии Application.OnIdle.</p>
+<p>Обьявим процедуру:</p>
+<pre name="code" class="delphi">
+{Private declarations}
+procedure IdleEventHandler(Sender: TObject; var Done: Boolean);
+ 
+В разделе implementation опишем поцедуру:
+ 
+procedure TForm1.IdleEventHandler(Sender: TObject; var Done: Boolean);
+begin
+  {Do a small bit of work here}    
+  Done := false;
+end;
+</pre>
+
+<p>В методе Form'ы OnCreate укажем что наша процедура вызывается на событии:</p>
+<p>Application.OnIdle.Application.OnIdle := IdleEventHandler;</p>
+<p>Событие OnIdle возникает один раз - когда приложение переходит в режим "безделья" (idle). </p>
+<p>Если в обработчике переменной Done присвоить False событие будет вызываться </p>
+<p>вновь и вновь, до тех пор пока приложение "бездельничает" и </p>
+<p>переменной Done не присвоенно значение True. </p>
+<p>Источник: http://www.vlata.com/delphi/</p>
+<p id="author">Автор: p0s0l</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

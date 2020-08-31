@@ -1,0 +1,128 @@
+<html>
+<head>
+  <title>Hапечатать все перестановки чисел 1...N</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Hапечатать все перестановки чисел 1...N</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>First = (1,2,...,N)<br>
+<p>Last = (N,N-1,...,1) </p>
+<p>Всего таких перестановок будет N!=N*(N-1)*...*2*1 (докажите!). Для составления алгоритма Next зададимся вопросом: в каком случае i-ый член перестановки можно увеличить, не меняя предыдущих? Ответ: если он меньше какого-либо из следующих членов (членов с номерами больше i).</p>
+<p>Мы должны найти наибольшее i, при котором это так, т.е. такое i, что X[i]&lt;X[i+1]&gt;...&gt;X[N] (если такого i нет, то перестановка последняя). После этого X[i] нужно увеличить минимально возможным способом, т.е. найти среди X[i+1],...,X[N] наименьшее число, большее его. Поменяв X[i] с ним, остается расположить числа с номерами i+1,...,N так, чтобы перестановка была наименьшей, то есть в возрастающем порядке. Это облегчается тем, что они уже расположены в убывающем порядке: </p>
+<pre name="code" class="delphi">
+           procedure Next;
+           begin
+             {найти i: X[i]&lt;X[i+1]&gt;X[i+2]&gt;...&gt;X[N]};
+             {найти j: X[j]&gt;X[i]&gt;X[j+1]&gt;...&gt;X[N]};
+             {обменять X[i] и X[j]};
+             {X[i+1]&gt;X[i+2]&gt;...&gt;X[N]};
+             {перевернуть X[i+1],X[i+2],...,X[N]};
+           end;
+</pre>
+<p>Теперь можно написать программу:</p>
+<pre name="code" class="delphi">
+    program Perestanovki;
+      type Pere=array [byte] of byte;
+      var N,i,j:byte;
+          X:Pere;
+          Yes:boolean;
+      procedure Next(var X:Pere;var Yes:boolean);
+        var i:byte;
+        procedure Swap(var a,b:byte);  {обмен переменных}
+          var c:byte;
+        begin c:=a;a:=b;b:=c end;
+      begin
+        i:=N-1;
+        {поиск i}
+        while (i&gt;0)and(X[i]&gt;X[i+1]) do dec(i);
+        if i&gt;0 then
+          begin
+            j:=i+1;
+            {поиск j}
+            while (j&lt;N)and(X[j+1]&gt;X[i]) do inc(j);
+            Swap(X[i],X[j]);
+            for j:=i+1 to (N+i) div 2 do Swap(X[j],X[N-j+i+1]);
+            Yes:=true
+          end
+        else Yes:=false
+      end;
+    begin
+      write('N=');readln(N);
+      for i:=1 to N do X[i]:=i;
+      repeat
+        for i:=1 to N do write(X[i]);writeln;
+        Next(X,Yes)
+      until not Yes
+    end.
+</pre>
+<p>&nbsp;<br>
+Решение через рекурсию <img src="pic/embim1843.gif" width="1" height="1" vspace="1" hspace="1" border="0" alt=""><br>
+<img src="pic/embim1844.png" width="160" height="1" vspace="1" hspace="1" border="0" alt=""><br>
+&nbsp;<br>
+<p>&nbsp;</p>
+<p>Опишем рекурсивную процедуру Generate(k), предъявляющую все перестановки чисел 1,...,N, у которых фиксировано начало X[1],X[2],...,X[k]. После выхода из процедуры массив X будут иметь то же значение, что перед входом (это существенно!). Понятно, что при k=N мы снова имеем только тривиальное решение - саму перестановку. При k&lt;N будем сводить задачу к k+1:</p>
+<pre name="code" class="delphi">
+          procedure Generate(k:byte);
+            var i,j:byte;
+            procedure Swap(var a,b:byte);
+              var c:byte;
+            begin c:=a;a:=b;b:=c end;
+          begin
+            if k=N then
+              begin for i:=1 to N do write(X[i]);writeln end
+            else
+              for j:=k+1 to N do
+                begin
+                  Swap(X[k+1],X[j]);
+                  Generate(k+1);
+                  Swap(X[k+1],X[j])
+                end
+          end;
+</pre>
+<p>Основная программа:</p>
+<pre name="code" class="delphi">
+        program PerestanovkiRecursion;
+          type Pere=array [byte] of byte;
+          var N,i,j:byte;
+              X:Pere;
+          procedure Generate(k:byte);
+              ...............
+        begin
+          write('N=');readln(N);
+          for i:=1 to N do X[i]:=i;
+          Generate(0)
+        end.
+</pre>
+<p>Чтобы до конца разобраться в этой непростой программе, советуем выполнить ее на бумаге при N=3. Обратите внимание, что порядок вывода перестановок не будет лексикографическим!</p>
+
+<p><a href="http://algolist.manual.ru" target="_blank">http://algolist.manual.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

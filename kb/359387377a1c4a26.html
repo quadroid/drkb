@@ -1,0 +1,246 @@
+<html>
+<head>
+  <title>Прием текста, передаваемого с помощью метода SendText</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Прием текста, передаваемого с помощью метода SendText</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; Приём и обработка пакетов переданных методом SendText() - с учётом "склеенных" и полученных неполностью пакетов.
+ 
+Юнит RecvPckt предназначен для приёма текста, передаваемого с помощью метода SendText
+объекта Socket:TCustomWinSocket. Данный юнит может использоваться как клиентом так
+и сервером для обработки принятого пакета.
+ 
+Функции юнита предусматривают возможность получения "склеенных" пакетов,
+или пакетов, пришедших не полностью.
+ 
+Тип TBuffer;
+FBuffer - хранит в себе принимаемый пакет
+FCurrentPacketSize = хранит сведения о полной длине принимаемого пакета.
+ 
+Описание функций и процедур, необходимых для использования в других юнитах
+ 
+Procedure ClearBuffer(var ABuffer:TBuffer);
+Очищает буффер FBuffer и обнуляет значение FCurrentPacketSize;
+ 
+Function ProcessReceivedPacket(var ABuffer:TBuffer; var APacket:String):Boolean;
+В данную функцию передаётся полученный от клиента/сервера пакет, через аргумент APacket
+Принцип работы этой функции заключается в накоплении получаемого текста в поле
+FBuffer объекта ABuffer. В случае когда FBuffer будет содержать полностью весь пакет,
+функция возвратит True, иначе возвращает False
+ 
+Функция ОТПРАВКИ текста:
+ 
+Function SendTextToSocket(Socket:TCustomWinSocket; const Text:String):Integer;
+begin
+Result := -1;
+IF Text = '' then exit;
+IF Socket.Connected then
+Result := Socket.SendText(IntToStr(Length(Text))+'#'+Text);
+end;
+ 
+Зависимости: sysutils
+Автор:       VID, snap@iwt.ru, ICQ:132234868, Махачкала
+Copyright:   VID
+Дата:        30 сентября 2002 г.
+********************************************** }
+ 
+unit RecvPckt;
+ 
+interface
+ 
+uses
+  SysUtils;
+ 
+Type
+  TReadHeaderResult = record
+    FPacketSize:Integer;
+    FPacketSizeStr:String;
+    FTextStartsAt:Integer;
+  end;
+ 
+  TBuffer = record
+    FBuffer:String;
+    FHeaderBuffer:String;
+    FCurrentPacketSize:Integer;
+  end;
+ 
+  Procedure ClearBuffer(var ABuffer:TBuffer);
+  Function ReadHeader(var ABuffer:TBuffer; var APacket:String):TReadHeaderResult;
+  Function ProcessReceivedPacket(var ABuffer:TBuffer; var APacket:String):Boolean;
+ 
+implementation
+ 
+Procedure ClearBuffer(var ABuffer:TBuffer);
+begin
+  With ABuffer do
+  begin
+    FBuffer := '';
+    FHeaderBuffer := '';
+    FCurrentPacketSize := 0;
+  end;
+end;
+ 
+Function ReadHeader(var ABuffer:TBuffer; var APacket:String):TReadHeaderResult;
+Var X:Integer;
+ 
+  Procedure ClearHeader;
+  begin
+    ABuffer.FHeaderBuffer := '';
+  end;
+ 
+  Function CorrectPacket:Boolean;
+  Var I,L:Integer;
+  begin
+    X:=0; L:=Length(APacket);
+    FOR I:=1 TO L DO
+      IF (APacket[I] in ['0'..'9']) then Break
+      else
+        IF (APacket[I]='#') and (ABuffer.FHeaderBuffer&lt;&gt;'') then Break
+        else X:=I;
+    IF X&gt;0 then Delete(APacket, 1, X);
+    Result := APacket &lt;&gt; '';
+  end;
+ 
+  Procedure GetHeader;
+  Var I,L:Integer;
+  begin
+    L:=Length(APacket); X:=0;
+    FOR I:=1 TO L DO
+    begin
+      X:=I;
+      IF (APacket[I] in ['0'..'9']) then
+      begin
+        Insert(APacket[I], ABuffer.FHeaderBuffer, Length(ABuffer.FHeaderBuffer)+1);
+      end else Break;
+    end;
+  end;
+ 
+  Procedure SetResultToNone;
+  begin
+    With Result do
+    begin
+      FPacketSize := 0;
+      FTextStartsAt := 0;
+      FPacketSizeStr := '';
+    end;
+  end;
+ 
+begin
+  SetResultToNone;
+  IF APacket = '' then Exit;
+  IF ABuffer.FCurrentPacketSize &gt; 0 then
+  begin
+    With Result do
+    begin
+      FPacketSize := ABuffer.FCurrentPacketSize;
+      FPacketSizeStr := IntToStr(ABuffer.FCurrentPacketSize);
+      FTextStartsAt := 1;
+    end;
+    Exit;
+  end;
+  IF not CorrectPacket then Exit;
+  GetHeader;
+  IF APacket[X]='#' then
+  begin
+    Inc(X);
+    Try
+      Result.FPacketSize := StrToInt(ABuffer.FHeaderBuffer);
+    except end;
+    Result.FPacketSizeStr := ABuffer.FHeaderBuffer; ClearHeader;
+  end else
+    IF not (APacket[X] in ['0'..'9']) then ClearHeader;
+  Result.FTextStartsAt := X;
+end;
+ 
+Function ProcessReceivedPacket(var ABuffer:TBuffer; var APacket:String):Boolean;
+Var ReadHeaderResult:TReadHeaderResult;
+    NeedToCopy, DelSize:Integer;
+    S:String;
+ 
+    Function FullPacket:Boolean;
+    begin
+      With ABuffer do Result := Length(FBuffer) = FCurrentPacketSize;
+    end;
+ 
+begin
+  Result := True;
+  IF APacket = '' then Exit;
+  IF ABuffer.FBuffer = '' then
+  begin
+    ReadHeaderResult := ReadHeader(ABuffer, APacket);
+    ABuffer.FCurrentPacketSize := ReadHeaderResult.FPacketSize;
+    S:=Copy(APacket, ReadHeaderResult.FTextStartsAt, ReadHeaderResult.FPacketSize);
+    DelSize := Length(ReadHeaderResult.FPacketSizeStr)+ReadHeaderResult.FPacketSize+1;
+  end else
+  begin
+    With ABuffer do NeedToCopy := FCurrentPacketSize - Length(FBuffer);
+    S:=Copy(APacket, 1, NeedToCopy);
+    DelSize := NeedToCopy;
+  end;
+  With ABuffer do
+    IF FCurrentPacketSize &gt; 0 then Insert(S, FBuffer, Length(FBuffer)+1);
+  IF not FullPacket then Result := False;
+  IF ABuffer.FHeaderBuffer = '' then
+    Delete(APacket, 1, DelSize)
+  else begin APacket := ''; Result := False; end;
+end;
+ 
+end.
+</pre>
+<p>Пример использования:</p>
+<pre name="code" class="delphi">
+Var GBuffer:TBuffer; //Объявляем переменную типа TBuffer. Для каждого клиента на сервере должна быть объявлена отдельная переменная этого типа
+...
+ 
+procedure TForm1.ServerClientRead(Sender: TObject;
+  Socket: TCustomWinSocket);
+VAR S:String;
+begin
+  S:=Socket.ReceiveText;
+  REPEAT
+    IF ProcessReceivedPacket(GBuffer, S) then
+      IF GBuffer.FBuffer &lt;&gt; '' then
+        try
+          Recv.Lines.Add(GBuffer.FBuffer);
+          //Или же передать GBuffer.FBuffer на исполнение.
+        finally
+          ClearBuffer(GBuffer);
+        end;
+  UNTIL S='';
+end
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

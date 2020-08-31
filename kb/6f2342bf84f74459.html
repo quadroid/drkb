@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>Извлечение изображения из BLOB-поля</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Извлечение изображения из BLOB-поля</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>Извлечение изображения из BLOB-поля таблицы dBASE или Paradox -- без первой записи изображения в файл -- простейший процесс использования метода Assign для сохранения содержимого BLOB-поля в объекте, имеющим тип TBitmap. Отдельный объект TBitmap или свойство Bitmap объекта Picture, в свою очередь являющегося свойством компонента TIMage, могут служить примером совместимой цели для данной операции. </p>
+
+<p>Вот пример кода, демонстрирующего использование метода Assign для копирования изображения из BLOB-поля в компонент TImage.</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  Image1.Picture.Bitmap.Assign(Table1Bitmap);
+end;
+</pre>
+
+
+<p>В данном примере, объект Table1Bitmap типа TBLOBField - BLOB-поле таблицы dBASE. Данный TBLOBField-объекты был создан с помощью редактора полей (Fields Editor). Если редактор полей для создания TFields для полей таблицы не используется, получить доступ к полям можно с помощью метода FieldByName или свойства Fields, оба они являются членами компонентов TTable или TQuery. В случае ссылки на BLOB-поле таблицы с помощью одного из приведенных членов, перед использованием метода Assign указатель на поле должен быть прежде приведен к типу объекта TBLOBField. Для примера:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  Image1.Picture.Bitmap.Assign(TBLOBField(Table1.Fields[1]));
+end;
+</pre>
+
+
+<p>Изображение, хранящееся в BLOB-поле, может быть скопировано непосредственно в отдельный TBitmap объект. Ниже приведен пример, демонстрирующий создание объекта TBitmap и сохранения в нем изображения из BLOB-поля.</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button2Click(Sender: TObject);
+var
+  B: TBitmap;
+begin
+  B := TBitmap.Create;
+  try
+    B.Assign(Table1Bitmap);
+    Image1.Picture.Bitmap.Assign(B);
+  finally
+    B.Free;
+  end;
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

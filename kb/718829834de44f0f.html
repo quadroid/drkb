@@ -1,0 +1,84 @@
+<html>
+<head>
+  <title>Убиваем активное приложение</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Убиваем активное приложение</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Dale Berry</p>
+
+<p>Данная функция позволяет завершить выполнение любой активной программы по её classname или заголовку окна.</p>
+<pre name="code" class="delphi">
+procedure KillProgram(Classname : string; WindowTitle : string); 
+const 
+  PROCESS_TERMINATE = $0001; 
+var 
+  ProcessHandle : THandle; 
+  ProcessID: Integer; 
+  TheWindow : HWND; 
+begin 
+  TheWindow := FindWindow(Classname, WindowTitle); 
+  GetWindowThreadProcessID(TheWindow, @ProcessID); 
+  ProcessHandle := OpenProcess(PROCESS_TERMINATE, FALSE, ProcessId); 
+  TerminateProcess(ProcessHandle,4); 
+end;
+</pre>
+
+
+<p>  Комментарии </p>
+
+<p>Xianguang Li (22 Октября 2000)</p>
+
+<p>В Delphi 5, при компиляции получается следующая ошибка : </p>
+<p>  Incompatible types: 'String' and 'PChar'. </p>
+<p>После изменения выражения </p>
+<p>  TheWindow := FindWindow(ClassName, WindowTitle) </p>
+<p>на </p>
+<p>  TheWindow := FindWindow(PChar(ClassName), PChar(WindowTitle)) , </p>
+<p>Нормально откомпилировалось. </p>
+<p>И ещё: если мы не знаем ClassName или WindowTitle программы, которую мы хотим убить,</p>
+<p>то мы не сможем её завершить. Причина в том, что нельзя вызвать функцию в виде: </p>
+<p>  KillProgram(nil, WindowTitle) </p>
+<p>  или </p>
+<p>  KillProgram(ClassName, nil). </p>
+<p>Компилятор не позволяет передать nil в переменную типа String. </p>
+<p>Итак, я изменил объявление </p>
+<p>  KillProgram(ClassName: string; WindowTitle: string) </p>
+<p>на </p>
+<p>  KillProgram(ClassName: PChar; WindowTitle: PChar), </p>
+<p>вот теперь функция действительно может завершить любое приложение, если вы не знаете</p>
+<p>ClassName или WindowTitle этого приложения. </p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

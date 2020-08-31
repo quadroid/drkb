@@ -1,0 +1,71 @@
+<html>
+<head>
+  <title>Как зарегистрировать базу данных (BDE)?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как зарегистрировать базу данных (BDE)?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+Session.AddAlias(AliasName, AliasDriver, Params);
+Session.SaveConfigFile;
+</pre>
+
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<pre name="code" class="delphi">
+uses
+  DBIProcs, DBITypes;
+ 
+procedure AddBDEAlias(sAliasName, sAliasPath, sDBDriver: string);
+var
+  h: hDBISes;
+begin
+  DBIInit(nil);
+  DBIStartSession('dummy', h, '');
+  DBIAddAlias(nil, PChar(sAliasName), PChar(sDBDriver),
+    PChar('PATH:' + sAliasPath), True);
+  DBICloseSession(h);
+  DBIExit;
+end;
+</pre>
+<pre name="code" class="delphi">
+{ Sample call to create an alias called WORK_DATA that }
+{ points to the C:\WORK\DATA directory and uses the    }
+{ DBASE driver as the default database driver:         }
+ 
+AddBDEAlias('WORK_DATA', 'C:\WORK\DATA', 'DBASE');
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

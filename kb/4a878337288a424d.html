@@ -1,0 +1,67 @@
+<html>
+<head>
+  <title>Удаление большого количества записей</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Удаление большого количества записей</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Судя по письмам в конференции fido7.su.dbms.interbase, существует определенный процент (около 15) задач, которые требуют периодического удаления большого количества записей. Это либо просто чистка устаревшей информации, либо перенос части данных в архив, но почти всегда - выполнение операции DELETE FROM... над количеством записей от десятков и сотен тысяч до нескольких миллионов. </p>
+
+<p>При отсутствии знаний по архитектуре InterBase такая операция действительно становится проблемой. Если DELETE проходит относительно быстро, то последующие операции выборки могут "встать" на длительный период времени (возможно часы или даже десятки часов), во время которого InterBase будет интенсивно обращаться к базе данных. </p>
+
+<p>Для начала нужно разобраться, что же происходит при операции DELETE. А происходит вот что - в силу архитектуры многоверсионности записей удаление записей не приводит к их действительному удалению. Просто рядом с версией записи пишется ее новая версия, но без значений полей, а с индикатором удаления. При этом, понятно, занимаемое таблицей дисковое пространство (количество страниц) может увеличиться, хотя на первый взгляд это кажется парадоксальным. (подробнее о сборке мусора и многоверсионности см. список статей внизу). </p>
+
+<p>Далее, в силу уже правил сборки мусора, записи будут реально удалены (удалены предыдущие версии и delete-stub) только при попытке чтения этих записей. Пока никто к ним не обратился - устаревшие записи с диска вычищены не будут. </p>
+<p>Итак, после массового удаления даем SELECT COUNT(*)..., возможно с тем же условием что и DELETE, для "вычистки" удаленных записей. Разумеется, результат этого запроса будет равен нулю, т.к. записей нет. Но "мусорные" записи будут собраны. Причем процесс сборки мусора будет никак не быстрее, чем время выполнения DELETE, а зачастую и много дольше (отчасти и потому, что старых версий записей была не одна, а несколько). Лучше всего select count выполнять в следующей после удаления транзакции. </p>
+
+<p>Но самое большое влияние на скорость чистки удаленных записей оказывают неуникальные индексы. В качестве пояснения и примера лучше процитировать одно из писем Анны Харрисон (ныне директор IBPhoenix) на эту тему: </p>
+<p>"Если возможно, посмотрите статистику сервера (gstat или Server Manager). Найдите индексы с наиболее длинными цепочками дубликатов у таблиц, которым предстоит пережить массовое удаление. Если цепочка больше 7000 строк (ключей) то стоимость сборки мусора будет меньше, если сделать индексы более селективными - например изменив одиночый индекс на композитный с оригинальным полем в качестве первого поля индекса и полем первичного ключа в качестве второго поля индекса. </p>
+
+<p>Я попробовала удалить 20 тысяч записей из таблицы и собрать мусор - при записи небольшого размера и одном уникальном индексе (на очень медленном процессоре и антикварном винчестере) удаление заняло 47.54 секунды, а сборка мусора - 75.90 секунд (1 минута, 15.90 секунд). После этого я добавила индекс с 20000 дубликатов значений и после этого удаление заняло 38.04 секунды, но сборка мусора заняла 865.47 секунд (14 минут, 25.47 секунд). </p>
+
+<p>Вот статистика запроса, который привел к сборке мусора в обоих случаях: </p>
+<p>С уникальным индексом С дубликатами </p>
+
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Elapsed time= 75.90 sec Elapsed time= 865.47 sec </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Reads = 1694 Reads = 1814 </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Writes = 1499 Writes = 1732 </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Fetches = 225,541 Fetches = 2,540,593 </td></tr></table></div>
+<p>Обратите внимание на elapsed time и fetches - они отличаются более чем в 10 раз." </p>
+<p>Харрисон дальше выводов не делает, кроме упомянутого в цитате изменения неуникального индекса. На самом деле зачастую (в зависимости от процентного соотношения записей которые удаляют, и которые остаются) бывает проще удалить или "выключить" этот неуникальный индекс. </p>
+
+<p>Причем оказалось (спасибо Владимиру Мамзикову), что ALTER INDEX INACTIVE на самом деле не только удаляет индекс, оставляя его описание в базе данных, но и производит какие-то дополнительные действия. Эти действия тоже могут занять определенное время, причем чем больше дубликатов в индексе, тем больше времени это займет. DROP INDEX не производит этих "действий", и выполняется практически мгновенно. </p>
+
+<p>Уже знакомые с IB могут спросить - а почему не был предложен способ backup/restore для избавления от мусора? Действительно, этим способом можно пользоваться (не забыв включить опцию Disable garbage collection), но при определенных размерах базы данных (несколько гигабайт) бывает выгоднее по скорости удалить индексы, чем делать backup restore. </p>
+
+<p>Напоследок, немного данных по реальному проекту от Владимира Мамзикова: </p>
+
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>База данных - 1.5Гб, несколько таблиц с ~1 млн записей, одна таблица с 9 млн записей. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Удаление ~4 млн записей (delete) - несколько минут </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Сборка мусора (4млн записей) select count - 20 и более часов </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Операция backup/restore (с disable garbage collection) - в сумме 15 минут </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Отключение неуникального индекса (alter index inactive) - 6 минут </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Сборка мусора (4млн записей) select count без индекса - 12 минут </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Удаление неуникального индекса (drop index) - несколько секунд (против 6 минут alter index inactive). </td></tr></table></div>
+<p>Разумеется, сюда не включено время активирования или повторного создания неуникального индекса. Но этот процесс в основном зависит от скорости винчестера, а кроме того, вероятно что количество оставшихся в таблице записей намного меньше, чем количество удаленных, поэтому индексирование пройдет быстро. </p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

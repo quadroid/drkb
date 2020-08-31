@@ -1,0 +1,139 @@
+<html>
+<head>
+  <title>Компонент со вложенной панелью</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Компонент со вложенной панелью</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Ray Konopka </p>
+<p>Следующий небольшой компонент представляет собой панель, содержащую другую, вложенную панель. Во вложенной панели могут быть размещены другие компоненты, читаться они будут правильно. Ключевым моментом здесь является перекрытие методов WriteComponents и ReadState.</p>
+<pre name="code" class="delphi">
+unit RzPnlPnl;
+ 
+interface
+ 
+uses
+  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
+  Forms, Dialogs, ExtCtrls;
+ 
+type
+  TSubPanel = class(TPanel)
+  protected
+    procedure ReadState(Reader: TReader); override;
+  end;
+ 
+  TPanelPanel = class(TPanel)
+  private
+    FSubPanel: TSubPanel;
+  protected
+    procedure WriteComponents(Writer: TWriter); override;
+    procedure ReadState(Reader: TReader); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+  end;
+ 
+procedure Register;
+ 
+implementation
+ 
+procedure TSubPanel.ReadState(Reader: TReader);
+var
+  OldOwner: TComponent;
+begin
+  OldOwner := Reader.Owner;
+    { Сохраняем старого владельца, что необходимо для PanelPanel }
+  Reader.Owner := Reader.Root; { Задаем в качестве владельца форму }
+  try
+    inherited ReadState(Reader);
+  finally
+    Reader.Owner := OldOwner;
+  end;
+end;
+ 
+constructor TPanelPanel.Create(AOwner: TComponent);
+const
+  Registered: Boolean = False;
+begin
+  inherited Create(AOwner);
+ 
+  FSubPanel := TSubPanel.Create(Self);
+  FSubPanel.Parent := Self;
+  FSubPanel.SetBounds(20, 20, 200, 100);
+  FSubPanel.Name := 'SomeName';
+ 
+  if not Registered then
+  begin
+    Classes.RegisterClasses([TSubPanel]);
+      { так TSubPanel может храниться в файле формы }
+    Registered := True;
+  end;
+ 
+end;
+ 
+procedure TPanelPanel.ReadState(Reader: TReader);
+var
+  OldOwner: TComponent;
+  I: Integer;
+begin
+  for I := 0 to ControlCount - 1 do
+    Controls[0].Free;
+ 
+  OldOwner := Reader.Owner;
+  Reader.Owner := Self;
+    {Для чтения субкомпонентов, установите данный экземпляр в качестве родителя}
+  try
+    inherited ReadState(Reader);
+  finally
+    Reader.Owner := OldOwner;
+  end;
+end;
+ 
+procedure TPanelPanel.WriteComponents(Writer: TWriter);
+var
+  I: Integer;
+begin
+  for I := 0 to ControlCount - 1 do
+    Writer.WriteComponent(Controls[I]);
+end;
+ 
+procedure Register;
+begin
+  RegisterComponents('Samples', [TPanelPanel]);
+end;
+ 
+end.
+ 
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

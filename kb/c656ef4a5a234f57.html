@@ -1,0 +1,99 @@
+<html>
+<head>
+  <title>Как выдавить текст?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как выдавить текст?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Чтобы сделать текст выпуклым, нужно за светло-серой надписью разместить точно такие же надписи, только белую чуть левее и выше и светло-серую чуть правее и ниже. </p>
+<p>Приведенная ниже программа выводит выпуклый текст, который вдавливается при нажатии.</p>
+<pre name="code" class="delphi">
+const
+  s = 'It is a text string';
+  ColDark = clGray;
+  ColNorm = clSilver;
+  ColLight = clWhite;
+  XPos = 10;
+  YPos = 10;
+  dx = 1;
+  dy = 1;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  Form1.Canvas.Brush.Style := bsClear;
+  with Form1.Canvas.Font do begin
+    Name := 'Arial';
+    Size := 20;
+    Style := [fsBold];
+ 
+  end;
+end;
+ 
+procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  with Form1.Canvas do begin
+    Font.Color := ColDark;
+    TextOut(XPos - dx, YPos - dy, s);
+    Font.Color := ColLight;
+    TextOut(XPos + dx, YPos + dy, s);
+    Font.Color := ColNorm;
+    TextOut(XPos, YPos, s);
+  end;
+end;
+ 
+procedure TForm1.FormMouseUp(Sender: TObject; Button: TMouseButton;
+ 
+  Shift: TShiftState; X, Y: Integer);
+begin
+  with Form1.Canvas do begin
+    Font.Color := ColLight;
+    TextOut(XPos - dx, YPos - dy, s);
+    Font.Color := ColDark;
+    TextOut(XPos + dx, YPos + dy, s);
+    Font.Color := ColNorm;
+    TextOut(XPos, YPos, s);
+  end;
+end;
+ 
+procedure TForm1.FormPaint(Sender: TObject);
+begin
+  Form1.MouseUp(mbLeft, [], 0, 0);
+end;
+</pre>
+
+<p id="author">Автор советов: Даниил Карапетян</p>
+<p>e-mail: delphi4all@narod.ru</p>
+<p id="author">Автор справки: Алексей Денисов</p>
+<p>e-mail: aleksey@sch103.krasnoyarsk.su</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

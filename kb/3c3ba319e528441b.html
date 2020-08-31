@@ -1,0 +1,135 @@
+<html>
+<head>
+  <title>Сохранить вложения OutLook</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сохранить вложения OutLook</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>autor: patrick cleys <br>
+<p>homepage: http://www.dcmedical.org </p>
+<pre name="code" class="delphi">{ 
+won’t some backups of your outlook attachments are filtered 
+some incoming log files? here's the function. 
+} 
+&nbsp;
+uses 
+comobj; 
+&nbsp;
+{...} 
+&nbsp;
+function manageattachments(sendersname, attachmentpath: string; 
+maildelete: boolean): boolean; 
+var 
+oapp: variant; 
+ons: variant; 
+ofolder: variant; 
+omsg: variant; 
+atc: variant; 
+attfilename: variant; 
+filename: string; 
+checksender: string; 
+counter: integer; 
+mailcounter: integer; 
+begin 
+try 
+oapp := createoleobject('outlook.application'); 
+try 
+ons := oapp.getnamespace('mapi'); 
+ofolder := ons.getdefaultfolder(6); // foldertypeenum (olfolderinbox) 
+mailcounter := 1; 
+// if there is any email in the inbox 
+if ofolder.items.count &gt; 0 then 
+begin 
+repeat 
+// get the first email 
+omsg := ofolder.items(mailcounter); 
+// check the name or email 
+// use checksender := omsg.subject to search on subject; 
+checksender := omsg.sendername; 
+if checksender = sendersname then 
+// remove this line to backup all your attachments. 
+begin 
+// check how many attachments 
+atc := omsg.attachments.count; 
+if atc &gt; 0 then 
+begin 
+// get all the attachments and save them 
+for counter := 1 to atc do 
+begin 
+attfilename := omsg.attachments.item(counter).filename; 
+//filename := includetrailingbackslash(attachmentpath)+attfilename; {use this line for d5)} 
+filename := attachmentpath + '' + attfilename; 
+omsg.attachments.item(counter).saveasfile(filename); 
+end; 
+end; 
+if maildelete then 
+begin 
+omsg.delete; 
+// there's 1 email less, so mailcounter - 1 
+dec(mailcounter); 
+end; 
+end; 
+// get the next email 
+inc(mailcounter); 
+// do until there is no more email to check 
+until mailcounter &gt; ofolder.items.count; 
+end; 
+finally 
+oapp.quit; 
+end; 
+except 
+result := false; 
+exit; 
+end; 
+result := true; 
+end; 
+&nbsp;
+&nbsp;
+procedure tform1.button1click(sender: tobject); 
+begin 
+// manageattachments(email or name, backup directory, maildelete yes or no) 
+manageattachments('info@cleys.com', 'f:test', false); 
+end; 
+&nbsp;
+&nbsp;
+{ 
+warning! 
+all your selected email will be deleted if maildelete = true 
+&nbsp;
+achtung! 
+alle e-mails werden geloscht, wenn maildelete = true ist. 
+}
+</pre>
+&nbsp;</p>
+&nbsp;<br>
+<a href="http://www.swissdelphicenter.ch/" target="_blank">http://www.swissdelphicenter.ch/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

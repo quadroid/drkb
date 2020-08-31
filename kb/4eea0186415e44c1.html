@@ -1,0 +1,83 @@
+<html>
+<head>
+  <title>Алгоритм 3. Сортировка шейкером</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Алгоритм 3. Сортировка шейкером</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Алгоритм 3. Сортировка Шейкером. </p>
+<p>Когда данные сортируются не в оперативной памяти, а на жестком диске, особенно если ключ связан с большим объемом дополнительной информации, то количество перемещений элементов существенно влияет на время работы. Этот алгоритм уменьшает количество таких перемещений, действуя следующим образом: за один проход из всех элементов выбирается минимальный и максимальный. Потом минимальный элемент помещается в начало массива, а максимальный, соответственно, в конец. Далее алгоритм выполняется для остальных данных. Таким образом, за каждый проход два элемента помещаются на свои места, а значит, понадобится N/2 проходов, где N &#8212; количество элементов. Реализация данного алгоритма выглядит так: </p>
+<pre name="code" class="delphi">
+Program ShakerSort;
+Var A       : array[1..1000] of integer;
+    N,i,j,p    : integer;       
+    Min, Max : integer;
+Begin
+ {Определение размера массива A — N) и его заполнение}
+ …
+ {сортировка данных}
+ for i:=1 to n div 2 do
+  begin
+   if A[i]&gt;A[i+1] then
+   begin
+    Min:=i+1;
+    Max:=i;
+   end
+   else
+   begin
+    Min:=i;
+    Max:=i+1;
+   end;
+   for j:=i+2 to n-i+1 do
+   if A[j]&gt;A[Max] then
+    Max:=j
+   else
+   if A[j]&lt;A[Min] then
+    Min:=j; 
+   {Обмен элементов}
+    P:=A[i];
+    A[i]:=A[min];
+    A[min]:=P;
+    if max=i then
+    max:=min;
+    P:=A[N-i+1];
+    A[N-i+1]:=A[max];
+    A[max]:=P;
+  end;
+ {Вывод отсортированного массива A}
+ …
+End.
+</pre>
+
+<p>  Рассмотрев эти методы, сделаем определенные выводы. Их объединяет не только то, что они сортируют данные, но также и время их работы. В каждом из алгоритмов присутствуют вложенные циклы, время выполнения которых зависит от размера входных данных. Значит, общее время выполнения программ есть O(n2) (константа, умноженная на n2). Следует отметить, что первые два алгоритма используют также O(n2) перестановок, в то время как третий использует их O(n). Отсюда следует, что метод Шейкера является более выгодным для сортировки данных на внешних носителях информации. </p>
+<p>Если вы думаете, что бравые «алгоритмщики» остановились на достигнутом, то вы ошибаетесь. Видите ли, временная оценка O(n2) показалась им слишком громоздкой, и они, жадины такие, решили еще потратить свое время, чтобы впоследствии сэкономить наше. Итак, давайте теперь рассмотрим более быстрые алгоритмы. </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

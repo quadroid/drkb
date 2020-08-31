@@ -1,0 +1,93 @@
+<html>
+<head>
+  <title>Как распечатать TStringGrid?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как распечатать TStringGrid?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses 
+  Printers; 
+ 
+procedure PrintGrid(sGrid: TStringGrid; sTitle: string); 
+var 
+  X1, X2: Integer; 
+  Y1, Y2: Integer; 
+  TmpI: Integer; 
+  F: Integer; 
+  TR: TRect; 
+begin 
+  Printer.Title := sTitle; 
+  Printer.BeginDoc; 
+  Printer.Canvas.Pen.Color  := 0; 
+  Printer.Canvas.Font.Name  := 'Times New Roman'; 
+  Printer.Canvas.Font.Size  := 12; 
+  Printer.Canvas.Font.Style := [fsBold, fsUnderline]; 
+  Printer.Canvas.TextOut(0, 100, Printer.Title); 
+  for F := 1 to sGrid.ColCount - 1 do  
+  begin 
+    X1 := 0; 
+    for TmpI := 1 to (F - 1) do 
+      X1 := X1 + 5 * (sGrid.ColWidths[TmpI]); 
+    Y1 := 300; 
+    X2 := 0; 
+    for TmpI := 1 to F do 
+      X2 := X2 + 5 * (sGrid.ColWidths[TmpI]); 
+    Y2 := 450; 
+    TR := Rect(X1, Y1, X2 - 30, Y2); 
+    Printer.Canvas.Font.Style := [fsBold]; 
+    Printer.Canvas.Font.Size := 7; 
+    Printer.Canvas.TextRect(TR, X1 + 50, 350, sGrid.Cells[F, 0]); 
+    Printer.Canvas.Font.Style := []; 
+    for TmpI := 1 to sGrid.RowCount - 1 do  
+    begin 
+      Y1 := 150 * TmpI + 300; 
+      Y2 := 150 * (TmpI + 1) + 300; 
+      TR := Rect(X1, Y1, X2 - 30, Y2); 
+      Printer.Canvas.TextRect(TR, X1 + 50, Y1 + 50, sGrid.Cells[F, TmpI]); 
+    end; 
+  end; 
+  Printer.EndDoc; 
+end; 
+ 
+ 
+//Examplem, Beispiel: 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  PrintGrid(StringGrid1, 'Print Stringgrid'); 
+end; 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

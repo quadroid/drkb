@@ -1,0 +1,183 @@
+<html>
+<head>
+  <title>Как показать округленное окошко подсказки в Tray в Windows2000</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как показать округленное окошко подсказки в Tray в Windows2000</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>В Windows 2000, формат структуры NotifyIconData, которая используется для работы с иконками в Трее (которая, кстати, называется "The Taskbar Notification Area" :) значительно отличается от предыдущий версий Windows. Однако, эти изменения НЕ отражены в юните ShellAPI.pas в Delphi 5. </p>
+<p>Итак, нам понадобится преобразованный SHELLAPI.H, в котором присутствуют все необходимые объявления:</p>
+<pre name="code" class="delphi">
+uses Windows;
+ 
+type
+  NotifyIconData_50 = record // определенная в shellapi.h
+    cbSize: DWORD;
+    Wnd: HWND;
+    uID: UINT;
+    uFlags: UINT;
+    uCallbackMessage: UINT;
+    hIcon: HICON;
+    szTip: array[0..MAXCHAR] of AnsiChar;
+    dwState: DWORD;
+    dwStateMask: DWORD;
+    szInfo: array[0..MAXBYTE] of AnsiChar;
+    uTimeout: UINT; // union with uVersion: UINT;
+    szInfoTitle: array[0..63] of AnsiChar;
+    dwInfoFlags: DWORD;
+  end {record};
+ 
+const
+  NIF_INFO = $00000010;
+ 
+  NIIF_NONE = $00000000;
+  NIIF_INFO = $00000001;
+  NIIF_WARNING = $00000002;
+  NIIF_ERROR = $00000003;
+</pre>
+<p>А это набор вспомогательных типов:</p>
+<pre name="code" class="delphi">
+type
+  TBalloonTimeout = 10..30 {seconds};
+  TBalloonIconType = (bitNone, // нет иконки
+    bitInfo,    // информационная иконка (синяя)
+    bitWarning, // иконка восклицания (ж?лтая)
+    bitError);  // иконка ошибки (краснаа)
+</pre>
+<p>Теперь мы готовы приступить к созданию округлённых подсказок! Для этого воспользуемся следующей функцией: </p>
+<pre name="code" class="delphi">
+uses SysUtils, Windows, ShellAPI;
+ 
+function DZBalloonTrayIcon(const Window: HWND; const IconID: Byte;
+  const Timeout: TBalloonTimeout; const BalloonText, BalloonTitle:
+  string; const BalloonIconType: TBalloonIconType): Boolean;
+const
+  aBalloonIconTypes: array[TBalloonIconType] of
+    Byte = (NIIF_NONE, NIIF_INFO, NIIF_WARNING, NIIF_ERROR);
+var
+  NID_50: NotifyIconData_50;
+begin
+  FillChar(NID_50, SizeOf(NotifyIconData_50), 0);
+  with NID_50 do begin
+    cbSize := SizeOf(NotifyIconData_50);
+    Wnd := Window;
+    uID := IconID;
+    uFlags := NIF_INFO;
+    StrPCopy(szInfo, BalloonText);
+    uTimeout := Timeout * 1000;
+    StrPCopy(szInfoTitle, BalloonTitle);
+    dwInfoFlags := aBalloonIconTypes[BalloonIconType];
+  end; {with}
+  Result := Shell_NotifyIcon(NIM_MODIFY, @NID_50);
+end;
+</pre>
+<p>Вызывается она следующим образом: </p>
+<pre name="code" class="delphi">
+DZBalloonTrayIcon(Form1.Handle, 1, 10, 
+  'this is the balloon text', 'title', bitWarning);
+</pre>
+
+<p>Иконка, должна быть предварительно добавлена с темже дескриптором окна и IconID (в данном примере Form1.Handle и 1). </p>
+<p>Можете попробовать все три типа иконок внутри всплывающей подсказки. </p>
+<p>P.S. На всякий случай, ниже представлены функции для добавление/удаления иконок в трее: </p>
+<pre name="code" class="delphi">
+uses SysUtils, Windows, ShellAPI;
+ 
+{добавление иконки}
+ 
+function DZAddTrayIcon(const Window: HWND; const IconID: Byte; const Icon:
+  HICON; const Hint: string = ''): Boolean;
+var
+  NID: NotifyIconData;
+begin
+  FillChar(NID, SizeOf(NotifyIconData), 0);
+  with NID do begin
+    cbSize := SizeOf(NotifyIconData);
+    Wnd := Window;
+    uID := IconID;
+    if Hint = '' then begin
+      uFlags := NIF_ICON;
+    end {if} else begin
+      uFlags := NIF_ICON or NIF_TIP;
+      StrPCopy(szTip, Hint);
+    end {else};
+    hIcon := Icon;
+  end {with};
+  Result := Shell_NotifyIcon(NIM_ADD, @NID);
+end;
+ 
+{добавляет иконку с call-back сообщением}
+ 
+function DZAddTrayIconMsg(const Window: HWND; const IconID: Byte;
+  const Icon: HICON; const Msg: Cardinal; const Hint: string = ''): Boolean;
+var
+  NID: NotifyIconData;
+begin
+  FillChar(NID, SizeOf(NotifyIconData), 0);
+  with NID do begin
+    cbSize := SizeOf(NotifyIconData);
+    Wnd := Window;
+    uID := IconID;
+    if Hint = '' then begin
+      uFlags := NIF_ICON or NIF_MESSAGE;
+    end {if} else begin
+      uFlags := NIF_ICON or NIF_MESSAGE or NIF_TIP;
+      StrPCopy(szTip, Hint);
+    end {else};
+    uCallbackMessage := Msg;
+    hIcon := Icon;
+  end {with};
+  Result := Shell_NotifyIcon(NIM_ADD, @NID);
+end;
+ 
+{удаляет иконку}
+ 
+function DZRemoveTrayIcon(const Window: HWND; const IconID: Byte): Boolean;
+var
+  NID: NotifyIconData;
+begin
+  FillChar(NID, SizeOf(NotifyIconData), 0);
+  with NID do begin
+    cbSize := SizeOf(NotifyIconData);
+    Wnd := Window;
+    uID := IconID;
+  end {with};
+  Result := Shell_NotifyIcon(NIM_DELETE, @NID);
+end;
+</pre>
+<p>Несколько заключительных замечаний: </p>
+<p>Нет необходимости использовать большую структуру NotifyIconData_50 для добавления или удаления иконок, старая добрая структура NotifyIconData прекрасно подойдёт для этого. </p>
+<p>Для callback сообщения можно использовать WM_APP + что-нибудь. </p>
+<p>Используя различные IconID, легко можно добавить несколько различных иконок из одного родительского окна и работать с ними по их IconID. </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<html>
+<head>
+  <title>URL декодирование строки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">URL декодирование строки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by kladovka.net.ru ****
+&gt;&gt; URL декодирование строки
+ 
+Функция выполняет URL декодирование строки, заменяя все 
+подстроки вида '%HH', где 'HH' - шестнадцатеричные 
+цифры, на соответствующие символы.
+ 
+Зависимости: Windows
+Автор:       Dimka Maslov, mainbox@endimus.ru, ICQ:148442121, Санкт-Петербург
+Copyright:   Dimka Maslov
+Дата:        27 мая 2002 г.
+********************************************** }
+ 
+function UrlDecode(Str: string): string;
+ 
+function HexToChar(W: word): Char;
+asm
+   cmp ah, 030h
+   jl @@error
+   cmp ah, 039h
+   jg @@10
+   sub ah, 30h
+   jmp @@30
+@@10:
+   cmp ah, 041h
+   jl @@error
+   cmp ah, 046h
+   jg @@20
+   sub ah, 041h
+   add ah, 00Ah
+   jmp @@30
+@@20:
+   cmp ah, 061h
+   jl @@error
+   cmp al, 066h
+   jg @@error
+   sub ah, 061h
+   add ah, 00Ah
+@@30:
+   cmp al, 030h
+   jl @@error
+   cmp al, 039h
+   jg @@40
+   sub al, 030h
+   jmp @@60
+@@40:
+   cmp al, 041h
+   jl @@error
+   cmp al, 046h
+   jg @@50
+   sub al, 041h
+   add al, 00Ah
+   jmp @@60
+@@50:
+   cmp al, 061h
+   jl @@error
+   cmp al, 066h
+   jg @@error
+   sub al, 061h
+   add al, 00Ah
+@@60:
+   shl al, 4
+   or al, ah
+   ret
+@@error:
+   xor al, al
+end;
+ 
+function GetCh(P: PChar; var Ch: Char): Char;
+begin
+ Ch:=P^;
+ Result:=Ch;
+end;
+ 
+var
+ P: PChar;
+ Ch: Char;
+begin
+ Result:='';
+ P:=@Str[1];
+ while GetCh(P, Ch) &lt;&gt; #0 do begin
+  case Ch of
+   '+': Result:=Result+' ';
+   '%': begin
+    Inc(P);
+    Result:=Result+HexToChar(PWord(P)^);
+    Inc(P);
+   end;
+   else Result:=Result+Ch;
+  end;
+  Inc(P);
+ end;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

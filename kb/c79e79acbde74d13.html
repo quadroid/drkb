@@ -1,0 +1,106 @@
+<html>
+<head>
+  <title>Получить даты с понедельника по пятницу текущей недели</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получить даты с понедельника по пятницу текущей недели</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{
+  Data sometimes have to be filtered regarding to working
+  days (Mo.-Fri.) of the current Week. Following procs set
+  your TDateTimePicker automatically. 
+} 
+ 
+ 
+function GetMonday(RefDay: TDate): TDate; 
+var 
+  DoW: Integer; 
+  DateOffset: Integer; 
+begin 
+  DoW := DayOfWeek(RefDay); 
+  // Montag der Woche 
+  if DoW = 1 then DateOffset := -6  
+  else  
+    DateOffset := Dow - 2; 
+  Result := RefDay - DateOffset; 
+end; 
+ 
+function GetFriday(RefDay: TDate): TDate; 
+var 
+  DoW: Integer; 
+  DateOffset: Integer; 
+begin 
+  DoW := DayOfWeek(RefDay); 
+     { 
+     Friday of current week 
+     Freitag der Woche 
+     } 
+  if DoW = 1 then DateOffset := -2  
+  else  
+    DateOffset := Dow - 6; 
+  Result := RefDay - DateOffset; 
+end; 
+ 
+procedure SetWorkingDaysFilter(S, E: TDateTimePicker); 
+var 
+  N: TDate; 
+begin 
+  N      := Now; 
+  S.Date := GetMonday(N); 
+  E.Date := GetFriday(N); 
+end; 
+ 
+{Just as short as simple} 
+{Einfach und kurz} 
+ 
+ 
+type 
+  TForm1 = class(TForm) 
+    DStart: TDateTimePicker; 
+    DEnd: TDateTimePicker; 
+    btSetFilter: TButton; 
+    procedure btSetFilterClick(Sender: TObject); 
+  end; 
+ 
+procedure TForm1.btSetFilterClick(Sender: TObject); 
+begin 
+  SetWorkingDaysFilter(DStart, DEnd); 
+end;
+ 
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

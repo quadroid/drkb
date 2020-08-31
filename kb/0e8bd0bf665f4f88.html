@@ -1,0 +1,102 @@
+<html>
+<head>
+  <title>Учимся работать с POP3 по Telnet'у</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Учимся работать с POP3 по Telnet'у</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Учимся работать с POP3 по telnetу.</p>
+<p> &nbsp;&nbsp; Как люди получают почту, другими словами, вы никогда не задумывались,</p>
+<p> что делает ваш почтовый клиент в интернете, чтобы получить ее?</p>
+<p> Я попытаюсь удовлетворить ваше любопытство...</p>
+<p> Возможно будет несколько незнакомых терминов, но для их понимания советую</p>
+<p> почитать учебник по семейству протоколов TCP/IP.</p>
+<p> Итак, в настройках почтового клиента вы вводите</p>
+<p> smtp_server ( сервер для передачи писем, написанных вами )</p>
+<p> pop3_server ( вот с ним-то мы и поэкспериментируем )</p>
+<p> pop3_login&nbsp; ( требуются для регистрации на pop3_server'e )</p>
+<p> pop3_pass</p>
+<p> При отправлении вашей почты клиент создает tcp-соединение</p>
+<p> с адресом smtp_server порт 25 и грубо говоря пихает в этот порт вашу почту</p>
+<p> plain текстом.</p>
+<p> Если вы хотите получить свою почту, то почтовый клиент</p>
+<p> a) соединяется с pop3_server на порт 110</p>
+<p> b) выполняет процедуру регистрации и</p>
+<p> c) скачивает письма и последовательно их удаляет.</p>
+<p> Все это можно проделать и в ручную, чтобы :</p>
+<p> 1) удовлетворить свое любопытство на практике</p>
+<p> 2) посмотреть, в чем проблема, если почта не скачивается</p>
+<p> 3) читать чужую почту ( если знаем pop3-login &amp; pass )</p>
+<p> 4) попробовать подобрать пароли на почту</p>
+<p> Итак, сидя из Windows95, мы запускаем</p>
+<p> telnet.exe с параметрами: pop3_server 110</p>
+<p> Таким образом, мы выполнили функцию a) клиента</p>
+<p> Далее, получив приглашение</p>
+<p> +OK sendmail POP3 Server (Version F.U.C.K) ready at &lt;01.01.80&gt;</p>
+<p> мы можем вводить команды:</p>
+<p> Команда &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (в качестве ответа на них сервер выдает +OK comments)</p>
+<p> USER pop3_login&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Логин пользователя</p>
+<p> PASS pop3_pass&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Пароль пользователя</p>
+<p> LIST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Посмотреть состояние ящика</p>
+<p> STAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Скольно писем и какой объем</p>
+<p> RETR X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Скачать письмо номер X</p>
+<p> TOP&nbsp; X&nbsp; Y&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Посмотреть Y строчек (начиная с тела) X письма</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( удобно, если ваш ящик забомбили большими файлами,</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; и вы можете удалить нужное письмо, не скачивая его)</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; В принципе это может делать The Bat! mailer</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( dispatch mail on server )</p>
+<p> DELE X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Удалить письмо с номером X</p>
+<p> QUIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Выход</p>
+<p> Теперь мы удовлетворили любопытство и переходим к серьезным вещам.</p>
+<p> 2)&nbsp; если существует проблема с регистрацией, то полные комментарии можно</p>
+<p> &nbsp;&nbsp;&nbsp; получить в отрицательном ответе сервера ("-ERR"), например</p>
+<p> &nbsp;&nbsp;&nbsp; USER lalal</p>
+<p> &nbsp;&nbsp;&nbsp; -ERR invalid usercode or password</p>
+<p> 3) Читать чужую почту, по возможности не оставляя следов.</p>
+<p> &nbsp;&nbsp; Используем ТОЛЬКО команды RETR/TOP после регистрации.</p>
+<p> &nbsp;&nbsp; Естественно, не надо удалять письма командой DELE!</p>
+<p> &nbsp;&nbsp; Останутся ли следы ?</p>
+<p> &nbsp;&nbsp; В принципе при скачивании почты в письмо добавляется флаг</p>
+<p> &nbsp;&nbsp; Status: RO</p>
+<p> &nbsp;&nbsp; Он по умолчанию не виден в почтовом клиенте, но если включить что-то</p>
+<p> &nbsp;&nbsp; типа show raw message, то пользователь-параноик может понять, в чем дело.</p>
+<p> &nbsp;&nbsp; =&gt; Если вы получаете почту с таким флагом, значит кто-то ее уже прочитал.</p>
+<p> 4) Подбор паролей по POP3</p>
+<p> &nbsp;&nbsp; В некоторых ( в большинстве?) демонах возможно неограниченное число попыток</p>
+<p> &nbsp;&nbsp; регистрации на Pop3 сервере. Само собой, это можно использовать для подбора</p>
+<p> &nbsp;&nbsp; паролей.</p>
+<p> &nbsp;&nbsp; Исходники под Unix pop3hack.c можно найти на www.rootshell.com</p>
+
+<p> &nbsp;&nbsp;&nbsp;&nbsp; Edited on 05/07/1999 23:52:26</p>
+<p> &nbsp;&nbsp;&nbsp;&nbsp; QWERTY.NANKO.RU</p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp;  </p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

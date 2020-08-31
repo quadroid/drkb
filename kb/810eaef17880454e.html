@@ -1,0 +1,78 @@
+<html>
+<head>
+  <title>Добавление колонки в TStringGrid</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Добавление колонки в TStringGrid</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<pre name="code" class="delphi">
+procedure GridAddColumn(StrGrid: TStringGrid; NewColumn: Integer); 
+Var Column: Integer; 
+begin 
+  StrGrid.ColCount := StrGrid.ColCount+1; 
+  For Column := StrGrid.ColCount-1 downto NewColumn do 
+    StrGrid.Cols[Column].Assign(StrGrid.Cols[Column-1]); 
+  StrGrid.Cols[NewColumn-1].Text := ''; 
+end; 
+</pre>
+
+<hr />
+<pre name="code" class="delphi">
+procedure AddColumn(SG : TStringGrid; AtColNumber : integer; 
+                    ColWidth : integer = 0); 
+var Column : integer; 
+    Wdth : integer; 
+begin 
+  AtColNumber := abs(AtColNumber); 
+  SG.ColCount := SG.ColCount + 1; 
+  if abs(ColWidth) = 0 then 
+     Wdth := SG.DefaultColWidth 
+  else 
+     Wdth := ColWidth; 
+ 
+  if AtColNumber &lt;= SG.ColCount then begin 
+    for Column := SG.ColCount - 1 downto AtColNumber + 1 do begin 
+      SG.Cols[Column].Assign(SG.Cols[Column - 1]); 
+      SG.Colwidths[Column] := SG.Colwidths[Column - 1]; 
+    end; 
+ 
+    SG.Cols[AtColNumber].Text := ''; 
+    SG.Colwidths[AtColNumber] := Wdth; 
+  end;   
+end; 
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

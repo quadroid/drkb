@@ -1,0 +1,81 @@
+<html>
+<head>
+  <title>Вывод текста с эффектами</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Вывод текста с эффектами</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>How to make TextOut with 3d-Effect or hollow Text</p>
+
+<p>Answer:</p>
+
+<p>Make a new Application and take this Proc bellow for the OnPaint-Event of the Form. The TextOutput will look like written with a kaligraf.If You replace the for loop in the proc with a single call of textout you can use this code to write "hollow" text. Try it with different Pen-Styles too! </p>
+
+<pre name="code" class="delphi">
+procedure TForm1.FormPaint(Sender: TObject);
+var
+  HFnt: HFONT;
+  Fontname, Txt: PChar;
+  sze: Size;
+  c: Integer;
+  byt: Byte;
+begin
+  Fontname := 'Arial';
+  txt := 'Mediakueche';
+  HFnt := CreateFont(90, 60, 0, 0, FW_BOLD, 0, 0, 0, DEFAULT_CHARSET,
+    OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+    PROOF_QUALITY, DEFAULT_PITCH + FF_DONTCARE, Fontname);
+  SelectObject(Canvas.Handle, hfnt);
+  SetBkMode(Canvas.Handle, TRANSPARENT);
+  GetTextExtentPoint32(Canvas.Handle, txt, length(txt), sze);
+  BeginPath(Canvas.Handle);
+  c := 1;
+  for c := 0 to 4 do
+  begin
+    TextOut(Canvas.Handle, 5 + c, 10 + c, Txt, length(Txt));
+  end;
+  EndPath(Canvas.Handle);
+  //  Canvas.pen.Style := psDot;
+  StrokePath(Canvas.Handle);
+  SetBkMode(Canvas.Handle, OPAQUE);
+ 
+  DeleteObject(SelectObject(Canvas.Handle, GetStockObject(WHITE_BRUSH)));
+  SelectObject(Canvas.Handle, GetStockObject(SYSTEM_FONT));
+  DeleteObject(HFnt);
+ 
+end;
+</pre>
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

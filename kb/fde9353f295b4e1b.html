@@ -1,0 +1,50 @@
+<html>
+<head>
+  <title>Как использовать WinAPI?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как использовать WinAPI?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>WinAPI - это те функции которыми управляется работа приложений в Windows. Они являются частью системы, и подгружаются вместе с виндос в библиотеке kernel32.dll.</p>
+<p>В Делфи эти функции приемущественно описанны в библиотеке Windows, которая автоматически включается в ваш новый проект. Вы можете открыть эту библиотеку и посмотреть сами. Большая часть VCL - это надстройка над WinAPI.</p>
+<p>Для каждого запущенного приложения создается процесс и в этом процессе основной поток (приложение может создавать свои дополнитльные потоки - все они будут принадлежать его процессу), а уж потоки создают окна. Каждый поток имеет уникальный числовой индификатор называемый ThreadID. Это просто целое число которое дается (ассоциируется) этому потоку. Точно так же имеет свой уникальный индификатор каждое окно в системе, называемый Handle. Он обозначается обычно типом HWND, но это просто целое. 4-х байтное.</p>
+<p>В виндосе взаимодействие построено на сообщениях. Сообщени - это небольшой набор данных (record, условно говоря), который содержит:</p>
+<p>Handle - Handle окна, которому сообщение предназначается.</p>
+<p>Message - целое число, которое указывает, что же это за сообщение. Для системных сообщений определены константы типа WM_KEYPRESSED, WM_MOUSEMOVE и т. д. Их значение(числовое) совершенно никого не интересует однако его легко узнать: ShowMessage('WM_MOUSEMOVE: '+IntToStr(WM_MOUSEMOVE));</p>
+<p>wParam - целое, значение зависит от сообщения</p>
+<p>lParaw - целое, значение зависит от сообщения.</p>
+<p>Для каждого потока отводиться специальное место в памяти, куда складываются сообщение по мере из поступления - называется это очередью сообщений. Сами окна сообщения не получают - все они складываются в очередь потока. Чтобы достать следующее сообщение, используется функция GetMessage(PeekMessage). Если вы хотите доставить сообщение окну, то проще всего это сделать вызвав DispatchMessage передав в качестве параметра полученное сообшение. Эта функция находит нужное окно в вашем потоке, и вызывает WindowsProc - процедура окна, которое должна обработать это сообщение. Адрес этой процедуры (для каждого окна свой) известен системе - он передается ей во время регистрации окна.</p>
+<p>Пракически каждое приложение осуществляет цикл обработки сообщений. То есть цикл, который вызывает GetMessage и обрабатывает сообщение (рассылает окнам), пока не попадется сообщение WM_QUIT, после чего приложение должно завершить работу. В Delphi этот цикл представлен в методе Application.Run </p>
+<p id="author">Автор: Fantasist</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

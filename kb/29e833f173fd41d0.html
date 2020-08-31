@@ -1,0 +1,139 @@
+<html>
+<head>
+  <title>Как перехватить сообщения скроллирования в TScrollBox?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как перехватить сообщения скроллирования в TScrollBox?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Следующий пример перхватывает сообщения скроллирования в компоненте TScrollBox, тем самым синхронизируя два скролбара. Если один из скролбаров изменяет своё положение, то значение второго скролбара изменяется на такую же величину. Сообщения скролирования перехватываются путём сабклассинга оконной процедуры (WinProc) у скролбара.</p>
+
+<p>Пример:</p>
+<pre name="code" class="delphi">
+type
+{$IFDEF WIN32}
+  WParameter = LongInt;
+{$ELSE}
+  WParameter = Word;
+{$ENDIF}
+  LParameter = LongInt;
+ 
+{Объявляем переменную для хранения подменённой оконной процедуры}
+var
+  OldWindowProc : Pointer;
+ 
+function NewWindowProc(WindowHandle : hWnd;
+                       TheMessage   : WParameter;
+                       ParamW       : WParameter;
+                       ParamL       : LParameter) : LongInt
+{$IFDEF WIN32} stdcall; {$ELSE} ; export; {$ENDIF}
+var
+  TheRangeMin : integer;
+  TheRangeMax : integer;
+  TheRange : integer;
+begin
+ 
+  if TheMessage = WM_VSCROLL then begin
+  {Получаем минимальное и максимальное значения scroll box}
+    GetScrollRange(WindowHandle,
+                   SB_HORZ,
+                   TheRangeMin,
+                   TheRangeMax);
+  {Получаем вертикальную позицию scroll box}
+    TheRange := GetScrollPos(WindowHandle,
+                             SB_VERT);
+  {Проверим, чтобы не выйти за диапазон}
+    if TheRange &lt; TheRangeMin then
+      TheRange := TheRangeMin else
+    if TheRange &gt; TheRangeMax then
+      TheRange := TheRangeMax;
+  {Устанавливаем горизонтальный scroll bar}
+    SetScrollPos(WindowHandle,
+                 SB_HORZ,
+                 TheRange,
+                 true);
+  end;
+ 
+  if TheMessage = WM_HSCROLL then begin
+  {Получаем мин. и макс. диапазон горизонтального scroll box}
+    GetScrollRange(WindowHandle,
+                   SB_VERT,
+                   TheRangeMin,
+                   TheRangeMax);
+  {Получаем позицию горизонтального scroll box}
+    TheRange := GetScrollPos(WindowHandle,
+                             SB_HORZ);
+  {Проверим, чтобы не выйти за диапазон}
+    if TheRange &lt; TheRangeMin then
+      TheRange := TheRangeMin else
+    if TheRange &gt; TheRangeMax then
+      TheRange := TheRangeMax;
+  {Устанавливаем вертикальный scroll bar}
+    SetScrollPos(WindowHandle,
+                 SB_VERT,
+                 TheRange,
+                 true);
+  end;
+ 
+{ Вызываем старую оконную процедуру }
+{ чтобы обработались сообщения. }
+  NewWindowProc := CallWindowProc(OldWindowProc,
+                                  WindowHandle,
+                                  TheMessage,
+                                  ParamW,
+                                  ParamL);
+end;
+ 
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+{ Устанавливаем новую оконную процедуру для контрола }
+{ и запоминаем старую оконную процедуру.    }
+  OldWindowProc := Pointer(SetWindowLong(ScrollBox1.Handle,
+                                         GWL_WNDPROC,
+                                         LongInt(@NewWindowProc)));
+end;
+ 
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+{ Возвращаем обратно старую оконную процедуру.  }
+  SetWindowLong(ScrollBox1.Handle,
+                GWL_WNDPROC,
+                LongInt(OldWindowProc));
+ 
+end;
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

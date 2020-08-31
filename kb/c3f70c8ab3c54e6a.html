@@ -1,0 +1,117 @@
+<html>
+<head>
+  <title>Пример TDrawGrid.DrawCell</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Пример TDrawGrid.DrawCell</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Автор: Neil </p>
+<pre name="code" class="delphi">
+procedure TForm1.DrawGrid1DrawCell(Sender: TObject; Col, Row: Longint;
+  Rect: TRect; State: TGridDrawState);
+var
+  vRow, vCol: LongInt;
+begin
+  vRow := Row;
+  vCol := Col;
+  with Sender as TDrawGrid, Canvas do
+  begin
+    if (vRow = 0) or (vCol = 0) then
+      Font.Color := clBlack
+    else
+      Font.Color := clRed;
+    TextRect(Rect, Rect.Left, Rect.Top, Format('(%d,%d)', [vRow, vCol]));
+  end;
+end;
+ 
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+<hr />
+<p>Это код, который я использую для печати TMemoField в TDBGrid. Перекрываем (override) метод DrawCell:</p>
+<pre name="code" class="delphi">
+Canvas.FillRect(ARect);
+R := ARect;
+WITH TMemoField(Field) DO
+DrawText(Canvas.Handle, PChar(Value), Length(Value), R,
+DT_WORDBREAK OR DT_NOPREFIX);
+</pre>
+<p>Я думаю этот код, который я создал в Delphi 1.0, должен помочь вам:</p>
+<pre name="code" class="delphi">
+procedure TForm1.StringGrid1DrawCell(Sender: TObject; Col, Row: Longint;
+  Rect: TRect; State: TGridDrawState);
+var
+  bufB: array[0..79] of Char;
+  algn: Word;
+begin
+  algn := 0;
+  if (Col = NumbColK) or (Col = PrceColK) or
+    (Col = TtlColK) then
+    algn := dt_Right;
+  if Row = 0 then
+    algn := dt_Center;
+  if algn = 0 then
+    Exit;
+  StringGrid1.Canvas.FillRect(Rect);
+  StrPCopy(bufB, StringGrid1.CellS[Col, Row]);
+  Rect.Top := Rect.Top + 2;
+  Rect.Right := Rect.Right - 2;
+  DrawText(StringGrid1.Canvas.Handle, bufB, -1, Rect, algn);
+end;
+</pre>
+
+<p>В первой части необходимо установить нужное вам выравнивание, и очистить старый текст. </p>
+<p>Число -1, поскольку, я думаю, bufB должен быть строкой с терминирующим нулем, в которую вы можете помещать любое число, например, 10, и он должен ограничивать вашу строку до 10, как раз то, что вы хотели.</p>
+<p>...действительно, в зависимости от вашего приложения, можно все значительно упростить. Если вы заполняете сетку из другого источника, просто сделайте так:</p>
+<pre name="code" class="delphi">
+grid.cells[col,row] :=
+trimWithDots (myString, form1.canvas, grid.widths[col]-2);
+</pre>
+
+<p>где trimWithDots-функция, с помощью которой вычисляется количество пикселей, необходимых для написания в ячейки сетки строки myString. При этом у myString обрезаются левые и правые пробелы, а для определения ширины используется функция холста textWidth:</p>
+<pre name="code" class="delphi">
+function trimWithDots (const myString: string; canvas: tCanvas;
+wid: integer): string;
+begin
+  result := myString;
+  while canvas.textWidth (result) &gt; wid do
+    delete (result, length(result), 1);
+end;
+</pre>
+
+<p>Естественно, вы можете сделать это более грамотнее, добавляя к правильно-обрезанному тексту '...'. По какой-то странной причине, grid.canvas почему-то возвращает мне неверные результаты, поэтому я всегда работаю с form1.canvas, который меня никогда не подводил. </p>
+<p>Если вы не загружаете сетку из другого источника, вы можете все делать так, как описано выше, но помещая код в обработчик события onDrawDataCell. В этом случае сетка нарисует за вас все линии, вам же останется нарисовать только содержимое.</p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

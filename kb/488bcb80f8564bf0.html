@@ -1,0 +1,98 @@
+<html>
+<head>
+  <title>Как перехватывать события, посланные другим приложениям?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как перехватывать события, посланные другим приложениям?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для отслеживания каких-то событий во всей Windows нужно установить ловушку (hook).</p>
+<p> Например, такая ловушка может отслеживать все события, </p>
+<p> связанные с мышью, где бы ни находился курсор. Можно отслеживать и события клавиатуры.</p>
+
+<p>Для ловушки нужна функция, которая, после установки ловушки</p>
+<p> при помощи SetWindowsHookEx, будет вызываться при каждом нужном событии. </p>
+<p> Эта функция получает всю информацию о событии. UnhookWindowsHookEx уничтожает ловушку.</p>
+
+<p>Эта программа отслеживает все сообщения, связанные с мышью и клавиатурой.</p>
+<p> CheckBox1 показывает состояние левой клавиши мыши, </p>
+<p> CheckBox2 показывает состояние правой клавиши мыши, </p>
+<p> а CheckBox3 показывает, нажата ли какая-либо клавиша на клавиатуре. </p>
+<pre name="code" class="delphi">
+var
+  HookHandle: hHook;
+ 
+function HookProc(Code: integer; WParam: word; LParam: Longint): Longint; stdcall;
+var
+  msg: PEVENTMSG;
+begin
+  if Code &gt;= 0 then begin
+    result := 0;
+    msg := Pointer(LParam);
+    with Form1 do
+      case msg.message of
+        WM_MOUSEMOVE: Caption := IntToStr(msg.ParamL) + #32 + IntToStr(msg.ParamH);
+        WM_LBUTTONDOWN: CheckBox1.Checked := true;
+        WM_LBUTTONUP: CheckBox1.Checked := false;
+        WM_RBUTTONDOWN: CheckBox2.Checked := true;
+        WM_RBUTTONUP: CheckBox2.Checked := false;
+        WM_KEYUP: CheckBox3.Checked := false;
+        WM_KEYDOWN: CheckBox3.Checked := true;
+      end;
+  end else
+    result := CallNextHookEx(HookHandle, code, WParam, LParam);
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  Form1.FormStyle := fsStayOnTop;
+  CheckBox1.Enabled := false;
+  CheckBox1.Caption := 'left button';
+  CheckBox2.Enabled := false;
+  CheckBox2.Caption := 'right button';
+  CheckBox3.Enabled := false;
+  CheckBox3.Caption := 'keyboard';
+  HookHandle := SetWindowsHookEx(WH_JOURNALRECORD, @HookProc, HInstance, 0);
+end;
+ 
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+  if HookHandle &lt;&gt; 0 then
+    UnhookWindowsHookEx(HookHandle);
+end;
+</pre>
+
+<p>Даниил Карапетян.</p>
+<p>На сайте <a href="http://delphi4all.narod.ru" target="_blank">http://delphi4all.narod.ru</a> Вы найдете еще более 100 советов по Delphi.</p>
+<p>Email: <a href="mailto:delphi4all@narod.ru" target="_blank">delphi4all@narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

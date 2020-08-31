@@ -1,0 +1,181 @@
+<html>
+<head>
+  <title>Как переназначить вывод в файл для консольной программы?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как переназначить вывод в файл для консольной программы?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Я не профи в Win API, просто у меня возникла именно такая проблема. Я нашел решение устраивающее меня. И к тому же решил, поделился с вами. Если кому-то требуется что-то другое - дерзайте, я с удовольствием прочту на "Королевстве" что и как у вас получилось. Handle = Хэндл = Рукоятка :) </p>
+<p>Хочу предложить 2 способа: </p>
+<p>1) Простой, с использованием command.com /c имя_консольной_проги &gt; имя_файла_куда_переназначить_StdOut </p>
+<p>2) С использованием Win API (2 штуки) </p>
+<p>Вы уж сами выберите, что вам подходит больше. Я использую способ &#8470; 2.2. </p>
+<p>Рассмотрим их более подробно на примерах. </p>
+<p>Способ &#8470;1 </p>
+<pre name="code" class="delphi">
+var
+  StartupInfo: TStartupInfo;
+  ProcessInformation: TProcessInformation;
+begin
+  GetStartupInfo(StartupInfo);
+  with StartupInfo do
+  begin
+    wShowWindow := SW_HIDE; //не показывать окно
+    dwFlags := STARTF_USESHOWWINDOW;
+  end;
+ 
+// для примера будем запускать [c:\program files\Borland\Delphi5\Bin]grep.exe с ключом '?'
+  Win32Check(CreateProcess(nil, 'command.com /c  grep.exe ? &gt; MyStdOut.txt',
+    nil, nil, FALSE, CREATE_NEW_CONSOLE, nil, nil, StartupInfo, ProcessInformation));
+ 
+// ждем пока наш процесс отработает
+  WaitForSingleObject(ProcInfo.hProcess, INFINITE);
+ 
+  Win32Check(CloseHandle(ProcInfo.hProcess);
+end;
+</pre>
+
+
+<p>Способ &#8470;2.1 </p>
+<pre name="code" class="delphi">
+var
+  ProcInfo: TProcessInformation;
+  StartupInfo: TStartupInfo;
+  hOut, hOutDup: THandle;
+begin
+  // Создаем файл в который и будем переназначать StdOut
+  // Например, с такими настройками, вы можете их изменить под свои нужды
+  hOut := CreateFile('MyStdOut.txt', GENERIC_WRITE, 0, nil,
+    CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+  if (hOut = INVALID_HANDLE_VALUE) then
+    RaiseLastWin32Error;
+end;
+ 
+</pre>
+<p>А вот в этом месте и происходит все самое важное!!! Необходимо сделать рукоятку нашего файла НАСЛЕДУЕМОЙ, что и делаем&#8230; </p>
+<pre name="code" class="delphi">
+ Win32Check(DuplicateHandle(GetCurrentProcess, hOut, 
+   GetCurrentProcess, @hOutDup, 0, TRUE, DUPLICATE_SAME_ACCESS));
+</pre>
+
+<p>Небольшое замечание: следует отметить, что если вы пишите прогу ТОЛЬКО под NT/2000, то сделать рукоятку наследуемой можно проще: </p>
+<pre name="code" class="delphi">
+ Win32Check(SetHandleInformation (hOut, HANDLE_FLAG_INHERIT, 
+   HANDLE_FLAG_INHERIT);
+</pre>
+<p>и не надо будет заводить дубликат рукоятки hOutDup </p>
+<pre name="code" class="delphi">
+// эта рукоятка нам уже не нужна, хотя вы можете ее
+// использовать для своих целей
+Win32Check(CloseHandle(hOut));
+ 
+GetStartupInfo(StartupInfo);
+with StartupInfo do
+begin
+  wShowWindow := SW_HIDE; // не показывать окно
+  dwFlags := dwFlags or STARTF_USESHOWWINDOW or STARTF_USESTDHANDLES;
+  hStdOutput := hOutDup; // присваиваем рукоятку на свой файл
+end;
+</pre>
+
+
+<p>Для примера будем запускать [c:\program files\Borland\Delphi5\Bin]grep.exe с ключом '?' Вызов CreateProcess с флагом bInheritHandles = TRUE !!! </p>
+<pre name="code" class="delphi">
+Win32Check(CreateProcess(nil, 'grep.exe ?', nil, nil, TRUE,
+  CREATE_NEW_CONSOLE, nil, nil, StartupInfo, ProcInfo));
+ 
+// ждем пока наш процесс отработает
+WaitForSingleObject(ProcInfo.hProcess, INFINITE);
+ 
+Win32Check(CloseHandle(ProcInfo.hProcess));
+ 
+// если вы больше ничего не хотите делать с файлом, в который
+// перенаправили StdOut, то закроем его
+Win32Check(CloseHandle(hOutDup));
+end;
+</pre>
+
+
+<p>Способ &#8470;2.2 </p>
+<p>Этот способ мне показал Юрий Зотов (поместив его в разделе "Обсуждение статьи"), спасибо. Оказывается, рукоятку гораздо проще сделать наследуемой, если использовать SECURITY_ATTRIBUTES. </p>
+<pre name="code" class="delphi">
+var
+  ProcInfo: TProcessInformation;
+  StartupInfo: TStartupInfo;
+  SecAtrtrs: TSecurityAttributes;
+  hOut: THandle;
+begin
+  with SecAtrtrs do
+  begin
+    nLength := SizeOf(TSecurityAttributes);
+    lpSecurityDescriptor := nil;
+    bInheritHandle := true; // ВОТ ОНО !!! Наша рукоятка будет НАСЛЕДУЕМОЙ
+  end;
+ 
+  // Создаем файл в который и будем переназначать StdOut
+  // Например, с такими настройками, вы можете их изменить под свои нужды
+  hOut := CreateFile('MyStdOut.txt', GENERIC_WRITE, 0, @SecAtrtrs,
+    CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+  if (hOut = INVALID_HANDLE_VALUE) then
+    RaiseLastWin32Error;
+ 
+  GetStartupInfo(StartupInfo);
+  with StartupInfo do
+  begin
+    wShowWindow := SW_HIDE; // не показывать окно
+    dwFlags := dwFlags or STARTF_USESHOWWINDOW or STARTF_USESTDHANDLES;
+    hStdOutput := hOutDup; // присваиваем рукоятку на свой файл
+  end;
+ 
+  // для примера будем запускать
+  // [c:\program files\Borland\Delphi5\Bin]grep.exe с ключом '?'
+  // Вызов CreateProcess с флагом bInheritHandles = TRUE !!!
+  Win32Check(CreateProcess(nil, 'grep.exe ?', nil, nil, TRUE,
+    CREATE_NEW_CONSOLE, nil, nil, StartupInfo, ProcInfo));
+ 
+  // ждем пока наш процесс отработает
+  WaitForSingleObject(ProcInfo.hProcess, INFINITE);
+ 
+  Win32Check(CloseHandle(ProcInfo.hProcess));
+ 
+  // если вы больше ничего не хотите делать с файлом, в который
+  // перенаправили StdOut, то закроем его
+  Win32Check(CloseHandle(hOut));
+end;
+</pre>
+<p>Заключение </p>
+<p>Первый способ проверялся мной под Win98 и Win2k Pro. Второй (обе разновидности) только под Win2k Pro. </p>
+<p>Оба способа служат одной и той же цели, но во втором случае программист получает больше контроля над ситуацией. Вызовы Win32Check и RaiseLastWin32Error добавляйте (убирайте) по своему вкусу. </p>
+<p>Кстати, кто хочет узнать на эту тему больше - откройте Win32.hlp (поставляется вместе с Делфой) и на закладке "Предметный указатель" наберите "Creating a Child Process with Redirected Input and Output", "Inheritance" и "SECURITY_ATTRIBUTES" и ВНИМАТЕЛЬНО изучите. Изучив эти (и смежные) разделы вы сможете переназначить StdOut, StdIn и StdErr куда вам захочется. </p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

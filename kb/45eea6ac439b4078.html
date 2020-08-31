@@ -1,0 +1,73 @@
+<html>
+<head>
+  <title>Как конвертировать виртуальную клавишу в ASCII-код?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как конвертировать виртуальную клавишу в ASCII-код?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Получаем символ, соответствующий виртуальной клавише:</p>
+<pre name="code" class="delphi">
+function GetCharFromVKey(vkey: Word): string;
+var
+  keystate: TKeyboardState;
+  retcode: Integer;
+begin
+  Win32Check(GetKeyboardState(keystate));
+  SetLength(Result, 2);
+  retcode := ToAscii(vkey,
+    MapVirtualKey(vkey, 0),
+    keystate, @Result[1],
+    0);
+  case retcode of
+    0: Result := '';
+    1: SetLength(Result, 1);
+    2: ;
+    else
+      Result := '';
+  end;
+end;
+ 
+{
+Использование:
+procedure TForm1.Edit1KeyDown
+  (Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  ShowMessage(GetCharFromVKey(Key));
+end; 
+}
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

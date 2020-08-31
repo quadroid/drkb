@@ -1,0 +1,217 @@
+<html>
+<head>
+  <title>Немного о джойстиках</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushCpp.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Немного о джойстиках</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Немного о джойстиках</p>
+Наталия Елманова<br>
+Компьютер Пресс - CD, 1999, N 7<br>
+<p>&#169; Copyright N.Elmanova &amp; ComputerPress Magazine. </p>
+Посвящается всем любителям компьютерных игр&#8230; </p>
+В предыдущей статье данного цикла ("Компьютер Пресс", 1999, N 3) были рассмотрены некоторые из вопросов, связанных с использованием внешних устройств. Данная статья продолжает начатую тему. Так как данный номер посвящен приложениям multimedia, а примеры использования компонента TMediaPlayer и создания проигрывателя звуковых компакт-дисков доступны российским читателям в нескольких различных модификациях (см., например, недавно вышедшую книгу С.Тейксейра и К.Пачеко "Borland Delphi 4: руководство разработчика"; подобные примеры есть и в других источниках), данная статья посвящена теме довольно экзотической - использованию джойстика. Некоторые (но далеко не все) идеи, послужившие основой для рассмотренного ниже примера, заимствованы из малодоступного российскому читателю источника "C++Builder - how-to" (J.Miano, T.Cabanski, H.Howe. - Waite Group Press, 1997). </p>
+Использование джойстика базируется на использовании нескольких функций Windows API и структур Windows, описанных в файле mmsystem.h. </p>
+Сервисы, обслуживающие джойстики, загружаются при загрузке операционной системы. В 32-разрядных версиях Windows джойстиков может быть два, и каждый может иметь от одной до четырех кнопок. Каков именно ваш джойстик и каковы характеристики его драйвера, можно определить с помощью соответствующих функций Windows API. Помимо этого, с помощью других функций можно определить, какие из кнопок нажаты в данный момент, и каковы текущие координаты, связанные с наклоном его ручки (joystick's positional information). Это можно сделать, либо опрашивая джойстик периодически, либо обрабатывая полученные от него события. </p>
+Создадим простейшее приложение для тестирования джойстика. С этой целью создадим форму, на которую поместим компонент TImage с изображением джойстика, и четыре компонента TShape (в данном случае это красные эллипсы) для изображения нажатых кнопок. Сделаем компоненты TShape невидимыми. Кроме того, поместим на форму компоненты TMemo и TPaintBox. И, наконец, поместим на форму компонент TImageList, в который поместим одно-единственное изображение, более или менее похожее на прицел джойстика (рис.1): </p>
+<img src="pic/clip0052.gif" width="492" height="373" border="0" alt="clip0052"></p>
+Рис.1. Главная форма приложения для тестирования джойстика </p>
+Интерфейс приложения готов. Теперь можно приступить к созданию кода. </p>
+Для начала следует не забыть сослаться в приложении сослаться на файл mmsystem.h (в нем описаны необходимые структуры и функции для управления джойстиком и получения информации от него). </p>
+Первое, что нужно сделать - это узнать, установлен ли вообще драйвер джойстика, и если да, подключен ли джойстик. Для этой цели используется функция joyGetNumDevs(). Если она возвращает значение, отличное от нуля, это означает, что драйвер джойстика установлен. Однако это еще не означает, что сам джойстик подключен: </p>
+<pre name="code" class="cpp">
+int joycount=joyGetNumDevs();
+  if (joycount=0) Memo1-&gt;Lines-&gt;Add("Драйверы джойстика не установлены");
+</pre>
+<p>Чтобы узнать, подключен ли джойстик, следует обратиться к функции joyGetPosEx и убедиться, что она не возвращает кода ошибки. </p>
+<pre name="code" class="cpp">
+jr=joyGetPosEx(JOYSTICKID1,&amp;JoyInfo);
+   if (jr ==JOYERR_NOERROR)
+   {
+   connect=true;
+    jnum= JOYSTICKID1;
+       }
+     else if (jr == MMSYSERR_INVALPARAM)
+    ShowMessage("Ошибка определения наличия джойстика");
+   else if((jr=joyGetPosEx(JOYSTICKID2,&amp;JoyInfo)) == JOYERR_NOERROR)
+    {
+      connect = true;
+      jnum= JOYSTICKID2;
+     }
+</pre>
+Если джойстик подключен, можно узнать о его характеристиках с помощью структуры JOYCAPS. Список доступных характеристик весьма обширен, и мы выведем в компонент TMemo информацию о некоторые из них. Сведения об остальных можно получить аналогичным способом. </p>
+<pre name="code" class="cpp">
+Memo1-&gt;Lines-&gt;Add("Номер устройства -  "+ IntToStr(jnum));
+Memo1-&gt;Lines-&gt;Add("Наименование - " + AnsiString(JoyCaps.szPname));
+Memo1-&gt;Lines-&gt;Add("Число кнопок - " + IntToStr(JoyCaps.wNumButtons));
+</pre>
+Если джойстик подключен, можно обрабатывать его события. Функция joySetCapture предназначена для перенаправления сообщений джойстика данному окну (в нашем случае - главному окну нашего приложения). Параметры этой функции содержат дескриптор окна, указатель на то, первый или второй джойстик должен посылать сообщения, частоту отправки этих сообщений (в данном случае используется минимально возможный период, определяемый с помощью все той же структуры JOYCAPS), а также параметр, указывающий на то, нужно ли посылать сообщения, если в состоянии джойстика ничего не изменилось. </p>
+<p>if (connect) joySetCapture(Handle,jnum,2*JoyCaps.wPeriodMin,FALSE);</p>
+Соответственно для того, чтобы остановить поток этих сообщений, перед закрытием формы следует вызвать функцию joyReleaseCapture. </p>
+<pre name="code" class="cpp">
+if (connect) joyReleaseCapture(jnum);
+</pre>
+<p>Теперь можно создать функции, реагирующие на события джойстика. Одна из них должна делать видимыми те из объектов TShape, которые соответствуют нажатым кнопкам. Вторая должна отображать "прицел", перемещая его внутри компонента TPaintBox. Помимо этого, следует сослаться на эти функции в h-файле, указав, что они являются реакцией на соответствующие сообщения Windows. Текст h-файла, таким образом, имеет вид: </p>
+<pre name="code" class="cpp">
+#ifndef joy1H
+#define joy1H
+//---------------------------------------------------------------------------
+#include &lt;Classes.hpp&gt;
+#include &lt;Controls.hpp&gt;
+#include &lt;StdCtrls.hpp&gt;
+#include &lt;Forms.hpp&gt;
+#include &lt;ExtCtrls.hpp&gt;
+#include &lt;Graphics.hpp&gt;
+#include &lt;ImgList.hpp&gt;
+#include &lt;Buttons.hpp&gt;
+//---------------------------------------------------------------------------
+class TForm1 : public TForm
+{
+__published:        // IDE-managed Components
+        TImage *Image1;
+        TShape *Shape2;
+        TShape *Shape1;
+        TShape *Shape3;
+        TShape *Shape4;
+        TMemo *Memo1;
+        TImageList *ImageList1;
+        TPaintBox *PaintBox1;
+        void __fastcall FormCreate(TObject *Sender);
+        void __fastcall UpdButton(TMessage &amp;msg);
+        void __fastcall UpdCoord(TMessage &amp;msg);
+        void __fastcall FormDestroy(TObject *Sender);
+private:
+ int jnum;  JOYCAPS JoyCaps;
+ bool connect;
+ int stepX,stepY;
+  TPoint Pos;
+ 
+        // User declarations
+public:                // User declarations
+        __fastcall TForm1(TComponent* Owner);
+BEGIN_MESSAGE_MAP
+  MESSAGE_HANDLER(MM_JOY1BUTTONDOWN,TMessage,UpdButton)
+  MESSAGE_HANDLER(MM_JOY1BUTTONUP,TMessage,UpdButton)
+  MESSAGE_HANDLER(MM_JOY1MOVE,TMessage,UpdCoord)
+  MESSAGE_HANDLER(MM_JOY2BUTTONDOWN,TMessage,UpdButton)
+  MESSAGE_HANDLER(MM_JOY2BUTTONUP,TMessage,UpdButton)
+  MESSAGE_HANDLER(MM_JOY2MOVE,TMessage,UpdCoord)
+END_MESSAGE_MAP(TForm)
+};
+//---------------------------------------------------------------------------
+extern PACKAGE TForm1 *Form1;
+//---------------------------------------------------------------------------
+#endif
+Сам исходный текст модуля, связанного с главной формой приложения, имеет вид: 
+//---------------------------------------------------------------------------
+#include &lt;vcl.h&gt;
+#pragma hdrstop
+#include &lt;mmsystem.h&gt;
+#include "joy1.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TForm1 *Form1;
+//---------------------------------------------------------------------------
+__fastcall TForm1::TForm1(TComponent* Owner)
+        : TForm(Owner)
+{
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::FormCreate(TObject *Sender)
+{
+   MMRESULT jr;    JOYINFOEX JoyInfo;
+   int joycount=joyGetNumDevs();
+  if (joycount=0) Memo1-&gt;Lines-&gt;Add("Драйверы джойстика не установлены");
+  else
+  {
+  connect=false;
+jr=joyGetPosEx(JOYSTICKID1,&amp;JoyInfo);
+   if (jr ==JOYERR_NOERROR)
+   {
+   connect=true;
+    jnum= JOYSTICKID1;
+       }
+     else if (jr == MMSYSERR_INVALPARAM)
+    ShowMessage("Ошибка определения наличия джойстика");
+   else if((jr=joyGetPosEx(JOYSTICKID2,&amp;JoyInfo)) == JOYERR_NOERROR)
+    {
+      connect = true;
+      jnum= JOYSTICKID2;
+     }
+}
+  joyGetDevCaps(jnum,&amp;JoyCaps, sizeof(JOYCAPS));
+  if (connect) Memo1-&gt;Lines-&gt;Add("Джойстик подключен") ;
+  else  Memo1-&gt;Lines-&gt;Add("Джойстик не подключен")    ;
+   Memo1-&gt;Lines-&gt;Add("Номер устройства -  "+ IntToStr(jnum));
+   Memo1-&gt;Lines-&gt;Add("Наименование - " + AnsiString(JoyCaps.szPname));
+Memo1-&gt;Lines-&gt;Add("Число кнопок - " +   IntToStr(JoyCaps.wNumButtons));
+if (connect)  joySetCapture(Handle,jnum,2*JoyCaps.wPeriodMin,FALSE);
+stepX = (JoyCaps.wXmax - JoyCaps.wXmin)/ PaintBox1-&gt;Width;
+stepY = (JoyCaps.wYmax - JoyCaps.wYmin)/ PaintBox1-&gt;Height;
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::UpdButton(TMessage &amp;msg)
+{
+ Shape1-&gt;Visible= (msg.WParam &amp;JOY_BUTTON1);
+ Shape2-&gt;Visible= (msg.WParam &amp;JOY_BUTTON2);
+ Shape3-&gt;Visible= (msg.WParam &amp;JOY_BUTTON3);
+ Shape4-&gt;Visible= (msg.WParam &amp;JOY_BUTTON4);
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::UpdCoord(TMessage &amp;msg)
+{
+JOYINFO JoyInfo;
+TCanvas *pCanvas = PaintBox1-&gt;Canvas;
+pCanvas-&gt;Brush-&gt;Color=Form1-&gt;Color;
+pCanvas-&gt;FillRect(Rect(0,0,PaintBox1-&gt;Width,PaintBox1-&gt;Height));
+Pos.x =  msg.LParamLo;
+Pos.y =  msg.LParamHi;
+int x=(Pos.x-JoyCaps.wXmin)/stepX-ImageList1-&gt;Width/2;
+int y=(Pos.y-JoyCaps.wYmin)/stepY-ImageList1-&gt;Height/2;
+ImageList1-&gt;Draw(pCanvas,x,y,0,true);
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::FormDestroy(TObject *Sender)
+{
+if (connect) joyReleaseCapture(jnum);
+}
+//---------------------------------------------------------------------------
+</pre>
+Запустив приложение при корректно установленном драйвере и подключенном джойстике, можно попробовать нажимать на кнопки и перемещать рычаг. При этом изображение прицела будет перемещаться внутри компонента TPaintBox, а при нажатии на кнопки на экране будут появляться красные эллипсы в соответствующих местах (рис.2). </p>
+<img src="pic/clip0051.gif" width="492" height="373" border="0" alt="clip0051"></p>
+Рис.2. Приложение для тестирования джойстика на этапе выполнения </p>
+P.S. для дельфи практически всё так же, использованные функции api находятся в модуле mmsystem.pas</p>
+
+<p>Взято из<a href="http://delphi.chertenok.ru" target="_blank"> http://delphi.chertenok.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

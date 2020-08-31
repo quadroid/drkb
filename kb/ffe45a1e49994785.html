@@ -1,0 +1,84 @@
+<html>
+<head>
+  <title>Восстановление записи dBase</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Восстановление записи dBase</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function GetTableCursor(oTable: TTable): hDBICur;
+var
+  szTable: array[0..78] of Char;
+begin
+  StrPCopy(szTable, oTable.TableName);
+  DbiGetCursorForTable(oTable.DBHandle, szTable, nil, Result);
+end;
+ 
+function dbRecall(oTable: TTable): DBIResult;
+begin
+  Result := DbiUndeleteRecord(GetTableCursor(oTable)));
+end;
+</pre>
+
+<p>Предположим, у вас на форме имеется кнопка (с именем 'butRecall'), восстанавливающая текущую отображаемую (или позиционируемую курсором) запись, данный код, будучи расположенный в обработчике события кнопки OnClick (вместе с опубликованным выше кодом), это демонстрирует (продвигаясь в наших предположених дальше, имя вашего объекта TTable - Table1 и имя текущей формы - Form1):</p>
+<pre name="code" class="delphi">
+procedure TForm1.butRecallClick(Sender: TObject);
+begin
+  if dbRecall(Table1) &lt;&gt; DBIERR_NONE then
+    ShowMessage('Не могу восстановить запись!');
+end;
+</pre>
+
+
+<p>- Loren Scott</p>
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+
+<hr />
+<pre name="code" class="delphi">
+procedure RecordUndelete(aTable: TTable);
+begin
+  aTable.UpdateCursorPos;
+  try
+    Check(DbiUndeleteRecord(aTable.Handle));
+  except
+    ShowMessage('No undelete performed.');
+  end;
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

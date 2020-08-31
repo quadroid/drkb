@@ -1,0 +1,66 @@
+<html>
+<head>
+  <title>Экспорт и импорт из реестра</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Экспорт и импорт из реестра</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+reg-файлы это, как и ожидалось, формат, понимаемый и поддерживаемый сугубо программой regedit. </p>
+<p>Командная строка у неё такая: </p>
+<p>Импорт в реестр: </p>
+<pre name="code" class="delphi">regedit RegData.reg
+</pre>
+<p>Экспорт из реестра: </p>
+<pre name="code" class="delphi">regedit /e RegData.reg HKEY_LOCAL_MACHINE\Software\Microsoft\Windows
+</pre>
+<p>Если в параметрах встречаются пробелы, их ессно надо заключать в кавычки. Код в Delphi, который экспортирует ветвь реестра может быть например такой: </p>
+<pre name="code" class="delphi">
+uses
+  ShellApi;
+ 
+procedure TMain.ExportBtnClick(Sender: TObject);
+var
+  FileName, Key: string;
+begin
+  FileName := ... //заполнить именем файла (расширение указывать)
+  Key := ... //заполнить именем ключа, типа
+  //Key := 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion'
+  if ShellExecute(Handle, 'open', 'regedit.exe',
+  PChar(Format('/e "%s" "%s"', [FileName, Key])),
+  '', SW_SHOWDEFAULT) &lt;= 32
+  then //если ошибка, то возвращаемый код &lt;=32
+    RaiseLastWin32Error();
+end;
+</pre>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

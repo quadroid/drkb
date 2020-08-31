@@ -1,0 +1,425 @@
+<html>
+<head>
+  <title>Получаем и устанавливаем различные режимы видеоадаптера</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получаем и устанавливаем различные режимы видеоадаптера</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Перевод одноимённой статьи с сайта delphi.about.com )</p>
+
+<p> &nbsp; Display Device Modes</p>
+<p>При разработке Windows приложения, иногда приходится учитывать тот факт, что оно в будущем будет работать на компьютерах с абсолютно разными мониторами и рабочими разрешениями, установленными на видео адаптере. Поэтому не лишне было бы включить в приложение такую возможность как установка различных разрешений видео адаптера.</p>
+
+<p>В данной статье мы рассмотрим принципы работы с API функцией EnumDisplaySettings, которая позволяет получить список доступных разрешений дисплея, а так же с функцией ChangeDisplaySettings для смены текущего видео-режима. </p>
+
+<p> &nbsp; Полечение возможных видео-режимов</p>
+<p>Итак, для того, чтобы получить информацию о всех возможных режимах адаптера, нам необходимо сделать серию вызовов функции EnumDisplaySettings. Вызывая эту функцию в цикле мы будем каждый раз получать доступный режим, до тех пор пока результат функции не станет отличным от True. </p>
+
+<p>Данная функция имеет на входе переменную типа TDevMode, в которой помещаются параметры. Сам тип TDevMode имеет множество переменных, относящихся к видео адаптеру. А именно, он включает в себя разрешение видео адаптера в пикселях (dmPelsWidth, dmPelsHeight), разрядность цвета (в битах на пиксель), поддерживаемая при данном разрешении (dmBitsPerPel), частота обновления (dmDisplayFrequency) и другие. </p>
+
+<pre name="code" class="delphi">
+procedure TForm1.FormCreate(Sender: TObject);
+var
+ i       : Integer;
+ DevMode : TDevMode;
+begin
+ i:=0;
+ while EnumDisplaySettings(nil,i,DevMode) do begin
+   with Devmode do
+    ListBox1.Items.Add
+     (Format('%dx%d %d Colors',
+     [dmPelsWidth,dmPelsHeight,1 shl dmBitsperPel]));
+   Inc(i);
+ end;
+end;
+</pre>
+
+<p>  Установка видео-режима</p>
+<p>После того как мы получим все доступные режимы, то установить желательный не составляет особого труда. Для этого мы воспользуемся функцией ChangeDisplaySettings. Так же данная функция при необходимости обновит реестр Windows. </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  DevMode    : TDeviceMode;
+  liRetValue : Longint;
+begin
+ if EnumDisplaySettings
+    (nil,Listbox1.ItemIndex,Devmode) then
+  liRetValue := ChangeDisplaySettings
+                  (DevMode, CDS_UPDATEREGISTRY);
+ 
+  SendMessage(HWND_BROADCAST,
+              WM_DISPLAYCHANGE,
+              SPI_SETNONCLIENTMETRICS,
+              0); 
+end;
+</pre>
+
+
+<p>Функция ChangeDisplaySettings возвращает значение long integer. Это значение можно использовать для определения успешности выполнения функции, сравнив со значениями из списка констант.</p>
+
+<p>Внимание: Не рекомендуется устанавливать значение видео-режима, который не присутствует в списке доступных. Это может привести к мерцанию экрана либо вообще к исчезновению изображения.</p>
+
+<p>Внимание: Многие адаптеры (особенно старые) могут не поддерживать смену разрешения без перезагрузки компьютера.</p>
+
+<p>Внимание: SendMessage используется для того, чтобы информировать все окна о смене видео-режима. </p>
+
+<p> &nbsp; Отслеживание изменений дисплея</p>
+<p>Для отслеживания изменений необходимо создать обработчик для перехвата сообщения WM_DISPLAYCHANGE. Обычно данный приём используется в случае, если приложения использует в своей работе графику, и его необходимо перезагрузить для смены разрешения, разрядности цвета и т.д. </p>
+<pre name="code" class="delphi">
+...
+type
+  TForm1 = class(TForm)
+  ListBox1: TListBox;
+    ...
+  private
+    procedure WMDisplayChange(var Message:TMessage);
+      message WM_DISPLAYCHANGE;
+...
+procedure
+  TForm1.WMDisplayChange(var Message: TMessage);
+begin
+  ShowMessage('Changes in display detected!');
+  inherited;
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+<hr />
+<p>При разработке приложений, которые затем будут использоваться на большом числе различных ПК очень полезно иметь возможность не только получения информации о текущем видеорежиме, но и возможность получить все доступные видеорежимы для данного ПК. Еще одна область, где используется переключение видеорежимов при написании игр без использования DirectX. </p>
+
+<p>Получение списка видеорежимов </p>
+
+<p>Получить видеорежимы можно серией вызовов EnumDisplaySettings. Функция EnumDisplaySettings возвращает информацию о видеорежиме, указанном в параметре IModeNode. Функции необходимо передать структуру типа TDevMode, в которую будет записана информация о видеорежиме. Данная структура имеет поля, характеризующие видеорежим: разрешение (dmPelsWidth, dmPelsHeight), количество битов цветности (dmBitsPerPel), частота обновления экрана (dmDisplayFrequency) и др. </p>
+
+
+<p>function EnumDisplaySettings(lpszDeviceName: PWideChar; iModeNum: DWORD;</p>
+<p>  var lpDevMode: TdeviceMode): BOOL; stdcall;</p>
+
+
+<p>Параметры </p>
+
+<p>lpszDeviceName </p>
+<p>Указатель на нуль-терминальную строку, определяющую экранное устройство, видеорежимы которого мы хотим получить. В Windows 95 and 98 (и в наших приложениях :)) ), lpszDeviceName должно быть равно Nil. </p>
+<p>iModeNum </p>
+<p>Номер видеорежима </p>
+<p>lpDevMode </p>
+<p>Структура, в которой будет возвращена информация о видеорежиме. Cтруктура довольно сложна и используется не только для видео устройств, но нам понадобятся только следующие ее поля. </p>
+<p>Поле Описание </p>
+
+<p>DmBitsPerPel </p>
+<p>Количество бит на пиксел </p>
+<p>DmPelsWidth </p>
+<p>Ширина в пикселях </p>
+<p>DmPelsHeight </p>
+<p>Высота в пикселях </p>
+<p>DmDisplayFlags </p>
+<p>DM_GRAYSCALE - Черно-белое устройство </p>
+<p>DM_INTERLACED - Черезстрочная развертка. </p>
+<p>Если флаг не установлен, подразумевается построчная развертка </p>
+<p>dmDisplayFrequency </p>
+<p>Частота обновления экрана </p>
+<p>DmPosition </p>
+<p>Windows 98, Windows 2000: Номер монитора для конфигураций с несколькими мониторами </p>
+<p>DmFields </p>
+<p>Поле dmFields используется при смене видеорежима для указания, какие именно из параметров устройства мы хотим изменить. Каждый бит поля определяет необходимость смены одного из параметров. Возможные значения: </p>
+<p>DM_BITSPERPEL - Изменить количество бит на пиксель на значение указанное в поле dmBitsPerPel. </p>
+<p>DM_PELSWIDTH - Изменить ширинку экрана на значение указанное в поле dmPelsWidth. </p>
+<p>DM_PELSHEIGHT - Изменить выстоу экрана на значение указанное в поле dmPelsHeight </p>
+<p>DM_DISPLAYFLAGS - Изменить флаги. </p>
+<p>DM_DISPLAYFREQUENCY - Изменить частоту обновления dmDisplayFrequency. </p>
+<p>DM_POSITION - Windows 98, Windows 2000: изменить номер монитора. </p>
+<p>Если lpDevMode равно nil, из реестра берется информация о видеорежиме установленном по умолчанию. Передавая в lpDevMode nil и в dwFlags 0 можно получить настройки текущего видеорежима. </p>
+
+<p>Ниже приведена процедура, получающая и отображающая в ListBox все возможные видеорежимы. </p>
+
+<pre name="code" class="delphi">
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  i: Integer;
+  DevMode : TDeviceMode;
+begin
+  i:=0;
+  while EnumDisplaySettings(nil,i,DevMode) do
+  begin
+    with Devmode do
+      ListBox1.Items.Add(Format('%dx%d %d Colors',
+      [dmPelsWidth,dmPelsHeight,Int64(1) shl dmBitsperPel]));
+    Inc(i);
+  end;
+end;
+</pre>
+
+<p>Получение параметров текущего видеорежима </p>
+
+<p>Помимо вызова EnumDisplaySettings инфомацию о текущем видеорежиме можно получать и другими способами.Получить количество битов цвета текущего видеорежима можно и другим способом: </p>
+
+
+<p>GetDeviceCaps(Form1.Canvas.Handle, BITSPIXEL) *</p>
+<p>GetDeviceCaps(Form1.Canvas.Handle, PLANES)</p>
+
+
+<p>Получаемые значения при этом: </p>
+
+<p>1 = 2 бита на точку </p>
+<p>4 = 16 бита на точку </p>
+<p>8 = 256 бита на точку </p>
+<p>15 = 32768 бита на точку (возвркащает 16 для большинства драйверов экранных устройств) </p>
+<p>16 = 65535 бита на точку </p>
+<p>24 = 16,777,216 бита на точку </p>
+<p>32 = 16,777,216 бита на точку (то же 24) </p>
+<p>Непосредственно количество цветов можно так же легко подсчитать: </p>
+
+
+<p>NumberOfColors := (1 shl</p>
+<p>(GetDeviceCaps(Form1.Canvas.Handle, BITSPIXEL) *</p>
+<p>GetDeviceCaps(Form1.Canvas.Handle, PLANES));</p>
+
+
+<p>Текущее разрешение экрана можно узнать с помощью вызова GetSystemMetrics() в качестве параметров передается: </p>
+
+<p>SM_CXSCREEN </p>
+<p>высота рабочей области экрана в пикселах </p>
+<p>SM_CYSCREEN </p>
+<p>ширина рабочей области экрана в пикселах </p>
+<p>SM_CXFULLSCREEN </p>
+<p>высота всей экранной области в пикселах </p>
+<p>SM_CYFULLSCREEN </p>
+<p>ширина всей экранной области в пикселах </p>
+<p>Ниже приведен пример получения высоты и ширины рабочей области экрана (для всей экранной области надо просто поменять параметры вызова GetSystemMetrics): </p>
+
+<pre name="code" class="delphi">
+var
+  x, y: Integer;
+  Mode: string;
+begin
+  x:=GetSystemMetrics(Sm_Cxscreen);
+  y:=GetSystemMetrics(Sm_CYscreen);
+  Mode:=Format('%d x %d',[x,y]);
+  if y=480 then
+    Mode:=Mode+('Standard VGA')
+  else
+    Mode:=Mode+('Super VGA');
+  StaticText1.Caption:=Mode;
+end;
+</pre>
+
+<p>Установка видеорежима </p>
+
+<p>Как мы убедились получения списка и параметров видеорежимов не проблема. Теперь разберемся с программной сменой видеорежимов. Функция ChangeDisplaySettings предназначена для изменения текущего видеорежима экрана и при необходимости обновления этой информации в реестре Windows. </p>
+
+
+<p>function ChangeDisplaySettings(var lpDevMode: TDeviceMode;</p>
+<p>dwFlags: DWORD): Longint; stdcall;</p>
+
+
+<p>Параметры: </p>
+
+<p>lpDevMode </p>
+<p>Структура с описанием видеорежима, на который мы хотим переключиться. Поля структуры были рассмотрены ранее. </p>
+<p>dwFlags </p>
+<p>Определяет как будет изменен видеорежим. </p>
+<p>0 - Немедленное изменение видеорежима. Установка данного флага возвращает в видеорежим по умолчанию, установленному в реестре, если он был изменен с применением флага CDS_FULLSCREEN, при этом первый параметр функции должен быть nil и флаги равны 0. </p>
+<p>CDS_UPDATEREGISTRY - Видеорежим будет изменен немедленно и информация записана в реестр в пользовательский профиль. </p>
+<p>CDS_TEST - Запрос теста видеорежима средствами Windows </p>
+<p>CDS_FULLSCREEN - Установка видеорежима временна. </p>
+<p>CDS_GLOBAL - Видеорежим будет изменен для всех пользователей данной машины. Иначе видеорежим меняется только для текущего пользователя. Используется вместе с флагом CDS_UPDATEREGISTRY. </p>
+<p>CDS_SET_PRIMARY - Видеорежим становится первичным. </p>
+<p>CDS_RESET - Параметры видеорежима будут изменены, даже если совпадают с текущими. </p>
+<p>CDS_NORESET - Изменения будут записаны в реестр, но не вступят в силу. Используется с флагом CDS_UPDATEREGISTRY </p>
+<p>Возвращаемое значение:</p>
+<p>DISP_CHANGE_SUCCESSFUL Изменения прошли успешно. </p>
+<p>DISP_CHANGE_RESTART Необходима перезагрузка для вступления изменений в силу </p>
+<p>DISP_CHANGE_BADFLAGS Передан неверный набор флагов </p>
+<p>DISP_CHANGE_BADPARAM Неверные параметры. </p>
+<p>DISP_CHANGE_FAILED Драйвер видеоустройства не смог установить режим </p>
+<p>DISP_CHANGE_BADMODE Видеорежим не поддерживается </p>
+<p>DISP_CHANGE_NOTUPDATED Windows NT/2000: Ошибка записи в реестр </p>
+<p>При немедленном изменении видеорежима всем запущенным приложениям рассылается сообщение WM_DISPLAYCHANGE. </p>
+
+<p>А вот и пример смены видеорежима: </p>
+
+<pre name="code" class="delphi">
+{...}
+ 
+type
+  TForm1 = class(TForm)
+    Button1: TButton;
+    ListView1: TListView;
+    procedure Button1Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure ListView1DblClick(Sender: TObject);
+  private
+    { Private declarations }
+    {Массив для хранения информации о видеорежимах}
+    DevMode : array[0..20] of TDeviceMode;
+  public
+    { Public declarations }
+end;
+ 
+{...}
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  {Настройка ListView}
+  ListView1.ViewStyle := vsReport;
+ 
+  ListView1.RowSelect := TRUE;
+ 
+  ListView1.Columns.Add;
+  ListView1.Columns.Add;
+  ListView1.Columns[0].Caption := 'Width x Height';
+  ListView1.Columns[0].Width := 100;
+  ListView1.Columns[1].Caption := 'Colors';
+  ListView1.Columns[1].Width := 100;
+end;
+ 
+{Процедура получения списка режимов}
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  tmpStr1, tmpStr2 : string;
+  tmpDC : HDC;
+  x, Selection, cxScreen, cyScreen, Resolution : Integer;
+begin
+  { Запоминаем текущие настройки}
+  tmpDC := getDC(Handle);
+  try
+    cxScreen := GetSystemMetrics(SM_CXSCREEN);
+    cyScreen := GetSystemMetrics(SM_CYSCREEN);
+    Resolution := GetDeviceCaps(tmpDC, BITSPIXEL);
+  finally
+    ReleaseDC(Handle, tmpDC);
+  end;
+ 
+  ListView1.Items.Clear;
+  x := 0;
+ 
+  { Получаем список видеорежимов}
+  while EnumDisplaySettings(nil,x,DevMode[x]) do
+  begin
+ 
+    { Разрешение экрана }
+    tmpStr1 := IntToStr(DevMode[x].dmPelsWidth) + 'x' +
+    IntToStr(DevMode[x].dmPelsHeight);
+ 
+    { Цвета }
+    case DevMode[x].dmBitsPerPel of
+      4 : tmpStr2 := '16 Colors';
+      8 : tmpStr2 := '256 Colors';
+      16 : tmpStr2 := 'High Color (16 Bit)';
+      32 : tmpStr2 := 'True Color (32 Bit)';
+    end;
+ 
+    { А теперь полученную информацию надо отобразить }
+    with ListView1.Items.Add do
+    begin
+      Caption := tmpStr1;
+      SubItems.Add(tmpStr2);
+    end;
+ 
+    { В ListView надо встать не строку с описанием текущего режима,
+    для этого сохраним индекс элемента с описанием этого режима }
+    if ( cxScreen = DevMode[x].dmPelsWidth ) and
+    ( cyScreen = DevMode[x].dmPelsHeight ) and
+    ( Resolution = DevMode[x].dmBitsPerPel ) then
+      Selection := x;
+ 
+    inc(x);
+ 
+    if x = 20 then
+      Break;
+  end;
+ 
+  { В ListView перемещаемся на строчку с описанием текущего режима }
+  ActiveControl := ListView1;
+  ListView1.Selected := ListView1.Items.Item[Selection];
+end;
+ 
+ 
+{Установка выбранного пользователем видеорежима}
+procedure TForm1.ListView1DblClick(Sender: TObject);
+var
+  tmpDevMode : TDevMode;
+begin
+  { Получаем сохраненную ранее информацию по выбранному режиму}
+  tmpDevMode := DevMode[ListView1.Items.IndexOf(ListView1.Selected)];
+ 
+  { Скажем Windows, какие параметры надо сменить }
+  tmpDevMode.dmFields := DM_BITSPERPEL or DM_PELSWIDTH or
+    DM_PELSHEIGHT or DM_DISPLAYFLAGS or DM_DISPLAYFREQUENCY;
+ 
+  { Очень неплохо будет протестировать видеорежим
+  и записать изменения в реестр}
+  if ChangeDisplaySettings(tmpDevMode, CDS_TEST) =
+  DISP_CHANGE_SUCCESSFUL then
+    ChangeDisplaySettings(tmpDevMode, CDS_UPDATEREGISTRY);
+end;
+</pre>
+
+
+
+
+<p>Замечание 1: </p>
+
+<p>Не рекомендуется устанавливать видеорежимы, отличные от полученных вызовами EnumDisplaySettings. Возможна ситуация, когда пользователь вместо рабочего стола увидит лишь черный экран.</p>
+
+<p>Замечание 2: </p>
+
+<p>Многие драйвера, особенно старые не поддерживают изменения видеорежима без перезагрузки компьютера.</p>
+
+<p>Обнаружение изменений видеорежима </p>
+
+<p>При изменениях видеорежима генерируется сообщение WM_DISPLAYCHANGE. Необходимо создать обработчик данного сообщения в вашем приложении. </p>
+
+<pre name="code" class="delphi">
+...
+type
+  TForm1 = class(TForm)
+  ListBox1: TListBox;
+...
+private
+  procedure WMDisplayChange(var message:TMessage); message WM_DISPLAYCHANGE;
+...
+ 
+procedure TForm1.WMDisplayChange(var message: TMessage);
+begin
+  ShowMessage('Changes in display detected!');
+  inherited;
+end;
+</pre>
+<a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

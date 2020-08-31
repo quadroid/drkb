@@ -1,0 +1,138 @@
+<html>
+<head>
+  <title>Координатная сетка</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Координатная сетка</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit grid_;
+ 
+interface
+ 
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls;
+ 
+type
+  TForm1 = class(TForm)
+    procedure FormPaint(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+{$R *.DFM}
+ 
+procedure TForm1.FormPaint(Sender: TObject);
+var
+  x0, y0: integer; // координаты начала координатных осей
+  dx, dy: integer; // шаг координатной сетки (в пикселях)
+  h, w: integer; // высота и ширина области вывода координатной сетки
+  x, y: integer;
+ 
+  lx, ly: real; // метки (оцифровка) линий сетки по X  Y
+  dlx, dly: real; // шаг меток (оцифровки) линий сетки по X и Y
+  cross: integer; // счетчик не оцифрованных линий сетки
+  dcross: integer; // количество не оцифрованных линий между оцифрованными
+begin
+  x0 := 30;
+  y0 := 220; // оси начинаются в точке (40,250)
+  dx := 40;
+  dy := 40; // шаг координатной сетки 40 пикселей
+  dcross := 1; // помечать линии сетки X: 1 - каждую;
+  //                         2 - через одну;
+  //                         3 - через две;
+  dlx := 0.5; // шаг меток оси X
+  dly := 1.0; // шаг меток оси Y, метками будут: 1, 2, 3 и т.д.
+ 
+  h := 200;
+  w := 300;
+ 
+  with form1.Canvas do
+  begin
+    cross := dcross;
+    MoveTo(x0, y0);
+    LineTo(x0, y0 - h); // ось X
+    MoveTo(x0, y0);
+    LineTo(x0 + w, y0); // ось Y
+ 
+    // засечки, сетка и оцифровка по оси X
+    x := x0 + dx;
+    lx := dlx;
+    repeat
+      MoveTo(x, y0 - 3);
+      LineTo(x, y0 + 3); // засечка
+      cross := cross - 1;
+      if cross = 0 then //оцифровка
+      begin
+        TextOut(x - 8, y0 + 5, FloatToStr(lx));
+        cross := dcross;
+      end;
+      Pen.Style := psDot;
+      MoveTo(x, y0 - 3);
+      LineTo(x, y0 - h); // линия сетки
+      Pen.Style := psSolid;
+      lx := lx + dlx;
+      x := x + dx;
+    until (x &gt; x0 + w);
+ 
+    // засечки, сетка и оцифровка по оси Y
+    y := y0 - dy;
+    ly := dly;
+    repeat
+      MoveTo(x0 - 3, y);
+      LineTo(x0 + 3, y); // засечка
+      TextOut(x0 - 20, y, FloatToStr(ly)); // оцифровка
+      Pen.Style := psDot;
+      MoveTo(x0 + 3, y);
+      LineTo(x0 + w, y); // линия сетки
+      Pen.Style := psSolid;
+      y := y - dy;
+      ly := ly + dly;
+    until (y &lt; y0 - h);
+  end;
+end;
+ 
+end.
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

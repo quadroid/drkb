@@ -1,0 +1,99 @@
+<html>
+<head>
+  <title>Как активизировать предыдущий экземпляр вашей программы?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как активизировать предыдущий экземпляр вашей программы?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Если внутренняя переменная hPrevInst не равна нулю, то она содержит дескриптор предыдущего запущенного экземпляра вашей программы. Вы просто находите открытое окно по его дескриптору и, при необходимости, выводите на передний план. Весь код расположен в файле .DPR file, НЕ в модуле. Строки, которые вам необходимо добавить к вашему .DPR-файлу, в приведенном ниже примере помечены {*}. </p>
+
+<pre name="code" class="delphi">
+program Once;
+ 
+uses
+{*}  WinTypes, WinProcs, SysUtils,
+ 
+Forms,
+Onceu in 'ONCEU.PAS' {Form1};
+ 
+{$R *.RES}
+{*}TYPE
+{*}  PHWND = ^HWnd;
+ 
+{*}  FUNCTION EnumWndProc(H : hWnd; P : PHWnd) : Integer; Export;
+{*}  VAR ClassName : ARRAY[0..30] OF Char;
+{*}  BEGIN
+{*}    {Если это окно принадлежит предшествующему экземпляру...}
+{*}    IF GetWindowWord(H, GWW_HINSTANCE) = hPrevInst THEN
+{*}      BEGIN
+{*}        {... проверяем КАКОЕ это окно.}
+{*}        GetClassName(H, ClassName, 30);
+{*}        {Если это главное окно приложения...}
+{*}        IF StrIComp(ClassName, 'TApplication') = 0 THEN
+{*}          BEGIN
+{*}            {... ищем}
+{*}{*}            P^ := H;
+{*}            EnumWndProc := 0;
+{*}          END;
+{*}      END;
+{*}  END;
+ 
+{*}  PROCEDURE CheckPrevInst;
+{*}  VAR PrevWnd : hWnd;
+{*}  BEGIN
+{*}    IF hPrevInst &lt;&gt; 0 THEN
+{*}      {Предыдущий экземпляр запущен}
+{*}      BEGIN
+{*}        PrevWnd := 0;
+{*}        EnumWindows(@EnumWndProc, LongInt(@PrevWnd));
+{*}        {Ищем дескриптор окна предыдущего}
+{*}        {экземпляра и активизируем его}
+{*}        IF PrevWnd &lt;&gt; 0 THEN
+{*}          IF IsIconic(PrevWnd) THEN
+{*}            ShowWindow(PrevWnd, SW_SHOWNORMAL)
+{*}          ELSE BringWindowToTop(PrevWnd);
+{*}        Halt;
+{*}      END;
+{*}  END;
+begin
+{*}  CheckPrevInst;
+ 
+Application.Title := 'Once';
+Application.CreateForm(TForm1, Form1);
+Application.Run;
+end.
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

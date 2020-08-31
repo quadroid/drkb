@@ -1,0 +1,101 @@
+<html>
+<head>
+  <title>Использование многомерного массива</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Использование многомерного массива</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<pre name="code" class="delphi">
+type RecType = integer; {&lt;-- здесь задается тип элементов массива}
+ 
+const MaxRecItem = 65520 div sizeof(RecType);
+ 
+type = MyArrayType = array[0..MaxRecItem] of RecType;
+type = MyArrayTypePtr = ^MyArrayType;
+ 
+var MyArray: MyArrayTypePtr;
+begin
+  ItemCnt := 10; {количество элементов массива, которые необходимо распределить}
+  GetMem(MyArray, ItemCnt * sizeof(MyArray[1])); {распределение массива}
+  MyArray^[3] := 10; {доступ к массиву}
+  FreeMem(MyArray, ItemCnt * sizeof(MyArray[1])); {освобождаем массив после работы с ним}
+end;
+</pre>
+
+<p>Michael Day</p>
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+
+<hr />
+<p class="p_Heading1">Автор: Steve Schafer </p>
+
+<pre name="code" class="delphi">
+type
+  PRow = ^TRow;
+  TRow = array[0..16379] of Single;
+ 
+  PMat = ^TMat;
+  TMat = array[0..16379] of PRow;
+ 
+var
+  Mat: PMat;
+  X, Y, Xmax, Ymax: Integer;
+ 
+begin
+  Write('Задайте размер массива: ');
+  ReadLn(Xmax, Ymax);
+  if (Xmax &lt;= 0) or (Xmax &gt; 16380) or (Ymax &lt;= 0) or (Ymax &gt; 16380) then
+  begin
+    WriteLn('Неверный диапазон. Не могу продолжить.');
+    Exit;
+  end;
+  GetMem(Mat, Xmax * SizeOf(PRow));
+  for X := 0 to Xmax - 1 do
+  begin
+    GetMem(Mat[X], Ymax * SizeOf(Single));
+    for Y := 0 to Ymax - 1 do
+      Mat^[X]^[Y] := 0.0;
+  end;
+  WriteLn('Массив инициализирован и готов к работе.');
+  WriteLn('Но эта программа закончила свою работу.');
+end.
+ 
+ 
+</pre>
+
+<a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

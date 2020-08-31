@@ -1,0 +1,113 @@
+<html>
+<head>
+  <title>Как сделать регулятор громкости?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как сделать регулятор громкости?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>ВОТ нашел в Интернете:</p>
+<p>Эта программа увеличивает громкость выбранного канала на 1000.</p>
+<pre name="code" class="delphi">
+uses MMSystem;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  vol: longint;
+  LVol, RVol: integer;
+begin
+  AuxGetVolume(ListBox1.ItemIndex, @Vol);
+  LVol := Vol shr 16;
+  if LVol &lt; MaxWord - 1000
+    then LVol := LVol + 1000
+    else LVol := MaxWord;
+  RVol := (Vol shl 16) shr 16;
+  if RVol &lt; MaxWord - 1000
+    then RVol := RVol + 1000
+    else RVol := MaxWord;
+  AuxSetVolume(ListBox1.ItemIndex, LVol shl 16 + RVol);
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  i: integer;
+  cap: TAuxCaps;
+begin
+  for i := 0 to auxGetNumDevs - 1 do begin
+    auxGetDevCaps(i, Addr(cap), SizeOf(cap));
+    ListBox1.Items.Add(cap.szPname)
+  end;
+end; 
+</pre>
+<p>Второй вариант:</p>
+<pre name="code" class="delphi">uses mmsystem;
+function GetWaveVolume: DWord;
+var
+Woc : TWAVEOUTCAPS;
+Volume : DWord;
+begin
+result:=0;
+if WaveOutGetDevCaps(WAVE_MAPPER, @Woc, sizeof(Woc)) = MMSYSERR_NOERROR then
+if Woc.dwSupport and WAVECAPS_VOLUME = WAVECAPS_VOLUME then
+begin
+WaveOutGetVolume(WAVE_MAPPER, @Volume);
+Result := Volume;
+end;
+end;
+procedure SetWaveVolume(const AVolume: DWord);
+var Woc : TWAVEOUTCAPS;
+begin
+if WaveOutGetDevCaps(WAVE_MAPPER, @Woc, sizeof(Woc)) = MMSYSERR_NOERROR then
+if Woc.dwSupport and WAVECAPS_VOLUME = WAVECAPS_VOLUME then WaveOutSetVolume(WAVE_MAPPER, AVolume);
+end;
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+Beep;
+end;
+procedure TForm1.Button2Click(Sender: TObject);
+var
+LeftVolume: Word;
+RightVolume: Word;
+begin
+LeftVolume := StrToInt(Edit1.Text);
+RightVolume := StrToInt(Edit2.Text);
+SetWaveVolume(MakeLong(LeftVolume, RightVolume));
+end;
+procedure TForm1.Button3Click(Sender: TObject);
+begin
+Caption := IntToStr(GetWaveVolume);
+end;
+</pre>
+
+<p id="author">Автор MMM</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

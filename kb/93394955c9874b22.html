@@ -1,0 +1,90 @@
+<html>
+<head>
+  <title>Как очистить экран в консольном приложении?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как очистить экран в консольном приложении?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Олег Кулабухов&nbsp; </p>
+
+<p>Нужно просто использовать GetConsoleScreenBufferInfo() для ввода нескольких пустых строк.</p>
+
+<pre name="code" class="delphi">
+program Project1;
+{$APPTYPE CONSOLE}
+uses
+  Windows;
+{$R *.RES}
+var
+  sbi: TConsoleScreenBufferInfo;
+  i: integer;
+begin
+  Writeln('A Console Applicaiton');
+  Writeln('Press Enter To Clear The Screen');
+  GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),
+    sbi);
+  Readln;
+  GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),
+    sbi);
+  for i := 0 to sbi.dwSize.y do
+    writeln;
+  Writeln('Press Enter To End');
+  Readln;
+end.
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+<hr />
+<pre name="code" class="delphi">
+uses
+  Windows;
+ 
+procedure ClearConsoleWindow;
+var
+ ConsoleHandle:THandle;
+ ConsoleInfo: TConsoleScreenBufferInfo;
+ Coord:TCoord;
+ WrittenChars:DWORD;
+begin
+ FillChar(ConsoleInfo,SizeOf(TConsoleScreenBufferInfo),0);
+ FillChar(Coord,SizeOf(TCoord),0);
+ ConsoleHandle:=GetStdHandle(STD_OUTPUT_HANDLE);
+ GetConsoleScreenBufferInfo(ConsoleHandle, ConsoleInfo);
+ FillConsoleOutputCharacter(ConsoleHandle,' ', ConsoleInfo.dwSize.X * ConsoleInfo.dwSize.Y, Coord, WrittenChars);
+ SetConsoleCursorPosition(ConsoleHandle,ConsoleInfo.dwCursorPosition)
+end;
+</pre>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: Krid</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

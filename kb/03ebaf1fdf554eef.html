@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>Алгоритм градиентной заливки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Алгоритм градиентной заливки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Иногда бывает нужно сложить два или более цветов для получения что-то типа переходного цвета. Делается это весьма просто. Координаты получаемого цвета будут равны среднему значению соответствующих координат всех цветов. </p>
+
+<p>Например, нужно сложить красный и синий. Получаем </p>
+
+<p>(255,0,0)+(0,0,255)=((255+0) div 2,(0+0) div 2,(0+255) div 2)=(127,0,127).</p>
+
+<p>В результате получаем сиреневый цвет. Также надо поступать, если цветов более чем 2: сложить соответствующие координаты, потом каждую сумму разделить нацело на количество цветов. </p>
+
+<p>Поговорим теперь о градиентной заливке. Градиентная заливка - это заливка цветом с плавным переходом от одного цвета к другому. </p>
+
+<p>Итак, пусть заданы 2 цвета своими координатами ((A1, A2, A3) и (B1, B2, B3)) и линия (длиной h пикселов), по которой нужно залить. Тогда каждый цвет каждого пиксела, находящегося на расстоянии x пикселов от начала будет равен (A1-(A1-B1)/h*x, A2-(A2-B2)/h*x, A3-(A3-B3)/h*x). Теперь, имея линию с градиентной заливкой, можно таким образом залить совершенно любую фигуру: будь то прямоугольник, круг или просто произвольная фигура. </p>
+
+<p>Вот как выглядит описанный алгоритм: </p>
+<pre name="code" class="delphi">
+{Считается, что координаты первого цвета
+равны (A1, A2, A3), а второго (B1, B2, B3)
+Кроме того, линия начинается в координатах
+(X1,Y1), а заканчивается в (X2,Y1)}
+ 
+var
+  h, i: integer;
+begin
+  h:=X2-X1-1;
+  for i:=0 to h do
+    with PaintBox1.Canvas do
+    begin
+      Pen.Color:=RGB(A1-(A1-B1)/h*i, A2-(A2-B2)/h*i, A3-(A3-B3)/h*i);
+      Rectangle(I,Y1,I+1,Y1);
+    end;
+end.
+</pre>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

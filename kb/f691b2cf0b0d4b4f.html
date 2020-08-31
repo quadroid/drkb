@@ -1,0 +1,112 @@
+<html>
+<head>
+  <title>Как взять URL из окна IE?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как взять URL из окна IE?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses windows, ddeman, ......
+ 
+function Get_URL(Servicio: string): String;
+uses windows, ddeman, ......
+ 
+function Get_URL(Servicio: string): String;
+var
+  Cliente_DDE: TDDEClientConv;
+  temp:PChar;   
+begin
+   Result := '';
+   Cliente_DDE:= TDDEClientConv.Create( nil );
+    with Cliente_DDE do
+       begin
+          SetLink( Servicio,'WWW_GetWindowInfo');
+          temp := RequestData('0xFFFFFFFF');
+          Result := StrPas(temp);
+          StrDispose(temp);  //&lt;&lt;-Предотвращаем утечку памяти
+          CloseLink;
+       end;
+     Cliente_DDE.Free;
+end;
+ 
+procedure TForm1.Button1Click(Sender);
+begin
+  showmessage(Get_URL('Netscape'));
+     или
+  showmessage(Get_URL('IExplore'));
+end; 
+</pre>
+
+<p id="author">Автор: Song</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr /><p>Пример показывает, как найти окно Internet Explorer, и захватить из него текущий URL, находящийся в поле адреса IE. В Исходнике используются простые функции win32 api на delphi.</p>
+<pre name="code" class="delphi">
+function GetText(WindowHandle: hwnd): string;
+var
+  txtLength: integer;
+  buffer: string;
+begin
+  TxtLength := SendMessage(WindowHandle, WM_GETTEXTLENGTH, 0, 0);
+  txtlength := txtlength + 1;
+  setlength(buffer, txtlength);
+  sendmessage(WindowHandle, wm_gettext, txtlength, longint(@buffer[1]));
+  result := buffer;
+end;
+ 
+ 
+function GetURL: string;
+var
+  ie, toolbar, combo,
+    comboboxex, edit,
+    worker, toolbarwindow: hwnd;
+begin
+  ie := FindWindow(pchar('IEFrame'), nil);
+  worker := FindWindowEx(ie, 0, 'WorkerA', nil);
+  toolbar := FindWindowEx(worker, 0, 'rebarwindow32', nil);
+  comboboxex := FindWindowEx(toolbar, 0, 'comboboxex32', nil);
+  combo := FindWindowEx(comboboxex, 0, 'ComboBox', nil);
+  edit := FindWindowEx(combo, 0, 'Edit', nil);
+  toolbarwindow := FindWindowEx(comboboxex, 0, 'toolbarwindow32', nil);
+ 
+  result := GetText(edit);
+{-------------------------------------------------------}
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  showmessage(GetURL);
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<html>
+<head>
+  <title>Изменяем цвет TPageControl</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Изменяем цвет TPageControl</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+type 
+  TTabSheet = class(ComCtrls.TTabSheet) 
+  private 
+    FColor: TColor; 
+    procedure SetColor(Value: TColor); 
+    procedure WMEraseBkGnd(var Msg: TWMEraseBkGnd); 
+      message WM_ERASEBKGND; 
+  public 
+    constructor Create(aOwner: TComponent); override; 
+    property Color: TColor read FColor write SetColor; 
+  end; 
+ 
+  {...} 
+ implementation 
+{...} 
+ 
+constructor TTabSheet.Create(aOwner: TComponent); 
+begin 
+  inherited; 
+  FColor := clBtnFace; 
+end; 
+ 
+procedure TTabSheet.SetColor(Value: TColor); 
+begin 
+  if FColor  Value then  
+  begin 
+    FColor := Value; 
+    Invalidate; 
+  end; 
+end; 
+ 
+procedure TTabSheet.WMEraseBkGnd(var Msg: TWMEraseBkGnd); 
+begin 
+  if FColor = clBtnFace then 
+    inherited 
+  else  
+  begin 
+    Brush.Color := FColor; 
+    Windows.FillRect(Msg.dc, ClientRect, Brush.Handle); 
+    Msg.Result := 1; 
+  end; 
+end; 
+ 
+procedure TForm1.FormCreate(Sender: TObject); 
+begin 
+  Tabsheet1.Color := clWhite; 
+  TabSheet2.Color := clLime; 
+end; 
+ 
+// PageControl1.OwnerDraw := true ! 
+ 
+procedure TForm1.PageControl1DrawTab(Control: TCustomTabControl; 
+  TabIndex: Integer; const Rect: TRect; Active: Boolean); 
+var 
+  AText: string; 
+  APoint: TPoint; 
+begin 
+  with (Control as TPageControl).Canvas do 
+  begin 
+    Brush.Color := clred; 
+    FillRect(Rect); 
+    AText := TPageControl(Control).Pages[TabIndex].Caption; 
+    with Control.Canvas do 
+    begin 
+      APoint.x := (Rect.Right - Rect.Left) div 2 - TextWidth(AText) div 2; 
+      APoint.y := (Rect.Bottom - Rect.Top) div 2 - TextHeight(AText) div 2; 
+      TextRect(Rect, Rect.Left + APoint.x, Rect.Top + APoint.y, AText); 
+    end; 
+  end; 
+end;
+ 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

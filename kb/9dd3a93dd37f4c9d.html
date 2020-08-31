@@ -1,0 +1,193 @@
+<html>
+<head>
+  <title>Find the convex hull of 2D points</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Find the convex hull of 2D points</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses
+  Math;
+ 
+type
+  TPointArray = array of TPoint;
+ 
+  TPointFloat = record
+    X: Real;
+    Y: Real;
+  end;
+ 
+  // return the boundary points of the convex hull of a set of points using Grahams scan
+  // over-writes the input array - so make a copy first
+function FindConvexHull(var APoints: TPointArray): Boolean;
+var
+  LAngles: array of Real;
+  Lindex, LMinY, LMaxX, LPivotIndex: Integer;
+  LPivot: TPoint;
+  LBehind, LInfront: TPoint;
+  LRightTurn: Boolean;
+  LVecPoint: TPointFloat;
+begin
+  Result := True;
+ 
+  if Length(Points) = 3 then Exit; // already a convex hull
+  if Length(Points) &lt; 3 then
+  begin // not enough points
+    Result := False;
+    Exit;
+  end;
+ 
+  // find pivot point, which is known to be on the hull
+  // point with lowest y - if there are multiple, point with highest x
+  LMinY := 1000;
+  LMaxX := 1000;
+  LPivotIndex := 0;
+  for Lindex := 0 to High(APoints) do
+  begin
+    if APoints[Lindex].Y = LMinY then
+    begin
+      if APoints[Lindex].X &gt; LMaxX then
+      begin
+        LMaxX := APoints[Lindex].X;
+        LPivotIndex := Lindex;
+      end;
+    end
+    else if APoints[Lindex].Y &lt; LMinY then
+    begin
+      LMinY := APoints[Lindex].Y;
+      LMaxX := APoints[Lindex].X;
+      LPivotIndex := Lindex;
+    end;
+  end;
+  // put pivot into seperate variable and remove from array
+  LPivot := APoints[LPivotIndex];
+  APoints[LPivotIndex] := APoints[High(APoints)];
+  SetLength(APoints, High(APoints));
+ 
+  // calculate angle to pivot for each point in the array
+  // quicker to calculate dot product of point with a horizontal comparison vector
+  SetLength(LAngles, Length(APoints));
+  for Lindex := 0 to High(APoints) do
+  begin
+    LVecPoint.X := LPivot.X - APoints[Lindex].X; // point vector
+    LVecPoint.Y := LPivot.Y - APoints[Lindex].Y;
+    // reduce to a unit-vector - length 1
+    LAngles[Lindex] := LVecPoint.X / Hypot(LVecPoint.X, LVecPoint.Y);
+  end;
+ 
+  // sort the points by angle
+  QuickSortAngle(APoints, LAngles, 0, High(APoints));
+ 
+  // step through array to remove points that are not part of the convex hull
+  Lindex := 1;
+  repeat
+    // assign points behind and infront of current point
+    if Lindex = 0 then LRightTurn := True
+    else
+    begin
+      LBehind := APoints[Lindex - 1];
+      if Lindex = High(APoints) then LInfront := LPivot
+      else
+        LInfront := APoints[Lindex + 1];
+ 
+      // work out if we are making a right or left turn using vector product
+      if ((LBehind.X - APoints[Lindex].X) * (LInfront.Y - APoints[Lindex].Y)) -
+        ((LInfront.X - APoints[Lindex].X) * (LBehind.Y - APoints[Lindex].Y)) &lt; 0 then
+        LRightTurn := True
+      else
+        LRightTurn := False;
+    end;
+ 
+    if LRightTurn then
+    begin // point is currently considered part of the hull
+      Inc(Lindex); // go to next point
+    end
+    else
+    begin // point is not part of the hull
+      // remove point from convex hull
+      if Lindex = High(APoints) then
+      begin
+        SetLength(APoints, High(APoints));
+      end
+      else
+      begin
+        Move(APoints[Lindex + 1], APoints[Lindex],
+        (High(APoints) - Lindex) * SizeOf(TPoint) + 1);
+        SetLength(APoints, High(APoints));
+      end;
+ 
+      Dec(Lindex); // backtrack to previous point
+    end;
+  until Lindex = High(APoints);
+ 
+  // add pivot back into points array
+  SetLength(APoints, Length(APoints) + 1);
+  APoints[High(APoints)] := LPivot;
+end;
+ 
+// sort an array of points by angle
+procedure QuickSortAngle(var A: TPointArray; Angles: array of Real; iLo, iHi: Integer);
+var
+  Lo, Hi: Integer;
+  Mid: Real;
+  TempPoint: TPoint;
+  TempAngle: Real;
+begin
+  Lo  := iLo;
+  Hi  := iHi;
+  Mid := Angles[(Lo + Hi) div 2];
+  repeat
+    while Angles[Lo] &lt; Mid do Inc(Lo);
+    while Angles[Hi] &gt; Mid do Dec(Hi);
+    if Lo &lt;= Hi then
+    begin
+      // swap points
+      TempPoint := A[Lo];
+      A[Lo] := A[Hi];
+      A[Hi] := TempPoint;
+      // swap angles
+      TempAngle := Angles[Lo];
+      Angles[Lo] := Angles[Hi];
+      Angles[Hi] := TempAngle;
+      Inc(Lo);
+      Dec(Hi);
+    end;
+  until Lo &gt; Hi;
+  // perform quicksorts on subsections
+  if Hi &gt; iLo then QuickSortAngle(A, Angles, iLo, Hi);
+  if Lo &lt; iHi then QuickSortAngle(A, Angles, Lo, iHi);
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

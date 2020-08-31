@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>Использование команды RDTSC процессора Pentium для работы с малыми временными интервалам</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Использование команды RDTSC процессора Pentium для работы с малыми временными интервалам</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p id="author">Автор: Шевченко В.В.</p>
+<p>Приветствую Вас, жители королевства!</p>
+<p>В одной толстой книге нашел интересное использование команды RDTSC процессора Pentium для работы с малыми временными интервалами. Я думаю, что эта функция может найти широкое применение (в таймерах, управлении внешними устройствами, научных исследованиях). </p>
+<p>Этот счетчик увеличивается на 1 на каждом такте CPU.</p>
+<p>Он стартует при включении компьютера или при нажатии кнопки RESET.</p>
+<p>Обычно функцию RDTSC используют при определении тактовой частоты процессора.</p>
+<p>Применяя программные ухищрения можно добиться измерения очень малых временных величин в реальном масштабе времени или применять для калибровки таймеров (предварительно определив при помощи этой же функции тактовую частоту процессора). </p>
+<p>Готовые примеры определения тактовой частоты при помощи функции RDTSC есть в интернете, например, на сайте Мастера Delphi" : "Скорость работы процессора, точный таймер" </p>
+<pre name="code" class="delphi">
+function RDTSC: comp;
+var
+  TimeStamp: record
+    case byte of
+      1: (Whole: comp);
+      2: (Lo, Hi: Longint);
+  end;
+begin
+  asm
+    db $0F; db $31;
+  {$ifdef Cpu386}
+    mov [TimeStamp.Lo], eax
+    mov [TimeStamp.Hi], edx
+  {$else}
+    db D32
+    mov word ptr TimeStamp.Lo, AX
+    db D32
+    mov word ptr TimeStamp.Hi, DX
+  {$endif}
+  end;
+  Result := TimeStamp.Whole;
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

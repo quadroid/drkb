@@ -1,0 +1,123 @@
+<html>
+<head>
+  <title>Установка уровня прозрачности изображения</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Установка уровня прозрачности изображения</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Установка уровня прозрачности изображения
+ 
+Зависимости: Windows, Graphics, Math
+Автор:       Fenik, chook_nu@uraltc.ru, Новоуральск
+Copyright:   Автор Федоровских Николай
+Дата:        3 сентября 2002 г.
+***************************************************** }
+ 
+procedure BlendBitmap(Src, Dest: TBitmap; Amount: Byte; Left, Top:
+  Integer; BackColor: TColor; Transparent: Boolean);
+  function CandC(C1, C2: TRGBTriple): Boolean;
+  begin {Сравнение двух цветов}
+    Result := (C1.rgbtBlue = C2.rgbtBlue) and
+      (C1.rgbtGreen = C2.rgbtGreen) and
+      (C1.rgbtRed = C2.rgbtRed);
+  end;
+  {Процедура установления уровня прозрачности
+   изображения Dest, расположенного над изображением Src.
+   Amount - уровень прозрачности в промежутке [0..255].
+   Left, Top - левый верхний угол Dest.
+   BackColor - цвет, который не нужно изменять,
+   если Transparent = True.}
+var
+  x, y, y1, y2, x1, x2: Integer;
+  ps, pd: pRGBTriple;
+  rgb: TRGBTriple;
+  A1, A2: Double;
+begin
+  Src.PixelFormat := pf24Bit;
+  Dest.PixelFormat := pf24Bit;
+  A1 := Amount / 255;
+  A2 := 1 - A1;
+  {Изменяется только та часть изображения,
+   которая расположена над исходным}
+  y1 := Max(0, Top);
+  x1 := Max(0, Left);
+  x2 := Min(Src.Width - 1, Left + Dest.Width - 1);
+  y2 := Min(Src.Height - 1, Top + Dest.Height - 1);
+  rgb.rgbtRed := Lo(BackColor);
+  rgb.rgbtGreen := Lo(BackColor shr 8);
+  rgb.rgbtBlue := Lo((BackColor shr 8) shr 8);
+  for y := y1 to y2 do
+  begin
+    ps := Src.ScanLine[y];
+    pd := Dest.ScanLine[y - Top];
+    Inc(ps, x1);
+    if Left &lt; 0 then
+      Inc(pd, Abs(Left));
+    for x := x1 to x2 do
+    begin
+      if not (Transparent and CandC(pd^, rgb)) then
+        with pd^ do
+        begin
+          rgbtBlue := Round(A1 * ps^.rgbtBlue + A2 * rgbtBlue);
+          rgbtGreen := Round(A1 * ps^.rgbtGreen + A2 * rgbtGreen);
+          rgbtRed := Round(A1 * ps^.rgbtRed + A2 * rgbtRed);
+        end;
+      Inc(pd);
+      Inc(ps);
+    end;
+  end;
+end;
+</pre>
+<p>Пример использования: </p>
+<pre name="code" class="delphi">var
+  Bmp: TBitmap;
+begin
+  if not FileExists('C:\Blend.bmp') then
+    Exit;
+  Bmp := TBitmap.Create;
+  try
+    Bmp.LoadFromFile('C:\Blend.bmp');
+    BlendBitmap(FBitmap, Bmp, 127, 10, 10, clWhite, True);
+    Bmp.TransparentColor := clWhite;
+    Bmp.Transparent := True;
+    FBitmap.Canvas.Draw(10, 10, Bmp);
+  finally
+    Bmp.Free;
+  end;
+  Paint;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

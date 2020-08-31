@@ -1,0 +1,74 @@
+<html>
+<head>
+  <title>Создание автоинкрементного поля SQL запросом?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Создание автоинкрементного поля SQL запросом?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{
+  Lets say that we wish to create a fallawing number (Autoincrese) of an item,
+  without using the AutoIncrese filed.
+  This is usfull when for example there is more users from the same IP that log
+  in or any other things that you wish.
+ 
+  This example will show you how to do it with some checking of filled data,
+  but it can be done anyway you wish.
+ 
+  You need a Table with at least 2 fileds with number casting, and a TQUERY component.
+}
+ 
+ 
+function TForm1.GetNextNumber : integer;
+begin
+ qryMain.Active := False;
+ qryMain.SQL.Clear;
+ qryMain.SQL.Add('Select Max(FieldToIncrease) from tblMain where (Cheking &gt;=1);');
+ qryMain.Active := True; //We executed the query
+ 
+ if qryMain.RecordCount &gt;= 0 then
+  result := qryMain.FieldByName('FieldToIncrese').AsInteger +1;
+ else result := 1;
+end;
+ 
+...
+ 
+procedure TForm1.SetNextNumber;
+begin
+ //You must first see if the table is in insert/update mode before using this procedure.
+ tblMain.FieldByName('FieldToIncrese').AsInteger := GetNextNumber;
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>Как поместить картинки в Combo Box?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как поместить картинки в Combo Box?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Allan Carlton</p>
+
+<p>Делается это при помощи стиля ownerdraw, который присутствует в TComboBox. Нас интересуют два свойства этого стиля:</p>
+
+<p>csOwnerDrawFixed - используется, если все битмапы имеют одинаковую высоту </p>
+<p>csOwnerDrawVariable - используется для битмапов с разной высотой </p>
+<p>После того как стиль будет установлен на один из вышеперечисленных, то можно воспользоваться событием onDrawItem. Это событие возникает каждый раз, когда приложению необходимо нарисовать пункт в выпадающем списке (combo box). Событие определяется следующим образом:</p>
+
+<p>procedure TForm1.ComboBox1DrawItem(Control: TWinControl; Index: Integer; </p>
+<p>Rect: TRect; State: TOwnerDrawState) </p>
+
+<p>Если выпадающему списку был присвоен стиль csOwnerDrawFixed, то всё, что надо сделать, это написать процедуру, которая будет рисовать битмап и текст в событии onDrawItem.</p>
+
+<p>Для выпадающего списка со стилем csOwnerDrawVariable необходимо пройти ещё одну дополнительную стадию. Заключается эта стадия в создании обработчика для события onMeasureItem. Это событие вызывается перед DrawItem, для того, чтобы Вы могли установить фактическую высоту для каждого элемента списка. Вот его определение:</p>
+
+<p>procedure TForm1.ComboBox1MeasureItem(Control: TWinControl; Index: Integer; </p>
+<p>var Height: Integer); </p>
+
+<p>Создайте новое приложение </p>
+<p>Разместите на форме combobox и imagelist (если Вы используете delphi 1, то Вам прийдётся хранить битмапы каким-то другим способом) </p>
+<pre name="code" class="delphi">
+procedure TForm1.ComboBox1DrawItem(Control: TWinControl; Index:Integer;  Rect: TRect; State: TOwnerDrawState);
+begin
+  (* Заполняем прямоугольник *)
+  combobox1.canvas.fillrect(rect);  
+ 
+  (* Рисуем сам битмап *)
+  imagelist1.Draw(comboBox1.Canvas,rect.left,rect.top,Index);
+ 
+  (* Пишем текст после картинки *)
+  combobox1.canvas.textout(rect.left+imagelist1.width+2,rect.top,
+                          combobox1.items[index]);
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<html>
+<head>
+  <title>Блокировки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Блокировки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>MS SQL Server поддерживает блокировку на уровне записи для всех операций модификации данных. Если оптимизатор решит, что количество блокируемых записей в таблице слишком велико, то он может произвести эскалацию блокировок на страницы или всю таблицу. Это происходит, например, при одновременном обновлении значительного количества записей. В этом случае гораздо быстрее заблокировать таблицу (или группу страниц в ней) выполнить модификацию, а затем разблокировать её, чем накладывать блокировку на каждую запись. Сервер не предоставляет средств для управления эскалацией блокировок и делает её автоматически.</p>
+<p>Другим важным вопросом является модель обеспечения уровней изоляции транзакций REPEATABLE READ и SERIAZABLE. При выполнении транзакции с этим уровнем изоляции сервер блокирует диапазоны значений полей, по которым осуществляется выборка данных для предотвращения вставки «фантомных» значений. Например, если в транзакции с уровнем изоляции SERIAZABLE будет выполнен запрос</p>
+<p>SELECT * FROM MyTable WHERE Name BETWEEN 'A' AND 'C'</p>
+<p>сервер наложит блокировку по записи (Shared Lock) на диапазон значений, попавших в результат запроса, предотвращая тем самым вставку «фантомных» записей другими транзакциями. Блокировка будет удерживаться до конца транзакции. На измененные транзакцией записи накладывается блокировка по чтению (Exclusive Lock), предотвращающая чтение их другими транзакциями. Поэтому транзакции с высокими уровнями изоляции необходимо тщательно планировать и делать максимально короткими.</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

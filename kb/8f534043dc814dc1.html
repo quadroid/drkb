@@ -1,0 +1,60 @@
+<html>
+<head>
+  <title>Надпись на часах в трее</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Надпись на часах в трее</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+var
+
+ 
+  hTrayClock  : HWND;
+  DC:HDC;
+  r:TRect;
+begin
+  hTrayClock := FindWindowEx(FindWindowEx(FindWindow('Shell_TrayWnd',nil),0,'TrayNotifyWnd',nil),0,'TrayClockWClass',nil);
+  GetWindowRect(hTrayClock,r);
+  DC := GetDC(0);
+//  SetBkMode(DC, TRANSPARENT);   // можно сделать прозрачный фон
+  SetTextColor(DC, RGB($0FF,0,0));
+  SetBkColor(DC,RGB($0FF,$0FF,0));
+  TextOut(DC, r.Left+((r.Right-r.Left) div 4), r.Top+((r.Bottom-r.Top) div 4), '&gt;:-(', 4);
+  ReleaseDC(hTrayClock, DC);
+end.
+</pre>
+<p>При следующем обновлении часов надпись исчезнет. Так что можно делать это по таймеру.<br>
+<p>&nbsp;</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: Krid</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

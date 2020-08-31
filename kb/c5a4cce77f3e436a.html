@@ -1,0 +1,100 @@
+<html>
+<head>
+  <title>Чтение из открытого файла</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Чтение из открытого файла</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Даже если файл открыт с низкими привелегиями (используя ReadOnly, ShareReadWrite) , иногда открытие уже открытого файла может приводить к ошибкам, особенно, если это файл интенсивно используется другим приложением. Самый простой способ решить эту проблемму - это использовать MemoryStream вместо непосредственного доступа к файлу: </p>
+<pre name="code" class="delphi">
+var Memory: TMemoryStream;
+ 
+begin
+  Memory := TMemoryStream.Create;
+  try
+    Memory.LoadFromFile('busyfile.dat'); // это он!!
+    ..
+      Memory.Read(...); // Вы можете использовать методы чтения как у файлов
+      Memory.Seek(...);
+      FileSize := Memory.Size;
+      ..
+  finally
+    Memory.Free;
+  end;
+end;
+</pre>
+<p>Данный способ никогда не открывает файл, а заместо этого создаёт копию его в памяти. Конечно Вы можете и записать в поток (Stream) в Памяти(Memory), но изменения не будут записаны на диск до тех пор, пока Вы не запишете их в файл (командой SaveToFile).</p>
+<p id="author">Автор ответа: neutrino</p>
+<p>Комментарий от Vit</p>
+<p>Решение хорошее, но накладно если файл большой... </p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<pre name="code" class="delphi">
+var b:string[15];
+begin
+with TFileStream.create('c:\MyFile.doc', fmShareDenyNone) do
+try
+read(b,14);
+showmessage(b);
+finally
+Free;
+end;
+</pre>
+
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+type
+AnyType = byte; // ??? ???? ?????
+var
+F: file of AnyType;
+const
+FName = 'D:/Exp.exe'; //?????????? ????
+begin
+begin
+AssignFile(F, FName); { File selected in dialog }
+FileMode:=fmOpenRead;
+Reset(F);
+// ...
+// ...
+CloseFile(F);
+FileMode:=fmOpenReadWrite;
+end;
+end;
+</pre>
+
+<p id="author">Автор ответа: PILOTIK</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

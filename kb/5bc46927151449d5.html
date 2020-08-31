@@ -1,0 +1,61 @@
+<html>
+<head>
+  <title>Как определить, является ли метод потомком TNotifyEvent?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как определить, является ли метод потомком TNotifyEvent?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>If I am given a TPersistent object, and a method name, is there a way to determine if the name is an event of TNotifyEvent type? For example, given a TPersistent lMyObj and an event name, "OnDataChanged", how can I determine if OnDataChanged is a TNotifyEvent?</p>
+
+<pre name="code" class="delphi">
+function IsNotifyEvent(Sender: TObject; const Event: string): Boolean;
+var
+  PropInfo: PPropInfo;
+  Method: TNotifyEvent;
+begin
+  Result := False;
+  PropInfo := GetPropInfo(Sender.ClassInfo, Event);
+  if not Assigned(PropInfo) then
+    Exit;
+  if PropInfo.PropType^.Kind &lt;&gt; tkMethod then
+    Exit;
+  Method := TNotifyEvent(GetMethodProp(Sender, PropInfo));
+  Result := Assigned(Method);
+end;
+</pre>
+
+
+
+<p>Tip by Jack Sudarev</p>
+<p>Взято из <a href="http://www.lmc-mediaagentur.de/dpool" target="_blank">http://www.lmc-mediaagentur.de/dpool</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

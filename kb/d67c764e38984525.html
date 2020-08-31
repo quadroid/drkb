@@ -1,0 +1,119 @@
+<html>
+<head>
+  <title>Сканирование строки, начиная с указанной позиции с целью нахождения слова</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сканирование строки, начиная с указанной позиции с целью нахождения слова</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Сканирование строки начиная с указанной позиции с целью нахождения слова.
+ 
+Функция предназначена для разбиения строки на слова. Границы слов
+определяются по разделителям.
+ 
+Описание параметров:
+ 
+S - строка, в которой производится поиск;
+ 
+StartPos - на входе принимает позицию с которой начинается сканирование
+строки, на выходе содержит позицию символа, с которого начинается слово;
+ 
+WordLen - на выходе содержит длину найденного слова;
+ 
+Delimiters - множество, содержащее символы-разделители слов;
+ 
+Возвращаемое значение - true если слово найдено, инече false;
+ 
+Зависимости: SysUtils
+Автор:       vuk, vuk@fcenter.ru
+Copyright:   Алексей Вуколов
+Дата:        18 апреля 2002 г.
+***************************************************** }
+ 
+function WordScan(const S: string; var StartPos, WordLen: integer;
+  Delimiters: TSysCharSet): boolean;
+var
+  i, l: integer;
+begin
+  Result := false;
+  WordLen := 0;
+ 
+  i := StartPos;
+  l := length(s);
+  StartPos := 0;
+  while i &lt;= l do
+    if s[i] in Delimiters then
+      inc(i)
+    else
+    begin
+      StartPos := i;
+      break;
+    end;
+ 
+  while i &lt;= l do
+    if not (s[i] in Delimiters) then
+    begin
+      inc(i);
+      inc(WordLen);
+    end
+    else
+      break;
+ 
+  Result := WordLen &lt;&gt; 0;
+end;
+//Пример использования: 
+ 
+//Консольная программа, выводящая на экран слова из заданной строки.
+ 
+program Project1;
+{$APPTYPE CONSOLE}
+uses SysUtils;
+ 
+var
+  s: string;
+  wStart, wLen: integer;
+begin
+  s := 'This is a test string. String contains delimiters.';
+  wStart := 1;
+  wLen := 0;
+  while WordScan(s, wStart, wLen, [' ', '.', ',']) do
+  begin
+    writeln(copy(s, wStart, wLen));
+    inc(wStart, wLen);
+  end;
+  readln;
+end.
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

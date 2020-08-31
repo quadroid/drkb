@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>Как показать оставшееся время до конца?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как показать оставшееся время до конца?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+Procedure TForm1.Timer1Timer(Sender: TObject);
+Var
+ TheLength,Posi,SummaMin,SummaSec: Integer;
+begin
+  //Progress Bar to check if the track is playing
+  if Progress.Max&lt;&gt;0 then Begin
+    Progress.Position := Mediaplayer1.Position;
+ 
+     //Gets the length of the selected track
+    TheLength := Mediaplayer1.TrackLength[ListBox1.ItemIndex];
+ 
+      //gets the current position of the track
+      Posi := Mediaplayer1.Position;
+ 
+      //Caculates Minutes
+      SummaMin := ((TheLength - Posi) div 1000) Div 60;
+ 
+      //Calculates Seconds
+      SummaSec := ((TheLength - Posi) Div 1000) Mod 60;
+ 
+      //Adds zero if Seconds are less then ten
+      If SummaSec &lt; 10 Then
+      Label2.Caption := '0' + IntToStr(SummaSec)
+      Else
+      Label2.Caption := IntToStr(SummaSec);
+ 
+      //Minutes
+      Label1.Caption := IntToStr(SummaMin);
+ 
+End;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

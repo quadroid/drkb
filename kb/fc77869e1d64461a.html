@@ -1,0 +1,60 @@
+<html>
+<head>
+  <title>Сгенерировать все подмножества данного n-элементного множества {0,.., n-1}</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Сгенерировать все подмножества данного n-элементного множества {0,.., n-1}</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Заведем массив B[0..n] из (n+1) элемента. B[i]=0, если i-ый элемент в подмножество не входит, и B[i]=1 иначе. Т.о. пустому подмножеству будет соответствовать набор из n нулей, а n-элементному подмножеству - набор из n единиц. Тут явно заметна связь подмножества с двоичным представлением числа.</p>
+<p>Алгоритм: будем генерировать числа от 0 до 2n-1, находить их двоичное представление, и формировать подмножество из элементов с индексами единичных битов в этом представлении.</p>
+<p>Но число 2n-1 может не поместиться в разрядную сетку машины. Поэтому генерацию будем проводить, используя массив B:</p>
+<p>Сначала B[i]=0 для всех i, что соответствует пустому подмножеству.</p>
+<p>Будем рассматривать массив B как запись двоичного числа</p>
+B[N]...B[1]B[0],</p>
+<p>и моделировать операцию сложения этого числа с единицей. При сложении будем просматривать число справа налево заменяя единичные биты нулями до тех пор, пока не найдем нулевой бит, в который занесем 1. Генерация подмножеств заканчивается, как только B[N]=1</p>
+<p>(предыдущая конфигурация была 1...12 = 2n-1).</p>
+<pre name="code" class="delphi">
+while B[N]&lt;&gt;0 do begin i:=0; { индекс бита двоичного числа }
+ while (B[i]=1) do begin
+   B[i]:=0; { моделируем перенос в следующий разряд, }
+   i:=i+1 { возникающий при сложении }
+ end;
+ B[i]:=1;
+{ Распечатываем индексы единичных элементов массива B 
+      -новое сгенерированное подмножество }
+ For i:=0 to N-1 do
+ if B[i]=1 then write(i);
+ writeln; { переход на новую строку при печати }
+</pre>
+<p><a href="http://algolist.manual.ru" target="_blank">http://algolist.manual.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<html>
+<head>
+  <title>Работа с TApplication</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Работа с TApplication</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Эта статья взята мной из рассылки "СообЧА. Программирование на Delphi". К сожалению авторство не указано, но думаю многим будет интересно.</p>
+<p>Класс TApplication, являющийся наследником класса TComponent, представляет собой фундаметальный класс, свойства и методы которого описывают основные характеристики Windows-приложения. Этот класс активно используется для выполнения специфических действий, зависящих от операционной системы.</p>
+<p>Иерархия TObject &#8211; TPersistent &#8211; TComponent </p>
+<p>Модуль Forms</p>
+<p>В каждом приложении автоматически создается объект Application типа TApplication &#8211; приложение. Application имеет ряд свойств, методов, событий, характеризующих приложение в целом. </p>
+<p>Собственные свойства класса TApplication.</p>
+<p>property Active: Boolean;</p>
+<p>Свойство возвращает значение true, если текущее приложение активно. При переходе к другому приложению или при завершении работы, свойство получает значение false. (Ro)</p>
+<p>property AllowTesting: Boolean;</p>
+<p>Свойство представляет информацию для IDE и может использоваться только самим приложением.</p>
+<p>property BiDiKeyboard: string;</p>
+<p>Свойство содержит название раскладки клавиатуры, используемой в ближневосточных языках.</p>
+<p>property BiDiMode: TBiDiMode;</p>
+<p>Свойство содержит указание на место размещения приложения при его выполнении в ближневосточных версиях Windows.</p>
+<p>property CurrentHelpFile: string;</p>
+<p>Свойство содержит имя текущего файла помощи, имеющего расширение .hlp. (Ro)</p>
+<p>property : DialogHandle: HWnd;</p>
+<p>Свойство обеспечивает доступ к механизму создания окон диалога, не использующих библиотеку VCL. Это свойство содержит дескриптор окна диалога, созваемого с помощью функции API CreateDialog.</p>
+<p>property ExeName: string;</p>
+<p>Свойство содержит полное имя файла, в котором находится программа, и полный путь к ней.</p>
+<p>property Handle: HWnd;</p>
+<p>Свойство содержит дескриптор программы, который используется операционной системой Windows.</p>
+<p>property HelpFile: string;</p>
+<p>Свойство содержит имя справочного файла, который используется по умолчанию, например, при отсутствии всей информации о справочном файле, указанном в свойстве CurrentHelpFile.</p>
+<p>property Hint: string;</p>
+<p>Свойство содержит строковое выражение, определяющее текст всплывающей подсказки.</p>
+<p>property HintColor: TColor;</p>
+<p>Свойство содержит значение цвета всплывающей подсказки.</p>
+<p>property HintHidePause: integer;</p>
+<p>Свойство содержит значение, указывающее на время в миллисекундах, через которое всплывающая подсказка будет скрыта.</p>
+<p>property HintPause: integer;</p>
+<p>Свойство содержит значение, указывающее на время в миллисекундах, в течение которого будет отображаться всплывающая подсказка.</p>
+<p>property HintShowCuts: Boolean;</p>
+<p>Свойство позволяет отображать во всплывающей подсказке "быстрые клаыиши". Если свойство имеет значение true, то комбинация клавиш отображается, если false &#8211; нет.</p>
+<p>property HintShortPause: integer;</p>
+<p>Свойство содержит значение, указывающее на время в миллисекундах, в течение которого будет отображаться всплывающая подсказка, если уже отображена другая всплывающая подсказка.</p>
+<p>property Icon: TIcon;</p>
+<p>Значок, который будет использоваться операционной системой для идентификации данного приложения.</p>
+<p>property MainForm: TForm;</p>
+<p>Свойство определяет главную форму приложения.</p>
+<p>property NonBiDiKeyboard: string;</p>
+<p>Свойство содержит название раскладки клавиатуры, которая должна использоваться, если текст читается слева направо. (Ro)</p>
+<p>property ShowHint: Boolean;</p>
+<p>Свойство определяет возможность появления всплывающих подсказок. Если свойство имеет значение true, то всплывающие подсказки появляются, если false &#8211; нет.</p>
+<p>property ShowMainForm: Boolean;</p>
+<p>Свойство определяет возможность отображения главной формы. Если свойство имеет значение true, то главной является форма, которая была главной при разработке. Если главной должна быть другая форма, то этому свойству необходимо присвоить значение false, а свойству MainForm &#8211; имя новой главной формы. Свойству Visible формы, которая была главной, необходимо присвоить значение false.</p>
+<p>property Terminated: Boolean;</p>
+<p>Свойство указывает на завершение работы приложения. Этому свойству присваивается значение true, если Windows посылает ему сообщение WM_QUIT, означающее, что приложение должно завершить работу. (Ro)</p>
+<p>property Title: string;</p>
+<p>Свойство содержит строковое выражение, являющееся заголовком приложения. Этот заголовок, например, отображается на кнопке панели задач Windows.</p>
+<p>property UpdateFormatSetting: Boolean;</p>
+<p>Свойство указыва5ет на возможность автоматического изменения формата при пользовательском изменении конфигурации опеарционной системы. Если свойство имеет значение true, то изменение выполняется автоматически.</p>
+<p>property UpdateMetricSettings: Boolean;</p>
+<p>Свойство указывает на возможность изменения шрифтов окна подсказки и заголовка значка.</p>
+<p>procedure ActivateHint (CursorPos: TPoint);</p>
+<p>Метод позволяет отобразить всплывающую подсказку в заданной точке CursorPos.</p>
+<p>procedure BringToFront;</p>
+<p>Метод позволяет переместить последнее из активных окон приложения на передний план.</p>
+<p>procedure CancelHint;</p>
+<p>Метод позволяет убрать всплывающую подсказку.</p>
+<p>procedure ControlDestroyed (Control: TControl);</p>
+<p>Метод предназначен для внутреннего использования и вызывается автоматически объектом типа TControl.</p>
+<p>procedure CreateForm (FormClass: TformClass; var Reference);</p>
+<p>Метод позволяет динамически создать новую форму FormClass. По умолчанию форма, созданная первым вызовом метода CreateForm, становится главной формой приложения.</p>
+<p>procedure HandleExeption (Sender: TObject);</p>
+<p>Метод предназначен для обработки исключений по умолчанию. Этот метод вызывается, когда в программе не был найден обработчик соответствующего исключения. Метод прерывает выполнение приложения и выдает информационное окно с описанием возникшей ошибки.</p>
+<p>procedure HandleMessage;</p>
+<p>Метод позволяет прервать выполнение приложения для обработки одного системного сообщения Windows, предоставляя системе возможность выполнять иные действия в ситуациях, когда в приложении выполняются длительные операции, например сложные вычмсления.</p>
+<p>function HelpCommand (Command: Word; Data: LongInt): Boolean;</p>
+<p>Метод позволяет выполнить быстрый доступ к любой из справочных команд в WinHelp API. Перед отправкой команды Command метод HelpCommand генерирует исключение OnHelp для активной формы или объекта TApplication. О возможных командах справки Windows можно узгать в справочной информации Windows по ключу WinHelp.</p>
+<p>function HelpContext (Context: THelpContext): Boolean;</p>
+<p>type THelpContext = -MaxLongInt..MaxLongInt;</p>
+<p>Метод позволяет отобразить указанный раздел Context справочной системы. Если раздел был удачно отображен, то метод возвращает значение true.</p>
+<p>function HelpJump (const JumpID: string): Boolean;</p>
+<p>Метод позволяет отобразить указанный раздел JumpID справочной системы. Если раздел был удачно отображен, то метод возвращает значение true.</p>
+<p>procedure HideHint;</p>
+<p>Метод позволяет скрыть текущую всплывающую подсказку.</p>
+<p>procedure HintMouseMessage (Control: TControl; var Message: TMessage);</p>
+<p>Метод предназначен для внутреннего пользования и позволяет управлять расположением окна подсказки.</p>
+<p>procedure HookMainWindow (Hook: TWindowHook);</p>
+<p>type TWindowHook = function (var Message: Tmessage): Boolean of object;</p>
+<p>Метод позволяет создать перехватчик системных сообщений. </p>
+<p>procedure Initialize;</p>
+<p>Метод позволяет инициализировать все подсистемы, определенные для данного приложения. Этот метод при загрузке проекта выполняется первым.</p>
+<p>function IsRightToLeft: Boolean;</p>
+<p>Метод возвращает значение true, если в приложении используется обход элементов управления в режиме справа налево.</p>
+<p>function MessageBox (const Text, Caption: Pchar; Flags: LongInt): integer;</p>
+<p>Метод позволяет создать стандартное окно диалога. Подробнее </p>
+<p>procedure Minimize;</p>
+<p>Метод позволяет свернуть все открытые окна приложения.</p>
+<p>procedure NormalizeAllTopMosts;</p>
+<p>Метод позволяет перевести все окна приложения из состояния "всегда поверх остальных окон" в нормальное состояние.</p>
+<p>procedure NormalizeTopMosts;</p>
+<p>Метод позволяет перевести все окна приложения за исключением главного окна из состояния "всегда поверх остальных окон" в нормальное состояние.</p>
+<p>procedure ProcessMessages;</p>
+<p>Метод позволяет прервать выполнение приложения для обработки всех системных сообщений Windows, стоящих в очереди. Этот метод позволяет выполнять системе иные действия в ситуациях, когда в приложении выполняются длительные операции, например, сложные вычисления.</p>
+<p>procedure Restore;</p>
+<p>Метод позволяет восстановить все свернутые окна приложения до нормального размера.</p>
+<p>procedure RestoreTopMosts;</p>
+<p>Метод позволяет восстановить все открытые окна приложения, находящиеся в нормальном состоянии, в состояние "поверх всех". Данный метод применим только к тем окнам, свойство FormStyle которых имеет значение fsStayOnTop.</p>
+<p>procedure Run;</p>
+<p>Метод предназначен для внутреннего использования и позволяет начать выполнение приложения. Этот метод вместе с методом инициализации (Initialize) и методом создания главной формы (CreateForm) автоматически записывается в основном блоке программы при создании ее заготовки.</p>
+<p>procedure ShowExeption (E: Exeption);</p>
+<p>Метод позволяет вывести информационное окно с сообщением, описывающим заданную исключительную ситуацию E.</p>
+<p>procedure Terminate;</p>
+<p>Метод позволяет завершить работу приложения.</p>
+<p>function UpdateAction (Action TbasicAction): Boolean; reintroduce;</p>
+<p>Метод позволяет генерировать событие OnActiveUpdate.</p>
+<p>function UseRightToLeftAlignment: Boolean;</p>
+<p>Метод возвращает значение true, если для выравнивания объектов используется режим ""права налево". Этот метод требуется для проверки приложений в ближневосточных версиях Windows, когда свойство BiDiMode имеет значение bdRightToLeft. Во всех остальных случаях метод возвращает значение false.</p>
+<p>function UseRightToLeftReadinf: Boolean;</p>
+<p>Метод возвращает значение true, если для вывода текстовой информации используется режим ""права налево". Этот метод требуется для проверки приложений в ближневосточных версиях Windows, когда свойство BiDiMode имеет значение bdRightToLeft. Во всех остальных случаях метод возвращает значение false.</p>
+<p>procedure UnhookMainWindow (Hook: TwindowHook);</p>
+<p>Метод позволяет удалить перехватчик системных сообщений Hook, созданный методом HookMainWindow.</p>
+<p>function UseRightToLeftScrollBar: Boolean;</p>
+<p>Метод возвращает значение true, если полосы прокрутки элементов управления должны отображаться с левой стороны. Этот метод используется для проверки приложений в ближневосточных версиях Windows, когда свойство BiDiMode имеет значение bdRightToLeft. Во всех остальных случаях метод возвращает значение false.</p>
+<p>property OnActionExecute: TActionEvent;</p>
+<p>Событие генерируется, если вызван, но не обработан метод Execute.</p>
+<p>property OnActionUpdate: TActionEvent;</p>
+<p>Событие генерируется, если вызван, но не обработан метод Update.</p>
+<p>property OnActivate: TNotifyEvent;</p>
+<p>Событие генерируется, когда приложение становится активным.</p>
+<p>property OnDeactivate: TNotifyEvent;</p>
+<p>Событие генерируется, когда приложение становится неактивным.</p>
+<p>property OnException: TExceptionEvent;</p>
+<p>type TExceptionEvent = procedure (Sender: TObject; E: Exception) of object;</p>
+<p>Событие генерируется, когда в приложении возбуждается исключительная ситуация, которая не может быть программно обработана в блоке try…except.</p>
+<p>property OnHelp: THelpEvent;</p>
+<p>type THelpEvent = function (Command: Word; Data: LongInt; var CallHelp: Boolean): Boolean of object;</p>
+<p>Событие генерируется, когда в приложении возникает запрос на получение справочной информации.</p>
+<p>property OnHint: TNotifyEvent;</p>
+<p>Событие генерируется, когда указатель мыши помещается на элемент управления, имеющий всплывающую подсказку.</p>
+<p>property OnIdle: TIdleEvent;</p>
+<p>type TIdleEvent = procedure (Sender: TObject; var Done: Boolean): of object;</p>
+<p>Событие генерируется, когда приложение находится в режиме ожидания, не выполняя никаких действий. Например, ожидается ввод данных.</p>
+<p>property OnMessage: TMessageEvent;</p>
+<p>type TMessageEvent = procedure (var Msg: TMsg; var Handled: Boolean): of object;</p>
+<p>Событие генерируется, когда приложение получает состемное сообщение от операционной системы.</p>
+<p>property OnMinimize: TNotifyEvent;</p>
+<p>Событие генерируется, когда окна приложения минимизируются.</p>
+<p>property OnRestore: TNotifyEvent;</p>
+<p>Событие генерируется, когда окна приложения восстанавливаются из свернутого приложения до нормального размера.</p>
+<p>property OnShortCut: TShortCutEvent;</p>
+<p>type TShortCutEvent = procedure (var Msg: TWMKey; var Handled: Boolean): of object;</p>
+<p>Событие генерируется, когда пользователь нажимает на клавиатуре клавишу. Это событие генерируется первым из всех событий, связанных с обработкой нажатия клавиши: OnKeyDown, OnKeyPress и OnKeyUp.</p>
+<p>property OnShowHint: TShowHintEvent;</p>
+<p>type TShowHintEvent = procedure (var HintStr: string; var CanShow: Boolean; var HintInfo: THintInfo): of object;</p>
+<p>Событие генерируется, когда приложение готовится вывести всплывающую подсказку. Параметр HintStr определяет текст подсказки, параметр CanShow &#8211; возможность отображения подсказки, а параметр HintInfo содержит информацию о внешнем виде и поведении окна справки.</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

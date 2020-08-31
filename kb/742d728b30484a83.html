@@ -1,0 +1,86 @@
+<html>
+<head>
+  <title>Как зарегистрировать в компонент ActiveX?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как зарегистрировать в компонент ActiveX?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>запустить "Regsvr32.exe имя_файла" из каталога c:\windows\system(32) </p>
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<p>1. Регистрация ActiveX:</p>
+<pre name="code" class="delphi">function RegActiveX(FileName:string):HRESULT;
+var
+hMod:Integer;
+RegProc:function:HRESULT; //HRESULT = Longint
+begin
+hMod:=LoadLibrary(FileName);
+if hMod=0 then
+raise Exception.Create('Unable to load library"'+FileName+'". GetLastError = '+IntToStr(GetLastError));
+RegProc:=GetProcAddress(hMod,'DllRegisterServer');
+if RegProc=nil then
+raise Exception.Create('Unable to load "DllRegisterServer" function from "'+FileName+'". GetLastError = '+IntToStr(GetLastError));
+Result:=RegProc;
+end;
+</pre>
+
+<p>2. Регистрация Type Library:</p>
+<pre name="code" class="delphi">procedure RegisterTypeLibrary(FileName:string);
+var
+Name: WideString;
+HelpPath: WideString;
+TypeLib: ITypeLib;
+begin
+if LoadTypeLib(PWideChar(WideString(FileName)), TypeLib)=S_OK then
+begin
+Name := FileName;
+HelpPath := ExtractFilePath(ModuleName);
+RegisterTypeLib(TypeLib, PWideChar(Name), PWideChar(HelpPath));
+end;
+end;
+</pre>
+
+<p>Здесь используется интерфейс ITypeLib и API функция RegisterTypeLib. И то и другое объявленно в модуле ActiveX, если я не ошибаюсь. </p>
+<p>Hint: если вы регистрируете библиотеку типов изнутри модулчя, то его имя можно получить с помощью следующей функции:</p>
+<pre name="code" class="delphi">function GetModuleFileName: string;
+var Buffer: array[0..261] of Char;
+begin
+SetString(Result, Buffer, Windows.GetModuleFileName(HInstance,
+Buffer, SizeOf(Buffer)));
+end;
+</pre>
+
+<p id="author">Автор: Fantasist</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

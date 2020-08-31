@@ -1,0 +1,164 @@
+<html>
+<head>
+  <title>Как прочитать адресную книгу Outlook (MSOffice) из Delphi и занести данные в таблицу *.db?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как прочитать адресную книгу Outlook (MSOffice) из Delphi и занести данные в таблицу *.db?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Сперва сделай 'Import type Library' для Outlk80.olb, (расположен в \Program Files\Microsoft Office\Office).</p>
+<p>После того, как появится файл 'Outlook_TLB.pas', можно нацарапать следующее:</p>
+
+<pre name="code" class="delphi">
+uses ComObj, Outlook_TLB;procedure TForm1.Button1Click(Sender: TObject);var  MSOutlook,  MyNameSpace, 
+ MyFolder,  MyItem: Variant;  s: string;  i: Integer;begin  try    MSOutlook := CreateOleObject('Outlook.Application');  
+   MyNameSpace := MSOutlook.GetNameSpace('MAPI');    MyFolder := MyNamespace.GetDefaultFolder(olFolderContacts);  
+     for i := 1 to MyFolder.Items.Count do 
+begin
+      s := s + #13#13'Contact No: ' + IntToStr(i) + #13#13; 
+     MyItem := MyFolder.Items[i];
+      s := s + 'BillingInformation: ' + MyItem.BillingInformation + #13;
+      s := s + 'Body: ' + MyItem.Body + #13;      s := s + 'Categories: ' + MyItem.Categories + #13;  
+    s := s + 'Companies: ' + MyItem.Companies + #13;      s := s + 'CreationTime: ' + DateTimeToStr(MyItem.CreationTime) + #13;
+      s := s + 'EntryID: ' + MyItem.EntryID + #13;      s := s + 'Importance: ' + IntToStr(MyItem.Importance) + #13;
+      s := s + 'LastModificationTime: ' + DateTimeToStr(MyItem.LastModificationTime) + #13;
+      s := s + 'MessageClass: ' + MyItem.MessageClass + #13;      s := s + 'Mileage: ' + MyItem.Mileage + #13;
+      s := s + 'NoAging: ' + IntToStr(MyItem.NoAging) + #13;      s := s + 'OutlookVersion: ' + MyItem.OutlookVersion + #13; 
+     s := s + 'Saved: ' + IntToStr(MyItem.Saved) + #13;      s := s + 'Sensitivity: ' + IntToStr(MyItem.Sensitivity) + #13;
+      s := s + 'Size: ' + IntToStr(MyItem.Size) + #13;      s := s + 'Subject: ' + MyItem.Subject + #13; 
+     s := s + 'UnRead: ' + IntToStr(MyItem.UnRead) + #13;      s := s + 'Account: ' + MyItem.Account + #13; 
+     s := s + 'Anniversary: ' + DateTimeToStr(MyItem.Anniversary) + #13;   
+   s := s + 'AssistantName: ' + MyItem.AssistantName + #13; 
+     s := s + 'AssistantTelephoneNumber: ' + MyItem.AssistantTelephoneNumber + #13;
+      s := s + 'Birthday: ' + DateTimeToStr(MyItem.Birthday) + #13; 
+     s := s + 'Business2TelephoneNumber: ' + MyItem.Business2TelephoneNumber + #13;  
+    s := s + 'BusinessAddress: ' + MyItem.BusinessAddress + #13; 
+     s := s + 'BusinessAddressCity: ' + MyItem.BusinessAddressCity + #13;   
+   s := s + 'BusinessAddressCountry: ' + MyItem.BusinessAddressCountry + #13;
+      s := s + 'BusinessAddressPostalCode: ' + MyItem.BusinessAddressPostalCode + #13; 
+     s := s + 'BusinessAddressPostOfficeBox: ' + MyItem.BusinessAddressPostOfficeBox + #13;
+      s := s + 'BusinessAddressState: ' + MyItem.BusinessAddressState + #13;
+      s := s + 'BusinessAddressStreet: ' + MyItem.BusinessAddressStreet + #13; 
+     s := s + 'BusinessFaxNumber: ' + MyItem.BusinessFaxNumber + #13;
+      s := s + 'BusinessHomePage: ' + MyItem.BusinessHomePage + #13; 
+     s := s + 'BusinessTelephoneNumber: ' + MyItem.BusinessTelephoneNumber + #13; 
+     s := s + 'CallbackTelephoneNumber: ' + MyItem.CallbackTelephoneNumber + #13; 
+     s := s + 'CarTelephoneNumber: ' + MyItem.CarTelephoneNumber + #13;
+      s := s + 'Children: ' + MyItem.Children + #13;  
+    s := s + 'CompanyAndFullName: ' + MyItem.CompanyAndFullName + #13;
+      s := s + 'CompanyMainTelephoneNumber: ' + MyItem.CompanyMainTelephoneNumber + #13; 
+     s := s + 'CompanyName: ' + MyItem.CompanyName + #13; 
+     s := s + 'ComputerNetworkName: ' + MyItem.ComputerNetworkName + #13; 
+     s := s + 'CustomerID: ' + MyItem.CustomerID + #13;
+      s := s + 'Department: ' + MyItem.Department + #13; 
+    s := s + 'Email1Address: ' + MyItem.Email1Address + #13;
+     s := s + 'Email1AddressType: ' + MyItem.Email1AddressType + #13;
+      s := s + 'Email1DisplayName: ' + MyItem.Email1DisplayName + #13;
+      s := s + 'Email1EntryID: ' + MyItem.Email1EntryID + #13; 
+     s := s + 'Email2Address: ' + MyItem.Email2Address + #13;
+      s := s + 'Email2AddressType: ' + MyItem.Email2AddressType + #13; 
+     s := s + 'Email2DisplayName: ' + MyItem.Email2DisplayName + #13;
+      s := s + 'Email2EntryID: ' + MyItem.Email2EntryID + #13;
+     s := s + 'Email3Address: ' + MyItem.Email3Address + #13;  
+    s := s + 'Email3AddressType: ' + MyItem.Email3AddressType + #13; 
+     s := s + 'Email3DisplayName: ' + MyItem.Email3DisplayName + #13;
+      s := s + 'Email3EntryID: ' + MyItem.Email3EntryID + #13;
+      s := s + 'FileAs: ' + MyItem.FileAs + #13; 
+    s := s + 'FirstName: ' + MyItem.FirstName + #13;  
+    s := s + 'FTPSite: ' + MyItem.FTPSite + #13; 
+     s := s + 'FullName: ' + MyItem.FullName + #13; 
+    s := s + 'FullNameAndCompany: ' + MyItem.FullNameAndCompany + #13;
+      s := s + 'Gender: ' + IntToStr(MyItem.Gender) + #13;
+      s := s + 'GovernmentIDNumber: ' + MyItem.GovernmentIDNumber + #13;
+                s := s + 'Hobby: ' + MyItem.Hobby + #13; 
+     s := s + 'Home2TelephoneNumber: ' + MyItem.Home2TelephoneNumber + #13; 
+     s := s + 'HomeAddress: ' + MyItem.HomeAddress + #13; 
+     s := s + 'HomeAddressCity: ' + MyItem.HomeAddressCity + #13; 
+     s := s + 'HomeAddressCountry: ' + MyItem.HomeAddressCountry + #13; 
+     s := s + 'HomeAddressPostalCode: ' + MyItem.HomeAddressPostalCode + #13;
+      s := s + 'HomeAddressPostOfficeBox: ' + MyItem.HomeAddressPostOfficeBox + #13; 
+     s := s + 'HomeAddressState: ' + MyItem.HomeAddressState + #13;
+      s := s + 'HomeAddressStreet: ' + MyItem.HomeAddressStreet + #13;  
+    s := s + 'HomeFaxNumber: ' + MyItem.HomeFaxNumber + #13;  
+    s := s + 'HomeTelephoneNumber: ' + MyItem.HomeTelephoneNumber + #13;
+      s := s + 'Initials: ' + MyItem.Initials + #13;
+     s := s + 'ISDNNumber: ' + MyItem.ISDNNumber + #13;  
+    s := s + 'JobTitle: ' + MyItem.JobTitle + #13; 
+     s := s + 'Journal: ' + IntToStr(MyItem.Journal) + #13; 
+     s := s + 'Language: ' + MyItem.Language + #13; 
+     s := s + 'LastName: ' + MyItem.LastName + #13;  
+    s := s + 'LastNameAndFirstName: ' + MyItem.LastNameAndFirstName + #13; 
+     s := s + 'MailingAddress: ' + MyItem.MailingAddress + #13;
+     s := s + 'MailingAddressCity: ' + MyItem.MailingAddressCity + #13; 
+     s := s + 'MailingAddressCountry: ' + MyItem.MailingAddressCountry + #13; 
+     s := s + 'MailingAddressPostalCode: ' + MyItem.MailingAddressPostalCode + #13;
+      s := s + 'MailingAddressPostOfficeBox: ' + MyItem.MailingAddressPostOfficeBox + #13;
+      s := s + 'MailingAddressState: ' + MyItem.MailingAddressState + #13;
+      s := s + 'MailingAddressStreet: ' + MyItem.MailingAddressStreet + #13;  
+    s := s + 'ManagerName: ' + MyItem.ManagerName + #13;
+      s := s + 'MiddleName: ' + MyItem.MiddleName + #13; 
+     s := s + 'MobileTelephoneNumber: ' + MyItem.MobileTelephoneNumber + #13; 
+     s := s + 'NickName: ' + MyItem.NickName + #13; 
+     s := s + 'OfficeLocation: ' + MyItem.OfficeLocation + #13;
+      s := s + 'OrganizationalIDNumber: ' + MyItem.OrganizationalIDNumber + #13; 
+     s := s + 'OtherAddress: ' + MyItem.OtherAddress + #13; 
+     s := s + 'OtherAddressCity: ' + MyItem.OtherAddressCity + #13;  
+    s := s + 'OtherAddressCountry: ' + MyItem.OtherAddressCountry + #13;
+      s := s + 'OtherAddressPostalCode: ' + MyItem.OtherAddressPostalCode + #13;
+      s := s + 'OtherAddressPostOfficeBox: ' + MyItem.OtherAddressPostOfficeBox + #13; 
+     s := s + 'OtherAddressState: ' + MyItem.OtherAddressState + #13;
+      s := s + 'OtherAddressStreet: ' + MyItem.OtherAddressStreet + #13; 
+     s := s + 'OtherFaxNumber: ' + MyItem.OtherFaxNumber + #13; 
+     s := s + 'OtherTelephoneNumber: ' + MyItem.OtherTelephoneNumber + #13;
+      s := s + 'PagerNumber: ' + MyItem.PagerNumber + #13;
+      s := s + 'PersonalHomePage: ' + MyItem.PersonalHomePage + #13; 
+     s := s + 'PrimaryTelephoneNumber: ' + MyItem.PrimaryTelephoneNumber + #13;
+      s := s + 'Profession: ' + MyItem.Profession + #13;
+      s := s + 'RadioTelephoneNumber: ' + MyItem.RadioTelephoneNumber + #13;
+      s := s + 'ReferredBy: ' + MyItem.ReferredBy + #13;
+      s := s + 'SelectedMailingAddress: ' + In      s := s + 'Spouse: ' + MyItem.Spouse + #13;      s := s + 'Suffix: ' + MyItem.Suffix + #13; 
+     s := s + 'TelexNumber: ' + MyItem.TelexNumber + #13;      s := s + 'Title: ' + MyItem.Title + #13; 
+     s := s + 'TTYTDDTelephoneNumber: ' + MyItem.TTYTDDTelephoneNumber + #13; 
+     s := s + 'User1: ' + MyItem.User1 + #13;      s := s + 'User2: ' + MyItem.User2 + #13; 
+     s := s + 'User3: ' + MyItem.User3 + #13;      s := s + 'User4: ' + MyItem.User4 + #13; 
+     s := s + 'UserCertificate: ' + MyItem.UserCertificate + #13;
+      s := s + 'WebPage: ' + MyItem.WebPage + #13;
+  end; 
+   Memo1.Lines.Text := s;  except    on 
+E: Exception do MessageDlg(E.Message + #13 + s, mtError, [mbOk], 0)
+  end;  MSOutlook.Quit;
+end;
+</pre>
+
+
+<p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

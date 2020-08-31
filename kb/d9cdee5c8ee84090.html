@@ -1,0 +1,70 @@
+<html>
+<head>
+  <title>Веб-страничка внутри Delphi-приложения</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Веб-страничка внутри Delphi-приложения</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>WEB страничка внутри Delphi приложения</p>
+<p>(Перевод одноимённой статьи с сайта delphi.about.com )</p>
+<p>Многие из Вас спрашивают, как сделать, чтобы приложением могло содержать в себе различные компоненты в стиле Web, включая HTML ресурсы и картинки, которые являются частью Вашего проекта. Статья показывает, как можно легко добавить в Delphi приложение HTML и связанные с ним файлы (картинки).</p>
+<p>Создание HTML страницы</p>
+<p>Для начала мы должны создать простую страницу HTML. Для этого можно использовать Ваш любимый HTML редактор, и создать одну страницу с одним изображением. К примеру, назовём этот файл aboutindex.htm. Обратите внимание, что, когда Вы добавляете тэг картинки внутрь htm страницы, то в исходнике страницы будет присутствовать следудующая строка: </p>
+<p>&lt;img src="../graphics/adp.gif" ...&gt; </p>
+<p>Нам необходимо подправить тэг IMG так, чтобы атрибут SRC равнялся имени, которое мы указали в ресурсах: </p>
+<p>&lt;img src="ABOUTDP" ...&gt; </p>
+<p>У меня HTML код выглядит следующим образом: </p>
+<p>&lt;HTML&gt;&lt;HEAD&gt;&lt;TITLE&gt;HTML inside a Delphi exe&lt;/TITLE&gt;&lt;/HEAD&gt;&lt;BODY&gt;</p>
+<p>This is a HTML Delphi resource test:&lt;br&gt;</p>
+<p>&lt;img src="ABOUTDP" width=106 height=58 border=0 alt=""&gt;</p>
+<p>&lt;/BODY&gt;&lt;/HTML&gt; </p>
+<p>Создание и компиляция файла ресурсов</p>
+<p>Запомните, что для того, чтобы создать новый скрипт-файл ресурсов, необходимо: </p>
+<p>1. Создать новый текстовый файл в директории Вашего проекта.</p>
+<p>2. Переименовать его в AHTMLDelphi.rc.</p>
+<p>3. Добавить следующие две строки текста в файл AHTMLDelphi.rc. </p>
+<p>DELPHIINDEX HTML "c:\Delphi\projects\aboutindex.htm" </p>
+<p>ABOUTDP GIF "c:\library\graphics\adp.gif" </p>
+<p>Обратите внимание, что "HTML" тип ресурса RT_HTML, определён как "23". Это значение является дефолтовым для протокола RES. </p>
+<p>Таким образом мы подготовили одну HTML страницу и одну картинку GIF, которые будут включены в исполняемый EXE модуль. </p>
+<p>Следующий шаг - это компиляция .rc файла. Для компиляции файла AHTMLDelphi.rc в файл .res, выполните следующую команду из командной строки (в директории Вашего проекта): </p>
+<p>BRCC32 AHTMLDelphi.RC </p>
+<p>Заключительный шаг - это добавление следующей директивы компилятора в unit Вашего проекта. Следующая строка заставляет компилятор включить в проект файл RES: </p>
+<p>{$R AHTMLDelphi.RES}</p>
+<p>Отображение внутри Web браузера</p>
+<p>После того, как Вы получите экзешник приложения (назовём его, например, myhtmldelphi.exe), то HTML ресурсы, содержащиеся в нём, могут быть доступны через протокол RES: . Запустите Internet Explorer и, адресной строке напишите следующее: </p>
+<p>res://c:\myhtmldelphi.exe/DELPHIINDEX </p>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

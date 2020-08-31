@@ -1,0 +1,142 @@
+<html>
+<head>
+  <title>TStatusBar + TProgressBar</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TStatusBar + TProgressBar</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Вставить ProgressBar в StatusBar:</p>
+<p>Вот эту функцию применять вместо стандартного Create</p>
+<pre name="code" class="delphi">
+function CreateProgressBar(StatusBar:TStatusBar; index:integer):TProgressBar;
+  var findleft:integer;
+        i:integer;
+begin
+  result:=TProgressBar.create(Statusbar);
+  result.parent:=Statusbar;
+  result.visible:=true;
+  result.top:=2;
+  findleft:=0;
+  for i:=0 to index-1 do 
+    findleft:=findleft+Statusbar.Panels[i].width+1;
+  result.left:=findleft;
+  result.width:=Statusbar.Panels[index].width-4;
+  result.height:=Statusbar.height-2;
+end;
+</pre>
+
+<p id="author">Автор: Vit</p>
+<hr />
+<pre name="code" class="delphi">
+var pb: TProgressBar;
+
+begin
+....
+pb:= TProgressBar.Create(self);
+  with pb do begin
+    Parent:= StatusBar1;
+    Position:= 30;
+    Top:= 2;
+    Left:= 0;
+    Height:= StatusBar1.Height - Top;
+    Width:= StatusBar1.Panels[0].Width - Left;
+  end;  //with;
+pb.Visible:= True;
+....
+end; 
+</pre>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr />
+<pre name="code" class="delphi">
+unit adStatba;
+ 
+interface
+ 
+uses
+ 
+Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+ComCtrls;
+ 
+type
+ 
+TAdrockStatusBar = class(TStatusBar)
+private
+{ Private declarations }
+protected
+{ Protected declarations }
+public
+{ Public declarations }
+Constructor Create(Aowner : TComponent); override;
+published
+{ Published declarations }
+end;
+ 
+procedure Register;
+ 
+implementation
+ 
+Constructor TAdrockStatusBar.Create(Aowner : TComponent);
+begin
+ 
+inherited Create(Aowner);
+  ControlStyle := ControlStyle + [csAcceptsControls];
+end;
+ 
+procedure Register;
+begin
+  RegisterComponents('Adrock', [TAdrockStatusBar]);
+end;
+ 
+end. 
+</pre>
+
+<p>Это позволит вам разместить элемент управления в панели. Но этот способ не поддерживает использование вложенных панелей. Вероятно, вам также понадобиться выровнять элемент управления по правому краю. Не так это все сложно... </p>
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+<hr /><p>pgProgress положить на форму как Visible := false; StatusPanel надо OwnerDraw сделать и pефpешить, если Position меняется.</p>
+<pre name="code" class="delphi">
+procedure TMainForm.stStatusBarDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel; const Rect: TRect);
+begin
+
+  if Panel.Index = pnProgress then
+  begin
+    pgProgress.BoundsRect := Rect;
+    pgProgress.PaintTo(stStatusBar.Canvas.Handle, Rect.Left, Rect.Top);
+  end;
+end; 
+</pre>
+
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<hr /><p>With TProgressBar.Create(StatusBar1) Do Parent:=StatusBar1; </p>
+<p id="author">Автор: Song</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

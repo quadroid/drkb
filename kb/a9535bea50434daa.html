@@ -1,0 +1,58 @@
+<html>
+<head>
+  <title>Вывод текста на канве картинки</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Вывод текста на канве картинки</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>При использовании BitBtn Caption(текст) и картинка(bitmap) из файла не видны одновременно. Почему? </p>
+
+<p>Это может происходить если картинка слишком велика. Класс TBitBtn сначала рисует картинку, а затем выводит текст над, под, слева или справа от картинки (в завивимости от свойства Layout). Если размер картинки такой же как у всей кнопки для вывода текста просто не остается места. Если Вам нужно получить кнопку такого же размера как Ваша картинка и видеть при этом надпись на кнопке Вам придется выводить текст надписи непосредственно на канву картинки. </p>
+
+<pre name="code" class="delphi">
+var
+  bm : TBitmap;
+  OldBkMode : integer;
+begin
+  bm := TBitmap.Create;
+  bm.Width := BitBtn1.Glyph.Width;
+  bm.Height := BitBtn1.Glyph.Height;
+  bm.Canvas.Draw(0, 0, BitBtn1.Glyph);
+  OldBkMode := SetBkMode(bm.Canvas.Handle, Transparent);
+  bm.Canvas.TextOut(0, 0, 'The Caption');
+  SetBkMode(bm.Canvas.Handle, OldBkMode);
+  BitBtn1.Glyph.Assign(bm);
+end; 
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

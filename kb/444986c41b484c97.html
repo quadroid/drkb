@@ -1,0 +1,73 @@
+<html>
+<head>
+  <title>Array of Byte &gt; TMemoryStream</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Array of Byte &gt; TMemoryStream</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TForm1.Button2Click(Sender: TObject);
+
+const
+  Start = 49;
+  AnEnd = 57;
+  ArLen = AnEnd - Start + 1;
+var
+  M: TMemoryStream;
+  Buff: array of Byte;
+  I: Integer;
+begin
+  SetLength(Buff, ArLen);
+  for I := 0 to ArLen - 1 do
+    Buff[I] := Start + I;
+ 
+  M := TMemoryStream.Create;
+  try
+    M.Write(Buff[0], ArLen);
+    M.SaveToFile('c:\test.txt');    
+  finally
+    M.Free;
+  end;
+end;
+</pre>
+<p>&nbsp;<br>
+<p>В результате должен получится файл c:\test.txt такого содержания:</p>
+<p>123456789</p>
+<p>&nbsp;<br>
+<p>поскольку числа с 49 до 51 являются ASCII-кодами этих чисел, а соответственно и являются их символьным представлением.</p>
+&nbsp;<br>
+
+<p>&nbsp;<br>
+Автор: s-mike <br>
+<p>&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

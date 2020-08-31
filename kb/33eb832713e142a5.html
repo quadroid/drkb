@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>Формат файла ASCII-схемы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Формат файла ASCII-схемы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В файле asciidrv.txt насчет последнего числа в строке схемы поля говорится:</p>
+
+<p>"* Offset - Number of characters from the beginning of the line that the field begins. Used for FIXED format only." (Offset - количество символов он начала линии до начала поля. Используется только для фиксированного формата.).</p>
+
+<p>С тех пор, как мой файл имеет переменный (Variable) формат, я задал в каждой строке смещение, равное нулю. После некоторых попыток, чтобы заставить это работать, я следал следующие изменения:</p>
+
+<p>[discs]</p>
+<p>filetype = varying</p>
+<p>charset = ascii</p>
+<p>delimiter = "</p>
+<p>separator = ,</p>
+<p>field1 = id,char,10,0,1</p>
+<p>field2 = title,char,30,0,2</p>
+<p>field3 = artist,char,30,0,3</p>
+<p>...</p>
+<p>field36 = song30,char,50,0,36</p>
+
+<p>После более произвольных изменений это стало таким:</p>
+
+<p>[discs]</p>
+<p>filetype = varying</p>
+<p>charset = ascii</p>
+<p>delimiter = "</p>
+<p>separator = ,</p>
+<p>field1 = id,char,10,0,10</p>
+<p>field2 = title,char,30,0,20</p>
+<p>field3 = artist,char,30,0,30</p>
+<p>...</p>
+<p>field36 = song30,char,50,0,360</p>
+
+<p>и внезапно все заработало! Для поля, которое игнорируется форматом файла, "Offset" несомненно дало огромный эффект. </p>
+<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
+<p>Сборник Kuliba</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

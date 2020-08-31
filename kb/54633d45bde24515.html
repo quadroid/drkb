@@ -1,0 +1,111 @@
+<html>
+<head>
+  <title>Получение информации о TaskBar</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Получение информации о TaskBar</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для вывода информации мы будет использовать компонент TStringGrid с закладки Additional. </p>
+<p>Сначала вам нужно будет после </p>
+<pre name="code" class="delphi">
+var
+  Form1: TForm1;
+</pre>
+
+<p>добавить следующий код: </p>
+<pre name="code" class="delphi">
+AppBarData : TAppBarData;
+bAlwaysOnTop, bAutoHide : boolean;
+Clrect,rect : TRect;
+Edge: UInt;
+</pre>
+
+<p>затем после слова Implementation пишем </p>
+<pre name="code" class="delphi">
+procedure DetectTaskBar;
+begin
+  AppBarData.hWnd := FindWindow('Shell_TrayWnd', nil);
+  AppBarData.cbSize := sizeof(AppBarData);
+  bAlwaysOnTop := (SHAppBarMessage(ABM_GETSTATE, AppBardata)
+  and ABS_ALWAYSONTOP) &lt;&gt; 0;
+  bAutoHide := (SHAppBarMessage(ABM_GETSTATE, AppBardata)
+  and ABS_AUTOHIDE) &lt;&gt; 0;
+  GetClientRect(AppBarData.hWnd, Clrect);
+  GetWindowRect(AppBarData.hwnd, rect);
+  if rect.top &gt; 0 then
+    Edge := ABE_BOTTOM
+  else
+  if rect.bottom &lt; screen.height then
+    Edge:=ABE_TOP
+  else
+  if rect.right &lt; screen.width then
+    Edge:=ABE_LEFT
+  else
+    Edge:=ABE_RIGHT;
+end;
+</pre>
+<p>и осталось описать самое главное - обработчик нажатия кнопки: </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  DetectTaskBar;
+ 
+  StringGrid1.Cells[0,0] := 'Выше других окон';
+  StringGrid1.Cells[0,1] := 'Автоматически убирать с экрана';
+  StringGrid1.Cells[0,2] := 'Клиентская область';
+  StringGrid1.Cells[0,3] := 'Оконная область';
+  StringGrid1.Cells[0,4] := 'Края';
+ 
+  if bAlwaysOnTop = true then
+    StringGrid1.Cells[1,0] := 'true'
+  else
+    StringGrid1.Cells[1,0] := 'false';
+ 
+  if bAutoHide = true then
+    StringGrid1.Cells[1,1] := 'true'
+  else
+    StringGrid1.Cells[1,1] := 'false';
+ 
+  StringGrid1.Cells[1,2] := IntToStr(Clrect.Left)+':'+IntToStr(Clrect.Top) +
+  ':'+IntToStr(Clrect.Right)+':'+IntToStr(Clrect.Bottom);
+ 
+  StringGrid1.Cells[1,3] := IntToStr(rect.Left)+':'+IntToStr(rect.Top) +
+  ':'+IntToStr(rect.Right)+':'+IntToStr(rect.Bottom);
+ 
+  StringGrid1.Cells[1,4] := IntToStr(Edge);
+end;
+</pre>
+
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<html>
+<head>
+  <title>Как получить список кнопок на таскбаре?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как получить список кнопок на таскбаре?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses CommCtrl;
+
+ 
+function GetModuleFileNameExW(hProcess:THandle; hModule:HMODULE; lpFilename:PWideChar; nSize:DWORD):DWORD; stdcall; external 'PSAPI.DLL';
+ 
+const 
+ ICON_SMALL2 = 2;
+ 
+function WindowGetEXE(wnd:HWND):string;
+var
+ wt:array[0..MAX_PATH-1] of WChar;
+ r:integer;
+ prc:THandle;
+ prcID:cardinal;
+begin
+ result:='';
+ if GetWindowThreadProcessID(wnd,prcID)&lt;&gt;0 then
+ begin
+  prc:=OpenProcess(PROCESS_ALL_ACCESS,false,prcID);
+  if prc&lt;&gt;0 then
+  try
+    r:=GetModuleFileNameExW(prc,0,wt,MAX_PATH*2);
+   if r&lt;&gt;0 then result:=wt;
+  finally
+   CloseHandle(prc)
+  end
+ end
+end;
+ 
+function WindowGetIcon(wnd:HWND; fSmall:boolean):Cardinal;
+var
+ defIcon:HICON;
+ r,iType1,iType2: integer;
+begin
+    defIcon:=LoadIcon(0,IDI_APPLICATION);
+    if fSmall then
+    begin iType1:=ICON_SMALL2; iType2:= GCL_HICONSM; end else
+    begin iType1:=ICON_BIG; iType2:= GCL_HICON; end;
+ 
+   r:=SendMessageTimeOut(wnd,WM_GETICON,iType1,0,SMTO_ABORTIFHUNG or SMTO_NOTIMEOUTIFNOTHUNG, 100, result);
+   if (r=0) then result:=defIcon else
+   begin
+    if (result=0) then  result:=GetClassLong(wnd,iType2);
+    if (result=0) then  result:=defIcon
+   end;
+end;
+ 
+function EnumWindowsProc(wnd:HWND; lParam: LPARAM):BOOL; stdcall;
+var
+ wn:array[0..MAX_PATH-1] of char;
+begin
+ result:=true;
+ if IsWindowVisible(wnd) and (GetParent(wnd)=0) and (GetWindow(wnd,GW_OWNER)=0) and
+ ((GetWindowLong(wnd,GWL_EXSTYLE) and WS_EX_TOOLWINDOW)=0)  then
+ begin
+  GetWindowText(wnd,wn,MAX_PATH);
+  with Form1.ListView1.Items.Add do
+  begin
+    Caption :=wn; // заголовок
+    SubItems.Add(IntToStr(wnd)); // дескриптор
+    SubItems.Add(WindowGetEXE(wnd)); // exe
+    SubItems.Add(' '); // колонка для большой иконки
+    ImageIndex:=ImageList_AddIcon(Form1.ImageList1.Handle,WindowGetIcon(wnd,true)); // маленькая иконка
+    SubItemImages[2] := ImageList_AddIcon(Form1.ImageList2.Handle,WindowGetIcon(wnd,false)); // большая иконка
+  end;
+ end;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+ ListView1.Clear;
+ ImageList1.Clear;
+ ImageList2.Clear;
+ EnumWindows(@EnumWindowsProc,0);
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+// ImageList1 - 16x16;  ImageList2 - 32x32;
+ ListView1.SmallImages:=ImageList1;
+ ListView1.LargeImages:=ImageList2;
+end;
+</pre>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: Krid</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

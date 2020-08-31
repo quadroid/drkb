@@ -1,0 +1,91 @@
+<html>
+<head>
+  <title>Функция проверки корректности ввода</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Функция проверки корректности ввода</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Функция проверки корректности ввода
+ 
+Результат истина в случае если во входной строке нет недопустимых
+символов
+Rej - флаг режима
+если Rej:=true, то Conf - строка недопустимых символов
+если Rej:=false, то Conf - строка допустимых символов
+Input - входная строка
+ 
+Зависимости: Стандартные модули
+Автор:       Ru, DiVo_Ru@rambler.ru, Одесса
+Copyright:   DiVo 2002, creator Ru
+Дата:        28 декабря 2002 г.
+***************************************************** }
+ 
+function ConformStr(Input, Conf: string; Rej: boolean): boolean;
+var
+  i: integer;
+begin
+  result := true;
+  if Rej then
+  begin
+    for i := 1 to length(Conf) do
+    begin
+      if pos(Conf[i], Input) &lt;&gt; 0 then
+      begin
+        result := false;
+        break;
+      end
+    end;
+  end
+  else
+  begin
+    for i := 1 to length(Input) do
+    begin
+      if pos(Input[i], Conf) = 0 then
+      begin
+        result := false;
+        break;
+      end;
+    end;
+  end;
+end;
+Пример использования: 
+ 
+s := 'Приве6т!';
+if not ConformStr(s, '0123456789') then
+  s := Strtst(s, '0123456789');
+//после этого s='Привет!'
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

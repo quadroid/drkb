@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>GROUPFILE и ADDITEM для групп</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">GROUPFILE и ADDITEM для групп</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Вот код для создания файла группы и добавления в группу файла-элемента. Чтобы использовать эту процедуру, определите DDE clientconv App как ProgMan.</p>
+<pre name="code" class="delphi">
+procedure TMainForm.CreateWinGroup(Sender: TObject);
+var
+  Name: string;
+  Name1: string;
+  Macro: string;
+  Macro1: string;
+  Cmd, Cmd1: array[0..255] of Char;
+begin
+  {destDir - dos-каталог, хранящий YourFile.Ext'}
+  Name := 'GroupName';
+  Name1 := destDir + 'YourFile.Ext, FileName_in_Group ';
+  Macro := Format('[CreateGroup(%s)]', [Name]) + #13#10;
+  Macro1 := Format('[Additem(%s)]', [Name1]) + #13#10;
+  StrPCopy(Cmd, Macro);
+  StrPCopy(cmd1, Macro1);
+  DDEClient.OpenLink;
+  if not DDEClient.ExecuteMacro(Cmd, False) then
+    MessageDlg('Невозможно создать группу ' + Name, mtInformation, [mbOK], 0)
+  else
+  begin
+    DDEClient.ExecuteMacro(Cmd1, False);
+  end;
+  DDEClient.CloseLink;
+end;
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

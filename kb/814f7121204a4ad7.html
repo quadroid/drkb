@@ -1,0 +1,153 @@
+<html>
+<head>
+  <title>Блокирующий режим против неблокирующего</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Блокирующий режим против неблокирующего</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>5. Блокирующий режим против неблокирующего</p>
+5.1. Модели программирования</p>
+В Windows есть две модели программирования сокетов &#8211; блокирующий и неблокирующий. Иногда они также называются как &#8211; синхронный (blocking) и асинхронный (non-blocking). В данном документе мы будем использовать термины блокирующий и неблокирующий.</p>
+На платформе Unix, поддержан только блокирующий режим.</p>
+5.2. Другие модели</p>
+В действительности есть еще несколько реализованных моделей. Это completion ports, and overlapped I/O. Но использование этих моделей требует гораздо больше кода и обычно используется только в очень сложных серверных приложениях.</p>
+В дополнение, данные модели не кросс платформенные и их реализация сильно отличает от одной операционной системы к другой.</p>
+Indy 10 содержит поддержку и этих моделей.</p>
+5.3. Блокирующий режим</p>
+В Indy используются вызовы блокирующих сокетов. Блокирующие вызовы очень похожи на чтение/запись файлов. Когда вы читаете файл или пишите файл, то возврат из функции не происходит до ее окончания. Различие состоит в том, что обычно требуется значительно больше времени до окончания. Операции чтения и записи зависят от скорости сети.</p>
+С Indy, вы просто вызываете метод Connect и просто ждете возврата из него. Если соединение будет успешное, то будет возврат из метода по окончанию соединения. Если же соединение не произойдет, то будет возбуждено исключение.</p>
+5.4. Неблокирующий режим</p>
+Работа неблокирующих сокетов основана на системных событиях. После того как произведен вызов, будет возбуждено событие.</p>
+Например, для попытки соединения сокета, вы должны вызвать метод Connect. Данный метод немедленно возвращает управление в программу. Когда сокет будет подсоединен, то будет возбуждено событие. Это требует, что бы логика связи была разделена по многим процедурам или использовать циклы опроса.</p>
+5.5. История Winsock</p>
+В начале был Unix. Это был Berkely Unix. Он имел стандартное API для поддержки сокетов. Это API было адоптировано в большинстве Unix систем.</p>
+Затем появился Windows, и кто-то посчитал, что это хорошая идея иметь возможность программировать TCP/IP и в Windows. Поэтому они портировали API Unix сокетов. Это позволило большинство Unix кода с легкостью портировать и в Windows.</p>
+5.6. Блокирующий режим это не смертельно</p>
+Из-за блокирующего режима мы неоднократно были биты нашими противниками, но блокирующий режим не является дьяволом.</p>
+Когда API Unix сокетов было портировано в Windows, то ему дали имя Winsock. Это сокращение от "Windows Sockets".</p>
+В Юниксе типично проблема решалась за счет разветвления (похоже на много поточность, но за счет отдельных процессов вместо потоков). Юникс клиенты и демоны (daemons) должны были раздваивать процессы для каждого сокета. Данные процессы затем выполнялись независимо и использовали блокирующие сокеты. </p>
+Windows 3.x не мог распараллеливаться и плохо поддерживал многозадачность. Windows 3.1 также не имел поддержки потоков. Использование блокирующих сокетов замораживало пользовательский интерфейс и делало программы не реагирующими. Поскольку это было не приемлемо, то к WinSock были добавлены неблокирующие сокеты, позволяя Windows 3.x с его ограничениями использовать Winsock без замораживания всей системы. Это потребовало другого программирования сокетов, Microsoft и другие страстно поносили блокирующие режимы, что бы скрыть недостатки Windows 3.x.</p>
+Затем пришли&nbsp; Windows NT и Windows 95, Windows стала поддержать вытесняющую многозадачность и потоки. Но к этому моменту мозги уже были запудрены (то есть разработчики считали блокирующие сокеты порождением дьявола), и уже было тяжело изменить содеянное. По этому поношение блокирующих режимов продолжается. </p>
+В действительности, блокирующее API единственное которое поддерживает Unix.</p>
+Некоторые расширения, для поддержки неблокирующих сокетов были добавлены и в Unix. Эти расширения работают совсем не так как в Windows. Эти расширения не стандартны для всех Unix платформ и не используются широко. Блокирующие сокеты в Unix все еще используются в каждом приложении и будут продолжаться использоваться и дальше.</p>
+Блокирующие сокеты также имеют и другие преимущества. Блокирующие сокеты много лучше для поточности, безопасности и по другим аспектам.</p>
+5.7. Достоинства блокирующего режима</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Проще программировать - Блокирующие сокеты проще программировать. Весь пользовательский код может находиться в одном месте и выполняться в естественном, последовательном порядке. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>Кросс-платформенность &#8211; поскольку Unix использует блокирующие сокеты, по переносимый код легче писать. Indy использует данный факт для использования своего кода между платформами. Другие сокет компоненты, которые кросс платформенные, на самом деле эмулируют это с помощью внутреннего вызова блокирующих сокетов.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>Удобнее работать с потоками - Поскольку у блокирующих сокетов последовательность приобретена по наследственности, поэтому их очень просто использовать в потоках. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">4.</td><td>Независимость от сообщений &#8211; неблокирующие сокеты зависят от системы оконных сообщений. Когда используются потоки, то создается отдельная очередь сообщений. Но когда потоки не используются, то узким местом становится обработка множества соединений.</td></tr></table></div>5.8. Недостатки блокирующего режима</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Пользовательский интерфейс замораживается в клиентах - Вызов блокирующего сокета не возвращает управления, пока не выполнит свою задачу. Когда подобные вызовы делаются в главном кодовом потоке, то приложение замораживает пользовательский интерфейс. Замораживание происходит, поскольку сообщения обновления, перерисовки и другие сообщения не обрабатываются до окончания вызова блокирующего сокета.</td></tr></table></div>5.9. Компонент TIdAntiFreeze</p>
+В Indy имеется специальный компонент, который решает проблему замораживания пользовательского интерфейса. Просто добавьте один компонент TIdAntiFreeze куда ни будь в своем приложении, и вы сможете выполнять блокирующие вызовы без замораживания пользовательского интерфейса. Сам компонент будет рассмотрен в подробностях чуть позже.</p>
+Использование TIdAntiFreeze позволяет получить все преимущества блокирующих сокетов, без видимых недостатков.</p>
+5.10. Достоинства неблокирующего режима</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Пользовательский интерфейс не замораживается &#8211; поскольку пользовательский код обрабатывает оконные сообщения, то имеет контроль и над сокетными сообщениями. Поэтому Windows также может обрабатывать и другие сообщения.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>Многозадачность без использования потоков &#8211; используется единственный кодовый поток для обработки множества сокетов.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>Очень малая нагрузки при множестве сокетов &#8211; поскольку множество сокетов могут обрабатываться без потоков, то нагрузка на память и процессор значительно ниже.</td></tr></table></div>5.11. Недостатки неблокирующего режима</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Более сложное программирование &#8211; неблокирующие сокеты требуют использования опроса или обработки событий. События наиболее используемый метод, а циклы опроса менее эффективны. При использовании обработчиков событий, код размазан по куче процедур, поэтому требуется отслеживание состояния. Это означает большее количество ошибок и более сложная модификация кода.</td></tr></table></div>5.12. Сравнение технологий</p>
+Если вы хорошо знаете Indy и его методологию, то вы можете пропустить эту главу. Но даже если вы ранее программировали сокеты, до использования Indy, то все равно данная глава будет вам полезна.</p>
+Для тех, кто никогда не программировал сокеты до Indy, то будет легко и естественно использовать его. Но для тех кто программировал сокеты ранее, Indy будет камнем преткновения. Поскольку Indy работает совсем по другому. Попытка программировать в Indy тем же самым образом. Это не означает, что другие решения неправильные, просто Indy работает иначе. Пытаться программировать в Indy так же, как с другими сокетными библиотеками, равносильна попытке приготовить пирожное в микроволновой печи, как в духовке. Результатом будет испорченное пирожное.</p>
+Если вы использовали другие сокетные библиотеки ранее, пожалуйста следуйте следующему девизу:</p>
+Забудьте все, что вы знали раньше!</p>
+Это легко сказать, труднее сделать, менять привычки тяжело. Чтобы подчеркнуть разницу, приведем абстрактный пример. Для абстрагирования концепции, используем в качестве аналога файлы. Данный документ подразумевает, что вы умеете работать с файлам. Надеемся, что Бейсик программисты не читают эту книгу.</p>
+5.13. Файлы против сокетов</p>
+Разница между файлами и сокетами в основном в скорости доступа. Доступ к файлу не всегда быстрый. Флоппи диски, сетевые диска, ленточные устройства архивирования и иерархические системы хранения часто имеют медленную скорость.</p>
+5.14. Сценарий записи в файл</p>
+Представим простой сценарий записи в файл. Поскольку данная процедура очень простая, то она очень подходит демонстрации.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Открыть файл</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>Записать данные</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>Закрыть файл</td></tr></table></div>5.15. Блокирующий режим записи файла</p>
+Блокирующая запись в файл выглядит следующим образом:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 0px;"><pre name="code" class="delphi">procedure TForm1.Button1Click(Sender: TObject);
+var
+  s: string;
+begin
+  s := 'Indy Rules the (Kudzu) World !' + #13#10;
+  try
+ &nbsp;&nbsp; // Open the file
+ &nbsp;&nbsp; with TFileStream.Create('c:\temp\test.dat', fmCreate) do 
+ &nbsp;&nbsp; try
+ &nbsp;&nbsp;&nbsp;&nbsp; // Write data to the file
+ &nbsp;&nbsp;&nbsp;&nbsp; WriteBuffer(s[1], Length(s));
+ &nbsp;&nbsp;&nbsp;&nbsp; // Close the file
+ &nbsp;&nbsp; finally 
+ &nbsp;&nbsp;&nbsp;&nbsp; Free; 
+ &nbsp;&nbsp; end;
+  end;
+end;
+</pre>
+&nbsp;</p>
+Как вы видите, это практически повторяет приведенный выше псевдокод. Код последовательный&nbsp; и легкий для понимания.</p>
+5.16. Неблокирующий режим записи файла </p>
+Не существует такой вещи как неблокирующий режим записи файла (может быть исключая overlapped I/O, но это за пределами данной книги), но здесь мы можем просто эмулировать механизм это. File1 это условный неблокирующий компонент, размещенной на форме.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 0px;"><pre name="code" class="delphi">procedure TForm1.Button1Click(Sender: TObject);
+begin
+  File1.Filename := 'd:\temp\test.dat';
+  File1.Open;
+end;
+procedure TForm1.File1OnOpen(Sender: TObject);
+var
+  i: integer;
+begin
+  FWriteData := 'Hello World!' + #13#10;
+  i := File1.Write(FWriteData);
+  Delete(FWriteData, 1, i);
+end;
+procedure TForm1.File1OnWrite(Sender: TObject);
+var
+  i: integer;
+begin
+  i := File1.Write(FWriteData);
+  Delete(FWriteData, 1, i);
+  if Length(FWriteData) = 0 then 
+  begin
+ &nbsp;&nbsp; File1.Close;
+  end;
+end;
+procedure TForm1.File1OnClose(Sender: TObject);
+begin
+  Button1.Enabled := True;
+end;
+</pre>
+&nbsp;</p>
+Потратим немного времени, что бы попытаться понять, что здесь делается. Если вы используете неблокирующие сокеты, то вы должны легко понимать данный код. Это примерно следующее:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>При вызове Button1Click открывается файл. Метод Open немедленно вернет управление в программу, но файл еще не открыт и нельзя с ним еще нельзя работать.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>Обработчик события OnOpen будет возбужден, когда файл будет открыть и готов к работе. Делается попытка записать данные в файл, но все данные еще не акцептированы. Метод Write вернет количество записанных байт. Оставшиеся данные будут сохранены позже.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>Обработчик события OnWrite будет возбужден, когда файл будет готов воспринять следующую порцию данных, и метод Write будет повторяться для оставшихся данных.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">4.</td><td>Шаг 3 повторяется до тех пор, пока все данные не будут записаны методом Write. По окончанию записи всех данных вызывается метод Close. Но файл пока еще не закрыт.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">5.</td><td>The OnClose event is fired. The file is now closed.</td></tr></table></div>5.17. Сравнение записи файлов</p>
+Оба примера только записывают данные. Чтение и запись данных будут сложнее для неблокирующего режима, но только добавлением одной строки для блокирующего режима.</p>
+Для блокирующего примера, просто откройте, записывайте данные, и закройте файл когда необходимо:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>3 File1 события</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>1 поле в Form </td></tr></table></div>Неблокирующая версия более сложная и более тяжелая для понимания. Дадим шанс выбора между обеими, если надо будет выбирать, то большинство выберет неблокирующий путь. Большинство C++ программистов, исключая конечно просто мазохистов или вообще не будет выбирать, поскольку все они почти просты. Почти все сокетные функции используют неблокирующий режим.</p>
+5.18. Почти как файлы</p>
+Использование Indy почти равносильно использованию файлов. В действительности Indy еще проще, поскольку Indy имеет ряд методов для чтения и записи. Indy пример, эквивалентный примеру с файлами выглядит так:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 8px 0px;"><pre name="code" class="delphi">with IndyClient do 
+begin
+ &nbsp;&nbsp;&nbsp; Connect; 
+ &nbsp;&nbsp;&nbsp; Try
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WriteLn('Hello World.');
+ &nbsp;&nbsp;&nbsp; finally 
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Disconnect; 
+ &nbsp;&nbsp;&nbsp; end;
+end;
+</pre>
+Как вы можете видеть, Indy в действительности очень похож работе с файлами. Метод Connect замещает функцию Open, а метод Disconnect замещает функцию Close. Если вы думаете и признаете сокеты как чтение и запись в файл, то вам будет использовать Indy очень просто.</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Перечислить все разбиения N на целые положительные слагаемые</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Перечислить все разбиения N на целые положительные слагаемые</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Пример: N=4, разбиения: 1+1+1+1, 2+1+1, 2+2, 3+1, 4.</p>
+First = (1,1,...,1) - N единиц Last = (N) </p>
+<p>Чтобы разбиения не повторялись, договоримся перечислять слагаемые в невозрастающем порядке. Сказать, сколько их будет всего, не так-то просто (см.следующий пункт). Для составления алгоритма Next зададимся тем же вопросом: в каком случае i-ый член разбиения можно увеличить, не меняя предыдущих?</p>
+<p>Во-первых, должно быть X[i-1]&gt;X[i] или i=1. Во-вторых, i должно быть не последним эле ментом (увеличение i надо компенсировать уменьшением следующих). Если такого i нет, то данное разбиение последнее. Увеличив i, все следующие элементы надо взять минимально возможными, т.е. равными единице:</p>
+<pre name="code" class="delphi">
+    procedure Next;
+      begin
+        {найти i: (i&lt;L) and ( (X[i-1]&gt;X[i]) or (i=1) )}
+        X[i]:=X[i]+1;
+        { L:= i + X[i+1]+...+X[L] - 1 }
+        X[i+1]:=...:=X[L]:=1
+      end;
+</pre>
+<p>Через L мы обозначили количество слагаемых в текущем разбиении (понятно, что 1&lt;=L&lt;=N). Программа будет выглядеть так:</p>
+<pre name="code" class="delphi">
+  program Razbieniya;
+    type Razb=array [byte] of byte;
+    var N,i,L:byte;
+        X:Razb;
+    procedure Next(var X:Razb;var L:byte);
+      var i,j:byte;
+          s:word;
+    begin
+      i:=L-1;s:=X[L];
+      {поиск i}
+      while (i&gt;1)and(X[i-1]&lt;=X[i]) do begin s:=s+X[i];dec(i) end;
+      inc(X[i]);
+      L:=i+s-1;
+      for j:=i+1 to L do X[j]:=1
+    end;
+  begin
+    write('N=');readln(N);
+    L:=N; for i:=1 to L do X[i]:=1;
+    for i:=1 to L do write(X[i]);writeln;
+    repeat
+      Next(X,L);
+      for i:=1 to L do write(X[i]);writeln
+    until L=1
+  end.
+</pre>
+
+<p><a href="http://algolist.manual.ru" target="_blank">http://algolist.manual.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

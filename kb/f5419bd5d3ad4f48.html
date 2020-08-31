@@ -1,0 +1,91 @@
+<html>
+<head>
+  <title>Как по IP адресу получить Hostname (и обратно)?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как по IP адресу получить Hostname (и обратно)?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+function TGenericNetTask.GetPeerOrigin( const ALogin : String ) : DWORD;
+const AddressStrMaxLen = 256;
+var len : DWORD;
+       ptr : PChar;
+       pHE : PHostEnt;
+       addr : TSockAddr;
+       buf : Array [0..AddressStrMaxLen-1] of Char;
+begin
+   if FNet=nil then raise ESocketError.Error(-1,ClassName+'.GetPeerAds: Net is
+not defined',WSAHOST_NOT_FOUND);
+   len := SizeOf(TSockAddr);
+   if getpeername(FSocket,addr,len)&lt;&gt;0 then
+RaiseLastSocketError(-1,ClassName+'.GetPeerAds: getpeername()');
+   case addr.sin_family of
+   AF_INET: // TCP/IP
+ 
+       begin
+           pHE := gethostbyaddr( PChar(@addr.sin_addr), SizeOf(TInAddr),
+AF_INET );
+           if pHE=nil then RaiseLastSocketError(-1,ClassName+'.GetPeerAds:
+gethostbyaddr()');
+           FPeerNodeName := pHE^.h_name;
+           if FNet.NodeByName(FPeerNodeName)=nil then
+           begin
+               ptr := StrScan(pHE^.h_name,'.');
+               if ptr&lt;&gt;nil then FPeerNodeName :=
+Copy(pHE^.h_name,1,ptr-pHE^.h_name);
+           end;
+       end;
+ 
+   else
+       len := AddressStrMaxLen;
+       if WSAAddressToStringA(sin,sinlen,nil,buf,len)&lt;&gt;0 then
+RaiseLastSocketError(-1,ClassName+'.GetPeerAds: WSAAddressToStringA()');
+       ptr := StrRScan(buf,':');
+       if ptr&lt;&gt;nil then len := ptr-buf;
+       FPeerNodeName := Copy(buf,1,len);
+   end;
+   Result :=
+FNet.EncodeAddress(ALogin,FPeerNodeName,'',[bLoginIdRequired,bNodeIdREquired,bR
+aiseError]);
+end; {TGenericNetTask.GetPeerOrigin}
+</pre>
+
+
+<p>Alex Konshin</p>
+<p>mailto:alexk@msmt.spb.su"</p>
+<p>(2:5030/217)</p>
+
+<p id="author">Автор: StayAtHome</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<html>
+<head>
+  <title>Как возвращать сообщения на родном языке компьютера?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как возвращать сообщения на родном языке компьютера?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  Call inLanguage like this to get the German text else return english 
+  if you use different coutntry codes you can do more 
+}
+ 
+ {############### FGetLanguageSettings ############################ 
+ # Author: Walter Verhoeven 
+ # Date:   14.Sep.2000 
+ # Coming From: InLanguage 
+ #  Next Event: NONE 
+ #  Parameters: NONE 
+ #   Objective: See the users regional settings and return Country #number code 
+ #   Change: 
+ #     DD-MMM-YYYYY ¦Programmer 
+ #                1) 
+ # 
+ ########################################################}
+ 
+   function FGetLanguageSettings: Integer;
+ var
+   OutputBuffer: PChar;
+   SelectedLCID: LCID;               //DWORD constand in Windows.pas 
+begin
+   OutputBuffer := StrAlloc(4);     //alocate memory for the PChar 
+  try
+     try
+       SelectedLCID := GetUserDefaultLCID;
+       GetLocaleInfo(SelectedLCID, LOCALE_ICOUNTRY, OutputBuffer, 3);
+       Result := StrToInt(OutputBuffer);
+     except
+       Result := 49;   //german 
+      Abort;
+     end;
+   finally
+     StrDispose(OutputBuffer);   //alway's free the memory alocated 
+  end;
+ end;
+ 
+ {############## INLanguage ####################################### 
+ # Author: Walter Verhoeven 
+ # Date:   .Jun.2000 
+ # Coming From: 
+ #  Next Event: FGetLanguageSettings 
+ #  Parameters: Eglish and german text 
+ #   Objective: provide a method to return 
+ #              english or german results based on the 
+ # users window prefered language setting. 
+ #   Change: 
+ #     DD-MMM-YYYYY ¦Programmer 
+ #                1) 
+ # 
+ ##############################################################}
+ 
+ 
+   function INLanguage(English, German: string): string;
+ begin
+   case FGetLanguageSettings of
+     49: Result  := German;   // Return the german string 
+    43: Result  := German;   // If the PC has a german preferance 
+    41: Result  := German;
+     352: Result := German;
+     else
+       Result := English;      // if not german then english 
+  end;
+ end;
+ 
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   ShowMessage(Format(INLanguage('My %s English Word',
+     'Riesiges %s Software-Angebot'), ['Hopla']));
+ end;
+ 
+</pre>
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

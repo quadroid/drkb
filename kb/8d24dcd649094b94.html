@@ -1,0 +1,88 @@
+<html>
+<head>
+  <title>Как сохранить Outlook календарь как website?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как сохранить Outlook календарь как website?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ In Outlook lasst sich ein Kalender als WebSeite speichern. Dazu benotig man
+den "Web Publishing Wizard" download im Microsoft Download Center. }
+ 
+{ In Outlook you can save the calendar as website. For this you need the
+"Web Publishing Wizard" available at Microsoft Download Center. }
+ 
+ 
+{ Original VB Script: By Sue Mosher, sue @slipstick.com, with input from Ken Slovak and others
+for more Outlook samples, see http://www.slipstick.com/dev/code/index.htm }
+ 
+{ .... }
+ 
+uses ComObj;
+ 
+{ .... }
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+var 
+  Outlook, NameSpace, TopFolder, CalendarFolder, WebPub: OleVariant;
+  sTitle: string;
+begin
+  Outlook := CreateOleObject('Outlook.Application');
+  WebPub  := CreateOleObject('WebPub.cWebPub');
+ 
+  NameSpace := Outlook.GetNamespace('MAPI');
+  TopFolder := NameSpace.Folders[1];
+  CalendarFolder := TopFolder.Folders('Kalender');
+ 
+  WebPub.Create('Kalender von AHA', '', False, '01.05.2003', '01.06.2003',
+    True, True, 'C:\Temp');
+  {
+  WebPub.Create method parameters:
+                    'sTitle         - Title displayed at the top of the page
+                    'sGraphic       - Path to a graphic file to use for BACKGROUND
+                    '                 attribute
+                    'bUseGraphic    - True=Use 'sGraphic' param, False=Ignore
+                    'dtStartDate    - Start of date range to publish
+                    'dtEndDate      - End of date range to publish
+                    'bDetails       - Publish appointment details
+                    'bShowInBrowser - Display in default browser after publishing
+                    'sSiteName      - Local path to store published calendar
+  }
+ 
+  WebPub  := Unassigned;
+  Outlook := Unassigned;
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

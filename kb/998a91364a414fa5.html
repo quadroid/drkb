@@ -1,0 +1,113 @@
+<html>
+<head>
+  <title>Пример программирования обращения к IRC</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Пример программирования обращения к IRC</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Не раз уже задавался вопрос про использование MIRC'а... <br>
+Вот и решил показать простейший пример использования и программирования IRC протокола.<br>
+Написание прод этот протокол абсолютно ничем не отличается от написания под все (т.е. почти все) др. сетевые протоколы...<br>
+Так же быдет показан простейши пример: конект к серверу, ответ на запрос ирк сервера, возможность<br>
+посылать фразы в канал....<br>
+Для начала неплохо было бы скачать rfc 1459 для (Internet Relay Chat Protocol).<br>
+Начнем...<br>
+<p>Заведем нужную структуру с необходимой нам информацией. Она может выглядеть примерно так:</p>
+<pre name="code" class="delphi">
+type
+  TsInfo = record
+ &nbsp;&nbsp; sIP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : String[20];
+ &nbsp;&nbsp; sChan&nbsp; : String[10];
+ &nbsp;&nbsp; sNick&nbsp;&nbsp; : String[10];
+  end;
+</pre>
+&nbsp;<br>
+<p>Все поля будут заполнятся из введеных пользователем строк в Edit'ы.</p>
+<pre name="code" class="delphi">
+  Info.sIP   := Edit1.Text; //ИП адрес сервера
+  Info.sChan := Edit2.Text; //канал на который будем заходить
+  Info.sNick := Edit3.Text; //наш ник
+</pre>
+<p>&nbsp;<br>
+Так&#8230; все что необходимо мы уже имеем. (Все это я тестировал у себя в локалке!!! Так что и у вас должно работать =()<br>
+&nbsp;<br>
+Теперь, первое, что нам необходимо, это, собственно, приконекатся к серверу. В примере я использовал стандартный компонент TClientSocket (я обозвал его &#171;cs&#187;).<br>
+<p>Заполним необходимые для соединения данные:</p>
+<pre name="code" class="delphi">
+cs.Address := Info.sIP;
+cs.Port    := 6667; //выбираем стандартный порт (у вас может быть другой)
+</pre>
+<p>Ну и далее, стандартное для TClientSocket соединение <br>
+<p>&nbsp;</p>
+<pre name="code" class="delphi">
+cs.Active := TRUE;
+</pre>
+<p>&nbsp;<br>
+<p>Все, если все ок, то мы должны присоеденится. Далее мы хотели зайти на канал &#8211; попробуем сделать это!</p>
+
+<pre name="code" class="delphi">
+OnConnect: begin
+ cs.Socket.SendText('NICK' + ' ' + Info.sNick + #13#10);
+ cs.Socket.SendText('USER' + ' ' + Info.sNick + ' ' + 'test' + ' test' + 'test' + #13#10);
+end;
+</pre>
+<p>Все необходимые команды берутся из выше указанного rfc.<br>
+&nbsp;<br>
+<p>Но нельзя пропустить то обстоятельство, что сервер постоянно проверяет вашего клиента на &#171;валидность&#187;, используя при этом команду &#171;PING &#8216;rnd строка&#8217;&#187;, нам же в этом случае необходимо будет ответить на этот запрос, примерно так &#171;PONG &#8216;rdn строка&#8217;&#187;. После этого мы должны стать &#171;своими&#187; на сервере! Пробудем:</p>
+<p>OnRead:</p>
+<pre name="code" class="delphi">
+begin
+ sText := cs.Socket.ReceiveText;
+ tmp := copy(sText, 1, 4);
+ if (tmp = 'PING') then begin
+  tmp := ' '; tmp := copy(sText, pos(' ', sText)+2, length(sText)-6);
+  cs.Socket.SendText('PONG' + ' ' + tmp + #13#10);
+  cs.Socket.SendText('JOIN' + ' #' + Info.sChan + #13#10);
+ end;
+ Memo1.Lines.Add(sText)
+end;
+</pre>
+<p>Тут же ( cs.Socket.SendText('JOIN' + ' #' + Info.sChan + #13#10);<br>
+) мы заходим на канал Info.sChan, замечу, что перед именем канала должен стоять символ &#171;#&#187;.<br>
+&nbsp;<br>
+<p>Вот почти и все, осталось сделать возможность отсылать сообщения.</p>
+<p>OnClick:</p>
+<pre name="code" class="delphi">
+cs.Socket.SendText('PRIVMSG #' + Info.sChan + ' :' + Edit4.Text + #13#10);
+</pre>
+<p>&nbsp;<br>
+После этого текст из Edit4 должен попасть на канал sChan, за отсылку сообщений ответственна команда &#171;PRIVMSG&#187;.<br>
+&nbsp;<br>
+&nbsp;<br>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">Автор: x2er0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

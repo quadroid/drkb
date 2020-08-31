@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Прозрачность в Delphi 6</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Прозрачность в Delphi 6</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Перевод одноимённой статьи с сайта delphi.about.com )</p>
+
+<p>В Delphi 6 разработчикам Windows-приложений доступна одна из замечательных возможностей создавать (полу)прозрачные формы (окна). В Delphi 6 класс TForm поддерживает формы со слоями, которые имеют свойства AlphaBlend, AlphaBlendValue, TransparentColor, и TransparentColorValue.</p>
+
+<p>Прозрачность в форме означает то, что пользователь может видить то, что находится позати формы.</p>
+
+<p>Чтобы подготовить форму к прозрачности, Вам потребуется установить свойство AlphaBlend в True. Если AlphaBlend установлено в True, то свойство AlphaBlendValue указывает степень прозрачности. Это свойство позволяет задать значения от 0 до 255. 0 указывает на полную прозрачность окна, в то время как 255 указывает на непрозрачное окно.</p>
+
+<p>Так же возможно устанавливать свойства AlphaBlend и AlphaBlendValue во время разработки (или во время выполнения приложения) при помощи Object Inspector.</p>
+
+<p>Возможно, Вы подумаете, что такая возможность в Delphi, может Вам пригодиться довольно редко, однако прозрачностью можно довольно эффективно привлекать внимание пользователей Вашей программы:</p>
+<pre name="code" class="delphi">
+procedure TAboutBox.FormClose
+(Sender: TObject; var Action: TCloseAction);
+var
+  i, cavb : 0..255;
+begin
+  if AlphaBlend=False then
+  begin
+    AlphaBlendValue:=255;
+    AlphaBlend:=True;
+  end;
+  cavb:=AlphaBlendValue;
+ 
+  for i := cavb downto 0 do
+  begin
+    AlphaBlendValue := i;
+    Application.ProcessMessages;
+  end
+end;
+</pre>
+
+
+<p>Вышеприведённый код, в событие OnClose для формы about, создаёт плавно изменяющийся эффект. Когда пользователь попытается закрыть диалоговое окошко, то форма плавно исчезнет. Делается это путём циклического уменьшения AlphaBlendValue до нуля.</p>
+
+<p>Другие два новый свойства формы в Delphi 6, это TransparentColor и TransparentColorValue. TransparentColor, это булевое свойство, которое указывает, будет определённый цвет, указанный в TransparentColorValue прозрачным. То есть мы можем задать прозрачность только определённому цвету.</p>
+
+<p>И взаключении хотелось бы указать на главный недостаток. Все свойства, описанные выше, не будут работать, если приложение запущено не под Windows 2000 или выше, и если процессор на компьютере ниже P90.</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

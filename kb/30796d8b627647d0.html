@@ -1,0 +1,74 @@
+<html>
+<head>
+  <title>Как заставить запускаться из определенной папки?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как заставить запускаться из определенной папки?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Приведенный пример кода проверяет из какой папки запущена программа, если она запущена не из корневой - то переносит себя в корень и запускается оттуда.</p>
+<pre name="code" class="delphi">program Project1;
+
+ 
+uses
+Forms, classes, windows, Sysutils, ShellApi,
+Unit1 in 'Unit1.pas' {Form1};
+{$R *.RES}
+var f:textFile;
+FileName:String;
+begin
+if paramstr(1)&lt;&gt;'/runasis' then
+begin
+CopyFile(PChar(Paramstr(0)),PChar('c:\'+extractFilename(paramstr(0))),True);
+shellexecute(0, 'Open', PChar(extractFilename(paramstr(0))), '/runasis', 'c:\',sw_restore);
+FileName:=changefileext(paramstr(0),'.bat');
+assignFile(f,FileName);
+rewrite(f);
+writeln(f,':1');
+writeln(f,format('Erase "%s"',[paramstr(0)]));
+writeln(f,format('If exist "%s" Goto 1',[paramstr(0)]));
+writeln(f,format('Erase "%s"',[FileName]));
+closefile(f);
+ShellExecute(0, 'Open', PChar(FileName), nil, nil, sw_hide);
+end
+else
+begin
+Application.Initialize;
+Application.CreateForm(TForm1, Form1);
+Application.Run;
+end;
+end.
+</pre>
+
+<p id="author">Автор: Vit</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

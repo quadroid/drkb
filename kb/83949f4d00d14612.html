@@ -1,0 +1,100 @@
+<html>
+<head>
+  <title>Как заставить работать DB2 через протокол IPX?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как заставить работать DB2 через протокол IPX?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<p>Связь Win-клиента c DB2 в сети Netware</p>
+<p>Hастройка доступа к DB2 </p>
+
+<p>1. Связь с использованием протокола IPX/SPX. </p>
+
+<p>Возможны два варианта доступа: </p>
+
+<p>через сервер NETWARE; </p>
+<p>прямая адресация.</p>
+<p>1.1. Конфигурация для доступа через сервер. </p>
+<p>Замечание: Проверялся доступ через сервера NW 3.11 и 3.12. Для 4.х нужно еще разобраться. </p>
+
+<p>1.1.1. DB2 Сервер </p>
+
+<p>должна быть установлена OS/2 Warp или OS/2 Warp Connect; </p>
+<p>включена поддержка NETWARE; </p>
+<p>в CONFIG.SYS в переменную среды DB2COMM добавить (через запятую) IPXSPX и перезагрузить систему; </p>
+<p>создать командный файл DBIPXSET.CMD следующего вида:</p>
+<p>|------------------------------------------------------------------</p>
+<p>|db2 update dbm cfg using fileserver&nbsp; objectname dbserver</p>
+<p>|------------------------------------------------------------------</p>
+<p>где - &lt;NWSERVER&gt; - имя сервера;</p>
+
+<p>выполнить командный файл DBIPXSET.CMD; </p>
+<p>перестартовать сервер базы данных; </p>
+<p>создать командный файл DBIPXREG.CMD следующего вида:</p>
+<p>|----------------------------------------------------------------</p>
+<p>|db2 register nwbindery user </p>
+<p>|----------------------------------------------------------------</p>
+<p>где - &lt;USERNAME&gt; - имя пользователя, обладающего правами администратора на сервере &lt;NWSERVER&gt; ;</p>
+
+<p>выполнить командный файл DBIPXREG.CMD; </p>
+<p>ответить на запрос пароля.</p>
+<p>1.1.2. WINDOWS - клиент </p>
+<p>установить WINDOWS 3.1 или WfWG 3.11; </p>
+<p>установить клиента NETWARE от версии 4.х; </p>
+<p>при установке влючить поддержку WINDOWS; </p>
+<p>установить клиента DB2 для WINDOWS; </p>
+<p>используя программу Client Setup описать новый узел - сервер базы данных :</p>
+<p>Name - &lt;любое имя&gt;</p>
+<p>Protocol - IPX/SPX</p>
+<p>File server - &lt;NWSERVER&gt;</p>
+<p>Object name - dbserver</p>
+<p>описать базу данных и разрешить доступ к ней через ODBC.</p>
+<p>1.2. Конфигурация для доступа через прямую адресацию </p>
+<p>1.2.1. DB2 Сервер </p>
+
+<p>см. п 1.1.1; </p>
+<p>найти в директории x:\sqllib\misc программу DB2IPXAD.EXE и выполнить ее; </p>
+<p>записать полученный адрес;</p>
+<p>1.2.2. WINDOWS - клиент </p>
+<p>см. п. 1.1.2. (первые три шага); </p>
+<p>используя программу Client Setup описать новый узел - сервер базы данных :</p>
+<p>Name - &lt;любое имя&gt;</p>
+<p>Protocol - IPX/SPX</p>
+<p>File server - *</p>
+<p>Object name - &lt;адрес полученный от DB2IPXAD.EXE&gt;</p>
+<p>описать базу данных и разрешить доступ к ней через ODBC.</p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

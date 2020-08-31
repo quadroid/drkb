@@ -1,0 +1,88 @@
+<html>
+<head>
+  <title>Построение древа TTreeView из базы данных</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Построение древа TTreeView из базы данных</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure TOrgColumn.LoadTreeView;
+type
+  PItemData=^TItemData;
+  TItemData=record
+    Index:Integer;
+  end;
+ 
+var
+  tnNew :TTreeNode;
+  idNewItem:PItemData;
+  i:integer;
+begin
+  TreeView1.Items.Clear;
+ 
+  with data.QOrganCol do
+    begin
+      Active := false;
+      SQL.Clear;
+      SQL.Add('SELECT * FROM OrganizationColumns.DB');
+      SQL.Add('ORDER BY NumColumn, Name');
+      ExecSQL;
+      Active := True;
+    end;
+ 
+  data.QOrganCol.First;
+  while data.QOrganCol.Eof &lt;&gt; true do
+    begin
+      tnNew := nil;
+        if data.QOrganCol.Fields[2].AsInteger &gt;0 then
+          for i := 0 to TreeView1.Items.Count-1 do
+            if PItemData(TreeView1.Items[i].Data).Index =
+              data.QOrganCol.Fields[2].AsInteger then
+            tnNew := TreeView1.Items[i];
+ 
+        with TreeView1.Items.AddChild(tnNew, data.QOrganCol.Fields[3].AsString) do
+          begin
+            ImageIndex := 1;
+            SelectedIndex := 0;
+            idNewItem := new(PItemData);
+            Data := idNewItem;
+            idNewItem.Index := dmodule.data.QOrganCol.Fields[0].AsInteger;
+          end;
+        data.QOrganCol.Next;
+    end;
+end;
+</pre>
+<p id="author">Автор: dron-s </p>
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

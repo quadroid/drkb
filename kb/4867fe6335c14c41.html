@@ -1,0 +1,98 @@
+<html>
+<head>
+  <title>Текст в ячейке TStringGrid, если не помещается, переносится на следующую ячейку</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Текст в ячейке TStringGrid, если не помещается, переносится на следующую ячейку</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+//Сначала нужно обработать событие OnDrawCell компонента TStringGrid: 
+ 
+ 
+ 
+procedure TForm1.StringGrid1DrawCell(Sender: TObject; ACol, ARow: Integer;
+Rect: TRect; State: TGridDrawState);
+var
+  i, x, y: Integer;
+begin
+  if gdFixed in State then
+    Exit;
+  if ARow &gt; 1 then
+    Exit;
+  {Draw row 1 with text from cell 1,1 spanning all cells in the row}
+  with sender as TStringGrid do
+  begin
+    {Extend rect to include grid line on right, if not last cell in row}
+    if aCol &lt; Pred(ColCount) then
+      Rect.Right := Rect.Right + GridlineWidth;
+    {Figure out where the text of the first cell would start
+    relative to the current cells rect}
+    y := Rect.Top + 2;
+    x := Rect.Left + 2;
+    for i:= 1 to aCol - 1 do
+      x := x - ColWidths[i] - GridlineWidth;
+    {Paint cell pale yellow}
+    Canvas.Brush.Color := $7FFFFF;
+    Canvas.Brush.Style := bsSolid;
+    Canvas.FillRect( Rect );
+    {Paint text of cell 1,1 clipped to current cell}
+    Canvas.TextRect( Rect, x, y, Cells[1, 1] );
+  end;
+end;
+ 
+ 
+ 
+ 
+//По созданию окна изобразим следующее 
+ 
+ 
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  i, k: Integer;
+begin
+  with StringGrid1 do
+  begin
+    cells[1, 1] := 'A rather long line which will span cells';
+    for i:= 1 to colcount-1 do
+      for k:= 2 to rowcount -1 do
+        cells[i,k] := Format( 'Cell[%d, %d]', [i, k]);
+  end;
+end;
+ 
+ 
+</pre>
+
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

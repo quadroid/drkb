@@ -1,0 +1,62 @@
+<html>
+<head>
+  <title>TProgressBar, который не отображает реального прогресса</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">TProgressBar, который не отображает реального прогресса</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Начиная с виньХР появились в системе забавные ProgressBar'ы, которые не отображают реального "прогресса", а лишь отображают, что что-нибудь работает... такой же появляется при загрузки виндыХР (бегает пару чёрточек слева вправо, а потом обратно возвращаются в начало). Такой же прогресс отображается если в ХР выбрать изображение, в меню нажать на Print (Печать), и вэтом диалоге при выборе шаблона печати - тоже такого стиля есть прогресс. (надеюсь, что теперь ясно что я имел в виду&nbsp; )</p>
+<p>И сам вопрос: как такой сделать на делфи? </p>
+<p>Судя по MSDN, надо</p>
+<pre name="code" class="delphi">
+
+ const
+  PBS_MARQUEE            = $08;
+  PBM_SETMARQUEE         = WM_USER+10;
+ 
+...
+ 
+  with ProgressBar1 do
+  begin
+    SetWindowLong (Handle, GWL_STYLE, (GetWindowLong (Handle, GWL_STYLE) or PBS_MARQUEE));
+    Perform(PBM_SETMARQUEE, 1, 50);
+  end;
+</pre>
+
+<p>(вместо 50 поставь время перемещения кубиков)</p>
+<p>Цитата (MSDN) </p>
+<p>Use this message when you do not know the amount of progress toward completion but wish to indicate that progress is being made.&nbsp; </p>
+<p>PS: чтобы это работало, нужно включить в прогу XP-манифест </p>
+<p id="author">Автор: p0s0l</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

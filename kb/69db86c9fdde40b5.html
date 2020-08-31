@@ -1,0 +1,119 @@
+<html>
+<head>
+  <title>Замена подстрок</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Замена подстрок</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p id="author">Автор: Сергей Шамайтис </p>
+<pre name="code" class="delphi">
+function ReplaceSub(str, sub1, sub2: string): string;
+var
+  aPos: Integer;
+  rslt: string;
+begin
+  aPos := Pos(sub1, str);
+  rslt := '';
+  while (aPos &lt;&gt; 0) do
+  begin
+    rslt := rslt + Copy(str, 1, aPos - 1) + sub2;
+    Delete(str, 1, aPos + Length(sub1) - 1);
+    aPos := Pos(sub1, str);
+  end;
+  Result := rslt + str;
+end; 
+</pre>
+&nbsp;</p>
+<hr />
+<pre name="code" class="delphi">
+function ReplaceStr(const S, Srch, Replace: string): string;
+{замена подстроки в строке}
+var
+  I: Integer;
+  Source: string;
+begin
+  Source := S;
+  Result := '';
+  repeat
+    I := Pos(Srch, Source);
+    if I &amp;gt;
+    0 then
+    begin
+      Result := Result + Copy(Source, 1, I - 1) + Replace;
+      Source := Copy(Source, I + Length(Srch), MaxInt);
+    end
+    else
+      Result := Result + Source;
+  until I&amp;lt;
+  = 0;
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+&nbsp;</p>
+&nbsp;</p>
+<hr />
+<pre name="code" class="delphi">
+{ **** UBPFD *********** by delphibase.endimus.com ****
+&gt;&gt; Замена в строке всех вхождений одной подстроки, на другую
+ 
+Зависимости: -
+Автор:       Евгений Валяев (RhinoFC), rhinofc@sniiggims.ru, ICQ:55263922, Новосибирск
+Copyright:   RhinoFC
+Дата:        5 июня 2002 г.
+***************************************************** }
+ 
+function StrReplace(const Str, Str1, Str2: string): string;
+// str - исходная строка
+// str1 - подстрока, подлежащая замене
+// str2 - заменяющая строка
+var
+  P, L: Integer;
+begin
+  Result := str;
+  L := Length(Str1);
+  repeat
+    P := Pos(Str1, Result); // ищем подстроку
+    if P &gt; 0 then
+    begin
+      Delete(Result, P, L); // удаляем ее
+      Insert(Str2, Result, P); // вставляем новую
+    end;
+  until P = 0;
+end;
+ 
+</pre>
+&nbsp;</p>
+<hr /><p>А стандартная функция StringReplace  чем не устраивает?</p>
+<p id="author">Автор: Vit</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

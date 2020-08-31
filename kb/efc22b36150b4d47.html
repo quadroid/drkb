@@ -1,0 +1,84 @@
+<html>
+<head>
+  <title>Перестроить вкладки TPageControl с помощью Drag &amp; Drop</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Перестроить вкладки TPageControl с помощью Drag &amp; Drop</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+// In the PageControl's OnMouseDown event handler: 
+ 
+procedure TForm1.PageControl1MouseDown(Sender: TObject; 
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer); 
+begin 
+  PageControl1.BeginDrag(False); 
+end; 
+ 
+ 
+// In the PageControl's OnDragDrop event handler: 
+ 
+procedure TForm1.PageControl1DragDrop(Sender, Source: TObject; X, Y: Integer); 
+const 
+  TCM_GETITEMRECT = $130A; 
+var 
+  i: Integer; 
+  r: TRect; 
+begin 
+  if not (Sender is TPageControl) then Exit; 
+  with PageControl1 do 
+  begin 
+    for i := 0 to PageCount - 1 do 
+    begin 
+      Perform(TCM_GETITEMRECT, i, lParam(@r)); 
+      if PtInRect(r, Point(X, Y)) then 
+      begin 
+        if i &lt;&gt; ActivePage.PageIndex then 
+          ActivePage.PageIndex := i; 
+        Exit; 
+      end; 
+    end; 
+  end; 
+end; 
+ 
+// In the PageControl's OnDragOver event handler: 
+ 
+procedure TForm1.PageControl1DragOver(Sender, Source: TObject; X, 
+  Y: Integer; State: TDragState; var Accept: Boolean); 
+begin 
+  if Sender is TPageControl then 
+    Accept := True; 
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

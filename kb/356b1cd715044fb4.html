@@ -1,0 +1,136 @@
+<html>
+<head>
+  <title>Блокировка / Разблокировка CD-ROM</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Блокировка / Разблокировка CD-ROM</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Вы уж простите, что на сях... сподручней было :\</p>
+<p>Исходный код&nbsp; </p>
+<pre name="code" class="delphi">
+// ©Drkb v.3(2007): www.drkb.ru
+ 
+//заблокировать
+void CMFcDlg::OnBnClickedButton1()
+{
+HANDLE hDevice = CreateFile ("\\\\.\\E:", 
+ GENERIC_READ,
+ FILE_SHARE_READ | FILE_SHARE_WRITE,
+ NULL,
+ OPEN_EXISTING,
+ NULL,
+ NULL);
+DWORD dwBytesReturned = 0;
+PREVENT_MEDIA_REMOVAL pmr = {TRUE};
+if(!DeviceIoControl (hDevice, IOCTL_STORAGE_MEDIA_REMOVAL, &amp;pmr, sizeof(pmr), NULL, 0, &amp;dwBytesReturned, NULL)) AfxMessageBox ("Door can\'t be locked");
+CloseHandle (hDevice);
+}
+ 
+//разблокировать
+void CMFcDlg::OnBnClickedButton2()
+{
+HANDLE hDevice = CreateFile ("\\\\.\\E:", 
+ GENERIC_READ,
+ FILE_SHARE_READ | FILE_SHARE_WRITE,
+ NULL,
+ OPEN_EXISTING,
+ NULL,
+ NULL);
+DWORD dwBytesReturned = 0;
+PREVENT_MEDIA_REMOVAL pmr = {FALSE};
+if(!DeviceIoControl (hDevice, IOCTL_STORAGE_MEDIA_REMOVAL, &amp;pmr, sizeof(pmr), NULL, 0, &amp;dwBytesReturned, NULL)) AfxMessageBox ("Door can\'t be unlocked");
+CloseHandle (hDevice);
+ 
+}
+</pre>
+<p id="author">Автор ответа: Baa </p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a> </p>
+<hr />
+<pre name="code" class="delphi">
+ 
+const
+
+ 
+ IOCTL_STORAGE_MEDIA_REMOVAL = $02D4804;
+ 
+type
+ PREVENT_MEDIA_REMOVAL=record
+   PreventMediaRemoval:BOOL;
+ end;
+ 
+//  fLock=true  - блокировать
+//  fLock=false - разблокировать
+function LockCD(cdLetter:char; fLock:boolean):boolean;
+var
+ hDevice : THandle;
+ dwBytesReturned : DWORD;
+ pmr : PREVENT_MEDIA_REMOVAL;
+begin
+ result:=false;
+ hDevice := CreateFile(pchar('\\.\'+cdLetter+':'),GENERIC_READ, 
+                         FILE_SHARE_READ or FILE_SHARE_WRITE,
+                         nil,OPEN_EXISTING, 0,0);
+ if (hDevice=DWORD(-1)) then exit;
+ 
+ try
+  pmr.PreventMediaRemoval:=fLock;
+  if (not DeviceIoControl(hDevice, IOCTL_STORAGE_MEDIA_REMOVAL, @pmr, 
+                           sizeof(pmr),nil, 0,
+                           dwBytesReturned, nil)) then exit else result:=true;
+ finally
+   CloseHandle (hDevice);
+ end;
+end;
+ 
+// блокируем
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+ if not LockCD('E',true) then 
+   MessageBox(Handle,'Can not lock CD','Error',MB_ICONERROR) 
+ else
+   MessageBox(Handle,'CD is locked','Info',MB_ICONINFORMATION);
+end;
+ 
+// разблокируем
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+ if not LockCD('E',false) then 
+   MessageBox(Handle,'Can not unlock CD','Error',MB_ICONERROR) 
+ else
+   MessageBox(Handle,'CD is unlocked','Info',MB_ICONINFORMATION)
+end;
+</pre>
+<p id="author">Автор: Krid</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

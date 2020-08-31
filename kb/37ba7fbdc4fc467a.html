@@ -1,0 +1,107 @@
+<html>
+<head>
+  <title>Как определить, сколько памяти выделено в Delphi для программы?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как определить, сколько памяти выделено в Delphi для программы?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Для этого можно воспользоваться функцией GetHeapStatus:</p>
+<pre name="code" class="delphi">
+lwMem.Items.Clear;
+s := LastStatsList[cbCompare.ItemIndex];
+LastStatsList[0] := GetHeapStatus;
+LastStats := LastStatsList[PointId];
+ 
+ListItem := lwMem.Items.Add;
+ListItem.Caption := 'TotalAddrSpace';
+ListItem.SubItems.Add(Numb2USA(Format(strFormat,[s.TotalAddrSpace])));
+tmp := s.TotalAddrSpace - LastStats.TotalAddrSpace;
+ListItem.SubItems.Add(DeltaToStr(tmp));
+ 
+ListItem := lwMem.Items.Add;
+ListItem.Caption := 'TotalUncommitted';
+ListItem.SubItems.Add(Numb2USA(Format(strFormat,[s.TotalUncommitted])));
+tmp := s.TotalUncommitted - LastStats.TotalUncommitted;
+ListItem.SubItems.Add(DeltaToStr(tmp));
+ 
+ListItem := lwMem.Items.Add;
+ListItem.Caption := 'TotalCommitted';
+ListItem.SubItems.Add(Numb2USA(Format(strFormat,[s.TotalCommitted])));
+tmp := s.TotalCommitted - LastStats.TotalCommitted;
+ListItem.SubItems.Add(DeltaToStr(tmp));
+ 
+ListItem := lwMem.Items.Add;
+ListItem.Caption := 'TotalAllocated';
+ListItem.SubItems.Add(Numb2USA(Format(strFormat,[s.TotalAllocated])));
+tmp := s.TotalAllocated - LastStats.TotalAllocated;
+ListItem.SubItems.Add(DeltaToStr(tmp));
+ 
+ListItem := lwMem.Items.Add;
+ListItem.Caption := 'TotalFree';
+ListItem.SubItems.Add(Numb2USA(Format(strFormat,[s.TotalFree])));
+tmp := s.TotalFree - LastStats.TotalFree;
+ListItem.SubItems.Add(DeltaToStr(tmp));
+ 
+ListItem := lwMem.Items.Add;
+ListItem.Caption := 'FreeSmall';
+ListItem.SubItems.Add(Numb2USA(Format(strFormat,[s.FreeSmall])));
+tmp := s.FreeSmall - LastStats.FreeSmall;
+ListItem.SubItems.Add(DeltaToStr(tmp));
+ 
+ListItem := lwMem.Items.Add;
+ListItem.Caption := 'FreeBig';
+ListItem.SubItems.Add(Numb2USA(Format(strFormat,[s.FreeBig])));
+tmp := s.FreeBig - LastStats.FreeBig;
+ListItem.SubItems.Add(DeltaToStr(tmp));
+ 
+ListItem := lwMem.Items.Add;
+ListItem.Caption := 'Unused';
+ListItem.SubItems.Add(Numb2USA(Format(strFormat,[s.Unused])));
+tmp := s.Unused - LastStats.Unused;
+ListItem.SubItems.Add(DeltaToStr(tmp));
+ 
+ListItem := lwMem.Items.Add;
+ListItem.Caption := 'Overhead';
+ListItem.SubItems.Add(Numb2USA(Format(strFormat,[s.Overhead])));
+tmp := s.Overhead - LastStats.Overhead;
+ListItem.SubItems.Add(DeltaToStr(tmp));
+ 
+ListItem := lwMem.Items.Add;
+ListItem.Caption := 'HeapErrorCode';
+ListItem.SubItems.Add(Numb2USA(Format(strFormat,[s.HeapErrorCode])));
+</pre>
+
+
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<html>
+<head>
+  <title>Как зарегистрировать свой пункт в меню для моего типа файлов?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как зарегистрировать свой пункт в меню для моего типа файлов?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses 
+  Registry; 
+ 
+procedure AddFileMenue(FilePrefix, Menue, Command: string); 
+var 
+  reg: TRegistry; 
+  typ: string; 
+begin 
+  reg := TRegistry.Create; 
+  with reg do 
+  begin 
+    RootKey := HKEY_CLASSES_ROOT; 
+    OpenKey('.' + FilePrefix, True); 
+    typ := ReadString(''); 
+    if typ = '' then 
+    begin 
+      typ := Fileprefix + 'file'; 
+      WriteString('', typ); 
+    end; 
+    CloseKey; 
+    OpenKey(typ + '\shell\' + Menue + '\command', True); 
+    WriteString('', command + ' "%1"'); 
+    CloseKey; 
+    Free; 
+  end; 
+end; 
+ 
+procedure DeleteFileMenue(Fileprefix, Menue: string); 
+var 
+  reg: TRegistry; 
+  typ: string; 
+begin 
+  reg := TRegistry.Create; 
+  with reg do 
+  begin 
+    RootKey := HKEY_CLASSES_ROOT; 
+    OpenKey('.' + Fileprefix, True); 
+    typ := ReadString(''); 
+    CloseKey; 
+    OpenKey(typ + '\shell', True); 
+    DeleteKey(Menue); 
+    CloseKey; 
+    Free; 
+  end; 
+end; 
+ 
+{ Example} 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  AddFileMenue('rtf', 'Edit with Notepad', 'C:\Windows\system\notepad.exe'); 
+  { 
+    If you now click with the right mousebutton on a *.rtf-file then 
+    you can see a Menuepoint: "Edit with Notepad". 
+    When Click on that point Notepad opens the file. 
+  } 
+end; 
+ 
+procedure TForm1.Button2Click(Sender: TObject); 
+begin 
+  { 
+   Undo your changes in the Registry: 
+  } 
+  DeleteFileMenue('rtf', 'Edit with Notepad'); 
+end; 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

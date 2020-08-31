@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Как определить, работает ли программа в виртуальной машине VMware?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как определить, работает ли программа в виртуальной машине VMware?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+//////////////////////////////////////////////////////////////////////////////// 
+// 
+//  Simple VMware check on i386 
+// 
+//    Note: There are plenty ways to detect VMware. This short version bases 
+//    on the fact that VMware intercepts IN instructions to port 0x5658 with 
+//    an magic value of 0x564D5868 in EAX. However, this is *NOT* officially 
+//    documented (used by VMware tools to communicate with the host via VM). 
+// 
+//    Because this might change in future versions - you should look out for 
+//    additional checks (e.g. hardware device IDs, BIOS informations, etc.). 
+//    Newer VMware BIOS has valid SMBIOS informations (you might use my BIOS 
+//    Helper unit to dump the ROM-BIOS (http://www.bendlins.de/nico/delphi). 
+// 
+ 
+function IsVMwarePresent(): LongBool; stdcall;  // platform; 
+begin 
+ Result := False; 
+{$IFDEF CPU386} 
+ try 
+   asm 
+           mov     eax, 564D5868h 
+           mov     ebx, 00000000h 
+           mov     ecx, 0000000Ah 
+           mov     edx, 00005658h 
+           in      eax, dx 
+           cmp     ebx, 564D5868h 
+           jne     @@exit 
+           mov     Result, True 
+   @@exit: 
+   end; 
+ except 
+   Result := False; 
+ end; 
+{$ENDIF} 
+end;
+</pre>
+
+<p id="author">Автор: p0s0l</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

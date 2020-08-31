@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Чтение OLE из BLOB-поля Paradox</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Чтение OLE из BLOB-поля Paradox</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Eryk </p>
+
+<p>...после моих дискуссий с людьми из службы технической поддержки Borland вывод один -- это невозможно! </p>
+
+<p>Попробуйте так: </p>
+<pre name="code" class="delphi">
+procedure TForm1.SpeedButton1Click(Sender: TObject);
+var
+  b: TBlobStream;
+begin
+  try
+    b := TBlobStream.Create((Table1.FieldByName('OLE') as TBlobField),bmRead);
+    OLEContainer1.LoadFromStream(b);
+  finally
+    b.free;
+  end;
+end;
+</pre>
+
+
+<p>...и:</p>
+<pre name="code" class="delphi">
+procedure TForm1.SpeedButton2Click(Sender: TObject);
+var
+  b: TBlobStream;
+begin
+  try
+    Table1.Insert;
+    b := TBlobstream.Create((Table1.FieldByName('OLE') as TBlobField),bmReadWrite);
+    OLEContainer1.SaveToStream(b);
+    Table1.Post;
+  finally
+    b.free;
+  end;
+end;
+</pre>
+
+
+<p>Я, кажется, припоминаю несколько ошибок GPFs с этим кодом, но это, вероятно, связано с тем, что я использую WinNT с другим распределением памяти... тем не менее, основные функции работали как положено (т.е. данные сохранялись и загружались). Основная специфика проявилась в том, что PdoxWIN не смог прочесть данные TOLEContainer. Но это результаты моих экспериментов и предположений, исходя из которых PdoxWIN ожидает 8-байтовый заголовок BLOB-поля, который ему просто не дает TOLEContainer... если это так, то это легко обойти.</p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

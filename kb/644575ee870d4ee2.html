@@ -1,0 +1,123 @@
+<html>
+<head>
+  <title>Как заменить текст в документе MS Word?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как заменить текст в документе MS Word?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+{ 
+  This function starts a hidden word instance, opens a specified document "ADocument" 
+  and replaces (all) occurrences of "SearchString" with a specified "ReplaceString". 
+  The function is similar to the Delphi StringReplace() function. 
+} 
+ 
+uses 
+  ComObj; 
+ 
+// Replace Flags 
+type 
+  TWordReplaceFlags = set of (wrfReplaceAll, wrfMatchCase, wrfMatchWildcards); 
+ 
+function Word_StringReplace(ADocument: TFileName; SearchString, ReplaceString: string; Flags: TWordReplaceFlags): Boolean; 
+const 
+  wdFindContinue = 1; 
+  wdReplaceOne = 1; 
+  wdReplaceAll = 2; 
+  wdDoNotSaveChanges = 0; 
+var 
+  WordApp: OLEVariant; 
+begin 
+  Result := False; 
+ 
+  { Check if file exists } 
+  if not FileExists(ADocument) then 
+  begin 
+    ShowMessage('Specified Document not found.'); 
+    Exit; 
+  end; 
+ 
+  { Create the OLE Object } 
+  try 
+    WordApp := CreateOLEObject('Word.Application'); 
+  except 
+    on E: Exception do 
+    begin 
+      E.Message := 'Word is not available.'; 
+      raise; 
+    end; 
+  end; 
+ 
+  try 
+    { Hide Word } 
+    WordApp.Visible := False; 
+    { Open the document } 
+    WordApp.Documents.Open(ADocument); 
+    { Initialize parameters} 
+    WordApp.Selection.Find.ClearFormatting; 
+    WordApp.Selection.Find.Text := SearchString; 
+    WordApp.Selection.Find.Replacement.Text := ReplaceString; 
+    WordApp.Selection.Find.Forward := True; 
+    WordApp.Selection.Find.Wrap := wdFindContinue; 
+    WordApp.Selection.Find.Format := False; 
+    WordApp.Selection.Find.MatchCase := wrfMatchCase in Flags; 
+    WordApp.Selection.Find.MatchWholeWord := False; 
+    WordApp.Selection.Find.MatchWildcards := wrfMatchWildcards in Flags; 
+    WordApp.Selection.Find.MatchSoundsLike := False; 
+    WordApp.Selection.Find.MatchAllWordForms := False; 
+    { Perform the search} 
+    if wrfReplaceAll in Flags then 
+      WordApp.Selection.Find.Execute(Replace := wdReplaceAll) 
+    else 
+      WordApp.Selection.Find.Execute(Replace := wdReplaceOne); 
+    { Save word } 
+    WordApp.ActiveDocument.SaveAs(ADocument); 
+    { Assume that successful } 
+    Result := True; 
+    { Close the document } 
+    WordApp.ActiveDocument.Close(wdDoNotSaveChanges); 
+  finally 
+    { Quit Word } 
+    WordApp.Quit; 
+    WordApp := Unassigned; 
+  end; 
+end; 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+begin 
+  Word_StringReplace('C:\Test.doc','Old String','New String',[wrfReplaceAll]); 
+end; 
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

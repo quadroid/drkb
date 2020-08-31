@@ -1,0 +1,170 @@
+<html>
+<head>
+  <title>Чтение и запись</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Чтение и запись</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>8. Чтение и запись</p>
+Indy поддерживает несколько методов, для чтения и записи, которые отвечают различным потребностям. Эти методы также включают &#8211; ожидание, проверку состояния и опрос.</p>
+Каждый из методов &#8211; это подмножество класса TIdTCPConnection. Это зависит от типа каждого серверного соединения и являются наследником TIdTCPClient. Это означает, что вы можете использовать эти методы, как для серверов, так и для клиентов.</p>
+Большинство людей знакомы только с некоторыми методами чтения и записи. Поскольку, многие люди никогда не используют ядро клиентов, а работают только с протоколами клиентов и не знакомы с методами ядра.</p>
+Вспомни, что Indy блокирующий, и не использует событий для оповещения об окончании запрошенной операции. Возврат из методов не происходит до окончания запрошенной операции. Если операция не может быть выполнена, то возбуждается исключение.</p>
+В данной книге не приводится полный набор документации по всем методам. Для этого вы должны смотреть справки по Indy. Данная глава просто написана для ознакомления с методами.</p>
+8.1. Методы чтения</p>
+8.1.1. Функция AllData</p>
+function AllData: string;</p>
+Функция AllData блокирует и собирает все входящие данные, до разъединения соединения. Затем возвращает все собранные данные в качестве результата. AllData полезен для протоколов аналогичным WhoIs, после получения запроса, возвращает данные и сигнал, что соединение прекращено. AllData хранит свои буферы в оперативной памяти, поэтому не стоит использовать ее для больших по размеру данных.</p>
+8.1.2. Процедура Capture</p>
+procedure Capture(ADest: TStream; const ADelim: string = '.';</p>
+const AIsRFCMessage: Boolean = True); overload;</p>
+procedure Capture(ADest: TStream; out VLineCount: Integer; const</p>
+ADelim: string = '.'; const AIsRFCMessage: Boolean = True);</p>
+overload;</p>
+procedure Capture(ADest: TStrings; const ADelim: string = '.';</p>
+const AIsRFCMessage: Boolean = True); overload;</p>
+procedure Capture(ADest: TStrings; out VLineCount: Integer; const</p>
+ADelim: string = '.'; const AIsRFCMessage: Boolean = True);</p>
+overload;</p>
+Процедура Capture существует в нескольких перекрытых формах. Суммируя, Capture читает данные, пока не встретит указанный ограничитель в строке.</p>
+8.1.3. Функция CurrentReadBuffer</p>
+function CurrentReadBuffer: string;</p>
+Функция CurrentReadBuffer возвращает все данные, которые находятся во внутреннем буфере Indy. Перед возвратом данных, CurrentReadBuffer также пытается прочитать все данные, которые она ожидает от подсоединенного сокета. Вызов CurrentReadBuffer очищает внутренний буфер.</p>
+Если данных нет, то возвращается пустая строка.</p>
+8.1.4. Свойство InputBuffer</p>
+property InputBuffer: TIdManagedBuffer read FInputBuffer;</p>
+Свойство InputBuffer &#8211; это ссылка на экземпляр объекта TIdManagedBuffer. InputBuffer &#8211; это внутренний буфер Indy. TIdManagedBuffer имеет несколько расширенных буферов, но обычно пользователь не использует их.</p>
+8.1.5. Функция InputLn</p>
+function InputLn(const AMask: String = ''; AEcho: Boolean = True; ATabWidth: Integer = 8; AMaxLineLength: Integer = -1): String;</p>
+Функция InputLn читает строку от сервере и возвращает е обратно reads a line from the server and echoes it back honoring the backspace character. Если параметр AMask указан, то строка AMask отсылается вместо каждого принятого символ. Функция InputLn полезна, когда вы не желаете отображать принятые символы, например пароль.</p>
+8.1.6. Процедура ReadBuffer</p>
+procedure ReadBuffer(var ABuffer; const AByteCount: Longint);</p>
+Процедура ReadBuffer используется для чтения данных напрямую в указанный буфер. Если буфер недостаточен, то процедура ReadBuffer читает данные во внутренний буфер.</p>
+8.1.7. Функция ReadCardinal</p>
+function ReadCardinal(const AConvert: boolean = true): Cardinal;</p>
+Функция ReadCardinal читает 32-битное число без знака из соединения, с дополнительным учетом сетевого порядка байт.</p>
+8.1.8. Функция ReadFromStack</p>
+function ReadFromStack(const ARaiseExceptionIfDisconnected: Boolean = True; ATimeout: Integer = IdTimeoutDefault;</p>
+Функция ReadFromStack используется для заполнения внутреннего буфера Indy. Обычно конечные пользователи никогда не должны использовать эту функцию, поскольку&nbsp; она реализует новый метод чтения без использования текущих методов чтения, или когда они работают напрямую с внутренним буфером с помощью свойства InternalBuffer.</p>
+8.1.9. Функция ReadInteger</p>
+function ReadInteger(const AConvert: boolean = true): Integer;</p>
+Функция ReadInteger читает r 32-битное число со знаком из соединения, с дополнительным учетом сетевого порядка байт.</p>
+8.1.10. Функция ReadLn</p>
+function ReadLn(ATerminator: string = LF; const ATimeout: Integer = IdTimeoutDefault; AMaxLineLength: Integer = -1): string; virtual;</p>
+Функция ReadLn читает данные из соединения, пока не встретит указанный ограничитель, в течение периода таймаута или в случае приема указанной максимальной длины строки.</p>
+8.1.11. Функция ReadLnWait</p>
+function ReadLnWait(AFailCount: Integer = MaxInt): string;</p>
+Функция ReadLnWait подобна функции ReadLn с одним исключением, что она не возвращает результат, пока не примет, не пустую строку. Она также вернет количество принятых пустых строк.</p>
+8.1.12. Функция ReadSmallInt</p>
+function ReadSmallInt(const AConvert: Boolean = true): SmallInt;</p>
+Функция ReadSmallInt читает короткое целое из соединения, дополнительно делая подстройку под сетевой порядок байт.</p>
+8.1.13. Процедура ReadStream</p>
+procedure ReadStream(AStream: TStream; AByteCount: LongInt = -1; const AReadUntilDisconnect: boolean = false);</p>
+Функция ReadStream читает данные из потока. В функции может быть указано количество байт, для чтения из потока или до отсоединения.</p>
+8.1.14. Функция ReadString</p>
+function ReadString(const ABytes: Integer): string;</p>
+Функция ReadString читаетуказанное количество байт в строку и возвращает данные как результат.</p>
+8.1.15. Процедура ReadStrings</p>
+procedure ReadStrings(var AValue: TStrings; AReadLinesCount: Integer = -1);</p>
+Процедура ReadStrings читает указанное количество строк, разделенных символом EOLs из соединения. Если количество строк не указано, то читается первое 32-битное целое из соединение и оно используется далее как количество строк.</p>
+8.1.16. Функция WaitFor</p>
+function WaitFor(const AString: string): string;</p>
+Функция WaitFor читает данные из соединения, пока не встретит указанную строку.</p>
+8.2. Таймауты чтения</p>
+TIdTCPConnection (Все TCP клиенты и соединения, которые унаследованы от TIdTCPConnection) имеет свойство, названое ReadTimeout. Свойство ReadTimeout указывает таймаут в миллисекундах. Значением свойства по умолчанию является IdTimeoutInfinite. Данная установка запрещает таймауты.</p>
+Таймаут не является таймаутом окончания работы. Это просто пустой таймаут. Что это значит, если указанная величина в свойстве ReadTimeout прошло и не данных для записи, то будет возбуждено исключение EIdReadTimeout.</p>
+Многие сетевые соединения&nbsp; бывают очень медленные и данные не передавались, но соединение остается действительным. В такой ситуации, соединение может стать медленным и неприемлемым и будет только приводить к нагрузке сервера и малопригодным для клиента.</p>
+Чтобы можно было оперировать такой ситуацией Indy реализует таймауты с помощью свойство ReadTimeout класса TIdTCPConnection. Свойство ReadTimeout по умолчанию равно нулю, которое запрещает обработку таймаутов. Для разрешения обработки таймаутов установите его значение в миллисекундах.</p>
+Во время чтения, если в течение указанного интервала не будет приема данных из соединения, то возникнет исключение EIdReadTimeout. Таймаут не применяется если принимаются данные в течение периода. Если вы запросили 100 байт и таймаут 1000 миллисекунд (1 секунда) операция чтения может занять более одной секунды. От переводчика: если в будет в течение каждой секунды принимать по одному байту, то в результате прием займет 100 секунд.</p>
+Только если в течение одной секунды не будет принято ни одного байта, только тогда возникнет исключение EIdReadTimeout.</p>
+8.3. Методы записи</p>
+8.3.1. Функция SendCmd</p>
+function SendCmd(const AOut: string; const AResponse: SmallInt = -1): SmallInt; overload;</p>
+function SendCmd(const AOut: string; const AResponse: Array of SmallInt): SmallInt; overload;</p>
+Функция SendCmd используется для передачи текстовой команды и ожидает ответа в формате цифровых ответов RFC.</p>
+8.3.2. Процедура Write</p>
+procedure Write(AOut: string);</p>
+Процедура Write это наиболее общий метод вывода в Indy. Процедура Write посылает AOut&nbsp; в соединение. Процедура Write не изменяет AOut ни каким образом.</p>
+8.3.3. Процедура WriteBuffer</p>
+procedure WriteBuffer(const ABuffer; AByteCount: Longint; const AWriteNow: Boolean = False);</p>
+Процедура WriteBuffer позволяет послать содержимое буфера. Если AWriteNow указано, то буферизация в процедуре write будет опущено, если оно в данный момент используется.</p>
+8.3.4. Процедура WriteCardinal</p>
+procedure WriteCardinal(AValue: Cardinal; const AConvert: Boolean = True);</p>
+Процедура WriteCardinal посылает 32-битное, целое без знака в соединение, дополнительно преобразовывая в сетевой порядок байт.</p>
+8.3.5. Процедура WriteHeader</p>
+procedure WriteHeader(AHeader: TStrings);</p>
+Процедура WriteHeader посылает объект TStrings в соединения, преобразовывая '=' в ': ' последовательность каждое вхождение item. Процедура WriteHeader также записывает пустую строку после передачи всего объекта TStrings.</p>
+8.3.6. Процедура WriteInteger</p>
+procedure WriteInteger(AValue: Integer; const AConvert: Boolean = True);</p>
+Процедура WriteInteger посылает 32-битное, целое знаковое в соединение, дополнительно преобразовывая в сетевой порядок байт.</p>
+8.3.7. Процедура WriteLn</p>
+procedure WriteLn(const AOut: string = '');</p>
+Процедура WriteLn выполняет те же функции, как и процедура Write с одним исключением, что она добавляет последовательность EOL (CR + LF) после AOut параметра.</p>
+8.3.8. Процедура WriteRFCReply</p>
+procedure WriteRFCReply(AReply: TIdRFCReply);</p>
+Процедура WriteRFCReply посылает цифру ответа + текст в RFC стиле, используя указанный TIdRFCReply.</p>
+8.3.9. Процедура WriteRFCStrings</p>
+procedure WriteRFCStrings(AStrings: TStrings);</p>
+Процедура WriteRFCStrings посылает TStrings ответ в стиле RFC сообщений, заканчивая строкой с '.' в начале.</p>
+8.3.10. Процедура WriteSmallInt</p>
+procedure WriteSmallInt(AValue: SmallInt; const AConvert: Boolean = True);</p>
+Процедура WriteSmallInt посылает small integer в соединение, дополнительно преобразовывая в сетевой порядок байт.</p>
+8.3.11. Процедура WriteStream</p>
+procedure WriteStream(AStream: TStream; const AAll: Boolean = True; const AWriteByteCount: Boolean = False; const ASize: Integer = 0);</p>
+Процедура WriteStream посылает указанный поток данных (stream) в соединение. Процедура WriteStream содержит много параметров для указания какие части потока должны быть посланы и дополнительно может посылать количество байт в поток.</p>
+8.3.12. Процедура WriteStrings</p>
+procedure WriteStrings(AValue: TStrings; const AWriteLinesCount: Boolean = False);</p>
+Процедура WriteStrings посылает объект TStrings в соединение и копию в ReadStrings.</p>
+8.3.13. Функция WriteFile</p>
+function WriteFile(AFile: String; const AEnableTransferFile: Boolean = False): Cardinal;</p>
+Функция WriteFile &#8211; это функция прямой посылки содержимого файла в соединение. Функция WriteFile использует операционную систему, просто используя TFileStream вместе с SendStream.</p>
+8.4. Буферизация записи</p>
+TCP должен посылать данные пакетами. Размер пакетов может изменяться, но как правило он немногим менее 1 килобайта. Тем не менее, если TCP ожидает полного пакета данных, во многих случаях ответы могут быть не получены, поскольку запросы не были отосланы. TCP может использовать полные или неполные пакеты, Для неполных пакетов можно использовать алгоритм названый Nagle Coalescing. Nagle Coalescing внутренне буферизует данные, пока не будет достигнут указанный размер пакета или не истечет рассчитанное количество времени. Период времени обычно маленький и измеряется в миллисекундах.</p>
+Посылка множества маленьких кусков данных может сделать алгоритм неэффективным, поскольку каждый пакет имеет служебный заголовок, что перегружает полосу пропускания и уменьшает скорость передачи данных.</p>
+Данные могут буферизироваться в строку и быть посланы за раз, тем не менее это требует писать дополнительный код и исключает использование всех методов записи во время буферизации. Это также может усложнить ваш код и увеличить потребности в памяти.</p>
+Вместо этого, вы можете использовать возможности Indy по буферизации записи. При использовании методов записи с буферизацией, вы можете позволить Indy буферизировать исходящие данные, что позволит вам использовать все возможные методы записи.</p>
+Для начала буферизации записи, вызовите метод OpenWriteBuffer и укажите размер буфера. Затем вы можете вызывать все функции записи в Indy, и весь вывод будет буферизироваться, пока буфер не будет заполнен. Каждый раз когда будет достигнут размер буфера, буфер посылается в соединение и очищается. Если размер буфера не указан, все данные буферизуются и должны быть вручную отправлены.</p>
+Имеется также несколько методов для управления буфером.</p>
+ClearWriteBuffer очищает текущий буфер и сохраняет буфер открытым. FlushWriteBuffer сбрасывает текущее содержимое и также сохраняет буфер открытым.</p>
+Для прекращения буферизации записи, вызовите CancelWriteBuffer или CloseWriteBuffer. CloseWriteBuffer записывает имеющие данные и заканчивает буферизацию записи, а CancelWriteBuffer закрывает буферизацию записи, без передачи.</p>
+8.5. Работа транзакций</p>
+Транзакции используются для определения единиц работы. Они называются рабочие транзакции и могут быть вложенными, и отделяют операции чтения и записи, которые могут быть одновременными. Рабочие транзакции обычно используются для отображения прогресса и состояния передачи.</p>
+Транзакции определены в Indy различными, предопределенными методами, такими как TIdHTTP.Get, WriteStream и так далее. Как пользователь, вы также можете определить свои собственные транзакции, с помощью BeginWork, DoWork и EndWork.</p>
+8.5.1. События OnWork </p>
+События OnWork состоят из трех событий и используется для связи состояний транзакций. Эти три события следующие: OnWorkBegin, OnWork и OnWorkEnd.</p>
+При начале транзакции возникает событие OnWorkBegin. В событие OnWorkBegin передаются Sender, WorkMode и WorkCount. Параметр Sender это соединение, к которому относится транзакция. Параметр WorkMode указывает режим работы &#8211; читающая или пишущая транзакция. Транзакции Read и Write могут возникать одновременно и транзакции могут быть вложенными. Параметр WorkCount указывает размер транзакции. Во многих транзакциях, размер не может быть определен, и в этом случае, WorkCount имеет значение 0. Иначе, WorkCount показывает количество байт. Обычно данное событие используется для отображения начала процесса.</p>
+Затем возникает серия событий OnWork. В событие OnWork передаются Sender, WorkMode и текущий WorkCount. Данное событие используется для отображения прогресса.</p>
+Когда транзакция заканчивает, возникает событие OnWorkEnd. В событие OnWorkEnd OnWork передаются только Sender и WorkMode. Данное событие используется для отображения завергения процесса.</p>
+8.5.2. Управление своими собственными рабочими транзакциями</p>
+Вы можете создавать свои собственные транзакции, вызывая BeginWork, DoWork и EndWork. Параметры те же самые, что описанны выше. Вызовы вложенных транзакций обслуживаются автоматически.</p>
+Для выполнения транзакции, сначала вызовите BeginWork с указанием размера, если он известен. Затем вызовайте DoWork для отображения прогресса. По окончанию вызовите EndWork.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

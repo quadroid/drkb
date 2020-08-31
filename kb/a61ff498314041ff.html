@@ -1,0 +1,71 @@
+<html>
+<head>
+  <title>Функции редактора полей во время выполнения программы</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Функции редактора полей во время выполнения программы</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Возможен ли вызов функций редактора полей (Fields Editor) во время выполнения программы? </p>
+
+<p>Да. Если вы определили поля во время разработки приложения, то во время выполнения можно менять их свойства (например, Size). </p>
+
+<p>Например, следующий код изменяет каждый размер поля TField.Size так, чтобы соответствовать фактическому размеру поля открываемого набора данных:</p>
+
+<pre name="code" class="delphi">
+procedure SetupFieldsAndOpenDataset(DataSet: TDataSet);
+var
+  FieldNum, DefNum: Integer;
+begin
+  with DataSet do
+  begin
+    if Active then
+      Close;
+    FieldDefs.Update; {набор данных должен быть закрыт}
+    {ищем каждое предопределенное TField в DataSet.FieldDefs:}
+    for FieldNum := FieldCount - 1 downto 0 do
+      with Fields[FieldNum] do
+      begin
+        DefNum := FieldDefs.IndexOf(FieldName);
+        if DefNum &lt; 0 then
+          raise Exception.CreateFmt(
+            'Поле "%s" не найдено в наборе данных "%s"',
+            [FieldName, Dataset.Name]);
+        {устанавливаем свойство size:}
+        Size := FieldDefs[DefNum].Size;
+      end;
+    Open;
+  end;
+end;
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

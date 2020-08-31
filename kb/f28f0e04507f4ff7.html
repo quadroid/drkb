@@ -1,0 +1,89 @@
+<html>
+<head>
+  <title>Как работать с Powerpoint через OLE?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как работать с Powerpoint через OLE?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+uses 
+  comobj; 
+ 
+procedure TForm1.Button2Click(Sender: TObject); 
+var 
+  PowerPointApp: OLEVariant; 
+begin 
+  try 
+    PowerPointApp := CreateOleObject('PowerPoint.Application'); 
+  except 
+    ShowMessage('Error...'); 
+    Exit; 
+  end; 
+  // Make Powerpoint visible 
+  PowerPointApp.Visible := True; 
+ 
+  // Show powerpoint version 
+  ShowMessage(Format('Powerpoint version: %s',[PowerPointApp.Version])); 
+ 
+  // Open a presentation 
+  PowerPointApp.Presentations.Open('c:\MyPresentation.ppt', False, False, True); 
+ 
+  // Show number of slides 
+  ShowMessage(Format('%s slides.',[PowerPointApp.ActivePresentation.Slides.Count])); 
+ 
+  // Run the presentation 
+  PowerPointApp.ActivePresentation.SlideShowSettings.Run; 
+ 
+  // Go to next slide 
+  PowerPointApp.ActivePresentation.SlideShowWindow.View.Next; 
+ 
+  // Go to slide 2 
+  PowerPointApp.ActivePresentation.SlideShowWindow.View.GoToSlide(2); 
+ 
+  // Go to previous slide 
+  PowerPointApp.ActivePresentation.SlideShowWindow.View.Previous; 
+ 
+  // Go to last slide 
+  PowerPointApp.ActivePresentation.SlideShowWindow.View.Last; 
+ 
+  // Show current slide name 
+  ShowMessage(Format('Current slidename: %s',[PowerPointApp.ActivePresentation.SlideShowWindow.View.Slide.Name])); 
+ 
+  // Close Powerpoint 
+  PowerPointApp.Quit; 
+  PowerPointApp := UnAssigned; 
+end;
+</pre>
+
+<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

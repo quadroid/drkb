@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>Как бы мне создать эдакий TTrackBar, в котором вместо широкой белой полоски с ползунком была бы тонкая линия?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как бы мне создать эдакий TTrackBar, в котором вместо широкой белой полоски с ползунком была бы тонкая линия?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В примере создается компонент, унаследованный от TTrackbar который переопределяет метод CreateParams и убират флаг TBS_ENABLESELRANGE из Style. Константа TBS_ENABLESELRANGE обьявленна в модуле CommCtrl. </p>
+<pre name="code" class="delphi">
+uses CommCtrl, ComCtrls;
+ 
+type
+  TMyTrackBar = class(TTrackBar)
+    procedure CreateParams(var Params: TCreateParams); override;
+  end;
+ 
+procedure TMyTrackBar.CreateParams(var Params: TCreateParams);
+begin
+  inherited;
+  Params.Style := Params.Style and not TBS_ENABLESELRANGE;
+end;
+ 
+var
+  MyTrackbar: TMyTrackbar;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  MyTrackBar := TMyTrackbar.Create(Form1);
+  MyTrackbar.Parent := Form1;
+  MyTrackbar.Left := 100;
+  MyTrackbar.Top := 100;
+  MyTrackbar.Width := 150;
+  MyTrackbar.Height := 45;
+  MyTrackBar.Visible := true;
+end;
+</pre>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

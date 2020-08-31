@@ -1,0 +1,80 @@
+<html>
+<head>
+  <title>Быстрая функция для разбивки строки на части (слова) в один цикл</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Быстрая функция для разбивки строки на части (слова) в один цикл</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+type TDelim=set of Char;
+        TArrayOfString=Array of String;
+ 
+ 
+//*******************
+//
+// Разбивает строку с разделителями на части
+// и возвращает массив частей
+//
+// fcToParts
+//
+ 
+function fcToParts(sString:String;tdDelim:TDelim):TArrayOfString
+var iCounter,iBegin:Integer;
+begin//fc
+if length(sString)&gt;0 then
+ begin
+  include(tdDelim,#0);iBegin:=1; SetLength(Result,0);
+  For iCounter:=1 to Length(sString)+1 do
+   begin//for
+    if (sString[iCounter] in tdDelim) then
+     begin
+      SetLength(Result,Length(Result)+1);
+      Result[Length(Result)-1]:=Copy(sString,iBegin,iCounter-iBegin);
+      iBegin:=iCounter+1;
+     end;
+  end;//for
+ end;//if
+end;//fc
+</pre>
+<p>Пример использования:</p>
+<pre name="code" class="delphi">
+var
+StrArr:TArrayOfString
+ 
+StrArr:=fcToParts('строка1-строка2@строка3',['-','@']):
+ 
+</pre>
+<p id="author">Автор ДЫМ</p>
+<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

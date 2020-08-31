@@ -1,0 +1,420 @@
+<html>
+<head>
+  <title>Вызов Delphi DLL из MS Visual C++</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Вызов Delphi DLL из MS Visual C++</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Во-первых, Вам необходимо объявить все экспортируемые в Delphi DLL функции с ключевыми словами export; stdcall; </p>
+
+<p>Во-вторых, файл заголовка VC++ должен объявить все функции как тип __declspec(dllexport) __stdcall (применяйте двойное подчеркивание в секции объявления прототипа функции extern "C" { ... }. (вместо этого можно также использовать __declspec(dllimport)...). Для примера:</p>
+
+<pre name="code" class="delphi">extern "C" {
+int  __declspec(dllexport)     __stdcall plusone(int); } 
+</pre>
+
+<p>В-третьих, в VC++ компилятор настраивается на "украшающее" имена функций __stcall, так что Ваша Delphi DLL соответственно должна экспортировать эти функции. Для этого необходимо модифицировать файл Delphi 2.0 .DPR для Вашего DLL, модифицируя имена всех функций, прописанных в разделе экспорта. Для примера, если Вы экспортируете функцию function plusone (intval : Integer), Вам необходимо включить следующую строку в раздел экспорта .DPR-файла:</p>
+
+<pre name="code" class="delphi">
+plusone name 'plusone@4'
+</pre>
+
+<p>Число, следующее за символом @, является общей длиной в байтах всех функциональных аргументов. Самый простой путь для обнаружения неправильных значений - попытаться слинковать Вашу VC++ программу и посмотреть на наличие возможной ошибки компоновщика "unresolved external". </p>
+
+<p>И, наконец, Вы можете легко создать библиотеку импорта, используя утилиту LIB из поставки VC++. Для этого необходимо вручную (!!) создать .DEF-файл для Вашей DLL с секцией экспорта, перечисляющей имена и/или порядковые номера всех экспортируемых DLL функций. Формат .DEF-файла очень прост:</p>
+
+<pre name="code" class="delphi">
+library MYLIB
+description 'Моя собственная DLL'
+exports
+ 
+plusone@4
+</pre>
+
+<p>Затем запускаете LIB из командной строки DOS/Win95, и в качестве параметра подставляете имя .DEF-файла. Например, LIB /DEF:MYDLL.DEF. Наконец, через диалог Build|Settings|Linker Вы информируете VC++ о полученном .LIB-файле. </p>
+
+<p>Вот пример кода: </p>
+
+<pre name="code" class="delphi">
+*******MYDLLMU.PAS 
+ 
+ 
+ 
+unit MyDLLMU;
+ 
+interface
+ 
+function plusone(val : Integer) : Integer; export; stdcall;
+procedure ChangeString(AString : PChar); export; stdcall;
+ 
+implementation
+ 
+uses
+ 
+Dialogs,
+SysUtils;
+ 
+function plusone(val : Integer) : Integer;
+begin
+ 
+Result := val + 1;
+end;
+ 
+procedure ChangeString(AString : PChar);
+begin
+ 
+if AString = 'Здравствуй' then
+StrPCopy(AString, 'Мир');
+end;
+ 
+end.
+</pre>
+
+<p>MYDLL.DPR </p>
+
+<pre name="code" class="delphi">
+library mydll;
+ 
+{ Существенное замечание об управлении памятью в DLL: Если DLL экспортирует функции со
+ 
+строковыми параметрами или возвращающие строковые значения, модуль ShareMem надо
+указывать в разделе Uses библиотеки и проекта первым. Это касается любых строк,
+передаваемых как в DLL, так и из нее, даже если они размещаются внутри записей или
+объектов. Модуль ShareMem служит интерфейсом менеджера разделяемой памяти
+DELPHIMM.DLL, который должен разворачиваться одновременно с данной DLL. Чтобы избежать
+применения DELPHIMM.DLL, строковую информацию можно передавать с помощью параметров
+типа PChar или ShortString. }
+ 
+uses
+ 
+SysUtils,
+Classes,
+MyDLLMU in 'MyDLLMU.pas';
+ 
+exports
+ 
+plusone name 'plusone@4',
+ChangeString name 'ChangeString@4';
+ 
+begin
+end.
+</pre>
+
+<p>MYDLL.DEF</p>
+
+<pre name="code" class="delphi">
+; -----------------------------------------------------------------
+; Имя файла: MYDLL.DEF
+; -----------------------------------------------------------------
+ 
+LIBRARY  MYDLL
+DESCRIPTION  'Тестовая Delphi DLL, статическая загрузка в VC++ приложение'
+EXPORTS
+plusone@4
+</pre>
+
+<p>DLLTSTADlg.H </p>
+
+<pre name="code" class="delphi">
+// DLLTSTADlg.h : заголовочный файл
+//
+#define USELIB
+#ifdef USELIB
+extern "C" {
+ 
+int __declspec(dllimport) __stdcall plusone(int);
+}
+#endif //USELIB
+/////////////////////////////////////////////////////////////////////////////
+// Диалог CDLLTSTADlg
+ 
+class CDLLTSTADlg : public CDialog
+{
+// Создание public:
+ 
+CDLLTSTADlg(CWnd* pParent = NULL);      // стандартный конструктор
+~CDLLTSTADlg();
+ 
+// Данные диалога
+ 
+//{{AFX_DATA(CDLLTSTADlg)
+enum { IDD = IDD_DLLTSTA_DIALOG };
+CString m_sVal;
+CString m_sStr;
+//}}AFX_DATA
+ 
+ 
+// Перекрытая виртуальная функция, сгенерированная ClassWizard
+//{{AFX_VIRTUAL(CDLLTSTADlg)
+protected:
+virtual void DoDataExchange(CDataExchange* pDX);        // Поддержка DDX/DDV
+//}}AFX_VIRTUAL
+ 
+// Реализация
+protected:
+ 
+#ifndef USELIB
+ 
+HINSTANCE hMyDLL;
+FARPROC lpfnplusone;
+typedef int (*pIIFUNC)(int);
+pIIFUNC plusone;
+#endif //USELIB
+ 
+ 
+HICON m_hIcon;
+ 
+ 
+// Карта функций генераций сообщений
+//{{AFX_MSG(CDLLTSTADlg)
+virtual BOOL OnInitDialog();
+afx_msg void OnPaint();
+afx_msg HCURSOR OnQueryDragIcon();
+afx_msg void OnBtnplusone();
+afx_msg void OnBtnplusoneClick();
+afx_msg void OnBtndostringClick();
+//}}AFX_MSG
+DECLARE_MESSAGE_MAP()
+}; 
+</pre>
+
+<p>DLLTSTADlg.CPP </p>
+
+<pre name="code" class="delphi">
+// DLLTSTADlg.cpp : файл реализации
+//
+ 
+#include "stdafx.h"
+#include "DLLTSTA.h"
+#include "DLLTSTADlg.h"
+ 
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#undef THIS_FILE
+static char THIS_FILE[] = __FILE__;
+#endif
+ 
+extern CDLLTSTAApp theApp;
+ 
+/////////////////////////////////////////////////////////////////////////////
+// Диалог CDLLTSTADlg
+ 
+CDLLTSTADlg::CDLLTSTADlg(CWnd* pParent /*=NULL*/)
+ 
+: CDialog(CDLLTSTADlg::IDD, pParent)
+{
+ 
+//{{AFX_DATA_INIT(CDLLTSTADlg)
+m_sVal = _T("1");
+m_sStr = _T("Hello");
+//}}AFX_DATA_INIT
+// Имейте в виду, что в Win32 LoadIcon не требует последующего DestroyIcon
+m_hIcon = AfxGetApp()-&gt;LoadIcon(IDR_MAINFRAME);
+ 
+#ifndef USELIB
+ 
+hMyDLL = LoadLibrary("C:\\delpwork\\MYDLL.DLL");
+if(hMyDLL == NULL)
+PostQuitMessage(1);
+lpfnplusone = GetProcAddress(HMODULE(hMyDLL), "_plusone");
+if(lpfnplusone == NULL)
+PostQuitMessage(2);
+plusone = pIIFUNC(lpfnplusone);
+#endif //USELIB
+ 
+}
+ 
+CDLLTSTADlg::~CDLLTSTADlg()
+{
+#ifndef USELIB
+ 
+if (hMyDLL != NULL)
+FreeLibrary(hMyDLL);
+#endif //USELIB
+}
+ 
+void CDLLTSTADlg::DoDataExchange(CDataExchange* pDX)
+{
+ 
+CDialog::DoDataExchange(pDX);
+//{{AFX_DATA_MAP(CDLLTSTADlg)
+DDX_Text(pDX, IDC_LBLINT, m_sVal);
+DDX_Text(pDX, IDC_LBLSTRING, m_sStr);
+//}}AFX_DATA_MAP
+}
+ 
+BEGIN_MESSAGE_MAP(CDLLTSTADlg, CDialog)
+ 
+//{{AFX_MSG_MAP(CDLLTSTADlg)
+ON_WM_PAINT()
+ON_WM_QUERYDRAGICON()
+ON_BN_CLICKED(IDC_BTNPLUSONE, OnBtnplusoneClick)
+ON_BN_CLICKED(IDC_BTNDOSTRING, OnBtndostringClick)
+//}}AFX_MSG_MAP
+END_MESSAGE_MAP()
+ 
+/////////////////////////////////////////////////////////////////////////////
+// Дескрипторы сообщений CDLLTSTADlg
+ 
+BOOL CDLLTSTADlg::OnInitDialog()
+{
+ 
+CDialog::OnInitDialog();
+ 
+ 
+// Устанавливаем иконку для данного диалога.  В случае, когда главное
+// окно программы не является диалогом, это происходит автоматически
+SetIcon(m_hIcon, TRUE);                 // Устанавливаем большую иконку
+SetIcon(m_hIcon, FALSE);                // Устанавливаем маленькую иконку
+ 
+ 
+// TODO: Здесь добавляем дополнительную инициализацию
+ 
+ 
+return TRUE;  // возвращает TRUE в случае отсутствия фокуса у диалога
+}
+ 
+// Если Вы добавляете в диалог кнопку минимизации, для создания иконки Вам
+//  необходим код, приведенный ниже. Для MFC-приложений используйте
+//  document/view model для автоматического создания скелета кода.
+ 
+void CDLLTSTADlg::OnPaint()
+{
+ 
+if (IsIconic())
+{
+CPaintDC dc(this); // контекст устройства для рисования
+ 
+ 
+SendMessage(WM_ICONERASEBKGND, (WPARAM) dc.GetSafeHdc(), 0);
+ 
+ 
+// Центр иконки в области клиента
+int cxIcon = GetSystemMetrics(SM_CXICON);
+int cyIcon = GetSystemMetrics(SM_CYICON);
+CRect rect;
+GetClientRect(&amp;rect);
+int x = (rect.Width() - cxIcon + 1) / 2;
+int y = (rect.Height() - cyIcon + 1) / 2;
+ 
+ 
+// Рисование иконки
+dc.DrawIcon(x, y, m_hIcon);
+}
+else
+{
+CDialog::OnPaint();
+}
+}
+ 
+// Система вызывает данный код для получения курсора, выводимого если
+//  пользователь пытается перетащить свернутое окно.
+HCURSOR CDLLTSTADlg::OnQueryDragIcon()
+{
+ 
+return (HCURSOR) m_hIcon;
+}
+ 
+void CDLLTSTADlg::OnBtnplusoneClick() 
+{
+ 
+int iTemp;
+char sTemp[10];
+ 
+ 
+ 
+iTemp = atoi(m_sVal);
+iTemp = plusone(iTemp);
+m_sVal = itoa(iTemp, sTemp, 10);
+UpdateData(FALSE);
+}
+ 
+void CDLLTSTADlg::OnBtndostringClick()
+{
+ 
+UpdateData(FALSE);
+} 
+</pre>
+
+<p>Во-первых, создайте в Delphi простую DLL:</p>
+
+<pre name="code" class="delphi">
+{ Начало кода DLL }
+ 
+library MinMax;
+ 
+function Min(X, Y: Integer): Integer; export;
+begin
+  if X &lt; Y then
+    Min := X
+  else
+    Min := Y;
+end;
+ 
+function Max(X, Y: Integer): Integer; export;
+begin
+  if X &gt; Y then
+    Max := X
+  else
+    Max := Y;
+end;
+ 
+exports
+ 
+  Min index 1,
+  Max index 2;
+ 
+begin
+end.
+{ Конец кода DLL }
+ 
+</pre>
+
+<p>Затем, для вызова этих функций из вашего C кода, сделайте следующее: </p>
+
+<p>В вашем .DEF-файле добавьте следующие строки:</p>
+
+<p>IMPORTS</p>
+<p>  Min&nbsp; =MINMAX.Min</p>
+<p>  Max&nbsp; =MINMAX.Max</p>
+
+<p>Объявите в вашем C-приложени прототип функций, как показано ниже:</p>
+
+<pre name="code" class="delphi">
+    int FAR PASCAL Min(int x, y);
+    int FAR PASCAL Min(int x, y);
+</pre>
+
+<p>Теперь из любого места вашего приложения вы можете вызвать функции Min и Max.</p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

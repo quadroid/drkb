@@ -1,0 +1,71 @@
+<html>
+<head>
+  <title>Загрузка bitmap из .res без потери палитры</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Загрузка bitmap из .res без потери палитры</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+procedure loadgraphic(naam:string);
+var
+  HResInfo: THandle;
+  BMF: TBitmapFileHeader;
+  MemHandle: THandle;
+  Stream: TMemoryStream;
+  ResPtr: PByte;
+  ResSize: Longint;
+  null:array [0..8] of char;
+begin
+  strpcopy (null, naam);
+  HResInfo := FindResource(HInstance, null, RT_Bitmap);
+  ResSize := SizeofResource(HInstance, HResInfo);
+  MemHandle := LoadResource(HInstance, HResInfo);
+  ResPtr := LockResource(MemHandle);
+  Stream := TMemoryStream.Create;
+  try
+    Stream.SetSize(ResSize + SizeOf(BMF));
+    BMF.bfType := $4D42;
+    Stream.write(BMF, SizeOf(BMF));
+    Stream.write(ResPtr^, ResSize);
+    Stream.Seek(0, 0);
+    Bitmap:=tbitmap.create;
+    Bitmap.LoadFromStream(Stream);
+  finally
+    Stream.Free;
+  end;
+  FreeResource(MemHandle);
+end;
+</pre>
+
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

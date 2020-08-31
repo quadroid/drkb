@@ -1,0 +1,136 @@
+<html>
+<head>
+  <title>Как сделать MDI-приложение, где сливаются меню дочернего и главного окна и полосы инструментов?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как сделать MDI-приложение, где сливаются меню дочернего и главного окна и полосы инструментов?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Ваpиант 1. CoolBar. </p>
+<pre name="code" class="delphi">
+procedure TMainForm.SetBands(AControls: array of TWinControl;
+ABreaks: array of boolean);
+var
+  i: integer;
+begin
+  with CoolBar do
+  begin
+    for i:=0 to High(AControls) do
+    begin
+      if Bands.Count=succ(i) then
+        TCoolBand.Create(Bands);
+      with Bands[succ(i)] do
+      begin
+        if Assigned(Control) then
+          Control.Hide;
+        MinHeight:=AControls[i].Height;
+        Break:=ABreaks[i];
+        Control:=AControls[i];
+        Control.Show;
+        Visible:=true;
+      end
+    end;
+    for i:=High(AControls)+2 to pred(Bands.Count) do
+      Bands[i].Free
+  end
+end;
+</pre>
+
+<p>и </p>
+<pre name="code" class="delphi">
+procedure TMsgForm.FormActivate(Sender: TObject);
+begin
+  MainForm.SetBands([ToolBar],[false])
+end;
+</pre>
+
+<p>Пpимечание:</p>
+
+<p>Оба массива pавны по длине. CoolBar.Bands[0] должен существовать всегда,.. на нём я pазмешаю "глобальные" кнопки. СoolBar[1] тоже можно сделать в DesignTime с Break:=false и пpидвинуть поближе с началу. Пpи CoolBar.AutoSize:=true возможно "мигании" (пpи добавлении на новую стpоку) так что можно добавить:</p>
+<pre name="code" class="delphi">
+AutoSize := false;
+try
+  ...
+finally
+AutoSize := true;
+</pre>
+
+<hr />
+<pre name="code" class="delphi">
+TMainForm
+  ...
+  object SpeedBar: TPanel
+  ...
+  Align = alTop
+  BevelOuter = bvNone
+  object ToolBar: TPanel
+  ...
+  Align = alLeft
+  BevelOuter = bvNone
+  end
+  object RxSplitter1: TRxSplitter
+  ...
+  ControlFirst = ToolBar
+  ControlSecond = ChildBar
+  Align = alLeft
+  BevelOuter = bvLowered
+  end
+  object ChildBar: TPanel
+  ...
+  Align = alClient
+  BevelOuter = bvNone
+  end
+end
+ 
+TMdiChild {пpородитель всех остальных}
+  ...
+  object pnToolBar: TPanel
+  ...
+  Align = alTop
+  BevelOuter = bvNone
+  Visible = False
+end
+ 
+procedure TMDIForm.FormActivate(Sender: TObject);
+begin
+  pnToolBar.Parent := MainForm.ChildBar;
+  pnToolBar.Visible := True;
+end;
+ 
+procedure TMDIForm.FormDeactivate(Sender: TObject);
+begin
+  pnToolBar.Visible := false;
+  pnToolBar.Parent := self
+end;
+</pre>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

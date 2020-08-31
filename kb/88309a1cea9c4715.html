@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>Hint в выпадающем списке ComboBox</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Hint в выпадающем списке ComboBox</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>В практике программирования довольно часто встречается ситуация когда информация, предназначенная для отображения в имеющемся компоненте, не помещается по длине. С подобным обычно сталкиваются в работе с базами данных. В таких случая выручают всплывающие подсказки &#8211; Hint. Но, в некоторых случаях, даже такая возможность не спасает. К таким ситуациям можно отнести работу с выпадающим списком в DBComboBox. Представьте, что размер поля увеличился, а изменить ширину DBComboBox на форме, по тем или иным причинам, нет возможности. Конечно, можно увеличить ширину выпадающего списка. Но выглядит это не всегда красиво да и не делает чести разработчику. Предлагаемая идея позволит создать более изящный компонент. Взгляните на рисунок: </p>
+<p>В демонстрационном примере в выпадающем списке появляется всплывающая подсказка для строки не помещающейся по длине. </p>
+<p>При работе с Hint нужно помнить &#8211; использовать ToolTip из API, бесполезная затея. Delphi игнорирует любые попытки работы ним. Для этих целей в Delphi предусмотрен класс &#8211; THintWindow. </p>
+<p>В своем компоненте объявите FTipHint:</p>
+<pre name="code" class="delphi">
+type
+TVSComboBox = class(TCustomComboBox)
+…
+private
+FHint: THintWindow;
+…
+protected
+procedure WMCTLCOLORLISTBOX(var Message: TMessage);
+message WM_CTLCOLORLISTBOX;
+</pre>
+<p>и не забудьте выполнить инициализацию в конструкторе вашего компонента:</p>
+<pre name="code" class="delphi">
+begin
+inherited Create(AOwner);
+FHint := THintWindow.Create(Self);
+</pre>
+<p>Чтобы получить информацию об активной строке в выпадающем списке ComboBox перехватите сообщение WM_CTLCOLORLISTBOX. В процедуре сообщения анализируйте - если длина строки больше ширины выпадающего списка &#8211; передайте "длинную" строку в ваш Hint и активируйте его:</p>
+<pre name="code" class="delphi">
+FHint.ActivateHint(TextRC, Items[ItemIndex]);
+</pre>
+<p>где</p>
+<p>TextRC &#8211; прямоугольник для строки подсказки</p>
+<p>Items[ItemIndex] &#8211; "длинная" строка из выпадающего списка </p>
+<p>Если активная строка в выпадающем списке "короткая" &#8211; спрячьте Hint:</p>
+<pre name="code" class="delphi">
+FHint.ReleaseHandle;
+</pre>
+<p>Для получения подробной информации о классе THintWindow воспользуйтесь Help из Delphi.</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

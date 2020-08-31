@@ -1,0 +1,65 @@
+<html>
+<head>
+  <title>Выбор и настройка принтера</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Выбор и настройка принтера</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Выбор и настройка принтера</p>
+Если принтеры не установлены, то функции выбора и настройки принтера и задания параметров страницы для печати не могут быть выполнены. Выбор принтера можно осуществить разными способами. Один из них - активизация диалогового окна "Выбор принтера". В Visual Basic это осуществляется оператором Application.Dialogs.Item (xlDialogPrinterSetup).Show, где Dialogs - коллекция диалогов, а xlDialogPrinterSetup - константа, определяющая выбор диалога. В Delphi это можно реализовать в виде функции ShowDialogPrinterSetup, которая возвращает True или False, в зависимости от результата.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 0px;"><pre name="code" class="delphi">
+Function ShowDialogPrinterSetup:boolean;
+ const xlDialogPrinterSetup = 9;
+begin
+ ShowDialogPrinterSetup:=true;
+ try
+  ShowDialogPrinterSetup:=E.Dialogs.Item
+ &nbsp; [xlDialogPrinterSetup].Show;
+ except
+  ShowDialogPrinterSetup:=false;
+ end;
+End;
+</pre>
+Для того, чтобы выбрать принтер и отправить задание на печать, необходимо вызвать диалог с использованием следующего оператора Application.Dialogs.Item (xlDialogPrint).Show. Константа xlDialogPrint определяет вызов стандартного диалога печати. Функция ShowPrintDialog реализует эти возможности.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 0px;"><pre name="code" class="delphi">Function ShowPrintDialog:boolean;
+begin
+ ShowPrintDialog:=true;
+ try
+  ShowPrintDialog:=E.Dialogs.Item[xlDialogPrint].Show;
+ except
+  ShowPrintDialog:=false;
+ end;
+End;
+</pre>
+&nbsp;</p>
+Можно расширить возможности этого диалога, предварительно задав некоторые параметры, например, диапазон страниц и количество копий: result=Application.Dialogs.Item(xlDialogPrint).Show(arg2:=1, arg3:=2, arg4:=3). В Delphi это выглядит так: ShowPrintDialog:=E.Dialogs.Item[xlDialogPrint].Show(arg2:=1, arg3:=2, arg4:=3).</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

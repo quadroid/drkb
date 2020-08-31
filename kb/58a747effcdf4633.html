@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>OpenGL в Delphi. Часть 2. Туман</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">OpenGL в Delphi. Часть 2. Туман</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p>Мы сегодня будем работать с туманом... Во всех предыдущих примерах использовался туман, </p>
+<p>но его действия вы наверное не замечали, но теперь вы это ощутите.</p>
+<p>Объявим константу</p>
+<pre name="code" class="delphi">
+ const 
+   fogColor : array[0..3] of GLfloat = (0.7, 0.7, 0.7, 2.0); //цвет тумана 
+</pre>
+
+<p>Циферки в конце устанавливают следующее:</p>
+<p>(0.7, 0.7, 0.7, 2.0) 1-ая - красный, 2-ая - синий, 3-ая - зелёный,</p>
+<p>ну а четвёртая - альфа-канал</p>
+<p>Далее переменные:</p>
+<pre name="code" class="delphi">
+var
+fogMode : GLint;
+</pre>
+
+<p> Перед тем как юзать, его надо включить:</p>
+<pre name="code" class="delphi">
+  glEnable(GL_FOG);
+   fogMode := GL_EXP; 
+   glFogi(GL_FOG_MODE, fogMode); 
+   glFogfv(GL_FOG_COLOR, @fogColor);//устанавливаем цвет см "const" вверху 
+   glFogf(GL_FOG_DENSITY,
+              0.10 //плотность тумана
+                  ); 
+   glHint(GL_FOG_HINT, GL_DONT_CARE);
+</pre>
+
+<p>Вот пока и всё!</p>
+<p><a href="http://www.ogldelphi.km.ru/about.html" target="_blank">http://www.ogldelphi.km.ru/about.html</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

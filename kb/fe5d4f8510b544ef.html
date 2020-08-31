@@ -1,0 +1,58 @@
+<html>
+<head>
+  <title>Как засечь время?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как засечь время?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Засекание обычно нужно в двух случаях: самому программисту &#8211; узнать, как программа работает быстрее, или для информирования пользователя, сколько программа уже трудится. </p>
+<p>Для засекания времени удобнее всего использовать функцию GetTickCount, но нельзя забывать о ее погрешности при измерении очень коротких промежутков времени, и о том, что программы в Windows работают с непостоянной скоростью. Поэтому не стоит засекать быстрые процессы, и не стоит делать выводы о каком-то алгоритме после одного тестирования. И еще. Если вы тестируете алгоритм, то поставьте его в цикл, выполнив его, например, тысячу раз, а потом получившееся время делите на тысячу. Так точнее. Эта программа засекает, сколько времени меняется цвет точек окна в этой программе.</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  i, t: integer;
+begin
+  t := GetTickCount;
+  randomize;
+  for i := 0 to 100000 do
+    Form1.Canvas.Pixels[i mod Form1.ClientWidth, i div Form1.ClientWidth] := RGB(random(255), random(255), random(255));
+  Form1.Caption := IntToStr(GetTickCount - t);
+end;
+</pre>
+
+<p id="author">Автор советов: Даниил Карапетян</p>
+<p>e-mail: delphi4all@narod.ru</p>
+<p id="author">Автор справки: Алексей Денисов</p>
+<p>e-mail: aleksey@sch103.krasnoyarsk.su</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

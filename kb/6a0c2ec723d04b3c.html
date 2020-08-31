@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>Естественное (неймановское) слияние</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Естественное (неймановское) слияние</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+Естественное (Неймановское) слияние. </p>
+<p>Она объединяются упорядоченные части, спонтанно возникшие в исходном массиве; они могут быть также следствием предыдущей обработки данных. Рассчитывать на одинаковый размер сливаемых частей не приходится. </p>
+<p>Записи, идущие в порядке неубывания ключей, сцепляются, образуя подсписок. Минимальный подсписок одна запись. </p>
+<p>Пример: </p>
+<p>Пусть даны ключи записей </p>
+<p>5 &nbsp; &nbsp;7 &nbsp; &nbsp;8 &nbsp; &nbsp;3 &nbsp; &nbsp;9 &nbsp; &nbsp; 4 &nbsp; &nbsp;1 &nbsp; &nbsp;7 &nbsp; &nbsp;6</p>
+<p>Ищем подсписки </p>
+<p>В один общий список соединяются 1-й, 3-й, 5-й и т. д. подсписки, в другой - 2-й, 4-й и т. д. подсписки. </p>
+<p>Произведем слияние 1 подсписка 1 списка и 1 подсписка 2 списка, 2 подсписка 1 списка и 2 подсписка 2 списка и т.д. </p>
+<p>Будут получены следующие цепи </p>
+<p>3 --&gt; 5 --&gt; 7 --&gt; 8 --&gt; 9 и 1 --&gt; 4 --&gt; 7</p>
+<p>Подсписок, состоящий из записи "6", пары не имеет и "принудительно" объединяется с последней цепью, принимающей вид 1 --&gt; 4--&gt; 6 --&gt; 7. </p>
+<p>При нашем небольшом числе записей 2-й этап, на котором сливаются две цепи, окажется последним. </p>
+<p>В общем случае на каждом этапе подсписок - результат слияния начальных подсписков 1 и 2 списка становится началом нового 1-го списка, а результат слияния следующих двух подсписков - началом 2-го списка. Следующие образуемые подсписки поочередно включаются в 1-й и во 2-й список. </p>
+<p>Для программной реализации заводят массив sp: элемент sp[i] - это номер записи, которая следует за i-й. </p>
+<p>Последняя запись одного подсписка ссылается на первую запись другого, а для различения концов подсписков эта ссылка снабжается знаком минус. </p>
+<pre name="code" class="delphi">
+Repeat {Повторение актов слияний подсписков}
+If A[j].kl &lt; A[i].kl Then {Выбирается меньшая запись}
+Begin sp[k]:=j; k:=j; j:=sp[j];
+If j&lt;=0 Then {Сцепление с остатком "i"-подсписка}
+Begin sp[k]:=i; Repeat m:=i; i:=sp[i] Until i&lt;=0 End
+End
+Else
+Begin sp[k]:=i; k:=i; i:=sp[i];
+If i&lt;=0 Then {Сцепление с остатком "j"-подсписка}
+Begin sp[k]:=j; Repeat m:=j; j:=sp[j] Until j&lt;=0 End
+End;
+If j&lt;=0 Then Begin sp[m]:= 0; sp[p]:=-sp[p]; i:=-i;
+j:=-j; If j&lt;&gt;0 Then p:=r; k:=r; r:=m End
+Until j=0; 
+</pre>
+
+
+<p>{В конец сформированного подсписка всегда заносится нулевая ссылка (sp[m]:= 0), ибо он может оказаться последним. </p>
+<p>Действие sp[p]:= -sp[p] обозначает минусом конец ранее построенного подсписка. </p>
+<p>В переменных i,j ссылки на начала новых сливаемых подсписков - со знаком минус; его снимаем. Переход к новым подспискам требует обновления переменных p, k, r} </p>
+<p id="author">Автор: www.structur.h1.ru</p>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<html>
+<head>
+  <title>Доступ к COM-серверам Microsoft Office из Delphi 5 (Статья)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Доступ к COM-серверам Microsoft Office из Delphi 5 (Статья)</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Доступ к COM серверам Microsoft Office из Delphi 5</p>
+(С) И. Мирончик,</p>
+независимый разработчик и</p>
+преподаватель курсов</p>
+по Delphi, C++Builder, Oracle.</p>
+E-maile EKSKHQ@Elsite.ru</p>
+Эта статья была опубликована на сайте http://www.borland.ru/ </p>
+<p>Введение</p>
+<p>В статье рассматривается вопрос доступа к общеизвестным приложениям Microsoft Office, таким как Word, Excel, Outlook и другим, через новый набор компонент, представленных в Delphi 5. Для начала работы нам предстоит установить на компьютере приложения Microsoft Office 97 &#8211; Excel, Word, Outlook, PowerPoint. Если считаете необходимым, то можно добавить и Access (но с ним у меня особые счеты). Ну и конечно устанавливается новый продукт Delphi 5. Кроме множества изменений в нем имеется одно, для нас сейчас необходимое &#8211; новая закладка на палитре инструментов &#8211; Servers.Через эти компоненты мы будем получать доступ к COM серверам приложений Office, использующих автоматизацию (прежде известную как OLE Automation). </p>
+<p>Мы рассмотрим несколько примеров построения контроллеров автоматизации для создания отчетов в MS Word, производство расчетов и построение диаграмм в MS Excel, а так же формирование рассылки писем адресатам через MS Outlook.</p>
+<p>Приложения и объекты MS Office. Обзор</p>
+<p>Office &#8211; это среда, в которой большинство задач можно решать без какого-либо программирования. Но вся ценность приложений Office для разработчика заключается в том, что все, что можно сделать руками, можно сделать программным путем с использованием средств VBA (Visual Basic for Application). Кроме того, приложения Office поставляют сервера COM, которые предоставляют интерфейс доступа к приложению и его объектам. Благодаря этому, разработчик в среде Delphi имеет возможность, создав контроллер автоматизации, управлять сервером. Так как устроено приложение в Office? На самом деле приложение рассматривается как совокупность объектов со своими методами, свойствами, событиями, которые обеспечивают скелет приложения. Программист Office является не создателем приложения, как, например это делается в Delphi, а он принимает участие в создании системы документов. Таким образом, ДОКУМЕНТ, а не программа являются целью разработки.</p>
+<p>Наследование &#8211; мощный инструмент построения нового класса, однако программистам известен еще один способ получения класса &#8211; встраивание. Как и наследование, встраивание транзитивное отношение. В объектной модели Office нет наследования в полном смысле этого слова, а есть только встраивание.</p>
+<p>Всегда существует задающий приложение корневой объект, он всегда называется Application. Каждое приложение Office имеет свой собственный корневой объект &#8211; Word.Application, Excel.Application. Outlook приложение само является корневым объектом, несмотря на это в объект Application встраиваются все остальные объекты (участники), которые являются свойствами главного объекта. Участником могут быть свои участники и так далее. В документе методов очень много, причем самых разных, но имеются и одинаковые методы в различных приложениях Office. Среди таковых &#8211; Run, Quit, Activate; но даже и они в разных приложениях имеют различный набор параметров, а зачастую</p>
+<p>&nbsp;</p>
+<p>выполняют не адекватные действия. Такое многообразие различных реализаций классов отпугивало программистов контроллеров автоматизации. Однако, используя компоненты доступа к серверам автоматизации &#8211; положение резко улучшилось. На следующем рисунке показан очень маленький фрагмент структуры объекта Microsoft Word Objects. Более полное представление об объектной архитектуре приложений Office можно найти в соответствующих файлах помощи.</p>
+<p>Как только открывается новый документ, будь то PowerPoint, Excel, Word, автоматически создается каркас нового документа, который представляет собой набор библиотек с классами. Объекты этих классов будут доступны в данном документе. Задачей разработчика контроллера автоматизации является получить доступ к корневому объекту сервера, выстроить цепочку доступа к объектам &#8211; участникам (встроенным объектам), правильно передать параметры. </p>
+<p>Объекты Application и организация доступа к ним из Delphi.</p>
+<p>Я, наверное, утомил читателя устройством приложений Office. Но все-таки необходимо еще раз отметить, что всех объектов этого семейства не перечесть, но главные необходимо знать и уметь ими пользоваться. Фундаментальным объектом любого приложения является Application. Давайте получим к нему доступ из Delphi. </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Создаем новый проект </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>На главную форму выкладываем компоненту с закладки Servers, которая называется WordApplication </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Устанавливаем свойства компоненты AutoConnect и AutoQuit в True </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Запускаем приложение на выполнение. </td></tr></table></div><p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>Казалось бы, ничего не произошло, запустилась форма и отобразилась на экране, на самом деле наше приложение запустило сервер автоматизации Microsoft Word, этот факт можно обнаружить, запустив на выполнение Task Manager и выбрав закладку Processes. Среди прочих процессов мы обнаруживаем WINWORD.EXE. На самом деле была приложением проделана следующая работа:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>При создании формы, в системном реестре, по идентификатору CLSID был найден сервер Word.Application </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>Запущено на выполнение приложение, находящееся по адресу в реестре (ProgID) </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>Сервер предоставил нашему приложению, которое и является контроллером автоматизации интерфейс, через который мы и получим доступ к объекту Application. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">4.</td><td>Интерфейс Idispatch унаследован от Iunknown, который в свою очередь имеет три метода, один из которых _ADDRef умеет считать количество клиентов, в настоящий момент использующих сервер. Как только от сервера отсоединиться последний клиент, он автоматически будет выгружен из памяти компьютера. </td></tr></table></div><p>Закройте наше приложение и загляните в Task Manager - Word выгрузился из памяти.</p>
+<p>Точно такой же результат можно было бы получить, прописав следующий код: </p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+ wd:OleVariant;
+ fileName:string;
+begin
+try
+  fileName:=ExtractFilePath(Application.EXEName)+'report.DOC';
+//Создаем объект интерфейса для доступа к серверу COM
+  wd:=CreateOleObject('Word.Application');
+//Проверка наличия методов и правильность передачи параметров будет 
+//осуществляться на стадии выполнения приложения
+  wd.application.documents.add; 
+  wd.application.activedocument.range.insertAfter(now);    
+  wd.application.activedocument.saveas(fileName);
+//выгрузаем сервер из памяти компьютера
+  wd.application.quit(true,0);
+….
+</pre>
+
+<p>Не забудьте добавить в раздел uses модуль COMOBJ. </p>
+<p>Базовый класс TOLEServer</p>
+<p>На закладке Service находится набор компонент для доступа к серверам автоматизации, не все компоненты возвращают ссылку на объект Application, то есть могут быть получены интерфейсы для доступа к вложенным объектам, таким как Документ Word или рабочая книга Excel. Все компоненты унаследованы от класса TOLEServer, который наследует свойства класса Tcomponent. TOLEServer является базовым классом всех COM серверов, которые можно получить через среду IDE следующим образом: Project | Import Type Library. Кроме этого этот класс имеет еще несколько свойств и методов для управления связью с COM сервером. Среди таковых уже знакомое нам свойство AutoConnect, которое автоматически запускает COM сервер и производит извлечение из него интерфейса, обеспечивающего связь с контроллером. Еще одно важное свойство класса TOLEServer &#8211; ConnectKind &#8211; указывающее тип процесса, к которому устанавливается связь. Свойство используется методом Connect, который вызывается автоматически, если свойство AutoConnect истинно. Ниже описаны значения, которые может принимать ConnectKind:</p>
+<p>Значение свойства ConnectKind &nbsp; &nbsp; &nbsp; &nbsp;Характеристика  &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>CkRunningOrNew &nbsp; &nbsp; &nbsp; &nbsp;Контроллер производит подключение к уже существующему процессу, или запускает новый процесс, при отсутствии такового. Этот вид взаимодействия между COM сервером и контроллером наиболее часто применяется на практике. Такое значение свойства установлено по умолчанию. &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>CkNewInstance &nbsp; &nbsp; &nbsp; &nbsp;При соединении с сервером каждый раз создается новый экземпляр &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>CkRunningInstance &nbsp; &nbsp; &nbsp; &nbsp;Соединение устанавливается с уже запущенным COM сервером. Если таковой отсутствует &#8211; будет создан соответствующий объект ошибки, который необходимо обработать &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>CkRemote &nbsp; &nbsp; &nbsp; &nbsp;Это значение используется совместно со свойством RemoteMachineName, если необходимо подключиться к серверу на удаленной машине &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>ckAttachToInterface &nbsp; &nbsp; &nbsp; &nbsp;При установке этого значения интерфейс не создается и соответственно нельзя указывать значение True для свойства AutoConnect. Соединение с сервером производится с помощью метода ConnectTo &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>На последнем значении свойства ConnectKind равном ckAttachToInterface, хотелось бы остановиться более подробно. Действительно мы соединяемся с сервером через главный интерфейс, представленный в объекте Application. Но, например, возникает необходимость подключить к нашему проекту такие компоненты, как WordDocument или WordParagraphFormat, в этом случае мы просто производим подключение к уже существующему интерфейсу, а не создаем его заново. Также это может быть необходимо, когда контроллер должен отслеживать события, происходящие в COM сервере. Я предлагаю вам провести маленький эксперимент: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Создайте новое приложение </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Выложите на форму компонент WordApplication и WordDocument </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Свойства AutoConnect и AutoQuit для WordApplication установите в True </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Свойство ConnectKind для WordDocument установите в ckAttachToInterface </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Для события onDokumentChange и onFormCreate пропишите следующий код: </td></tr></table></div>
+<pre name="code" class="delphi">
+procedure TForm1.WordApplication1DocumentChange(Sender: TObject);
+begin
+//производим подключение к текущему документу
+     WordDocument1.ConnectTo( WordApplication1.ActiveDocument);
+//Контроллер добавляет новую строку в текущий документ
+     WordDocument1.Range.InsertAfter(#13+'Переход к документу'+#13+
+       WordApplication1.ActiveDocument.Get_FullName+' произведен :'+
+       DateTimeToStr(Now));
+end;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+//COM сервер отображает себя на экране
+WordApplication1.Visible:=true;
+end;
+</pre>
+
+<p>После запуска приложения будет автоматически загружен Word, создайте в нем несколько новых документов и переключайтесь между ними с помощью меню Window. Вы увидите, что контроллер автоматизации добавляет новые строки в текущий активный документ. Аналогично можно управлять и сервером ExcelApplication. При создании новой рабочей книги на сервере, в контроллере будет проинициализировано событие onNewWorkBook, которое можно обработать аналогично предыдущему примеру.</p>
+<p>Классы &#8211; наследники ToleObject</p>
+<p>Теперь давайте заглянем во внутренний мир компонент закладки Servers. Как мы уже убедились, все классы унаследованы от ToleObject. Кроме того, еще наследуется и интерфейс из библиотеки TLB. Как это происходит? Проведем следующее упражнение:</p>
+<p>&nbsp;</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Из среды программирования Delphi удаляем пакет с компонентами COM серверов (Component | Install Packages | Borland Sample Automation Servers Component | Remove). После этого закладка Servers удалилась. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Создаем новый пакет с использованием библиотеки типов </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Выберите Project | Type library </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Из списка зарегистрированных серверов выберите библиотеку типов Excel (Microsoft Excel 8.0 Object Library) </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Укажите имя закладки палитры компонент (Pallete Page), куда будут установлены новые классы &#8211; TexcelQueryTable, TexcelApplication, TexcelChart, TexcelWorksheet, TexcelWorkbook, TExcelOLEObject . Выберите закладку Servers. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>В боксе - General Component Wraper установите флажок для генерации компонеты на основе библиотеки типов и размещении ее на палитре компонент. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Нажмите кнопку Install </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Специфицируйте имя пакета, где будет сгенерирован новый класс </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Установите сервер на палитру компонент. </td></tr></table></div><p>После проделанных манипуляций вам стал доступен COM сервер Excel, в состав которого входят шесть классов. Аналогичным образом восстановите компоненты для сервера Word и Outlook.</p>
+<p>Теперь мы можем посмотреть на объявление класса TwordApplication и его предка -ToleServer:</p>
+<p>TOleServer = class(TComponent, IUnknown)</p>
+<p> &nbsp; TWordApplication = class(TOleServer)</p>
+<p>Благодаря такому объявлению, класс TwordApplication наследует свойства и методы класса Tcomponent (способен устанавливаться на палитре компонент и прочие…), а так же знает все о доступе к интерфейсам COM серверов, благодаря наследованию интерфейса IUNknown. В библиотеке типов прописаны все доступные методы и свойсва COM сервера. Когда создается контроллер автоматизации (выкладываем на форму соответствующий компонент из палитры), то приложение получает доступ к Dual Interface описанный в библиотеке типов. Dual интерфейс &#8211; есть совокупность пользовательского интерфейса, описанного в библиотеке типов и dispinterface, который доступен в момент выполнения приложения. Это реализовано с помощью COM VTABLE интерфейса, унаследованного от IDISPATCH. Использование Vtable интерфейса имеет ряд преимуществ:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Передаваемые параметры, их типы и количество проверяется на стадии проектирования и редактор кода сопровождает разработчика всевозможными хинтами и подсказками. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Через Vtable интерфейс осуществляется значительно более быстрый доступ к серверу автоматизации, чем через DispInterface </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>В то же время, не всегда разработчик получает доступ к библиотеке типов и соответственно к V &#8211; таблице, поэтому приходится иногда пользоваться Idispatch интерфейсом </td></tr></table></div><p>Ниже приведен пример использования Dual интерфейса</p>
+<pre name="code" class="delphi">
+procedure TForm1.FormCreate(Sender: TObject);
+var
+foo:TWordApplication;
+foo1:_Application;
+begin
+  foo:=WordApplication1;
+  foo1:=CoWordApplication.Create;
+  ShowMessage(foo.UserName+#13+foo1.Get_Name);
+end;
+</pre>
+
+<p>Пример использования интерфейса с поздним связыванием был показан в начале этой статьи, когда доступ к COM серверу был осуществлен с помощью функции CreateOleObject. Компилятор в этом случае ничего не знает о методах и параметрах сервера, информация о них извлекается на стадии выполнения приложения, отсюда и потеря скорости выполнения приложения и всевозможные ошибки, которые компилятор не в состоянии обработать. При такой разработке приложения программист достает SDK от Microsoft office и начинает старательно изучать большие тома литературы.</p>
+<p>Подводя итог можно говорить о том, что для доступа к COM серверу автоматизации существует три способа</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Vtable </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Idispatch </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Позднее связывание (CreateOleObject) </td></tr></table></div><p>Наиболее прогрессивный &#8211; первый способ, через который работают компоненты Delphi 5 для доступа к COM серверам приложений Office.</p>
+<p>Пример использования Vtable интерфейса</p>
+<p>Постановка задачи: Имеется шаблон документа &#8211; shablon.DOC, подготовленный в MS Word, поля, которые должны быть заменены, помечены символом @. Необходимо прочитать данные из источника информации и заменить метки, на реальные данные, после чего распечатать полученный документ.</p>
+<p>Воспользуемся методом Vtable . Выложим на форму компоненту WordApplication, WordDocument и кнопку Button. Для события OnClick компоненты Button1 пропишем следующий код:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+//Объявление переменных, для передачи их в 
+//eкачестве формальных параметров в сервер автоматизации
+  Shablon,FileName,oldStr,newStr,replace,ext:OleVariant;
+begin
+ Table1.Active:=false;
+ Table1.Active:=true;
+  Shablon:=ExtractFilePath(Application.EXEName)+'shablon.DOC';
+  FileName:=ExtractFilePath(Application.EXEName)+'report.DOC';
+//Открываем шаблон документа
+  WordApplication1.Documents.Open
+         (Shablon,EmptyParam, EmptyParam,EmptyParam,
+EmptyParam,EmptyParam,
+             EmptyParam,EmptyParam,EmptyParam,EmptyParam);
+//Связываем компоненту с существующим интерфейсом
+  WordDocument1.ConnectKind:=ckAttachToInterface;
+  WordDocument1.ConnectTo(WordApplication1.ActiveDocument);
+//Следующие переменные понадобятся нам 
+//для выполнения методов сервера
+  replace:=1;  oldStr:='@1';  newStr:=DateTimeToStr(Now);
+//Находим в документе метки и производим их замены
+  WordDocument1.Range.Find.Execute(oldStr,EmptyParam,EmptyParam,
+ EmptyParam,EmptyParam,EmptyParam,EmptyParam,
+                EmptyParam,EmptyParam,newStr,replace);
+  oldStr:='@2';  newStr:=WordApplication1.UserName;
+  WordDocument1.Range.Find.Execute(oldStr,EmptyParam,EmptyParam,
+ EmptyParam,EmptyParam,EmptyParam,EmptyParam,
+                EmptyParam,EmptyParam,newStr,replace);
+………
+//сохранение документа и отображение его в OLE контейнере 
+//(предварительный просмотр) 
+WordDocument1.SaveAs(FileName);  WordDocument1.Close;
+OleContainer1.CreateLinkToFile(FileName,false);  OleContainer1.Refresh;
+end;
+</pre>
+
+<p>Исходный код этого примера имеется в приложении к данной статье. Обратите внимание на передачу параметров в методы. Все параметры описаны как OleVariant и передаются в методы по ссылке (такая передача параметров характерна лишь для сервера Word, Excel и OutLook, например, принимают в основном фактические параметры). Сервер автоматизации сам будет разбираться, какой тип вы фактически подставили в качестве значения переменной, поэтому необходимо при разработке приложения особое внимание уделять хинтам, и почаще заглядывать в библиотеку типов сервера, с которым вы работаете в настоящее время. К стати, после того как мы установили компоненты, библиотеки типов разместились в директории …Delphi5\Imports\. В файлах библиотек типов можно найти, например все константы, необходимые для передачи параметров в Excel и OutLook, названия их интуитивно понятны. В модуле System &#8211; Delphi 5 описана переменная EmptyParam, которую необходимо использовать для передачи "пустышек" в качестве параметров. </p>
+<p>var</p>
+<p>EmptyParam: OleVariant; { "Пустой параметр" который </p>
+<p>  должен опционально использоваться в DUAL интерфейсе. }</p>
+<p>Описание методов в библиотеке типов заставляет нас очень аккуратно соблюдать порядок передачи параметром, это несколько затрудняет процесс программирования, но зато Dual интерфейс работает значительно быстрее чем передача именованных параметров при позднем связывании сервера и контроллера автоматизации.</p>
+<p>Пример использования Dispatch интерфейса</p>
+<p>Постановка задачи: получить информацию о документе, который открывается MS Word, при этом не должны использоваться никакие компоненты для доступа к серверам автоматизации.</p>
+<p>Создадим новое приложение и выложим на форму кнопку. Пропишем событие onDoubleClick для кнопки следующим образом:</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  Shablon:OleVariant;
+  word:_ApplicationDisp;
+begin
+  Shablon:=ExtractFilePath(Application.EXEName)+'shablon.DOC';
+  word:=CoWordapplicaTion.Create as _ApplicationDisp;
+  (Word.Documents as DocumentsDisp).Open(Shablon,EmptyParam,
+ EmptyParam,EmptyParam,EmptyParam,EmptyParam,
+             EmptyParam,EmptyParam,EmptyParam,EmptyParam);
+  showmessage((Word.Application as _application).Get_Name+#13+
+ ((Word.Application as _application).ActiveDocument 
+             as _documentDisp).Path );
+  word.quit(EmptyParam,EmptyParam,EmptyParam);
+end;
+</pre>
+
+<p>Переменная word имеет тип ApplicatiwonDisp = dispinterface ['{00020970-0000-0000-C000-000000000046}'], который описан в библиотеки типов Word97_TLB.Pas. Строка word:=CoWordapplicaTion.Create as _ApplicationDisp; создает экземпляр сервера и возвращает DispInterface. Благодаря наличию библиотеки и жесткому приведению типов разработчик имеет возможность делать меньше ошибок, так как компилятор имеет определенную информацию о типах данных. В сравнении с использованием метода позднего связывания через функцию CreateOleObject этот метод более прогрессивный. По крайней мере, хотя бы часть информации компилятору да известна.</p>
+<p>Подводя итог выше сказанному, можно отметить, что действительно использование компонент для доступа к COM серверам через Vtable интерфейс значительно ускоряет работу приложения и ограждает разработчика от ошибок.</p>
+<p>Другие компоненты для доступа к COM серверам</p>
+<p>Теперь поговорим о сервере Excel. После импортирования библиотеки типов, на закладке палитры компонент появились шесть иконок, основная из них ExcelApplication - компонента, обеспечивающая доступ к объекту Application сервера Excel. Следующий пример демонстрирует работу с объектом Application и WorkBook сервера Excel. Параметры серверу передаются по значению, кроме того, библиотека типов предоставляет все основные константы для работы с сервером:</p>
+<pre name="code" class="delphi">
+const
+  xlDays = $00000000;
+  xlMonths = $00000001;
+  xlYears = $00000002;
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  ExcelApplication1.Workbooks.add
+   (ExtractFilePath(Application.EXEName)+'customs',0);
+  ExcelWorkbook1.ConnectTo
+     (ExcelApplication1.ActiveWorkbook);
+  ExcelApplication1.Visible[0]:=true;
+end; 
+</pre>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>Таким образом, получив доступ к серверу, мы можем легко формировать всевозможные отчеты, строить графики. Другими словами из Delphi пользоваться ресурсами MS Excel. </p>
+<p>Работа с Outlook из Delphi</p>
+<p>Так же как и в других серверах, в Outlook имеется класс Application, в который встраивается класс NameSpace. Последний предоставляет доступ к данным через объект класса MAPIFolders, представляющий собой коллекцию папок пользователя. Получив доступ к Outlook через компоненту OutLookApplication, извлекается объект доступа к MAPI папкам.</p>
+<p>mapi:=OutlookApplication1.GetNamespace('MAPI');</p>
+<p> &nbsp; for i:=1 to mapi.Folders.Count do</p>
+<p> &nbsp; ListBox1.Items.Add(mapi.Folders.Item(i).Name);</p>
+<p>Добраться до соответствующей папки теперь, нет проблем, так как мы имеем дело с вложенными объектами. В приложении к статье имеется пример извлечения содержимого всех папок сервера Microsoft OutLook.</p>
+<p>Следующий пример производит рассылку писем, извлекая адреса из таблицы базы данных. Я вам предлагаю его самостоятельно доработать и привести к "товарному виду".</p>
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+ mapi:NameSpace;
+begin
+  Table1.Active:=false;
+  Table1.Active:=true;
+//Получаем доступ к папке
+  mapi:=OutlookApplication1.GetNamespace('MAPI');
+  while not Table1.Eof do
+  begin
+//Подключаем объект класса TMailItem к
+// новому елементу исходящих писем , 
+//для работы через Vtable интерфейс
+    MailItem1.ConnectTo(_DMailItem(mapi.Folders.Item
+(olPersonal). Folders.Item(olFolderOutbox). Items.Add(olPostItem) as  
+               iDispatch));
+//Наполняем новое письмо информацией
+    MailItem1.Subject:='test for '+Table1Common_Name.Value;
+    MailItem1.to_:=Table1Category.Value+'@elsite.ru';
+    Table1Graphic.SaveToFile(Table1SpeciesNo.AsString+'.BMP');
+    MailItem1.Attachments.Add(ExtractFilePath(Application.EXEName)+
+Table1SpeciesNo.AsString+ '.BMP',1,1,Table1SpeciesName.Value);
+    MailItem1.Body:=#13#13+'Письмо с вложенным документом '+#13+  
+               MailItem1.SenderName;
+    MailItem1.Sensitivity:=olConfidential ;
+    MailItem1.FlagStatus:=olFlagMarked;
+//Сохраняем письмо. OutLook самостоятельно его отошлет по почте
+    MailItem1.Save;
+    Table1.next;
+  end;
+end;
+</pre>
+
+<p>В заключении хочется еще раз подчеркнуть, что использование Vtable интерфейса значительно упростило процесс разработки контроллеров автоматизации COM серверов. </p>
+<p>Используя мощный язык Delphi 5 и открытый интерфейс серверов MS Office можно строить очень большие и серьезные приложения, работающие совместно.</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

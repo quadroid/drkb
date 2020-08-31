@@ -1,0 +1,136 @@
+<html>
+<head>
+  <title>Как подсчитать возраст по дню рождения?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Как подсчитать возраст по дню рождения?</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+
+<pre name="code" class="delphi">
+{ BrthDate:  Date of birth }
+ 
+function TFFuncs.CalcAge(brthdate: TDateTime): Integer;
+var
+  month, day, year, bmonth, bday, byear: word;
+begin
+  DecodeDate(BrthDate, byear, bmonth, bday);
+  if bmonth = 0 then
+    result := 0
+  else
+  begin
+    DecodeDate(Date, year, month, day);
+    result := year - byear;
+    if (100 * month + day) &lt; (100 * bmonth + bday) then
+      result := result - 1;
+  end;
+end;
+</pre>
+<hr />
+<pre name="code" class="delphi">
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  Month, Day, Year, CurrentMonth, CurrentDay, CurrentYear: word;
+  Age: integer;
+begin
+  DecodeDate(DateTimePicker1.Date, Year, Month, Day);
+  DecodeDate(Date, CurrentYear, CurrentMonth, CurrentDay);
+  if (Year = CurrentYear) and (Month = CurrentMonth) and (Day = CurrentDay) then
+    Age := 0
+  else
+  begin
+    Age := CurrentYear - Year;
+    if (Month &gt; CurrentMonth) then
+      dec(Age)
+    else if Month = CurrentMonth then
+      if (Day &gt; CurrentDay) then
+        dec(Age);
+  end;
+  Label1.Caption := IntToStr(Age);
+end;
+</pre>
+
+
+<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+
+<hr />
+<pre name="code" class="delphi">
+function CalculateAge(Birthday, CurrentDate: TDate): Integer;
+var
+  Month, Day, Year, CurrentYear, CurrentMonth, CurrentDay: Word;
+begin
+  DecodeDate(Birthday, Year, Month, Day);
+  DecodeDate(CurrentDate, CurrentYear, CurrentMonth, CurrentDay);
+ 
+  if (Year = CurrentYear) and (Month = CurrentMonth) and (Day = CurrentDay) then
+  begin
+    Result := 0;
+  end
+  else
+  begin
+    Result := CurrentYear - Year;
+    if (Month &gt; CurrentMonth) then
+      Dec(Result)
+    else
+    begin
+      if Month = CurrentMonth then
+        if (Day &gt; CurrentDay) then
+          Dec(Result);
+    end;
+  end;
+end;
+ 
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  Label1.Caption := Format('Your age is %d',
+    [CalculateAge(StrToDate('01.01.1903'), Date)]);
+end;
+</pre>
+
+<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+
+
+<hr />
+<pre name="code" class="delphi">
+DecodeDate(DM.Table.FieldByName('Born').AsDateTime, Year, Month, Day); // Дата рождения
+DecodeDate(Date, YYYY, MM, DD); // Текущая дата
+ 
+if (MM &gt;= Month) and (DD &gt;= Day) then
+  Edit2.Text := IntToStr((YYYY - Year))
+else
+  Edit2.Text := IntToStr((YYYY - Year) - 1);
+</pre>
+
+<a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<html>
+<head>
+  <title>Изменение громкости в TMediaPlayer</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Изменение громкости в TMediaPlayer</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<pre name="code" class="delphi">
+unit MpVolume;
+ 
+interface
+ 
+uses Windows, MPlayer;
+ 
+const
+  MCI_SETAUDIO = $0873;
+  MCI_DGV_SETAUDIO_VOLUME = $4002;
+  MCI_DGV_SETAUDIO_ITEM = $00800000;
+  MCI_DGV_SETAUDIO_VALUE = $01000000;
+  MCI_DGV_STATUS_VOLUME = $4019;
+ 
+type
+  MCI_DGV_SETAUDIO_PARMS = record
+    dwCallback: DWORD;
+    dwItem: DWORd;
+    dwValue: DWORD;
+    dwOver: DWORD;
+    lpstrAlgorithm: PChar;
+    lpstrQuality: PChar;
+  end;
+ 
+ 
+type
+  MCI_STATUS_PARMS = record
+    dwCallback: DWORD;
+    dwReturn: DWORD;
+    dwItem: DWORD;
+    dwTrack: DWORD;
+  end;
+ 
+//Remember to add the name of your form to the procedures
+ 
+function GetMPVolume(MP: TMediaPlayer): Integer;
+procedure SetMPVolume(MP: TMediaPlayer; Volume: Integer);
+ 
+implementation
+ 
+uses mmsystem;
+ 
+function GetMPVolume(MP: TMediaPlayer): Integer;
+var
+  p: MCI_STATUS_PARMS;
+begin
+  p.dwCallback := 0;
+  p.dwItem := MCI_DGV_STATUS_VOLUME;
+  mciSendCommand(MP.DeviceID, MCI_STATUS, MCI_STATUS_ITEM, Cardinal(@p));
+  Result := p.dwReturn;
+  { Volume: 0 - 1000 }
+end;
+ 
+procedure SetMPVolume(MP: TMediaPlayer; Volume: Integer);
+var
+  p: MCI_DGV_SETAUDIO_PARMS;
+begin
+  { Volume: 0 - 1000 }
+  p.dwCallback := 0;
+  p.dwItem := MCI_DGV_SETAUDIO_VOLUME;
+  p.dwValue := Volume;
+  p.dwOver := 0;
+  p.lpstrAlgorithm := nil;
+  p.lpstrQuality := nil;
+  mciSendCommand(MP.DeviceID, MCI_SETAUDIO,
+    MCI_DGV_SETAUDIO_VALUE or MCI_DGV_SETAUDIO_ITEM, Cardinal(@p));
+end;
+ 
+end.
+</pre>
+<p id="author">Автор: Smike</p>
+<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<html>
+<head>
+  <title>Понятие интерфейса</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Понятие интерфейса</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p>Тут наконец проявляется одно из ключевых понятий COM - интерфейс(interface). </p>
+<p>Наша запись ICalc - это он и есть. То есть интерфейс - это таблица содержашаяя указатели на функции. Когда вы работаете с COM объектом, несмотря на то, что это выглядит так, как будто вы работаете с самим объектом, вы работаете с его интерфейсами. Реализация здесь может быть разная, это может быть указатели на внешнии функции, как это сделанно у нас (так практическм никто не делает), но чаще всего это указатели на методы класса. Пользователя это не волнует - он получает интерфейс и с ним работает, а уж ваша задача потрудиться над тем, чтобы работа с вашим интерфейсом проходила корректно.</p>
+<p> Мы можем создать несколько интерфейсов. Допустим, добавим в наш класс две функции:</p>
+<pre name="code" class="delphi">
+  procedure MyCalc.Mult;   //умножение
+  begin 
+    result:=fx*fy;
+  end;
+ 
+  procedure MyCalc.Divide; //деление
+  begin
+    result:=fx div fy;
+  end;
+</pre>
+
+<p>  ну и придется добавить еще две внешнии функции:</p>
+<pre name="code" class="delphi">
+ procedure Mult;  
+ begin
+  Calc.Mult
+ end; 
+ 
+ procedure Divide; 
+ begin
+  Calc.Divide;
+ end; 
+</pre>
+<p> и переделаем GetInterface;</p>
+<pre name="code" class="delphi">
+ procedure GetInterface(IID:integer; var Calc:ICalc); //IID - Interface ID(индефикатор интерфейса)
+ begin
+   CreateObject;
+   if IID=1 then
+    begin
+     Calc.Sum:=Sum;
+     Calc.Diff:=Diff;
+    end
+   else
+   If IID=2 then
+    begin
+     Calc.Sum:=Mult;
+     Calc.Diff:=Divide;
+    end;
+   Calc.SetOpers:=SetOperands;
+   Calc.Release:=ReleaseObject;
+ end;
+</pre>
+<p>Теперь пользователь может ввести какой он хочет интерфейс сложение/вычитание или умножение/деление и получить соответсвующую таблицу методов.</p>
+<p>Слышу, слышу. Читатели уже начинают замечать сколько несуразностей в нашем коде. Давайте попробуем приводести его в нормальный вид.</p>
+<p>Во первых, неплохо бы избавиться от внешних функций. Сейчас нам приходилось на каждый метод нашего класса добавлять еще одну внешнюю функцию, чтобы этот метод вызывать. Почему мы не можем передпть указатели на методы класса? Дело в том, что указатель на методы класса должен содержать в себе также и указатель на экземпляр класса, чтобы метод мог обращаться к членам этого класса. В Делфи можно задать указатель на функцию класса:</p>
+<p>  MethodPointer:procedure of object;</p>
+<p> Такое обявление увеличивает размер указателя с 4 до 8 байт, что позволяет хранить в нем указатель на экземпляр класса. В принципе, возможно этим воспользоваться и описать процедуры нашего интерфейса как объектные, но это не будет шаг в сторону COM. Так как COM должен обеспечивать единый стандарт в нем используются указатели стандартного размера 4 байта. Как же нам все-таки избавиться от неудобных внешних функций? В разных средах разработки это может быть реализованно по разному, но раз уж мы начали с Delhpi, рассмотрим как это реализованно в нем.</p>
+<p> В Delphi вводиться ключевое слово - interface. Объявление инерфейса - это и есть объявление таблицы методов. Выглядит это так</p>
+<pre name="code" class="delphi">
+  IMyInterface=interface
+   [{GUID}]
+   &lt;метод1&gt;
+   &lt;метод2&gt;
+   ...
+  end; 
+</pre>
+
+<p>GUID - необязательное поле индефицируеющая интерфейс. Тут надо сказать, что GUID(он же UUID, CLSID) - это 128-битное число, алгоритм генерации которого гарантирует его уникальность во вселенной. В Windows его можно получить функцией CoCreateGuid или UuidCreate. В Делфи это очень удобно встроенно в среду, и вы его можете получить нажав Ctrl+Shift+G.</p>
+<p> В нашем простом случае это будет выглядить так:</p>
+<pre name="code" class="delphi">
+ ICalc=interface
+  ['{149D0FC0-43FE-11D6-A1F0-444553540000}']
+  procedure SetOperands(x,y:integer);
+  function Sum:integer;
+  function Diff:integer;
+  procedure Release; 
+ end; 
+</pre>
+
+<p>Объявленный таким образом интерфейс можно прицепить к классу. Причем заметье, что методы интерфейса имплементируются только в классе, к которому они прицеплены. То есть вот так вы написать не можете:</p>
+<pre name="code" class="delphi">
+function ICalc.Sum:integer;
+begin 
+ Result:=0;
+end;
+</pre>
+
+<p>Как и было сказанно, объявление интерфейса это всего лишь объявление таблицы методов. А имплементируется это так:</p>
+<pre name="code" class="delphi">
+ MyCalc=class(TObject,ICalc) //интерфейс указывается в списке наследования!
+   fx,fy:integer;
+ public
+   procedure SetOperands(x,y:integer);
+   function Sum:integer;
+   function Diff:integer;
+   procedure Release;
+ end;
+</pre>
+
+<p>Все методы класса у нас уже имплементированны, кроме Release. Ну с ним все понятно:</p>
+<pre name="code" class="delphi">
+procedure MyCalc.Release;
+begin
+ Free; 
+end;
+</pre>
+<p>По умолчанию, методы привязываются по именам. То есть если в ICalc указан метод Sum, то компилятор будет искать метод Sum в классе MyCalc. Однако вы можете указать явно другие имена. Например:</p>
+<pre name="code" class="delphi">
+ MyCalc=class(TObject,ICalc)
+   fx,fy:integer;
+ public
+   function ICalc.Diff = Difference; //задаем нужнок имя (Difference)
+   procedure SetOperands(x,y:integer);
+   function Sum:integer;
+   function Difference:integer;  //другое имя
+   procedure Release;
+ end;
+</pre>
+
+<p>В нашем случае, удобно промаппить метод Release к методу Free, это избавит нас от необходимости имплементировать Release в нашем классе.</p>
+<pre name="code" class="delphi">
+ MyCalc=class(TObject,ICalc)
+   fx,fy:integer;
+ public
+   function ICalc.Release = Free;
+   procedure SetOperands(x,y:integer);
+   function Sum:integer;
+   function Diff:integer; 
+ end;
+</pre>
+
+<p>Что же происходит при добовлении к классу интерфейса? Здесь для каждого экземпляра нашего класса создается специальная таблица(interface table), в которой храняться все записи о поддерживаемых интерфейсах. Каждая такая запись содержит адрес соответствующего интерфейса, который в свою очередь, как уже было сказанно является таблицей методов. То есть если мы получим адрес, допустим, нашего ICalc, то вызывая функцию по этому же адресу, мы вызовем метод SetOperands класса MyCalc. Ecли вы вызовете вызовете функцию по адресу &lt;адрес ICalc&gt;+4 то вызовется метод Sum. Еще +4 байта будет метод Diff. То есть как вы видете, здесь указатели на функции имеют размер 4 байта, и адрес нужной функции получают прибавлением нужного смещения к адресу интерфейса.</p>
+<p>Получить же адрес нужного интерфейса можно с помощью метода GetInterface класса TObject.</p>
+<p> Забудем пока, что мы делали два интерфейса, и вернмся к варианту с одним интерфейсом. Перепишим наш GetInterface.</p>
+<pre name="code" class="delphi">
+ procedure GetInterface(var ACalc:ICalc); 
+ begin
+   CreateObject;
+   Calc.GetInterface(ICalc,ACalc);
+ end;
+</pre>
+
+<p>Мы воспользовались методом GetInterface, который вышлядит так:</p>
+<p>function TObject.GetInterface(const IID: TGUID; out Obj): Boolean;</p>
+<p>этот возвращает в параметре Obj указатель на интерфейс, по указанному индификатору GUID. Допускается вместо переменной типа TGIUD поставить имя интерфейса - компилятор сам подставит его GUID если он ему известен.</p>
+<p> Все. Выбрасывайте все внешнии функции, кроме GetInterface. Теперь нам придется сказать спасибо Borland'у и сделать несколько дополнительных действий. Дело в том, что по стандарту COM каждый COM объект должен имплементировать интерфейс IUnknown. Он содержит три метода и выглядит так:</p>
+<pre name="code" class="delphi">
+IUnknown = interface
+    ['{00000000-0000-0000-C000-000000000046}']
+    function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
+    function _AddRef: Integer; stdcall;
+    function _Release: Integer; stdcall;
+  end;
+</pre>
+<p>Хочу еще раз отметить, что эти примеры пишутся для Делфи, однако суть от этого не меняется. Как бы не выглядил интерфейс в других средах разработки, он всегда остается таблицой с адресами функций. И если говорить о IUnkown, то он всегда должен содержать эти же методы, в этом же порядке.&nbsp; В С++ он например выглядит так:</p>
+<pre name="code" class="delphi">
+ struct IUnknown
+ { 
+   HRESULT QueryInterface(REFIID iid, void ** ppvObject);
+   ULONG AddRef(void);
+   ULONG Release(void);
+ }
+</pre>
+
+<p> Так вот, в Delhpi все интерфейсы наследуются от IUnknown. Так что и наш интерфейс тоже содержит эти методы, а значит и компилятор потребует от вас их имплементации. Ну что ж. Добавтье пока пустые методы QueryInterface, _AddRef и _Release, позже мы их имплементируем правильно.</p>
+<p>Теперь не забудтье поменять тип ICalc на интерфейс в тестере, и убедитесь, что все работает.&nbsp; :) </p>
+<p>Продолжение следует...</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

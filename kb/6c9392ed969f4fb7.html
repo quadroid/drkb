@@ -1,0 +1,116 @@
+<html>
+<head>
+  <title>Дни в месяце</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Дни в месяце</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+<p id="author">Автор: Ревенко Алексей</p>
+<pre name="code" class="delphi">
+// Колическтво дней в любом месяце любого
+// года можно получить с помощью EndOfAMonth
+ 
+var
+  YYYY, MM, DD: Word;
+  D: TDateTime;
+begin
+  DecodeDate(Date, YYYY, MM, DD);
+  D := EndOfAMonth(YYYY, {Номер месяца});
+  DecodeDate(D, YYYY, MM, DD); // DD - номер последнего дня в месяце
+end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr /><p>Получить число дней в месяце </p>
+
+<pre name="code" class="delphi">
+function DaysOfMonth(mm, yy: Integer): Integer; 
+begin 
+  if mm = 2 then  
+  begin 
+    Result := 28; 
+    if IsLeapYear(yy) then Result := 29; 
+  end  
+  else  
+  begin 
+    if mm &lt; 8 then  
+    begin 
+      if (mm mod 2) = 0 then 
+        Result := 30 
+      else 
+        Result := 31; 
+    end  
+    else  
+    begin 
+      if (mm mod 2) = 0 then 
+        Result := 31 
+      else 
+        Result := 30; 
+    end; 
+  end; 
+end; 
+ 
+procedure TForm1.Button1Click(Sender: TObject); 
+var 
+  days: Integer; 
+begin 
+  days := DaysOfMonth(7, 2001); 
+  ShowMessage('July 2001 has ' + IntToStr(days) + ' days'); 
+end; 
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+<hr />
+<pre name="code" class="delphi">
+function LastDayOfCurrentMonth: TDate;
+ var
+   y, m, d: Word;
+ begin
+   DecodeDate(now, y, m, d);
+   m := m + 1;
+   if m  12 then
+   begin
+     y := y + 1;
+     m := 1;
+   end;
+   Result := EncodeDate(y, m, 1) - 1;
+ end;
+ 
+ procedure TForm1.Button1Click(Sender: TObject);
+ begin
+   ShowMessage(DateToStr(LastDayOfCurrentMonth));
+ end;
+</pre>
+<p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
+<p>DelphiWorld 6.0</p>
+&nbsp;</p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>

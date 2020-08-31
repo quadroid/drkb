@@ -1,0 +1,84 @@
+<html>
+<head>
+  <title>Пример DbiAddFilter</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <link type="text/css" href="css/css.css" rel="stylesheet" />
+  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <script language="javascript" src="js/shInit.js"></script>
+  <script language="javascript" src="js/shCore.js"></script>
+  <script language="javascript" src="js/shBrushDelphi.js"></script>
+  <script language="javascript" src="js/shBrushSql.js"></script>
+</head>
+<body>
+<div id="layout">
+<div id="header">
+  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <div id="navigation">
+    <p id="navigation">
+      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
+      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
+      <a class="navigation" onclick="next();" href="#">Следующая</a>
+    </p>
+  </div>
+</div>
+<div id="content">
+<div id="explorer">DRKB Explorer</div>
+  <h1 id="title">Пример DbiAddFilter</h1>
+<div id="date">01.01.2010</div>
+<!-- Actual content start -->
+
+<p id="author">Автор: Mark Erbaugh </p>
+<pre name="code" class="delphi">
+type
+  TmyFilter = record
+    Expr: CANExpr;
+    Nodes: array[0..2] of CANNode;
+    literals: array[0..7] of char;
+  end;
+ 
+const
+  myFilter: TMyFilter = (Expr:
+    (iVer: 1; iTotalSize: sizeof(TMyFilter); iNodes: 3;
+    iNodeStart: sizeof(CANExpr); iLiteralStart: sizeof(CANExpr) +
+    3 * sizeof(CANNode));
+    Nodes:
+    ((canBinary: (nodeClass: nodeBinary; canOP: canEQ;
+    iOperand1: sizeof(CANNode); iOperand2: 2 * sizeof(CANNode))),
+    (canField: (nodeClass: nodeField; canOP: canField2;
+    iFieldNum: 0; iNameOffset: 0)),
+    (canConst: (nodeClass: nodeConst; canOP: canCONST2;
+    iType: fldZSTRING; iSize: 3; iOffset: 5)));
+    literals:
+    ('T', 'Y', 'P', 'E', #0, 'I', 'N', #0));
+ 
+var
+  dbResult: DBIResult;
+  hFilter, hFilter1: hDBIFilter;
+begin (* procedure SetupFilter *)
+  dbResult := DbiAddFilter(tblAP_.Handle, 1, 1,
+    False, addr(myFilter), nil, hFilter);
+  dbResult := DbiActivateFilter(tblAP_.Handle, hFilter);
+  tblAP_.First;
+  myFilter.nodes[0].canBinary.canOp := canNE;
+  dbResult := DbiAddFilter(tblAP1_.Handle, 1, 1,
+    False, addr(myFilter), nil, hFilter1);
+  dbResult := DbiActivateFilter(tblAP1_.Handle, hFilter1);
+  tblAP1_.First;
+  myFilter.nodes[0].canBinary.canOp := canEQ;
+end;
+</pre>
+
+
+<p>Этот пример устанавливает два фильтра. Первый (применяемый к tblAP_) выводит все записи, где ТИП поля имеет значение 'IN'. Второй (применяемый к tblAP1_) выводит все записи, где ТИП поля не имеет значения 'IN'. </p>
+
+<p>Также необходимо включить в ваш файл файлы DBITYPES и DBIPROCS, где определены вызываемые функции и константы.</p>
+<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+</div>
+<!-- Actual content end -->
+<hr />
+<div id="footer">
+<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+</div>
+</div>
+</body>
+</html>
