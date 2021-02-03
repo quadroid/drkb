@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как экспортировать содержимое TDBGrid в Excel или Clipboard?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє СЌРєСЃРїРѕСЂС‚РёСЂРѕРІР°С‚СЊ СЃРѕРґРµСЂР¶РёРјРѕРµ TDBGrid РІ Excel РёР»Рё Clipboard?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,30 +13,23 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как экспортировать содержимое TDBGrid в Excel или Clipboard?</h1>
+  <h1 id="title">РљР°Рє СЌРєСЃРїРѕСЂС‚РёСЂРѕРІР°С‚СЊ СЃРѕРґРµСЂР¶РёРјРѕРµ TDBGrid РІ Excel РёР»Рё Clipboard?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Пример dbgrid (DBGrid1) имеет всплывающее меню, которое позволяет две опции "Send to Excel" и "Copy"</p>
 
-<p>// ЗАМЕЧАНИЕ: этот метод должен включать COMObj, Excel97 units </p>
+<p>РџСЂРёРјРµСЂ dbgrid (DBGrid1) РёРјРµРµС‚ РІСЃРїР»С‹РІР°СЋС‰РµРµ РјРµРЅСЋ, РєРѕС‚РѕСЂРѕРµ РїРѕР·РІРѕР»СЏРµС‚ РґРІРµ РѕРїС†РёРё "Send to Excel" Рё "Copy"</p>
 
-<p>// ОБНОВЛЕНИЕ: если Вы используете Delphi 4, то замените xlWBatWorkSheet на 1 (один)</p>
+<p>// Р—РђРњР•Р§РђРќРР•: СЌС‚РѕС‚ РјРµС‚РѕРґ РґРѕР»Р¶РµРЅ РІРєР»СЋС‡Р°С‚СЊ COMObj, Excel97 units </p>
+
+<p>// РћР‘РќРћР’Р›Р•РќРР•: РµСЃР»Рё Р’С‹ РёСЃРїРѕР»СЊР·СѓРµС‚Рµ Delphi 4, С‚Рѕ Р·Р°РјРµРЅРёС‚Рµ xlWBatWorkSheet РЅР° 1 (РѕРґРёРЅ)</p>
 
 <pre name="code" class="delphi">
 //----------------------------------------------------------- 
-// если toExcel = false, то экспортируем содержимое dbgrid в Clipboard 
-// если toExcel = true, то экспортируем содержимое dbgrid в Microsoft Excel 
+// РµСЃР»Рё toExcel = false, С‚Рѕ СЌРєСЃРїРѕСЂС‚РёСЂСѓРµРј СЃРѕРґРµСЂР¶РёРјРѕРµ dbgrid РІ Clipboard 
+// РµСЃР»Рё toExcel = true, С‚Рѕ СЌРєСЃРїРѕСЂС‚РёСЂСѓРµРј СЃРѕРґРµСЂР¶РёРјРѕРµ dbgrid РІ Microsoft Excel 
 procedure ExportDBGrid(toExcel: Boolean); 
 var 
   bm: TBookmark; 
@@ -50,7 +43,7 @@ begin
   bm := DBGrid1.DataSource.DataSet.GetBookmark; 
   DBGrid1.DataSource.DataSet.First; 
  
-  // создаём объект Excel
+  // СЃРѕР·РґР°С‘Рј РѕР±СЉРµРєС‚ Excel
   if toExcel then 
   begin 
     ExcelApp := CreateOleObject('Excel.Application'); 
@@ -58,20 +51,20 @@ begin
     ExcelApp.WorkBooks[1].WorkSheets[1].Name := 'Grid Data'; 
   end; 
  
-  // Сперва отправляем данные в memo 
-  // работает быстрее, чем отправлять их напрямую в Excel
+  // РЎРїРµСЂРІР° РѕС‚РїСЂР°РІР»СЏРµРј РґР°РЅРЅС‹Рµ РІ memo 
+  // СЂР°Р±РѕС‚Р°РµС‚ Р±С‹СЃС‚СЂРµРµ, С‡РµРј РѕС‚РїСЂР°РІР»СЏС‚СЊ РёС… РЅР°РїСЂСЏРјСѓСЋ РІ Excel
   mem := TMemo.Create(Self); 
   mem.Visible := false; 
   mem.Parent := MainForm; 
   mem.Clear; 
   sline := ''; 
  
-  // добавляем информацию для имён колонок
+  // РґРѕР±Р°РІР»СЏРµРј РёРЅС„РѕСЂРјР°С†РёСЋ РґР»СЏ РёРјС‘РЅ РєРѕР»РѕРЅРѕРє
   for col := 0 to DBGrid1.FieldCount-1 do 
     sline := sline + DBGrid1.Fields[col].DisplayLabel + #9; 
   mem.Lines.Add(sline); 
  
-  // получаем данные из memo 
+  // РїРѕР»СѓС‡Р°РµРј РґР°РЅРЅС‹Рµ РёР· memo 
   for row := 0 to DBGrid1.DataSource.DataSet.RecordCount-1 do 
   begin 
     sline := ''; 
@@ -81,12 +74,12 @@ begin
     DBGrid1.DataSource.DataSet.Next; 
   end; 
  
-  // копируем данные в clipboard 
+  // РєРѕРїРёСЂСѓРµРј РґР°РЅРЅС‹Рµ РІ clipboard 
   mem.SelectAll; 
   mem.CopyToClipboard; 
  
-  // если необходимо, то отправляем их в Excel
-  // если нет, то они уже в буфере обмена
+  // РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ, С‚Рѕ РѕС‚РїСЂР°РІР»СЏРµРј РёС… РІ Excel
+  // РµСЃР»Рё РЅРµС‚, С‚Рѕ РѕРЅРё СѓР¶Рµ РІ Р±СѓС„РµСЂРµ РѕР±РјРµРЅР°
   if toExcel then 
   begin 
     ExcelApp.Workbooks[1].WorkSheets['Grid Data'].Paste; 
@@ -101,13 +94,13 @@ begin
 end;
 </pre>
 
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

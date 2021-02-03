@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Учимся работать с многопоточными файлами в NT</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РЈС‡РёРјСЃСЏ СЂР°Р±РѕС‚Р°С‚СЊ СЃ РјРЅРѕРіРѕРїРѕС‚РѕС‡РЅС‹РјРё С„Р°Р№Р»Р°РјРё РІ NT</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,44 +13,37 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Учимся работать с многопоточными файлами в NT</h1>
+  <h1 id="title">РЈС‡РёРјСЃСЏ СЂР°Р±РѕС‚Р°С‚СЊ СЃ РјРЅРѕРіРѕРїРѕС‚РѕС‡РЅС‹РјРё С„Р°Р№Р»Р°РјРё РІ NT</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>1. Создание(изменение) и чтение "Опциональных потоков"</p>
+
+<p>1. РЎРѕР·РґР°РЅРёРµ(РёР·РјРµРЅРµРЅРёРµ) Рё С‡С‚РµРЅРёРµ "РћРїС†РёРѕРЅР°Р»СЊРЅС‹С… РїРѕС‚РѕРєРѕРІ"</p>
 <pre name="code" class="delphi">procedure TForm1.Button1Click(Sender: TObject);
 begin
- //сохраняем то что в Memo в "многопоточный файл"
+ //СЃРѕС…СЂР°РЅСЏРµРј С‚Рѕ С‡С‚Рѕ РІ Memo РІ "РјРЅРѕРіРѕРїРѕС‚РѕС‡РЅС‹Р№ С„Р°Р№Р»"
  Memo1.Lines.SaveToFile('k:\memo.txt');
- Memo2.Lines.SaveToFile('k:\memo.txt:memo2'); //опциональный поток
+ Memo2.Lines.SaveToFile('k:\memo.txt:memo2'); //РѕРїС†РёРѕРЅР°Р»СЊРЅС‹Р№ РїРѕС‚РѕРє
 end;
 procedure TForm1.Button2Click(Sender: TObject);
 begin
- //читаем в обратном порядке из "многопоточного файла"
- Memo1.Lines.LoadFromFile('k:\memo.txt:memo2'); //опциональный поток
+ //С‡РёС‚Р°РµРј РІ РѕР±СЂР°С‚РЅРѕРј РїРѕСЂСЏРґРєРµ РёР· "РјРЅРѕРіРѕРїРѕС‚РѕС‡РЅРѕРіРѕ С„Р°Р№Р»Р°"
+ Memo1.Lines.LoadFromFile('k:\memo.txt:memo2'); //РѕРїС†РёРѕРЅР°Р»СЊРЅС‹Р№ РїРѕС‚РѕРє
  Memo2.Lines.LoadFromFile('k:\memo.txt');
 end;
 </pre>
-<p>Как видно из первого примера... что бы прочитать "Опциональный поток" нам необходимо знать его "имя"...&nbsp; . Если вам не известно енто "имя", а очень хочется... тогда код 2 пункта предназначен для вас </p>
-<p>2. Определяем инфу о файле/директории - читаем инфу о потоках:<br>
-<p>*** Не забудьте включить SE_BACKUP_NAME привелегию ***</p>
+<p>РљР°Рє РІРёРґРЅРѕ РёР· РїРµСЂРІРѕРіРѕ РїСЂРёРјРµСЂР°... С‡С‚Рѕ Р±С‹ РїСЂРѕС‡РёС‚Р°С‚СЊ "РћРїС†РёРѕРЅР°Р»СЊРЅС‹Р№ РїРѕС‚РѕРє" РЅР°Рј РЅРµРѕР±С…РѕРґРёРјРѕ Р·РЅР°С‚СЊ РµРіРѕ "РёРјСЏ"...&nbsp; . Р•СЃР»Рё РІР°Рј РЅРµ РёР·РІРµСЃС‚РЅРѕ РµРЅС‚Рѕ "РёРјСЏ", Р° РѕС‡РµРЅСЊ С…РѕС‡РµС‚СЃСЏ... С‚РѕРіРґР° РєРѕРґ 2 РїСѓРЅРєС‚Р° РїСЂРµРґРЅР°Р·РЅР°С‡РµРЅ РґР»СЏ РІР°СЃ </p>
+<p>2. РћРїСЂРµРґРµР»СЏРµРј РёРЅС„Сѓ Рѕ С„Р°Р№Р»Рµ/РґРёСЂРµРєС‚РѕСЂРёРё - С‡РёС‚Р°РµРј РёРЅС„Сѓ Рѕ РїРѕС‚РѕРєР°С…:<br>
+<p>*** РќРµ Р·Р°Р±СѓРґСЊС‚Рµ РІРєР»СЋС‡РёС‚СЊ SE_BACKUP_NAME РїСЂРёРІРµР»РµРіРёСЋ ***</p>
 <pre name="code" class="delphi">function InfoFileStreams(const FileName:String; Delete:Boolean; out RStreams:String):Boolean;
-{Входные данные:
-- FileName: Имя файла/дирректории.
-- Delete: Если Truе то... по мимо инфы еще и удаляем "Опциональные потоки" файла.
-Выходные данные:
-- True: Что-то смоглы определить :)
-- RStreams - Определенная инфа}
+{Р’С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ:
+- FileName: РРјСЏ С„Р°Р№Р»Р°/РґРёСЂСЂРµРєС‚РѕСЂРёРё.
+- Delete: Р•СЃР»Рё TruРµ С‚Рѕ... РїРѕ РјРёРјРѕ РёРЅС„С‹ РµС‰Рµ Рё СѓРґР°Р»СЏРµРј "РћРїС†РёРѕРЅР°Р»СЊРЅС‹Рµ РїРѕС‚РѕРєРё" С„Р°Р№Р»Р°.
+Р’С‹С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ:
+- True: Р§С‚Рѕ-С‚Рѕ СЃРјРѕРіР»С‹ РѕРїСЂРµРґРµР»РёС‚СЊ :)
+- RStreams - РћРїСЂРµРґРµР»РµРЅРЅР°СЏ РёРЅС„Р°}
 const Error_Buffer_Overflow=$80000005;
 type
  _IO_STATUS_BLOCK=packed record
@@ -116,12 +109,12 @@ begin
        if (sM=false)and(AnsiCompareText(sT,'::$DATA')=0) then
         begin
          sM:=true;
-         sN:=sN+'Основной поток: '+sT+'; Размер: '+IntToStr(tSI^.Size)+' байт'+chr($D)+chr($A);
+         sN:=sN+'РћСЃРЅРѕРІРЅРѕР№ РїРѕС‚РѕРє: '+sT+'; Р Р°Р·РјРµСЂ: '+IntToStr(tSI^.Size)+' Р±Р°Р№С‚'+chr($D)+chr($A);
         end else
         begin
-         sN:=sN+'Опциональный поток: '+sT+'; Размер: '+IntToStr(tSI^.Size)+' байт'+chr($D)+chr($A);
+         sN:=sN+'РћРїС†РёРѕРЅР°Р»СЊРЅС‹Р№ РїРѕС‚РѕРє: '+sT+'; Р Р°Р·РјРµСЂ: '+IntToStr(tSI^.Size)+' Р±Р°Р№С‚'+chr($D)+chr($A);
          if Delete then
-          if DeleteFile(FileName+sT) then sN:=sN+'Удален!'+chr($D)+chr($A);
+          if DeleteFile(FileName+sT) then sN:=sN+'РЈРґР°Р»РµРЅ!'+chr($D)+chr($A);
         end;
        tSI:=Pointer(DWord(tSI)+tSI^.NextEntry);
       end;
@@ -133,7 +126,7 @@ begin
 end;
 </pre>
 
-<p>Ну и до кучи... пример использывания InfoFileStreams:</p>
+<p>РќСѓ Рё РґРѕ РєСѓС‡Рё... РїСЂРёРјРµСЂ РёСЃРїРѕР»СЊР·С‹РІР°РЅРёСЏ InfoFileStreams:</p>
 <pre name="code" class="delphi">const
   SE_BACKUP_NAME = 'SeBackupPrivilege';
  
@@ -175,19 +168,19 @@ var s:string;
 begin
  NTSetPrivilege(SE_BACKUP_NAME,true);
  if InfoFileStreams('k:\memo.txt',false,s) then Memo1.Lines.Text:=s;
- //Удаляем опциональные потоки
+ //РЈРґР°Р»СЏРµРј РѕРїС†РёРѕРЅР°Р»СЊРЅС‹Рµ РїРѕС‚РѕРєРё
  //if InfoFileStreams('k:\memo.txt',true,s) then Memo1.Lines.Text:=s;
 end;
 </pre>
 
-<p id="author">Автор Girder</p>
+<p id="author">РђРІС‚РѕСЂ Girder</p>
 
-<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ СЃ Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как редактировать таблицы виртуальных и динамических методов?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє СЂРµРґР°РєС‚РёСЂРѕРІР°С‚СЊ С‚Р°Р±Р»РёС†С‹ РІРёСЂС‚СѓР°Р»СЊРЅС‹С… Рё РґРёРЅР°РјРёС‡РµСЃРєРёС… РјРµС‚РѕРґРѕРІ?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,64 +13,57 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как редактировать таблицы виртуальных и динамических методов?</h1>
+  <h1 id="title">РљР°Рє СЂРµРґР°РєС‚РёСЂРѕРІР°С‚СЊ С‚Р°Р±Р»РёС†С‹ РІРёСЂС‚СѓР°Р»СЊРЅС‹С… Рё РґРёРЅР°РјРёС‡РµСЃРєРёС… РјРµС‚РѕРґРѕРІ?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">unit EditorVMTandDMTTables;
  
 interface
  
-// функция служит для выяснения существования VMT у класса
-// возвращает True, если класс имеет VMT и False - если нет
+// С„СѓРЅРєС†РёСЏ СЃР»СѓР¶РёС‚ РґР»СЏ РІС‹СЏСЃРЅРµРЅРёСЏ СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёСЏ VMT Сѓ РєР»Р°СЃСЃР°
+// РІРѕР·РІСЂР°С‰Р°РµС‚ True, РµСЃР»Рё РєР»Р°СЃСЃ РёРјРµРµС‚ VMT Рё False - РµСЃР»Рё РЅРµС‚
 function IsVMTExist(Cls: TClass): Boolean;
  
-// процедура служит для замены адреса метода в VMT класса со смещением
-// Offset(должно быть кратно 4) новым адресом, хранящимся в NewMet
-// примечание: перед вызовом этой процедуры проверяйте существование
-// VMT у класса функцией IsVMTExist
+// РїСЂРѕС†РµРґСѓСЂР° СЃР»СѓР¶РёС‚ РґР»СЏ Р·Р°РјРµРЅС‹ Р°РґСЂРµСЃР° РјРµС‚РѕРґР° РІ VMT РєР»Р°СЃСЃР° СЃРѕ СЃРјРµС‰РµРЅРёРµРј
+// Offset(РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РєСЂР°С‚РЅРѕ 4) РЅРѕРІС‹Рј Р°РґСЂРµСЃРѕРј, С…СЂР°РЅСЏС‰РёРјСЃСЏ РІ NewMet
+// РїСЂРёРјРµС‡Р°РЅРёРµ: РїРµСЂРµРґ РІС‹Р·РѕРІРѕРј СЌС‚РѕР№ РїСЂРѕС†РµРґСѓСЂС‹ РїСЂРѕРІРµСЂСЏР№С‚Рµ СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ
+// VMT Сѓ РєР»Р°СЃСЃР° С„СѓРЅРєС†РёРµР№ IsVMTExist
 procedure VirtMethodReplace(Cls: TClass; Offset: LongWord; NewMet: Pointer); overload;
  
-// процедура служит для замены адреса метода, хранящегося в OldMet,
-// в VMT класса новым адресом, хранящимся в NewMet
-// примечание: перед вызовом этой процедуры проверяйте существование
-// VMT у класса функцией IsVMTExist
+// РїСЂРѕС†РµРґСѓСЂР° СЃР»СѓР¶РёС‚ РґР»СЏ Р·Р°РјРµРЅС‹ Р°РґСЂРµСЃР° РјРµС‚РѕРґР°, С…СЂР°РЅСЏС‰РµРіРѕСЃСЏ РІ OldMet,
+// РІ VMT РєР»Р°СЃСЃР° РЅРѕРІС‹Рј Р°РґСЂРµСЃРѕРј, С…СЂР°РЅСЏС‰РёРјСЃСЏ РІ NewMet
+// РїСЂРёРјРµС‡Р°РЅРёРµ: РїРµСЂРµРґ РІС‹Р·РѕРІРѕРј СЌС‚РѕР№ РїСЂРѕС†РµРґСѓСЂС‹ РїСЂРѕРІРµСЂСЏР№С‚Рµ СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ
+// VMT Сѓ РєР»Р°СЃСЃР° С„СѓРЅРєС†РёРµР№ IsVMTExist
 procedure VirtMethodReplace(Cls: TClass; OldMet, NewMet: Pointer); overload;
  
-// функция служит для замены адреса динамического метода класса с индексом,
-// хранящимся в Index, новым адресом, хранящимся в NewMet
-// возвращает True, если метод с данным индексом найден и False - если нет
+// С„СѓРЅРєС†РёСЏ СЃР»СѓР¶РёС‚ РґР»СЏ Р·Р°РјРµРЅС‹ Р°РґСЂРµСЃР° РґРёРЅР°РјРёС‡РµСЃРєРѕРіРѕ РјРµС‚РѕРґР° РєР»Р°СЃСЃР° СЃ РёРЅРґРµРєСЃРѕРј,
+// С…СЂР°РЅСЏС‰РёРјСЃСЏ РІ Index, РЅРѕРІС‹Рј Р°РґСЂРµСЃРѕРј, С…СЂР°РЅСЏС‰РёРјСЃСЏ РІ NewMet
+// РІРѕР·РІСЂР°С‰Р°РµС‚ True, РµСЃР»Рё РјРµС‚РѕРґ СЃ РґР°РЅРЅС‹Рј РёРЅРґРµРєСЃРѕРј РЅР°Р№РґРµРЅ Рё False - РµСЃР»Рё РЅРµС‚
 function DynMethodReplace(Cls: TClass; Index: Word; NewMet: Pointer): Boolean; overload;
  
-// функция служит для замены адреса динамического метода класса, хранящегося
-// в OldMet, новым адресом, хранящимся в NewMet
-// возвращает True, если метод с данным адресом найден и False - если нет
+// С„СѓРЅРєС†РёСЏ СЃР»СѓР¶РёС‚ РґР»СЏ Р·Р°РјРµРЅС‹ Р°РґСЂРµСЃР° РґРёРЅР°РјРёС‡РµСЃРєРѕРіРѕ РјРµС‚РѕРґР° РєР»Р°СЃСЃР°, С…СЂР°РЅСЏС‰РµРіРѕСЃСЏ
+// РІ OldMet, РЅРѕРІС‹Рј Р°РґСЂРµСЃРѕРј, С…СЂР°РЅСЏС‰РёРјСЃСЏ РІ NewMet
+// РІРѕР·РІСЂР°С‰Р°РµС‚ True, РµСЃР»Рё РјРµС‚РѕРґ СЃ РґР°РЅРЅС‹Рј Р°РґСЂРµСЃРѕРј РЅР°Р№РґРµРЅ Рё False - РµСЃР»Рё РЅРµС‚
 function DynMethodReplace(Cls: TClass; OldMet, NewMet: Pointer): Boolean; overload;
  
 implementation
  
-// функция служит для получения указателя на байт, следующий за адресом
-// последнего метода в VMT класса
-// возвращает nil в случае, если у класса нет VMT
-// функция является "внутренней" в модуле
-// (используется другими подпрограммами и не объявлена в секции interface)
-// , поэтому используйте её только если
-// Вы полностью уверены в своих действиях(она изменяет "рабочие" регистры
-// ECX и EDX)
+// С„СѓРЅРєС†РёСЏ СЃР»СѓР¶РёС‚ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СѓРєР°Р·Р°С‚РµР»СЏ РЅР° Р±Р°Р№С‚, СЃР»РµРґСѓСЋС‰РёР№ Р·Р° Р°РґСЂРµСЃРѕРј
+// РїРѕСЃР»РµРґРЅРµРіРѕ РјРµС‚РѕРґР° РІ VMT РєР»Р°СЃСЃР°
+// РІРѕР·РІСЂР°С‰Р°РµС‚ nil РІ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё Сѓ РєР»Р°СЃСЃР° РЅРµС‚ VMT
+// С„СѓРЅРєС†РёСЏ СЏРІР»СЏРµС‚СЃСЏ "РІРЅСѓС‚СЂРµРЅРЅРµР№" РІ РјРѕРґСѓР»Рµ
+// (РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґСЂСѓРіРёРјРё РїРѕРґРїСЂРѕРіСЂР°РјРјР°РјРё Рё РЅРµ РѕР±СЉСЏРІР»РµРЅР° РІ СЃРµРєС†РёРё interface)
+// , РїРѕСЌС‚РѕРјСѓ РёСЃРїРѕР»СЊР·СѓР№С‚Рµ РµС‘ С‚РѕР»СЊРєРѕ РµСЃР»Рё
+// Р’С‹ РїРѕР»РЅРѕСЃС‚СЊСЋ СѓРІРµСЂРµРЅС‹ РІ СЃРІРѕРёС… РґРµР№СЃС‚РІРёСЏС…(РѕРЅР° РёР·РјРµРЅСЏРµС‚ "СЂР°Р±РѕС‡РёРµ" СЂРµРіРёСЃС‚СЂС‹
+// ECX Рё EDX)
 function GetVMTEnd(Cls: TClass): Pointer;
 asm
-        // Вход: Cls --&gt; EAX
-        // Выход: Result --&gt; EAX
+        // Р’С…РѕРґ: Cls --&gt; EAX
+        // Р’С‹С…РѕРґ: Result --&gt; EAX
  
         PUSH    EBX
         MOV     ECX, 8
@@ -97,8 +90,8 @@ end;
  
 function IsVMTExist(Cls: TClass): Boolean;
 asm
-        // Вход: Cls --&gt; EAX
-        // Выход: Result --&gt; AL
+        // Р’С…РѕРґ: Cls --&gt; EAX
+        // Р’С‹С…РѕРґ: Result --&gt; AL
  
         CALL    GetVMTEnd
         TEST    EAX, EAX
@@ -109,13 +102,13 @@ end;
  
 procedure VirtMethodReplace(Cls: TClass; Offset: LongWord; NewMet: Pointer); overload;
 asm
-       // Вход: Cls --&gt; EAX, Offset --&gt; EDX, NewMet --&gt; ECX
+       // Р’С…РѕРґ: Cls --&gt; EAX, Offset --&gt; EDX, NewMet --&gt; ECX
         MOV     [EAX + EDX], ECX
 end;
  
 procedure VirtMethodReplace(Cls: TClass; OldMet, NewMet: Pointer); overload;
 asm
-        // Вход: Cls --&gt; EAX, OldMet --&gt; EDX, NewMet --&gt; ECX
+        // Р’С…РѕРґ: Cls --&gt; EAX, OldMet --&gt; EDX, NewMet --&gt; ECX
         PUSH    EDI
         MOV     EDI, EAX
         PUSH    ECX
@@ -140,8 +133,8 @@ end;
  
 function DynMethodReplace(Cls: TClass; Index: Word; NewMet: Pointer): Boolean; overload;
 asm
-        // Вход: Cls --&gt; EAX, Index --&gt; DX, NewMet --&gt; ECX
-        // Выход: Result --&gt; AL
+        // Р’С…РѕРґ: Cls --&gt; EAX, Index --&gt; DX, NewMet --&gt; ECX
+        // Р’С‹С…РѕРґ: Result --&gt; AL
  
         PUSH    EDI
         PUSH    ESI
@@ -184,8 +177,8 @@ end;
  
 function DynMethodReplace(Cls: TClass; OldMet, NewMet: Pointer): Boolean; overload;
 asm
-        // Вход: Cls --&gt; EAX, OldMet --&gt; EDX, NewMet --&gt; ECX
-        // Выход: Result --&gt; AL
+        // Р’С…РѕРґ: Cls --&gt; EAX, OldMet --&gt; EDX, NewMet --&gt; ECX
+        // Р’С‹С…РѕРґ: Result --&gt; AL
  
         PUSH    EDI
         PUSH    ESI
@@ -224,13 +217,13 @@ end;
 end.
 </pre>
 
-<p id="author">Автор ___ALex___ Форум: <a href="http://forum.pascal.dax.ru/" target="_blank">http://forum.pascal.dax.ru/</a></p>
+<p id="author">РђРІС‚РѕСЂ ___ALex___ Р¤РѕСЂСѓРј: <a href="http://forum.pascal.dax.ru/" target="_blank">http://forum.pascal.dax.ru/</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

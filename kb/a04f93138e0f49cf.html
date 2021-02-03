@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Проверка наличия BDE</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџСЂРѕРІРµСЂРєР° РЅР°Р»РёС‡РёСЏ BDE</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Проверка наличия BDE</h1>
+  <h1 id="title">РџСЂРѕРІРµСЂРєР° РЅР°Р»РёС‡РёСЏ BDE</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 unit Findbde;
@@ -49,7 +42,7 @@ var
 initialization
  
   GetProfileString('IDAPI', 'DLLPath', 'C:\', IdapiPath, 255);
-{следующие строки "изолируют" первый путь к каталогу из IdapiPath в случае, если их несколько}
+{СЃР»РµРґСѓСЋС‰РёРµ СЃС‚СЂРѕРєРё "РёР·РѕР»РёСЂСѓСЋС‚" РїРµСЂРІС‹Р№ РїСѓС‚СЊ Рє РєР°С‚Р°Р»РѕРіСѓ РёР· IdapiPath РІ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РёС… РЅРµСЃРєРѕР»СЊРєРѕ}
   if Pos(';', StrPas(IdapiPath)) &lt;&gt; 0 then
     begin
       StrPCopy(IdapiPath, Copy(StrPas(IdapiPath), 1,
@@ -58,28 +51,28 @@ initialization
   IdapiHandle := LoadLibrary(StrCat(IdapiPath, '\IDAPI01.DLL'));
   if IdapiHandle &lt; HINSTANCE_ERROR then
     begin
-      if MessageDlg('ОШИБКА: Borland Database Engine (IDAPI) не найдена' +
-        'перед следующей попыткой ее необходимо установить....',
+      if MessageDlg('РћРЁРР‘РљРђ: Borland Database Engine (IDAPI) РЅРµ РЅР°Р№РґРµРЅР°' +
+        'РїРµСЂРµРґ СЃР»РµРґСѓСЋС‰РµР№ РїРѕРїС‹С‚РєРѕР№ РµРµ РЅРµРѕР±С…РѕРґРёРјРѕ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ....',
         mtError, [mbOK], 0) = mrOK then
         Halt
     end
-{ IDAPI в системе не установлена }
+{ IDAPI РІ СЃРёСЃС‚РµРјРµ РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅР° }
   else
     begin
       FreeLibrary(IdapiHandle);
-{ IDAPI Установлена в системе }
+{ IDAPI РЈСЃС‚Р°РЅРѕРІР»РµРЅР° РІ СЃРёСЃС‚РµРјРµ }
     end;
  
 end.
 </pre>
 
-<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
-<p>Сборник Kuliba</p>
+<p>Р’Р·СЏС‚Рѕ РёР· РЎРѕРІРµС‚РѕРІ РїРѕ Delphi РѕС‚ <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Р’Р°Р»РµРЅС‚РёРЅР° РћР·РµСЂРѕРІР°</a></p>
+<p>РЎР±РѕСЂРЅРёРє Kuliba</p>
 
 <hr />
-<p>Способ 1:</p>
+<p>РЎРїРѕСЃРѕР± 1:</p>
 
-<p>Следующая функция получает структуру SysVersion и записывает результаты в stringlist.</p>
+<p>РЎР»РµРґСѓСЋС‰Р°СЏ С„СѓРЅРєС†РёСЏ РїРѕР»СѓС‡Р°РµС‚ СЃС‚СЂСѓРєС‚СѓСЂСѓ SysVersion Рё Р·Р°РїРёСЃС‹РІР°РµС‚ СЂРµР·СѓР»СЊС‚Р°С‚С‹ РІ stringlist.</p>
 <pre name="code" class="delphi">
 uses dbierrs, DBTables; 
 ... 
@@ -109,7 +102,7 @@ end;
 </pre>
 
 
-<p>Вызов этой функции выглядит следующим образом:</p>
+<p>Р’С‹Р·РѕРІ СЌС‚РѕР№ С„СѓРЅРєС†РёРё РІС‹РіР»СЏРґРёС‚ СЃР»РµРґСѓСЋС‰РёРј РѕР±СЂР°Р·РѕРј:</p>
 <pre name="code" class="delphi">
 var hStrList: TStringList; 
     Ver: SYSVersion; 
@@ -124,47 +117,47 @@ begin
 end; 
 </pre>
 
-<p>Возможные результаты (отображаемые в memo-поле):</p>
+<p>Р’РѕР·РјРѕР¶РЅС‹Рµ СЂРµР·СѓР»СЊС‚Р°С‚С‹ (РѕС‚РѕР±СЂР°Р¶Р°РµРјС‹Рµ РІ memo-РїРѕР»Рµ):</p>
 
 <p>ENGINE VERSION=500 </p>
 <p>INTERFACE LEVEL=500 </p>
 <p>VERSION DATE=09.06.98 </p>
 <p>VERSION TIME=17:06:13 </p>
 
-<p>Способ 2:</p>
+<p>РЎРїРѕСЃРѕР± 2:</p>
 
-<p>Читаем ключ в реестре:</p>
+<p>Р§РёС‚Р°РµРј РєР»СЋС‡ РІ СЂРµРµСЃС‚СЂРµ:</p>
 <pre name="code" class="delphi">
 RootKey := HKEY_LOCAL_MACHINE; 
 OpenKey(`SOFTWARE\Borland\Database Engine`, False); 
 try 
    s := ReadString(`CONFIGFILE01`); 
  
-   //BDE установлена
+   //BDE СѓСЃС‚Р°РЅРѕРІР»РµРЅР°
 finally 
    CloseKey; 
 end; 
 </pre>
 
 
-<p>Способ 3:</p>
+<p>РЎРїРѕСЃРѕР± 3:</p>
 
-<p>Можно попробовать установить BDE </p>
+<p>РњРѕР¶РЅРѕ РїРѕРїСЂРѕР±РѕРІР°С‚СЊ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ BDE </p>
 <pre name="code" class="delphi">
  
   IsBDEExist := (dbiInit(nil) = 0) 
  
 </pre>
 
-<p>PS: Последний способ более предпочтителен, так как анинсталлер мог удалить BDE-файлы, но оставить в реестре ключ :)</p>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>PS: РџРѕСЃР»РµРґРЅРёР№ СЃРїРѕСЃРѕР± Р±РѕР»РµРµ РїСЂРµРґРїРѕС‡С‚РёС‚РµР»РµРЅ, С‚Р°Рє РєР°Рє Р°РЅРёРЅСЃС‚Р°Р»Р»РµСЂ РјРѕРі СѓРґР°Р»РёС‚СЊ BDE-С„Р°Р№Р»С‹, РЅРѕ РѕСЃС‚Р°РІРёС‚СЊ РІ СЂРµРµСЃС‚СЂРµ РєР»СЋС‡ :)</p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

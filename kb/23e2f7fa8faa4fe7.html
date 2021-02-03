@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Собираем тестовый пример</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РЎРѕР±РёСЂР°РµРј С‚РµСЃС‚РѕРІС‹Р№ РїСЂРёРјРµСЂ</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,22 +13,15 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Собираем тестовый пример</h1>
+  <h1 id="title">РЎРѕР±РёСЂР°РµРј С‚РµСЃС‚РѕРІС‹Р№ РїСЂРёРјРµСЂ</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Теперь, давайте соберем код. Прошу учесть, что практически не делается никаких проверок - это демонстрационный код. Но работающий.</p>
-<p>В начале код dll c объектом.</p>
+
+<p>РўРµРїРµСЂСЊ, РґР°РІР°Р№С‚Рµ СЃРѕР±РµСЂРµРј РєРѕРґ. РџСЂРѕС€Сѓ СѓС‡РµСЃС‚СЊ, С‡С‚Рѕ РїСЂР°РєС‚РёС‡РµСЃРєРё РЅРµ РґРµР»Р°РµС‚СЃСЏ РЅРёРєР°РєРёС… РїСЂРѕРІРµСЂРѕРє - СЌС‚Рѕ РґРµРјРѕРЅСЃС‚СЂР°С†РёРѕРЅРЅС‹Р№ РєРѕРґ. РќРѕ СЂР°Р±РѕС‚Р°СЋС‰РёР№.</p>
+<p>Р’ РЅР°С‡Р°Р»Рµ РєРѕРґ dll c РѕР±СЉРµРєС‚РѕРј.</p>
 <pre name="code" class="delphi">
 library CalcDll;
  
@@ -40,7 +33,7 @@ type
  
  HResult=Longint;
  
- ICalcBase=interface                      //чисто абстрактный интерфейс
+ ICalcBase=interface                      //С‡РёСЃС‚Рѕ Р°Р±СЃС‚СЂР°РєС‚РЅС‹Р№ РёРЅС‚РµСЂС„РµР№СЃ
    procedure SetOperands(x,y:integer);
    procedure Release;
  end;
@@ -57,7 +50,7 @@ type
    function Divide:integer;
  end;
  
- MyCalc=class(TObject,ICalc,ICalc2)  //два интерфейса
+ MyCalc=class(TObject,ICalc,ICalc2)  //РґРІР° РёРЅС‚РµСЂС„РµР№СЃР°
    fx,fy:integer;
  public
    procedure SetOperands(x,y:integer);
@@ -136,7 +129,7 @@ exports
 begin
 end.
 </pre>
-<p>А теперь тестер.</p>
+<p>Рђ С‚РµРїРµСЂСЊ С‚РµСЃС‚РµСЂ.</p>
 <pre name="code" class="delphi">
 unit tstcl;
  
@@ -148,7 +141,7 @@ uses
  
 type
  
- //обратите внимание! Используем один унифицированный интерфейс
+ //РѕР±СЂР°С‚РёС‚Рµ РІРЅРёРјР°РЅРёРµ! РСЃРїРѕР»СЊР·СѓРµРј РѕРґРёРЅ СѓРЅРёС„РёС†РёСЂРѕРІР°РЅРЅС‹Р№ РёРЅС‚РµСЂС„РµР№СЃ
   IUniCalc=interface   
     procedure SetOperands(x,y:integer);
     procedure Release;
@@ -169,13 +162,13 @@ type
  
 var
   Form1: TForm1;
-  _Mod:Integer;  //хэндл модуля
-  СreateObject:procedure (IID:TGUID; out Obj); //процедура из dll.
+  _Mod:Integer;  //С…СЌРЅРґР» РјРѕРґСѓР»СЏ
+  РЎreateObject:procedure (IID:TGUID; out Obj); //РїСЂРѕС†РµРґСѓСЂР° РёР· dll.
  
-  Calc:IUniCalc;        //это указатель на интерфейс котрый мы будем получать
+  Calc:IUniCalc;        //СЌС‚Рѕ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РёРЅС‚РµСЂС„РµР№СЃ РєРѕС‚СЂС‹Р№ РјС‹ Р±СѓРґРµРј РїРѕР»СѓС‡Р°С‚СЊ
   ICalcGUID:TGUID;   
   ICalc2GUID:TGUID; 
-  flag:boolean;         // какой интерфейс активный.
+  flag:boolean;         // РєР°РєРѕР№ РёРЅС‚РµСЂС„РµР№СЃ Р°РєС‚РёРІРЅС‹Р№.
  
 implementation
  
@@ -185,14 +178,14 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   _Mod:=LoadLibrary(PChar('C:\Kir\COM\SymplDll\CalcDll.dll'));
  
-  //Эти GUID я просто скопировал из исходника CalcDll.dll
+  //Р­С‚Рё GUID СЏ РїСЂРѕСЃС‚Рѕ СЃРєРѕРїРёСЂРѕРІР°Р» РёР· РёСЃС…РѕРґРЅРёРєР° CalcDll.dll
   ICalcGUID:=StringToGUID('{149D0FC0-43FE-11D6-A1F0-444553540000}');
   ICalc2GUID:=StringToGUID('{D79C6DC0-44B9-11D6-A1F0-444553540000}');
   flag:=true;
  
-  СreateObject:=GetProcAddress(_Mod,'CreateObject');
+  РЎreateObject:=GetProcAddress(_Mod,'CreateObject');
  
-  СreateObject(ICalcGUID,Calc);
+  РЎreateObject(ICalcGUID,Calc);
   if Calc&lt;&gt;nil then
     Calc.SetOperands(10,5);
 end;
@@ -229,13 +222,13 @@ end;
 end.
 </pre>
 
-<p>Обратите вснимание, что происходит при нажатии на кнопку3. Мы используем ту же самую переменную, для работы со вторым интерфейсом! Этот пример показывает, что получая указатель на интерфейс, его методы мы получаем за счет смещения, от адреса который этот указатель содержит. Короче, мы получаем адрес таблицы методов.</p>
-<p>Потыкайте, посмотрите что происходит.</p>
+<p>РћР±СЂР°С‚РёС‚Рµ РІСЃРЅРёРјР°РЅРёРµ, С‡С‚Рѕ РїСЂРѕРёСЃС…РѕРґРёС‚ РїСЂРё РЅР°Р¶Р°С‚РёРё РЅР° РєРЅРѕРїРєСѓ3. РњС‹ РёСЃРїРѕР»СЊР·СѓРµРј С‚Сѓ Р¶Рµ СЃР°РјСѓСЋ РїРµСЂРµРјРµРЅРЅСѓСЋ, РґР»СЏ СЂР°Р±РѕС‚С‹ СЃРѕ РІС‚РѕСЂС‹Рј РёРЅС‚РµСЂС„РµР№СЃРѕРј! Р­С‚РѕС‚ РїСЂРёРјРµСЂ РїРѕРєР°Р·С‹РІР°РµС‚, С‡С‚Рѕ РїРѕР»СѓС‡Р°СЏ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РёРЅС‚РµСЂС„РµР№СЃ, РµРіРѕ РјРµС‚РѕРґС‹ РјС‹ РїРѕР»СѓС‡Р°РµРј Р·Р° СЃС‡РµС‚ СЃРјРµС‰РµРЅРёСЏ, РѕС‚ Р°РґСЂРµСЃР° РєРѕС‚РѕСЂС‹Р№ СЌС‚РѕС‚ СѓРєР°Р·Р°С‚РµР»СЊ СЃРѕРґРµСЂР¶РёС‚. РљРѕСЂРѕС‡Рµ, РјС‹ РїРѕР»СѓС‡Р°РµРј Р°РґСЂРµСЃ С‚Р°Р±Р»РёС†С‹ РјРµС‚РѕРґРѕРІ.</p>
+<p>РџРѕС‚С‹РєР°Р№С‚Рµ, РїРѕСЃРјРѕС‚СЂРёС‚Рµ С‡С‚Рѕ РїСЂРѕРёСЃС…РѕРґРёС‚.</p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

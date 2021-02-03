@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>TCheckBox в TDBGrid</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>TCheckBox РІ TDBGrid</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">TCheckBox в TDBGrid</h1>
+  <h1 id="title">TCheckBox РІ TDBGrid</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 procedure DrawGridCheckBox(Canvas: TCanvas; Rect: TRect; Checked: boolean);
@@ -41,12 +34,12 @@ begin
 end; 
 </pre>
 
-<p>На событие OnDrawColumnCell повесьте вызов процедуры DrawGridCheckBox(): </p>
+<p>РќР° СЃРѕР±С‹С‚РёРµ OnDrawColumnCell РїРѕРІРµСЃСЊС‚Рµ РІС‹Р·РѕРІ РїСЂРѕС†РµРґСѓСЂС‹ DrawGridCheckBox(): </p>
 <pre name="code" class="delphi">
 procedure TForm1.DBGrid1DrawColumnCell(Sender: TObject; const Rect: TRect;
   DataCol: Integer; Column: TColumn; State: TGridDrawState);
 begin
-  if Column.FieldName = 'WEIGHT' then // Модифицируйте под себя
+  if Column.FieldName = 'WEIGHT' then // РњРѕРґРёС„РёС†РёСЂСѓР№С‚Рµ РїРѕРґ СЃРµР±СЏ
     if Column.Field.AsInteger &gt; 10 then
       DrawGridCheckBox(DBGrid1.Canvas, Rect, true)
     else
@@ -54,25 +47,25 @@ begin
 end;
 </pre>
 
-<p>Кроме этого, для скрытия текста в ячейках с CheckBox-ом от отображения значения при вводе с клавиатуры определите реакцию на событие OnColumnEnter: </p>
+<p>РљСЂРѕРјРµ СЌС‚РѕРіРѕ, РґР»СЏ СЃРєСЂС‹С‚РёСЏ С‚РµРєСЃС‚Р° РІ СЏС‡РµР№РєР°С… СЃ CheckBox-РѕРј РѕС‚ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ Р·РЅР°С‡РµРЅРёСЏ РїСЂРё РІРІРѕРґРµ СЃ РєР»Р°РІРёР°С‚СѓСЂС‹ РѕРїСЂРµРґРµР»РёС‚Рµ СЂРµР°РєС†РёСЋ РЅР° СЃРѕР±С‹С‚РёРµ OnColumnEnter: </p>
 <pre name="code" class="delphi">
 procedure TfrmMain.DBGrid1ColEnter(Sender: TObject);
 begin
   with TDBGrid(Sender) do
-    if SelectedField.FieldName = 'Weight' then // Модифицируйте под себя
+    if SelectedField.FieldName = 'Weight' then // РњРѕРґРёС„РёС†РёСЂСѓР№С‚Рµ РїРѕРґ СЃРµР±СЏ
       Options := Options - [dgEditing]
     else
       Options := Options + [dgEditing]
 end;
 </pre>
 
-<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ СЃ <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

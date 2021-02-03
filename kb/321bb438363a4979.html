@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Пример опроса мыши методами DirectInput</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџСЂРёРјРµСЂ РѕРїСЂРѕСЃР° РјС‹С€Рё РјРµС‚РѕРґР°РјРё DirectInput</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,27 +13,20 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Пример опроса мыши методами DirectInput</h1>
+  <h1 id="title">РџСЂРёРјРµСЂ РѕРїСЂРѕСЃР° РјС‹С€Рё РјРµС‚РѕРґР°РјРё DirectInput</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 {******************************************************************************
  *                                                                            *
- *  Придумал и написал Кода Виктор, Март 2002                                 *
+ *  РџСЂРёРґСѓРјР°Р» Рё РЅР°РїРёСЃР°Р» РљРѕРґР° Р’РёРєС‚РѕСЂ, РњР°СЂС‚ 2002                                 *
  *                                                                            *
- *  Файл:       main.pas                                                      *
- *  Содержание: Пример буферизированного опроса мыши методами DirectInput     *
+ *  Р¤Р°Р№Р»:       main.pas                                                      *
+ *  РЎРѕРґРµСЂР¶Р°РЅРёРµ: РџСЂРёРјРµСЂ Р±СѓС„РµСЂРёР·РёСЂРѕРІР°РЅРЅРѕРіРѕ РѕРїСЂРѕСЃР° РјС‹С€Рё РјРµС‚РѕРґР°РјРё DirectInput     *
  *                                                                            *
  ******************************************************************************}
 unit main;
@@ -85,7 +78,7 @@ uses
  
  
 //------------------------------------------------------------------------------
-// Константы и глобальные переменные
+// РљРѕРЅСЃС‚Р°РЅС‚С‹ Рё РіР»РѕР±Р°Р»СЊРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ
 //------------------------------------------------------------------------------
 var
   lpDI8:     IDirectInput8       = nil;
@@ -98,50 +91,50 @@ var
  
  
 //------------------------------------------------------------------------------
-// Имя:      InitDirectInput()
-// Описание: Производит инициализацию объектов DirectInput в программе
+// РРјСЏ:      InitDirectInput()
+// РћРїРёСЃР°РЅРёРµ: РџСЂРѕРёР·РІРѕРґРёС‚ РёРЅРёС†РёР°Р»РёР·Р°С†РёСЋ РѕР±СЉРµРєС‚РѕРІ DirectInput РІ РїСЂРѕРіСЂР°РјРјРµ
 //------------------------------------------------------------------------------
 function InitDirectInput( hWnd: HWND ): Boolean;
 var
-  dipropdw: TDIPROPDWORD; // Структура для задания характеристик мыши
+  dipropdw: TDIPROPDWORD; // РЎС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ Р·Р°РґР°РЅРёСЏ С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРє РјС‹С€Рё
 begin
   Result := FALSE;
  
-  // Создаём главный объект DirectInput
+  // РЎРѕР·РґР°С‘Рј РіР»Р°РІРЅС‹Р№ РѕР±СЉРµРєС‚ DirectInput
   if FAILED( DirectInput8Create( GetModuleHandle( 0 ), DIRECTINPUT_VERSION,
                                  IID_IDirectInput8, lpDI8, nil ) ) then
      Exit;
   lpDI8._AddRef();
  
-  // Создаём объект для работы с мышью
+  // РЎРѕР·РґР°С‘Рј РѕР±СЉРµРєС‚ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РјС‹С€СЊСЋ
   if FAILED( lpDI8.CreateDevice( GUID_SysMouse, lpDIMouse, nil ) ) then
      Exit;
   lpDIMouse._AddRef();
  
-  // Устанавлаваем предопределённый формат данных
+  // РЈСЃС‚Р°РЅР°РІР»Р°РІР°РµРј РїСЂРµРґРѕРїСЂРµРґРµР»С‘РЅРЅС‹Р№ С„РѕСЂРјР°С‚ РґР°РЅРЅС‹С…
   if FAILED( lpDIMouse.SetDataFormat( @c_dfDIMouse ) ) then
      Exit;
  
-  // Устанавливаем уровень кооперации
+  // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј СѓСЂРѕРІРµРЅСЊ РєРѕРѕРїРµСЂР°С†РёРё
   if FAILED( lpDIMouse.SetCooperativeLevel( hWnd, DISCL_FOREGROUND or
                                                   DISCL_EXCLUSIVE ) ) then
      Exit;
  
-  // Подготавливаем структуру TDIPROPDWORD, она поможет установить нам
-  // буферизированный опрос мыши
+  // РџРѕРґРіРѕС‚Р°РІР»РёРІР°РµРј СЃС‚СЂСѓРєС‚СѓСЂСѓ TDIPROPDWORD, РѕРЅР° РїРѕРјРѕР¶РµС‚ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РЅР°Рј
+  // Р±СѓС„РµСЂРёР·РёСЂРѕРІР°РЅРЅС‹Р№ РѕРїСЂРѕСЃ РјС‹С€Рё
   ZeroMemory( @dipropdw, SizeOf( TDIPROPDWORD ) );
   dipropdw.diph.dwSize := SizeOf( TDIPROPDWORD );
   dipropdw.diph.dwHeaderSize := SizeOf( TDIPROPHEADER );
  
   dipropdw.diph.dwObj := 0;
-  dipropdw.diph.dwHow := DIPH_DEVICE; // Изменяем х-ки всего устройства
-  dipropdw.dwData := 16;              // Размер буфера для данных (по умолчанию 0)
+  dipropdw.diph.dwHow := DIPH_DEVICE; // РР·РјРµРЅСЏРµРј С…-РєРё РІСЃРµРіРѕ СѓСЃС‚СЂРѕР№СЃС‚РІР°
+  dipropdw.dwData := 16;              // Р Р°Р·РјРµСЂ Р±СѓС„РµСЂР° РґР»СЏ РґР°РЅРЅС‹С… (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 0)
  
-  // Устанавливаем размер буфера для мыши
+  // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РґР»СЏ РјС‹С€Рё
   if FAILED( lpDIMouse.SetProperty( DIPROP_BUFFERSIZE, dipropdw.diph ) ) then
      Exit;
  
-  // Захвытываем мышь
+  // Р—Р°С…РІС‹С‚С‹РІР°РµРј РјС‹С€СЊ
   lpDIMouse.Acquire();
  
   Result := TRUE;
@@ -151,12 +144,12 @@ end;
  
  
 //------------------------------------------------------------------------------
-// Имя:      ReleaseDirectInput()
-// Описание: Производит удаление объектов DirectInput
+// РРјСЏ:      ReleaseDirectInput()
+// РћРїРёСЃР°РЅРёРµ: РџСЂРѕРёР·РІРѕРґРёС‚ СѓРґР°Р»РµРЅРёРµ РѕР±СЉРµРєС‚РѕРІ DirectInput
 //------------------------------------------------------------------------------
 procedure ReleaseDirectInput();
 begin
-  // Удаляем объект для работы с мышью
+  // РЈРґР°Р»СЏРµРј РѕР±СЉРµРєС‚ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РјС‹С€СЊСЋ
   if lpDIMouse &lt;&gt; nil then
   begin
     lpDIMouse.Unacquire();
@@ -164,7 +157,7 @@ begin
     lpDIMouse := nil;
   end;
  
-  // Удаляем главный объект DirectInput (всегда последним)
+  // РЈРґР°Р»СЏРµРј РіР»Р°РІРЅС‹Р№ РѕР±СЉРµРєС‚ DirectInput (РІСЃРµРіРґР° РїРѕСЃР»РµРґРЅРёРј)
   if lpDI8 &lt;&gt; nil then
   begin
     lpDI8._Release();
@@ -176,21 +169,21 @@ end;
  
  
 //------------------------------------------------------------------------------
-// Имя:      GetMouseCaps()
-// Описание: Получает характеристики мыши (определяет кол-во кнопок)
+// РРјСЏ:      GetMouseCaps()
+// РћРїРёСЃР°РЅРёРµ: РџРѕР»СѓС‡Р°РµС‚ С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРєРё РјС‹С€Рё (РѕРїСЂРµРґРµР»СЏРµС‚ РєРѕР»-РІРѕ РєРЅРѕРїРѕРє)
 //------------------------------------------------------------------------------
 procedure GetMouseCaps();
 var
-  lpCaps: TDIDEVCAPS; // Структура для получения данных об элементах мыши
+  lpCaps: TDIDEVCAPS; // РЎС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РґР°РЅРЅС‹С… РѕР± СЌР»РµРјРµРЅС‚Р°С… РјС‹С€Рё
 begin
-  // Подготавливаем структуру TDIDEVCAPS (для получения характеристик мыши)
+  // РџРѕРґРіРѕС‚Р°РІР»РёРІР°РµРј СЃС‚СЂСѓРєС‚СѓСЂСѓ TDIDEVCAPS (РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРє РјС‹С€Рё)
   ZeroMemory( @lpCaps, SizeOf( TDIDEVCAPS ) );
   lpCaps.dwSize := SizeOf( TDIDEVCAPS );
  
-  // Получаем характеристики мыши, данные записывааются в структуру lpCaps
+  // РџРѕР»СѓС‡Р°РµРј С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРєРё РјС‹С€Рё, РґР°РЅРЅС‹Рµ Р·Р°РїРёСЃС‹РІР°Р°СЋС‚СЃСЏ РІ СЃС‚СЂСѓРєС‚СѓСЂСѓ lpCaps
   lpDIMouse.GetCapabilities( lpCaps );
  
-  // Приводим UI в соответствующий вид
+  // РџСЂРёРІРѕРґРёРј UI РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РІРёРґ
   with Form1 do
   begin
     if lpCaps.dwButtons &gt; 0 then
@@ -219,32 +212,32 @@ end;
  
  
 //------------------------------------------------------------------------------
-// Имя:      UpdateMouseState()
-// Описание: Производит опрос мыши и выводит данные в окно
+// РРјСЏ:      UpdateMouseState()
+// РћРїРёСЃР°РЅРёРµ: РџСЂРѕРёР·РІРѕРґРёС‚ РѕРїСЂРѕСЃ РјС‹С€Рё Рё РІС‹РІРѕРґРёС‚ РґР°РЅРЅС‹Рµ РІ РѕРєРЅРѕ
 //------------------------------------------------------------------------------
-function UpdateMouseState( var(*по параметру*)dwX, dwY: DWORD ): Boolean;
+function UpdateMouseState( var(*РїРѕ РїР°СЂР°РјРµС‚СЂСѓ*)dwX, dwY: DWORD ): Boolean;
 var
   od:         TDIDEVICEOBJECTDATA;
   dwElements: DWORD;
 begin
   Result := FALSE;
  
-  // Обазательно обнуляем!
+  // РћР±Р°Р·Р°С‚РµР»СЊРЅРѕ РѕР±РЅСѓР»СЏРµРј!
   dwX := 0;
   dwY := 0;
  
   dwElements := 1;
  
-  // Пока количество опрашиваемых элементов мыши (оси, кнопки, колёсики ) &lt;&gt; 0
+  // РџРѕРєР° РєРѕР»РёС‡РµСЃС‚РІРѕ РѕРїСЂР°С€РёРІР°РµРјС‹С… СЌР»РµРјРµРЅС‚РѕРІ РјС‹С€Рё (РѕСЃРё, РєРЅРѕРїРєРё, РєРѕР»С‘СЃРёРєРё ) &lt;&gt; 0
   while dwElements &lt;&gt; 0 do
   begin
-    // Получаем данные от мыши
+    // РџРѕР»СѓС‡Р°РµРј РґР°РЅРЅС‹Рµ РѕС‚ РјС‹С€Рё
     if lpDIMouse.GetDeviceData( SizeOf( TDIDEVICEOBJECTDATA ), @od,
                                 dwElements, 0 ) = DIERR_INPUTLOST then
     begin
-      // Снова захватываем
+      // РЎРЅРѕРІР° Р·Р°С…РІР°С‚С‹РІР°РµРј
       lpDIMouse.Acquire();
-      // Если всё бесполезно, то выходим
+      // Р•СЃР»Рё РІСЃС‘ Р±РµСЃРїРѕР»РµР·РЅРѕ, С‚Рѕ РІС‹С…РѕРґРёРј
       if FAILED( lpDIMouse.GetDeviceData( SizeOf( TDIDEVICEOBJECTDATA ), @od,
                                           dwElements, 0 ) ) then
          Exit;
@@ -255,13 +248,13 @@ begin
       case od.dwOfs of
         DIMOFS_X:       dwX := od.dwData;
         DIMOFS_Y:       dwY := od.dwData;
-        DIMOFS_BUTTON0: if od.dwData = $080 then lbBtn1.Caption := 'Нажата'
+        DIMOFS_BUTTON0: if od.dwData = $080 then lbBtn1.Caption := 'РќР°Р¶Р°С‚Р°'
                                             else lbBtn1.Caption := '';
-        DIMOFS_BUTTON1: if od.dwData = $080 then lbBtn2.Caption := 'Нажата'
+        DIMOFS_BUTTON1: if od.dwData = $080 then lbBtn2.Caption := 'РќР°Р¶Р°С‚Р°'
                                             else lbBtn2.Caption := '';
-        DIMOFS_BUTTON2: if od.dwData = $080 then lbBtn3.Caption := 'Нажата'
+        DIMOFS_BUTTON2: if od.dwData = $080 then lbBtn3.Caption := 'РќР°Р¶Р°С‚Р°'
                                             else lbBtn3.Caption := '';
-        DIMOFS_BUTTON3: if od.dwData = $080 then lbBtn4.Caption := 'Нажата'
+        DIMOFS_BUTTON3: if od.dwData = $080 then lbBtn4.Caption := 'РќР°Р¶Р°С‚Р°'
                                             else lbBtn4.Caption := '';
       end;
     end;
@@ -274,31 +267,31 @@ end;
  
  
 //------------------------------------------------------------------------------
-// Имя:      TForm1.Idle()
-// Описание: Вызывает функцию опроса состояния мыши
+// РРјСЏ:      TForm1.Idle()
+// РћРїРёСЃР°РЅРёРµ: Р’С‹Р·С‹РІР°РµС‚ С„СѓРЅРєС†РёСЋ РѕРїСЂРѕСЃР° СЃРѕСЃС‚РѕСЏРЅРёСЏ РјС‹С€Рё
 //------------------------------------------------------------------------------
 procedure TForm1.Idle( Sender: TObject; var Done: Boolean );
 var
   dwOffsX,
-  dwOffsY: DWORD; // Смещение мыши
+  dwOffsY: DWORD; // РЎРјРµС‰РµРЅРёРµ РјС‹С€Рё
 begin
-  // Получаем данные и записываем их в offsX и offsY
+  // РџРѕР»СѓС‡Р°РµРј РґР°РЅРЅС‹Рµ Рё Р·Р°РїРёСЃС‹РІР°РµРј РёС… РІ offsX Рё offsY
   if not UpdateMouseState( dwOffsX, dwOffsY ) then
   begin
-    MessageBox( Form1.Handle, 'Потеряно устройство ввода!',
-                'Ошибка', MB_ICONHAND );
+    MessageBox( Form1.Handle, 'РџРѕС‚РµСЂСЏРЅРѕ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ РІРІРѕРґР°!',
+                'РћС€РёР±РєР°', MB_ICONHAND );
     Form1.Close();
   end;
  
-  // Вычисляем абсолютные координаты
+  // Р’С‹С‡РёСЃР»СЏРµРј Р°Р±СЃРѕР»СЋС‚РЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹
   Inc( mouseX, dwOffsX );
   Inc( mouseY, dwOffsY );
  
   lbX.Caption := Format( '%d', [ mouseX ] );
   lbY.Caption := Format( '%d', [ mouseY ] );
  
-  imCursor.Left := 234 + mouseX; // 234 - координата, если мы хотим, чтобы
-  imCursor.Top  := 234 + mouseY; // курсор был с начала работы в центре окна
+  imCursor.Left := 234 + mouseX; // 234 - РєРѕРѕСЂРґРёРЅР°С‚Р°, РµСЃР»Рё РјС‹ С…РѕС‚РёРј, С‡С‚РѕР±С‹
+  imCursor.Top  := 234 + mouseY; // РєСѓСЂСЃРѕСЂ Р±С‹Р» СЃ РЅР°С‡Р°Р»Р° СЂР°Р±РѕС‚С‹ РІ С†РµРЅС‚СЂРµ РѕРєРЅР°
  
   Done := FALSE;
 end;
@@ -307,23 +300,23 @@ end;
  
  
 //------------------------------------------------------------------------------
-// Имя:      TForm1.FormActivate()
-// Описание: Производит инициализацию DirectInput при активизации окна
+// РРјСЏ:      TForm1.FormActivate()
+// РћРїРёСЃР°РЅРёРµ: РџСЂРѕРёР·РІРѕРґРёС‚ РёРЅРёС†РёР°Р»РёР·Р°С†РёСЋ DirectInput РїСЂРё Р°РєС‚РёРІРёР·Р°С†РёРё РѕРєРЅР°
 //------------------------------------------------------------------------------
 procedure TForm1.FormActivate(Sender: TObject);
 begin
   if not InitDirectInput( Form1.Handle ) then
   begin
-    MessageBox( Form1.Handle, 'Ошибка при инициализации DirectInput!',
-                'Ошибка!', MB_ICONHAND );
+    MessageBox( Form1.Handle, 'РћС€РёР±РєР° РїСЂРё РёРЅРёС†РёР°Р»РёР·Р°С†РёРё DirectInput!',
+                'РћС€РёР±РєР°!', MB_ICONHAND );
     Form1.Close();
   end;
  
-  // Получаем характеристики мыши (сколько кнопок?). Кстати, я не знаю - как
-  // определить, есть ли у мыши колёсико?
+  // РџРѕР»СѓС‡Р°РµРј С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРєРё РјС‹С€Рё (СЃРєРѕР»СЊРєРѕ РєРЅРѕРїРѕРє?). РљСЃС‚Р°С‚Рё, СЏ РЅРµ Р·РЅР°СЋ - РєР°Рє
+  // РѕРїСЂРµРґРµР»РёС‚СЊ, РµСЃС‚СЊ Р»Рё Сѓ РјС‹С€Рё РєРѕР»С‘СЃРёРєРѕ?
   GetMouseCaps();
  
-  // Приводим UI в соответствующий вид
+  // РџСЂРёРІРѕРґРёРј UI РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РІРёРґ
   lbBtn1.Caption := '';
   lbBtn2.Caption := '';
   lbBtn3.Caption := '';
@@ -336,8 +329,8 @@ end;
  
  
 //------------------------------------------------------------------------------
-// Имя:      TForm1.FormKeyDown()
-// Описание: Обрабатывает клавиатурный ввод
+// РРјСЏ:      TForm1.FormKeyDown()
+// РћРїРёСЃР°РЅРёРµ: РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ РєР»Р°РІРёР°С‚СѓСЂРЅС‹Р№ РІРІРѕРґ
 //------------------------------------------------------------------------------
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
@@ -349,8 +342,8 @@ end;
  
  
 //------------------------------------------------------------------------------
-// Имя:      TForm1.FormDestroy()
-// Описание: Вызывается при удалении программы из памяти
+// РРјСЏ:      TForm1.FormDestroy()
+// РћРїРёСЃР°РЅРёРµ: Р’С‹Р·С‹РІР°РµС‚СЃСЏ РїСЂРё СѓРґР°Р»РµРЅРёРё РїСЂРѕРіСЂР°РјРјС‹ РёР· РїР°РјСЏС‚Рё
 //------------------------------------------------------------------------------
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
@@ -360,7 +353,7 @@ end;
 end.
 </pre>
 
-<p>Форма:</p>
+<p>Р¤РѕСЂРјР°:</p>
 <pre name="code" class="delphi">
 object Form1: TForm1
   Left = 221
@@ -368,8 +361,8 @@ object Form1: TForm1
   BorderIcons = []
   BorderStyle = bsSingle
   Caption = 
-    'DirectInput 8: буферизированный опрос мыши (нажмите Esc для выхо' +
-    'да)'
+    'DirectInput 8: Р±СѓС„РµСЂРёР·РёСЂРѕРІР°РЅРЅС‹Р№ РѕРїСЂРѕСЃ РјС‹С€Рё (РЅР°Р¶РјРёС‚Рµ Esc РґР»СЏ РІС‹С…Рѕ' +
+    'РґР°)'
   ClientHeight = 500
   ClientWidth = 500
   Color = clBtnFace
@@ -470,7 +463,7 @@ object Form1: TForm1
     Top = 8
     Width = 129
     Height = 145
-    Caption = 'Состояние мыши'
+    Caption = 'РЎРѕСЃС‚РѕСЏРЅРёРµ РјС‹С€Рё'
     TabOrder = 0
     object lbX0: TLabel
       Left = 17
@@ -491,7 +484,7 @@ object Form1: TForm1
       Top = 64
       Width = 46
       Height = 13
-      Caption = 'Кнопка1:'
+      Caption = 'РљРЅРѕРїРєР°1:'
       Enabled = False
     end
     object lb2: TLabel
@@ -499,7 +492,7 @@ object Form1: TForm1
       Top = 80
       Width = 46
       Height = 13
-      Caption = 'Кнопка2:'
+      Caption = 'РљРЅРѕРїРєР°2:'
       Enabled = False
     end
     object lb3: TLabel
@@ -507,7 +500,7 @@ object Form1: TForm1
       Top = 96
       Width = 46
       Height = 13
-      Caption = 'Кнопка3:'
+      Caption = 'РљРЅРѕРїРєР°3:'
       Enabled = False
     end
     object lbBtn1: TLabel
@@ -539,7 +532,7 @@ object Form1: TForm1
       Top = 112
       Width = 46
       Height = 13
-      Caption = 'Кнопка4:'
+      Caption = 'РљРЅРѕРїРєР°4:'
       Enabled = False
     end
     object lbBtn4: TLabel
@@ -573,10 +566,10 @@ end
 <pre name="code" class="delphi">
 {******************************************************************************
  *                                                                            *
- *  Придумал и написал Кода Виктор, Март 2002                                 *
+ *  РџСЂРёРґСѓРјР°Р» Рё РЅР°РїРёСЃР°Р» РљРѕРґР° Р’РёРєС‚РѕСЂ, РњР°СЂС‚ 2002                                 *
  *                                                                            *
- *  Файл:       main.pas                                                      *
- *  Содержание: Пример непосредственного опроса мыши методами DirectInput     *
+ *  Р¤Р°Р№Р»:       main.pas                                                      *
+ *  РЎРѕРґРµСЂР¶Р°РЅРёРµ: РџСЂРёРјРµСЂ РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕРіРѕ РѕРїСЂРѕСЃР° РјС‹С€Рё РјРµС‚РѕРґР°РјРё DirectInput     *
  *                                                                            *
  ******************************************************************************}
 unit main;
@@ -629,7 +622,7 @@ uses
  
  
 //------------------------------------------------------------------------------
-// Константы и глобальные переменные
+// РљРѕРЅСЃС‚Р°РЅС‚С‹ Рё РіР»РѕР±Р°Р»СЊРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ
 //------------------------------------------------------------------------------
 const
   CURSOR_SPEED = 2.0;
@@ -645,36 +638,36 @@ var
  
  
 //------------------------------------------------------------------------------
-// Имя:      InitDirectInput()
-// Описание: Производит инициализацию объектов DirectInput в программе
+// РРјСЏ:      InitDirectInput()
+// РћРїРёСЃР°РЅРёРµ: РџСЂРѕРёР·РІРѕРґРёС‚ РёРЅРёС†РёР°Р»РёР·Р°С†РёСЋ РѕР±СЉРµРєС‚РѕРІ DirectInput РІ РїСЂРѕРіСЂР°РјРјРµ
 //------------------------------------------------------------------------------
 function InitDirectInput( hWnd: HWND ): Boolean;
 var
-  dipropdw: TDIPROPDWORD; // Структура для задания характеристик мыши
+  dipropdw: TDIPROPDWORD; // РЎС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ Р·Р°РґР°РЅРёСЏ С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРє РјС‹С€Рё
 begin
   Result := FALSE;
  
-  // Создаём главный объект DirectInput
+  // РЎРѕР·РґР°С‘Рј РіР»Р°РІРЅС‹Р№ РѕР±СЉРµРєС‚ DirectInput
   if FAILED( DirectInput8Create( GetModuleHandle( 0 ), DIRECTINPUT_VERSION,
                                  IID_IDirectInput8, lpDI8, nil ) ) then
      Exit;
   lpDI8._AddRef();
  
-  // Создаём объект для работы с мышью
+  // РЎРѕР·РґР°С‘Рј РѕР±СЉРµРєС‚ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РјС‹С€СЊСЋ
   if FAILED( lpDI8.CreateDevice( GUID_SysMouse, lpDIMouse, nil ) ) then
      Exit;
   lpDIMouse._AddRef();
  
-  // Устанавлаваем предопределённый формат данных
+  // РЈСЃС‚Р°РЅР°РІР»Р°РІР°РµРј РїСЂРµРґРѕРїСЂРµРґРµР»С‘РЅРЅС‹Р№ С„РѕСЂРјР°С‚ РґР°РЅРЅС‹С…
   if FAILED( lpDIMouse.SetDataFormat( @c_dfDIMouse ) ) then
      Exit;
  
-  // Устанавливаем уровень кооперации
+  // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј СѓСЂРѕРІРµРЅСЊ РєРѕРѕРїРµСЂР°С†РёРё
   if FAILED( lpDIMouse.SetCooperativeLevel( hWnd, DISCL_FOREGROUND or
                                                   DISCL_EXCLUSIVE ) ) then
      Exit;
  
-  // Захвытываем мышь
+  // Р—Р°С…РІС‹С‚С‹РІР°РµРј РјС‹С€СЊ
   lpDIMouse.Acquire();
  
   Result := TRUE;
@@ -684,12 +677,12 @@ end;
  
  
 //------------------------------------------------------------------------------
-// Имя:      ReleaseDirectInput()
-// Описание: Производит удаление объектов DirectInput
+// РРјСЏ:      ReleaseDirectInput()
+// РћРїРёСЃР°РЅРёРµ: РџСЂРѕРёР·РІРѕРґРёС‚ СѓРґР°Р»РµРЅРёРµ РѕР±СЉРµРєС‚РѕРІ DirectInput
 //------------------------------------------------------------------------------
 procedure ReleaseDirectInput();
 begin
-  // Удаляем объект для работы с мышью
+  // РЈРґР°Р»СЏРµРј РѕР±СЉРµРєС‚ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РјС‹С€СЊСЋ
   if lpDIMouse &lt;&gt; nil then
   begin
     lpDIMouse.Unacquire();
@@ -697,7 +690,7 @@ begin
     lpDIMouse := nil;
   end;
  
-  // Удаляем главный объект DirectInput (всегда последним)
+  // РЈРґР°Р»СЏРµРј РіР»Р°РІРЅС‹Р№ РѕР±СЉРµРєС‚ DirectInput (РІСЃРµРіРґР° РїРѕСЃР»РµРґРЅРёРј)
   if lpDI8 &lt;&gt; nil then
   begin
     lpDI8._Release();
@@ -709,21 +702,21 @@ end;
  
  
 //------------------------------------------------------------------------------
-// Имя:      GetMouseCaps()
-// Описание: Получает характеристики мыши (определяет кол-во кнопок)
+// РРјСЏ:      GetMouseCaps()
+// РћРїРёСЃР°РЅРёРµ: РџРѕР»СѓС‡Р°РµС‚ С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРєРё РјС‹С€Рё (РѕРїСЂРµРґРµР»СЏРµС‚ РєРѕР»-РІРѕ РєРЅРѕРїРѕРє)
 //------------------------------------------------------------------------------
 procedure GetMouseCaps();
 var
-  lpCaps: TDIDEVCAPS; // Структура для получения данных об элементах мыши
+  lpCaps: TDIDEVCAPS; // РЎС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РґР°РЅРЅС‹С… РѕР± СЌР»РµРјРµРЅС‚Р°С… РјС‹С€Рё
 begin
-  // Подготавливаем структуру TDIDEVCAPS (для получения характеристик мыши)
+  // РџРѕРґРіРѕС‚Р°РІР»РёРІР°РµРј СЃС‚СЂСѓРєС‚СѓСЂСѓ TDIDEVCAPS (РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРє РјС‹С€Рё)
   ZeroMemory( @lpCaps, SizeOf( TDIDEVCAPS ) );
   lpCaps.dwSize := SizeOf( TDIDEVCAPS );
  
-  // Получаем характеристики мыши, данные записывааются в структуру lpCaps
+  // РџРѕР»СѓС‡Р°РµРј С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРєРё РјС‹С€Рё, РґР°РЅРЅС‹Рµ Р·Р°РїРёСЃС‹РІР°Р°СЋС‚СЃСЏ РІ СЃС‚СЂСѓРєС‚СѓСЂСѓ lpCaps
   lpDIMouse.GetCapabilities( lpCaps );
  
-  // Приводим GUI в соответствующий вид
+  // РџСЂРёРІРѕРґРёРј GUI РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РІРёРґ
   with Form1 do
   begin
     if lpCaps.dwButtons &gt; 0 then
@@ -752,28 +745,28 @@ end;
  
  
 //------------------------------------------------------------------------------
-// Имя:      UpdateMouseState()
-// Описание: Производит опрос мыши и выводит данные в окно
+// РРјСЏ:      UpdateMouseState()
+// РћРїРёСЃР°РЅРёРµ: РџСЂРѕРёР·РІРѕРґРёС‚ РѕРїСЂРѕСЃ РјС‹С€Рё Рё РІС‹РІРѕРґРёС‚ РґР°РЅРЅС‹Рµ РІ РѕРєРЅРѕ
 //------------------------------------------------------------------------------
-function UpdateMouseState( var(*по параметру*)x, y: DWORD ): Boolean;
+function UpdateMouseState( var(*РїРѕ РїР°СЂР°РјРµС‚СЂСѓ*)x, y: DWORD ): Boolean;
 var
   ms: TDIMOUSESTATE;
 begin
   Result := FALSE;
  
-  // Получаем данные от мыши
+  // РџРѕР»СѓС‡Р°РµРј РґР°РЅРЅС‹Рµ РѕС‚ РјС‹С€Рё
   if lpDImouse.GetDeviceState( SizeOf( TDIMOUSESTATE ), @ms ) = DIERR_INPUTLOST then
   begin
-    // Снова захватываем
+    // РЎРЅРѕРІР° Р·Р°С…РІР°С‚С‹РІР°РµРј
     lpDIMouse.Acquire();
-    // Если всё бесполезно, то выходим
+    // Р•СЃР»Рё РІСЃС‘ Р±РµСЃРїРѕР»РµР·РЅРѕ, С‚Рѕ РІС‹С…РѕРґРёРј
     if FAILED( lpDImouse.GetDeviceState( SizeOf( TDIMOUSESTATE ), @ms ) ) then
        Exit;
   end;
  
   with Form1 do
   begin
-    // Вот так можно сделать движение курсора с переменной скоростью
+    // Р’РѕС‚ С‚Р°Рє РјРѕР¶РЅРѕ СЃРґРµР»Р°С‚СЊ РґРІРёР¶РµРЅРёРµ РєСѓСЂСЃРѕСЂР° СЃ РїРµСЂРµРјРµРЅРЅРѕР№ СЃРєРѕСЂРѕСЃС‚СЊСЋ
     if ms.lX &lt; 0 then ms.lX := Round( ms.lX * CURSOR_SPEED ) else
     if ms.lX &gt; 0 then ms.lX := Round( ms.lX * CURSOR_SPEED );
  
@@ -785,13 +778,13 @@ begin
  
     //------
  
-    if ms.rgbButtons[ 0 ] = $080 then lbBtn1.Caption := 'Нажата'
+    if ms.rgbButtons[ 0 ] = $080 then lbBtn1.Caption := 'РќР°Р¶Р°С‚Р°'
                                  else lbBtn1.Caption := '';
-    if ms.rgbButtons[ 1 ] = $080 then lbBtn2.Caption := 'Нажата'
+    if ms.rgbButtons[ 1 ] = $080 then lbBtn2.Caption := 'РќР°Р¶Р°С‚Р°'
                                  else lbBtn2.Caption := '';
-    if ms.rgbButtons[ 2 ] = $080 then lbBtn3.Caption := 'Нажата'
+    if ms.rgbButtons[ 2 ] = $080 then lbBtn3.Caption := 'РќР°Р¶Р°С‚Р°'
                                  else lbBtn3.Caption := '';
-    if ms.rgbButtons[ 3 ] = $080 then lbBtn4.Caption := 'Нажата'
+    if ms.rgbButtons[ 3 ] = $080 then lbBtn4.Caption := 'РќР°Р¶Р°С‚Р°'
                                  else lbBtn4.Caption := '';
   end;
  
@@ -802,31 +795,31 @@ end;
  
  
 //------------------------------------------------------------------------------
-// Имя:      TForm1.Idle()
-// Описание: Вызывает функцию опроса состояния мыши
+// РРјСЏ:      TForm1.Idle()
+// РћРїРёСЃР°РЅРёРµ: Р’С‹Р·С‹РІР°РµС‚ С„СѓРЅРєС†РёСЋ РѕРїСЂРѕСЃР° СЃРѕСЃС‚РѕСЏРЅРёСЏ РјС‹С€Рё
 //------------------------------------------------------------------------------
 procedure TForm1.Idle( Sender: TObject; var Done: Boolean );
 var
   dwOffsX,
-  dwOffsY: DWORD; // Смещение мыши
+  dwOffsY: DWORD; // РЎРјРµС‰РµРЅРёРµ РјС‹С€Рё
 begin
-  // Получаем данные и записываем их в offsX и offsY
+  // РџРѕР»СѓС‡Р°РµРј РґР°РЅРЅС‹Рµ Рё Р·Р°РїРёСЃС‹РІР°РµРј РёС… РІ offsX Рё offsY
   if not UpdateMouseState( dwOffsX, dwOffsY ) then
   begin
-    MessageBox( Form1.Handle, 'Потеряно устройство управления!',
-                'Ошибка!', MB_ICONHAND );
+    MessageBox( Form1.Handle, 'РџРѕС‚РµСЂСЏРЅРѕ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ СѓРїСЂР°РІР»РµРЅРёСЏ!',
+                'РћС€РёР±РєР°!', MB_ICONHAND );
     Form1.Close();
   end;
  
-  // Смещаем позицию курсора
+  // РЎРјРµС‰Р°РµРј РїРѕР·РёС†РёСЋ РєСѓСЂСЃРѕСЂР°
   Inc( dwMouseXPos, dwOffsX );
   Inc( dwMouseYPos, dwOffsY );
  
   lbX.Caption := Format( '%d', [ dwMouseXPos ] );
   lbY.Caption := Format( '%d', [ dwMouseYPos ] );
  
-  imCursor.Left := 234 + dwMouseXPos; // 234 - координата, если мы хотим, чтобы
-  imCursor.Top  := 234 + dwMouseYPos; // курсор был с начала работы в центре окна
+  imCursor.Left := 234 + dwMouseXPos; // 234 - РєРѕРѕСЂРґРёРЅР°С‚Р°, РµСЃР»Рё РјС‹ С…РѕС‚РёРј, С‡С‚РѕР±С‹
+  imCursor.Top  := 234 + dwMouseYPos; // РєСѓСЂСЃРѕСЂ Р±С‹Р» СЃ РЅР°С‡Р°Р»Р° СЂР°Р±РѕС‚С‹ РІ С†РµРЅС‚СЂРµ РѕРєРЅР°
  
   Done := FALSE;
 end;
@@ -835,28 +828,28 @@ end;
  
  
 //------------------------------------------------------------------------------
-// Имя:      TForm1.FormActivate()
-// Описание: Производит инициализацию DirectInput при активизации окна
+// РРјСЏ:      TForm1.FormActivate()
+// РћРїРёСЃР°РЅРёРµ: РџСЂРѕРёР·РІРѕРґРёС‚ РёРЅРёС†РёР°Р»РёР·Р°С†РёСЋ DirectInput РїСЂРё Р°РєС‚РёРІРёР·Р°С†РёРё РѕРєРЅР°
 //------------------------------------------------------------------------------
 procedure TForm1.FormActivate(Sender: TObject);
 begin
   if not InitDirectInput( Form1.Handle ) then
   begin
-    MessageBox( Form1.Handle, 'Ошибка при инициализации DirectInput!',
-                'Ошибка!', MB_ICONHAND );
+    MessageBox( Form1.Handle, 'РћС€РёР±РєР° РїСЂРё РёРЅРёС†РёР°Р»РёР·Р°С†РёРё DirectInput!',
+                'РћС€РёР±РєР°!', MB_ICONHAND );
     Form1.Close();
   end;
  
-  // Получаем характеристики мыши (сколько кнопок?). Кстати, я не знаю - как
-  // определить, есть ли у мыши колёсико?
+  // РџРѕР»СѓС‡Р°РµРј С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРєРё РјС‹С€Рё (СЃРєРѕР»СЊРєРѕ РєРЅРѕРїРѕРє?). РљСЃС‚Р°С‚Рё, СЏ РЅРµ Р·РЅР°СЋ - РєР°Рє
+  // РѕРїСЂРµРґРµР»РёС‚СЊ, РµСЃС‚СЊ Р»Рё Сѓ РјС‹С€Рё РєРѕР»С‘СЃРёРєРѕ?
   GetMouseCaps();
  
-  // Приводим UI в соответствующий вид
+  // РџСЂРёРІРѕРґРёРј UI РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РІРёРґ
   lbBtn1.Caption := '';
   lbBtn2.Caption := '';
   lbBtn3.Caption := '';
   lbBtn4.Caption := '';
-  imCursor.Left := 184; // Курсор центре окна
+  imCursor.Left := 184; // РљСѓСЂСЃРѕСЂ С†РµРЅС‚СЂРµ РѕРєРЅР°
   imCursor.Top  := 184;
  
   Application.OnIdle := Idle;
@@ -866,8 +859,8 @@ end;
  
  
 //------------------------------------------------------------------------------
-// Имя:      TForm1.FormKeyDown()
-// Описание: Обрабатывает клавиатурный ввод
+// РРјСЏ:      TForm1.FormKeyDown()
+// РћРїРёСЃР°РЅРёРµ: РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ РєР»Р°РІРёР°С‚СѓСЂРЅС‹Р№ РІРІРѕРґ
 //------------------------------------------------------------------------------
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
@@ -879,8 +872,8 @@ end;
  
  
 //------------------------------------------------------------------------------
-// Имя:      TForm1.FormDestroy()
-// Описание: Вызывается при удалении программы из памяти
+// РРјСЏ:      TForm1.FormDestroy()
+// РћРїРёСЃР°РЅРёРµ: Р’С‹Р·С‹РІР°РµС‚СЃСЏ РїСЂРё СѓРґР°Р»РµРЅРёРё РїСЂРѕРіСЂР°РјРјС‹ РёР· РїР°РјСЏС‚Рё
 //------------------------------------------------------------------------------
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
@@ -891,7 +884,7 @@ end.
 </pre>
 
 
-<p>форма:</p>
+<p>С„РѕСЂРјР°:</p>
 
 <pre name="code" class="delphi">
 object Form1: TForm1
@@ -900,8 +893,8 @@ object Form1: TForm1
   BorderIcons = []
   BorderStyle = bsSingle
   Caption = 
-    'DirectInput 8: непосредственный опрос мыши (нажмите Esc для выхо' +
-    'да)'
+    'DirectInput 8: РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅС‹Р№ РѕРїСЂРѕСЃ РјС‹С€Рё (РЅР°Р¶РјРёС‚Рµ Esc РґР»СЏ РІС‹С…Рѕ' +
+    'РґР°)'
   ClientHeight = 500
   ClientWidth = 500
   Color = clBtnFace
@@ -1002,7 +995,7 @@ object Form1: TForm1
     Top = 480
     Width = 195
     Height = 13
-    Caption = 'Кода Виктор, e-mail kodavic@rambler.ru'
+    Caption = 'РљРѕРґР° Р’РёРєС‚РѕСЂ, e-mail kodavic@rambler.ru'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clBlue
     Font.Height = -11
@@ -1015,7 +1008,7 @@ object Form1: TForm1
     Top = 8
     Width = 129
     Height = 145
-    Caption = 'Состояние мыши'
+    Caption = 'РЎРѕСЃС‚РѕСЏРЅРёРµ РјС‹С€Рё'
     TabOrder = 0
     object lbX0: TLabel
       Left = 17
@@ -1036,7 +1029,7 @@ object Form1: TForm1
       Top = 64
       Width = 46
       Height = 13
-      Caption = 'Кнопка1:'
+      Caption = 'РљРЅРѕРїРєР°1:'
       Enabled = False
     end
     object lb2: TLabel
@@ -1044,7 +1037,7 @@ object Form1: TForm1
       Top = 80
       Width = 46
       Height = 13
-      Caption = 'Кнопка2:'
+      Caption = 'РљРЅРѕРїРєР°2:'
       Enabled = False
     end
     object lb3: TLabel
@@ -1052,7 +1045,7 @@ object Form1: TForm1
       Top = 96
       Width = 46
       Height = 13
-      Caption = 'Кнопка3:'
+      Caption = 'РљРЅРѕРїРєР°3:'
       Enabled = False
     end
     object lbBtn1: TLabel
@@ -1084,7 +1077,7 @@ object Form1: TForm1
       Top = 112
       Width = 46
       Height = 13
-      Caption = 'Кнопка4:'
+      Caption = 'РљРЅРѕРїРєР°4:'
       Enabled = False
     end
     object lbBtn4: TLabel
@@ -1114,14 +1107,14 @@ end
 </pre>
 
 
-<p>Взято с сайта Анатолия Подгорецкого&nbsp; <a href="http://podgoretsky.com" target="_blank">http://podgoretsky.com</a> </p>
-<p>по материалам fido7.ru.delphi.* </p>
+<p>Р’Р·СЏС‚Рѕ СЃ СЃР°Р№С‚Р° РђРЅР°С‚РѕР»РёСЏ РџРѕРґРіРѕСЂРµС†РєРѕРіРѕ&nbsp; <a href="http://podgoretsky.com" target="_blank">http://podgoretsky.com</a> </p>
+<p>РїРѕ РјР°С‚РµСЂРёР°Р»Р°Рј fido7.ru.delphi.* </p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

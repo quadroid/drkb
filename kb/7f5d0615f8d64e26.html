@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Byte-поля Paradox</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>Byte-РїРѕР»СЏ Paradox</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,56 +13,49 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Byte-поля Paradox</h1>
+  <h1 id="title">Byte-РїРѕР»СЏ Paradox</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Что за магия при записи в поле Paradox Byte? По этому поводу в документации ничего не сказано. </p>
 
-<p>Есть 2 пути получить доступ к данным в TBytesField. </p>
+<p>Р§С‚Рѕ Р·Р° РјР°РіРёСЏ РїСЂРё Р·Р°РїРёСЃРё РІ РїРѕР»Рµ Paradox Byte? РџРѕ СЌС‚РѕРјСѓ РїРѕРІРѕРґСѓ РІ РґРѕРєСѓРјРµРЅС‚Р°С†РёРё РЅРёС‡РµРіРѕ РЅРµ СЃРєР°Р·Р°РЅРѕ. </p>
 
-<p>Просто вызовите метод GetData, передавая ему указатель на буфер, где сам буфер должен иметь размер, достаточный для хранения данных:</p>
+<p>Р•СЃС‚СЊ 2 РїСѓС‚Рё РїРѕР»СѓС‡РёС‚СЊ РґРѕСЃС‚СѓРї Рє РґР°РЅРЅС‹Рј РІ TBytesField. </p>
+
+<p>РџСЂРѕСЃС‚Рѕ РІС‹Р·РѕРІРёС‚Рµ РјРµС‚РѕРґ GetData, РїРµСЂРµРґР°РІР°СЏ РµРјСѓ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° Р±СѓС„РµСЂ, РіРґРµ СЃР°Рј Р±СѓС„РµСЂ РґРѕР»Р¶РµРЅ РёРјРµС‚СЊ СЂР°Р·РјРµСЂ, РґРѕСЃС‚Р°С‚РѕС‡РЅС‹Р№ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РґР°РЅРЅС‹С…:</p>
 <pre name="code" class="delphi">
 procedure SetCheckBoxStates;
 var
   CBStates: array[1..13] of Byte;
 begin
   CBStateField.GetData(CBStates);
-  { Здесь обрабатываем данные... }
+  { Р—РґРµСЃСЊ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРј РґР°РЅРЅС‹Рµ... }
 end;
 </pre>
 
-<p>Для записи значений вы должны использовать SetData. </p>
+<p>Р”Р»СЏ Р·Р°РїРёСЃРё Р·РЅР°С‡РµРЅРёР№ РІС‹ РґРѕР»Р¶РЅС‹ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ SetData. </p>
 
-<p>Используйте свойство Value, возвращающее вариантный массив байт (variant array of bytes):</p>
+<p>РСЃРїРѕР»СЊР·СѓР№С‚Рµ СЃРІРѕР№СЃС‚РІРѕ Value, РІРѕР·РІСЂР°С‰Р°СЋС‰РµРµ РІР°СЂРёР°РЅС‚РЅС‹Р№ РјР°СЃСЃРёРІ Р±Р°Р№С‚ (variant array of bytes):</p>
 <pre name="code" class="delphi">
 procedure SetCheckBoxStates;
 var
   CBStates: Variant;
 begin
   CBStates := CBStateField.Value;
-  { Здесь обрабатываем данные... }
+  { Р—РґРµСЃСЊ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРј РґР°РЅРЅС‹Рµ... }
 end;
 </pre>
 
 
-<p>Первый метод, вероятно, для вас будет легче, поскольку вы сразу докапываетесь до уровня байт. Запись данных также получится сложнее, поскольку вам нужно будет работать с variant-методами типа VarArrayCreate и др. </p>
-<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<p>РџРµСЂРІС‹Р№ РјРµС‚РѕРґ, РІРµСЂРѕСЏС‚РЅРѕ, РґР»СЏ РІР°СЃ Р±СѓРґРµС‚ Р»РµРіС‡Рµ, РїРѕСЃРєРѕР»СЊРєСѓ РІС‹ СЃСЂР°Р·Сѓ РґРѕРєР°РїС‹РІР°РµС‚РµСЃСЊ РґРѕ СѓСЂРѕРІРЅСЏ Р±Р°Р№С‚. Р—Р°РїРёСЃСЊ РґР°РЅРЅС‹С… С‚Р°РєР¶Рµ РїРѕР»СѓС‡РёС‚СЃСЏ СЃР»РѕР¶РЅРµРµ, РїРѕСЃРєРѕР»СЊРєСѓ РІР°Рј РЅСѓР¶РЅРѕ Р±СѓРґРµС‚ СЂР°Р±РѕС‚Р°С‚СЊ СЃ variant-РјРµС‚РѕРґР°РјРё С‚РёРїР° VarArrayCreate Рё РґСЂ. </p>
+<p>Р’Р·СЏС‚Рѕ СЃ <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Определение версии системных DLL</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РћРїСЂРµРґРµР»РµРЅРёРµ РІРµСЂСЃРёРё СЃРёСЃС‚РµРјРЅС‹С… DLL</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,33 +13,26 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Определение версии системных DLL</h1>
+  <h1 id="title">РћРїСЂРµРґРµР»РµРЅРёРµ РІРµСЂСЃРёРё СЃРёСЃС‚РµРјРЅС‹С… DLL</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 { **** UBPFD *********** by kladovka.net.ru ****
-&gt;&gt; Определение версии системных DLL
+&gt;&gt; РћРїСЂРµРґРµР»РµРЅРёРµ РІРµСЂСЃРёРё СЃРёСЃС‚РµРјРЅС‹С… DLL
  
-Функция предназначена для определение версии системных DLL. Кодирование версии осуществляется вспомогательной функцией MakeVersion (см. код).
+Р¤СѓРЅРєС†РёСЏ РїСЂРµРґРЅР°Р·РЅР°С‡РµРЅР° РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёРµ РІРµСЂСЃРёРё СЃРёСЃС‚РµРјРЅС‹С… DLL. РљРѕРґРёСЂРѕРІР°РЅРёРµ РІРµСЂСЃРёРё РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РІСЃРїРѕРјРѕРіР°С‚РµР»СЊРЅРѕР№ С„СѓРЅРєС†РёРµР№ MakeVersion (СЃРј. РєРѕРґ).
  
-Зависимости: Windows
-Автор:       Almaz, az_spb@mail.ru, Санкт-Петербург
-Copyright:   Собственное написание Almaz
-Дата:        12 мая 2002 г.
+Р—Р°РІРёСЃРёРјРѕСЃС‚Рё: Windows
+РђРІС‚РѕСЂ:       Almaz, az_spb@mail.ru, РЎР°РЅРєС‚-РџРµС‚РµСЂР±СѓСЂРі
+Copyright:   РЎРѕР±СЃС‚РІРµРЅРЅРѕРµ РЅР°РїРёСЃР°РЅРёРµ Almaz
+Р”Р°С‚Р°:        12 РјР°СЏ 2002 Рі.
 ********************************************** }
  
-function MakeVersion(Major, Minor: Word): Integer; // Функция кодирование версии
+function MakeVersion(Major, Minor: Word): Integer; // Р¤СѓРЅРєС†РёСЏ РєРѕРґРёСЂРѕРІР°РЅРёРµ РІРµСЂСЃРёРё
 begin
   Result := MAKELONG(Minor, Major);
 end;
@@ -63,29 +56,29 @@ var
 begin
   Result := 0;
   try
-    // Получение ссылки на DLL, если она уже загружена
+    // РџРѕР»СѓС‡РµРЅРёРµ СЃСЃС‹Р»РєРё РЅР° DLL, РµСЃР»Рё РѕРЅР° СѓР¶Рµ Р·Р°РіСЂСѓР¶РµРЅР°
     Lib := GetModuleHandle(FileName); 
     if Lib = 0 then
     begin
-      // Загрузка DLL, если она еще не загружена
+      // Р—Р°РіСЂСѓР·РєР° DLL, РµСЃР»Рё РѕРЅР° РµС‰Рµ РЅРµ Р·Р°РіСЂСѓР¶РµРЅР°
       Lib := LoadLibrary('SHELL32.DLL');
       WasLoaded := True;
     end else WasLoaded := False;
     if Lib &lt;&gt; 0 then
     try
-      // Получение адреса функции DllGetVersion
+      // РџРѕР»СѓС‡РµРЅРёРµ Р°РґСЂРµСЃР° С„СѓРЅРєС†РёРё DllGetVersion
       DllGetVersion := GetProcAddress(Lib, 'DllGetVersion'); 
       if Assigned(DllGetVersion) then
       begin
-        // Подготовка структуры для функции
+        // РџРѕРґРіРѕС‚РѕРІРєР° СЃС‚СЂСѓРєС‚СѓСЂС‹ РґР»СЏ С„СѓРЅРєС†РёРё
         ZeroMemory(@Info, SizeOf(Info));
         Info.cbSize := SizeOf(Info);
-        // Вызов функции DllGetVersion
+        // Р’С‹Р·РѕРІ С„СѓРЅРєС†РёРё DllGetVersion
         if DllGetVersion(@Info) = NOERROR then
           Result := MakeVersion(Info.dwMajorVersion, Info.dwMinorVersion);
       end;
     finally
-      // Если DLL была загружена этой функцией - то выгружаем 
+      // Р•СЃР»Рё DLL Р±С‹Р»Р° Р·Р°РіСЂСѓР¶РµРЅР° СЌС‚РѕР№ С„СѓРЅРєС†РёРµР№ - С‚Рѕ РІС‹РіСЂСѓР¶Р°РµРј 
       if WasLoaded then FreeLibrary(Lib);
     end;
   except
@@ -93,13 +86,13 @@ begin
 end; 
 </pre>
 
-<p> Пример использования:</p>
+<p> РџСЂРёРјРµСЂ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ:</p>
 <pre name="code" class="delphi">
-// Закодированные MakeVersion версии можно просто сравнивать
+// Р—Р°РєРѕРґРёСЂРѕРІР°РЅРЅС‹Рµ MakeVersion РІРµСЂСЃРёРё РјРѕР¶РЅРѕ РїСЂРѕСЃС‚Рѕ СЃСЂР°РІРЅРёРІР°С‚СЊ
 if GetDLLVersion('SHELL32.DLL') &gt; MakeVersion(5, 0) then 
   ...
  
-// Вот так можно вывести версию DLL
+// Р’РѕС‚ С‚Р°Рє РјРѕР¶РЅРѕ РІС‹РІРµСЃС‚Рё РІРµСЂСЃРёСЋ DLL
  
 var
   V: Integer;
@@ -110,10 +103,10 @@ end;
 </pre>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

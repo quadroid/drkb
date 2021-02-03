@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Копирование свойств одного компонента другому</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљРѕРїРёСЂРѕРІР°РЅРёРµ СЃРІРѕР№СЃС‚РІ РѕРґРЅРѕРіРѕ РєРѕРјРїРѕРЅРµРЅС‚Р° РґСЂСѓРіРѕРјСѓ</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,28 +13,21 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Копирование свойств одного компонента другому</h1>
+  <h1 id="title">РљРѕРїРёСЂРѕРІР°РЅРёРµ СЃРІРѕР№СЃС‚РІ РѕРґРЅРѕРіРѕ РєРѕРјРїРѕРЅРµРЅС‚Р° РґСЂСѓРіРѕРјСѓ</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 uses
    StrUtils;
  
 procedure CopyComponentProp(Source, Target: TObject; aExcept: array of string);
-// Копирование всех одинаковых по названию свойств/методов одного компонента в
-// другой за исключение "Name", "Left", "Top" и тех которые заданы в aExcept
-// Примеры использования:
+// РљРѕРїРёСЂРѕРІР°РЅРёРµ РІСЃРµС… РѕРґРёРЅР°РєРѕРІС‹С… РїРѕ РЅР°Р·РІР°РЅРёСЋ СЃРІРѕР№СЃС‚РІ/РјРµС‚РѕРґРѕРІ РѕРґРЅРѕРіРѕ РєРѕРјРїРѕРЅРµРЅС‚Р° РІ
+// РґСЂСѓРіРѕР№ Р·Р° РёСЃРєР»СЋС‡РµРЅРёРµ "Name", "Left", "Top" Рё С‚РµС… РєРѕС‚РѕСЂС‹Рµ Р·Р°РґР°РЅС‹ РІ aExcept
+// РџСЂРёРјРµСЂС‹ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ:
 // CopyComponentProp(N11, N21, []);
 // CopyComponentProp(ListBox2, ListBox3, []);
 // CopyComponentProp(ListView1, ListView2, ['Items', 'Color']);
@@ -45,7 +38,7 @@ var
   Source_NumProps  , Target_NumProps  : Word;
   Source_PropObject, Target_PropObject: TObject;
  
-  // Поиск в списке свойства с заданным именем
+  // РџРѕРёСЃРє РІ СЃРїРёСЃРєРµ СЃРІРѕР№СЃС‚РІР° СЃ Р·Р°РґР°РЅРЅС‹Рј РёРјРµРЅРµРј
  
   function FindProperty(const PropName: string; PropList: PPropList; NumProps: Word): Integer;
   var
@@ -68,7 +61,7 @@ begin
   GetMem(Source_PropList, Source_NumProps * SizeOf(Pointer));
   GetMem(Target_PropList, Target_NumProps * SizeOf(Pointer));
   try
-    // Получаем список свойств
+    // РџРѕР»СѓС‡Р°РµРј СЃРїРёСЃРѕРє СЃРІРѕР№СЃС‚РІ
     GetPropInfos(Source.ClassInfo, Source_PropList);
     GetPropInfos(Target.ClassInfo, Target_PropList);
  
@@ -80,9 +73,9 @@ begin
           (AnsiIndexText(PropName, aExcept                ) &lt;&gt; -1)) then Continue;
  
       Index:= FindProperty(PropName, Target_PropList, Target_NumProps);
-      if Index = -1 then Continue; // не нашли
+      if Index = -1 then Continue; // РЅРµ РЅР°С€Р»Рё
  
-      // Проверить совпадение типов
+      // РџСЂРѕРІРµСЂРёС‚СЊ СЃРѕРІРїР°РґРµРЅРёРµ С‚РёРїРѕРІ
       if Source_PropList^[I]^.PropType^.Kind &lt;&gt; Target_PropList^[Index]^.PropType^.Kind then
         Continue;
  
@@ -108,8 +101,8 @@ uses
    StrUtils
  
 procedure AssignComponentProp(Source, Target: TObject; aProp: array of string);
-// Копирование свойств/методов заданых в aProp одного компонента в другой
-// Пример использования:
+// РљРѕРїРёСЂРѕРІР°РЅРёРµ СЃРІРѕР№СЃС‚РІ/РјРµС‚РѕРґРѕРІ Р·Р°РґР°РЅС‹С… РІ aProp РѕРґРЅРѕРіРѕ РєРѕРјРїРѕРЅРµРЅС‚Р° РІ РґСЂСѓРіРѕР№
+// РџСЂРёРјРµСЂ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ:
 // AssignedComponentProp(ListView1, ListView2, ['Items', 'Color']);
 var
   I, Index: Integer;
@@ -118,7 +111,7 @@ var
   Source_NumProps  , Target_NumProps  : Word;
   Source_PropObject, Target_PropObject: TObject;
  
-  // Поиск в списке свойства с заданным именем
+  // РџРѕРёСЃРє РІ СЃРїРёСЃРєРµ СЃРІРѕР№СЃС‚РІР° СЃ Р·Р°РґР°РЅРЅС‹Рј РёРјРµРЅРµРј
  
   function FindProperty(const PropName: string; PropList: PPropList; NumProps: Word): Integer;
   var
@@ -141,7 +134,7 @@ begin
   GetMem(Source_PropList, Source_NumProps * SizeOf(Pointer));
   GetMem(Target_PropList, Target_NumProps * SizeOf(Pointer));
   try
-    // Получаем список свойств
+    // РџРѕР»СѓС‡Р°РµРј СЃРїРёСЃРѕРє СЃРІРѕР№СЃС‚РІ
     GetPropInfos(Source.ClassInfo, Source_PropList);
     GetPropInfos(Target.ClassInfo, Target_PropList);
  
@@ -152,9 +145,9 @@ begin
          (AnsiIndexText(PropName, aProp   ) = -1) then Continue;
  
       Index:= FindProperty(PropName, Target_PropList, Target_NumProps);
-      if Index = -1 then Continue; // не нашли
+      if Index = -1 then Continue; // РЅРµ РЅР°С€Р»Рё
  
-      // Проверить совпадение типов
+      // РџСЂРѕРІРµСЂРёС‚СЊ СЃРѕРІРїР°РґРµРЅРёРµ С‚РёРїРѕРІ
       if Source_PropList^[I]^.PropType^.Kind &lt;&gt; Target_PropList^[Index]^.PropType^.Kind then
         Continue;
  
@@ -176,13 +169,13 @@ begin
 end;
 </pre>
 
-<p id="author">Автор Alex</p>
-<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ Alex</p>
+<p>Р’Р·СЏС‚Рѕ СЃ Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

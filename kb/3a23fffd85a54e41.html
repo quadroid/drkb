@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Печать TStringGrid</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџРµС‡Р°С‚СЊ TStringGrid</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Печать TStringGrid</h1>
+  <h1 id="title">РџРµС‡Р°С‚СЊ TStringGrid</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 procedure TForm1.Button1Click(Sender: TObject);
@@ -34,10 +27,10 @@ begin
  Printer.BeginDoc;
  K :=  Printer.Canvas.Font.PixelsPerInch / Canvas.Font.PixelsPerInch*1.2;
  PrintStringGrid(StrGrid,
-  K,  // Коэффициент
-  200, // отступ от края листа в пихелах по Х
-  200, // --"-- по Y
-  200  // отступ снизу
+  K,  // РљРѕСЌС„С„РёС†РёРµРЅС‚
+  200, // РѕС‚СЃС‚СѓРї РѕС‚ РєСЂР°СЏ Р»РёСЃС‚Р° РІ РїРёС…РµР»Р°С… РїРѕ РҐ
+  200, // --"-- РїРѕ Y
+  200  // РѕС‚СЃС‚СѓРї СЃРЅРёР·Сѓ
   );
  Printer.EndDoc;
 end;
@@ -54,9 +47,9 @@ TopMargin, BottomMargin:
 Integer);
 function DrawStringGridEx(Grid: TStringGrid; Scale: Double; FromRow,
 LeftMargin, TopMargin, Yfloor: Integer; DestCanvas: TCanvas): Integer;
- // возвращает номер строки, которая не поместилась до Y = Yfloor
- // не проверяет, вылезает ли общая длина таблицы за пределы страницы
- // Слишком длинное слово обрежется
+ // РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРѕРјРµСЂ СЃС‚СЂРѕРєРё, РєРѕС‚РѕСЂР°СЏ РЅРµ РїРѕРјРµСЃС‚РёР»Р°СЃСЊ РґРѕ Y = Yfloor
+ // РЅРµ РїСЂРѕРІРµСЂСЏРµС‚, РІС‹Р»РµР·Р°РµС‚ Р»Рё РѕР±С‰Р°СЏ РґР»РёРЅР° С‚Р°Р±Р»РёС†С‹ Р·Р° РїСЂРµРґРµР»С‹ СЃС‚СЂР°РЅРёС†С‹
+ // РЎР»РёС€РєРѕРј РґР»РёРЅРЅРѕРµ СЃР»РѕРІРѕ РѕР±СЂРµР¶РµС‚СЃСЏ
 implementation
 procedure PrintStringGrid(Grid: TStringGrid; Scale: Double; LeftMargin,
 TopMargin, BottomMargin: Integer);
@@ -76,21 +69,21 @@ begin
 end;
 function DrawStringGridEx(Grid: TStringGrid; Scale: Double; FromRow,
 LeftMargin, TopMargin, Yfloor: Integer; DestCanvas: TCanvas): Integer;
- // возвращает номер строки, которая не поместилась до Y = Yfloor
+ // РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРѕРјРµСЂ СЃС‚СЂРѕРєРё, РєРѕС‚РѕСЂР°СЏ РЅРµ РїРѕРјРµСЃС‚РёР»Р°СЃСЊ РґРѕ Y = Yfloor
 var
  i, j, d, TotalPrevH, TotalPrevW, CellH, CellW, LineWidth: Integer;
  R: TRect;
  s: string;
   procedure CorrectCellHeight(ARow: Integer);
-  // вычисление правильной высоты ячейки с учетом многострочного текста
-  // Текст рабивается только по словам слишком длинное слово обрубается
+  // РІС‹С‡РёСЃР»РµРЅРёРµ РїСЂР°РІРёР»СЊРЅРѕР№ РІС‹СЃРѕС‚С‹ СЏС‡РµР№РєРё СЃ СѓС‡РµС‚РѕРј РјРЅРѕРіРѕСЃС‚СЂРѕС‡РЅРѕРіРѕ С‚РµРєСЃС‚Р°
+  // РўРµРєСЃС‚ СЂР°Р±РёРІР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РїРѕ СЃР»РѕРІР°Рј СЃР»РёС€РєРѕРј РґР»РёРЅРЅРѕРµ СЃР»РѕРІРѕ РѕР±СЂСѓР±Р°РµС‚СЃСЏ
   var
    i, H: Integer;
    R: TRect;
    s: string;
   begin
    R := Rect(0, 0, CellH*2, CellH);
-   s := ':)'; // Одинарная высота строки
+   s := ':)'; // РћРґРёРЅР°СЂРЅР°СЏ РІС‹СЃРѕС‚Р° СЃС‚СЂРѕРєРё
    CellH := DrawText(DestCanvas.Handle, PChar(s), Length(s), R,
      DT_LEFT or DT_TOP or DT_WORDBREAK or DT_SINGLELINE or
      DT_NOPREFIX or DT_CALCRECT) + 3*d;
@@ -102,17 +95,17 @@ var
     R.Left := R.Left+d;
     R.Top := R.Top + d;
     s := Grid.Cells[i, ARow];
-    // Вычисление ширины и высоты
+    // Р’С‹С‡РёСЃР»РµРЅРёРµ С€РёСЂРёРЅС‹ Рё РІС‹СЃРѕС‚С‹
     H := DrawText(DestCanvas.Handle, PChar(s), Length(s), R,
      DT_LEFT or DT_TOP or DT_WORDBREAK or DT_NOPREFIX or DT_CALCRECT);
-текста
+С‚РµРєСЃС‚Р°
     if CellH &lt; H + 2*d then CellH := H + 2*d;
-    // if CellW &lt; R.Right - R.Left then Слишком длинное слово -
-    // не помещается в одну строку; Перенос слов не поддерживается
+    // if CellW &lt; R.Right - R.Left then РЎР»РёС€РєРѕРј РґР»РёРЅРЅРѕРµ СЃР»РѕРІРѕ -
+    // РЅРµ РїРѕРјРµС‰Р°РµС‚СЃСЏ РІ РѕРґРЅСѓ СЃС‚СЂРѕРєСѓ; РџРµСЂРµРЅРѕСЃ СЃР»РѕРІ РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ
    end;
   end;
 begin
- Result := -1; // все строки уместились между TopMargin и Yfloor
+ Result := -1; // РІСЃРµ СЃС‚СЂРѕРєРё СѓРјРµСЃС‚РёР»РёСЃСЊ РјРµР¶РґСѓ TopMargin Рё Yfloor
  if (FromRow &lt; 0)or(FromRow &gt;= Grid.RowCount) then Exit;
  DestCanvas.Brush.Style := bsClear;
  DestCanvas.Font := Grid.Font;
@@ -125,16 +118,16 @@ begin
  for j := 0 to Grid.RowCount-1 do
  begin
   if (j &gt;= Grid.FixedRows) and (j &lt; FromRow) then Continue;
-  // Fixed Rows рисуются на каждой странице
+  // Fixed Rows СЂРёСЃСѓСЋС‚СЃСЏ РЅР° РєР°Р¶РґРѕР№ СЃС‚СЂР°РЅРёС†Рµ
   TotalPrevW := 0;
   CellH := Round(Grid.RowHeights[j]*Scale);
   CorrectCellHeight(j);
   if TopMargin + TotalPrevH + CellH &gt; YFloor then
   begin
-   Result := j; // j-я строка не помещается в заданный диапазон
+   Result := j; // j-СЏ СЃС‚СЂРѕРєР° РЅРµ РїРѕРјРµС‰Р°РµС‚СЃСЏ РІ Р·Р°РґР°РЅРЅС‹Р№ РґРёР°РїР°Р·РѕРЅ
    if Result &lt; Grid.FixedRows then Result := -1;
-   // если фиксированные строки не влезают на страницу -
-   // это тяж?лый случай...
+   // РµСЃР»Рё С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹Рµ СЃС‚СЂРѕРєРё РЅРµ РІР»РµР·Р°СЋС‚ РЅР° СЃС‚СЂР°РЅРёС†Сѓ -
+   // СЌС‚Рѕ С‚СЏР¶?Р»С‹Р№ СЃР»СѓС‡Р°Р№...
    Exit;
   end;
   for i := 0 to Grid.ColCount-1 do
@@ -156,21 +149,21 @@ begin
    s := Grid.Cells[i, j];
    DrawText(DestCanvas.Handle, PChar(s), Length(s), R,
     DT_LEFT or DT_TOP or DT_WORDBREAK or DT_NOPREFIX);
-   TotalPrevW := TotalPrevW + CellW; // Общая ширина всех предыдущих колонок
+   TotalPrevW := TotalPrevW + CellW; // РћР±С‰Р°СЏ С€РёСЂРёРЅР° РІСЃРµС… РїСЂРµРґС‹РґСѓС‰РёС… РєРѕР»РѕРЅРѕРє
   end;
-  TotalPrevH := TotalPrevH + CellH;  // Общая высота всех предыдущих строк
+  TotalPrevH := TotalPrevH + CellH;  // РћР±С‰Р°СЏ РІС‹СЃРѕС‚Р° РІСЃРµС… РїСЂРµРґС‹РґСѓС‰РёС… СЃС‚СЂРѕРє
  end;
 end;
 end.
 </pre>
 
 
-<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
-<hr /><p>Недавно довелось использовать код из "DRKB", для печати stringGrid, однако он не выводит на печать (у меня не вывел) 0-й столбец.<br>
+<p>Р’Р·СЏС‚Рѕ СЃ <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<hr /><p>РќРµРґР°РІРЅРѕ РґРѕРІРµР»РѕСЃСЊ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РєРѕРґ РёР· "DRKB", РґР»СЏ РїРµС‡Р°С‚Рё stringGrid, РѕРґРЅР°РєРѕ РѕРЅ РЅРµ РІС‹РІРѕРґРёС‚ РЅР° РїРµС‡Р°С‚СЊ (Сѓ РјРµРЅСЏ РЅРµ РІС‹РІРµР») 0-Р№ СЃС‚РѕР»Р±РµС†.<br>
 &nbsp;<br>
-Я Переделал его, добавив прорисовку ячеек таблицы, более удобное расположение заголовка таблицы, в качестве параметров процедуре можно передать отступ от края и сверху листа в миллиметрах. Также снабдил код комментариями. (я сам новичёк в программировании, и будь в том коде комменты, разобрался бы куда легче чем пришлось).<br>
+РЇ РџРµСЂРµРґРµР»Р°Р» РµРіРѕ, РґРѕР±Р°РІРёРІ РїСЂРѕСЂРёСЃРѕРІРєСѓ СЏС‡РµРµРє С‚Р°Р±Р»РёС†С‹, Р±РѕР»РµРµ СѓРґРѕР±РЅРѕРµ СЂР°СЃРїРѕР»РѕР¶РµРЅРёРµ Р·Р°РіРѕР»РѕРІРєР° С‚Р°Р±Р»РёС†С‹, РІ РєР°С‡РµСЃС‚РІРµ РїР°СЂР°РјРµС‚СЂРѕРІ РїСЂРѕС†РµРґСѓСЂРµ РјРѕР¶РЅРѕ РїРµСЂРµРґР°С‚СЊ РѕС‚СЃС‚СѓРї РѕС‚ РєСЂР°СЏ Рё СЃРІРµСЂС…Сѓ Р»РёСЃС‚Р° РІ РјРёР»Р»РёРјРµС‚СЂР°С…. РўР°РєР¶Рµ СЃРЅР°Р±РґРёР» РєРѕРґ РєРѕРјРјРµРЅС‚Р°СЂРёСЏРјРё. (СЏ СЃР°Рј РЅРѕРІРёС‡С‘Рє РІ РїСЂРѕРіСЂР°РјРјРёСЂРѕРІР°РЅРёРё, Рё Р±СѓРґСЊ РІ С‚РѕРј РєРѕРґРµ РєРѕРјРјРµРЅС‚С‹, СЂР°Р·РѕР±СЂР°Р»СЃСЏ Р±С‹ РєСѓРґР° Р»РµРіС‡Рµ С‡РµРј РїСЂРёС€Р»РѕСЃСЊ).<br>
 &nbsp;<br>
-<p>Надеюсь кому нибудь пригодится...</p>
+<p>РќР°РґРµСЋСЃСЊ РєРѕРјСѓ РЅРёР±СѓРґСЊ РїСЂРёРіРѕРґРёС‚СЃСЏ...</p>
 <pre name="code" class="delphi">
 procedure PrintGrid(sGrid: TStringGrid;
 left_StandOff,top_StandOff:integer; sTitle: string);
@@ -181,71 +174,71 @@ I: Integer;
 F: Integer;
 TR: TRect;
 begin
-{ left_StandOff - отступ в миллиметрах слева от края листа
-top_StandOff - отступ в миллиметрах сверху от края листа
-PrinterCoordX и PrinterCoordY - тот же отступ только в пикселах
-Высота строк и ширина столбцов взяты соответственно 150 и 400,
-при желании их размер можно передать в процедуру как параметры
+{ left_StandOff - РѕС‚СЃС‚СѓРї РІ РјРёР»Р»РёРјРµС‚СЂР°С… СЃР»РµРІР° РѕС‚ РєСЂР°СЏ Р»РёСЃС‚Р°
+top_StandOff - РѕС‚СЃС‚СѓРї РІ РјРёР»Р»РёРјРµС‚СЂР°С… СЃРІРµСЂС…Сѓ РѕС‚ РєСЂР°СЏ Р»РёСЃС‚Р°
+PrinterCoordX Рё PrinterCoordY - С‚РѕС‚ Р¶Рµ РѕС‚СЃС‚СѓРї С‚РѕР»СЊРєРѕ РІ РїРёРєСЃРµР»Р°С…
+Р’С‹СЃРѕС‚Р° СЃС‚СЂРѕРє Рё С€РёСЂРёРЅР° СЃС‚РѕР»Р±С†РѕРІ РІР·СЏС‚С‹ СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ 150 Рё 400,
+РїСЂРё Р¶РµР»Р°РЅРёРё РёС… СЂР°Р·РјРµСЂ РјРѕР¶РЅРѕ РїРµСЂРµРґР°С‚СЊ РІ РїСЂРѕС†РµРґСѓСЂСѓ РєР°Рє РїР°СЂР°РјРµС‚СЂС‹
 }
-//получаем информацию о разрешении принтера
-PixelsX:=GetDeviceCaps(printer.Handle,LogPixelsX);//разрешение по Х
-PixelsY:=GetDeviceCaps(printer.Handle,LogPixelsY);//разрешение по Y
-PrinterCoordX:=round(PixelsX/25.4*left_StandOff);//переводим мм в пиксели
+//РїРѕР»СѓС‡Р°РµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ СЂР°Р·СЂРµС€РµРЅРёРё РїСЂРёРЅС‚РµСЂР°
+PixelsX:=GetDeviceCaps(printer.Handle,LogPixelsX);//СЂР°Р·СЂРµС€РµРЅРёРµ РїРѕ РҐ
+PixelsY:=GetDeviceCaps(printer.Handle,LogPixelsY);//СЂР°Р·СЂРµС€РµРЅРёРµ РїРѕ Y
+PrinterCoordX:=round(PixelsX/25.4*left_StandOff);//РїРµСЂРµРІРѕРґРёРј РјРј РІ РїРёРєСЃРµР»Рё
 PrinterCoordY:=round(PixelsY/25.4*top_StandOff); //---
 with printer do
 begin
-//Печатаем заголовок таблицы
+//РџРµС‡Р°С‚Р°РµРј Р·Р°РіРѕР»РѕРІРѕРє С‚Р°Р±Р»РёС†С‹
 Title := sTitle;
-BeginDoc; // Начало печати
-Canvas.Pen.Color := 0; // цвет-чёрный
-Canvas.Font.Name := 'verdana'; // шрифт
-Canvas.Font.Size := 10; // размер шрифта
+BeginDoc; // РќР°С‡Р°Р»Рѕ РїРµС‡Р°С‚Рё
+Canvas.Pen.Color := 0; // С†РІРµС‚-С‡С‘СЂРЅС‹Р№
+Canvas.Font.Name := 'verdana'; // С€СЂРёС„С‚
+Canvas.Font.Size := 10; // СЂР°Р·РјРµСЂ С€СЂРёС„С‚Р°
 Canvas.Font.Style := [];
-//Текс заголовка в заданных координатах
+//РўРµРєСЃ Р·Р°РіРѕР»РѕРІРєР° РІ Р·Р°РґР°РЅРЅС‹С… РєРѕРѕСЂРґРёРЅР°С‚Р°С…
 Canvas.TextOut(PrinterCoordX, PrinterCoordY-100-
 printer.Canvas.Font.Size*10, Printer.Title);
 Canvas.Pen.Color := 0;
 Canvas.Font.Name := 'Verdana';
 Canvas.Font.Size := 8; 
 end;
-for i:=0 to sgrid.colcount-1 do //перебираем столбцы
-for f:=0 to sgrid.rowcount-1 do //перебираем в столбце все строки
+for i:=0 to sgrid.colcount-1 do //РїРµСЂРµР±РёСЂР°РµРј СЃС‚РѕР»Р±С†С‹
+for f:=0 to sgrid.rowcount-1 do //РїРµСЂРµР±РёСЂР°РµРј РІ СЃС‚РѕР»Р±С†Рµ РІСЃРµ СЃС‚СЂРѕРєРё
 begin
-X1 := PrinterCoordX+i*400; //400-это ширина столбца
-X2 := PrinterCoordX+400+i*400; //тоже
-Y1:=PrinterCoordY+f*150; //150-высота строки
-y2:=PrinterCoordY+150+f*150; //тоже
+X1 := PrinterCoordX+i*400; //400-СЌС‚Рѕ С€РёСЂРёРЅР° СЃС‚РѕР»Р±С†Р°
+X2 := PrinterCoordX+400+i*400; //С‚РѕР¶Рµ
+Y1:=PrinterCoordY+f*150; //150-РІС‹СЃРѕС‚Р° СЃС‚СЂРѕРєРё
+y2:=PrinterCoordY+150+f*150; //С‚РѕР¶Рµ
 TR:=Rect(x1,y1,x2,y2);
 with printer do
 begin
-Canvas.MoveTo(x1,y1);//Двигаем рисовалку в верхний левый угол таблицы
-{пишем надпись в квадрате(ячейке) i-столбеца и f-строки со сдвигом
-от верха на Y+50 и со сдвигом от левого края колонки на X+50
+Canvas.MoveTo(x1,y1);//Р”РІРёРіР°РµРј СЂРёСЃРѕРІР°Р»РєСѓ РІ РІРµСЂС…РЅРёР№ Р»РµРІС‹Р№ СѓРіРѕР» С‚Р°Р±Р»РёС†С‹
+{РїРёС€РµРј РЅР°РґРїРёСЃСЊ РІ РєРІР°РґСЂР°С‚Рµ(СЏС‡РµР№РєРµ) i-СЃС‚РѕР»Р±РµС†Р° Рё f-СЃС‚СЂРѕРєРё СЃРѕ СЃРґРІРёРіРѕРј
+РѕС‚ РІРµСЂС…Р° РЅР° Y+50 Рё СЃРѕ СЃРґРІРёРіРѕРј РѕС‚ Р»РµРІРѕРіРѕ РєСЂР°СЏ РєРѕР»РѕРЅРєРё РЅР° X+50
 }
 Canvas.TextRect(TR, X1 + 50, Y1 + 50, sGrid.Cells[i,f]);
-//рисуем линии ячейки
+//СЂРёСЃСѓРµРј Р»РёРЅРёРё СЏС‡РµР№РєРё
 Canvas.LineTo(x1,y2);
 Canvas.LineTo(x2,y2);
 Canvas.LineTo(x2,y1);
 Canvas.LineTo(x1,y1);
 end;
 end;
-Printer.EndDoc; // конец печати
+Printer.EndDoc; // РєРѕРЅРµС† РїРµС‡Р°С‚Рё
 end;
  
  
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-PrintGrid(StringGrid1,20,20, 'Таблица1: "Название"');
+PrintGrid(StringGrid1,20,20, 'РўР°Р±Р»РёС†Р°1: "РќР°Р·РІР°РЅРёРµ"');
 end;
 </pre>
-<p id="author">Автор: pankerstein </p>
-<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ: pankerstein </p>
+<p>Р’Р·СЏС‚Рѕ СЃ Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

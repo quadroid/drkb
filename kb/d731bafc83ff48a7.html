@@ -1,7 +1,7 @@
 <html>
 <head>
   <title>BMP &gt; ICO</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,23 +13,16 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">BMP &gt; ICO</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p id="author">Автор: Bernhard Angerer</p>
 
-<p>Вам необходимо создать два битмапа, битмап маски (назовём его "AND" bitmap) и битмап изображения (назовём его XOR bitmap). Вы можете пропустить обработчики для "AND" и "XOR"&nbsp; битмапов в Windows API функции CreateIconIndirect() и использовать обработчик возвращённой иконки в Вашем приложении. </p>
+<p id="author">РђРІС‚РѕСЂ: Bernhard Angerer</p>
+
+<p>Р’Р°Рј РЅРµРѕР±С…РѕРґРёРјРѕ СЃРѕР·РґР°С‚СЊ РґРІР° Р±РёС‚РјР°РїР°, Р±РёС‚РјР°Рї РјР°СЃРєРё (РЅР°Р·РѕРІС‘Рј РµРіРѕ "AND" bitmap) Рё Р±РёС‚РјР°Рї РёР·РѕР±СЂР°Р¶РµРЅРёСЏ (РЅР°Р·РѕРІС‘Рј РµРіРѕ XOR bitmap). Р’С‹ РјРѕР¶РµС‚Рµ РїСЂРѕРїСѓСЃС‚РёС‚СЊ РѕР±СЂР°Р±РѕС‚С‡РёРєРё РґР»СЏ "AND" Рё "XOR"&nbsp; Р±РёС‚РјР°РїРѕРІ РІ Windows API С„СѓРЅРєС†РёРё CreateIconIndirect() Рё РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РѕР±СЂР°Р±РѕС‚С‡РёРє РІРѕР·РІСЂР°С‰С‘РЅРЅРѕР№ РёРєРѕРЅРєРё РІ Р’Р°С€РµРј РїСЂРёР»РѕР¶РµРЅРёРё. </p>
 <pre name="code" class="delphi">
 procedure TForm1.Button1Click(Sender: TObject); 
 var 
@@ -40,41 +33,41 @@ var
   IconInfo : TIconInfo; 
   Icon : TIcon; 
 begin 
-{Получаем размер иконки} 
+{РџРѕР»СѓС‡Р°РµРј СЂР°Р·РјРµСЂ РёРєРѕРЅРєРё} 
   IconSizeX := GetSystemMetrics(SM_CXICON); 
   IconSizeY := GetSystemMetrics(SM_CYICON); 
  
-{Создаём маску "And"} 
+{РЎРѕР·РґР°С‘Рј РјР°СЃРєСѓ "And"} 
   AndMask := TBitmap.Create; 
   AndMask.Monochrome := true; 
   AndMask.Width := IconSizeX; 
   AndMask.Height := IconSizeY; 
  
-{Рисуем на маске "And"} 
+{Р РёСЃСѓРµРј РЅР° РјР°СЃРєРµ "And"} 
   AndMask.Canvas.Brush.Color := clWhite; 
   AndMask.Canvas.FillRect(Rect(0, 0, IconSizeX, IconSizeY)); 
   AndMask.Canvas.Brush.Color := clBlack; 
   AndMask.Canvas.Ellipse(4, 4, IconSizeX - 4, IconSizeY - 4); 
  
-{Рисуем для теста} 
+{Р РёСЃСѓРµРј РґР»СЏ С‚РµСЃС‚Р°} 
   Form1.Canvas.Draw(IconSizeX * 2, IconSizeY, AndMask); 
  
-{Создаём маску "XOr"} 
+{РЎРѕР·РґР°С‘Рј РјР°СЃРєСѓ "XOr"} 
   XOrMask := TBitmap.Create; 
   XOrMask.Width := IconSizeX; 
   XOrMask.Height := IconSizeY; 
  
-{Рисуем на маске "XOr"} 
+{Р РёСЃСѓРµРј РЅР° РјР°СЃРєРµ "XOr"} 
   XOrMask.Canvas.Brush.Color := ClBlack; 
   XOrMask.Canvas.FillRect(Rect(0, 0, IconSizeX, IconSizeY)); 
   XOrMask.Canvas.Pen.Color := clRed; 
   XOrMask.Canvas.Brush.Color := clRed; 
   XOrMask.Canvas.Ellipse(4, 4, IconSizeX - 4, IconSizeY - 4); 
  
-{Рисуем в качестве теста} 
+{Р РёСЃСѓРµРј РІ РєР°С‡РµСЃС‚РІРµ С‚РµСЃС‚Р°} 
   Form1.Canvas.Draw(IconSizeX * 4, IconSizeY, XOrMask); 
  
-{Создаём иконку} 
+{РЎРѕР·РґР°С‘Рј РёРєРѕРЅРєСѓ} 
   Icon := TIcon.Create; 
   IconInfo.fIcon := true; 
   IconInfo.xHotspot := 0; 
@@ -83,27 +76,27 @@ begin
   IconInfo.hbmColor := XOrMask.Handle; 
   Icon.Handle := CreateIconIndirect(IconInfo); 
  
-{Уничтожаем временные битмапы} 
+{РЈРЅРёС‡С‚РѕР¶Р°РµРј РІСЂРµРјРµРЅРЅС‹Рµ Р±РёС‚РјР°РїС‹} 
   AndMask.Free; 
   XOrMask.Free; 
  
-{Рисуем в качестве теста} 
+{Р РёСЃСѓРµРј РІ РєР°С‡РµСЃС‚РІРµ С‚РµСЃС‚Р°} 
   Form1.Canvas.Draw(IconSizeX * 6, IconSizeY, Icon); 
  
-{Объявляем иконку в качестве иконки приложения} 
+{РћР±СЉСЏРІР»СЏРµРј РёРєРѕРЅРєСѓ РІ РєР°С‡РµСЃС‚РІРµ РёРєРѕРЅРєРё РїСЂРёР»РѕР¶РµРЅРёСЏ} 
   Application.Icon := Icon; 
  
-{генерируем перерисовку} 
+{РіРµРЅРµСЂРёСЂСѓРµРј РїРµСЂРµСЂРёСЃРѕРІРєСѓ} 
   InvalidateRect(Application.Handle, nil, true); 
  
-{Освобождаем иконку} 
+{РћСЃРІРѕР±РѕР¶РґР°РµРј РёРєРѕРЅРєСѓ} 
   Icon.Free; 
 end; 
 </pre>
 
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
-<hr />Способ преобразования изображения размером 32x32 в иконку. </p>
+<hr />РЎРїРѕСЃРѕР± РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ СЂР°Р·РјРµСЂРѕРј 32x32 РІ РёРєРѕРЅРєСѓ. </p>
 <pre name="code" class="delphi">
 unit main;
  
@@ -171,14 +164,14 @@ begin
 end;
  
 end.
-</pre>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a>
+</pre>Р’Р·СЏС‚Рѕ СЃ <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a>
 
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

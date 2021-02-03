@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Hook на клавиатуру и мышку</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>Hook РЅР° РєР»Р°РІРёР°С‚СѓСЂСѓ Рё РјС‹С€РєСѓ</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Hook на клавиатуру и мышку</h1>
+  <h1 id="title">Hook РЅР° РєР»Р°РІРёР°С‚СѓСЂСѓ Рё РјС‹С€РєСѓ</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 library hook;
@@ -387,7 +380,7 @@ begin
  
  end.
 </pre>
-<p>Код прислал NoName </p>
+<p>РљРѕРґ РїСЂРёСЃР»Р°Р» NoName </p>
 <hr />
 <pre name="code" class="delphi">
 library keyboardhook;
@@ -404,8 +397,8 @@ MMFName:PChar='Keys';
 type
 PGlobalDLLData=^TGlobalDLLData;
 TGlobalDLLData=packed record
-SysHook:HWND; //дескриптор установленной ловушки
-MyAppWnd:HWND; //дескриптор нашего приложения
+SysHook:HWND; //РґРµСЃРєСЂРёРїС‚РѕСЂ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕР№ Р»РѕРІСѓС€РєРё
+MyAppWnd:HWND; //РґРµСЃРєСЂРёРїС‚РѕСЂ РЅР°С€РµРіРѕ РїСЂРёР»РѕР¶РµРЅРёСЏ
 end;
  
 var
@@ -423,8 +416,8 @@ Result:=CallNextHookEx(GlobalData^.SysHook,Code,wParam,lParam);
 Exit;
 end;
 if (((lParam and KF_UP)=0)and
-(wParam&gt;=0)and(wParam&lt;=255))OR {поставь от 65 до 90, если тебе}
-(((lParam and KF_UP)=0)and {нужны только A..Z}
+(wParam&gt;=0)and(wParam&lt;=255))OR {РїРѕСЃС‚Р°РІСЊ РѕС‚ 65 РґРѕ 90, РµСЃР»Рё С‚РµР±Рµ}
+(((lParam and KF_UP)=0)and {РЅСѓР¶РЅС‹ С‚РѕР»СЊРєРѕ A..Z}
 (wParam=VK_SPACE))then
 begin
 AppWnd:=GetForegroundWindow();
@@ -434,12 +427,12 @@ CallNextHookEx(GlobalData^.SysHook,Code,wParam,lParam);
 Result:= 0;
 end;
  
-{Процедура установки HOOK-а}
+{РџСЂРѕС†РµРґСѓСЂР° СѓСЃС‚Р°РЅРѕРІРєРё HOOK-Р°}
 procedure hook(switch : Boolean; hMainProg: HWND) export; stdcall;
 begin
 if switch=true then
 begin
-{Устанавливаем HOOK, если не установлен (switch=true). }
+{РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј HOOK, РµСЃР»Рё РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ (switch=true). }
 GlobalData^.SysHook := SetWindowsHookEx(WH_KEYBOARD, @KeyboardProc, HInstance, 0);
 GlobalData^.MyAppWnd:= hMainProg;
 end
@@ -449,12 +442,12 @@ end;
  
 procedure OpenGlobalData();
 begin
-{регестрируем свой тип сообщения в системе}
+{СЂРµРіРµСЃС‚СЂРёСЂСѓРµРј СЃРІРѕР№ С‚РёРї СЃРѕРѕР±С‰РµРЅРёСЏ РІ СЃРёСЃС‚РµРјРµ}
 WM_MYKEYHOOK:= RegisterWindowMessage('WM_MYKEYHOOK');
-{полу?аем объект файлового отображения}
+{РїРѕР»Сѓ?Р°РµРј РѕР±СЉРµРєС‚ С„Р°Р№Р»РѕРІРѕРіРѕ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ}
 MMFHandle:= CreateFileMapping(INVALID_HANDLE_VALUE, nil, PAGE_READWRITE,0,SizeOf(TGlobalDLLData),MMFName);
-{отображаем глобальные данные на АП вызывающего процесса и полу?аем указатель
-на на?ало выделенного пространства}
+{РѕС‚РѕР±СЂР°Р¶Р°РµРј РіР»РѕР±Р°Р»СЊРЅС‹Рµ РґР°РЅРЅС‹Рµ РЅР° РђРџ РІС‹Р·С‹РІР°СЋС‰РµРіРѕ РїСЂРѕС†РµСЃСЃР° Рё РїРѕР»Сѓ?Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ
+РЅР° РЅР°?Р°Р»Рѕ РІС‹РґРµР»РµРЅРЅРѕРіРѕ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР°}
 GlobalData:= MapViewOfFile(MMFHandle,FILE_MAP_ALL_ACCESS,0,0,SizeOf(TGlobalDLLData));
 if GlobalData=nil then
 begin
@@ -483,30 +476,30 @@ hook;
  
 begin
 DLLProc:= @DLLEntryPoint;
-{вызываем назна?енную процедуру для отражения факта присоединения данной
-библиотеки к процессу}
+{РІС‹Р·С‹РІР°РµРј РЅР°Р·РЅР°?РµРЅРЅСѓСЋ РїСЂРѕС†РµРґСѓСЂСѓ РґР»СЏ РѕС‚СЂР°Р¶РµРЅРёСЏ С„Р°РєС‚Р° РїСЂРёСЃРѕРµРґРёРЅРµРЅРёСЏ РґР°РЅРЅРѕР№
+Р±РёР±Р»РёРѕС‚РµРєРё Рє РїСЂРѕС†РµСЃСЃСѓ}
 DLLEntryPoint(DLL_PROCESS_ATTACH);
 end.
 </pre>
-<p>Пример использования:</p>
+<p>РџСЂРёРјРµСЂ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ:</p>
 <pre name="code" class="delphi">
 var
 Form1: TForm1;
-WndFlag: HWND; // дескриптор последнего окна
-keys: string[41]; // нажатые клавишы
-hDLL: THandle; // дескриптор загружаемой библиотеки
-WM_MYKEYHOOK: Cardinal; // мо? сообщение
+WndFlag: HWND; // РґРµСЃРєСЂРёРїС‚РѕСЂ РїРѕСЃР»РµРґРЅРµРіРѕ РѕРєРЅР°
+keys: string[41]; // РЅР°Р¶Р°С‚С‹Рµ РєР»Р°РІРёС€С‹
+hDLL: THandle; // РґРµСЃРєСЂРёРїС‚РѕСЂ Р·Р°РіСЂСѓР¶Р°РµРјРѕР№ Р±РёР±Р»РёРѕС‚РµРєРё
+WM_MYKEYHOOK: Cardinal; // РјРѕ? СЃРѕРѕР±С‰РµРЅРёРµ
  
 function GetWndText(WndH: HWND): string;
 var
 s: string;
 Len: integer;
 begin
-Len:= GetWindowTextLength(WndH)+1; // полу?аю размер текста
+Len:= GetWindowTextLength(WndH)+1; // РїРѕР»Сѓ?Р°СЋ СЂР°Р·РјРµСЂ С‚РµРєСЃС‚Р°
 if Len &gt; 1 then
 begin
 SetLength(s, Len);
-GetWindowText(WndH, @s[1], Len); // полу?аю сам текст, который записывается в s
+GetWindowText(WndH, @s[1], Len); // РїРѕР»Сѓ?Р°СЋ СЃР°Рј С‚РµРєСЃС‚, РєРѕС‚РѕСЂС‹Р№ Р·Р°РїРёСЃС‹РІР°РµС‚СЃСЏ РІ s
 Result:= s;
 end
 else
@@ -517,13 +510,13 @@ procedure TForm1.Button1Click(Sender: TObject);
 var
 Hook: procedure (switch : Boolean; hMainProg: HWND) stdcall;
 begin
-{посылаю своему окну сообщение для того ?то бы не выводился первый символ - см. WndProc}
+{РїРѕСЃС‹Р»Р°СЋ СЃРІРѕРµРјСѓ РѕРєРЅСѓ СЃРѕРѕР±С‰РµРЅРёРµ РґР»СЏ С‚РѕРіРѕ ?С‚Рѕ Р±С‹ РЅРµ РІС‹РІРѕРґРёР»СЃСЏ РїРµСЂРІС‹Р№ СЃРёРјРІРѕР» - СЃРј. WndProc}
 SendMessage(Form1.Handle, WM_MYKEYHOOK, VK_SPACE, Application.MainForm.Handle);
-@hook:= nil; // инициализируем переменную hook
-hDLL:=LoadLibrary(PChar('keyhook.dll')); { загрузка DLL }
+@hook:= nil; // РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РїРµСЂРµРјРµРЅРЅСѓСЋ hook
+hDLL:=LoadLibrary(PChar('keyhook.dll')); { Р·Р°РіСЂСѓР·РєР° DLL }
 if hDLL &gt; HINSTANCE_ERROR then
-begin { если вс? без ошибок, то }
-@hook:=GetProcAddress(Hdll, 'hook'); { полу?аем указатель на необходимую процедуру}
+begin { РµСЃР»Рё РІСЃ? Р±РµР· РѕС€РёР±РѕРє, С‚Рѕ }
+@hook:=GetProcAddress(Hdll, 'hook'); { РїРѕР»Сѓ?Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РЅРµРѕР±С…РѕРґРёРјСѓСЋ РїСЂРѕС†РµРґСѓСЂСѓ}
 Button2.Enabled:=True;
 Button1.Enabled:=False;
 StatusBar1.SimpleText:= 'Status: DLL loaded...';
@@ -532,7 +525,7 @@ StatusBar1.SimpleText:= 'Status: loging in progress...';
 end
 else
 begin
-ShowMessage('Ошибка при загрузке DLL !');
+ShowMessage('РћС€РёР±РєР° РїСЂРё Р·Р°РіСЂСѓР·РєРµ DLL !');
 Exit;
 end;
  
@@ -542,10 +535,10 @@ procedure TForm1.Button2Click(Sender: TObject);
 var
 Hook: procedure (switch : Boolean; hMainProg: HWND) stdcall;
 begin
-@hook:= nil; // инициализируем переменную hook
+@hook:= nil; // РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РїРµСЂРµРјРµРЅРЅСѓСЋ hook
 if hDLL &gt; HINSTANCE_ERROR then
-begin { если вс? без ошибок, то }
-@hook:=GetProcAddress(Hdll, 'hook'); { полу?аем указатель на необходимую процедуру}
+begin { РµСЃР»Рё РІСЃ? Р±РµР· РѕС€РёР±РѕРє, С‚Рѕ }
+@hook:=GetProcAddress(Hdll, 'hook'); { РїРѕР»Сѓ?Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РЅРµРѕР±С…РѕРґРёРјСѓСЋ РїСЂРѕС†РµРґСѓСЂСѓ}
 Button1.Enabled:=True;
 Button2.Enabled:=False;
 hook(false, Form1.Handle);
@@ -565,18 +558,18 @@ end;
 end;
  
 {
-подмена процедуры окна - необходимо для обработки сообщений, поступивших из
-DLL (см. исходный код DLL)
+РїРѕРґРјРµРЅР° РїСЂРѕС†РµРґСѓСЂС‹ РѕРєРЅР° - РЅРµРѕР±С…РѕРґРёРјРѕ РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№, РїРѕСЃС‚СѓРїРёРІС€РёС… РёР·
+DLL (СЃРј. РёСЃС…РѕРґРЅС‹Р№ РєРѕРґ DLL)
 }
 procedure TForm1.WndProc(var Msg: TMessage);
 begin
-inherited ; // выполняем вс? то, ?то должно происходить при поступлении сообщеня окну
-{Но если пришло мо? сообщение - выполняем следующий код}
+inherited ; // РІС‹РїРѕР»РЅСЏРµРј РІСЃ? С‚Рѕ, ?С‚Рѕ РґРѕР»Р¶РЅРѕ РїСЂРѕРёСЃС…РѕРґРёС‚СЊ РїСЂРё РїРѕСЃС‚СѓРїР»РµРЅРёРё СЃРѕРѕР±С‰РµРЅСЏ РѕРєРЅСѓ
+{РќРѕ РµСЃР»Рё РїСЂРёС€Р»Рѕ РјРѕ? СЃРѕРѕР±С‰РµРЅРёРµ - РІС‹РїРѕР»РЅСЏРµРј СЃР»РµРґСѓСЋС‰РёР№ РєРѕРґ}
 if Msg.Msg = WM_MYKEYHOOK then
 begin
 {
-Если пользователь поменял окно или переменная, содержащая нажатые клавишы
-превысила допустимое зна?ение - обнуляем keys и выводим статистику.
+Р•СЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РїРѕРјРµРЅСЏР» РѕРєРЅРѕ РёР»Рё РїРµСЂРµРјРµРЅРЅР°СЏ, СЃРѕРґРµСЂР¶Р°С‰Р°СЏ РЅР°Р¶Р°С‚С‹Рµ РєР»Р°РІРёС€С‹
+РїСЂРµРІС‹СЃРёР»Р° РґРѕРїСѓСЃС‚РёРјРѕРµ Р·РЅР°?РµРЅРёРµ - РѕР±РЅСѓР»СЏРµРј keys Рё РІС‹РІРѕРґРёРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ.
 }
 if (WndFlag &lt;&gt; HWND(Msg.lParam)) OR (Length(keys)&gt;=1) then
 begin
@@ -600,20 +593,20 @@ end;
 initialization
 WndFlag:=0;
 keys:= '';
-{ регистрирую сво? сообщение в системе - то?но так же надо сделать и в теле DLL
-?то бы DLL могла посылать главному приложению это сообщение.
+{ СЂРµРіРёСЃС‚СЂРёСЂСѓСЋ СЃРІРѕ? СЃРѕРѕР±С‰РµРЅРёРµ РІ СЃРёСЃС‚РµРјРµ - С‚Рѕ?РЅРѕ С‚Р°Рє Р¶Рµ РЅР°РґРѕ СЃРґРµР»Р°С‚СЊ Рё РІ С‚РµР»Рµ DLL
+?С‚Рѕ Р±С‹ DLL РјРѕРіР»Р° РїРѕСЃС‹Р»Р°С‚СЊ РіР»Р°РІРЅРѕРјСѓ РїСЂРёР»РѕР¶РµРЅРёСЋ СЌС‚Рѕ СЃРѕРѕР±С‰РµРЅРёРµ.
 }
 WM_MYKEYHOOK:=RegisterWindowMessage('WM_MYKEYHOOK');
 end.
 </pre>
-<p id="author">Автор ответа: Mikel</p>
-<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ РѕС‚РІРµС‚Р°: Mikel</p>
+<p>Р’Р·СЏС‚Рѕ СЃ Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

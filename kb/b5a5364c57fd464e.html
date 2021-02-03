@@ -1,7 +1,7 @@
 <html>
 <head>
   <title>BMP &gt; DIB</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,25 +13,18 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">BMP &gt; DIB</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Если файл хранится в формате BMP, как мне преобразовать его в DIB и как затем отобразить? </p>
 
-<p>Это не тривиально, но помочь нам смогут функции GetDIBSizes и GetDIB из модуля GRAPHICS.PAS. Приведу две процедуры: одну для создания DIB из TBitmap и вторую для его освобождения: </p>
+<p>Р•СЃР»Рё С„Р°Р№Р» С…СЂР°РЅРёС‚СЃСЏ РІ С„РѕСЂРјР°С‚Рµ BMP, РєР°Рє РјРЅРµ РїСЂРµРѕР±СЂР°Р·РѕРІР°С‚СЊ РµРіРѕ РІ DIB Рё РєР°Рє Р·Р°С‚РµРј РѕС‚РѕР±СЂР°Р·РёС‚СЊ? </p>
+
+<p>Р­С‚Рѕ РЅРµ С‚СЂРёРІРёР°Р»СЊРЅРѕ, РЅРѕ РїРѕРјРѕС‡СЊ РЅР°Рј СЃРјРѕРіСѓС‚ С„СѓРЅРєС†РёРё GetDIBSizes Рё GetDIB РёР· РјРѕРґСѓР»СЏ GRAPHICS.PAS. РџСЂРёРІРµРґСѓ РґРІРµ РїСЂРѕС†РµРґСѓСЂС‹: РѕРґРЅСѓ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ DIB РёР· TBitmap Рё РІС‚РѕСЂСѓСЋ РґР»СЏ РµРіРѕ РѕСЃРІРѕР±РѕР¶РґРµРЅРёСЏ: </p>
 <pre name="code" class="delphi">
-{ Преобразование TBitmap в DIB }
+{ РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ TBitmap РІ DIB }
  
 procedure BitmapToDIB(Bitmap: TBitmap;
   var BitmapInfo: PBitmapInfo;
@@ -50,9 +43,9 @@ begin
     Bits := GlobalAllocPtr(GMEM_MOVEABLE, BitsSize);
     if Bits = nil then
       raise
-        EOutOfMemory.Create('Не хватает памяти для пикселей изображения');
+        EOutOfMemory.Create('РќРµ С…РІР°С‚Р°РµС‚ РїР°РјСЏС‚Рё РґР»СЏ РїРёРєСЃРµР»РµР№ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ');
     if not GetDIB(Bitmap.Handle, Bitmap.Palette, BitmapInfo^, Bits^) then
-      raise Exception.Create('Не могу создать DIB');
+      raise Exception.Create('РќРµ РјРѕРіСѓ СЃРѕР·РґР°С‚СЊ DIB');
   except
     if BitmapInfo &lt;&gt; nil then
       FreeMem(BitmapInfo, InfoSize);
@@ -64,7 +57,7 @@ begin
   end;
 end;
  
-{ используйте FreeDIB для освобождения информации об изображении и битовых указателей }
+{ РёСЃРїРѕР»СЊР·СѓР№С‚Рµ FreeDIB РґР»СЏ РѕСЃРІРѕР±РѕР¶РґРµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё РѕР± РёР·РѕР±СЂР°Р¶РµРЅРёРё Рё Р±РёС‚РѕРІС‹С… СѓРєР°Р·Р°С‚РµР»РµР№ }
  
 procedure FreeDIB(BitmapInfo: PBitmapInfo;
   InfoSize: integer;
@@ -81,7 +74,7 @@ end;
 
 
 
-<p>Создаем форму с TImage Image1 и загружаем в него 256-цветное изображение, затем рядом размещаем TPaintBox. Добавляем следующие строчки к private-объявлениям вашей формы:</p>
+<p>РЎРѕР·РґР°РµРј С„РѕСЂРјСѓ СЃ TImage Image1 Рё Р·Р°РіСЂСѓР¶Р°РµРј РІ РЅРµРіРѕ 256-С†РІРµС‚РЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ, Р·Р°С‚РµРј СЂСЏРґРѕРј СЂР°Р·РјРµС‰Р°РµРј TPaintBox. Р”РѕР±Р°РІР»СЏРµРј СЃР»РµРґСѓСЋС‰РёРµ СЃС‚СЂРѕС‡РєРё Рє private-РѕР±СЉСЏРІР»РµРЅРёСЏРј РІР°С€РµР№ С„РѕСЂРјС‹:</p>
 <pre name="code" class="delphi">
  
 { Private declarations }
@@ -94,7 +87,7 @@ BitsSize   : longint ;
 
 
 
-<p>Создаем нижеприведенные обработчики событий, которые демонстрируют процесс отрисовки DIB:</p>
+<p>РЎРѕР·РґР°РµРј РЅРёР¶РµРїСЂРёРІРµРґРµРЅРЅС‹Рµ РѕР±СЂР°Р±РѕС‚С‡РёРєРё СЃРѕР±С‹С‚РёР№, РєРѕС‚РѕСЂС‹Рµ РґРµРјРѕРЅСЃС‚СЂРёСЂСѓСЋС‚ РїСЂРѕС†РµСЃСЃ РѕС‚СЂРёСЃРѕРІРєРё DIB:</p>
 
 <pre name="code" class="delphi">
 procedure TForm1.FormCreate(Sender: TObject);
@@ -133,13 +126,13 @@ end;
 
 
 
-<p>Это поможет вам сделать первый шаг. Единственное, что вы можете захотеть, это создание собственного HPalette на основе DIB, вместо использования TBitmap и своей палитры. Функция с именем PaletteFromW3DIB из GRAPHICS.PAS как раз этим и занимается, но она не объявлена в качестве экспортируемой, поэтому для ее использования необходимо скопировать ее исходный код и вставить его в ваш модуль.</p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<p>Р­С‚Рѕ РїРѕРјРѕР¶РµС‚ РІР°Рј СЃРґРµР»Р°С‚СЊ РїРµСЂРІС‹Р№ С€Р°Рі. Р•РґРёРЅСЃС‚РІРµРЅРЅРѕРµ, С‡С‚Рѕ РІС‹ РјРѕР¶РµС‚Рµ Р·Р°С…РѕС‚РµС‚СЊ, СЌС‚Рѕ СЃРѕР·РґР°РЅРёРµ СЃРѕР±СЃС‚РІРµРЅРЅРѕРіРѕ HPalette РЅР° РѕСЃРЅРѕРІРµ DIB, РІРјРµСЃС‚Рѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ TBitmap Рё СЃРІРѕРµР№ РїР°Р»РёС‚СЂС‹. Р¤СѓРЅРєС†РёСЏ СЃ РёРјРµРЅРµРј PaletteFromW3DIB РёР· GRAPHICS.PAS РєР°Рє СЂР°Р· СЌС‚РёРј Рё Р·Р°РЅРёРјР°РµС‚СЃСЏ, РЅРѕ РѕРЅР° РЅРµ РѕР±СЉСЏРІР»РµРЅР° РІ РєР°С‡РµСЃС‚РІРµ СЌРєСЃРїРѕСЂС‚РёСЂСѓРµРјРѕР№, РїРѕСЌС‚РѕРјСѓ РґР»СЏ РµРµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РЅРµРѕР±С…РѕРґРёРјРѕ СЃРєРѕРїРёСЂРѕРІР°С‚СЊ РµРµ РёСЃС…РѕРґРЅС‹Р№ РєРѕРґ Рё РІСЃС‚Р°РІРёС‚СЊ РµРіРѕ РІ РІР°С€ РјРѕРґСѓР»СЊ.</p><p>Р’Р·СЏС‚Рѕ СЃ <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

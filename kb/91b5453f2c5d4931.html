@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Кодирование с помощью решетки</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљРѕРґРёСЂРѕРІР°РЅРёРµ СЃ РїРѕРјРѕС‰СЊСЋ СЂРµС€РµС‚РєРё</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,20 +13,13 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Кодирование с помощью решетки</h1>
+  <h1 id="title">РљРѕРґРёСЂРѕРІР°РЅРёРµ СЃ РїРѕРјРѕС‰СЊСЋ СЂРµС€РµС‚РєРё</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
-Автор: ___Nikolay</p>
+
+РђРІС‚РѕСЂ: ___Nikolay</p>
 <pre name="code" class="delphi">
 unit uMain;
  
@@ -56,9 +49,9 @@ type
     procedure Timer1Timer(Sender: TObject);
   private
     { Private declarations }
-    procedure SetGrid(iState: integer); // Выставить решетку
-    function EncodeStr(s: string): string; // Шифрование строки
-    function DecodeStr(s: string): string; // Расшифрование строки
+    procedure SetGrid(iState: integer); // Р’С‹СЃС‚Р°РІРёС‚СЊ СЂРµС€РµС‚РєСѓ
+    function EncodeStr(s: string): string; // РЁРёС„СЂРѕРІР°РЅРёРµ СЃС‚СЂРѕРєРё
+    function DecodeStr(s: string): string; // Р Р°СЃС€РёС„СЂРѕРІР°РЅРёРµ СЃС‚СЂРѕРєРё
   public
     { Public declarations }
   end;
@@ -72,7 +65,7 @@ implementation
  
 { TfmMain }
  
-// Выставить решетку
+// Р’С‹СЃС‚Р°РІРёС‚СЊ СЂРµС€РµС‚РєСѓ
 procedure TfmMain.SetGrid(iState: integer);
 var
   c, r, iColMin, iColMax, iRowMin, iRowMax: integer;
@@ -81,7 +74,7 @@ var
 begin
   Timer1.Enabled := false;
   GetCursorPos(pStart);
-  iHalfCell := sgGrid.DefaultColWidth div 2; // Половина ширины ячейки
+  iHalfCell := sgGrid.DefaultColWidth div 2; // РџРѕР»РѕРІРёРЅР° С€РёСЂРёРЅС‹ СЏС‡РµР№РєРё
  
   case iState of
     1: begin
@@ -118,7 +111,7 @@ begin
       else
         sgGrid.Cells[c, r] := '1';
  
-      // Визуализировать
+      // Р’РёР·СѓР°Р»РёР·РёСЂРѕРІР°С‚СЊ
       if chAnimation.Checked then
       begin
         Application.ProcessMessages;
@@ -135,7 +128,7 @@ end;
  
 procedure TfmMain.btEncodeClick(Sender: TObject);
 const
-  sMsgLengthCheck = 'Длина текста должна быть равна 100';
+  sMsgLengthCheck = 'Р”Р»РёРЅР° С‚РµРєСЃС‚Р° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СЂР°РІРЅР° 100';
 var
   s: string;
 begin
@@ -151,7 +144,7 @@ begin
   edEncoded.Text := EncodeStr(s);
 end;
  
-// Шифрование строки
+// РЁРёС„СЂРѕРІР°РЅРёРµ СЃС‚СЂРѕРєРё
 function TfmMain.EncodeStr(s: string): string;
 label
   start;
@@ -163,7 +156,7 @@ var
 begin
   Timer1.Enabled := false;
   GetCursorPos(pStart);
-  iHalfCell := sgGrid.DefaultColWidth div 2; // Половина ширины ячейки
+  iHalfCell := sgGrid.DefaultColWidth div 2; // РџРѕР»РѕРІРёРЅР° С€РёСЂРёРЅС‹ СЏС‡РµР№РєРё
  
   iGridState := 1;
   SetGrid(iGridState);
@@ -179,7 +172,7 @@ begin
           sgText.Cells[c, r] := s[i];
           inc(i);
  
-          // Визуализировать
+          // Р’РёР·СѓР°Р»РёР·РёСЂРѕРІР°С‚СЊ
           if chAnimation.Checked then
           begin
             Application.ProcessMessages;
@@ -201,14 +194,14 @@ begin
       goto start;
     end;
  
-  // Считываем по строкам
+  // РЎС‡РёС‚С‹РІР°РµРј РїРѕ СЃС‚СЂРѕРєР°Рј
   for r := 0 to sgText.RowCount - 1 do
     for c := 0 to sgText.ColCount - 1 do
     begin
       sResult := sResult + sgText.Cells[c, r];
       sgText.Cells[c, r] := '';
  
-      // Визуализировать
+      // Р’РёР·СѓР°Р»РёР·РёСЂРѕРІР°С‚СЊ
       if chAnimation.Checked then
       begin
         Application.ProcessMessages;
@@ -226,7 +219,7 @@ end;
  
 procedure TfmMain.btDecodeClick(Sender: TObject);
 const
-  sMsgLengthCheck = 'Длина текста должна быть равна 100';
+  sMsgLengthCheck = 'Р”Р»РёРЅР° С‚РµРєСЃС‚Р° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СЂР°РІРЅР° 100';
 var
   s: string;
 begin
@@ -242,7 +235,7 @@ begin
   edNormal.Text := DecodeStr(s);
 end;
  
-// Расшифрование строки
+// Р Р°СЃС€РёС„СЂРѕРІР°РЅРёРµ СЃС‚СЂРѕРєРё
 function TfmMain.DecodeStr(s: string): string;
 label
   start;
@@ -254,21 +247,21 @@ var
 begin
   Timer1.Enabled := false;
   GetCursorPos(pStart);
-  iHalfCell := sgGrid.DefaultColWidth div 2; // Половина ширины ячейки
+  iHalfCell := sgGrid.DefaultColWidth div 2; // РџРѕР»РѕРІРёРЅР° С€РёСЂРёРЅС‹ СЏС‡РµР№РєРё
  
   iGridState := 1;
   SetGrid(iGridState);
   i := 1;
   sResult := '';
  
-  // Заносим по строкам
+  // Р—Р°РЅРѕСЃРёРј РїРѕ СЃС‚СЂРѕРєР°Рј
   for r := 0 to sgText.RowCount - 1 do
     for c := 0 to sgText.ColCount - 1 do
     begin
       sgText.Cells[c, r] := s[i];
       inc(i);
  
-      // Визуализировать
+      // Р’РёР·СѓР°Р»РёР·РёСЂРѕРІР°С‚СЊ
       if chAnimation.Checked then
       begin
         Application.ProcessMessages;
@@ -290,7 +283,7 @@ begin
         sgText.Cells[c, r] := '';
         inc(i);
  
-        // Визуализировать
+        // Р’РёР·СѓР°Р»РёР·РёСЂРѕРІР°С‚СЊ
         if chAnimation.Checked then
         begin
           Application.ProcessMessages;
@@ -333,10 +326,10 @@ end.
 <p>DelphiWorld 6.0</p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

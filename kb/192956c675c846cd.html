@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как показать содержимое TMemo-поля в TDBGrid?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє РїРѕРєР°Р·Р°С‚СЊ СЃРѕРґРµСЂР¶РёРјРѕРµ TMemo-РїРѕР»СЏ РІ TDBGrid?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,63 +13,56 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как показать содержимое TMemo-поля в TDBGrid?</h1>
+  <h1 id="title">РљР°Рє РїРѕРєР°Р·Р°С‚СЊ СЃРѕРґРµСЂР¶РёРјРѕРµ TMemo-РїРѕР»СЏ РІ TDBGrid?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Поумолчанию, DBGrid не может отображать memo-поля. Однако, проблему можно решить при помощи события OnDrawDataCell в DBGrid.</p>
+
+<p>РџРѕСѓРјРѕР»С‡Р°РЅРёСЋ, DBGrid РЅРµ РјРѕР¶РµС‚ РѕС‚РѕР±СЂР°Р¶Р°С‚СЊ memo-РїРѕР»СЏ. РћРґРЅР°РєРѕ, РїСЂРѕР±Р»РµРјСѓ РјРѕР¶РЅРѕ СЂРµС€РёС‚СЊ РїСЂРё РїРѕРјРѕС‰Рё СЃРѕР±С‹С‚РёСЏ OnDrawDataCell РІ DBGrid.</p>
 <pre name="code" class="delphi">
 procedure TForm1.DBGrid1DrawDataCell(Sender: TObject; const 
                  Rect: TRect; Field: TField; State: 
                  TGridDrawState); 
  
 var 
-  P: array [0..50] of char; {размер массива, это количество необходимых символов}
-  bs: TBlobStream;          {из memo-поля} 
+  P: array [0..50] of char; {СЂР°Р·РјРµСЂ РјР°СЃСЃРёРІР°, СЌС‚Рѕ РєРѕР»РёС‡РµСЃС‚РІРѕ РЅРµРѕР±С…РѕРґРёРјС‹С… СЃРёРјРІРѕР»РѕРІ}
+  bs: TBlobStream;          {РёР· memo-РїРѕР»СЏ} 
   hStr: String; 
  
 begin 
   if Field is TMemoField then 
   begin 
     with (Sender as TDBGrid).Canvas do 
-    begin   {Table1Notes это TMemoField} 
+    begin   {Table1Notes СЌС‚Рѕ TMemoField} 
       bs := TBlobStream.Create(Table1Notes, bmRead); 
-      FillChar(P,SizeOf(P),#0); {строка завершается нулём} 
-      bs.Read(P, 50); {читаем 50 символов из memo в blobStream} 
+      FillChar(P,SizeOf(P),#0); {СЃС‚СЂРѕРєР° Р·Р°РІРµСЂС€Р°РµС‚СЃСЏ РЅСѓР»С‘Рј} 
+      bs.Read(P, 50); {С‡РёС‚Р°РµРј 50 СЃРёРјРІРѕР»РѕРІ РёР· memo РІ blobStream} 
       bs.Free; 
       hStr := StrPas(P); 
-      while Pos(#13, hStr) &gt; 0 do  {удаляем переносы каретки и}
+      while Pos(#13, hStr) &gt; 0 do  {СѓРґР°Р»СЏРµРј РїРµСЂРµРЅРѕСЃС‹ РєР°СЂРµС‚РєРё Рё}
         hStr[Pos(#13, hStr)] := ' '; 
-      while Pos(#10, hStr) &gt; 0 do  {отступы строк}
+      while Pos(#10, hStr) &gt; 0 do  {РѕС‚СЃС‚СѓРїС‹ СЃС‚СЂРѕРє}
         S[Pos(#10, hStr)] := ' '; 
  
-      FillRect(Rect);  {очищаем ячейку}
-      TextOut(Rect.Left, Rect.Top, hStr);  {заполняем ячейку данными из memo}
+      FillRect(Rect);  {РѕС‡РёС‰Р°РµРј СЏС‡РµР№РєСѓ}
+      TextOut(Rect.Left, Rect.Top, hStr);  {Р·Р°РїРѕР»РЅСЏРµРј СЏС‡РµР№РєСѓ РґР°РЅРЅС‹РјРё РёР· memo}
     end; 
   end; 
 end; 
 </pre>
 
 
-<p>Замечание: перед тем, запустить пример, создайте объект TMemoField для memo-поля двойным кликом по компоненту TTable и добавлением memo-поля.</p>
+<p>Р—Р°РјРµС‡Р°РЅРёРµ: РїРµСЂРµРґ С‚РµРј, Р·Р°РїСѓСЃС‚РёС‚СЊ РїСЂРёРјРµСЂ, СЃРѕР·РґР°Р№С‚Рµ РѕР±СЉРµРєС‚ TMemoField РґР»СЏ memo-РїРѕР»СЏ РґРІРѕР№РЅС‹Рј РєР»РёРєРѕРј РїРѕ РєРѕРјРїРѕРЅРµРЅС‚Сѓ TTable Рё РґРѕР±Р°РІР»РµРЅРёРµРј memo-РїРѕР»СЏ.</p>
 
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
-<hr />В обработчик события GetText TMemoField поместите следующую строку:</p>
+<hr />Р’ РѕР±СЂР°Р±РѕС‚С‡РёРє СЃРѕР±С‹С‚РёСЏ GetText TMemoField РїРѕРјРµСЃС‚РёС‚Рµ СЃР»РµРґСѓСЋС‰СѓСЋ СЃС‚СЂРѕРєСѓ:</p>
 
 <p>Text := GrabMemoAsString(TMemoField(Sender)); </p>
 
-<p>и поместите следующую функцию так, чтобы к ней можно было свободно обратиться:</p>
+<p>Рё РїРѕРјРµСЃС‚РёС‚Рµ СЃР»РµРґСѓСЋС‰СѓСЋ С„СѓРЅРєС†РёСЋ С‚Р°Рє, С‡С‚РѕР±С‹ Рє РЅРµР№ РјРѕР¶РЅРѕ Р±С‹Р»Рѕ СЃРІРѕР±РѕРґРЅРѕ РѕР±СЂР°С‚РёС‚СЊСЃСЏ:</p>
 <pre name="code" class="delphi">function GrabMemoAsString(TheField: TMemoField): string;
 begin
   if TheField.IsNull then
@@ -96,13 +89,13 @@ begin
 end;
  
 </pre>
-<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ СЃ <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Прозрачная форма, не реагирующая на мышь?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџСЂРѕР·СЂР°С‡РЅР°СЏ С„РѕСЂРјР°, РЅРµ СЂРµР°РіРёСЂСѓСЋС‰Р°СЏ РЅР° РјС‹С€СЊ?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Прозрачная форма, не реагирующая на мышь?</h1>
+  <h1 id="title">РџСЂРѕР·СЂР°С‡РЅР°СЏ С„РѕСЂРјР°, РЅРµ СЂРµР°РіРёСЂСѓСЋС‰Р°СЏ РЅР° РјС‹С€СЊ?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 unit transpar_frm;
@@ -39,7 +32,7 @@ type
     Button1: TButton;
     Button2: TButton;
     CheckBox1: TCheckBox;
-    // это просто кнопки на форме - для демонстрации
+    // СЌС‚Рѕ РїСЂРѕСЃС‚Рѕ РєРЅРѕРїРєРё РЅР° С„РѕСЂРјРµ - РґР»СЏ РґРµРјРѕРЅСЃС‚СЂР°С†РёРё
   protected
     procedure RebuildWindowRgn;
     procedure Resize; override;
@@ -51,23 +44,23 @@ var
 implementation
  
 {$R *.DFM}
-{ Прозрачная форма }
+{ РџСЂРѕР·СЂР°С‡РЅР°СЏ С„РѕСЂРјР° }
 constructor TForm1.Create(AOwner: TComponent);
 begin
   inherited;
-  // StayOnTop в принципе можно убрать
+  // StayOnTop РІ РїСЂРёРЅС†РёРїРµ РјРѕР¶РЅРѕ СѓР±СЂР°С‚СЊ
   FormStyle:=fsStayOnTop;
-  // убираем скроллбары, чтобы не мешались
-  // при изменении размеров формы
+  // СѓР±РёСЂР°РµРј СЃРєСЂРѕР»Р»Р±Р°СЂС‹, С‡С‚РѕР±С‹ РЅРµ РјРµС€Р°Р»РёСЃСЊ
+  // РїСЂРё РёР·РјРµРЅРµРЅРёРё СЂР°Р·РјРµСЂРѕРІ С„РѕСЂРјС‹
   HorzScrollBar.Visible:= False;
   VertScrollBar.Visible:= False;
-  // строим новый регион
+  // СЃС‚СЂРѕРёРј РЅРѕРІС‹Р№ СЂРµРіРёРѕРЅ
   RebuildWindowRgn;
 end;
 procedure TForm1.Resize;
 begin
   inherited;
-  // строим новый регион
+  // СЃС‚СЂРѕРёРј РЅРѕРІС‹Р№ СЂРµРіРёРѕРЅ
   RebuildWindowRgn;
 end;
 procedure TForm1.RebuildWindowRgn;
@@ -75,30 +68,30 @@ var
   FullRgn, Rgn: THandle;
   ClientX, ClientY, I: Integer;
 begin
-  // определяем относительные координаты клиенской части
+  // РѕРїСЂРµРґРµР»СЏРµРј РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ РєР»РёРµРЅСЃРєРѕР№ С‡Р°СЃС‚Рё
   ClientX:= (Width - ClientWidth) div 2;
   ClientY:= Height - ClientHeight - ClientX;
-  // создаем регион для всей формы
+  // СЃРѕР·РґР°РµРј СЂРµРіРёРѕРЅ РґР»СЏ РІСЃРµР№ С„РѕСЂРјС‹
   FullRgn:= CreateRectRgn(0, 0, Width, Height);
-  // создаем регион для клиентской части формы
-  // и вычитаем его из FullRgn
+  // СЃРѕР·РґР°РµРј СЂРµРіРёРѕРЅ РґР»СЏ РєР»РёРµРЅС‚СЃРєРѕР№ С‡Р°СЃС‚Рё С„РѕСЂРјС‹
+  // Рё РІС‹С‡РёС‚Р°РµРј РµРіРѕ РёР· FullRgn
   Rgn:= CreateRectRgn(ClientX, ClientY, ClientX + ClientWidth, ClientY +
 ClientHeight);
   CombineRgn(FullRgn, FullRgn, Rgn, rgn_Diff);
-  // теперь добавляем к FullRgn регионы каждого контрольного элемента
+  // С‚РµРїРµСЂСЊ РґРѕР±Р°РІР»СЏРµРј Рє FullRgn СЂРµРіРёРѕРЅС‹ РєР°Р¶РґРѕРіРѕ РєРѕРЅС‚СЂРѕР»СЊРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р°
   for I:= 0 to ControlCount -1 do
     with Controls[I] do begin
       Rgn:= CreateRectRgn(ClientX + Left, ClientY + Top, ClientX + Left +
 Width, ClientY + Top + Height);
       CombineRgn(FullRgn, FullRgn, Rgn, rgn_Or);
     end;
-  // устанавливаем новый регион окна
+  // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РЅРѕРІС‹Р№ СЂРµРіРёРѕРЅ РѕРєРЅР°
   SetWindowRgn(Handle, FullRgn, True);
 end;
 end.
 </pre>
-<p id="author">Автор: Krid </p>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ: Krid </p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 <hr />
 <pre name="code" class="delphi">
 type
@@ -129,21 +122,21 @@ begin
     WS_EX_TRANSPARENT;
 end;
 </pre>
-<p id="author">Автор:&nbsp; Smike</p>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
-<hr /><p>Вместо перекрытия CreateParams():<br>
-<p>Сделать "прозрачным" для мышки: </p>
+<p id="author">РђРІС‚РѕСЂ:&nbsp; Smike</p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<hr /><p>Р’РјРµСЃС‚Рѕ РїРµСЂРµРєСЂС‹С‚РёСЏ CreateParams():<br>
+<p>РЎРґРµР»Р°С‚СЊ "РїСЂРѕР·СЂР°С‡РЅС‹Рј" РґР»СЏ РјС‹С€РєРё: </p>
 <pre name="code" class="delphi">
 setWindowLong(Handle, GWL_EXSTYLE, GetWindowLong(Handle, GWL_EXSTYLE) or WS_EX_TRANSPARENT);
 </pre>
-<p>Сделать обратно нормальным: </p>
+<p>РЎРґРµР»Р°С‚СЊ РѕР±СЂР°С‚РЅРѕ РЅРѕСЂРјР°Р»СЊРЅС‹Рј: </p>
 <pre name="code" class="delphi">
 setWindowLong(Handle, GWL_EXSTYLE, GetWindowLong(Handle, GWL_EXSTYLE) and not WS_EX_TRANSPARENT);
 </pre>
 <p>&nbsp;<br>
-<p id="author">Автор:&nbsp; Vitalik</p>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
-<hr /><p>Еще одно хорошее решение. Его преимущество в том, что работать оно будет на всех системах, включая Win9x.<br>
+<p id="author">РђРІС‚РѕСЂ:&nbsp; Vitalik</p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<hr /><p>Р•С‰Рµ РѕРґРЅРѕ С…РѕСЂРѕС€РµРµ СЂРµС€РµРЅРёРµ. Р•РіРѕ РїСЂРµРёРјСѓС‰РµСЃС‚РІРѕ РІ С‚РѕРј, С‡С‚Рѕ СЂР°Р±РѕС‚Р°С‚СЊ РѕРЅРѕ Р±СѓРґРµС‚ РЅР° РІСЃРµС… СЃРёСЃС‚РµРјР°С…, РІРєР»СЋС‡Р°СЏ Win9x.<br>
 <p>&nbsp;</p>
 <pre name="code" class="delphi">
 procedure TForm1.HandleMessage(var Msg: tagMSG;var Handled: Boolean);
@@ -175,13 +168,13 @@ begin
 end;
 </pre>
 <p>&nbsp;<br>
-Автор ответа - Scorpy <br>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+РђРІС‚РѕСЂ РѕС‚РІРµС‚Р° - Scorpy <br>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

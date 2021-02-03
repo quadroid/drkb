@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как поместить картинку в заголовок TListView?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє РїРѕРјРµСЃС‚РёС‚СЊ РєР°СЂС‚РёРЅРєСѓ РІ Р·Р°РіРѕР»РѕРІРѕРє TListView?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,21 +13,14 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как поместить картинку в заголовок TListView?</h1>
+  <h1 id="title">РљР°Рє РїРѕРјРµСЃС‚РёС‚СЊ РєР°СЂС‚РёРЅРєСѓ РІ Р·Р°РіРѕР»РѕРІРѕРє TListView?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Иногда бывает полезно в заголовке колонки показывать стрелочку, чтобы информировать пользователя, по какой колонке идёт сортировка. Добавьте следующий код в форму:</p>
+
+<p>РРЅРѕРіРґР° Р±С‹РІР°РµС‚ РїРѕР»РµР·РЅРѕ РІ Р·Р°РіРѕР»РѕРІРєРµ РєРѕР»РѕРЅРєРё РїРѕРєР°Р·С‹РІР°С‚СЊ СЃС‚СЂРµР»РѕС‡РєСѓ, С‡С‚РѕР±С‹ РёРЅС„РѕСЂРјРёСЂРѕРІР°С‚СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ, РїРѕ РєР°РєРѕР№ РєРѕР»РѕРЅРєРµ РёРґС‘С‚ СЃРѕСЂС‚РёСЂРѕРІРєР°. Р”РѕР±Р°РІСЊС‚Рµ СЃР»РµРґСѓСЋС‰РёР№ РєРѕРґ РІ С„РѕСЂРјСѓ:</p>
 <pre name="code" class="delphi">
 procedure TForm1.SetColumnImage( List: TListView; Column, Image: Integer; 
                                  ShowImage: Boolean); 
@@ -63,31 +56,31 @@ end;
 </pre>
 
 
-<p>Картинки берутся из списка SmallImages. Вам надо будет вызвать эту функцию для каждой колонки и установить ShowImage в TRUE для той колонки, которую Вы будете сортировать. Сделать это можно в функции OnColumnClick():</p>
+<p>РљР°СЂС‚РёРЅРєРё Р±РµСЂСѓС‚СЃСЏ РёР· СЃРїРёСЃРєР° SmallImages. Р’Р°Рј РЅР°РґРѕ Р±СѓРґРµС‚ РІС‹Р·РІР°С‚СЊ СЌС‚Сѓ С„СѓРЅРєС†РёСЋ РґР»СЏ РєР°Р¶РґРѕР№ РєРѕР»РѕРЅРєРё Рё СѓСЃС‚Р°РЅРѕРІРёС‚СЊ ShowImage РІ TRUE РґР»СЏ С‚РѕР№ РєРѕР»РѕРЅРєРё, РєРѕС‚РѕСЂСѓСЋ Р’С‹ Р±СѓРґРµС‚Рµ СЃРѕСЂС‚РёСЂРѕРІР°С‚СЊ. РЎРґРµР»Р°С‚СЊ СЌС‚Рѕ РјРѕР¶РЅРѕ РІ С„СѓРЅРєС†РёРё OnColumnClick():</p>
 <pre name="code" class="delphi">
 procedure TForm1.ListView1ColumnClick(Sender: TObject; 
   Column: TListColumn); 
 var 
   i : integer; 
 begin 
-  // Это Ваша собственная функция сортировки
+  // Р­С‚Рѕ Р’Р°С€Р° СЃРѕР±СЃС‚РІРµРЅРЅР°СЏ С„СѓРЅРєС†РёСЏ СЃРѕСЂС‚РёСЂРѕРІРєРё
   CustomSort( @CustomSortProc, Column.Index ); 
-  // Этот цикл отображает иконку в выбранной колонке.
+  // Р­С‚РѕС‚ С†РёРєР» РѕС‚РѕР±СЂР°Р¶Р°РµС‚ РёРєРѕРЅРєСѓ РІ РІС‹Р±СЂР°РЅРЅРѕР№ РєРѕР»РѕРЅРєРµ.
   for i := 0 to ListView1.Columns.Count-1 do 
     SetColumnImage( ListView1, i, 0, i = Column.Index ); 
 end; 
 </pre>
 
-<p>Проблема: Изменение размера колонки генерирует сообщение WM_PAINT, которое стирает картинку, поэтому Вам прийдётся переопределить WM_PAINT и вызвать SetColumnImage снова.</p>
+<p>РџСЂРѕР±Р»РµРјР°: РР·РјРµРЅРµРЅРёРµ СЂР°Р·РјРµСЂР° РєРѕР»РѕРЅРєРё РіРµРЅРµСЂРёСЂСѓРµС‚ СЃРѕРѕР±С‰РµРЅРёРµ WM_PAINT, РєРѕС‚РѕСЂРѕРµ СЃС‚РёСЂР°РµС‚ РєР°СЂС‚РёРЅРєСѓ, РїРѕСЌС‚РѕРјСѓ Р’Р°Рј РїСЂРёР№РґС‘С‚СЃСЏ РїРµСЂРµРѕРїСЂРµРґРµР»РёС‚СЊ WM_PAINT Рё РІС‹Р·РІР°С‚СЊ SetColumnImage СЃРЅРѕРІР°.</p>
 
-<p>Использовался компонент TApplicationEvents в delphi 5.</p>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>РСЃРїРѕР»СЊР·РѕРІР°Р»СЃСЏ РєРѕРјРїРѕРЅРµРЅС‚ TApplicationEvents РІ delphi 5.</p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

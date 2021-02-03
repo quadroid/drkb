@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как реализовать сверхточный таймер?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє СЂРµР°Р»РёР·РѕРІР°С‚СЊ СЃРІРµСЂС…С‚РѕС‡РЅС‹Р№ С‚Р°Р№РјРµСЂ?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как реализовать сверхточный таймер?</h1>
+  <h1 id="title">РљР°Рє СЂРµР°Р»РёР·РѕРІР°С‚СЊ СЃРІРµСЂС…С‚РѕС‡РЅС‹Р№ С‚Р°Р№РјРµСЂ?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 
 <p>Windows is not a real time operating system so it is not really able to reliably achieve high accuracy timing without using a device driver. The best I have been able to get is a few nanoseconds using QueryPerformanceCounter. This is the procedure I use:</p>
@@ -74,7 +67,7 @@ Wait(10);
 DoSomethingElse;
 </pre>
 
-<p>Взято из <a href="http://www.lmc-mediaagentur.de/dpool" target="_blank">http://www.lmc-mediaagentur.de/dpool</a></p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://www.lmc-mediaagentur.de/dpool" target="_blank">http://www.lmc-mediaagentur.de/dpool</a></p>
 
 <hr />
 <pre name="code" class="delphi">
@@ -84,70 +77,70 @@ Interface
  
 Type
    tTimerValue = record
-      Micro: Word;      { Счётчик 8253/8254 }
-      Counter: Longint  { Счётчик BIOS }
+      Micro: Word;      { РЎС‡С‘С‚С‡РёРє 8253/8254 }
+      Counter: Longint  { РЎС‡С‘С‚С‡РёРє BIOS }
    End;
  
 Const
-   MicroFreq = 1193181 { $1234DD };    { Частота обновления счётчика Micro (1/сек) }
-   CounterFreq = MicroFreq / 65536;    { Частота обновления счётчика Counter (1/сек) }
-   MicroInterval = 1 / MicroFreq;      { Интервал обновления счётчика Micro (сек) }
-   CounterInterval = 1 / CounterFreq;  { Интервал обновления счётчика Counter (сек) }
+   MicroFreq = 1193181 { $1234DD };    { Р§Р°СЃС‚РѕС‚Р° РѕР±РЅРѕРІР»РµРЅРёСЏ СЃС‡С‘С‚С‡РёРєР° Micro (1/СЃРµРє) }
+   CounterFreq = MicroFreq / 65536;    { Р§Р°СЃС‚РѕС‚Р° РѕР±РЅРѕРІР»РµРЅРёСЏ СЃС‡С‘С‚С‡РёРєР° Counter (1/СЃРµРє) }
+   MicroInterval = 1 / MicroFreq;      { РРЅС‚РµСЂРІР°Р» РѕР±РЅРѕРІР»РµРЅРёСЏ СЃС‡С‘С‚С‡РёРєР° Micro (СЃРµРє) }
+   CounterInterval = 1 / CounterFreq;  { РРЅС‚РµСЂРІР°Р» РѕР±РЅРѕРІР»РµРЅРёСЏ СЃС‡С‘С‚С‡РёРєР° Counter (СЃРµРє) }
  
 Var
    BIOSCounter: Longint absolute $0040:$006C;
-{ Системный счётчик (обновляется CounterFreq раз/сек, }
-{ то есть каждые CounterInterval секунд)              }
+{ РЎРёСЃС‚РµРјРЅС‹Р№ СЃС‡С‘С‚С‡РёРє (РѕР±РЅРѕРІР»СЏРµС‚СЃСЏ CounterFreq СЂР°Р·/СЃРµРє, }
+{ С‚Рѕ РµСЃС‚СЊ РєР°Р¶РґС‹Рµ CounterInterval СЃРµРєСѓРЅРґ)              }
  
 Procedure InitTimer;
-{ Инициализировать таймер (перевести в нужный режим работы).       }
-{ Эту  процедуру необходимо выполнять перед использованием функций }
-{ и  процедур  для получения значения таймера (или счётчика), если }
-{ Вы  в своей программе изменили режим работы таймера. В противном }
-{ случае эта процедура Вам не понадобится, так как она выполняется }
-{ в секции инициализации модуля (сразу после запуска программы) !  }
+{ РРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ С‚Р°Р№РјРµСЂ (РїРµСЂРµРІРµСЃС‚Рё РІ РЅСѓР¶РЅС‹Р№ СЂРµР¶РёРј СЂР°Р±РѕС‚С‹).       }
+{ Р­С‚Сѓ  РїСЂРѕС†РµРґСѓСЂСѓ РЅРµРѕР±С…РѕРґРёРјРѕ РІС‹РїРѕР»РЅСЏС‚СЊ РїРµСЂРµРґ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј С„СѓРЅРєС†РёР№ }
+{ Рё  РїСЂРѕС†РµРґСѓСЂ  РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ Р·РЅР°С‡РµРЅРёСЏ С‚Р°Р№РјРµСЂР° (РёР»Рё СЃС‡С‘С‚С‡РёРєР°), РµСЃР»Рё }
+{ Р’С‹  РІ СЃРІРѕРµР№ РїСЂРѕРіСЂР°РјРјРµ РёР·РјРµРЅРёР»Рё СЂРµР¶РёРј СЂР°Р±РѕС‚С‹ С‚Р°Р№РјРµСЂР°. Р’ РїСЂРѕС‚РёРІРЅРѕРј }
+{ СЃР»СѓС‡Р°Рµ СЌС‚Р° РїСЂРѕС†РµРґСѓСЂР° Р’Р°Рј РЅРµ РїРѕРЅР°РґРѕР±РёС‚СЃСЏ, С‚Р°Рє РєР°Рє РѕРЅР° РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ }
+{ РІ СЃРµРєС†РёРё РёРЅРёС†РёР°Р»РёР·Р°С†РёРё РјРѕРґСѓР»СЏ (СЃСЂР°Р·Сѓ РїРѕСЃР»Рµ Р·Р°РїСѓСЃРєР° РїСЂРѕРіСЂР°РјРјС‹) !  }
 Procedure GetTimerValue(var Timer: tTimerValue);
-{ Записать значение таймера в переменную Timer }
+{ Р—Р°РїРёСЃР°С‚СЊ Р·РЅР°С‡РµРЅРёРµ С‚Р°Р№РјРµСЂР° РІ РїРµСЂРµРјРµРЅРЅСѓСЋ Timer }
 Function GetTimerSec: Real;
-{ Получить значение таймера в секундах (с точностью до 1 мкс) }
+{ РџРѕР»СѓС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ С‚Р°Р№РјРµСЂР° РІ СЃРµРєСѓРЅРґР°С… (СЃ С‚РѕС‡РЅРѕСЃС‚СЊСЋ РґРѕ 1 РјРєСЃ) }
 Function GetTimerMillisec: Longint;
-{ Получить значение таймера в миллисекундах }
+{ РџРѕР»СѓС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ С‚Р°Р№РјРµСЂР° РІ РјРёР»Р»РёСЃРµРєСѓРЅРґР°С… }
  
 Procedure GetTimerDifference(var Older, Newer, Result: tTimerValue);
-{ Записать разницу значений Newer и Older в переменную Result }
+{ Р—Р°РїРёСЃР°С‚СЊ СЂР°Р·РЅРёС†Сѓ Р·РЅР°С‡РµРЅРёР№ Newer Рё Older РІ РїРµСЂРµРјРµРЅРЅСѓСЋ Result }
 Function GetTimerDifSec(var Older, Newer: tTimerValue): Real;
-{ Получить разницу значений Newer и Older в секундах }
+{ РџРѕР»СѓС‡РёС‚СЊ СЂР°Р·РЅРёС†Сѓ Р·РЅР°С‡РµРЅРёР№ Newer Рё Older РІ СЃРµРєСѓРЅРґР°С… }
 Function GetTimerDifMillisec(var Older, Newer: tTimerValue): Longint;
-{ Получить разницу значений Newer и Older в миллисекундах }
+{ РџРѕР»СѓС‡РёС‚СЊ СЂР°Р·РЅРёС†Сѓ Р·РЅР°С‡РµРЅРёР№ Newer Рё Older РІ РјРёР»Р»РёСЃРµРєСѓРЅРґР°С… }
  
 Function ConvTimer2Sec(var Timer: tTimerValue): Real;
-{ Получить количество секунд по значению переменной Timer }
+{ РџРѕР»СѓС‡РёС‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРµРєСѓРЅРґ РїРѕ Р·РЅР°С‡РµРЅРёСЋ РїРµСЂРµРјРµРЅРЅРѕР№ Timer }
 Function ConvTimer2Millisec(var Timer: tTimerValue): Longint;
-{ Получить количество миллисекунд по значению переменной Timer }
+{ РџРѕР»СѓС‡РёС‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ РјРёР»Р»РёСЃРµРєСѓРЅРґ РїРѕ Р·РЅР°С‡РµРЅРёСЋ РїРµСЂРµРјРµРЅРЅРѕР№ Timer }
 Procedure ConvSec2Timer(Sec: Real; var Timer: tTimerValue);
-{ Преобразовать значение секунд Sec типа Real в тип tTimerValue }
+{ РџСЂРµРѕР±СЂР°Р·РѕРІР°С‚СЊ Р·РЅР°С‡РµРЅРёРµ СЃРµРєСѓРЅРґ Sec С‚РёРїР° Real РІ С‚РёРї tTimerValue }
 Procedure ConvMillisec2Timer(Millisec: Longint; var Timer: tTimerValue);
-{ Преобразовать значение миллисекунд Millisec типа Longint в тип tTimerValue }
+{ РџСЂРµРѕР±СЂР°Р·РѕРІР°С‚СЊ Р·РЅР°С‡РµРЅРёРµ РјРёР»Р»РёСЃРµРєСѓРЅРґ Millisec С‚РёРїР° Longint РІ С‚РёРї tTimerValue }
  
 Procedure ResetCounter;
-{ Сбросить  счётчик (то есть принять текущее значение таймера за ноль для }
-{ процедуры GetCounterValue и функции GetCounterSec)                      }
+{ РЎР±СЂРѕСЃРёС‚СЊ  СЃС‡С‘С‚С‡РёРє (С‚Рѕ РµСЃС‚СЊ РїСЂРёРЅСЏС‚СЊ С‚РµРєСѓС‰РµРµ Р·РЅР°С‡РµРЅРёРµ С‚Р°Р№РјРµСЂР° Р·Р° РЅРѕР»СЊ РґР»СЏ }
+{ РїСЂРѕС†РµРґСѓСЂС‹ GetCounterValue Рё С„СѓРЅРєС†РёРё GetCounterSec)                      }
 Procedure GetCounterValue(var Timer: tTimerValue);
-{ Записать значение счётчика в переменную Timer }
+{ Р—Р°РїРёСЃР°С‚СЊ Р·РЅР°С‡РµРЅРёРµ СЃС‡С‘С‚С‡РёРєР° РІ РїРµСЂРµРјРµРЅРЅСѓСЋ Timer }
 Function GetCounterSec: Real;
-{ Получить значение секунд счётчика }
+{ РџРѕР»СѓС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ СЃРµРєСѓРЅРґ СЃС‡С‘С‚С‡РёРєР° }
 Function GetCounterMillisec: Longint;
-{ Получить значение миллисекунд счётчика }
+{ РџРѕР»СѓС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ РјРёР»Р»РёСЃРµРєСѓРЅРґ СЃС‡С‘С‚С‡РёРєР° }
  
 Procedure Delay(MS: Word);
-{ Задержка MS миллисекунд (1 сек = 1000 мс) }
+{ Р—Р°РґРµСЂР¶РєР° MS РјРёР»Р»РёСЃРµРєСѓРЅРґ (1 СЃРµРє = 1000 РјСЃ) }
 Procedure DelaySec(Sec: Real);
-{ Задержка Sec секунд }
+{ Р—Р°РґРµСЂР¶РєР° Sec СЃРµРєСѓРЅРґ }
 Procedure MDelay(N: Longint);
-{ Задержка N * MicroInterval секунд (приближённо N * 0.838095813 мкс). }
-{ Если Вам нужны наиболее точные короткие задержки, лучше использовать }
-{ эту  процедуру, так как она даёт наименьшую погрешность по сравнению }
-{ с двумя предыдущими процедурами.                                     }
+{ Р—Р°РґРµСЂР¶РєР° N * MicroInterval СЃРµРєСѓРЅРґ (РїСЂРёР±Р»РёР¶С‘РЅРЅРѕ N * 0.838095813 РјРєСЃ). }
+{ Р•СЃР»Рё Р’Р°Рј РЅСѓР¶РЅС‹ РЅР°РёР±РѕР»РµРµ С‚РѕС‡РЅС‹Рµ РєРѕСЂРѕС‚РєРёРµ Р·Р°РґРµСЂР¶РєРё, Р»СѓС‡С€Рµ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ }
+{ СЌС‚Сѓ  РїСЂРѕС†РµРґСѓСЂСѓ, С‚Р°Рє РєР°Рє РѕРЅР° РґР°С‘С‚ РЅР°РёРјРµРЅСЊС€СѓСЋ РїРѕРіСЂРµС€РЅРѕСЃС‚СЊ РїРѕ СЃСЂР°РІРЅРµРЅРёСЋ }
+{ СЃ РґРІСѓРјСЏ РїСЂРµРґС‹РґСѓС‰РёРјРё РїСЂРѕС†РµРґСѓСЂР°РјРё.                                     }
  
 Implementation
 Var Now: tTimerValue;
@@ -155,9 +148,9 @@ Var Zero: tTimerValue;
  
 Procedure InitTimer; assembler;
 Asm
-   mov al,34h      { Режим 2 таймера 0 }
+   mov al,34h      { Р РµР¶РёРј 2 С‚Р°Р№РјРµСЂР° 0 }
    out 43h,al
-   xor al,al       { 65536 циклов до IRQ }
+   xor al,al       { 65536 С†РёРєР»РѕРІ РґРѕ IRQ }
    out 40h,al
    out 40h,al
 End
@@ -167,34 +160,34 @@ Asm
    cld
    xor ax,ax
    mov es,ax
-   mov bx,46Ch     { DS:BX = 0000h:046Ch = Таймер BIOS }
+   mov bx,46Ch     { DS:BX = 0000h:046Ch = РўР°Р№РјРµСЂ BIOS }
    cli
    mov dx,es:[bx]
-   mov cx,es:[bx+2]{ CX:DX = Первое значение таймера BIOS }
+   mov cx,es:[bx+2]{ CX:DX = РџРµСЂРІРѕРµ Р·РЅР°С‡РµРЅРёРµ С‚Р°Р№РјРµСЂР° BIOS }
    sti
-   out 43h,al      { Замораживаем таймер 8253/8254 }
+   out 43h,al      { Р—Р°РјРѕСЂР°Р¶РёРІР°РµРј С‚Р°Р№РјРµСЂ 8253/8254 }
    cli
    mov si,es:[bx]
-   mov di,es:[bx+2]{ DI:SI = Второе значение таймера BIOS }
+   mov di,es:[bx+2]{ DI:SI = Р’С‚РѕСЂРѕРµ Р·РЅР°С‡РµРЅРёРµ С‚Р°Р№РјРµСЂР° BIOS }
    in al,40h
    mov ah,al
    in al,40h
    sti
-   xchg ah,al      { AX = Таймер 8253/8254 }
-   not ax          { Обратный отсчёт -&gt; Прямой отсчёт }
-   cmp dx,si       { Первое значение таймера BIOS равно второму значению ? }
-   je @Ok          { Да! Оставляем как есть (CX:DX), иначе... }
-   or ax,ax        { Таймер BIOS изменился после заморозки таймера 8253/8254 (между OUT и CLI) ? }
-   js @Ok          { Да! Оставляем как есть (CX:DX), иначе... }
+   xchg ah,al      { AX = РўР°Р№РјРµСЂ 8253/8254 }
+   not ax          { РћР±СЂР°С‚РЅС‹Р№ РѕС‚СЃС‡С‘С‚ -&gt; РџСЂСЏРјРѕР№ РѕС‚СЃС‡С‘С‚ }
+   cmp dx,si       { РџРµСЂРІРѕРµ Р·РЅР°С‡РµРЅРёРµ С‚Р°Р№РјРµСЂР° BIOS СЂР°РІРЅРѕ РІС‚РѕСЂРѕРјСѓ Р·РЅР°С‡РµРЅРёСЋ ? }
+   je @Ok          { Р”Р°! РћСЃС‚Р°РІР»СЏРµРј РєР°Рє РµСЃС‚СЊ (CX:DX), РёРЅР°С‡Рµ... }
+   or ax,ax        { РўР°Р№РјРµСЂ BIOS РёР·РјРµРЅРёР»СЃСЏ РїРѕСЃР»Рµ Р·Р°РјРѕСЂРѕР·РєРё С‚Р°Р№РјРµСЂР° 8253/8254 (РјРµР¶РґСѓ OUT Рё CLI) ? }
+   js @Ok          { Р”Р°! РћСЃС‚Р°РІР»СЏРµРј РєР°Рє РµСЃС‚СЊ (CX:DX), РёРЅР°С‡Рµ... }
    mov dx,si
-   mov cx,di       { CX:DX = DI:SI, если таймер BIOS изменился между STI и OUT }
+   mov cx,di       { CX:DX = DI:SI, РµСЃР»Рё С‚Р°Р№РјРµСЂ BIOS РёР·РјРµРЅРёР»СЃСЏ РјРµР¶РґСѓ STI Рё OUT }
 @Ok:
    les di,Timer
    stosw           { Low Word }
    xchg ax,dx
    stosw           { Middle Word }
    xchg ax,cx
-   stosw           { High Word - Записаны из CX:DX:AX }
+   stosw           { High Word - Р—Р°РїРёСЃР°РЅС‹ РёР· CX:DX:AX }
 End
  
 Function GetTimerSec;
@@ -218,17 +211,17 @@ Asm
    lodsw           { Middle Word }
    xchg dx,ax
    lodsw           { High Word }
-   xchg cx,ax      { Прочитаны в CX:DX:AX }
+   xchg cx,ax      { РџСЂРѕС‡РёС‚Р°РЅС‹ РІ CX:DX:AX }
    lds si,Older
    sub ax,[si]
    sbb dx,[si+2]
-   sbb cx,[si+4]   { Вычитаем Older из Newer }
+   sbb cx,[si+4]   { Р’С‹С‡РёС‚Р°РµРј Older РёР· Newer }
    les di,Result
    stosw           { Low Word }
    xchg ax,dx
    stosw           { Middle Word }
    xchg ax,cx
-   stosw           { High Word - Записано из CX:DX:AX }
+   stosw           { High Word - Р—Р°РїРёСЃР°РЅРѕ РёР· CX:DX:AX }
    pop ds
 End
  
@@ -317,13 +310,13 @@ Begin
    GetTimerDifference(Zero, Now, Now);
    Asm
       mov ax,word ptr Now
-      mov dx,word ptr Now+2  { DX:AX - Прошедшее время }
+      mov dx,word ptr Now+2  { DX:AX - РџСЂРѕС€РµРґС€РµРµ РІСЂРµРјСЏ }
 {      mov cx,word ptr Now+4
       or cx,cx
       jnz @Exit}
-      cmp dx,word ptr N+2    { Проверяем старшие слова }
+      cmp dx,word ptr N+2    { РџСЂРѕРІРµСЂСЏРµРј СЃС‚Р°СЂС€РёРµ СЃР»РѕРІР° }
       jb Check
-      cmp ax,word ptr N      { Проверяем младшие слова }
+      cmp ax,word ptr N      { РџСЂРѕРІРµСЂСЏРµРј РјР»Р°РґС€РёРµ СЃР»РѕРІР° }
       jb Check
     @Exit:
    EndEnd;
@@ -334,7 +327,7 @@ End.
 </pre>
 
 <p>&nbsp;<br>
-<p>И вот ещё программа-тестер:</p>
+<p>Р РІРѕС‚ РµС‰С‘ РїСЂРѕРіСЂР°РјРјР°-С‚РµСЃС‚РµСЂ:</p>
 <pre name="code" class="delphi">
 Uses Counter;
 Var
@@ -345,68 +338,68 @@ Var
 Begin
    Asm
       mov ah,0Dh
-      int 21h      { Сбрасываем кэш }
+      int 21h      { РЎР±СЂР°СЃС‹РІР°РµРј РєСЌС€ }
       mov ax,1681h
-      int 2Fh      { Запрещаем Windows Task Switch }
+      int 2Fh      { Р—Р°РїСЂРµС‰Р°РµРј Windows Task Switch }
    End
  
-   Write('Без задержки...');
+   Write('Р‘РµР· Р·Р°РґРµСЂР¶РєРё...');
    ResetCounter;
    Sec := GetCounterSec;
-   WriteLn(#8#8#8': прошло ', Sec: 0: 6, ' сек');
+   WriteLn(#8#8#8': РїСЂРѕС€Р»Рѕ ', Sec: 0: 6, ' СЃРµРє');
  
-   Write('1000 раз холостой цикл...');
+   Write('1000 СЂР°Р· С…РѕР»РѕСЃС‚РѕР№ С†РёРєР»...');
    ResetCounter;
    For i := 1 to 1000 do ;
    Sec := GetCounterSec;
-   WriteLn(#8#8#8': прошло ', Sec: 0: 6, ' сек');
+   WriteLn(#8#8#8': РїСЂРѕС€Р»Рѕ ', Sec: 0: 6, ' СЃРµРє');
  
-   Write('1000 раз по 0 сек...');
+   Write('1000 СЂР°Р· РїРѕ 0 СЃРµРє...');
    ResetCounter;
    For i := 1 to 1000 do
       DelaySec(0);
    Sec := GetCounterSec;
-   WriteLn(#8#8#8': прошло ', Sec: 0: 6, ' сек');
+   WriteLn(#8#8#8': РїСЂРѕС€Р»Рѕ ', Sec: 0: 6, ' СЃРµРє');
  
    WriteLn('-------------------------------------------------');
  
-   Write('1 раз 1 сек...');
+   Write('1 СЂР°Р· 1 СЃРµРє...');
    ResetCounter;
    DelaySec(1);
    Sec := GetCounterSec;
-   WriteLn(#8#8#8': прошло ', Sec: 0: 6, ' сек');
+   WriteLn(#8#8#8': РїСЂРѕС€Р»Рѕ ', Sec: 0: 6, ' СЃРµРє');
  
-   Write('1000 раз по 0.001 сек...');
+   Write('1000 СЂР°Р· РїРѕ 0.001 СЃРµРє...');
    ResetCounter;
    For i := 1 to 1000 do
       DelaySec(0.001);
    Sec := GetCounterSec;
-   WriteLn(#8#8#8': прошло ', Sec: 0: 6, ' сек');
+   WriteLn(#8#8#8': РїСЂРѕС€Р»Рѕ ', Sec: 0: 6, ' СЃРµРє');
  
-   Write('10000 раз по 0.0001 сек...');
+   Write('10000 СЂР°Р· РїРѕ 0.0001 СЃРµРє...');
    ResetCounter;
    For i := 1 to 10000 do
       DelaySec(0.0001);
    Sec := GetCounterSec;
-   WriteLn(#8#8#8': прошло ', Sec: 0: 6, ' сек');
+   WriteLn(#8#8#8': РїСЂРѕС€Р»Рѕ ', Sec: 0: 6, ' СЃРµРє');
  
-   Write('100000 раз по 0.00001 сек...');
+   Write('100000 СЂР°Р· РїРѕ 0.00001 СЃРµРє...');
    ResetCounter;
    For i := 1 to 100000 do
       DelaySec(0.00001);
    Sec := GetCounterSec;
-   WriteLn(#8#8#8': прошло ', Sec: 0: 6, ' сек');
+   WriteLn(#8#8#8': РїСЂРѕС€Р»Рѕ ', Sec: 0: 6, ' СЃРµРє');
  
-   Write('119318 раз по 1/119318.1 сек...');
+   Write('119318 СЂР°Р· РїРѕ 1/119318.1 СЃРµРє...');
    ResetCounter;
    For i := 1 to 119318 do
       MDelay(10);
    Sec := GetCounterSec;
-   WriteLn(#8#8#8': прошло ', Sec: 0: 6, ' сек');
+   WriteLn(#8#8#8': РїСЂРѕС€Р»Рѕ ', Sec: 0: 6, ' СЃРµРє');
  
    WriteLn('-------------------------------------------------');
  
-   Write('Запускать тесты по микросекундам (м.б. очень долгими) [Y/N] ? : ');
+   Write('Р—Р°РїСѓСЃРєР°С‚СЊ С‚РµСЃС‚С‹ РїРѕ РјРёРєСЂРѕСЃРµРєСѓРЅРґР°Рј (Рј.Р±. РѕС‡РµРЅСЊ РґРѕР»РіРёРјРё) [Y/N] ? : ');
    Asm
     @Repeat:
       xor ah,ah
@@ -423,53 +416,53 @@ Begin
  
    If Ans = 'y' then
    Begin
-      Write('1000000 раз по 0.000001 сек...');
+      Write('1000000 СЂР°Р· РїРѕ 0.000001 СЃРµРє...');
       ResetCounter;
       For i := 1 to 1000000 do
          DelaySec(0.000001);
       Sec := GetCounterSec;
-      WriteLn(#8#8#8': прошло ', Sec: 0: 6, ' сек');
+      WriteLn(#8#8#8': РїСЂРѕС€Р»Рѕ ', Sec: 0: 6, ' СЃРµРє');
  
-      Write('1193181 раз по 1/1193181 сек...');
+      Write('1193181 СЂР°Р· РїРѕ 1/1193181 СЃРµРє...');
       ResetCounter;
       For i := 1 to 1193181 do
          MDelay(1);
       Sec := GetCounterSec;
-      WriteLn(#8#8#8': прошло ', Sec: 0: 6, ' сек')
+      WriteLn(#8#8#8': РїСЂРѕС€Р»Рѕ ', Sec: 0: 6, ' СЃРµРє')
    End;
  
    Asm
       mov ax,1682h
-      int 2Fh      { Разрешаем Windows Task Switch }
+      int 2Fh      { Р Р°Р·СЂРµС€Р°РµРј Windows Task Switch }
    EndEnd.
 </pre>
 
 <p>&nbsp;<br>
-Не забывайте, что погрешности, которые будет выдавать программа-тестер будут из-за того, что какое-то время тратиться на вызов процедуры, циклы и т.д. (т.к. там используются процедуры DelaySec, MDelay).... Но если вызвать ResetCounter, а через некоторое время GetCounterSec, то результат будет точным (собственно, именно так здесь и измеряются погрешности)! И можно вызывать его (GetCounterSec) ещё хоть 10000 раз! ;D<br>
-<p>Кстати, запускайте тестер только в полноэкранном режиме, т.к. программа отключает многозадачность Windows, и на экране вы ничего не увидите (будет впечатление, что прога повисла). </p>
+РќРµ Р·Р°Р±С‹РІР°Р№С‚Рµ, С‡С‚Рѕ РїРѕРіСЂРµС€РЅРѕСЃС‚Рё, РєРѕС‚РѕСЂС‹Рµ Р±СѓРґРµС‚ РІС‹РґР°РІР°С‚СЊ РїСЂРѕРіСЂР°РјРјР°-С‚РµСЃС‚РµСЂ Р±СѓРґСѓС‚ РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ РєР°РєРѕРµ-С‚Рѕ РІСЂРµРјСЏ С‚СЂР°С‚РёС‚СЊСЃСЏ РЅР° РІС‹Р·РѕРІ РїСЂРѕС†РµРґСѓСЂС‹, С†РёРєР»С‹ Рё С‚.Рґ. (С‚.Рє. С‚Р°Рј РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ РїСЂРѕС†РµРґСѓСЂС‹ DelaySec, MDelay).... РќРѕ РµСЃР»Рё РІС‹Р·РІР°С‚СЊ ResetCounter, Р° С‡РµСЂРµР· РЅРµРєРѕС‚РѕСЂРѕРµ РІСЂРµРјСЏ GetCounterSec, С‚Рѕ СЂРµР·СѓР»СЊС‚Р°С‚ Р±СѓРґРµС‚ С‚РѕС‡РЅС‹Рј (СЃРѕР±СЃС‚РІРµРЅРЅРѕ, РёРјРµРЅРЅРѕ С‚Р°Рє Р·РґРµСЃСЊ Рё РёР·РјРµСЂСЏСЋС‚СЃСЏ РїРѕРіСЂРµС€РЅРѕСЃС‚Рё)! Р РјРѕР¶РЅРѕ РІС‹Р·С‹РІР°С‚СЊ РµРіРѕ (GetCounterSec) РµС‰С‘ С…РѕС‚СЊ 10000 СЂР°Р·! ;D<br>
+<p>РљСЃС‚Р°С‚Рё, Р·Р°РїСѓСЃРєР°Р№С‚Рµ С‚РµСЃС‚РµСЂ С‚РѕР»СЊРєРѕ РІ РїРѕР»РЅРѕСЌРєСЂР°РЅРЅРѕРј СЂРµР¶РёРјРµ, С‚.Рє. РїСЂРѕРіСЂР°РјРјР° РѕС‚РєР»СЋС‡Р°РµС‚ РјРЅРѕРіРѕР·Р°РґР°С‡РЅРѕСЃС‚СЊ Windows, Рё РЅР° СЌРєСЂР°РЅРµ РІС‹ РЅРёС‡РµРіРѕ РЅРµ СѓРІРёРґРёС‚Рµ (Р±СѓРґРµС‚ РІРїРµС‡Р°С‚Р»РµРЅРёРµ, С‡С‚Рѕ РїСЂРѕРіР° РїРѕРІРёСЃР»Р°). </p>
 <p>
-<p id="author">Автор: 7jin</p>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ: 7jin</p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 <hr />
-<p>А вот ещё один способ (работает только на Pentium или выше)....</p>
+<p>Рђ РІРѕС‚ РµС‰С‘ РѕРґРёРЅ СЃРїРѕСЃРѕР± (СЂР°Р±РѕС‚Р°РµС‚ С‚РѕР»СЊРєРѕ РЅР° Pentium РёР»Рё РІС‹С€Рµ)....</p>
 <pre name="code" class="delphi">
-Unit TSCDelay;          (* Работает только на Pentium (и то не всегда ;) *)
+Unit TSCDelay;          (* Р Р°Р±РѕС‚Р°РµС‚ С‚РѕР»СЊРєРѕ РЅР° Pentium (Рё С‚Рѕ РЅРµ РІСЃРµРіРґР° ;) *)
 {$O-,F-,G+,S-,R-}
 Interface
  
 Var
-   CPUClock: Longint;   { Тактовая частота процессора (гц) }
+   CPUClock: Longint;   { РўР°РєС‚РѕРІР°СЏ С‡Р°СЃС‚РѕС‚Р° РїСЂРѕС†РµСЃСЃРѕСЂР° (РіС†) }
  
 Procedure CalcCPUClock;
-{ Вычислить тактовую частоту процессора и записать в переменную CPUClock. }
+{ Р’С‹С‡РёСЃР»РёС‚СЊ С‚Р°РєС‚РѕРІСѓСЋ С‡Р°СЃС‚РѕС‚Сѓ РїСЂРѕС†РµСЃСЃРѕСЂР° Рё Р·Р°РїРёСЃР°С‚СЊ РІ РїРµСЂРµРјРµРЅРЅСѓСЋ CPUClock. }
 Procedure MDelay(N: Longint);
-{ Производит задержку в N микросекунд. Задержки более 4294967296/CPUClock }
-{ (на 300-м ~ 14) секунд будут работать неправильно из-за переполнения!!! }
-{ Перед  использованием  это  процедуры  необходимо установить правильное }
-{ значение  переменной  CPUClock.  Это  можно  сделать либо вручную, либо }
-{ выполнив процедуру CalcCPUClock.                                        }
+{ РџСЂРѕРёР·РІРѕРґРёС‚ Р·Р°РґРµСЂР¶РєСѓ РІ N РјРёРєСЂРѕСЃРµРєСѓРЅРґ. Р—Р°РґРµСЂР¶РєРё Р±РѕР»РµРµ 4294967296/CPUClock }
+{ (РЅР° 300-Рј ~ 14) СЃРµРєСѓРЅРґ Р±СѓРґСѓС‚ СЂР°Р±РѕС‚Р°С‚СЊ РЅРµРїСЂР°РІРёР»СЊРЅРѕ РёР·-Р·Р° РїРµСЂРµРїРѕР»РЅРµРЅРёСЏ!!! }
+{ РџРµСЂРµРґ  РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј  СЌС‚Рѕ  РїСЂРѕС†РµРґСѓСЂС‹  РЅРµРѕР±С…РѕРґРёРјРѕ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РїСЂР°РІРёР»СЊРЅРѕРµ }
+{ Р·РЅР°С‡РµРЅРёРµ  РїРµСЂРµРјРµРЅРЅРѕР№  CPUClock.  Р­С‚Рѕ  РјРѕР¶РЅРѕ  СЃРґРµР»Р°С‚СЊ Р»РёР±Рѕ РІСЂСѓС‡РЅСѓСЋ, Р»РёР±Рѕ }
+{ РІС‹РїРѕР»РЅРёРІ РїСЂРѕС†РµРґСѓСЂСѓ CalcCPUClock.                                        }
 Procedure TDelay(N: Longint);
-{ Производит задержку в N тактов процессора }
+{ РџСЂРѕРёР·РІРѕРґРёС‚ Р·Р°РґРµСЂР¶РєСѓ РІ N С‚Р°РєС‚РѕРІ РїСЂРѕС†РµСЃСЃРѕСЂР° }
  
 Implementation
 Uses Dos;
@@ -477,88 +470,88 @@ Var
    SaveInt08: Pointer;
    Stage: Byte;
  
-Procedure SpeedCounter; far; assembler;  { Наш IRQ 0 }
+Procedure SpeedCounter; far; assembler;  { РќР°С€ IRQ 0 }
 Asm
    push ax
    push ds
    mov ax,seg @Data
    mov ds,ax
-   inc Stage            { Прибавляем к Stage единицу }
+   inc Stage            { РџСЂРёР±Р°РІР»СЏРµРј Рє Stage РµРґРёРЅРёС†Сѓ }
    mov al,20h
-   out 20h,al           { Посылаем сигнал "конец IRQ" }
+   out 20h,al           { РџРѕСЃС‹Р»Р°РµРј СЃРёРіРЅР°Р» "РєРѕРЅРµС† IRQ" }
    pop ds
    pop ax
-   iret                 { Выходим }
+   iret                 { Р’С‹С…РѕРґРёРј }
 End
  
 Procedure CalcCPUClock;
 Begin
    Asm
       mov ah,0Dh
-      int 21h                     { Сбрасываем кэш }
+      int 21h                     { РЎР±СЂР°СЃС‹РІР°РµРј РєСЌС€ }
       mov ax,1681h
-      int 2Fh                     { Отключаем Windows Task Switch }
-      in al,0A1h                  { Маски IRQ 8-15 }
+      int 2Fh                     { РћС‚РєР»СЋС‡Р°РµРј Windows Task Switch }
+      in al,0A1h                  { РњР°СЃРєРё IRQ 8-15 }
       mov ah,al
-      in al,21h                   { Маски IRQ 0-7 }
-      push ax                     { Сохраняем маски }
+      in al,21h                   { РњР°СЃРєРё IRQ 0-7 }
+      push ax                     { РЎРѕС…СЂР°РЅСЏРµРј РјР°СЃРєРё }
       mov al,0FEh
-      out 21h,al                  { Запрещаем IRQ 1-7 (нулевой нам нужен) }
+      out 21h,al                  { Р—Р°РїСЂРµС‰Р°РµРј IRQ 1-7 (РЅСѓР»РµРІРѕР№ РЅР°Рј РЅСѓР¶РµРЅ) }
       inc ax
-      out 0A1h,al                 { Запрещаем IRQ 8-15 }
+      out 0A1h,al                 { Р—Р°РїСЂРµС‰Р°РµРј IRQ 8-15 }
       mov al,36h
-      out 43h,al                  { Устанавливаем нормальный режим работы таймера }
+      out 43h,al                  { РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РЅРѕСЂРјР°Р»СЊРЅС‹Р№ СЂРµР¶РёРј СЂР°Р±РѕС‚С‹ С‚Р°Р№РјРµСЂР° }
       xor al,al
       out 40h,al
-      out 40h,al                  { 65536 циклов до IRQ 0 }
-      mov Stage,0                 { Готовимся к началу отсчёта }
+      out 40h,al                  { 65536 С†РёРєР»РѕРІ РґРѕ IRQ 0 }
+      mov Stage,0                 { Р“РѕС‚РѕРІРёРјСЃСЏ Рє РЅР°С‡Р°Р»Сѓ РѕС‚СЃС‡С‘С‚Р° }
    End
-   GetIntVec(8, SaveInt08);       { Сохраняем старый IRQ 0 }
-   SetIntVec(8, @SpeedCounter);   { Устанавливаем свой IRQ 0 }
+   GetIntVec(8, SaveInt08);       { РЎРѕС…СЂР°РЅСЏРµРј СЃС‚Р°СЂС‹Р№ IRQ 0 }
+   SetIntVec(8, @SpeedCounter);   { РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЃРІРѕР№ IRQ 0 }
    Asm
    @1:cmp Stage,1
-      jne @1                      { Цикл до первого IRQ 0 }
+      jne @1                      { Р¦РёРєР» РґРѕ РїРµСЂРІРѕРіРѕ IRQ 0 }
       db 0Fh,31h  { RDTSC }
-      db 66h; xchg cx,ax          { Запоминаем значение счётчика }
+      db 66h; xchg cx,ax          { Р—Р°РїРѕРјРёРЅР°РµРј Р·РЅР°С‡РµРЅРёРµ СЃС‡С‘С‚С‡РёРєР° }
    @2:cmp Stage,2
-      jne @2                      { Цикл до второго IRQ 0 }
+      jne @2                      { Р¦РёРєР» РґРѕ РІС‚РѕСЂРѕРіРѕ IRQ 0 }
       db 0Fh,31h  { RDTSC }
-      db 66h; sub ax,cx           { Вычитаем из текущего значение счётчика запомненное }
+      db 66h; sub ax,cx           { Р’С‹С‡РёС‚Р°РµРј РёР· С‚РµРєСѓС‰РµРіРѕ Р·РЅР°С‡РµРЅРёРµ СЃС‡С‘С‚С‡РёРєР° Р·Р°РїРѕРјРЅРµРЅРЅРѕРµ }
       db 66h,0B9h; dd 1234DDh     { mov ecx,1234DDh }
-      db 66h; mul cx              { Умножаем значение на 1193181 }
-      db 66h,0Fh,0ACh,0D0h,10h    { shrd eax,edx,16 - делим на 65536 }
-      db 66h; mov word ptr CPUClock,ax { Записываем результат в CPUClock }
+      db 66h; mul cx              { РЈРјРЅРѕР¶Р°РµРј Р·РЅР°С‡РµРЅРёРµ РЅР° 1193181 }
+      db 66h,0Fh,0ACh,0D0h,10h    { shrd eax,edx,16 - РґРµР»РёРј РЅР° 65536 }
+      db 66h; mov word ptr CPUClock,ax { Р—Р°РїРёСЃС‹РІР°РµРј СЂРµР·СѓР»СЊС‚Р°С‚ РІ CPUClock }
       pop ax
-      out 21h,al                  { Восстанавливаем маску IRQ 0-7 }
+      out 21h,al                  { Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј РјР°СЃРєСѓ IRQ 0-7 }
       mov al,ah
-      out 0A1h,al                 { Восстанавливаем маску IRQ 8-15 }
+      out 0A1h,al                 { Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј РјР°СЃРєСѓ IRQ 8-15 }
    End
-   SetIntVec(8, SaveInt08);       { Восстанавливаем старый IRQ 0 }
+   SetIntVec(8, SaveInt08);       { Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЃС‚Р°СЂС‹Р№ IRQ 0 }
    Asm
       mov ax,1682h
-      int 2Fh                     { Включаем Windows Task Switch }
+      int 2Fh                     { Р’РєР»СЋС‡Р°РµРј Windows Task Switch }
    EndEnd;
  
 Procedure MDelay; assembler;
 Asm
    db 0Fh,31h  { RDTSC }
    db 66h; push ax
-   db 66h; push dx           { Сохраняем счётчик в стеке }
+   db 66h; push dx           { РЎРѕС…СЂР°РЅСЏРµРј СЃС‡С‘С‚С‡РёРє РІ СЃС‚РµРєРµ }
    db 66h; mov ax,word ptr N
    db 66h; mov cx,word ptr CPUClock
-   db 66h; mul cx            { Умножаем N на CPUClock }
+   db 66h; mul cx            { РЈРјРЅРѕР¶Р°РµРј N РЅР° CPUClock }
    db 66h,0B9h; dd 1000000   { mov ecx,1000000 }
-   db 66h; div cx            { Затем делим на 1000000 }
-   db 66h; xchg si,ax        { Сохраняем значение в ESI }
+   db 66h; div cx            { Р—Р°С‚РµРј РґРµР»РёРј РЅР° 1000000 }
+   db 66h; xchg si,ax        { РЎРѕС…СЂР°РЅСЏРµРј Р·РЅР°С‡РµРЅРёРµ РІ ESI }
    db 66h; pop cx
-   db 66h; pop bx            { Восстанавливаем значение счётчика в ECX:EBX }
+   db 66h; pop bx            { Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р·РЅР°С‡РµРЅРёРµ СЃС‡С‘С‚С‡РёРєР° РІ ECX:EBX }
  @:db 0Fh,31h  { RDTSC }
    db 66h; sub ax,bx
-   db 66h; sbb dx,cx         { Вычитаем из текущего счётчика ECX:EBX }
-   db 66h; or dx,dx          { Старшая часть разницы д.б. всегда 0, проверяем это }
-   jnz @Exit                 { Нет - выходим! }
-   db 66h; cmp ax,si         { Проверяем - прошло ли столько, сколько нам надо }
-   jb @                      { Нет - ждём ещё }
+   db 66h; sbb dx,cx         { Р’С‹С‡РёС‚Р°РµРј РёР· С‚РµРєСѓС‰РµРіРѕ СЃС‡С‘С‚С‡РёРєР° ECX:EBX }
+   db 66h; or dx,dx          { РЎС‚Р°СЂС€Р°СЏ С‡Р°СЃС‚СЊ СЂР°Р·РЅРёС†С‹ Рґ.Р±. РІСЃРµРіРґР° 0, РїСЂРѕРІРµСЂСЏРµРј СЌС‚Рѕ }
+   jnz @Exit                 { РќРµС‚ - РІС‹С…РѕРґРёРј! }
+   db 66h; cmp ax,si         { РџСЂРѕРІРµСЂСЏРµРј - РїСЂРѕС€Р»Рѕ Р»Рё СЃС‚РѕР»СЊРєРѕ, СЃРєРѕР»СЊРєРѕ РЅР°Рј РЅР°РґРѕ }
+   jb @                      { РќРµС‚ - Р¶РґС‘Рј РµС‰С‘ }
  @Exit:
 End
  
@@ -566,44 +559,44 @@ Procedure TDelay; assembler;
 Asm
    db 0Fh,31h  { RDTSC }
    db 66h; mov bx,ax
-   db 66h; mov cx,dx         { Сохраняем счётчик в ECX:EBX }
+   db 66h; mov cx,dx         { РЎРѕС…СЂР°РЅСЏРµРј СЃС‡С‘С‚С‡РёРє РІ ECX:EBX }
  @:db 0Fh,31h  { RDTSC }
    db 66h; sub ax,bx
-   db 66h; sbb dx,cx         { Вычитаем из текущего счётчика ECX:EBX }
-   db 66h; or dx,dx          { Старшая часть разницы д.б. всегда 0, проверяем это }
-   jnz @Exit                 { Нет - выходим! }
-   db 66h; cmp ax,word ptr N { Проверяем - прошло ли столько, сколько нам надо }
-   jb @                      { Нет - ждём ещё }
+   db 66h; sbb dx,cx         { Р’С‹С‡РёС‚Р°РµРј РёР· С‚РµРєСѓС‰РµРіРѕ СЃС‡С‘С‚С‡РёРєР° ECX:EBX }
+   db 66h; or dx,dx          { РЎС‚Р°СЂС€Р°СЏ С‡Р°СЃС‚СЊ СЂР°Р·РЅРёС†С‹ Рґ.Р±. РІСЃРµРіРґР° 0, РїСЂРѕРІРµСЂСЏРµРј СЌС‚Рѕ }
+   jnz @Exit                 { РќРµС‚ - РІС‹С…РѕРґРёРј! }
+   db 66h; cmp ax,word ptr N { РџСЂРѕРІРµСЂСЏРµРј - РїСЂРѕС€Р»Рѕ Р»Рё СЃС‚РѕР»СЊРєРѕ, СЃРєРѕР»СЊРєРѕ РЅР°Рј РЅР°РґРѕ }
+   jb @                      { РќРµС‚ - Р¶РґС‘Рј РµС‰С‘ }
  @Exit:
 End
  
 End.
 </pre>
 nbsp;<br>
-<p>И программа-тестер:</p>
+<p>Р РїСЂРѕРіСЂР°РјРјР°-С‚РµСЃС‚РµСЂ:</p>
 <pre name="code" class="delphi">
 Uses TSCDelay;
 Var N: Longint;
 Begin
    CalcCPUClock;
-   WriteLn('Тактовая частота процессора: ', CPUClock/1000000: 0: 3,' МГц');
-   Write('Введите количество микросекунд (не более ', 4294967296.0/CPUClock: 0: 3, ' млн): ');
+   WriteLn('РўР°РєС‚РѕРІР°СЏ С‡Р°СЃС‚РѕС‚Р° РїСЂРѕС†РµСЃСЃРѕСЂР°: ', CPUClock/1000000: 0: 3,' РњР“С†');
+   Write('Р’РІРµРґРёС‚Рµ РєРѕР»РёС‡РµСЃС‚РІРѕ РјРёРєСЂРѕСЃРµРєСѓРЅРґ (РЅРµ Р±РѕР»РµРµ ', 4294967296.0/CPUClock: 0: 3, ' РјР»РЅ): ');
    ReadLn(N);
-   Write('Задержка...');
+   Write('Р—Р°РґРµСЂР¶РєР°...');
    MDelay(N);
-   WriteLn(' всё!')
+   WriteLn(' РІСЃС‘!')
 End.
 </pre>
 
 <p>
-<p id="author">Автор: 7jin</p>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ: 7jin</p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 <hr />
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

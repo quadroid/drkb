@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Работа с WinInet, демо получения HTML-кода страницы</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>Р Р°Р±РѕС‚Р° СЃ WinInet, РґРµРјРѕ РїРѕР»СѓС‡РµРЅРёСЏ HTML-РєРѕРґР° СЃС‚СЂР°РЅРёС†С‹</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,27 +13,20 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Работа с WinInet, демо получения HTML-кода страницы</h1>
+  <h1 id="title">Р Р°Р±РѕС‚Р° СЃ WinInet, РґРµРјРѕ РїРѕР»СѓС‡РµРЅРёСЏ HTML-РєРѕРґР° СЃС‚СЂР°РЅРёС†С‹</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 ////////////////////////////////////////////////////////////////////////////////
 //
-//  Демо получения HTML кода страницы
-//  Автор: Александр (Rouse_) Багель
-//  © Fangorn Wizards Lab 1998 - 2003
-//  19 января 2003 
+//  Р”РµРјРѕ РїРѕР»СѓС‡РµРЅРёСЏ HTML РєРѕРґР° СЃС‚СЂР°РЅРёС†С‹
+//  РђРІС‚РѕСЂ: РђР»РµРєСЃР°РЅРґСЂ (Rouse_) Р‘Р°РіРµР»СЊ
+//  В© Fangorn Wizards Lab 1998 - 2003
+//  19 СЏРЅРІР°СЂСЏ 2003 
  
 unit Unit1;
  
@@ -82,35 +75,35 @@ var
   Res, Len: DWORD;
 begin
   Result := '';
-  // Небольшой парсинг
-  // вытаскиваем имя хоста и параметры обращения к скрипту
+  // РќРµР±РѕР»СЊС€РѕР№ РїР°СЂСЃРёРЅРі
+  // РІС‹С‚Р°СЃРєРёРІР°РµРј РёРјСЏ С…РѕСЃС‚Р° Рё РїР°СЂР°РјРµС‚СЂС‹ РѕР±СЂР°С‰РµРЅРёСЏ Рє СЃРєСЂРёРїС‚Сѓ
   FHost := DelHttp(Url);
   FScript := Url;
   Delete(FScript, 1, Pos(FHost, FScript) + Length(FHost));
   //FScript := FHost + '/' +FScript;
  
-  // Инициализируем WinInet
+  // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј WinInet
   FSession := InternetOpen('DMFR', INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
   if not Assigned(FSession) then Exit;
   try
-    // Попытка соединения с сервером
+    // РџРѕРїС‹С‚РєР° СЃРѕРµРґРёРЅРµРЅРёСЏ СЃ СЃРµСЂРІРµСЂРѕРј
     FConnect := InternetConnect(FSession, PChar(FHost), HTTP_PORT, nil,
                                 'HTTP/1.0', INTERNET_SERVICE_HTTP, 0, 0);
     if not Assigned(FConnect) then Exit;
     try
-      // Подготавливаем запрос страницы
+      // РџРѕРґРіРѕС‚Р°РІР»РёРІР°РµРј Р·Р°РїСЂРѕСЃ СЃС‚СЂР°РЅРёС†С‹
       Ansi := 'text/*';
       FRequest := HttpOpenRequest(FConnect, 'GET', PChar(FScript), 'HTTP/1.1',
                                   nil, @Ansi, INTERNET_FLAG_RELOAD, 0);
       if not Assigned(FConnect) then Exit;
       try
-        // Добавляем заголовки
+        // Р”РѕР±Р°РІР»СЏРµРј Р·Р°РіРѕР»РѕРІРєРё
         if not (HttpAddRequestHeaders(FRequest, Header, Length(Header),
                                       HTTP_ADDREQ_FLAG_REPLACE or
                                       HTTP_ADDREQ_FLAG_ADD or
                                       HTTP_ADDREQ_FLAG_COALESCE_WITH_COMMA)) then Exit;
  
-        // Проверяем запрос:
+        // РџСЂРѕРІРµСЂСЏРµРј Р·Р°РїСЂРѕСЃ:
         Len := 0;
         Res := 0;
         SRequest := ' ';
@@ -123,9 +116,9 @@ begin
             HTTP_QUERY_FLAG_REQUEST_HEADERS, @SRequest[1], Len, Res);
         end;
         Form1.Memo2.Lines.Text := SRequest;
-        // Отправляем запрос
+        // РћС‚РїСЂР°РІР»СЏРµРј Р·Р°РїСЂРѕСЃ
         if not (HttpSendRequest(FRequest, nil, 0, nil, 0)) then Exit;
-        // Получаем ответ 
+        // РџРѕР»СѓС‡Р°РµРј РѕС‚РІРµС‚ 
         FillChar(Buff, SizeOf(Buff), 0);
         repeat
           Result := Result + Buff;
@@ -157,14 +150,14 @@ end.
 </pre>
 <p>&nbsp;<br>
 &nbsp;<br>
-Проект также доступен по адресу: http://rouse.front.ru/loadhtml.zip <br>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
-<p id="author">Автор: Rouse_</p>
+РџСЂРѕРµРєС‚ С‚Р°РєР¶Рµ РґРѕСЃС‚СѓРїРµРЅ РїРѕ Р°РґСЂРµСЃСѓ: http://rouse.front.ru/loadhtml.zip <br>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ: Rouse_</p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

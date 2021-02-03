@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Перехват API функций на примере MessageBoxA</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџРµСЂРµС…РІР°С‚ API С„СѓРЅРєС†РёР№ РЅР° РїСЂРёРјРµСЂРµ MessageBoxA</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Перехват API функций на примере MessageBoxA</h1>
+  <h1 id="title">РџРµСЂРµС…РІР°С‚ API С„СѓРЅРєС†РёР№ РЅР° РїСЂРёРјРµСЂРµ MessageBoxA</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 
 <p>DLL:</p>
@@ -56,7 +49,7 @@ function MyHookProcedure(hWnd: HWND; lpText, lpCaption: PWideChar; uType: UINT):
 stdcall;
 begin
   result:=MessageBoxA(0, 'Notepad', 'my hook', 0);
-  //Но уже через нашу табл. импорта
+  //РќРѕ СѓР¶Рµ С‡РµСЂРµР· РЅР°С€Сѓ С‚Р°Р±Р». РёРјРїРѕСЂС‚Р°
 end;
  
 procedure ProcessImports(PImports:PImageImportDescriptor);
@@ -77,7 +70,7 @@ procedure ProcessImports(PImports:PImageImportDescriptor);
                then
                  begin{4}
                    VirtualProtect(PPointer(PRVA_Import),4,PAGE_READWRITE,Temp_Cardinal);
-                   PPointer(PRVA_Import)^:=@MyHookProcedure; //пишем свою...
+                   PPointer(PRVA_Import)^:=@MyHookProcedure; //РїРёС€РµРј СЃРІРѕСЋ...
                   VirtualProtect(PPointer(PRVA_Import),4,Temp_Cardinal,Temp_Cardinal);
                  end;{1}
             Inc(PRVA_Import);
@@ -95,7 +88,7 @@ begin
       ZeroMemory(@FileName, SizeOf(FileName));
       GetModuleFileName(GetModuleHandle(nil), @FileName, SizeOf(FileName));
  
-         if Pos('NOTEPAD.EXE',AnsiUpper(@FileName))&lt;&gt;0 then //сейчас я хочу попробовать все это дело надо  нотепадом
+         if Pos('NOTEPAD.EXE',AnsiUpper(@FileName))&lt;&gt;0 then //СЃРµР№С‡Р°СЃ СЏ С…РѕС‡Сѓ РїРѕРїСЂРѕР±РѕРІР°С‚СЊ РІСЃРµ СЌС‚Рѕ РґРµР»Рѕ РЅР°РґРѕ  РЅРѕС‚РµРїР°РґРѕРј
          begin
            ImageBase:=GetModuleHandle(nil);
            PEHeader:=pointer(int64(ImageBase)+PImageDosHeader(ImageBase)._lfanew);//pe header
@@ -143,21 +136,21 @@ begin
   hDll:=LoadLibrary('Mouse_mes.dll');
   @sethook:=GetProcAddress(hDll, 'sethook');
   sethook(true);
-  messagebox(0,'Не закрывай, пока идет работа','',0);
+  messagebox(0,'РќРµ Р·Р°РєСЂС‹РІР°Р№, РїРѕРєР° РёРґРµС‚ СЂР°Р±РѕС‚Р°','',0);
   sethook(false);
   FreeLibrary(hDll);
 end.
 </pre>
 
 
-<p id="author">Автор: Song</p>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ: Song</p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

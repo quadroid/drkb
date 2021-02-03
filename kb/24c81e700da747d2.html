@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Демонстрационный пример хука и подмены API в приложениях</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>Р”РµРјРѕРЅСЃС‚СЂР°С†РёРѕРЅРЅС‹Р№ РїСЂРёРјРµСЂ С…СѓРєР° Рё РїРѕРґРјРµРЅС‹ API РІ РїСЂРёР»РѕР¶РµРЅРёСЏС…</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,27 +13,20 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Демонстрационный пример хука и подмены API в приложениях</h1>
+  <h1 id="title">Р”РµРјРѕРЅСЃС‚СЂР°С†РёРѕРЅРЅС‹Р№ РїСЂРёРјРµСЂ С…СѓРєР° Рё РїРѕРґРјРµРЅС‹ API РІ РїСЂРёР»РѕР¶РµРЅРёСЏС…</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  ****************************************************************************
 //  * Unit Name : HookDLL
-//  * Purpose   : Демонстрационный пример хука и подмены API в приложениях...
-//  * Author    : Александр (Rouse_) Багель
+//  * Purpose   : Р”РµРјРѕРЅСЃС‚СЂР°С†РёРѕРЅРЅС‹Р№ РїСЂРёРјРµСЂ С…СѓРєР° Рё РїРѕРґРјРµРЅС‹ API РІ РїСЂРёР»РѕР¶РµРЅРёСЏС…...
+//  * Author    : РђР»РµРєСЃР°РЅРґСЂ (Rouse_) Р‘Р°РіРµР»СЊ
 //  * Version   : 1.00
 //  ****************************************************************************
 //
@@ -48,25 +41,25 @@ uses
 const
   GlobMapID = 'Global Hook for API Interception {2E662583-74C4-45DB-B6DF-FE318C94258D}';
  
-const // Константы нотификаций
+const // РљРѕРЅСЃС‚Р°РЅС‚С‹ РЅРѕС‚РёС„РёРєР°С†РёР№
   NOTIFY_DLL_INJECT = 1;
   NOTIFY_API_CALL = 2;
   NOTIFY_API_INTERCEPT_SUCCESS = 3;
   NOTIFY_API_INTERCEPT_FAILED = 4;
  
 type
-  // Структура для нотификации приложения
+  // РЎС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ РЅРѕС‚РёС„РёРєР°С†РёРё РїСЂРёР»РѕР¶РµРЅРёСЏ
   TLogData = record
-    AppName: ShortString; // Имя приложения
-    FuncName: String[8];  // Имя функции
-    FuncPointer: Integer; // Адрес функции
-    IP: String[15];       // IP адрес
-    Port: Cardinal;       // Порт
-    Buff: array [0..$FFFF] of Char; // Содержимое буффера
-    BuffSize: Word;       // Размер буфера
+    AppName: ShortString; // РРјСЏ РїСЂРёР»РѕР¶РµРЅРёСЏ
+    FuncName: String[8];  // РРјСЏ С„СѓРЅРєС†РёРё
+    FuncPointer: Integer; // РђРґСЂРµСЃ С„СѓРЅРєС†РёРё
+    IP: String[15];       // IP Р°РґСЂРµСЃ
+    Port: Cardinal;       // РџРѕСЂС‚
+    Buff: array [0..$FFFF] of Char; // РЎРѕРґРµСЂР¶РёРјРѕРµ Р±СѓС„С„РµСЂР°
+    BuffSize: Word;       // Р Р°Р·РјРµСЂ Р±СѓС„РµСЂР°
   end;
  
-  // Структура с рабочей информацией хука
+  // РЎС‚СЂСѓРєС‚СѓСЂР° СЃ СЂР°Р±РѕС‡РµР№ РёРЅС„РѕСЂРјР°С†РёРµР№ С…СѓРєР°
   PShareInf = ^TShareInf;
   TShareInf = record
     AppWndHandle: HWND;
@@ -74,7 +67,7 @@ type
     hm:THandle;
   end;
  
-  // Структуры для работы с таблицей импорта
+  // РЎС‚СЂСѓРєС‚СѓСЂС‹ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ С‚Р°Р±Р»РёС†РµР№ РёРјРїРѕСЂС‚Р°
   TIIDUnion = record
     case Integer of
       0: (Characteristics: DWORD);
@@ -105,7 +98,7 @@ var
   Replaced: Boolean;
   AppTitle: ShortString;
  
-//  Перехват API посредством подмены в таблице импорта
+//  РџРµСЂРµС…РІР°С‚ API РїРѕСЃСЂРµРґСЃС‚РІРѕРј РїРѕРґРјРµРЅС‹ РІ С‚Р°Р±Р»РёС†Рµ РёРјРїРѕСЂС‚Р°
 // =============================================================================
 function ReplaceIATEntryInOneMod(const OldProc,
   NewProc: FARPROC): Boolean;
@@ -122,7 +115,7 @@ begin
   if NewProc = nil then Exit;
   ImageBase := GetModuleHandle(nil);
  
-  // Зная структуру PE заголовка - находим начало таблицы импорта
+  // Р—РЅР°СЏ СЃС‚СЂСѓРєС‚СѓСЂСѓ PE Р·Р°РіРѕР»РѕРІРєР° - РЅР°С…РѕРґРёРј РЅР°С‡Р°Р»Рѕ С‚Р°Р±Р»РёС†С‹ РёРјРїРѕСЂС‚Р°
   DOSHeader := PImageDosHeader(ImageBase);
   if IsBadReadPtr(Pointer(ImageBase), SizeOf(TImageNtHeaders)) then Exit;
   if (DOSHeader^.e_magic &lt;&gt; IMAGE_DOS_SIGNATURE) then Exit;
@@ -134,25 +127,25 @@ begin
  
   if ImportEntry &lt;&gt; nil then
   begin
-    // Бежим по записям таблицы ...
+    // Р‘РµР¶РёРј РїРѕ Р·Р°РїРёСЃСЏРј С‚Р°Р±Р»РёС†С‹ ...
     while ImportEntry^.Name &lt;&gt; 0 do
     begin
         Thunk := PImageThunkData(DWORD(ImageBase) +
           DWORD(ImportEntry^.FirstThunk));
-        // ... пока таблица не кончится ...
+        // ... РїРѕРєР° С‚Р°Р±Р»РёС†Р° РЅРµ РєРѕРЅС‡РёС‚СЃСЏ ...
         while Thunk^._function &lt;&gt; nil do
         begin
-          // ... или не найдем нужную нам запись.
+          // ... РёР»Рё РЅРµ РЅР°Р№РґРµРј РЅСѓР¶РЅСѓСЋ РЅР°Рј Р·Р°РїРёСЃСЊ.
           if (Thunk^._function = OldProc) then
           begin
-            // Производим подмену, сначала так...
+            // РџСЂРѕРёР·РІРѕРґРёРј РїРѕРґРјРµРЅСѓ, СЃРЅР°С‡Р°Р»Р° С‚Р°Рє...
             if not IsBadWritePtr(@Thunk^._function, sizeof(DWORD)) then
             begin
               Thunk^._function := NewProc;
               Result := True;
             end
             else
-            begin // ... ну а если не получилось - тогда вот так
+            begin // ... РЅСѓ Р° РµСЃР»Рё РЅРµ РїРѕР»СѓС‡РёР»РѕСЃСЊ - С‚РѕРіРґР° РІРѕС‚ С‚Р°Рє
               if VirtualProtect(@Thunk^._function, SizeOf(DWORD),
                 PAGE_EXECUTE_READWRITE, Protect) then
               begin
@@ -172,7 +165,7 @@ begin
   end;
 end;
  
-//  Наша функция которая будет работать вместо оригинальной ...
+//  РќР°С€Р° С„СѓРЅРєС†РёСЏ РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ СЂР°Р±РѕС‚Р°С‚СЊ РІРјРµСЃС‚Рѕ РѕСЂРёРіРёРЅР°Р»СЊРЅРѕР№ ...
 // =============================================================================
 function InterceptedRecv(s: TSocket; var Buf; len, flags: Integer): Integer; stdcall;
 type
@@ -183,31 +176,31 @@ var
   AddrLen: Integer;
   Data: TLogData;
 begin
-  // Первоначально вызываем оригинальную функцию, но данные будем писать в свой буфер...
+  // РџРµСЂРІРѕРЅР°С‡Р°Р»СЊРЅРѕ РІС‹Р·С‹РІР°РµРј РѕСЂРёРіРёРЅР°Р»СЊРЅСѓСЋ С„СѓРЅРєС†РёСЋ, РЅРѕ РґР°РЅРЅС‹Рµ Р±СѓРґРµРј РїРёСЃР°С‚СЊ РІ СЃРІРѕР№ Р±СѓС„РµСЂ...
   Result := TrecvImage(OldRecv)(s, Data.Buff[0], len, flags);
-  // Получаем информацию кто с кем связался
+  // РџРѕР»СѓС‡Р°РµРј РёРЅС„РѕСЂРјР°С†РёСЋ РєС‚Рѕ СЃ РєРµРј СЃРІСЏР·Р°Р»СЃСЏ
   if getpeername(s, SockAddr, AddrLen) = SOCKET_ERROR then Exit;
   Data.IP := inet_ntoa(SockAddr.sin_addr);
   Data.Port := ntohs(SockAddr.sin_port);
   Data.BuffSize := Result;
   Data.AppName := AppTitle;
  
-  // Тут можно встроить проверку (к примеру по какому нибудь порту)
+  // РўСѓС‚ РјРѕР¶РЅРѕ РІСЃС‚СЂРѕРёС‚СЊ РїСЂРѕРІРµСЂРєСѓ (Рє РїСЂРёРјРµСЂСѓ РїРѕ РєР°РєРѕРјСѓ РЅРёР±СѓРґСЊ РїРѕСЂС‚Сѓ)
   if True then
-    Move(Data.Buff[0], Buf, Result) // проверка успешна - пишем в буфер полученные данные
+    Move(Data.Buff[0], Buf, Result) // РїСЂРѕРІРµСЂРєР° СѓСЃРїРµС€РЅР° - РїРёС€РµРј РІ Р±СѓС„РµСЂ РїРѕР»СѓС‡РµРЅРЅС‹Рµ РґР°РЅРЅС‹Рµ
   else
-    Result := SOCKET_ERROR;         // в противном случае говорим что вызов неуспешен.
+    Result := SOCKET_ERROR;         // РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ РіРѕРІРѕСЂРёРј С‡С‚Рѕ РІС‹Р·РѕРІ РЅРµСѓСЃРїРµС€РµРЅ.
  
-  // Отправляем полученные данные нашему приложению...
+  // РћС‚РїСЂР°РІР»СЏРµРј РїРѕР»СѓС‡РµРЅРЅС‹Рµ РґР°РЅРЅС‹Рµ РЅР°С€РµРјСѓ РїСЂРёР»РѕР¶РµРЅРёСЋ...
   CDS.dwData := NOTIFY_API_CALL;
   CDS.cbData := SizeOf(TLogData);
   CDS.lpData := @Data;
   SendMessage(ShareInf^.AppWndHandle, WM_COPYDATA, 0, Integer(@CDS));
 end;
  
-//  Начало и завершение работы нашего хука ...
+//  РќР°С‡Р°Р»Рѕ Рё Р·Р°РІРµСЂС€РµРЅРёРµ СЂР°Р±РѕС‚С‹ РЅР°С€РµРіРѕ С…СѓРєР° ...
 // =============================================================================
-procedure DLLEntryPoint(dwReason: DWORD); //stdcall;  &lt;- вот это как раз не нужно...
+procedure DLLEntryPoint(dwReason: DWORD); //stdcall;  &lt;- РІРѕС‚ СЌС‚Рѕ РєР°Рє СЂР°Р· РЅРµ РЅСѓР¶РЅРѕ...
 var
   CDS: TCopyDataStruct;
   Data: TLogData;
@@ -217,12 +210,12 @@ begin
   case dwReason Of
     DLL_PROCESS_ATTACH:
     begin
-      // Все данные во избежании разрыва цепочки хуков храним в отображаемом в память процесса файле,
-      // только тогда все экземпляры хука будут владеть достоверной информацией
+      // Р’СЃРµ РґР°РЅРЅС‹Рµ РІРѕ РёР·Р±РµР¶Р°РЅРёРё СЂР°Р·СЂС‹РІР° С†РµРїРѕС‡РєРё С…СѓРєРѕРІ С…СЂР°РЅРёРј РІ РѕС‚РѕР±СЂР°Р¶Р°РµРјРѕРј РІ РїР°РјСЏС‚СЊ РїСЂРѕС†РµСЃСЃР° С„Р°Р№Р»Рµ,
+      // С‚РѕР»СЊРєРѕ С‚РѕРіРґР° РІСЃРµ СЌРєР·РµРјРїР»СЏСЂС‹ С…СѓРєР° Р±СѓРґСѓС‚ РІР»Р°РґРµС‚СЊ РґРѕСЃС‚РѕРІРµСЂРЅРѕР№ РёРЅС„РѕСЂРјР°С†РёРµР№
       MapHandle := CreateFileMapping(INVALID_HANDLE_VALUE, nil, PAGE_READWRITE, 0, SizeOf(TShareInf), GlobMapID);
       ShareInf := MapViewOfFile(MapHandle, FILE_MAP_ALL_ACCESS, 0, 0, SizeOf(TShareInf));
  
-      // Получаем информацию о процессе в который подгружена наша библиотека
+      // РџРѕР»СѓС‡Р°РµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РїСЂРѕС†РµСЃСЃРµ РІ РєРѕС‚РѕСЂС‹Р№ РїРѕРґРіСЂСѓР¶РµРЅР° РЅР°С€Р° Р±РёР±Р»РёРѕС‚РµРєР°
       Replaced := False;
       OldRecv := GetProcAddress(GetModuleHandle('wsock32.dll'), 'recv');
       DisableThreadLibraryCalls(hInstance);
@@ -231,8 +224,8 @@ begin
       GetModuleFileName(ImageBase, @FileName, SizeOf(FileName));
       AppTitle := String(FileName);
  
-      // Нотифицируем приложение о успешном внедрении библиотеки
-      // И сообщаем информацию о процессе
+      // РќРѕС‚РёС„РёС†РёСЂСѓРµРј РїСЂРёР»РѕР¶РµРЅРёРµ Рѕ СѓСЃРїРµС€РЅРѕРј РІРЅРµРґСЂРµРЅРёРё Р±РёР±Р»РёРѕС‚РµРєРё
+      // Р СЃРѕРѕР±С‰Р°РµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РїСЂРѕС†РµСЃСЃРµ
       ZeroMemory(@Data, SizeOf(TLogData));
       Data.AppName := AppTitle;
       Data.FuncName := 'recv';
@@ -243,20 +236,20 @@ begin
       CDS.lpData := @Data;
       SendMessage(ShareInf^.AppWndHandle, WM_COPYDATA, 0, Integer(@CDS));
  
-      // Подменяем процедуры своими (если это нужное нам приложение)
+      // РџРѕРґРјРµРЅСЏРµРј РїСЂРѕС†РµРґСѓСЂС‹ СЃРІРѕРёРјРё (РµСЃР»Рё СЌС‚Рѕ РЅСѓР¶РЅРѕРµ РЅР°Рј РїСЂРёР»РѕР¶РµРЅРёРµ)
       if Pos('NETCHAT.EXE', AnsiUpper(@FileName)) &lt;&gt;0 then
       begin
         if OldRecv &lt;&gt; nil then
-          // Смотрим - успешно ли подменилась запись в таблице импорта?
+          // РЎРјРѕС‚СЂРёРј - СѓСЃРїРµС€РЅРѕ Р»Рё РїРѕРґРјРµРЅРёР»Р°СЃСЊ Р·Р°РїРёСЃСЊ РІ С‚Р°Р±Р»РёС†Рµ РёРјРїРѕСЂС‚Р°?
           if ReplaceIATEntryInOneMod(OldRecv, @InterceptedRecv) then
           begin
-            CDS.dwData := NOTIFY_API_INTERCEPT_SUCCESS; // Успешно...
-            Replaced := True;                           // Ставим флаг, что была замена...
+            CDS.dwData := NOTIFY_API_INTERCEPT_SUCCESS; // РЈСЃРїРµС€РЅРѕ...
+            Replaced := True;                           // РЎС‚Р°РІРёРј С„Р»Р°Рі, С‡С‚Рѕ Р±С‹Р»Р° Р·Р°РјРµРЅР°...
           end
           else
-            CDS.dwData := NOTIFY_API_INTERCEPT_FAILED;  // Не успешно...
+            CDS.dwData := NOTIFY_API_INTERCEPT_FAILED;  // РќРµ СѓСЃРїРµС€РЅРѕ...
  
-        // Нотифицируем наше приложение о результате подмены...
+        // РќРѕС‚РёС„РёС†РёСЂСѓРµРј РЅР°С€Рµ РїСЂРёР»РѕР¶РµРЅРёРµ Рѕ СЂРµР·СѓР»СЊС‚Р°С‚Рµ РїРѕРґРјРµРЅС‹...
         CDS.cbData := SizeOf(TLogData);
         CDS.lpData := @Data;
         SendMessage(ShareInf^.AppWndHandle, WM_COPYDATA, 0, Integer(@CDS));
@@ -266,35 +259,35 @@ begin
     begin
       UnMapViewOfFile(ShareInf);
       CloseHandle(MapHandle);
-      // Возвращаем изменения как они и были (если замена была удачна)
+      // Р’РѕР·РІСЂР°С‰Р°РµРј РёР·РјРµРЅРµРЅРёСЏ РєР°Рє РѕРЅРё Рё Р±С‹Р»Рё (РµСЃР»Рё Р·Р°РјРµРЅР° Р±С‹Р»Р° СѓРґР°С‡РЅР°)
       if Replaced then
         ReplaceIATEntryInOneMod(@InterceptedRecv, OldRecv);
     end;
   end;
 end;
  
-//  Это наш хук, он нужен только для внедрения в удаленный процесс ...
+//  Р­С‚Рѕ РЅР°С€ С…СѓРє, РѕРЅ РЅСѓР¶РµРЅ С‚РѕР»СЊРєРѕ РґР»СЏ РІРЅРµРґСЂРµРЅРёСЏ РІ СѓРґР°Р»РµРЅРЅС‹Р№ РїСЂРѕС†РµСЃСЃ ...
 // =============================================================================
 function Hook(Code: Integer; WParam: WPARAM; LParam: LPARAM): LRESULT; stdcall;
 begin
-  Result := CallNextHookEx(ShareInf^.OldHookHandle, Code, WParam, LParam); // вызываем след. ловушку
+  Result := CallNextHookEx(ShareInf^.OldHookHandle, Code, WParam, LParam); // РІС‹Р·С‹РІР°РµРј СЃР»РµРґ. Р»РѕРІСѓС€РєСѓ
 end;
  
-//  Установка хука ...
+//  РЈСЃС‚Р°РЅРѕРІРєР° С…СѓРєР° ...
 // =============================================================================
 function SetHook(Wnd: HWND): BOOL; stdcall;
 begin
   if ShareInf &lt;&gt; nil then
   begin
     ShareInf^.AppWndHandle := Wnd;
-    ShareInf^.OldHookHandle := SetWindowsHookEx(WH_GETMESSAGE, @Hook, HInstance, 0); // &lt;- Обратите внимание, не допускаем главной ошибки
+    ShareInf^.OldHookHandle := SetWindowsHookEx(WH_GETMESSAGE, @Hook, HInstance, 0); // &lt;- РћР±СЂР°С‚РёС‚Рµ РІРЅРёРјР°РЅРёРµ, РЅРµ РґРѕРїСѓСЃРєР°РµРј РіР»Р°РІРЅРѕР№ РѕС€РёР±РєРё
     Result := ShareInf^.OldHookHandle &lt;&gt; 0;
   end
   else 
     Result:=False;
 end;
  
-//  Снятие хука ...
+//  РЎРЅСЏС‚РёРµ С…СѓРєР° ...
 // =============================================================================
 function RemoveHook: BOOL; stdcall;
 begin
@@ -312,15 +305,15 @@ end.
  
 </pre>
 <p>&nbsp;<br>
-Приложение:<br>
+РџСЂРёР»РѕР¶РµРЅРёРµ:<br>
 <p>&nbsp;</p>
 <pre name="code" class="delphi">
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  ****************************************************************************
 //  * Unit Name : uMain
-//  * Purpose   : Демонстрационный пример хука и подмены API в приложениях...
-//  * Author    : Александр (Rouse_) Багель
+//  * Purpose   : Р”РµРјРѕРЅСЃС‚СЂР°С†РёРѕРЅРЅС‹Р№ РїСЂРёРјРµСЂ С…СѓРєР° Рё РїРѕРґРјРµРЅС‹ API РІ РїСЂРёР»РѕР¶РµРЅРёСЏС…...
+//  * Author    : РђР»РµРєСЃР°РЅРґСЂ (Rouse_) Р‘Р°РіРµР»СЊ
 //  * Version   : 1.00
 //  ****************************************************************************
 //
@@ -333,7 +326,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ActiveX;
  
-const // Константы нотификаций
+const // РљРѕРЅСЃС‚Р°РЅС‚С‹ РЅРѕС‚РёС„РёРєР°С†РёР№
   NOTIFY_DLL_INJECT = 1;
   NOTIFY_API_CALL = 2;
   NOTIFY_API_INTERCEPT_SUCCESS = 3;
@@ -341,13 +334,13 @@ const // Константы нотификаций
  
 type
   TLogData = record
-    AppName: ShortString; // Имя приложения
-    FuncName: String[8];  // Имя функции
-    FuncPointer: Integer; // Адрес функции
-    IP: String[15];       // IP адрес
-    Port: Cardinal;       // Порт
-    Buff: array [0..$FFFF] of Char; // Содержимое буффера
-    BuffSize: Word;       // Размер буфера
+    AppName: ShortString; // РРјСЏ РїСЂРёР»РѕР¶РµРЅРёСЏ
+    FuncName: String[8];  // РРјСЏ С„СѓРЅРєС†РёРё
+    FuncPointer: Integer; // РђРґСЂРµСЃ С„СѓРЅРєС†РёРё
+    IP: String[15];       // IP Р°РґСЂРµСЃ
+    Port: Cardinal;       // РџРѕСЂС‚
+    Buff: array [0..$FFFF] of Char; // РЎРѕРґРµСЂР¶РёРјРѕРµ Р±СѓС„С„РµСЂР°
+    BuffSize: Word;       // Р Р°Р·РјРµСЂ Р±СѓС„РµСЂР°
   end;
   PLogData = ^TLogData;
  
@@ -376,43 +369,43 @@ implementation
 procedure THADemo.FormCreate(Sender: TObject);
 begin
   if not SetHook(Handle) Then
-    MessageBox(Handle, 'Невозможно установить хук.', PChar(Application.Title), MB_OK OR MB_ICONHAND);
+    MessageBox(Handle, 'РќРµРІРѕР·РјРѕР¶РЅРѕ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ С…СѓРє.', PChar(Application.Title), MB_OK OR MB_ICONHAND);
 end;
  
 procedure THADemo.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   if not RemoveHook Then
-    MessageBox(Handle, 'Невозможно снять хук.', PChar(Application.Title), MB_OK OR MB_ICONHAND);
+    MessageBox(Handle, 'РќРµРІРѕР·РјРѕР¶РЅРѕ СЃРЅСЏС‚СЊ С…СѓРє.', PChar(Application.Title), MB_OK OR MB_ICONHAND);
 end;
  
 procedure THADemo.WMCopyData(var Msg: TMessage);
 const
-  ReportInject = 'Библиотека внедрена в приложение "%s", функция "%s" имеет адрес: $%s';
-  ReportIntercept = 'Приложение: "%s" IP %s:%d размер данных = %d буфер = "%s"';
-  ReportSucceeded = 'Перехват функции "%s" в модуле "%s" успешен.';
-  ReportFailed = 'Перехват функции "%s" в модуле "%s" неуспешен!!!';
+  ReportInject = 'Р‘РёР±Р»РёРѕС‚РµРєР° РІРЅРµРґСЂРµРЅР° РІ РїСЂРёР»РѕР¶РµРЅРёРµ "%s", С„СѓРЅРєС†РёСЏ "%s" РёРјРµРµС‚ Р°РґСЂРµСЃ: $%s';
+  ReportIntercept = 'РџСЂРёР»РѕР¶РµРЅРёРµ: "%s" IP %s:%d СЂР°Р·РјРµСЂ РґР°РЅРЅС‹С… = %d Р±СѓС„РµСЂ = "%s"';
+  ReportSucceeded = 'РџРµСЂРµС…РІР°С‚ С„СѓРЅРєС†РёРё "%s" РІ РјРѕРґСѓР»Рµ "%s" СѓСЃРїРµС€РµРЅ.';
+  ReportFailed = 'РџРµСЂРµС…РІР°С‚ С„СѓРЅРєС†РёРё "%s" РІ РјРѕРґСѓР»Рµ "%s" РЅРµСѓСЃРїРµС€РµРЅ!!!';
 var
   Data: TLogData;
   Buffer: String;
 begin
   Data := PLogData(PCopyDataStruct(Msg.LParam)^.lpData)^;
-  // Типы нотификаций
+  // РўРёРїС‹ РЅРѕС‚РёС„РёРєР°С†РёР№
   case PCopyDataStruct(Msg.LParam)^.dwData of
-    NOTIFY_DLL_INJECT: // Пришло уведомление о внедрении библиотеки в удаленный процесс
+    NOTIFY_DLL_INJECT: // РџСЂРёС€Р»Рѕ СѓРІРµРґРѕРјР»РµРЅРёРµ Рѕ РІРЅРµРґСЂРµРЅРёРё Р±РёР±Р»РёРѕС‚РµРєРё РІ СѓРґР°Р»РµРЅРЅС‹Р№ РїСЂРѕС†РµСЃСЃ
       with Data do
         memReport.Lines.Add(Format(ReportInject, [AppName, FuncName,
           IntToHex(Data.FuncPointer, 8)]));
-    NOTIFY_API_CALL: // Уведомление о вызове функции
+    NOTIFY_API_CALL: // РЈРІРµРґРѕРјР»РµРЅРёРµ Рѕ РІС‹Р·РѕРІРµ С„СѓРЅРєС†РёРё
     begin
       SetLength(Buffer, Data.BuffSize);
       Move(Data.Buff[0], Buffer[1], Data.BuffSize);
       with Data do
         memReport.Lines.Add(Format(ReportIntercept, [AppName, IP, Port, BuffSize, Buffer]));
     end;
-    NOTIFY_API_INTERCEPT_SUCCESS: // Уведомление о удачной подмене таблицы импорта
+    NOTIFY_API_INTERCEPT_SUCCESS: // РЈРІРµРґРѕРјР»РµРЅРёРµ Рѕ СѓРґР°С‡РЅРѕР№ РїРѕРґРјРµРЅРµ С‚Р°Р±Р»РёС†С‹ РёРјРїРѕСЂС‚Р°
       with Data do
         memReport.Lines.Add(Format(ReportSucceeded, [FuncName, AppName]));
-    NOTIFY_API_INTERCEPT_FAILED: // Уведомление о неудачной подмене таблицы импорта
+    NOTIFY_API_INTERCEPT_FAILED: // РЈРІРµРґРѕРјР»РµРЅРёРµ Рѕ РЅРµСѓРґР°С‡РЅРѕР№ РїРѕРґРјРµРЅРµ С‚Р°Р±Р»РёС†С‹ РёРјРїРѕСЂС‚Р°
       with Data do
         memReport.Lines.Add(Format(ReportFailed, [FuncName, AppName]));
   end;
@@ -421,19 +414,19 @@ end;
 end.
 </pre>
 <p>&nbsp;<br>
-<p id="author">Автор: Александр (Rouse_) Багель</p>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a><br>
+<p id="author">РђРІС‚РѕСЂ: РђР»РµРєСЃР°РЅРґСЂ (Rouse_) Р‘Р°РіРµР»СЊ</p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a><br>
 <p>&nbsp;</p>
-<p>Демонстрационный пример перехвата вызовов API функций, посредством изменения таблицы импорта. </p>
-<p><a href="zip/iatchange.zip">Скачать демонстрационный пример</a>
+<p>Р”РµРјРѕРЅСЃС‚СЂР°С†РёРѕРЅРЅС‹Р№ РїСЂРёРјРµСЂ РїРµСЂРµС…РІР°С‚Р° РІС‹Р·РѕРІРѕРІ API С„СѓРЅРєС†РёР№, РїРѕСЃСЂРµРґСЃС‚РІРѕРј РёР·РјРµРЅРµРЅРёСЏ С‚Р°Р±Р»РёС†С‹ РёРјРїРѕСЂС‚Р°. </p>
+<p><a href="zip/iatchange.zip">РЎРєР°С‡Р°С‚СЊ РґРµРјРѕРЅСЃС‚СЂР°С†РёРѕРЅРЅС‹Р№ РїСЂРёРјРµСЂ</a>
 </p>
-<p>Александр (Rouse_) Багель</p>
+<p>РђР»РµРєСЃР°РЅРґСЂ (Rouse_) Р‘Р°РіРµР»СЊ</p>
 <p><a href="http://rouse.drkb.ru" target="_blank">http://rouse.drkb.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

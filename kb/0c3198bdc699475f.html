@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как управлять сервисом на другом компьютере в Windows 2000?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє СѓРїСЂР°РІР»СЏС‚СЊ СЃРµСЂРІРёСЃРѕРј РЅР° РґСЂСѓРіРѕРј РєРѕРјРїСЊСЋС‚РµСЂРµ РІ Windows 2000?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,21 +13,14 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как управлять сервисом на другом компьютере в Windows 2000?</h1>
+  <h1 id="title">РљР°Рє СѓРїСЂР°РІР»СЏС‚СЊ СЃРµСЂРІРёСЃРѕРј РЅР° РґСЂСѓРіРѕРј РєРѕРјРїСЊСЋС‚РµСЂРµ РІ Windows 2000?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Требуется написать управление сервисом, запущеном на другом компьютере. С помошью чего это лучеше сделать?&nbsp; </p>
+
+<p>РўСЂРµР±СѓРµС‚СЃСЏ РЅР°РїРёСЃР°С‚СЊ СѓРїСЂР°РІР»РµРЅРёРµ СЃРµСЂРІРёСЃРѕРј, Р·Р°РїСѓС‰РµРЅРѕРј РЅР° РґСЂСѓРіРѕРј РєРѕРјРїСЊСЋС‚РµСЂРµ. РЎ РїРѕРјРѕС€СЊСЋ С‡РµРіРѕ СЌС‚Рѕ Р»СѓС‡РµС€Рµ СЃРґРµР»Р°С‚СЊ?&nbsp; </p>
 <pre name="code" class="delphi">
 uses
   Windows, Messages, SysUtils,
@@ -38,40 +31,40 @@ var
     schService: SC_HANDLE;
  
 begin
-  schSCManager := OpenSCManager(PChar('Comp1'), //имя компьютера, nil - local machine
+  schSCManager := OpenSCManager(PChar('Comp1'), //РёРјСЏ РєРѕРјРїСЊСЋС‚РµСЂР°, nil - local machine
     nil, // ServicesActive database
     SC_MANAGER_ALL_ACCESS); // full access rights
  
-  if schSCManager = 0 then exit; //Ошибка?
+  if schSCManager = 0 then exit; //РћС€РёР±РєР°?
  
   schService := OpenService(
     schSCManager, // SCM database
-    PChar('SQLServerAgent'), // посмотри имя в Services. В данном случае - MS Server Agent
+    PChar('SQLServerAgent'), // РїРѕСЃРјРѕС‚СЂРё РёРјСЏ РІ Services. Р’ РґР°РЅРЅРѕРј СЃР»СѓС‡Р°Рµ - MS Server Agent
     SERVICE_ALL_ACCESS);
  
-  if schService = 0 then exit; //Ошибка?
+  if schService = 0 then exit; //РћС€РёР±РєР°?
  
   if not QueryServiceStatus(
     schService, // handle to service
     ssStatus) then // address of status information structure
-    exit; //Ошибка?
+    exit; //РћС€РёР±РєР°?
  
   case ssStatus.dwCurrentState of
     :
-      SERVICE_RUNNING: ShowMessage('Работает!');
-    SERVICE_STOPPED: ShowMessage('Выключен');
-// ну и т.д.
+      SERVICE_RUNNING: ShowMessage('Р Р°Р±РѕС‚Р°РµС‚!');
+    SERVICE_STOPPED: ShowMessage('Р’С‹РєР»СЋС‡РµРЅ');
+// РЅСѓ Рё С‚.Рґ.
   end;
 end;
 </pre>
 
 
-<p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
+<p>Р’Р·СЏС‚Рѕ СЃ СЃР°Р№С‚Р° <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

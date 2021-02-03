@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как отчитывать промежутки времени с точностью, большей чем 60 мсек?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє РѕС‚С‡РёС‚С‹РІР°С‚СЊ РїСЂРѕРјРµР¶СѓС‚РєРё РІСЂРµРјРµРЅРё СЃ С‚РѕС‡РЅРѕСЃС‚СЊСЋ, Р±РѕР»СЊС€РµР№ С‡РµРј 60 РјСЃРµРє?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,51 +13,44 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как отчитывать промежутки времени с точностью, большей чем 60 мсек?</h1>
+  <h1 id="title">РљР°Рє РѕС‚С‡РёС‚С‹РІР°С‚СЊ РїСЂРѕРјРµР¶СѓС‚РєРё РІСЂРµРјРµРЅРё СЃ С‚РѕС‡РЅРѕСЃС‚СЊСЋ, Р±РѕР»СЊС€РµР№ С‡РµРј 60 РјСЃРµРє?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Для начала описываешь процедуру, которая будет вызываться по сообщению от таймера :</p>
+
+<p>Р”Р»СЏ РЅР°С‡Р°Р»Р° РѕРїРёСЃС‹РІР°РµС€СЊ РїСЂРѕС†РµРґСѓСЂСѓ, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ РІС‹Р·С‹РІР°С‚СЊСЃСЏ РїРѕ СЃРѕРѕР±С‰РµРЅРёСЋ РѕС‚ С‚Р°Р№РјРµСЂР° :</p>
 <pre name="code" class="delphi">
 procedure FNTimeCallBack(uTimerID, uMessage: UINT;dwUser, dw1, dw2: DWORD);stdcall;
 begin
 //
-//  Тело процедуры.
+//  РўРµР»Рѕ РїСЂРѕС†РµРґСѓСЂС‹.
 end; 
 </pre>
 
-<p>а дальше в программе (например по нажатию кнопки) создаешь Таймер и вешаешь на него созданную процедуру</p>
+<p>Р° РґР°Р»СЊС€Рµ РІ РїСЂРѕРіСЂР°РјРјРµ (РЅР°РїСЂРёРјРµСЂ РїРѕ РЅР°Р¶Р°С‚РёСЋ РєРЅРѕРїРєРё) СЃРѕР·РґР°РµС€СЊ РўР°Р№РјРµСЂ Рё РІРµС€Р°РµС€СЊ РЅР° РЅРµРіРѕ СЃРѕР·РґР°РЅРЅСѓСЋ РїСЂРѕС†РµРґСѓСЂСѓ</p>
 <pre name="code" class="delphi">
 uTimerID:=timeSetEvent(10,500,@FNTimeCallBack,100,TIME_PERIODIC); 
 </pre>
 
-<p>Подробности смотри в Help.Hу и в конце убиваешь таймер:</p>
+<p>РџРѕРґСЂРѕР±РЅРѕСЃС‚Рё СЃРјРѕС‚СЂРё РІ Help.HСѓ Рё РІ РєРѕРЅС†Рµ СѓР±РёРІР°РµС€СЊ С‚Р°Р№РјРµСЂ:</p>
 <pre name="code" class="delphi">
 timeKillEvent(uTimerID); 
 </pre>
 
-<p>И все. Точность этого способа до 1 мсек. минимальный интервал времени можно задавать 1 мсек.</p>
+<p>Р РІСЃРµ. РўРѕС‡РЅРѕСЃС‚СЊ СЌС‚РѕРіРѕ СЃРїРѕСЃРѕР±Р° РґРѕ 1 РјСЃРµРє. РјРёРЅРёРјР°Р»СЊРЅС‹Р№ РёРЅС‚РµСЂРІР°Р» РІСЂРµРјРµРЅРё РјРѕР¶РЅРѕ Р·Р°РґР°РІР°С‚СЊ 1 РјСЃРµРє.</p>
 
-<p id="author">Автор: Leonid Tserling</p>
+<p id="author">РђРІС‚РѕСЂ: Leonid Tserling</p>
 <p>tlv@f3334.dd.vaz.tlt.ru </p>
-<p id="author">Автор: StayAtHome</p>
-<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ: StayAtHome</p>
+<p>Р’Р·СЏС‚Рѕ СЃ Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

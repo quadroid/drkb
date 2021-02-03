@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Дерево на базе MS SQL</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>Р”РµСЂРµРІРѕ РЅР° Р±Р°Р·Рµ MS SQL</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,39 +13,32 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Дерево на базе MS SQL</h1>
+  <h1 id="title">Р”РµСЂРµРІРѕ РЅР° Р±Р°Р·Рµ MS SQL</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 { **** UBPFD *********** by delphibase.endimus.com ****
-&gt;&gt; Дерево на базе MsSQL 7/2000 и DELPHI6 (BDE,ADO)
+&gt;&gt; Р”РµСЂРµРІРѕ РЅР° Р±Р°Р·Рµ MsSQL 7/2000 Рё DELPHI6 (BDE,ADO)
  
-Узел дерева описывается через idParent,idPrior,idNext,idFirstChild.
-В следствии такого подхода в многопользовательской среде достигается
-минимальное количество блокировок при изменении узлов дерева.
-Все функции реализованы в хранимых процедурах. Компанент, порожденный
-от TTreeView, является интерфейсом для работы с деревом в клиенте.
-Тексты хранимых процедур на странице
+РЈР·РµР» РґРµСЂРµРІР° РѕРїРёСЃС‹РІР°РµС‚СЃСЏ С‡РµСЂРµР· idParent,idPrior,idNext,idFirstChild.
+Р’ СЃР»РµРґСЃС‚РІРёРё С‚Р°РєРѕРіРѕ РїРѕРґС…РѕРґР° РІ РјРЅРѕРіРѕРїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕР№ СЃСЂРµРґРµ РґРѕСЃС‚РёРіР°РµС‚СЃСЏ
+РјРёРЅРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р±Р»РѕРєРёСЂРѕРІРѕРє РїСЂРё РёР·РјРµРЅРµРЅРёРё СѓР·Р»РѕРІ РґРµСЂРµРІР°.
+Р’СЃРµ С„СѓРЅРєС†РёРё СЂРµР°Р»РёР·РѕРІР°РЅС‹ РІ С…СЂР°РЅРёРјС‹С… РїСЂРѕС†РµРґСѓСЂР°С…. РљРѕРјРїР°РЅРµРЅС‚, РїРѕСЂРѕР¶РґРµРЅРЅС‹Р№
+РѕС‚ TTreeView, СЏРІР»СЏРµС‚СЃСЏ РёРЅС‚РµСЂС„РµР№СЃРѕРј РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РґРµСЂРµРІРѕРј РІ РєР»РёРµРЅС‚Рµ.
+РўРµРєСЃС‚С‹ С…СЂР°РЅРёРјС‹С… РїСЂРѕС†РµРґСѓСЂ РЅР° СЃС‚СЂР°РЅРёС†Рµ
 http://spenov.narod.ru/DBTree/DBTreeView.html
  
-Зависимости: Classes,ComCtrls,CommCtrl,DB,DBTables,Controls,Messages,ADODB
-Автор:       Пенов Сергей, spenov@narod.ru, ICQ:122597033, Москва
+Р—Р°РІРёСЃРёРјРѕСЃС‚Рё: Classes,ComCtrls,CommCtrl,DB,DBTables,Controls,Messages,ADODB
+РђРІС‚РѕСЂ:       РџРµРЅРѕРІ РЎРµСЂРіРµР№, spenov@narod.ru, ICQ:122597033, РњРѕСЃРєРІР°
 Copyright:   http://spenov.narod.ru/DBTree/DBTreeView.html
-Дата:        6 сентября 2002 г.
+Р”Р°С‚Р°:        6 СЃРµРЅС‚СЏР±СЂСЏ 2002 Рі.
 ***************************************************** }
  
-//Тексты хранимых процедур на странице
+//РўРµРєСЃС‚С‹ С…СЂР°РЅРёРјС‹С… РїСЂРѕС†РµРґСѓСЂ РЅР° СЃС‚СЂР°РЅРёС†Рµ
 // http://spenov.narod.ru/DBTree/DBTreeView.html
 unit Un_TADODBTreeView;
  
@@ -66,9 +59,9 @@ type
   private
     FRootID: string;
     FOnEdited: TTVEditedEvent;
-    FLDblCklick: Boolean; //показывает, что выполняется DblClick
+    FLDblCklick: Boolean; //РїРѕРєР°Р·С‹РІР°РµС‚, С‡С‚Рѕ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ DblClick
     FDoExpColOnDblClick: Boolean;
-    //Если True, то при DblClick не будет раскрываться/закрываться Node.
+    //Р•СЃР»Рё True, С‚Рѕ РїСЂРё DblClick РЅРµ Р±СѓРґРµС‚ СЂР°СЃРєСЂС‹РІР°С‚СЊСЃСЏ/Р·Р°РєСЂС‹РІР°С‚СЊСЃСЏ Node.
     FReopenOnExpand: Boolean;
     FConnection: TADOConnection;
     FRecordset: _Recordset;
@@ -106,7 +99,7 @@ type
     property DoExpColOnDblClick: Boolean read FDoExpColOnDblClick write
       FDoExpColOnDblClick default True;
     property OnEdited: TTVEditedEvent read FOnEdited write FOnEdited;
-  published //Из TCustomTreeView
+  published //РР· TCustomTreeView
     property Align;
     property Anchors;
     property BevelEdges;
@@ -246,7 +239,7 @@ begin
   else
   begin
     Result := inherited CanCollapse(Node);
-    //Удаление вложенных узлов
+    //РЈРґР°Р»РµРЅРёРµ РІР»РѕР¶РµРЅРЅС‹С… СѓР·Р»РѕРІ
     if Result and FReopenOnExpand and (Node is TADODBTreeNode) and
       Node.HasChildren then
     begin
@@ -269,7 +262,7 @@ begin
     Result := False
   else
   begin
-    //Загрузка вложенных узлов
+    //Р—Р°РіСЂСѓР·РєР° РІР»РѕР¶РµРЅРЅС‹С… СѓР·Р»РѕРІ
     if FReopenOnExpand and (Node is TADODBTreeNode) and Node.HasChildren then
     begin
       Items.BeginUpdate;
@@ -386,7 +379,7 @@ begin
             begin
               (NewNode as TADODBTreeNode).FIdNode :=
                 FRecordset.Fields['NewId'].Value;
-              //Выделяем добавленный узел
+              //Р’С‹РґРµР»СЏРµРј РґРѕР±Р°РІР»РµРЅРЅС‹Р№ СѓР·РµР»
               FReopenOnExpand := False;
               try
                 Selected := NewNode;
@@ -396,7 +389,7 @@ begin
             end
             else
               raise
-                Exception.Create('TADODBTreeView.dbAddChild:Не получен идентификатор нового узла.');
+                Exception.Create('TADODBTreeView.dbAddChild:РќРµ РїРѕР»СѓС‡РµРЅ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РЅРѕРІРѕРіРѕ СѓР·Р»Р°.');
           except
             NewNode.Delete;
             raise;
@@ -423,7 +416,7 @@ var
 begin
   if Node.HasChildren then
     raise
-      Exception.Create('TADODBTreeView.dbDeleteNode:Этот узел удалить нельзя,т.к. есть вложеннные узлы.');
+      Exception.Create('TADODBTreeView.dbDeleteNode:Р­С‚РѕС‚ СѓР·РµР» СѓРґР°Р»РёС‚СЊ РЅРµР»СЊР·СЏ,С‚.Рє. РµСЃС‚СЊ РІР»РѕР¶РµРЅРЅРЅС‹Рµ СѓР·Р»С‹.');
   FConnection.Execute(Format(SQLDeleteNode, [FIdTree, (Node as
       TADODBTreeNode).idNode]));
   if ReQueryFromDB then
@@ -458,7 +451,7 @@ begin
     Exit;
   if DNode.HasAsParent(SNode) then
     raise
-      Exception.Create('TADODBTreeView.dbMoveNode:Узел не может быть перемещен.')
+      Exception.Create('TADODBTreeView.dbMoveNode:РЈР·РµР» РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїРµСЂРµРјРµС‰РµРЅ.')
   else
   begin
     FConnection.Execute(Format(SQLMoveNode, [FIdTree, (DNode as
@@ -505,7 +498,7 @@ begin
           else
           begin
             Items.AddChildFirst(DNode, 'HasChildren');
-            //Надо добавить узел,что бы DNode открылся.
+            //РќР°РґРѕ РґРѕР±Р°РІРёС‚СЊ СѓР·РµР»,С‡С‚Рѕ Р±С‹ DNode РѕС‚РєСЂС‹Р»СЃСЏ.
             if CanExpand(DNode) then
             begin
               SNode.Delete;
@@ -619,7 +612,7 @@ begin
         try
           if FRecordset.RecordCount &lt;= 0 then
             raise
-              Exception.Create('TADODBTreeView.SetSelectedID:Не получен путь к узлу ' + IntToStr(Value));
+              Exception.Create('TADODBTreeView.SetSelectedID:РќРµ РїРѕР»СѓС‡РµРЅ РїСѓС‚СЊ Рє СѓР·Р»Сѓ ' + IntToStr(Value));
           SetLength(ThePath, FRecordset.RecordCount);
           I := 0;
           while not FRecordset.Eof do
@@ -637,7 +630,7 @@ begin
             ThePath[I]) do
             TheNode := TheNode.getNextSibling;
           if not Assigned(TheNode) then
-            raise Exception.Create('TADODBTreeView.SetSelectedID:Не найден узел '
+            raise Exception.Create('TADODBTreeView.SetSelectedID:РќРµ РЅР°Р№РґРµРЅ СѓР·РµР» '
               + IntToStr(ThePath[I]));
           if I &lt; High(ThePath) then
           begin
@@ -647,7 +640,7 @@ begin
         end;
         if not Assigned(TheNode) then
           raise
-            Exception.Create('TADODBTreeView.SetSelectedID:Не найден узел.');
+            Exception.Create('TADODBTreeView.SetSelectedID:РќРµ РЅР°Р№РґРµРЅ СѓР·РµР».');
         Selected := TheNode;
       finally
         ThePath := nil;
@@ -668,7 +661,7 @@ begin
   if Assigned(FOnEdited) then
     FOnEdited(Sender, Node, S);
   if (Node is TADODBTreeNode) and (Node.Text &lt;&gt; S) then
-  try //Сохраняем изменения в базе
+  try //РЎРѕС…СЂР°РЅСЏРµРј РёР·РјРµРЅРµРЅРёСЏ РІ Р±Р°Р·Рµ
     crBuf := Screen.Cursor;
     Screen.Cursor := crSQLWait;
     try
@@ -680,7 +673,7 @@ begin
     try
       if FRecordset.RecordCount = 0 then
         raise
-          Exception.Create('TADODBTreeView.DoEdited:Не получен результат переименования.');
+          Exception.Create('TADODBTreeView.DoEdited:РќРµ РїРѕР»СѓС‡РµРЅ СЂРµР·СѓР»СЊС‚Р°С‚ РїРµСЂРµРёРјРµРЅРѕРІР°РЅРёСЏ.');
       S := FRecordset.Fields['NewText'].Value;
     finally
       FRecordset := nil;
@@ -720,10 +713,10 @@ end.
 </pre>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

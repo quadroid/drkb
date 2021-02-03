@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Добавление и удаление общих сетевых ресурсов</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>Р”РѕР±Р°РІР»РµРЅРёРµ Рё СѓРґР°Р»РµРЅРёРµ РѕР±С‰РёС… СЃРµС‚РµРІС‹С… СЂРµСЃСѓСЂСЃРѕРІ</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,33 +13,26 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Добавление и удаление общих сетевых ресурсов</h1>
+  <h1 id="title">Р”РѕР±Р°РІР»РµРЅРёРµ Рё СѓРґР°Р»РµРЅРёРµ РѕР±С‰РёС… СЃРµС‚РµРІС‹С… СЂРµСЃСѓСЂСЃРѕРІ</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 {*******************************************************}
 {                                                       }
-{       Добавление и удаление общих сетевых ресурсов    }
+{       Р”РѕР±Р°РІР»РµРЅРёРµ Рё СѓРґР°Р»РµРЅРёРµ РѕР±С‰РёС… СЃРµС‚РµРІС‹С… СЂРµСЃСѓСЂСЃРѕРІ    }
 {                                                       }
 { Copyright (c)                                         }
 {    1998-2002 Rouse_                                   }
-{              (базовый код, взят из примера NetMon)    }
+{              (Р±Р°Р·РѕРІС‹Р№ РєРѕРґ, РІР·СЏС‚ РёР· РїСЂРёРјРµСЂР° NetMon)    }
 {    2006 Smike                                         }
-{              (- доработка для возможности создания    }
-{                 ресурсов, открытых только для чтения  }
-{                 под NT/2000/XP/2003,                  }
-{               - небольшой рефакторинг ;) )            }
+{              (- РґРѕСЂР°Р±РѕС‚РєР° РґР»СЏ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё СЃРѕР·РґР°РЅРёСЏ    }
+{                 СЂРµСЃСѓСЂСЃРѕРІ, РѕС‚РєСЂС‹С‚С‹С… С‚РѕР»СЊРєРѕ РґР»СЏ С‡С‚РµРЅРёСЏ  }
+{                 РїРѕРґ NT/2000/XP/2003,                  }
+{               - РЅРµР±РѕР»СЊС€РѕР№ СЂРµС„Р°РєС‚РѕСЂРёРЅРі ;) )            }
 {                                                       }
 {*******************************************************}
  
@@ -99,29 +92,29 @@ begin
     NetShareAddNT := GetProcAddress(FLibHandle,'NetShareAdd');
     if not Assigned(NetShareAddNT) then Exit;
  
-    TmpLength := SizeOf(WideChar) * 256; //Определяем необходимый размер
+    TmpLength := SizeOf(WideChar) * 256; //РћРїСЂРµРґРµР»СЏРµРј РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ
  
-    GetMem(TmpNameNT, TmpLength); //Конвертируем в PWChar
+    GetMem(TmpNameNT, TmpLength); //РљРѕРЅРІРµСЂС‚РёСЂСѓРµРј РІ PWChar
     StringToWideChar(ShareName, TmpNameNT, TmpLength);
-    ShareNT.shi502_netname := TmpNameNT; //Имя
+    ShareNT.shi502_netname := TmpNameNT; //РРјСЏ
  
-    ShareNT.shi502_type := STYPE_DISKTREE; //Тип ресурса
-    ShareNT.shi502_remark := ''; //Комментарий
-    // В NT, 2000, XP, 2003 разрешения на уровне расшаренной папки не поддерживается
-    // Для этого задаем ниже атрибуты доступа на уровне групп
+    ShareNT.shi502_type := STYPE_DISKTREE; //РўРёРї СЂРµСЃСѓСЂСЃР°
+    ShareNT.shi502_remark := ''; //РљРѕРјРјРµРЅС‚Р°СЂРёР№
+    // Р’ NT, 2000, XP, 2003 СЂР°Р·СЂРµС€РµРЅРёСЏ РЅР° СѓСЂРѕРІРЅРµ СЂР°СЃС€Р°СЂРµРЅРЅРѕР№ РїР°РїРєРё РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ
+    // Р”Р»СЏ СЌС‚РѕРіРѕ Р·Р°РґР°РµРј РЅРёР¶Рµ Р°С‚СЂРёР±СѓС‚С‹ РґРѕСЃС‚СѓРїР° РЅР° СѓСЂРѕРІРЅРµ РіСЂСѓРїРї
     ShareNT.shi502_permissions := 0;
-    ShareNT.shi502_max_uses := DWORD(-1); //Кол-во максим. подключ.
-    ShareNT.shi502_current_uses := 0; //Кол-во тек подкл.
+    ShareNT.shi502_max_uses := DWORD(-1); //РљРѕР»-РІРѕ РјР°РєСЃРёРј. РїРѕРґРєР»СЋС‡.
+    ShareNT.shi502_current_uses := 0; //РљРѕР»-РІРѕ С‚РµРє РїРѕРґРєР».
  
     GetMem(TmpDirNT, TmpLength);
     StringToWideChar(Directory, TmpDirNT, TmpLength);
-    ShareNT.shi502_path := TmpDirNT; //Путь к ресурсу
+    ShareNT.shi502_path := TmpDirNT; //РџСѓС‚СЊ Рє СЂРµСЃСѓСЂСЃСѓ
  
-    ShareNT.shi502_passwd := ''; //Пароль
+    ShareNT.shi502_passwd := ''; //РџР°СЂРѕР»СЊ
  
     ShareNT.shi502_reserved := 0;
  
-    // Здесь начинается самое интересное - задаем разрешения :)
+    // Р—РґРµСЃСЊ РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃР°РјРѕРµ РёРЅС‚РµСЂРµСЃРЅРѕРµ - Р·Р°РґР°РµРј СЂР°Р·СЂРµС€РµРЅРёСЏ :)
     GetMem(pDacl, 256);
     InitializeAcl(pDacl^, 256, ACL_REVISION);
     EveryoneSid := nil;
@@ -135,7 +128,7 @@ begin
     SetSecurityDescriptorDacl(pSd, TRUE, pDacl, FALSE);
     ShareNT.shi502_security_descriptor := pSd;
  
-    Result := NetShareAddNT(nil, 502, @ShareNT, nil); //Добавляем ресурс
+    Result := NetShareAddNT(nil, 502, @ShareNT, nil); //Р”РѕР±Р°РІР»СЏРµРј СЂРµСЃСѓСЂСЃ
  
     if Assigned(EveryoneSid) then
       FreeSid(EveryoneSid);
@@ -143,7 +136,7 @@ begin
     if Assigned(AdminSid) then
       FreeSid(AdminSid);
  
-    //освобождаем память
+    //РѕСЃРІРѕР±РѕР¶РґР°РµРј РїР°РјСЏС‚СЊ
     FreeMem(pDacl);
     FreeMem(pSd);
     FreeMem(TmpNameNT);
@@ -182,18 +175,18 @@ begin
     if not Assigned(NetShareAdd) then Exit;
  
     FillChar(Share9x.shi50_netname, SizeOf(Share9x.shi50_netname), #0);
-    Move(ShareName[1], Share9x.shi50_netname[0], Length(ShareName)); //Имя
-    Share9x.shi50_type := STYPE_DISKTREE; //Тип ресурса
-    Share9x.shi50_flags := SHI50F_RDONLY; //Доступ
+    Move(ShareName[1], Share9x.shi50_netname[0], Length(ShareName)); //РРјСЏ
+    Share9x.shi50_type := STYPE_DISKTREE; //РўРёРї СЂРµСЃСѓСЂСЃР°
+    Share9x.shi50_flags := SHI50F_RDONLY; //Р”РѕСЃС‚СѓРї
     FillChar(Share9x.shi50_remark,
-      SizeOf(Share9x.shi50_remark), #0); //Комментарий
+      SizeOf(Share9x.shi50_remark), #0); //РљРѕРјРјРµРЅС‚Р°СЂРёР№
     FillChar(Share9x.shi50_path,
       SizeOf(Share9x.shi50_path), #0);
-    Share9x.shi50_path := PAnsiChar(Directory); //Путь к ресурсу
+    Share9x.shi50_path := PAnsiChar(Directory); //РџСѓС‚СЊ Рє СЂРµСЃСѓСЂСЃСѓ
     FillChar(Share9x.shi50_rw_password,
-      SizeOf(Share9x.shi50_rw_password), #0); //Пароль полного доступа
+      SizeOf(Share9x.shi50_rw_password), #0); //РџР°СЂРѕР»СЊ РїРѕР»РЅРѕРіРѕ РґРѕСЃС‚СѓРїР°
     FillChar(Share9x.shi50_ro_password,
-      SizeOf(Share9x.shi50_ro_password), #0); //Пароль для чтения
+      SizeOf(Share9x.shi50_ro_password), #0); //РџР°СЂРѕР»СЊ РґР»СЏ С‡С‚РµРЅРёСЏ
     Result := NetShareAdd(nil, 50, @Share9x, SizeOf(Share9x));
   finally
     FreeLibrary(FLibHandle);
@@ -227,16 +220,16 @@ begin
   if FLibHandle = 0 then Exit;
   try
     NetShareDelNT := GetProcAddress(FLibHandle, 'NetShareDel');
-    if not Assigned(NetShareDelNT) then //Проверка
+    if not Assigned(NetShareDelNT) then //РџСЂРѕРІРµСЂРєР°
     begin
       FreeLibrary(FLibHandle);
       Exit;
     end;
     Size := SizeOf(WideChar) * 256;
-    GetMem(NameNT, Size);  //Выделяем память под переменную
-    StringToWideChar(ShareName, NameNT, Size); //Преобразуем в PWideChar
-    NetShareDelNT(nil, NameNT, 0);   //Удаляем ресурс
-    FreeMem(NameNT);  //Освобождаем память
+    GetMem(NameNT, Size);  //Р’С‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ РїРѕРґ РїРµСЂРµРјРµРЅРЅСѓСЋ
+    StringToWideChar(ShareName, NameNT, Size); //РџСЂРµРѕР±СЂР°Р·СѓРµРј РІ PWideChar
+    NetShareDelNT(nil, NameNT, 0);   //РЈРґР°Р»СЏРµРј СЂРµСЃСѓСЂСЃ
+    FreeMem(NameNT);  //РћСЃРІРѕР±РѕР¶РґР°РµРј РїР°РјСЏС‚СЊ
   finally
     FreeLibrary(FLibHandle);
   end;
@@ -256,9 +249,9 @@ begin
   try
     NetShareDel := GetProcAddress(FLibHandle,'NetShareDel');
     if not Assigned(NetShareDel) then Exit;
-    FillChar(Name9x, SizeOf(Name9x), #0); //Очищаем массив
-    Move(ShareName[1], Name9x[0], Length(ShareName)); //Заполняем массив
-    Result := NetShareDel(nil, @Name9x, 0); //Удаляем ресурс
+    FillChar(Name9x, SizeOf(Name9x), #0); //РћС‡РёС‰Р°РµРј РјР°СЃСЃРёРІ
+    Move(ShareName[1], Name9x[0], Length(ShareName)); //Р—Р°РїРѕР»РЅСЏРµРј РјР°СЃСЃРёРІ
+    Result := NetShareDel(nil, @Name9x, 0); //РЈРґР°Р»СЏРµРј СЂРµСЃСѓСЂСЃ
   finally
     FreeLibrary(FLibHandle);
   end;
@@ -270,22 +263,22 @@ var
 begin
   ShareName := ExtractFileName(ExcludeTrailingPathDelimiter(Directory));
  
-  if Win32Platform = VER_PLATFORM_WIN32_NT then       //Код для NT
+  if Win32Platform = VER_PLATFORM_WIN32_NT then       //РљРѕРґ РґР»СЏ NT
     Result := UnShareDirectoryNT(ShareName)
-  else                                                //Код для 9х-Ме
+  else                                                //РљРѕРґ РґР»СЏ 9С…-РњРµ
     Result := UnShareDirectory9x(ShareName);
 end;
  
 end.
 </pre>
 
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
-<p id="author">Автор: Rouse_, Smike</p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ: Rouse_, Smike</p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

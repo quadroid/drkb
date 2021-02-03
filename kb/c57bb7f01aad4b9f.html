@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как определить продолжительность в секундах wav файла?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє РѕРїСЂРµРґРµР»РёС‚СЊ РїСЂРѕРґРѕР»Р¶РёС‚РµР»СЊРЅРѕСЃС‚СЊ РІ СЃРµРєСѓРЅРґР°С… wav С„Р°Р№Р»Р°?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как определить продолжительность в секундах wav файла?</h1>
+  <h1 id="title">РљР°Рє РѕРїСЂРµРґРµР»РёС‚СЊ РїСЂРѕРґРѕР»Р¶РёС‚РµР»СЊРЅРѕСЃС‚СЊ РІ СЃРµРєСѓРЅРґР°С… wav С„Р°Р№Р»Р°?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 uses 
@@ -62,73 +55,73 @@ begin
   ShowMessage(FloatToStr((Int64(1000) * header.DataBytes div header.BytesPerSecond) / 1000)); 
 end;  
 </pre>
-<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+<p>Р’Р·СЏС‚Рѕ СЃ СЃР°Р№С‚Р° <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
 <hr />
 <pre name="code" class="delphi">
 function GetWaveLength(WaveFile: string): Double;
 var
-    groupID: array[0..3] of char;
-    riffType: array[0..3] of char;
-    BytesPerSec: Integer;
-    Stream: TFileStream;
-    dataSize: Integer;
+  В В groupID: array[0..3] of char;
+  В В riffType: array[0..3] of char;
+  В В BytesPerSec: Integer;
+  В В Stream: TFileStream;
+  В В dataSize: Integer;
   // chunk seeking function,
   // -1 means: chunk not found
  
   function GotoChunk(ID: string): Integer;
   var
-      chunkID: array[0..3] of char;
-      chunkSize: Integer;
+    В В chunkID: array[0..3] of char;
+    В В chunkSize: Integer;
   begin
-      Result := -1;
+    В В Result := -1;
  
     with Stream do
-        begin
-             // index of first chunk
-          Position := 12;
-        repeat
-             // read next chunk
-          Read(chunkID, 4);
-          Read(chunkSize, 4);
-           if chunkID &lt;&gt; ID then
-             // skip chunk
-         Position := Position + chunkSize;
-          until(chunkID = ID) or (Position &gt;= Size);
-          if chunkID = ID then
-               // chunk found,
-             // return chunk size
-            Result := chunkSize;
-        end;
+      В В begin
+        В В В В  // index of first chunk
+      В В В В Position := 12;
+    В В В В repeat
+      В В В В В В  // read next chunk
+    В В В В В В Read(chunkID, 4);
+    В В В В В В Read(chunkSize, 4);
+    В В В В В В В if chunkID &lt;&gt; ID then
+      В В В В В В  // skip chunk
+    В В В В В Position := Position + chunkSize;
+    В В В В В В until(chunkID = ID) or (Position &gt;= Size);
+    В В В В В В if chunkID = ID then
+      В В В В В В В В  // chunk found,
+    В В В В В В В В  // return chunk size
+    В В В В В В В В Result := chunkSize;
+    В В В В end;
   end;
  
 begin
-    Result := -1;
-    Stream := TFileStream.Create(WaveFile, fmOpenRead or fmShareDenyNone);
-    with Stream do
-        try
-          Read(groupID, 4);
-        Position := Position + 4; // skip four bytes (file size)
-        Read(riffType, 4);
+  В В Result := -1;
+  В В Stream := TFileStream.Create(WaveFile, fmOpenRead or fmShareDenyNone);
+  В В with Stream do
+    В В В В try
+    В В В В В В Read(groupID, 4);
+  В В В В В В Position := Position + 4; // skip four bytes (file size)
+  В В В В В В Read(riffType, 4);
  
-        if(groupID = 'RIFF') and (riffType = 'WAVE') then
-           begin
-              // search for format chunk
-           if GotoChunk('fmt') &lt;&gt; -1 then
-              begin
-                // found it
-              Position := Position + 8;
-              Read(BytesPerSec, 4);
-                 //search for data chunk
-                dataSize := GotoChunk('data');
+  В В В В В В if(groupID = 'RIFF') and (riffType = 'WAVE') then
+    В В В В В В В begin
+    В В В В В В В В В  // search for format chunk
+  В В В В В В В В В if GotoChunk('fmt') &lt;&gt; -1 then
+    В В В В В В В В В В begin
+    В В В В В В В В В В В  // found it
+  В В В В В В В В В В В В Position := Position + 8;
+  В В В В В В В В В В В В Read(BytesPerSec, 4);
+  В В В В В В В В В В В В В В  //search for data chunk
+  В В В В В В В В В В В В В В dataSize := GotoChunk('data');
  
-                if dataSize &lt;&gt; -1 then
-                     // found it
-                  Result := dataSize / BytesPerSec
-                end
-            end
-        finally
-          Free;
-      end;
+  В В В В В В В В В В В В В В if dataSize &lt;&gt; -1 then
+    В В В В В В В В В В В В В В В В  // found it
+  В В В В В В В В В В В В В В В В Result := dataSize / BytesPerSec
+    В В В В В В В В В В В В end
+    В В В В В В В В end
+    В В В В finally
+    В В В В В В Free;
+  В В В В end;
 end;
 </pre>
 
@@ -136,30 +129,30 @@ end;
 <pre name="code" class="delphi">
 function SecondsToTimeStr(RemainingSeconds: Integer): string;
 var
-    Hours, Minutes, Seconds: Integer;
-    HourString, MinuteString, SecondString: string;
+  В В Hours, Minutes, Seconds: Integer;
+  В В HourString, MinuteString, SecondString: string;
 begin
-     // Calculate Minutes
-    Seconds := RemainingSeconds mod 60;
-    Minutes := RemainingSeconds div 60;
-    Hours := Minutes div 60;
-    Minutes := Minutes - (Hours * 60);
+  В В  // Calculate Minutes
+  В В Seconds := RemainingSeconds mod 60;
+  В В Minutes := RemainingSeconds div 60;
+  В В Hours := Minutes div 60;
+  В В Minutes := Minutes - (Hours * 60);
  
-    if Hours &lt; 10 then
-       HourString := '0' + IntToStr(Hours) + ':'
-     else
-       HourString := IntToStr(Hours) + ':';
+  В В if Hours &lt; 10 then
+    В В В HourString := '0' + IntToStr(Hours) + ':'
+    В else
+    В В В HourString := IntToStr(Hours) + ':';
  
-    if Minutes &lt; 10 then
-        MinuteString := '0' + IntToStr(Minutes) + ':'
-      else
-        MinuteString := IntToStr(Minutes) + ':';
+  В В if Minutes &lt; 10 then
+    В В В В MinuteString := '0' + IntToStr(Minutes) + ':'
+    В В else
+    В В В В MinuteString := IntToStr(Minutes) + ':';
  
-    if Seconds &lt; 10 then
-        SecondString := '0' + IntToStr(Seconds)
-      else
-        SecondString := IntToStr(Seconds);
-    Result := HourString + MinuteString + SecondString;
+  В В if Seconds &lt; 10 then
+    В В В В SecondString := '0' + IntToStr(Seconds)
+    В В else
+    В В В В SecondString := IntToStr(Seconds);
+  В В Result := HourString + MinuteString + SecondString;
 end;
 </pre>
 
@@ -167,11 +160,11 @@ end;
 <pre name="code" class="delphi">
 procedure TForm1.Button1Click(Sender: TObject);
 var
-   Seconds: Integer;
+  В Seconds: Integer;
 begin
-    Seconds := Trunc(GetWaveLength(Edit1.Text));
+  В В Seconds := Trunc(GetWaveLength(Edit1.Text));
     //gets only the Integer part of the length
-    Label1.Caption := SecondsToTimeStr(Seconds);
+  В В Label1.Caption := SecondsToTimeStr(Seconds);
 end;
 </pre>
 
@@ -179,15 +172,15 @@ end;
 <pre name="code" class="delphi">
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-    Label1.Caption := SecondsToTimeStr(Trunc(GetWaveLength(Edit1.Text)));
+  В В Label1.Caption := SecondsToTimeStr(Trunc(GetWaveLength(Edit1.Text)));
 end;
 </pre>
-<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+<p>Р’Р·СЏС‚Рѕ СЃ Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

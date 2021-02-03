@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как проверять корректность доступа к базе данных?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє РїСЂРѕРІРµСЂСЏС‚СЊ РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ РґРѕСЃС‚СѓРїР° Рє Р±Р°Р·Рµ РґР°РЅРЅС‹С…?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,21 +13,14 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как проверять корректность доступа к базе данных?</h1>
+  <h1 id="title">РљР°Рє РїСЂРѕРІРµСЂСЏС‚СЊ РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ РґРѕСЃС‚СѓРїР° Рє Р±Р°Р·Рµ РґР°РЅРЅС‹С…?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Следующая функция проверяет доступ к базе данных и выдает возможные причины, если доступ не удается осуществить. Функция возвращает значение True в случае успешной операции и False в противном случае. </p>
+
+<p>РЎР»РµРґСѓСЋС‰Р°СЏ С„СѓРЅРєС†РёСЏ РїСЂРѕРІРµСЂСЏРµС‚ РґРѕСЃС‚СѓРї Рє Р±Р°Р·Рµ РґР°РЅРЅС‹С… Рё РІС‹РґР°РµС‚ РІРѕР·РјРѕР¶РЅС‹Рµ РїСЂРёС‡РёРЅС‹, РµСЃР»Рё РґРѕСЃС‚СѓРї РЅРµ СѓРґР°РµС‚СЃСЏ РѕСЃСѓС‰РµСЃС‚РІРёС‚СЊ. Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ Р·РЅР°С‡РµРЅРёРµ True РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС€РЅРѕР№ РѕРїРµСЂР°С†РёРё Рё False РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ. </p>
 <pre name="code" class="delphi">
 function TBDEDirect.CheckDatabase: Boolean;
 var DS: TDataSource;
@@ -36,29 +29,29 @@ begin
   DS := GetDataSource;
   if DS = nil then
     begin
-      MessageDlg('Не установлена связь с элементом-источником данных.'+
-        'Проверьте установку свойства DataSource.',
+      MessageDlg('РќРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅР° СЃРІСЏР·СЊ СЃ СЌР»РµРјРµРЅС‚РѕРј-РёСЃС‚РѕС‡РЅРёРєРѕРј РґР°РЅРЅС‹С….'+
+        'РџСЂРѕРІРµСЂСЊС‚Рµ СѓСЃС‚Р°РЅРѕРІРєСѓ СЃРІРѕР№СЃС‚РІР° DataSource.',
         mtError, [mbOK], 0);
       Exit;
     end;
   if DS.DataSet = nil then
     begin
-      MessageDlg('Доступ к базе данных невозможен.', mtError,[mbOK], 0);
+      MessageDlg('Р”РѕСЃС‚СѓРї Рє Р±Р°Р·Рµ РґР°РЅРЅС‹С… РЅРµРІРѕР·РјРѕР¶РµРЅ.', mtError,[mbOK], 0);
       Exit;
     end;
   if TDBDataSet(DS.DataSet).Database = nil then
     begin
-      MessageDlg('Доступ к базе данных невозможен.', mtError,[mbOK], 0);
+      MessageDlg('Р”РѕСЃС‚СѓРї Рє Р±Р°Р·Рµ РґР°РЅРЅС‹С… РЅРµРІРѕР·РјРѕР¶РµРЅ.', mtError,[mbOK], 0);
       Exit;
     end;
   if TDBDataSet(DS.DataSet).Database.Handle = nil then
     begin
-      MessageDlg('Дескриптор (Handle) БД недоступен.', mtError,[mbOK], 0);
+      MessageDlg('Р”РµСЃРєСЂРёРїС‚РѕСЂ (Handle) Р‘Р” РЅРµРґРѕСЃС‚СѓРїРµРЅ.', mtError,[mbOK], 0);
       Exit;
     end;
   if DS.DataSet.Handle = nil then
     begin
-      MessageDlg('Дескриптор курсора (Cursor-Handle) недоступен.', mtError, mbOK], 0);
+      MessageDlg('Р”РµСЃРєСЂРёРїС‚РѕСЂ РєСѓСЂСЃРѕСЂР° (Cursor-Handle) РЅРµРґРѕСЃС‚СѓРїРµРЅ.', mtError, mbOK], 0);
       Exit;
     end;
   Result := True;
@@ -66,10 +59,10 @@ end;
 </pre>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

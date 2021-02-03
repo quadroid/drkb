@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Информация о сетевых интерфейсах</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РРЅС„РѕСЂРјР°С†РёСЏ Рѕ СЃРµС‚РµРІС‹С… РёРЅС‚РµСЂС„РµР№СЃР°С…</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Информация о сетевых интерфейсах</h1>
+  <h1 id="title">РРЅС„РѕСЂРјР°С†РёСЏ Рѕ СЃРµС‚РµРІС‹С… РёРЅС‚РµСЂС„РµР№СЃР°С…</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 unit netinfo;
@@ -66,18 +59,18 @@ var SHandle: integer;
   pAddrChar;
 begin
   Result := False;
- //создать UDP сокет
+ //СЃРѕР·РґР°С‚СЊ UDP СЃРѕРєРµС‚
   SHandle := Socket(AF_INET, SOCK_DGRAM, 0);
   if SHandle = INVALID_SOCKET then exit;
  
 {
-При вызове SIOCGIFCONF некоторые реализации
-не возвращают ошибок, если буфер слишком мал
-для хранения результата вызова (результат просто обрезается)
-Поэтому надо сделать вызов, запомнить возвращенную длину,
-увеличить буфер и сделать еще один вызов
-ксли после этого вызова длины будут равны - OK!
-иначе надо циклично увеличивать буфер.
+РџСЂРё РІС‹Р·РѕРІРµ SIOCGIFCONF РЅРµРєРѕС‚РѕСЂС‹Рµ СЂРµР°Р»РёР·Р°С†РёРё
+РЅРµ РІРѕР·РІСЂР°С‰Р°СЋС‚ РѕС€РёР±РѕРє, РµСЃР»Рё Р±СѓС„РµСЂ СЃР»РёС€РєРѕРј РјР°Р»
+РґР»СЏ С…СЂР°РЅРµРЅРёСЏ СЂРµР·СѓР»СЊС‚Р°С‚Р° РІС‹Р·РѕРІР° (СЂРµР·СѓР»СЊС‚Р°С‚ РїСЂРѕСЃС‚Рѕ РѕР±СЂРµР·Р°РµС‚СЃСЏ)
+РџРѕСЌС‚РѕРјСѓ РЅР°РґРѕ СЃРґРµР»Р°С‚СЊ РІС‹Р·РѕРІ, Р·Р°РїРѕРјРЅРёС‚СЊ РІРѕР·РІСЂР°С‰РµРЅРЅСѓСЋ РґР»РёРЅСѓ,
+СѓРІРµР»РёС‡РёС‚СЊ Р±СѓС„РµСЂ Рё СЃРґРµР»Р°С‚СЊ РµС‰Рµ РѕРґРёРЅ РІС‹Р·РѕРІ
+РєСЃР»Рё РїРѕСЃР»Рµ СЌС‚РѕРіРѕ РІС‹Р·РѕРІР° РґР»РёРЅС‹ Р±СѓРґСѓС‚ СЂР°РІРЅС‹ - OK!
+РёРЅР°С‡Рµ РЅР°РґРѕ С†РёРєР»РёС‡РЅРѕ СѓРІРµР»РёС‡РёРІР°С‚СЊ Р±СѓС„РµСЂ.
 }
   lastlen := 0;
   len := 100 * sizeof(ifreq);
@@ -101,36 +94,36 @@ begin
       free(buf);
     end;
   Result := True;
- //здесь результат получен полностью
- //len - кол-во интерфейсов
+ //Р·РґРµСЃСЊ СЂРµР·СѓР»СЊС‚Р°С‚ РїРѕР»СѓС‡РµРЅ РїРѕР»РЅРѕСЃС‚СЊСЋ
+ //len - РєРѕР»-РІРѕ РёРЅС‚РµСЂС„РµР№СЃРѕРІ
   len := ifc.ifc_len div sizeof(ifreq);
   SetLength(IInfo.Info, len);
  
- //указатель - на начало буфера
+ //СѓРєР°Р·Р°С‚РµР»СЊ - РЅР° РЅР°С‡Р°Р»Рѕ Р±СѓС„РµСЂР°
   pifr := ifc.ifc_ifcu.ifcu_req;
   for i := 0 to len - 1 do
     begin
       fillchar(ifr, sizeof(ifreq), 0);
-  //считать очередную порцию данных
+  //СЃС‡РёС‚Р°С‚СЊ РѕС‡РµСЂРµРґРЅСѓСЋ РїРѕСЂС†РёСЋ РґР°РЅРЅС‹С…
       move(pifr^, ifr, sizeof(ifreq));
  
-  //имя интерфейса
+  //РёРјСЏ РёРЅС‚РµСЂС„РµР№СЃР°
       IInfo.INFO[i].Name := ifr.ifrn_name;
-  //адрес интерфейса
+  //Р°РґСЂРµСЃ РёРЅС‚РµСЂС„РµР№СЃР°
       pAddr := inet_ntoa(ifr.ifru_addr.sin_addr);
       IInfo.INFO[i].IPAddress := pAddr;
  
-  //ШВ адрес
+  //РЁР’ Р°РґСЂРµСЃ
       ioctl(SHandle, SIOCGIFBRDADDR, @ifr);
       pAddr := inet_ntoa(ifr.ifru_netmask.sin_addr);
       IInfo.INFO[i].Broadcast := pAddr;
  
-  //маска сети
+  //РјР°СЃРєР° СЃРµС‚Рё
       ioctl(SHandle, SIOCGIFNETMASK, @ifr);
       pAddr := inet_ntoa(ifr.ifru_netmask.sin_addr);
       IInfo.INFO[i].NetMask := pAddr;
  
-  //флаги
+  //С„Р»Р°РіРё
       ioctl(SHandle, SIOCGIFFLAGS, @ifr);
  
       IInfo.INFO[i].IsUP := (ifr.ifru_flags and IFF_UP) = IFF_UP;
@@ -148,14 +141,14 @@ end.
 </pre>
 
 
-<p>Взято с Исходников.Ru</p>
-<p id="author">Автор pve </p>
+<p>Р’Р·СЏС‚Рѕ СЃ РСЃС…РѕРґРЅРёРєРѕРІ.Ru</p>
+<p id="author">РђРІС‚РѕСЂ pve </p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

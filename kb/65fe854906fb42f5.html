@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Просмотр буфера обмена</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџСЂРѕСЃРјРѕС‚СЂ Р±СѓС„РµСЂР° РѕР±РјРµРЅР°</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,30 +13,23 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Просмотр буфера обмена</h1>
+  <h1 id="title">РџСЂРѕСЃРјРѕС‚СЂ Р±СѓС„РµСЂР° РѕР±РјРµРЅР°</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 { **** UBPFD *********** by kladovka.net.ru ****
-&gt;&gt; Просмотр буфера обмена.
+&gt;&gt; РџСЂРѕСЃРјРѕС‚СЂ Р±СѓС„РµСЂР° РѕР±РјРµРЅР°.
  
-Пример на основе простого модуля-класса, осуществляющего просмотр буфера обмена.
+РџСЂРёРјРµСЂ РЅР° РѕСЃРЅРѕРІРµ РїСЂРѕСЃС‚РѕРіРѕ РјРѕРґСѓР»СЏ-РєР»Р°СЃСЃР°, РѕСЃСѓС‰РµСЃС‚РІР»СЏСЋС‰РµРіРѕ РїСЂРѕСЃРјРѕС‚СЂ Р±СѓС„РµСЂР° РѕР±РјРµРЅР°.
  
-Зависимости: clipboard
-Автор:       Sect, sect@mail.ru, Нижневартовск
-Copyright:   Советы по Delphi
-Дата:        16 июня 2002 г.
+Р—Р°РІРёСЃРёРјРѕСЃС‚Рё: clipboard
+РђРІС‚РѕСЂ:       Sect, sect@mail.ru, РќРёР¶РЅРµРІР°СЂС‚РѕРІСЃРє
+Copyright:   РЎРѕРІРµС‚С‹ РїРѕ Delphi
+Р”Р°С‚Р°:        16 РёСЋРЅСЏ 2002 Рі.
 ********************************************** }
  
 unit ClipboardViewer;
@@ -71,22 +64,22 @@ implementation
 procedure TForm1.FormCreate(Sender: TObject);
 begin
  
-// Проверяем работоспособность функции.
-// При невозможности просмотра буфера обмена
-// функция возвратит значение Nil.
+// РџСЂРѕРІРµСЂСЏРµРј СЂР°Р±РѕС‚РѕСЃРїРѕСЃРѕР±РЅРѕСЃС‚СЊ С„СѓРЅРєС†РёРё.
+// РџСЂРё РЅРµРІРѕР·РјРѕР¶РЅРѕСЃС‚Рё РїСЂРѕСЃРјРѕС‚СЂР° Р±СѓС„РµСЂР° РѕР±РјРµРЅР°
+// С„СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‚РёС‚ Р·РЅР°С‡РµРЅРёРµ Nil.
 FNextViewerHandle := SetClipboardViewer(Handle);
 end;
  
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
  
-// Восстанавливаем цепочки.
+// Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј С†РµРїРѕС‡РєРё.
 ChangeClipboardChain(Handle, FNextViewerHandle);
 end;
  
 procedure TForm1.WMDrawClipboard (var message : TMessage);
 begin
-// Вызывается при любом изменении содержимого буфера обмена
+// Р’С‹Р·С‹РІР°РµС‚СЃСЏ РїСЂРё Р»СЋР±РѕРј РёР·РјРµРЅРµРЅРёРё СЃРѕРґРµСЂР¶РёРјРѕРіРѕ Р±СѓС„РµСЂР° РѕР±РјРµРЅР°
  
 message.Result := SendMessage(WM_DRAWCLIPBOARD, FNextViewerHandle, 0, 0);
 end;
@@ -94,14 +87,14 @@ end;
 procedure TForm1.WMChangeCBCHain (var message : TMessage);
 begin
  
-// Вызывается при любом изменении цепочек буфера обмена.
+// Р’С‹Р·С‹РІР°РµС‚СЃСЏ РїСЂРё Р»СЋР±РѕРј РёР·РјРµРЅРµРЅРёРё С†РµРїРѕС‡РµРє Р±СѓС„РµСЂР° РѕР±РјРµРЅР°.
 if message.wParam = FNextViewerHandle then begin
-// Удаляем следующую цепочку просмотра. Корректируем внутреннюю переменную.
+// РЈРґР°Р»СЏРµРј СЃР»РµРґСѓСЋС‰СѓСЋ С†РµРїРѕС‡РєСѓ РїСЂРѕСЃРјРѕС‚СЂР°. РљРѕСЂСЂРµРєС‚РёСЂСѓРµРј РІРЅСѓС‚СЂРµРЅРЅСЋСЋ РїРµСЂРµРјРµРЅРЅСѓСЋ.
 FNextViewerHandle := message.lParam;
-// Возвращаем 0 чтобы указать, что сообщение было обработано
+// Р’РѕР·РІСЂР°С‰Р°РµРј 0 С‡С‚РѕР±С‹ СѓРєР°Р·Р°С‚СЊ, С‡С‚Рѕ СЃРѕРѕР±С‰РµРЅРёРµ Р±С‹Р»Рѕ РѕР±СЂР°Р±РѕС‚Р°РЅРѕ
 message.Result := 0;
 end else begin
-// Передаем сообщение следующему окну в цепочке.
+// РџРµСЂРµРґР°РµРј СЃРѕРѕР±С‰РµРЅРёРµ СЃР»РµРґСѓСЋС‰РµРјСѓ РѕРєРЅСѓ РІ С†РµРїРѕС‡РєРµ.
 message.Result := SendMessage(FNextViewerHandle, WM_CHANGECBCHAIN,
 message.wParam, message.lParam);
  
@@ -112,8 +105,8 @@ end;
 end.
 </pre>
 <hr />
-<p id="author">Автор: Neil </p>
-<p>Просмотр буфера обмена в Delphi совсем не сложен. Вот участок кода программы, вешающий цепочки в буфере обмена и просто отображающий его текст. Расположите компонент Memo на главной форме нового проекта, присвойстве свойству Align значение alClient, добавьте необходимые private-поля и методы и создайте их реализацию следующим образом:</p>
+<p id="author">РђРІС‚РѕСЂ: Neil </p>
+<p>РџСЂРѕСЃРјРѕС‚СЂ Р±СѓС„РµСЂР° РѕР±РјРµРЅР° РІ Delphi СЃРѕРІСЃРµРј РЅРµ СЃР»РѕР¶РµРЅ. Р’РѕС‚ СѓС‡Р°СЃС‚РѕРє РєРѕРґР° РїСЂРѕРіСЂР°РјРјС‹, РІРµС€Р°СЋС‰РёР№ С†РµРїРѕС‡РєРё РІ Р±СѓС„РµСЂРµ РѕР±РјРµРЅР° Рё РїСЂРѕСЃС‚Рѕ РѕС‚РѕР±СЂР°Р¶Р°СЋС‰РёР№ РµРіРѕ С‚РµРєСЃС‚. Р Р°СЃРїРѕР»РѕР¶РёС‚Рµ РєРѕРјРїРѕРЅРµРЅС‚ Memo РЅР° РіР»Р°РІРЅРѕР№ С„РѕСЂРјРµ РЅРѕРІРѕРіРѕ РїСЂРѕРµРєС‚Р°, РїСЂРёСЃРІРѕР№СЃС‚РІРµ СЃРІРѕР№СЃС‚РІСѓ Align Р·РЅР°С‡РµРЅРёРµ alClient, РґРѕР±Р°РІСЊС‚Рµ РЅРµРѕР±С…РѕРґРёРјС‹Рµ private-РїРѕР»СЏ Рё РјРµС‚РѕРґС‹ Рё СЃРѕР·РґР°Р№С‚Рµ РёС… СЂРµР°Р»РёР·Р°С†РёСЋ СЃР»РµРґСѓСЋС‰РёРј РѕР±СЂР°Р·РѕРј:</p>
 <pre name="code" class="delphi">
 ...
 private
@@ -162,14 +155,14 @@ begin
   ChangeClipboardChain(Handle, PrevHwnd);
 end;
 </pre>
-<p>Обращаю ваше внимание на то, что у меня не было никакой конкретной идеи прежде, чем я это сделал; я просто внимательно прочел файлы помощи по SetClipboardViewer и во всех связанных темах. </p>
+<p>РћР±СЂР°С‰Р°СЋ РІР°С€Рµ РІРЅРёРјР°РЅРёРµ РЅР° С‚Рѕ, С‡С‚Рѕ Сѓ РјРµРЅСЏ РЅРµ Р±С‹Р»Рѕ РЅРёРєР°РєРѕР№ РєРѕРЅРєСЂРµС‚РЅРѕР№ РёРґРµРё РїСЂРµР¶РґРµ, С‡РµРј СЏ СЌС‚Рѕ СЃРґРµР»Р°Р»; СЏ РїСЂРѕСЃС‚Рѕ РІРЅРёРјР°С‚РµР»СЊРЅРѕ РїСЂРѕС‡РµР» С„Р°Р№Р»С‹ РїРѕРјРѕС‰Рё РїРѕ SetClipboardViewer Рё РІРѕ РІСЃРµС… СЃРІСЏР·Р°РЅРЅС‹С… С‚РµРјР°С…. </p>
 <p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как узнать, по какой колонке был клик в TListView?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє СѓР·РЅР°С‚СЊ, РїРѕ РєР°РєРѕР№ РєРѕР»РѕРЅРєРµ Р±С‹Р» РєР»РёРє РІ TListView?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,21 +13,14 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как узнать, по какой колонке был клик в TListView?</h1>
+  <h1 id="title">РљР°Рє СѓР·РЅР°С‚СЊ, РїРѕ РєР°РєРѕР№ РєРѕР»РѕРЅРєРµ Р±С‹Р» РєР»РёРє РІ TListView?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Метод GetItemAt позволяет получить координаты ListItem, по которой был клик, но только для первой колонки TListView. Если нужно узнать по какому элементу из другой колонки кликнул пользователь, то прийдётся объявить новый метод в наследованном классе:</p>
+
+<p>РњРµС‚РѕРґ GetItemAt РїРѕР·РІРѕР»СЏРµС‚ РїРѕР»СѓС‡РёС‚СЊ РєРѕРѕСЂРґРёРЅР°С‚С‹ ListItem, РїРѕ РєРѕС‚РѕСЂРѕР№ Р±С‹Р» РєР»РёРє, РЅРѕ С‚РѕР»СЊРєРѕ РґР»СЏ РїРµСЂРІРѕР№ РєРѕР»РѕРЅРєРё TListView. Р•СЃР»Рё РЅСѓР¶РЅРѕ СѓР·РЅР°С‚СЊ РїРѕ РєР°РєРѕРјСѓ СЌР»РµРјРµРЅС‚Сѓ РёР· РґСЂСѓРіРѕР№ РєРѕР»РѕРЅРєРё РєР»РёРєРЅСѓР» РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ, С‚Рѕ РїСЂРёР№РґС‘С‚СЃСЏ РѕР±СЉСЏРІРёС‚СЊ РЅРѕРІС‹Р№ РјРµС‚РѕРґ РІ РЅР°СЃР»РµРґРѕРІР°РЅРЅРѕРј РєР»Р°СЃСЃРµ:</p>
 <pre name="code" class="delphi">
 uses ComCtrls;
 
@@ -48,13 +41,13 @@ var
 begin
   Result := GetItemAt(X, Y);
   if Result &lt;&gt; nil then begin
-    Col := 0; // Первая колонка
+    Col := 0; // РџРµСЂРІР°СЏ РєРѕР»РѕРЅРєР°
   end else if (ViewStyle = vsReport)
       and (TopItem &lt;&gt; nil) then begin
-    // Первая, попробуем найти строку
+    // РџРµСЂРІР°СЏ, РїРѕРїСЂРѕР±СѓРµРј РЅР°Р№С‚Рё СЃС‚СЂРѕРєСѓ
     ListItem := GetItemAt(TopItem.Position.X, Y);
     if ListItem &lt;&gt; nil then begin
-      // Теперь попробуем найти колонку
+      // РўРµРїРµСЂСЊ РїРѕРїСЂРѕР±СѓРµРј РЅР°Р№С‚Рё РєРѕР»РѕРЅРєСѓ
       RelativeX := X-ListItem.Position.X-BorderWidth;
       ColStartX := Columns[0].Width;
       n := Columns.Count - 1;
@@ -74,7 +67,7 @@ begin
 end;
 </pre>
 
-<p>А вот так выглядит событие MouseDown:</p>
+<p>Рђ РІРѕС‚ С‚Р°Рє РІС‹РіР»СЏРґРёС‚ СЃРѕР±С‹С‚РёРµ MouseDown:</p>
 
 <pre name="code" class="delphi">
 procedure TForm1.ListView1MouseDown(Sender: TObject;
@@ -90,13 +83,13 @@ end;
 </pre>
 
 
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 <hr />
 <pre name="code" class="delphi">
 function acGetItemAt(lsv: TListView; X, Y: integer; var Col: integer): TListItem;
-// Получение по координатам элемента, над которым пользователь щелкнул.
-{  Пример использования:
+// РџРѕР»СѓС‡РµРЅРёРµ РїРѕ РєРѕРѕСЂРґРёРЅР°С‚Р°Рј СЌР»РµРјРµРЅС‚Р°, РЅР°Рґ РєРѕС‚РѕСЂС‹Рј РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ С‰РµР»РєРЅСѓР».
+{  РџСЂРёРјРµСЂ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ:
 procedure TForm1.ListView1MouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
@@ -114,7 +107,7 @@ var
 begin
   Result:= lsv.GetItemAt(X, Y);
   if Result &lt;&gt; nil then begin
-    Col:= 0; // Первая колонка
+    Col:= 0; // РџРµСЂРІР°СЏ РєРѕР»РѕРЅРєР°
   end
   else if (lsv.ViewStyle = vsReport) and (lsv.TopItem &lt;&gt; nil) then begin
     HTI.pt.x:= X;
@@ -137,12 +130,12 @@ procedure TFormMain.Listview1ColumnClick(Sender: TObject; Column: TListColumn);
  end;
 </pre>
 
-<p>Взято с сайта: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
+<p>Р’Р·СЏС‚Рѕ СЃ СЃР°Р№С‚Р°: <a href="http://www.swissdelphicenter.ch" target="_blank">http://www.swissdelphicenter.ch</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

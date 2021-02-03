@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Изменить размер поля или его тип</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РР·РјРµРЅРёС‚СЊ СЂР°Р·РјРµСЂ РїРѕР»СЏ РёР»Рё РµРіРѕ С‚РёРї</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,23 +13,16 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Изменить размер поля или его тип</h1>
+  <h1 id="title">РР·РјРµРЅРёС‚СЊ СЂР°Р·РјРµСЂ РїРѕР»СЏ РёР»Рё РµРіРѕ С‚РёРї</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p id="author">Автор: Reinhard Kalinke </p>
 
-<p>Единственный способ изменить размер поля или его тип - использовать DBIDoRestructure. Вот простой пример, который может вам помочь в этом:</p>
+<p id="author">РђРІС‚РѕСЂ: Reinhard Kalinke </p>
+
+<p>Р•РґРёРЅСЃС‚РІРµРЅРЅС‹Р№ СЃРїРѕСЃРѕР± РёР·РјРµРЅРёС‚СЊ СЂР°Р·РјРµСЂ РїРѕР»СЏ РёР»Рё РµРіРѕ С‚РёРї - РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ DBIDoRestructure. Р’РѕС‚ РїСЂРѕСЃС‚РѕР№ РїСЂРёРјРµСЂ, РєРѕС‚РѕСЂС‹Р№ РјРѕР¶РµС‚ РІР°Рј РїРѕРјРѕС‡СЊ РІ СЌС‚РѕРј:</p>
 
 <pre name="code" class="delphi">
 function BDEStringFieldResize(ATable: TTable; AFieldName: string; ANewSize:
@@ -39,8 +32,8 @@ type
 var
   hDB: hDBIdb;
   pTableDesc: pCRTblDesc;
-  pFldOp: pCROpType; {фактически это массив array of pCROpType}
-  pFieldDesc: pFldDesc; {фактически это массив array of pFldDesc}
+  pFldOp: pCROpType; {С„Р°РєС‚РёС‡РµСЃРєРё СЌС‚Рѕ РјР°СЃСЃРёРІ array of pCROpType}
+  pFieldDesc: pFldDesc; {С„Р°РєС‚РёС‡РµСЃРєРё СЌС‚Рѕ РјР°СЃСЃРёРІ array of pFldDesc}
   CurPrp: CurProps;
   CSubType: integer;
   CCbrOption: CBRType;
@@ -58,7 +51,7 @@ begin
   with ATable do
   try
  
-    {убедимся что имеем исключительный доступ и сохраним dbhandle:}
+    {СѓР±РµРґРёРјСЃСЏ С‡С‚Рѕ РёРјРµРµРј РёСЃРєР»СЋС‡РёС‚РµР»СЊРЅС‹Р№ РґРѕСЃС‚СѓРї Рё СЃРѕС…СЂР°РЅРёРј dbhandle:}
     if Active and (not Exclusive) then
       Close;
     if (not Exclusive) then
@@ -67,18 +60,18 @@ begin
       Open;
     hDB := DBHandle;
  
-    {готовим данные для DBIDoRestructure:}
+    {РіРѕС‚РѕРІРёРј РґР°РЅРЅС‹Рµ РґР»СЏ DBIDoRestructure:}
     BDECheck(DBIGetCursorProps(Handle, CurPrp));
     GetMem(pFieldDesc, CurPrp.iFields * sizeOf(FldDesc));
     BDECheck(DBIGetFieldDescs(Handle, pFieldDesc));
     GetMem(pFldOp, CurPrp.iFields * sizeOf(CROpType));
     FillChar(pFldOp^, CurPrp.iFields * sizeOf(CROpType), 0);
  
-    {ищем в цикле (через fielddesc) наше поле:}
+    {РёС‰РµРј РІ С†РёРєР»Рµ (С‡РµСЂРµР· fielddesc) РЅР°С€Рµ РїРѕР»Рµ:}
     for i := 1 to CurPrp.iFields do
     begin
-      {для ввода мы имеем серийные номера вместо
-      Pdox ID, возвращаемых DbiGetFieldDescs:}
+      {РґР»СЏ РІРІРѕРґР° РјС‹ РёРјРµРµРј СЃРµСЂРёР№РЅС‹Рµ РЅРѕРјРµСЂР° РІРјРµСЃС‚Рѕ
+      Pdox ID, РІРѕР·РІСЂР°С‰Р°РµРјС‹С… DbiGetFieldDescs:}
       pFieldDesc^.iFldNum := i;
       if (Uppercase(StrPas(pFieldDesc^.szName)) = AFieldName)
         and (pFieldDesc^.iFldType = fldZSTRING) then
@@ -95,14 +88,14 @@ begin
       inc(pFldOp);
     end; {for}
  
-    {"регулируем" массив указателей:}
+    {"СЂРµРіСѓР»РёСЂСѓРµРј" РјР°СЃСЃРёРІ СѓРєР°Р·Р°С‚РµР»РµР№:}
     dec(pFieldDesc, CurPrp.iFields);
     dec(pFldOp, CurPrp.iFields);
  
-    {в случае отсутствия операций возбуждаем исключение:}
+    {РІ СЃР»СѓС‡Р°Рµ РѕС‚СЃСѓС‚СЃС‚РІРёСЏ РѕРїРµСЂР°С†РёР№ РІРѕР·Р±СѓР¶РґР°РµРј РёСЃРєР»СЋС‡РµРЅРёРµ:}
     case eRestrStatus of
-      rsNothingToDo: raise Exception.Create('Ничего не сделано');
-      rsFieldNotFound: raise Exception.Create('Поле не найдено');
+      rsNothingToDo: raise Exception.Create('РќРёС‡РµРіРѕ РЅРµ СЃРґРµР»Р°РЅРѕ');
+      rsFieldNotFound: raise Exception.Create('РџРѕР»Рµ РЅРµ РЅР°Р№РґРµРЅРѕ');
     end;
  
     GetMem(pTableDesc, sizeOf(CRTblDesc));
@@ -126,23 +119,23 @@ begin
     if pFieldDesc &lt;&gt; nil then
       FreeMem(pFieldDesc, CurPrp.iFields * sizeOf(FldDesc));
     Open;
-  end; {пробуем с table1}
+  end; {РїСЂРѕР±СѓРµРј СЃ table1}
   Result := True;
 end;
 </pre>
 
-<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ СЃ <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
 
-<p id="note">Примечание Vit</p><p>На счёт "Единственный способ"&nbsp; - этот товарищ несколько погорячился. Все базы данных поддерживают SQL запрос вида </p>
+<p id="note">РџСЂРёРјРµС‡Р°РЅРёРµ Vit</p><p>РќР° СЃС‡С‘С‚ "Р•РґРёРЅСЃС‚РІРµРЅРЅС‹Р№ СЃРїРѕСЃРѕР±"&nbsp; - СЌС‚РѕС‚ С‚РѕРІР°СЂРёС‰ РЅРµСЃРєРѕР»СЊРєРѕ РїРѕРіРѕСЂСЏС‡РёР»СЃСЏ. Р’СЃРµ Р±Р°Р·С‹ РґР°РЅРЅС‹С… РїРѕРґРґРµСЂР¶РёРІР°СЋС‚ SQL Р·Р°РїСЂРѕСЃ РІРёРґР° </p>
 
 <p>ALTER TABLE...</p>
 
-<p>Конкретный формат надо выяснить в справочнике по используемой базе данных, так как он немного различается для разных серверов, но указанный запрос весьма гибок, и применим не только с BDE, но и с другими системами доступа и с любыми базами данных.</p>
+<p>РљРѕРЅРєСЂРµС‚РЅС‹Р№ С„РѕСЂРјР°С‚ РЅР°РґРѕ РІС‹СЏСЃРЅРёС‚СЊ РІ СЃРїСЂР°РІРѕС‡РЅРёРєРµ РїРѕ РёСЃРїРѕР»СЊР·СѓРµРјРѕР№ Р±Р°Р·Рµ РґР°РЅРЅС‹С…, С‚Р°Рє РєР°Рє РѕРЅ РЅРµРјРЅРѕРіРѕ СЂР°Р·Р»РёС‡Р°РµС‚СЃСЏ РґР»СЏ СЂР°Р·РЅС‹С… СЃРµСЂРІРµСЂРѕРІ, РЅРѕ СѓРєР°Р·Р°РЅРЅС‹Р№ Р·Р°РїСЂРѕСЃ РІРµСЃСЊРјР° РіРёР±РѕРє, Рё РїСЂРёРјРµРЅРёРј РЅРµ С‚РѕР»СЊРєРѕ СЃ BDE, РЅРѕ Рё СЃ РґСЂСѓРіРёРјРё СЃРёСЃС‚РµРјР°РјРё РґРѕСЃС‚СѓРїР° Рё СЃ Р»СЋР±С‹РјРё Р±Р°Р·Р°РјРё РґР°РЅРЅС‹С….</p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

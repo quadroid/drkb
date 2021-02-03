@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Канва для метафайлов</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°РЅРІР° РґР»СЏ РјРµС‚Р°С„Р°Р№Р»РѕРІ</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,21 +13,14 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Канва для метафайлов</h1>
+  <h1 id="title">РљР°РЅРІР° РґР»СЏ РјРµС‚Р°С„Р°Р№Р»РѕРІ</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
-Мне необходимо нарисовать Windows-метафайл. Delphi непосредственно это не поддерживает, поэтому для создания нового метафайла я использую функции Windows API. При создании метафайла мне возвращается его THandle, являющийся дескриптором контекста устройства Windows (DC). </p>
-<p>Как мне в Delphi использовать возвращаемый THandle для получения или создания канвы (Canvas) для рисования? </p>
+
+РњРЅРµ РЅРµРѕР±С…РѕРґРёРјРѕ РЅР°СЂРёСЃРѕРІР°С‚СЊ Windows-РјРµС‚Р°С„Р°Р№Р». Delphi РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ СЌС‚Рѕ РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚, РїРѕСЌС‚РѕРјСѓ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РЅРѕРІРѕРіРѕ РјРµС‚Р°С„Р°Р№Р»Р° СЏ РёСЃРїРѕР»СЊР·СѓСЋ С„СѓРЅРєС†РёРё Windows API. РџСЂРё СЃРѕР·РґР°РЅРёРё РјРµС‚Р°С„Р°Р№Р»Р° РјРЅРµ РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РµРіРѕ THandle, СЏРІР»СЏСЋС‰РёР№СЃСЏ РґРµСЃРєСЂРёРїС‚РѕСЂРѕРј РєРѕРЅС‚РµРєСЃС‚Р° СѓСЃС‚СЂРѕР№СЃС‚РІР° Windows (DC). </p>
+<p>РљР°Рє РјРЅРµ РІ Delphi РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РІРѕР·РІСЂР°С‰Р°РµРјС‹Р№ THandle РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РёР»Рё СЃРѕР·РґР°РЅРёСЏ РєР°РЅРІС‹ (Canvas) РґР»СЏ СЂРёСЃРѕРІР°РЅРёСЏ? </p>
 <pre name="code" class="delphi">
 unit Metaform;
  
@@ -101,18 +94,18 @@ var
   MetafileDC: HDC;
 begin
  
-  { Создаем в памяти DC метафайла }
+  { РЎРѕР·РґР°РµРј РІ РїР°РјСЏС‚Рё DC РјРµС‚Р°С„Р°Р№Р»Р° }
   MetafileDC := CreateMetaFile(nil);
   if Bool(MetafileDC) then
   begin
-    { Совмещаем верхний левый угол отображаемого прямоугольника с левым верхним углом
-    контекста устройства. Создаем границу шириной 10 логических единиц вокруг изображения. }
+    { РЎРѕРІРјРµС‰Р°РµРј РІРµСЂС…РЅРёР№ Р»РµРІС‹Р№ СѓРіРѕР» РѕС‚РѕР±СЂР°Р¶Р°РµРјРѕРіРѕ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР° СЃ Р»РµРІС‹Рј РІРµСЂС…РЅРёРј СѓРіР»РѕРј
+    РєРѕРЅС‚РµРєСЃС‚Р° СѓСЃС‚СЂРѕР№СЃС‚РІР°. РЎРѕР·РґР°РµРј РіСЂР°РЅРёС†Сѓ С€РёСЂРёРЅРѕР№ 10 Р»РѕРіРёС‡РµСЃРєРёС… РµРґРёРЅРёС† РІРѕРєСЂСѓРі РёР·РѕР±СЂР°Р¶РµРЅРёСЏ. }
     with FRect do
       SetWindowOrg(MetafileDC, Left - 10, Top - 10);
-    { Устанавливаем размер изображения с бордюром, имеющим ширину 10 логических единиц. }
+    { РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЂР°Р·РјРµСЂ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ СЃ Р±РѕСЂРґСЋСЂРѕРј, РёРјРµСЋС‰РёРј С€РёСЂРёРЅСѓ 10 Р»РѕРіРёС‡РµСЃРєРёС… РµРґРёРЅРёС†. }
     with FRect do
       SetWindowExt(MetafileDC, Right - Left + 20, Bottom - Top + 20);
-    { Задаем корректное содержание данному метафайлу. }
+    { Р—Р°РґР°РµРј РєРѕСЂСЂРµРєС‚РЅРѕРµ СЃРѕРґРµСЂР¶Р°РЅРёРµ РґР°РЅРЅРѕРјСѓ РјРµС‚Р°С„Р°Р№Р»Сѓ. }
     if Bool(FMetafileHandle) then
     begin
       PlayMetafile(MetafileDC, FMetafileHandle);
@@ -133,7 +126,7 @@ begin
     DeleteMetafile(FMetafileHandle);
   FMetafileHandle := CloseMetafile(Handle);
   Handle := 0;
-  { Подготавливаем метафайл для показа в буфере обмена. }
+  { РџРѕРґРіРѕС‚Р°РІР»РёРІР°РµРј РјРµС‚Р°С„Р°Р№Р» РґР»СЏ РїРѕРєР°Р·Р° РІ Р±СѓС„РµСЂРµ РѕР±РјРµРЅР°. }
   MetafilePict := GlobalLock(FClipboardHandle);
   MetafilePict^.mm := mm_AnIsoTropic;
   IC := CreateIC('DISPLAY', nil, nil, nil);
@@ -145,7 +138,7 @@ begin
   MetafilePict^.yExt := ExtRect.Top - ExtRect.Bottom;
   MetafilePict^.HMF := FMetafileHandle;
   GlobalUnlock(FClipboardHandle);
-  { Передаем дескриптор в качестве результата выполнения функции. }
+  { РџРµСЂРµРґР°РµРј РґРµСЃРєСЂРёРїС‚РѕСЂ РІ РєР°С‡РµСЃС‚РІРµ СЂРµР·СѓР»СЊС‚Р°С‚Р° РІС‹РїРѕР»РЅРµРЅРёСЏ С„СѓРЅРєС†РёРё. }
   Result := FClipboardHandle;
 end;
  
@@ -170,10 +163,10 @@ end.
 <p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

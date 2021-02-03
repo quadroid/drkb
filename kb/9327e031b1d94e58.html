@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как передать картинку по сети через TServerSocket?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє РїРµСЂРµРґР°С‚СЊ РєР°СЂС‚РёРЅРєСѓ РїРѕ СЃРµС‚Рё С‡РµСЂРµР· TServerSocket?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,34 +13,27 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как передать картинку по сети через TServerSocket?</h1>
+  <h1 id="title">РљР°Рє РїРµСЂРµРґР°С‚СЊ РєР°СЂС‚РёРЅРєСѓ РїРѕ СЃРµС‚Рё С‡РµСЂРµР· TServerSocket?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Да без проблем. Звиняйте, что на сях, но, тем не менее, на Борланд сях. </p>
-<p>Со стороны, откуда посылаем (у нас это клиент), пишем:</p>
+
+<p>Р”Р° Р±РµР· РїСЂРѕР±Р»РµРј. Р—РІРёРЅСЏР№С‚Рµ, С‡С‚Рѕ РЅР° СЃСЏС…, РЅРѕ, С‚РµРј РЅРµ РјРµРЅРµРµ, РЅР° Р‘РѕСЂР»Р°РЅРґ СЃСЏС…. </p>
+<p>РЎРѕ СЃС‚РѕСЂРѕРЅС‹, РѕС‚РєСѓРґР° РїРѕСЃС‹Р»Р°РµРј (Сѓ РЅР°СЃ СЌС‚Рѕ РєР»РёРµРЅС‚), РїРёС€РµРј:</p>
 <pre name="code" class="cpp">
 TFileStream* str = new TFileStream("M:\\MyFile.jpg",fmOpenRead);
-//ИЛИ, если мы работаем без сохранения (тогда не создается файл)
+//РР›Р, РµСЃР»Рё РјС‹ СЂР°Р±РѕС‚Р°РµРј Р±РµР· СЃРѕС…СЂР°РЅРµРЅРёСЏ (С‚РѕРіРґР° РЅРµ СЃРѕР·РґР°РµС‚СЃСЏ С„Р°Р№Р»)
 TMemoryStream* str = new TMemoryStream ();
 str-&gt;Position = 0;
 Image1-&gt;Picture-&gt;Bitmap-&gt;SaveToStream(str);
-//и, наконец, шлем на сервер битмап
+//Рё, РЅР°РєРѕРЅРµС†, С€Р»РµРј РЅР° СЃРµСЂРІРµСЂ Р±РёС‚РјР°Рї
 str-&gt;Position = 0;
 ClientSocket1-&gt;Socket-&gt;SendStream(str);
 </pre>
-<p>Обратите внимание, не забывайте перед каждой операцией с потоком устанавливать позицию в 0!!! Иначе получим не то, что хотелось бы </p>
-<p>Ну а со стороны приема (у нас это, соответственно, серверсокет), в событии приема пишем:</p>
+<p>РћР±СЂР°С‚РёС‚Рµ РІРЅРёРјР°РЅРёРµ, РЅРµ Р·Р°Р±С‹РІР°Р№С‚Рµ РїРµСЂРµРґ РєР°Р¶РґРѕР№ РѕРїРµСЂР°С†РёРµР№ СЃ РїРѕС‚РѕРєРѕРј СѓСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ РїРѕР·РёС†РёСЋ РІ 0!!! РРЅР°С‡Рµ РїРѕР»СѓС‡РёРј РЅРµ С‚Рѕ, С‡С‚Рѕ С…РѕС‚РµР»РѕСЃСЊ Р±С‹ </p>
+<p>РќСѓ Р° СЃРѕ СЃС‚РѕСЂРѕРЅС‹ РїСЂРёРµРјР° (Сѓ РЅР°СЃ СЌС‚Рѕ, СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ, СЃРµСЂРІРµСЂСЃРѕРєРµС‚), РІ СЃРѕР±С‹С‚РёРё РїСЂРёРµРјР° РїРёС€РµРј:</p>
 <pre name="code" class="cpp">
 int ibLen = ServerSocket1-&gt;Socket-&gt;ReceiveLength();
 char* buf= new char[ibLen+1];
@@ -50,18 +43,18 @@ ServerSocket1-&gt;Socket-&gt;ReceiveBuf((void*)buf,ibLen);
 str-&gt;WriteBuffer((void*)buf,ibLen);
 str-&gt;Position = 0;
 Image1-&gt;Picture-&gt;Bitmap-&gt;LoadFromStream(str);
-//или
+//РёР»Рё
 str-&gt;SaveToFile("M:\\MyFile.jpg");
 </pre>
 
-<p>Ну и ессно, как говорит Bigbrother, сделал дело - вызови деструктор! То есть почистить за собой надо, не знаю как в Паскале, но в сях мне надо удалить str и buf.</p>
-<p id="author">Автор ответа: TwoK </p>
-<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<p>РќСѓ Рё РµСЃСЃРЅРѕ, РєР°Рє РіРѕРІРѕСЂРёС‚ Bigbrother, СЃРґРµР»Р°Р» РґРµР»Рѕ - РІС‹Р·РѕРІРё РґРµСЃС‚СЂСѓРєС‚РѕСЂ! РўРѕ РµСЃС‚СЊ РїРѕС‡РёСЃС‚РёС‚СЊ Р·Р° СЃРѕР±РѕР№ РЅР°РґРѕ, РЅРµ Р·РЅР°СЋ РєР°Рє РІ РџР°СЃРєР°Р»Рµ, РЅРѕ РІ СЃСЏС… РјРЅРµ РЅР°РґРѕ СѓРґР°Р»РёС‚СЊ str Рё buf.</p>
+<p id="author">РђРІС‚РѕСЂ РѕС‚РІРµС‚Р°: TwoK </p>
+<p>Р’Р·СЏС‚Рѕ СЃ Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

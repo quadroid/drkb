@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Кодирование по спирали</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљРѕРґРёСЂРѕРІР°РЅРёРµ РїРѕ СЃРїРёСЂР°Р»Рё</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,20 +13,13 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Кодирование по спирали</h1>
+  <h1 id="title">РљРѕРґРёСЂРѕРІР°РЅРёРµ РїРѕ СЃРїРёСЂР°Р»Рё</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
-Автор: ___Nikolay</p>
+
+РђРІС‚РѕСЂ: ___Nikolay</p>
 <pre name="code" class="delphi">
 unit uMain;
  
@@ -49,9 +42,9 @@ type
     procedure btDecodeClick(Sender: TObject);
   private
     { Private declarations }
-    procedure ClearMatrix; // Очистит матрицу
-    procedure WriteToMatrix(s: string; bSpiralWriteMode: boolean); // Записываем в матрицу
-    function ReadFromMatrix(bSpiralWriteMode: boolean): string; // Считываем из матрицы
+    procedure ClearMatrix; // РћС‡РёСЃС‚РёС‚ РјР°С‚СЂРёС†Сѓ
+    procedure WriteToMatrix(s: string; bSpiralWriteMode: boolean); // Р—Р°РїРёСЃС‹РІР°РµРј РІ РјР°С‚СЂРёС†Сѓ
+    function ReadFromMatrix(bSpiralWriteMode: boolean): string; // РЎС‡РёС‚С‹РІР°РµРј РёР· РјР°С‚СЂРёС†С‹
   public
     { Public declarations }
   end;
@@ -63,7 +56,7 @@ implementation
  
 {$R *.DFM}
  
-// Записываем в матрицу
+// Р—Р°РїРёСЃС‹РІР°РµРј РІ РјР°С‚СЂРёС†Сѓ
 procedure TfmMain.WriteToMatrix(s: string; bSpiralWriteMode: boolean);
 var
   c, r, i, iWriteSymbols, iStep, iDirection, iIncStep, iHalfCell, x, y: integer;
@@ -71,23 +64,23 @@ var
 begin
   sgMatrix.Selection := TGridRect(Rect(-1, -1, -1, -1));
   GetCursorPos(pCursor);
-  iHalfCell := sgMatrix.DefaultColWidth div 2; // Половина ширины ячейки
+  iHalfCell := sgMatrix.DefaultColWidth div 2; // РџРѕР»РѕРІРёРЅР° С€РёСЂРёРЅС‹ СЏС‡РµР№РєРё
  
-  // Символы в матрицу вносим по спирали, начиная с центра
+  // РЎРёРјРІРѕР»С‹ РІ РјР°С‚СЂРёС†Сѓ РІРЅРѕСЃРёРј РїРѕ СЃРїРёСЂР°Р»Рё, РЅР°С‡РёРЅР°СЏ СЃ С†РµРЅС‚СЂР°
   if bSpiralWriteMode then
   begin
-    c := 5; // Индекс колонки
-    r := 5; // Индекс строки
-    iWriteSymbols := 0; // Кол-во вписанных символов
-    iStep := 1; // Шаг - кол-во вписываемых символов в одном направлении
-    iDirection := 0; // Направление: 1 - вверх, 2 - вправо, 3 - вниз, 4 - влево
-    iIncStep := -1; // Дельта шага
+    c := 5; // РРЅРґРµРєСЃ РєРѕР»РѕРЅРєРё
+    r := 5; // РРЅРґРµРєСЃ СЃС‚СЂРѕРєРё
+    iWriteSymbols := 0; // РљРѕР»-РІРѕ РІРїРёСЃР°РЅРЅС‹С… СЃРёРјРІРѕР»РѕРІ
+    iStep := 1; // РЁР°Рі - РєРѕР»-РІРѕ РІРїРёСЃС‹РІР°РµРјС‹С… СЃРёРјРІРѕР»РѕРІ РІ РѕРґРЅРѕРј РЅР°РїСЂР°РІР»РµРЅРёРё
+    iDirection := 0; // РќР°РїСЂР°РІР»РµРЅРёРµ: 1 - РІРІРµСЂС…, 2 - РІРїСЂР°РІРѕ, 3 - РІРЅРёР·, 4 - РІР»РµРІРѕ
+    iIncStep := -1; // Р”РµР»СЊС‚Р° С€Р°РіР°
  
     for i := 1 to Length(s) do
     begin
       sgMatrix.Cells[c, r] := s[i];
  
-      // Визуализировать
+      // Р’РёР·СѓР°Р»РёР·РёСЂРѕРІР°С‚СЊ
       if chAnimation.Checked then
       begin
         Application.ProcessMessages;
@@ -99,11 +92,11 @@ begin
       end;
       inc(iWriteSymbols);
  
-      { Если кол-во символов, которые нужно вписывать в одном
-        направлении, достигло предела - тогда нужно поворачивать }
+      { Р•СЃР»Рё РєРѕР»-РІРѕ СЃРёРјРІРѕР»РѕРІ, РєРѕС‚РѕСЂС‹Рµ РЅСѓР¶РЅРѕ РІРїРёСЃС‹РІР°С‚СЊ РІ РѕРґРЅРѕРј
+        РЅР°РїСЂР°РІР»РµРЅРёРё, РґРѕСЃС‚РёРіР»Рѕ РїСЂРµРґРµР»Р° - С‚РѕРіРґР° РЅСѓР¶РЅРѕ РїРѕРІРѕСЂР°С‡РёРІР°С‚СЊ }
       if iWriteSymbols = iStep then
       begin
-        // Определим следующее направление
+        // РћРїСЂРµРґРµР»РёРј СЃР»РµРґСѓСЋС‰РµРµ РЅР°РїСЂР°РІР»РµРЅРёРµ
         inc(iDirection);
         if iDirection = 5 then
           iDirection := 1;
@@ -118,16 +111,16 @@ begin
         end;
       end;
  
-      // Определим следующую клетку для записи
+      // РћРїСЂРµРґРµР»РёРј СЃР»РµРґСѓСЋС‰СѓСЋ РєР»РµС‚РєСѓ РґР»СЏ Р·Р°РїРёСЃРё
       case iDirection of
         1: dec(r);
         2: inc(c);
         3: inc(r);
         4: dec(c);
       end;
-    end; // Вносим по спирали
+    end; // Р’РЅРѕСЃРёРј РїРѕ СЃРїРёСЂР°Р»Рё
   end
-  else // Вносим по строкам
+  else // Р’РЅРѕСЃРёРј РїРѕ СЃС‚СЂРѕРєР°Рј
   begin
     i := 1;
     for r := 0 to sgMatrix.RowCount - 1 do
@@ -136,7 +129,7 @@ begin
         sgMatrix.Cells[c, r] := s[i];
         inc(i);
  
-        // Визуализировать
+        // Р’РёР·СѓР°Р»РёР·РёСЂРѕРІР°С‚СЊ
         if chAnimation.Checked then
         begin
           Application.ProcessMessages;
@@ -153,7 +146,7 @@ end;
  
 procedure TfmMain.btEncodeClick(Sender: TObject);
 const
-  sMsgLengthCheck = 'Длина текста должна быть равна 121';
+  sMsgLengthCheck = 'Р”Р»РёРЅР° С‚РµРєСЃС‚Р° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СЂР°РІРЅР° 121';
 var
   s: string;
 begin
@@ -173,7 +166,7 @@ end;
  
 procedure TfmMain.btDecodeClick(Sender: TObject);
 const
-  sMsgLengthCheck = 'Длина текста должна быть равна 121';
+  sMsgLengthCheck = 'Р”Р»РёРЅР° С‚РµРєСЃС‚Р° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СЂР°РІРЅР° 121';
 var
   s: string;
 begin
@@ -191,7 +184,7 @@ begin
   edEncode.Text := ReadFromMatrix(true);
 end;
  
-// Очистит матрицу
+// РћС‡РёСЃС‚РёС‚ РјР°С‚СЂРёС†Сѓ
 procedure TfmMain.ClearMatrix;
 var
   r, c: integer;
@@ -201,7 +194,7 @@ begin
       sgMatrix.Cells[c, r] := '';
 end;
  
-// Считываем из матрицы
+// РЎС‡РёС‚С‹РІР°РµРј РёР· РјР°С‚СЂРёС†С‹
 function TfmMain.ReadFromMatrix(bSpiralWriteMode: boolean): string;
 var
   c, r, i, iWriteSymbols, iStep, iDirection, iIncStep, x, y, iHalfCell: integer;
@@ -211,25 +204,25 @@ begin
   sgMatrix.Selection := TGridRect(Rect(-1, -1, -1, -1));
   GetCursorPos(pCursor);
   sResult := '';
-  iHalfCell := sgMatrix.DefaultColWidth div 2; // Половина ширины ячейки
+  iHalfCell := sgMatrix.DefaultColWidth div 2; // РџРѕР»РѕРІРёРЅР° С€РёСЂРёРЅС‹ СЏС‡РµР№РєРё
  
   if bSpiralWriteMode then
   begin
-    c := 5; // Индекс колонки
-    r := 5; // Индекс строки
-    iWriteSymbols := 0; // Кол-во вписанных символов
-    iStep := 1; // Шаг - кол-во вписываемых символов в одном направлении
-    iDirection := 0; // Направление: 1 - вверх, 2 - вправо, 3 - вниз, 4 - влево
-    iIncStep := -1; // Дельта шага
+    c := 5; // РРЅРґРµРєСЃ РєРѕР»РѕРЅРєРё
+    r := 5; // РРЅРґРµРєСЃ СЃС‚СЂРѕРєРё
+    iWriteSymbols := 0; // РљРѕР»-РІРѕ РІРїРёСЃР°РЅРЅС‹С… СЃРёРјРІРѕР»РѕРІ
+    iStep := 1; // РЁР°Рі - РєРѕР»-РІРѕ РІРїРёСЃС‹РІР°РµРјС‹С… СЃРёРјРІРѕР»РѕРІ РІ РѕРґРЅРѕРј РЅР°РїСЂР°РІР»РµРЅРёРё
+    iDirection := 0; // РќР°РїСЂР°РІР»РµРЅРёРµ: 1 - РІРІРµСЂС…, 2 - РІРїСЂР°РІРѕ, 3 - РІРЅРёР·, 4 - РІР»РµРІРѕ
+    iIncStep := -1; // Р”РµР»СЊС‚Р° С€Р°РіР°
     sResult := '';
  
-    // Символы из матрицы считываем по спирали, начиная с центра
+    // РЎРёРјРІРѕР»С‹ РёР· РјР°С‚СЂРёС†С‹ СЃС‡РёС‚С‹РІР°РµРј РїРѕ СЃРїРёСЂР°Р»Рё, РЅР°С‡РёРЅР°СЏ СЃ С†РµРЅС‚СЂР°
     for i := 1 to 121 do
     begin
       sResult := sResult + sgMatrix.Cells[c, r];
       sgMatrix.Cells[c, r] := '';
  
-      // Визуализировать
+      // Р’РёР·СѓР°Р»РёР·РёСЂРѕРІР°С‚СЊ
       if chAnimation.Checked then
       begin
         Application.ProcessMessages;
@@ -241,11 +234,11 @@ begin
       end;
       inc(iWriteSymbols);
  
-      { Если кол-во символов, которые нужно считать в одном
-        направлении, достигло предела - тогда нужно поворачивать }
+      { Р•СЃР»Рё РєРѕР»-РІРѕ СЃРёРјРІРѕР»РѕРІ, РєРѕС‚РѕСЂС‹Рµ РЅСѓР¶РЅРѕ СЃС‡РёС‚Р°С‚СЊ РІ РѕРґРЅРѕРј
+        РЅР°РїСЂР°РІР»РµРЅРёРё, РґРѕСЃС‚РёРіР»Рѕ РїСЂРµРґРµР»Р° - С‚РѕРіРґР° РЅСѓР¶РЅРѕ РїРѕРІРѕСЂР°С‡РёРІР°С‚СЊ }
       if iWriteSymbols = iStep then
       begin
-        // Определим следующее направление
+        // РћРїСЂРµРґРµР»РёРј СЃР»РµРґСѓСЋС‰РµРµ РЅР°РїСЂР°РІР»РµРЅРёРµ
         inc(iDirection);
         if iDirection = 5 then
           iDirection := 1;
@@ -260,7 +253,7 @@ begin
         end;
       end;
  
-      // Определим следующую клетку считывания
+      // РћРїСЂРµРґРµР»РёРј СЃР»РµРґСѓСЋС‰СѓСЋ РєР»РµС‚РєСѓ СЃС‡РёС‚С‹РІР°РЅРёСЏ
       case iDirection of
         1: dec(r);
         2: inc(c);
@@ -269,7 +262,7 @@ begin
       end;
     end;
   end
-  else // Считываем по строкам
+  else // РЎС‡РёС‚С‹РІР°РµРј РїРѕ СЃС‚СЂРѕРєР°Рј
   begin
     for r := 0 to sgMatrix.RowCount - 1 do
       for c := 0 to sgMatrix.ColCount - 1 do
@@ -277,7 +270,7 @@ begin
         sResult := sResult + sgMatrix.Cells[c, r];
         sgMatrix.Cells[c, r] := '';
  
-                // Визуализировать
+                // Р’РёР·СѓР°Р»РёР·РёСЂРѕРІР°С‚СЊ
         if chAnimation.Checked then
         begin
           Application.ProcessMessages;
@@ -300,10 +293,10 @@ end.
 <p>DelphiWorld 6.0</p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

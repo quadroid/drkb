@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Получение TCP/UDP статистики</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџРѕР»СѓС‡РµРЅРёРµ TCP/UDP СЃС‚Р°С‚РёСЃС‚РёРєРё</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,27 +13,20 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Получение TCP/UDP статистики</h1>
+  <h1 id="title">РџРѕР»СѓС‡РµРЅРёРµ TCP/UDP СЃС‚Р°С‚РёСЃС‚РёРєРё</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  ****************************************************************************
 //  * Unit Name : Unit1
-//  * Purpose   : Демо получения ТСР статистики
-//  * Author    : Александр (Rouse_) Багель
+//  * Purpose   : Р”РµРјРѕ РїРѕР»СѓС‡РµРЅРёСЏ РўРЎР  СЃС‚Р°С‚РёСЃС‚РёРєРё
+//  * Author    : РђР»РµРєСЃР°РЅРґСЂ (Rouse_) Р‘Р°РіРµР»СЊ
 //  * Version   : 1.03
 //  ****************************************************************************
 //
@@ -46,17 +39,17 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Winsock;
  
-// так как в примере используются недокументированные функции присутствующие
-// только в ХР и выше - то часть кода сделал через директивы компилятора
-// (лень было делать динамическую загрузку)
-// Если они вам нужны раскоментируйте директиву USES_NATIVE_API
+// С‚Р°Рє РєР°Рє РІ РїСЂРёРјРµСЂРµ РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ РЅРµРґРѕРєСѓРјРµРЅС‚РёСЂРѕРІР°РЅРЅС‹Рµ С„СѓРЅРєС†РёРё РїСЂРёСЃСѓС‚СЃС‚РІСѓСЋС‰РёРµ
+// С‚РѕР»СЊРєРѕ РІ РҐР  Рё РІС‹С€Рµ - С‚Рѕ С‡Р°СЃС‚СЊ РєРѕРґР° СЃРґРµР»Р°Р» С‡РµСЂРµР· РґРёСЂРµРєС‚РёРІС‹ РєРѕРјРїРёР»СЏС‚РѕСЂР°
+// (Р»РµРЅСЊ Р±С‹Р»Рѕ РґРµР»Р°С‚СЊ РґРёРЅР°РјРёС‡РµСЃРєСѓСЋ Р·Р°РіСЂСѓР·РєСѓ)
+// Р•СЃР»Рё РѕРЅРё РІР°Рј РЅСѓР¶РЅС‹ СЂР°СЃРєРѕРјРµРЅС‚РёСЂСѓР№С‚Рµ РґРёСЂРµРєС‚РёРІСѓ USES_NATIVE_API
  
 {.$DEFINE USES_NATIVE_API}
  
 const
   TH32CS_SNAPPROCESS  = $00000002;
  
-  // Константы состояний порта
+  // РљРѕРЅСЃС‚Р°РЅС‚С‹ СЃРѕСЃС‚РѕСЏРЅРёР№ РїРѕСЂС‚Р°
   MIB_TCP_STATE_CLOSED     = 1;
   MIB_TCP_STATE_LISTEN     = 2;
   MIB_TCP_STATE_SYN_SENT   = 3;
@@ -80,7 +73,7 @@ type
     function PortStateToStr(const State: DWORD): String;
   end;
  
-  // Стандартная структура для получения ТСР статистики
+  // РЎС‚Р°РЅРґР°СЂС‚РЅР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РўРЎР  СЃС‚Р°С‚РёСЃС‚РёРєРё
   PTMibTCPRow = ^TMibTCPRow;
   TMibTCPRow = packed record
     dwState: DWORD;
@@ -90,21 +83,21 @@ type
     dwRemotePort: DWORD;
   end;
  
-  // В данную структуру будет передаваться результат GetTcpTable
+  // Р’ РґР°РЅРЅСѓСЋ СЃС‚СЂСѓРєС‚СѓСЂСѓ Р±СѓРґРµС‚ РїРµСЂРµРґР°РІР°С‚СЊСЃСЏ СЂРµР·СѓР»СЊС‚Р°С‚ GetTcpTable
   PTMibTCPTable = ^TMibTCPTable;
   TMibTCPTable = packed record
     dwNumEntries: DWORD;
     Table: array[0..0] of TMibTCPRow;
   end;
  
-  // Стандартная структура для получения UDP статистики
+  // РЎС‚Р°РЅРґР°СЂС‚РЅР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ UDP СЃС‚Р°С‚РёСЃС‚РёРєРё
   PTMibUdpRow = ^TMibUdpRow;
   TMibUdpRow = packed record
     dwLocalAddr: DWORD;
     dwLocalPort: DWORD;
   end;
  
-  // В данную структуру будет передаваться результат GetUDPTable
+  // Р’ РґР°РЅРЅСѓСЋ СЃС‚СЂСѓРєС‚СѓСЂСѓ Р±СѓРґРµС‚ РїРµСЂРµРґР°РІР°С‚СЊСЃСЏ СЂРµР·СѓР»СЊС‚Р°С‚ GetUDPTable
   PTMibUdpTable = ^TMibUdpTable;
   TMibUdpTable = packed record
     dwNumEntries: DWORD;
@@ -113,7 +106,7 @@ type
  
  
   {$IFDEF USES_NATIVE_API}
-    // Расширенные варианты данных структур
+    // Р Р°СЃС€РёСЂРµРЅРЅС‹Рµ РІР°СЂРёР°РЅС‚С‹ РґР°РЅРЅС‹С… СЃС‚СЂСѓРєС‚СѓСЂ
  
     PTMibTCPExRow = ^TMibTCPExRow;
     TMibTCPExRow = packed record
@@ -144,7 +137,7 @@ type
       table: array [0..0] of TMibUdpExRow;
     end;
  
-    // Структура для получения списка текущий процессов и их параметров
+    // РЎС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СЃРїРёСЃРєР° С‚РµРєСѓС‰РёР№ РїСЂРѕС†РµСЃСЃРѕРІ Рё РёС… РїР°СЂР°РјРµС‚СЂРѕРІ
     TProcessEntry32 = packed record
       dwSize: DWORD;
       cntUsage: DWORD;
@@ -194,7 +187,7 @@ implementation
  
 {$R *.dfm}
  
-// Получение TCP/UDP статистики при помощи стандартных методов
+// РџРѕР»СѓС‡РµРЅРёРµ TCP/UDP СЃС‚Р°С‚РёСЃС‚РёРєРё РїСЂРё РїРѕРјРѕС‰Рё СЃС‚Р°РЅРґР°СЂС‚РЅС‹С… РјРµС‚РѕРґРѕРІ
 procedure TForm1.Button1Click(Sender: TObject);
 var
   Size: DWORD;
@@ -202,42 +195,42 @@ var
   UDPTable: PTMibUdpTable;
   I: DWORD;
 begin
-  // для успешного получения стстаистики первоначально необходимо определиться
-  // сколько памяти потребует данная операция
-  // для этого делаем так:
-  // Вделяем память под TCP таблицу (под один элемент)
+  // РґР»СЏ СѓСЃРїРµС€РЅРѕРіРѕ РїРѕР»СѓС‡РµРЅРёСЏ СЃС‚СЃС‚Р°РёСЃС‚РёРєРё РїРµСЂРІРѕРЅР°С‡Р°Р»СЊРЅРѕ РЅРµРѕР±С…РѕРґРёРјРѕ РѕРїСЂРµРґРµР»РёС‚СЊСЃСЏ
+  // СЃРєРѕР»СЊРєРѕ РїР°РјСЏС‚Рё РїРѕС‚СЂРµР±СѓРµС‚ РґР°РЅРЅР°СЏ РѕРїРµСЂР°С†РёСЏ
+  // РґР»СЏ СЌС‚РѕРіРѕ РґРµР»Р°РµРј С‚Р°Рє:
+  // Р’РґРµР»СЏРµРј РїР°РјСЏС‚СЊ РїРѕРґ TCP С‚Р°Р±Р»РёС†Сѓ (РїРѕРґ РѕРґРёРЅ СЌР»РµРјРµРЅС‚)
   GetMem(TCPTable, SizeOf(TMibTCPTable));
   try
-    // Показываем что памяти у нас не выделено
+    // РџРѕРєР°Р·С‹РІР°РµРј С‡С‚Рѕ РїР°РјСЏС‚Рё Сѓ РЅР°СЃ РЅРµ РІС‹РґРµР»РµРЅРѕ
     Size := 0;
-    // Выполняем функцию и после этого переменная Size
-    // будет содержать кол-во необходимой памяти
+    // Р’С‹РїРѕР»РЅСЏРµРј С„СѓРЅРєС†РёСЋ Рё РїРѕСЃР»Рµ СЌС‚РѕРіРѕ РїРµСЂРµРјРµРЅРЅР°СЏ Size
+    // Р±СѓРґРµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ РєРѕР»-РІРѕ РЅРµРѕР±С…РѕРґРёРјРѕР№ РїР°РјСЏС‚Рё
     if GetTcpTable(TCPTable, Size, True) &lt;&gt; ERROR_INSUFFICIENT_BUFFER then Exit;
   finally
-    // освобождаем память занятую под один элемент
+    // РѕСЃРІРѕР±РѕР¶РґР°РµРј РїР°РјСЏС‚СЊ Р·Р°РЅСЏС‚СѓСЋ РїРѕРґ РѕРґРёРЅ СЌР»РµРјРµРЅС‚
     FreeMem(TCPTable);
   end;
-  // Теперь выделяем уже требуемое кол-во памяти
+  // РўРµРїРµСЂСЊ РІС‹РґРµР»СЏРµРј СѓР¶Рµ С‚СЂРµР±СѓРµРјРѕРµ РєРѕР»-РІРѕ РїР°РјСЏС‚Рё
   GetMem(TCPTable, Size);
   try
-    // Выполняем функцию
+    // Р’С‹РїРѕР»РЅСЏРµРј С„СѓРЅРєС†РёСЋ
     if GetTcpTable(TCPTable, Size, True) = NO_ERROR then
     begin
       Memo1.Lines.Add('');
       Memo1.Lines.Add('Standart TCP Stats');
       Memo1.Lines.Add(Format('%15s: | %5s %-12s', ['Host', 'Port', 'State']));
       Memo1.Lines.Add('==================================================');
-    // и насинаем выводить данные по ТСР
+    // Рё РЅР°СЃРёРЅР°РµРј РІС‹РІРѕРґРёС‚СЊ РґР°РЅРЅС‹Рµ РїРѕ РўРЎР 
     for I := 0 to TCPTable^.dwNumEntries - 1 do
       Memo1.Lines.Add(Format('%15s: | %5d %s', [inet_ntoa(in_addr(TCPTable^.Table[I].dwLocalAddr)),
         htons(TCPTable^.Table[I].dwLocalPort), PortStateToStr(TCPTable^.Table[I].dwState)]));
     end;
   finally
-    // Не забываем освободить память
+    // РќРµ Р·Р°Р±С‹РІР°РµРј РѕСЃРІРѕР±РѕРґРёС‚СЊ РїР°РјСЏС‚СЊ
     FreeMem(TCPTable);
   end;
  
-  // По аналогии поступаем и с UDP статистикой
+  // РџРѕ Р°РЅР°Р»РѕРіРёРё РїРѕСЃС‚СѓРїР°РµРј Рё СЃ UDP СЃС‚Р°С‚РёСЃС‚РёРєРѕР№
   GetMem(UDPTable, SizeOf(TMibUDPTable));
   try
     Size := 0;
@@ -271,31 +264,31 @@ end;
  
 {$ELSE}
  
-// Получение TCP/UDP статистики при помощи недокументрированных методов
-// Работает только на ХР или Win 2003
+// РџРѕР»СѓС‡РµРЅРёРµ TCP/UDP СЃС‚Р°С‚РёСЃС‚РёРєРё РїСЂРё РїРѕРјРѕС‰Рё РЅРµРґРѕРєСѓРјРµРЅС‚СЂРёСЂРѕРІР°РЅРЅС‹С… РјРµС‚РѕРґРѕРІ
+// Р Р°Р±РѕС‚Р°РµС‚ С‚РѕР»СЊРєРѕ РЅР° РҐР  РёР»Рё Win 2003
 procedure TForm1.Button2Click(Sender: TObject);
  
-  // данная функция ищет процесс с th32ProcessID совпадающий с ProcessId
-  // и возвращает его имя
+  // РґР°РЅРЅР°СЏ С„СѓРЅРєС†РёСЏ РёС‰РµС‚ РїСЂРѕС†РµСЃСЃ СЃ th32ProcessID СЃРѕРІРїР°РґР°СЋС‰РёР№ СЃ ProcessId
+  // Рё РІРѕР·РІСЂР°С‰Р°РµС‚ РµРіРѕ РёРјСЏ
   function ProcessPIDToName(const hProcessSnap: THandle; ProcessId: DWORD): String;
   var
     processEntry: TProcessEntry32;
   begin
-    // Подготовительные действия
+    // РџРѕРґРіРѕС‚РѕРІРёС‚РµР»СЊРЅС‹Рµ РґРµР№СЃС‚РІРёСЏ
     Result := '';
     FillChar(processEntry, SizeOf(TProcessEntry32), #0);
     processEntry.dwSize := SizeOf(TProcessEntry32);
-    // Прыгаем на первый процесс в списке
+    // РџСЂС‹РіР°РµРј РЅР° РїРµСЂРІС‹Р№ РїСЂРѕС†РµСЃСЃ РІ СЃРїРёСЃРєРµ
     if not Process32First(hProcessSnap, processEntry) then Exit;
     repeat
-      // Сравнение
+      // РЎСЂР°РІРЅРµРЅРёРµ
       if processEntry.th32ProcessID = ProcessId then
       begin
-        // Если нашли нужный процесс - выводим результат и выходим
+        // Р•СЃР»Рё РЅР°С€Р»Рё РЅСѓР¶РЅС‹Р№ РїСЂРѕС†РµСЃСЃ - РІС‹РІРѕРґРёРј СЂРµР·СѓР»СЊС‚Р°С‚ Рё РІС‹С…РѕРґРёРј
         Result := String(processEntry.szExeFile);
         Exit;
       end;
-    // ищем пока не кончатся процессы
+    // РёС‰РµРј РїРѕРєР° РЅРµ РєРѕРЅС‡Р°С‚СЃСЏ РїСЂРѕС†РµСЃСЃС‹
     until not Process32Next(hProcessSnap, processEntry);
   end;
  
@@ -305,8 +298,8 @@ var
   I: DWORD;
   hProcessSnap: THandle;
 begin
-  // для определения каким процессом открыт тот или иной порт
-  // получаем список процессов
+  // РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РєР°РєРёРј РїСЂРѕС†РµСЃСЃРѕРј РѕС‚РєСЂС‹С‚ С‚РѕС‚ РёР»Рё РёРЅРѕР№ РїРѕСЂС‚
+  // РїРѕР»СѓС‡Р°РµРј СЃРїРёСЃРѕРє РїСЂРѕС†РµСЃСЃРѕРІ
   hProcessSnap := CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
   if (hProcessSnap = INVALID_HANDLE_VALUE) then
   begin
@@ -315,37 +308,37 @@ begin
     Exit;
   end;
   try
-    // Выполняем вот такую вот функцию
-    // она не документтрованна, но как видно из названия - она сама выделяет необходимую для работы
-    // память и нам остается только прочитать результат по завершении ее выполнения
+    // Р’С‹РїРѕР»РЅСЏРµРј РІРѕС‚ С‚Р°РєСѓСЋ РІРѕС‚ С„СѓРЅРєС†РёСЋ
+    // РѕРЅР° РЅРµ РґРѕРєСѓРјРµРЅС‚С‚СЂРѕРІР°РЅРЅР°, РЅРѕ РєР°Рє РІРёРґРЅРѕ РёР· РЅР°Р·РІР°РЅРёСЏ - РѕРЅР° СЃР°РјР° РІС‹РґРµР»СЏРµС‚ РЅРµРѕР±С…РѕРґРёРјСѓСЋ РґР»СЏ СЂР°Р±РѕС‚С‹
+    // РїР°РјСЏС‚СЊ Рё РЅР°Рј РѕСЃС‚Р°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РїСЂРѕС‡РёС‚Р°С‚СЊ СЂРµР·СѓР»СЊС‚Р°С‚ РїРѕ Р·Р°РІРµСЂС€РµРЅРёРё РµРµ РІС‹РїРѕР»РЅРµРЅРёСЏ
     if AllocateAndGetTcpExTableFromStack(@TCPExTable, False, GetProcessHeap, 2, 2) = NO_ERROR then
     try
       Memo1.Lines.Add('');
       Memo1.Lines.Add('Extended TCP Stats');
       Memo1.Lines.Add(Format('%15s: | %5s | %-12s | %20s | (%s)', ['Host', 'Port', 'State', 'Process name', 'ID']));
       Memo1.Lines.Add('==========================================================================');
-      // начинаем выводить информацию
+      // РЅР°С‡РёРЅР°РµРј РІС‹РІРѕРґРёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ
       for I := 0 to TCPExTable^.dwNumEntries - 1 do
         Memo1.Lines.Add(Format('%15s: | %5d | %-12s | %20s | (%d)',
           [inet_ntoa(in_addr(TCPExTable^.Table[I].dwLocalAddr)),
           htons(TCPExTable^.Table[I].dwLocalPort),
           PortStateToStr(TCPExTable^.Table[I].dwState),
-          // Вот здесь у нас происходит сопоставление процесса открытому порту
+          // Р’РѕС‚ Р·РґРµСЃСЊ Сѓ РЅР°СЃ РїСЂРѕРёСЃС…РѕРґРёС‚ СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРёРµ РїСЂРѕС†РµСЃСЃР° РѕС‚РєСЂС‹С‚РѕРјСѓ РїРѕСЂС‚Сѓ
           ProcessPIDToName(hProcessSnap, TCPExTable^.Table[I].dwProcessID),
           TCPExTable^.Table[I].dwProcessID]));
     finally
-      // Не забываем освободить память занятую функцией
+      // РќРµ Р·Р°Р±С‹РІР°РµРј РѕСЃРІРѕР±РѕРґРёС‚СЊ РїР°РјСЏС‚СЊ Р·Р°РЅСЏС‚СѓСЋ С„СѓРЅРєС†РёРµР№
       GlobalFreePtr(TCPExTable);
     end;
  
-    // По аналогии поступаем и с UDP статистикой
+    // РџРѕ Р°РЅР°Р»РѕРіРёРё РїРѕСЃС‚СѓРїР°РµРј Рё СЃ UDP СЃС‚Р°С‚РёСЃС‚РёРєРѕР№
     if AllocateAndGetUdpExTableFromStack(@UDPExTable, False, GetProcessHeap, 2, 2) = NO_ERROR then
     try
       Memo1.Lines.Add('');
       Memo1.Lines.Add('Extended UDP Stats');
       Memo1.Lines.Add(Format('%15s: | %5s | %20s | (%s)', ['Host', 'Port', 'Process name', 'ID']));
       Memo1.Lines.Add('==============================================================');
-      // начинаем выводить информацию
+      // РЅР°С‡РёРЅР°РµРј РІС‹РІРѕРґРёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ
       for I := 0 to UDPExTable^.dwNumEntries - 1 do
         Memo1.Lines.Add(Format('%15s: | %5d | %20s | (%d)',
           [inet_ntoa(in_addr(UDPExTable^.Table[I].dwLocalAddr)),
@@ -356,14 +349,14 @@ begin
       GlobalFreePtr(UDPExTable);
     end;
   finally
-    // Закрываем хэндл полученый от CreateToolhelp32Snapshot
+    // Р—Р°РєСЂС‹РІР°РµРј С…СЌРЅРґР» РїРѕР»СѓС‡РµРЅС‹Р№ РѕС‚ CreateToolhelp32Snapshot
     CloseHandle(hProcessSnap);
   end;
 end;
  
 {$ENDIF}
  
-// Функция преобразует состояние порта в строковый эквивалент
+// Р¤СѓРЅРєС†РёСЏ РїСЂРµРѕР±СЂР°Р·СѓРµС‚ СЃРѕСЃС‚РѕСЏРЅРёРµ РїРѕСЂС‚Р° РІ СЃС‚СЂРѕРєРѕРІС‹Р№ СЌРєРІРёРІР°Р»РµРЅС‚
 function TForm1.PortStateToStr(const State: DWORD): String;
 begin
   case State of
@@ -389,14 +382,14 @@ end.
 </pre>
 <p>&nbsp;<br>
 &nbsp;<br>
-<p>Проект также доступен по адресу: http://rouse.front.ru/tcpstat.zip </p>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
-<p id="author">Автор: Rouse_</p>
+<p>РџСЂРѕРµРєС‚ С‚Р°РєР¶Рµ РґРѕСЃС‚СѓРїРµРЅ РїРѕ Р°РґСЂРµСЃСѓ: http://rouse.front.ru/tcpstat.zip </p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ: Rouse_</p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

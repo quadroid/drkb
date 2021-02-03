@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Создание уменьшенной копии картинки</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РЎРѕР·РґР°РЅРёРµ СѓРјРµРЅСЊС€РµРЅРЅРѕР№ РєРѕРїРёРё РєР°СЂС‚РёРЅРєРё</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Создание уменьшенной копии картинки</h1>
+  <h1 id="title">РЎРѕР·РґР°РЅРёРµ СѓРјРµРЅСЊС€РµРЅРЅРѕР№ РєРѕРїРёРё РєР°СЂС‚РёРЅРєРё</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
  
@@ -53,7 +46,7 @@ var
 implementation
  
 {$R *.DFM}
-{===========================molda o formato do formulЯrio no bitmap}
+{===========================molda o formato do formulРЇrio no bitmap}
 function TFormScreen.BitmapToRegion(hBmp: TBitmap; TransColor: TColor): HRGN;
  
 const
@@ -79,11 +72,11 @@ begin
   Result := 0;
   if hBmp &lt;&gt; nil then
   begin
-    { Cria um Device Context onde serЯ armazenado o Bitmap }
+    { Cria um Device Context onde serРЇ armazenado o Bitmap }
     MemDC := CreateCompatibleDC(0);
     if MemDC &lt;&gt; 0 then
     begin
-     { Cria um Bitmap de 32 bits sem compressТo }
+     { Cria um Bitmap de 32 bits sem compressРўo }
       with BitmapInfo.bmiHeader do
       begin
         biSize          := sizeof(TBitmapInfoHeader);
@@ -113,9 +106,9 @@ begin
         holdBmp := SelectObject(DC, hBmp.Handle);
         BitBlt(MemDC, 0, 0, hBmp.Width, hBmp.Height, DC, 0, 0, SRCCOPY);
         {
-          Para melhor performance, serЯ utilizada a funюТo ExtCreasteRegion
-          para criar o HRGN. Esta funюТo recebe uma estrutura RGNDATA.
-          Cada estrutura terЯ 100 retФngulos por padrТo (ALLOC_UNIT)
+          Para melhor performance, serРЇ utilizada a funСЋРўo ExtCreasteRegion
+          para criar o HRGN. Esta funСЋРўo recebe uma estrutura RGNDATA.
+          Cada estrutura terРЇ 100 retР¤ngulos por padrРўo (ALLOC_UNIT)
         }
         maxRects := ALLOC_UNIT;
         hData := GlobalAlloc(GMEM_MOVEABLE, sizeof(TRgnDataHeader) +
@@ -131,7 +124,7 @@ begin
         CG := GetGValue(ColorToRGB(TransColor));
         CB := GetBValue(ColorToRGB(TransColor));
         {
-          Processa os pixels bitmap de baixo para cima, jЯ que bitmaps sТo
+          Processa os pixels bitmap de baixo para cima, jРЇ que bitmaps sРўo
           verticalmente invertidos.
         }
         p32 := bm32.bmBits;
@@ -143,7 +136,7 @@ begin
           while x+1 &lt; hBmp.Width do
           begin
             inc(x);
-            { Procura por uma faixa contЭnua de pixels nТo transparentes }
+            { Procura por uma faixa contР­nua de pixels nРўo transparentes }
             x0 := x;
             p := PLongInt(p32);
             inc(PChar(p), x * SizeOf(LongInt));
@@ -167,7 +160,7 @@ begin
             begin
               {
                 Adiciona o intervalo de pixels [(x0, y),(x, y+1)] como um novo
-                retФngulo na regiТo.
+                retР¤ngulo na regiРўo.
               }
               if pData^.rdh.nCount &gt;= maxRects then
               begin
@@ -190,17 +183,17 @@ begin
                 pData^.rdh.rcBound.Bottom := y+1;
               inc(pData^.rdh.nCount);
               {
-               No Windows98, a funюТo ExtCreateRegion() pode falhar se o n·mero
-               de retФngulos for maior que 4000. Por este motivo, a regiТo deve
-               ser criada por partes com menos de 4000 retФngulos. Neste caso, foram
-               padronizadas regi§es com 2000 retФngulos.
+               No Windows98, a funСЋРўo ExtCreateRegion() pode falhar se o nВ·mero
+               de retР¤ngulos for maior que 4000. Por este motivo, a regiРўo deve
+               ser criada por partes com menos de 4000 retР¤ngulos. Neste caso, foram
+               padronizadas regiВ§es com 2000 retР¤ngulos.
               }
               if pData^.rdh.nCount = 2000 then
               begin
                 h := ExtCreateRegion(NIL, SizeOf(TRgnDataHeader) +
                    (SizeOf(TRect) * maxRects), pData^);
                 Assert(h &lt;&gt; 0);
-               { Combina a regiТo parcial, recЪm criada, com as anteriores }
+               { Combina a regiРўo parcial, recРЄm criada, com as anteriores }
                 if Result &lt;&gt; 0 then
                 begin
                   CombineRgn(Result, Result, h, RGN_OR);
@@ -214,7 +207,7 @@ begin
           end;
           Dec(PChar(p32), bm32.bmWidthBytes);
         end;
-        { Cria a regiТo geral }
+        { Cria a regiРўo geral }
         h := ExtCreateRegion(NIL, SizeOf(TRgnDataHeader) +
            (SizeOf(TRect) * maxRects), pData^);
         Assert(h &lt;&gt; 0);
@@ -224,7 +217,7 @@ begin
           DeleteObject(h);
         end else
           Result := h;
-        { Com a regiТo final completa, o bitmap de 32 bits pode ser
+        { Com a regiРўo final completa, o bitmap de 32 bits pode ser
           removido da mem?ria, com todos os outros ponteiros que foram criados.}
         GlobalFree(hData);
         SelectObject(DC, holdBmp);
@@ -251,7 +244,7 @@ end;
  
  
  
-Para os outros formulЯrios basta declarar as seguintes linhas na procedure FormCreate
+Para os outros formulРЇrios basta declarar as seguintes linhas na procedure FormCreate
  
 procedure TFormXXXXXX.FormCreate(Sender: TObject);
 begin
@@ -268,10 +261,10 @@ end;
 <p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

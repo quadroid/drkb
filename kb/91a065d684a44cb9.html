@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Восстановление файла из корзины</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ С„Р°Р№Р»Р° РёР· РєРѕСЂР·РёРЅС‹</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,23 +13,16 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Восстановление файла из корзины</h1>
+  <h1 id="title">Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ С„Р°Р№Р»Р° РёР· РєРѕСЂР·РёРЅС‹</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 
-// Функция восстанавливает выбранный в ListView элемент из корзины...
+// Р¤СѓРЅРєС†РёСЏ РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РІС‹Р±СЂР°РЅРЅС‹Р№ РІ ListView СЌР»РµРјРµРЅС‚ РёР· РєРѕСЂР·РёРЅС‹...
 function RestoreElement(const AHandle: THandle; LV: TListView): Boolean;
  
   function GetLVItemText(const Index: Integer): String;
@@ -61,7 +54,7 @@ begin
           if RecycleBin.EnumObjects(AHandle,
             SHCONTF_FOLDERS or SHCONTF_NONFOLDERS or SHCONTF_INCLUDEHIDDEN, RecycleBinEnum) = S_OK  then
           begin
-            // Перечиляем содержимое корзины
+            // РџРµСЂРµС‡РёР»СЏРµРј СЃРѕРґРµСЂР¶РёРјРѕРµ РєРѕСЂР·РёРЅС‹
             while True do
             begin
               RecycleBinEnum.Next(1, Item, Fetched);
@@ -70,16 +63,16 @@ begin
               for I := 0 to DETAIL_COUNT - 1 do
                 if RecycleBin.GetDetailsOf(Item, I, Details) = S_OK then
                 try
-                  // Ищем нужный нам элемент
+                  // РС‰РµРј РЅСѓР¶РЅС‹Р№ РЅР°Рј СЌР»РµРјРµРЅС‚
                   Valid := GetLVItemText(I) = StrRetToString(Item, Details.str);
                   if not Valid then Break;
                 finally
                   Mallok.Free(Details.str.pOleStr);
                 end;
-              // Если выделенный элемент найден
+              // Р•СЃР»Рё РІС‹РґРµР»РµРЅРЅС‹Р№ СЌР»РµРјРµРЅС‚ РЅР°Р№РґРµРЅ
               if Valid then
               begin
-                // Восстанавливаем его при помощи интерфейса IContextMenu
+                // Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј РµРіРѕ РїСЂРё РїРѕРјРѕС‰Рё РёРЅС‚РµСЂС„РµР№СЃР° IContextMenu
                 if RecycleBin.GetUIObjectOf(AHandle, 1, Item,
                   IID_IContextMenu, nil, Pointer(Context)) = S_OK then
                 begin
@@ -88,10 +81,10 @@ begin
                   begin
                     cbSize := SizeOf(AInvokeCommand);
                     hwnd := AHandle;
-                    // - локализация не нужна...
-                    lpVerb := 'undelete'; // - восстановление фийла из корзины...
-                    //lpVerb := 'properties'; // - показ диалога свойства...
-                    //lpVerb := 'delete'; // - удаление файла из корзины...
+                    // - Р»РѕРєР°Р»РёР·Р°С†РёСЏ РЅРµ РЅСѓР¶РЅР°...
+                    lpVerb := 'undelete'; // - РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ С„РёР№Р»Р° РёР· РєРѕСЂР·РёРЅС‹...
+                    //lpVerb := 'properties'; // - РїРѕРєР°Р· РґРёР°Р»РѕРіР° СЃРІРѕР№СЃС‚РІР°...
+                    //lpVerb := 'delete'; // - СѓРґР°Р»РµРЅРёРµ С„Р°Р№Р»Р° РёР· РєРѕСЂР·РёРЅС‹...
                     fMask := 0;
                     lpDirectory := PChar(LV.Selected.SubItems.Strings[0]);
                     nShow := SW_SHOWNORMAL;
@@ -107,22 +100,22 @@ end;
 procedure TForm1.mnuRestoreClick(Sender: TObject);
 begin
   if ListView1.Selected &lt;&gt; nil then
-    if RestoreElement(Handle, ListView1) then ShowMessage('Элемент успешно восстановлен.');
+    if RestoreElement(Handle, ListView1) then ShowMessage('Р­Р»РµРјРµРЅС‚ СѓСЃРїРµС€РЅРѕ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅ.');
 end;
 </pre>
-<p>Пример работы с корзиной можно скачать здесь:<br>
+<p>РџСЂРёРјРµСЂ СЂР°Р±РѕС‚С‹ СЃ РєРѕСЂР·РёРЅРѕР№ РјРѕР¶РЅРѕ СЃРєР°С‡Р°С‚СЊ Р·РґРµСЃСЊ:<br>
 <p>&nbsp;</p>
 <p><a href="zip/rbin.zip">
 rbin.zip
 </a>
 </p>
-<p id="author">Автор: Rouse_</p>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ: Rouse_</p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

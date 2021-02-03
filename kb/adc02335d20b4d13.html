@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Загрузка INI-файла в TTreeView</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>Р—Р°РіСЂСѓР·РєР° INI-С„Р°Р№Р»Р° РІ TTreeView</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Загрузка INI-файла в TTreeView</h1>
+  <h1 id="title">Р—Р°РіСЂСѓР·РєР° INI-С„Р°Р№Р»Р° РІ TTreeView</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 procedure LoadIniToTree(const FName: string; Tree: TTreeView);
@@ -35,26 +28,26 @@ var LS, LV: TStrings;
     n: string;
     p: PString;
 begin
-     Tree.Items.Clear;  // очищаем дерево
-     with TIniFile.Create(FName) do  // пытаемся открыть файл FName
+     Tree.Items.Clear;  // РѕС‡РёС‰Р°РµРј РґРµСЂРµРІРѕ
+     with TIniFile.Create(FName) do  // РїС‹С‚Р°РµРјСЃСЏ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» FName
      try
-       LS := TStringList.Create;  // список названий секций
+       LS := TStringList.Create;  // СЃРїРёСЃРѕРє РЅР°Р·РІР°РЅРёР№ СЃРµРєС†РёР№
        try
-         ReadSections(LS);          // читаем все секции в список
-         LV := TStringList.Create;   // список пар "имя=значение"
+         ReadSections(LS);          // С‡РёС‚Р°РµРј РІСЃРµ СЃРµРєС†РёРё РІ СЃРїРёСЃРѕРє
+         LV := TStringList.Create;   // СЃРїРёСЃРѕРє РїР°СЂ "РёРјСЏ=Р·РЅР°С‡РµРЅРёРµ"
          try
-           for i := 0 to LS.Count-1 do   // для всех секций...
+           for i := 0 to LS.Count-1 do   // РґР»СЏ РІСЃРµС… СЃРµРєС†РёР№...
            begin
-             LV.Clear;                   // подготовим список
-             ReadSectionValues(LS[i], LV);  // читаем список пар "имя=значение" для текущей секции
-             root := Tree.Items.Add(nil, LS[i]); // добавляем корневой узел (имя текущей секции)
-             for j := 0 to LV.Count-1 do    // для всех пар "имя=значение"...
+             LV.Clear;                   // РїРѕРґРіРѕС‚РѕРІРёРј СЃРїРёСЃРѕРє
+             ReadSectionValues(LS[i], LV);  // С‡РёС‚Р°РµРј СЃРїРёСЃРѕРє РїР°СЂ "РёРјСЏ=Р·РЅР°С‡РµРЅРёРµ" РґР»СЏ С‚РµРєСѓС‰РµР№ СЃРµРєС†РёРё
+             root := Tree.Items.Add(nil, LS[i]); // РґРѕР±Р°РІР»СЏРµРј РєРѕСЂРЅРµРІРѕР№ СѓР·РµР» (РёРјСЏ С‚РµРєСѓС‰РµР№ СЃРµРєС†РёРё)
+             for j := 0 to LV.Count-1 do    // РґР»СЏ РІСЃРµС… РїР°СЂ "РёРјСЏ=Р·РЅР°С‡РµРЅРёРµ"...
              begin
-              n := LV.Names[j];  // выделяем "имя"
+              n := LV.Names[j];  // РІС‹РґРµР»СЏРµРј "РёРјСЏ"
  
-              // добавляем дочерний по отношению к root узел,
-              // в качестве текста исп. "имя"
-              // в качестве значения поля Data = "значение"
+              // РґРѕР±Р°РІР»СЏРµРј РґРѕС‡РµСЂРЅРёР№ РїРѕ РѕС‚РЅРѕС€РµРЅРёСЋ Рє root СѓР·РµР»,
+              // РІ РєР°С‡РµСЃС‚РІРµ С‚РµРєСЃС‚Р° РёСЃРї. "РёРјСЏ"
+              // РІ РєР°С‡РµСЃС‚РІРµ Р·РЅР°С‡РµРЅРёСЏ РїРѕР»СЏ Data = "Р·РЅР°С‡РµРЅРёРµ"
               New(p);
               p^ := LV.Values[n];
               Tree.Items.AddChildObject(root, n, p);
@@ -67,11 +60,11 @@ begin
          LS.Free;
        end;
      finally
-       Free;  // корректно уничтожаем объект TIniFile
+       Free;  // РєРѕСЂСЂРµРєС‚РЅРѕ СѓРЅРёС‡С‚РѕР¶Р°РµРј РѕР±СЉРµРєС‚ TIniFile
      end;
 end;
  
-// Применение:
+// РџСЂРёРјРµРЅРµРЅРёРµ:
  
 procedure TForm1.TreeView1Change(Sender: TObject; Node: TTreeNode);
 begin
@@ -86,7 +79,7 @@ begin
      end;
 end;
  
-// После использования не забыть освободить память, напр. так:
+// РџРѕСЃР»Рµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РЅРµ Р·Р°Р±С‹С‚СЊ РѕСЃРІРѕР±РѕРґРёС‚СЊ РїР°РјСЏС‚СЊ, РЅР°РїСЂ. С‚Р°Рє:
  
 procedure TForm1.TreeView1Deletion(Sender: TObject; Node: TTreeNode);
 begin
@@ -95,14 +88,14 @@ begin
 end;
 </pre>
 <p>&nbsp;<br>
-<p id="author">Автор: Dynamic </p>
+<p id="author">РђРІС‚РѕСЂ: Dynamic </p>
 &nbsp;<br>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

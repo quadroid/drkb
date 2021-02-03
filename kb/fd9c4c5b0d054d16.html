@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как связать определенное расширение файлов с моим приложением?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє СЃРІСЏР·Р°С‚СЊ РѕРїСЂРµРґРµР»РµРЅРЅРѕРµ СЂР°СЃС€РёСЂРµРЅРёРµ С„Р°Р№Р»РѕРІ СЃ РјРѕРёРј РїСЂРёР»РѕР¶РµРЅРёРµРј?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,29 +13,22 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как связать определенное расширение файлов с моим приложением?</h1>
+  <h1 id="title">РљР°Рє СЃРІСЏР·Р°С‚СЊ РѕРїСЂРµРґРµР»РµРЅРЅРѕРµ СЂР°СЃС€РёСЂРµРЅРёРµ С„Р°Р№Р»РѕРІ СЃ РјРѕРёРј РїСЂРёР»РѕР¶РµРЅРёРµРј?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>В Win32 необходимо создать новую запись в реестре в корневом ключе HKEY_CLASSES_ROOT, которая будет указывать на расширение файла, командную строку и иконку, которая будет отображаться для этого расширения. В Win16, просто включить расширение файла и командную строку в секцию [Extensions] в Win.ini.</p>
 
-<p>Пример:</p>
+<p>Р’ Win32 РЅРµРѕР±С…РѕРґРёРјРѕ СЃРѕР·РґР°С‚СЊ РЅРѕРІСѓСЋ Р·Р°РїРёСЃСЊ РІ СЂРµРµСЃС‚СЂРµ РІ РєРѕСЂРЅРµРІРѕРј РєР»СЋС‡Рµ HKEY_CLASSES_ROOT, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ СѓРєР°Р·С‹РІР°С‚СЊ РЅР° СЂР°СЃС€РёСЂРµРЅРёРµ С„Р°Р№Р»Р°, РєРѕРјР°РЅРґРЅСѓСЋ СЃС‚СЂРѕРєСѓ Рё РёРєРѕРЅРєСѓ, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ РѕС‚РѕР±СЂР°Р¶Р°С‚СЊСЃСЏ РґР»СЏ СЌС‚РѕРіРѕ СЂР°СЃС€РёСЂРµРЅРёСЏ. Р’ Win16, РїСЂРѕСЃС‚Рѕ РІРєР»СЋС‡РёС‚СЊ СЂР°СЃС€РёСЂРµРЅРёРµ С„Р°Р№Р»Р° Рё РєРѕРјР°РЅРґРЅСѓСЋ СЃС‚СЂРѕРєСѓ РІ СЃРµРєС†РёСЋ [Extensions] РІ Win.ini.</p>
+
+<p>РџСЂРёРјРµСЂ:</p>
 <pre name="code" class="delphi">
 uses 
   Registry, {For Win32} 
   IniFiles; {For Win16} 
  
-{Для Win32} 
+{Р”Р»СЏ Win32} 
 procedure TForm1.Button1Click(Sender: TObject); 
 var 
   reg: TRegistry; 
@@ -45,18 +38,18 @@ begin
   reg.LazyWrite := false; 
   {Add Program Support} 
   reg.OpenKey('.bor\shell\open\command', true); 
-  {Имя файла будет передавать в приложение как первый параметр}
+  {РРјСЏ С„Р°Р№Р»Р° Р±СѓРґРµС‚ РїРµСЂРµРґР°РІР°С‚СЊ РІ РїСЂРёР»РѕР¶РµРЅРёРµ РєР°Рє РїРµСЂРІС‹Р№ РїР°СЂР°РјРµС‚СЂ}
   reg.WriteString('', 'C:\Program Files\Borland\Delphi 3\Project1.exe %1'); 
-  {Добавляем отображаемую иконку}
+  {Р”РѕР±Р°РІР»СЏРµРј РѕС‚РѕР±СЂР°Р¶Р°РµРјСѓСЋ РёРєРѕРЅРєСѓ}
   reg.CloseKey; 
   reg.OpenKey('.bor\DefaultIcon',true); 
-  {Для отображения используем первую иконку в нашем приложении}
+  {Р”Р»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РёСЃРїРѕР»СЊР·СѓРµРј РїРµСЂРІСѓСЋ РёРєРѕРЅРєСѓ РІ РЅР°С€РµРј РїСЂРёР»РѕР¶РµРЅРёРё}
   reg.WriteString('', 'C:\Program Files\Borland\Delphi 3\Project1.exe,0');
   reg.CloseKey; 
   reg.free; 
 end; 
  
-{Для Win16} 
+{Р”Р»СЏ Win16} 
 procedure TForm1.Button2Click(Sender: TObject); 
 var 
   WinIni : TIniFile; 
@@ -75,13 +68,13 @@ begin
 end;
 </pre>
 
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

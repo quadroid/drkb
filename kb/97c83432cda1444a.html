@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Создаем собственный UnRar, используя unrar.dll</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РЎРѕР·РґР°РµРј СЃРѕР±СЃС‚РІРµРЅРЅС‹Р№ UnRar, РёСЃРїРѕР»СЊР·СѓСЏ unrar.dll</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,21 +13,14 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Создаем собственный UnRar, используя unrar.dll</h1>
+  <h1 id="title">РЎРѕР·РґР°РµРј СЃРѕР±СЃС‚РІРµРЅРЅС‹Р№ UnRar, РёСЃРїРѕР»СЊР·СѓСЏ unrar.dll</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>// Объявления</p>
+
+<p>// РћР±СЉСЏРІР»РµРЅРёСЏ</p>
 <pre name="code" class="delphi">
 function RAROpenArchive(ArchiveData : Pointer): Integer; stdcall;
 external 'unrar.dll' name 'RAROpenArchive'; 
@@ -69,7 +62,7 @@ type
   Char260 = Array [1..260] of Char;
  
   TRAROpenArchiveData = record
-   ArcName : PChar; // в C++ это будет выглядеть как: char *ArcName
+   ArcName : PChar; // РІ C++ СЌС‚Рѕ Р±СѓРґРµС‚ РІС‹РіР»СЏРґРµС‚СЊ РєР°Рє: char *ArcName
    OpenMode : Cardinal;
    OpenResult : Cardinal;
    CmtBuf : PChar;
@@ -124,12 +117,12 @@ begin
   RARStartTime:=Time;
  
   RAROpenArchiveData.OpenResult:=99;
-  RAROpenArchiveData.OpenMode := RAR_OM_EXTRACT; // открываем для распаковки
+  RAROpenArchiveData.OpenMode := RAR_OM_EXTRACT; // РѕС‚РєСЂС‹РІР°РµРј РґР»СЏ СЂР°СЃРїР°РєРѕРІРєРё
   RAROpenArchiveData.ArcName:= @RARFileName;
   RAROpenArchiveData.CmtBuf := @RARComment; 
   RAROpenArchiveData.CmtBufSize := 255; 
  
-// Открываем RAR архив и выделяем память
+// РћС‚РєСЂС‹РІР°РµРј RAR Р°СЂС…РёРІ Рё РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ
   RARhnd := RAROpenArchive (@RAROpenArchiveData);
   If RAROpenArchiveData.OpenResult &lt;&gt; 0 then
   begin
@@ -146,7 +139,7 @@ begin
   StrPCopy(@PDestPath, EInstallPath.Text);
  
   repeat
-   RARrc := RARReadHeader (RARhnd, @RARHeaderData);// Читаем заголовок
+   RARrc := RARReadHeader (RARhnd, @RARHeaderData);// Р§РёС‚Р°РµРј Р·Р°РіРѕР»РѕРІРѕРє
    if RARrc &lt;&gt; ERAR_END_ARCHIVE then
    begin
     ProgressBar1.Position := 0;
@@ -165,7 +158,7 @@ begin
    end;
   until RARrc &lt;&gt; 0;
  
-// закрываем RAR архив и освобождаем память
+// Р·Р°РєСЂС‹РІР°РµРј RAR Р°СЂС…РёРІ Рё РѕСЃРІРѕР±РѕР¶РґР°РµРј РїР°РјСЏС‚СЊ
   If RARCloseArchive(RARhnd) &lt;&gt; 0 then
   begin
    MessageDlg('Unable to close rar archive!',mtError, [mbOK], 0);
@@ -173,13 +166,13 @@ begin
 end; // ExtractRARArchive
 </pre>
 
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Получить из регистров информацию о временной зоне (DST)</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџРѕР»СѓС‡РёС‚СЊ РёР· СЂРµРіРёСЃС‚СЂРѕРІ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РІСЂРµРјРµРЅРЅРѕР№ Р·РѕРЅРµ (DST)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,40 +13,33 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Получить из регистров информацию о временной зоне (DST)</h1>
+  <h1 id="title">РџРѕР»СѓС‡РёС‚СЊ РёР· СЂРµРіРёСЃС‚СЂРѕРІ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РІСЂРµРјРµРЅРЅРѕР№ Р·РѕРЅРµ (DST)</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
-HKEYLocalMachine/Software/Microsoft/Windows/CurrentVersion/TimeZones/ - место, где в регистре хранится информация о временных зонах (Timezone). Двоичный код 'TZI' хранит информацию о начале и конце летнего времени. Есть какие-нибудь идеи насчет извлечения этих дат из этой двоичной величины? </p>
-<p>Ок, попробую здесь описать бинарную структуру значения TZI:</p>
+
+HKEYLocalMachine/Software/Microsoft/Windows/CurrentVersion/TimeZones/ - РјРµСЃС‚Рѕ, РіРґРµ РІ СЂРµРіРёСЃС‚СЂРµ С…СЂР°РЅРёС‚СЃСЏ РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ РІСЂРµРјРµРЅРЅС‹С… Р·РѕРЅР°С… (Timezone). Р”РІРѕРёС‡РЅС‹Р№ РєРѕРґ 'TZI' С…СЂР°РЅРёС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РЅР°С‡Р°Р»Рµ Рё РєРѕРЅС†Рµ Р»РµС‚РЅРµРіРѕ РІСЂРµРјРµРЅРё. Р•СЃС‚СЊ РєР°РєРёРµ-РЅРёР±СѓРґСЊ РёРґРµРё РЅР°СЃС‡РµС‚ РёР·РІР»РµС‡РµРЅРёСЏ СЌС‚РёС… РґР°С‚ РёР· СЌС‚РѕР№ РґРІРѕРёС‡РЅРѕР№ РІРµР»РёС‡РёРЅС‹? </p>
+<p>РћРє, РїРѕРїСЂРѕР±СѓСЋ Р·РґРµСЃСЊ РѕРїРёСЃР°С‚СЊ Р±РёРЅР°СЂРЅСѓСЋ СЃС‚СЂСѓРєС‚СѓСЂСѓ Р·РЅР°С‡РµРЅРёСЏ TZI:</p>
 <pre name="code" class="delphi">
-int32 Bias;             // Минуты от GMT
-                        // (Сидней -600; 0xfffffda8;
-                        // или a8, fd, ff, ff)
-int32 StandardBias;     // Смещение для стандартного времени (0)
-int32 DaylightBias;     // Смещение для летнего времени (-60
-                        // или 0xffffffc4 )
+int32 Bias;             // РњРёРЅСѓС‚С‹ РѕС‚ GMT
+                        // (РЎРёРґРЅРµР№ -600; 0xfffffda8;
+                        // РёР»Рё a8, fd, ff, ff)
+int32 StandardBias;     // РЎРјРµС‰РµРЅРёРµ РґР»СЏ СЃС‚Р°РЅРґР°СЂС‚РЅРѕРіРѕ РІСЂРµРјРµРЅРё (0)
+int32 DaylightBias;     // РЎРјРµС‰РµРЅРёРµ РґР»СЏ Р»РµС‚РЅРµРіРѕ РІСЂРµРјРµРЅРё (-60
+                        // РёР»Рё 0xffffffc4 )
 int16 ??                          // 0
-int16 StandardStartMonth;         // 3 =&gt; Март
-int16 StandardStartDayOfWeek??;   // 0 =&gt; Воскресенье
-int16 StandardStartDOWoccurrence; // 1 =&gt; 1-й
+int16 StandardStartMonth;         // 3 =&gt; РњР°СЂС‚
+int16 StandardStartDayOfWeek??;   // 0 =&gt; Р’РѕСЃРєСЂРµСЃРµРЅСЊРµ
+int16 StandardStartDOWoccurrence; // 1 =&gt; 1-Р№
 int16 StandardStartHour;          // 2 =&gt; 02:00:00.00
 int16 StandardStartMins??;        // 0 =&gt; 02:00:00.00
 int16 StandardStartSecs??;        // 0 =&gt; 02:00:00.00
 int16 StandardStartHunds??;       // 0 =&gt; 02:00:00.00
 int16 ??                          // 0
-int16 DaylightStartMonth;         // 0x0a (10) =&gt; Октябрь
-int16 DaylightStartDayOfWeek??;   // 0 =&gt; Воскресенье
-int16 DaylightStartDOWoccurrence; // 5 =&gt; последний
+int16 DaylightStartMonth;         // 0x0a (10) =&gt; РћРєС‚СЏР±СЂСЊ
+int16 DaylightStartDayOfWeek??;   // 0 =&gt; Р’РѕСЃРєСЂРµСЃРµРЅСЊРµ
+int16 DaylightStartDOWoccurrence; // 5 =&gt; РїРѕСЃР»РµРґРЅРёР№
 int16 DaylightStartHour;          // 2 =&gt; 02:00:00.00
 int16 DaylightStartMins??;        // 0 =&gt; 02:00:00.00
 int16 DaylightStartSecs??;        // 0 =&gt; 02:00:00.00
@@ -57,10 +50,10 @@ int16 DaylightStartHunds??;       // 0 =&gt; 02:00:00.00
 <p>DelphiWorld 6.0</p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Алгоритм уплотнения данных по методу Хафмана</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РђР»РіРѕСЂРёС‚Рј СѓРїР»РѕС‚РЅРµРЅРёСЏ РґР°РЅРЅС‹С… РїРѕ РјРµС‚РѕРґСѓ РҐР°С„РјР°РЅР°</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,26 +13,19 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Алгоритм уплотнения данных по методу Хафмана</h1>
+  <h1 id="title">РђР»РіРѕСЂРёС‚Рј СѓРїР»РѕС‚РЅРµРЅРёСЏ РґР°РЅРЅС‹С… РїРѕ РјРµС‚РѕРґСѓ РҐР°С„РјР°РЅР°</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 {$A+,B-,D+,E+,F-,G-,I-,L+,N-,O-,R+,S+,V+,X-}
 {$M 16384,0,655360}
 {******************************************************}
-{*         Алгоритм уплотнения данных по методу       *}
-{*                     Хафмана.                       *}
+{*         РђР»РіРѕСЂРёС‚Рј СѓРїР»РѕС‚РЅРµРЅРёСЏ РґР°РЅРЅС‹С… РїРѕ РјРµС‚РѕРґСѓ       *}
+{*                     РҐР°С„РјР°РЅР°.                       *}
 {******************************************************}
 Program Hafman;
  
@@ -41,8 +34,8 @@ Uses Crt,Dos,Printer;
 Type    PCodElement = ^CodElement;
         CodElement = record
                       NewLeft,NewRight,
-                      P0, P1 : PCodElement;   {элемент входящий одновременно}
-                      LengthBiteChain : byte; { в массив , очередь и дерево }
+                      P0, P1 : PCodElement;   {СЌР»РµРјРµРЅС‚ РІС…РѕРґСЏС‰РёР№ РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ}
+                      LengthBiteChain : byte; { РІ РјР°СЃСЃРёРІ , РѕС‡РµСЂРµРґСЊ Рё РґРµСЂРµРІРѕ }
                       BiteChain : word;
                       CounterEnter : word;
                       Key : boolean;
@@ -76,7 +69,7 @@ Var     CurPoint,HelpPoint,
 {-------------------------------------------------}
  
 procedure ErrorMessage;
-{ --- вывод сообщения об ошибке --- }
+{ --- РІС‹РІРѕРґ СЃРѕРѕР±С‰РµРЅРёСЏ РѕР± РѕС€РёР±РєРµ --- }
 begin
  If ErrorByte &lt;&gt; 0 then
   begin
@@ -98,7 +91,7 @@ begin
 end;
  
 procedure ResetFile;
-{ --- открытие файла для архивации --- }
+{ --- РѕС‚РєСЂС‹С‚РёРµ С„Р°Р№Р»Р° РґР»СЏ Р°СЂС…РёРІР°С†РёРё --- }
 Var St : string;
 begin
   Assign(InputF, ParamStr(3));
@@ -109,7 +102,7 @@ begin
 end;
  
 procedure ResetArchiv;
-{ --- открытие файла архива, или его создание --- }
+{ --- РѕС‚РєСЂС‹С‚РёРµ С„Р°Р№Р»Р° Р°СЂС…РёРІР°, РёР»Рё РµРіРѕ СЃРѕР·РґР°РЅРёРµ --- }
 begin
   St:=ParamStr(2);
   If Pos('.',St)&lt;&gt;0 then Delete(St,Pos('.',St),4);
@@ -128,7 +121,7 @@ begin
 end;
  
 procedure SearchNameInArchiv;
-{ --- в дальнейшем - поиск имени файла в архиве --- }
+{ --- РІ РґР°Р»СЊРЅРµР№С€РµРј - РїРѕРёСЃРє РёРјРµРЅРё С„Р°Р№Р»Р° РІ Р°СЂС…РёРІРµ --- }
 begin
  Seek(OutputF,FileSize(OutputF));
  ErrorByte:=IOResult;
@@ -136,14 +129,14 @@ begin
 end;
  
 procedure DisposeCodeTable;
-{ --- уничтожение кодовой таблицы и очереди --- }
+{ --- СѓРЅРёС‡С‚РѕР¶РµРЅРёРµ РєРѕРґРѕРІРѕР№ С‚Р°Р±Р»РёС†С‹ Рё РѕС‡РµСЂРµРґРё --- }
 Var I : byte;
 begin
  For I:=0 to 255 do Dispose(CodeTable[I]);
 end;
  
 procedure ClosePakFile;
-{ --- закрытие архивируемого файла --- }
+{ --- Р·Р°РєСЂС‹С‚РёРµ Р°СЂС…РёРІРёСЂСѓРµРјРѕРіРѕ С„Р°Р№Р»Р° --- }
 Var I : byte;
 begin
  If DeleteFile then Erase(InputF);
@@ -152,14 +145,14 @@ begin
 end;
  
 procedure CloseArchiv;
-{ --- закрытие архивного файла --- }
+{ --- Р·Р°РєСЂС‹С‚РёРµ Р°СЂС…РёРІРЅРѕРіРѕ С„Р°Р№Р»Р° --- }
 begin
  If FileSize(OutputF)=0 then Erase(OutputF);
  Close(OutputF);
 end;
  
 procedure InitCodeTable;
-{ --- инициализация таблицы кодировки --- }
+{ --- РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ С‚Р°Р±Р»РёС†С‹ РєРѕРґРёСЂРѕРІРєРё --- }
 Var I : byte;
 begin
  For I:=0 to 255 do
@@ -189,7 +182,7 @@ begin
 end;
  
 procedure SortQueueByte;
-{ --- пузырьковая сортировка по возрастанию --- }
+{ --- РїСѓР·С‹СЂСЊРєРѕРІР°СЏ СЃРѕСЂС‚РёСЂРѕРІРєР° РїРѕ РІРѕР·СЂР°СЃС‚Р°РЅРёСЋ --- }
 Var Pr1,Pr2 : PCodElement;
 begin
  CurPoint:=LeftRange;
@@ -216,7 +209,7 @@ begin
 end;
  
 procedure CounterNumberEnter;
-{ --- подсчет частот вхождений байтов в блоке --- }
+{ --- РїРѕРґСЃС‡РµС‚ С‡Р°СЃС‚РѕС‚ РІС…РѕР¶РґРµРЅРёР№ Р±Р°Р№С‚РѕРІ РІ Р±Р»РѕРєРµ --- }
 Var C : word;
 begin
  For C:=0 to NumRead-1 do
@@ -224,7 +217,7 @@ begin
 end;
  
 function SearchOpenCode : boolean;
-{ --- поиск в очереди пары открытых по Key минимальных значений --- }
+{ --- РїРѕРёСЃРє РІ РѕС‡РµСЂРµРґРё РїР°СЂС‹ РѕС‚РєСЂС‹С‚С‹С… РїРѕ Key РјРёРЅРёРјР°Р»СЊРЅС‹С… Р·РЅР°С‡РµРЅРёР№ --- }
 begin
  CurPoint:=LeftRange;
  HelpPoint:=LeftRange;
@@ -241,7 +234,7 @@ begin
 end;
  
 procedure CreateTree;
-{ --- создание дерева частот вхождения --- }
+{ --- СЃРѕР·РґР°РЅРёРµ РґРµСЂРµРІР° С‡Р°СЃС‚РѕС‚ РІС…РѕР¶РґРµРЅРёСЏ --- }
 begin
  While SearchOpenCode do
   begin
@@ -260,7 +253,7 @@ begin
    HelpPoint:=LeftRange;
    While (HelpPoint^.CounterEnter &lt; Root^.CounterEnter) and
     (HelpPoint&lt;&gt;Nil) do HelpPoint:=HelpPoint^.NewRight;
-   If HelpPoint=Nil then { добавление в конец }
+   If HelpPoint=Nil then { РґРѕР±Р°РІР»РµРЅРёРµ РІ РєРѕРЅРµС† }
     begin
      Root^.NewLeft:=RightRange;
      RightRange^.NewRight:=Root;
@@ -269,7 +262,7 @@ begin
     end
 .
    else
-    begin { вставка перед HelpPoint }
+    begin { РІСЃС‚Р°РІРєР° РїРµСЂРµРґ HelpPoint }
      Root^.NewLeft:=HelpPoint^.NewLeft;
      HelpPoint^.NewLeft:=Root;
      Root^.NewRight:=HelpPoint;
@@ -279,7 +272,7 @@ begin
 end;
  
 procedure ViewTree( P : PCodElement );
-{ --- просмотр дерева частот и присваивание кодировочных цепей листьям --- }
+{ --- РїСЂРѕСЃРјРѕС‚СЂ РґРµСЂРµРІР° С‡Р°СЃС‚РѕС‚ Рё РїСЂРёСЃРІР°РёРІР°РЅРёРµ РєРѕРґРёСЂРѕРІРѕС‡РЅС‹С… С†РµРїРµР№ Р»РёСЃС‚СЊСЏРј --- }
 Var Mask,I : word;
 begin
  Inc(CounterBite);
@@ -301,7 +294,7 @@ begin
 end;
  
 procedure CreateCompressCode;
-{ --- обнуление переменных и запуск просмотра дерева с вершины --- }
+{ --- РѕР±РЅСѓР»РµРЅРёРµ РїРµСЂРµРјРµРЅРЅС‹С… Рё Р·Р°РїСѓСЃРє РїСЂРѕСЃРјРѕС‚СЂР° РґРµСЂРµРІР° СЃ РІРµСЂС€РёРЅС‹ --- }
 begin
  BiteChain:=0;
  CounterBite:=0;
@@ -310,7 +303,7 @@ begin
 end;
  
 procedure DeleteTree;
-{ --- удаление дерева --- }
+{ --- СѓРґР°Р»РµРЅРёРµ РґРµСЂРµРІР° --- }
 Var P : PCodElement;
 begin
  CurPoint:=LeftRange;
@@ -334,7 +327,7 @@ begin
 end;
  
 procedure SaveBufHeader;
-{ --- запись в буфер заголовка архива --- }
+{ --- Р·Р°РїРёСЃСЊ РІ Р±СѓС„РµСЂ Р·Р°РіРѕР»РѕРІРєР° Р°СЂС…РёРІР° --- }
 Type
       ByteField = array[0..6] of byte;
 Const
@@ -353,7 +346,7 @@ begin
 end;
  
 procedure SaveBufFATInfo;
-{ --- запись в буфер всей информации по файлу --- }
+{ --- Р·Р°РїРёСЃСЊ РІ Р±СѓС„РµСЂ РІСЃРµР№ РёРЅС„РѕСЂРјР°С†РёРё РїРѕ С„Р°Р№Р»Сѓ --- }
 Var I : byte;
     St : PathStr;
     R : SearchRec;
@@ -374,7 +367,7 @@ begin
 end;
  
 procedure SaveBufCodeArray;
-{ --- сохранить массив частот вхождений в архивном файле --- }
+{ --- СЃРѕС…СЂР°РЅРёС‚СЊ РјР°СЃСЃРёРІ С‡Р°СЃС‚РѕС‚ РІС…РѕР¶РґРµРЅРёР№ РІ Р°СЂС…РёРІРЅРѕРј С„Р°Р№Р»Рµ --- }
 Var I : byte;
 begin
  For I:=0 to 255 do
@@ -387,21 +380,21 @@ begin
 end;
 .
 procedure CreateCodeArchiv;
-{ --- создание кода сжатия --- }
+{ --- СЃРѕР·РґР°РЅРёРµ РєРѕРґР° СЃР¶Р°С‚РёСЏ --- }
 begin
- InitCodeTable;      { инициализация кодовой таблицы                      }
- CounterNumberEnter; { подсчет числа вхождений байт в блок                }
- SortQueueByte;      { cортировка по возрастанию числа вхождений          }
- SaveBufHeader;      { сохранить заголовок архива в буфере                }
- SaveBufFATInfo;     { сохраняется FAT информация по файлу                }
- SaveBufCodeArray;   { сохранить массив частот вхождений в архивном файле }
- CreateTree;         { создание дерева частот                             }
- CreateCompressCode; { cоздание кода сжатия                               }
- DeleteTree;         { удаление дерева частот                             }
+ InitCodeTable;      { РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РєРѕРґРѕРІРѕР№ С‚Р°Р±Р»РёС†С‹                      }
+ CounterNumberEnter; { РїРѕРґСЃС‡РµС‚ С‡РёСЃР»Р° РІС…РѕР¶РґРµРЅРёР№ Р±Р°Р№С‚ РІ Р±Р»РѕРє                }
+ SortQueueByte;      { cРѕСЂС‚РёСЂРѕРІРєР° РїРѕ РІРѕР·СЂР°СЃС‚Р°РЅРёСЋ С‡РёСЃР»Р° РІС…РѕР¶РґРµРЅРёР№          }
+ SaveBufHeader;      { СЃРѕС…СЂР°РЅРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє Р°СЂС…РёРІР° РІ Р±СѓС„РµСЂРµ                }
+ SaveBufFATInfo;     { СЃРѕС…СЂР°РЅСЏРµС‚СЃСЏ FAT РёРЅС„РѕСЂРјР°С†РёСЏ РїРѕ С„Р°Р№Р»Сѓ                }
+ SaveBufCodeArray;   { СЃРѕС…СЂР°РЅРёС‚СЊ РјР°СЃСЃРёРІ С‡Р°СЃС‚РѕС‚ РІС…РѕР¶РґРµРЅРёР№ РІ Р°СЂС…РёРІРЅРѕРј С„Р°Р№Р»Рµ }
+ CreateTree;         { СЃРѕР·РґР°РЅРёРµ РґРµСЂРµРІР° С‡Р°СЃС‚РѕС‚                             }
+ CreateCompressCode; { cРѕР·РґР°РЅРёРµ РєРѕРґР° СЃР¶Р°С‚РёСЏ                               }
+ DeleteTree;         { СѓРґР°Р»РµРЅРёРµ РґРµСЂРµРІР° С‡Р°СЃС‚РѕС‚                             }
 end;
  
 procedure PakOneByte;
-{ --- сжатие и пересылка в выходной буфер одного байта --- }
+{ --- СЃР¶Р°С‚РёРµ Рё РїРµСЂРµСЃС‹Р»РєР° РІ РІС‹С…РѕРґРЅРѕР№ Р±СѓС„РµСЂ РѕРґРЅРѕРіРѕ Р±Р°Р№С‚Р° --- }
 Var Mask : word;
     Tail : boolean;
 begin
@@ -437,7 +430,7 @@ begin
 end;
  
 procedure PakFile;
-{ --- процедура непосредственного сжатия файла --- }
+{ --- РїСЂРѕС†РµРґСѓСЂР° РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕРіРѕ СЃР¶Р°С‚РёСЏ С„Р°Р№Р»Р° --- }
 begin
  ResetFile;
  SearchNameInArchiv;
@@ -463,7 +456,7 @@ begin
 end;
  
 procedure ResetUnPakFiles;
-{ --- открытие файла для распаковки --- }
+{ --- РѕС‚РєСЂС‹С‚РёРµ С„Р°Р№Р»Р° РґР»СЏ СЂР°СЃРїР°РєРѕРІРєРё --- }
 begin
  InCounter:=7;
  St:='';
@@ -488,7 +481,7 @@ begin
 end;
  
 procedure CloseUnPakFile;
-{ --- закрытие файла для распаковки --- }
+{ --- Р·Р°РєСЂС‹С‚РёРµ С„Р°Р№Р»Р° РґР»СЏ СЂР°СЃРїР°РєРѕРІРєРё --- }
 begin
  If not NormalWork then Erase(InterF)
   else
@@ -500,7 +493,7 @@ begin
 end;
  
 procedure RestoryCodeTable;
-{ --- воссоздание кодовой таблицы по архивному файлу --- }
+{ --- РІРѕСЃСЃРѕР·РґР°РЅРёРµ РєРѕРґРѕРІРѕР№ С‚Р°Р±Р»РёС†С‹ РїРѕ Р°СЂС…РёРІРЅРѕРјСѓ С„Р°Р№Р»Сѓ --- }
 Var I : byte;
 begin
  InitCodeTable;
@@ -516,7 +509,7 @@ begin
 end;
  
 procedure UnPakByte( P : PCodElement );
-{ --- распаковка одного байта --- }
+{ --- СЂР°СЃРїР°РєРѕРІРєР° РѕРґРЅРѕРіРѕ Р±Р°Р№С‚Р° --- }
 Var Mask : word;
 begin
  If (P^.P0=Nil) and (P^.P1=Nil) then
@@ -545,14 +538,14 @@ begin
     end;
    Mask:=InBuf[InCounter];
    Mask:=Mask SHL (CounterBite-1);
-   Mask:=Mask OR $FF7F; { установка всех битов кроме старшего }
+   Mask:=Mask OR $FF7F; { СѓСЃС‚Р°РЅРѕРІРєР° РІСЃРµС… Р±РёС‚РѕРІ РєСЂРѕРјРµ СЃС‚Р°СЂС€РµРіРѕ }
    If Mask=$FFFF then UnPakByte(P^.P1)
     else UnPakByte(P^.P0);
   end;
 end;
  
 procedure UnPakFile;
-{ --- распаковка одного файла --- }
+{ --- СЂР°СЃРїР°РєРѕРІРєР° РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р° --- }
 begin
  BlockRead(OutputF,InBuf,SizeOf(InBuf),NumRead);
  ErrorByte:=IOResult;
@@ -562,7 +555,7 @@ begin
   begin
    RestoryCodeTable;
    SortQueueByte;
-   CreateTree;                   { создание дерева частот }
+   CreateTree;                   { СЃРѕР·РґР°РЅРёРµ РґРµСЂРµРІР° С‡Р°СЃС‚РѕС‚ }
    CreateCompressCode;
    CounterBite:=0;
 .
@@ -603,10 +596,10 @@ end.
 </pre>
 <p><a href="http://algolist.manual.ru" target="_blank">http://algolist.manual.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

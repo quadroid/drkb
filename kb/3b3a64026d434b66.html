@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Шифрование SHA-1</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РЁРёС„СЂРѕРІР°РЅРёРµ SHA-1</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Шифрование SHA-1</h1>
+  <h1 id="title">РЁРёС„СЂРѕРІР°РЅРёРµ SHA-1</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 unit main;
@@ -75,12 +68,12 @@ const
   K4=$CA62C1D6;
  
  
-var H0,H1,H2,H3,H4:integer;  Hout:string;  //Hout - результат
+var H0,H1,H2,H3,H4:integer;  Hout:string;  //Hout - СЂРµР·СѓР»СЊС‚Р°С‚
     StopScan:boolean;
 implementation
 {$R *.DFM}
  
-function rol(const x:integer;const y:byte):integer ;     //сдвиг числа x на y бит влево
+function rol(const x:integer;const y:byte):integer ;     //СЃРґРІРёРі С‡РёСЃР»Р° x РЅР° y Р±РёС‚ РІР»РµРІРѕ
 begin
   asm
     mov  eax,x
@@ -91,7 +84,7 @@ begin
   result:=x;
 end;
  
-procedure INIT;        //Инициализация - присвоить пересенным значения констант
+procedure INIT;        //РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ - РїСЂРёСЃРІРѕРёС‚СЊ РїРµСЂРµСЃРµРЅРЅС‹Рј Р·РЅР°С‡РµРЅРёСЏ РєРѕРЅСЃС‚Р°РЅС‚
 begin
   H0:=HC0;//$67452301;
   H1:=HC1;//$EFCDAB89;
@@ -101,27 +94,27 @@ begin
   Hout:='';
 end;
  
-function PADDING(s:string;FS:integer):string;     //добавление одного бита (1000000=128) и добавление нулей до кратности 64 байтам
+function PADDING(s:string;FS:integer):string;     //РґРѕР±Р°РІР»РµРЅРёРµ РѕРґРЅРѕРіРѕ Р±РёС‚Р° (1000000=128) Рё РґРѕР±Р°РІР»РµРЅРёРµ РЅСѓР»РµР№ РґРѕ РєСЂР°С‚РЅРѕСЃС‚Рё 64 Р±Р°Р№С‚Р°Рј
 var size,i:integer;
 begin
-size:=Length(s)*8;   //size -входной размер в битах
-s:=s+char(128);    //добавление одного бита  (1000000=128)
+size:=Length(s)*8;   //size -РІС…РѕРґРЅРѕР№ СЂР°Р·РјРµСЂ РІ Р±РёС‚Р°С…
+s:=s+char(128);    //РґРѕР±Р°РІР»РµРЅРёРµ РѕРґРЅРѕРіРѕ Р±РёС‚Р°  (1000000=128)
  
-while (Length(s) mod 64) &lt;&gt;0 do s:=s+#0;     //добавление нулей до кратности 64  байтам
+while (Length(s) mod 64) &lt;&gt;0 do s:=s+#0;     //РґРѕР±Р°РІР»РµРЅРёРµ РЅСѓР»РµР№ РґРѕ РєСЂР°С‚РЅРѕСЃС‚Рё 64  Р±Р°Р№С‚Р°Рј
  
 //############   #############    //   IF  ((size) &gt;= 448) then // OLD
  
-IF  ((size mod 512) &gt;= 448) then         // если хвост превышает 48 байт то добавить пустой блок из 64 нулей
+IF  ((size mod 512) &gt;= 448) then         // РµСЃР»Рё С…РІРѕСЃС‚ РїСЂРµРІС‹С€Р°РµС‚ 48 Р±Р°Р№С‚ С‚Рѕ РґРѕР±Р°РІРёС‚СЊ РїСѓСЃС‚РѕР№ Р±Р»РѕРє РёР· 64 РЅСѓР»РµР№
                     begin
-                      s:=s+#0;                                 //добавление нулей до кратности 64
+                      s:=s+#0;                                 //РґРѕР±Р°РІР»РµРЅРёРµ РЅСѓР»РµР№ РґРѕ РєСЂР°С‚РЅРѕСЃС‚Рё 64
                       while (Length(s) mod 64) &lt;&gt;0 do s:=s+#0;
                     end;
  
       i:=Length(s);size:=FS*8;
-      while size &gt; 0 do             //запись в конец строки её размер
+      while size &gt; 0 do             //Р·Р°РїРёСЃСЊ РІ РєРѕРЅРµС† СЃС‚СЂРѕРєРё РµС‘ СЂР°Р·РјРµСЂ
       begin
-      s[i]:=char(byte(size));      //получение младшего байта
-      size:=size shr 8;            //сдвиг вправо на 8 бит - перенос старшего байта на место младшего
+      s[i]:=char(byte(size));      //РїРѕР»СѓС‡РµРЅРёРµ РјР»Р°РґС€РµРіРѕ Р±Р°Р№С‚Р°
+      size:=size shr 8;            //СЃРґРІРёРі РІРїСЂР°РІРѕ РЅР° 8 Р±РёС‚ - РїРµСЂРµРЅРѕСЃ СЃС‚Р°СЂС€РµРіРѕ Р±Р°Р№С‚Р° РЅР° РјРµСЃС‚Рѕ РјР»Р°РґС€РµРіРѕ
       i:=i-1;
       end;
 Result:=s;
@@ -145,7 +138,7 @@ begin
  
   A:=H0;B:=H1;C:=H2;D:=H3;E:=H4;
  
-{  for t:=0 to 79 do                            // Разделить на 4 цикла !!!  * * * * * * * * * * * * * * *
+{  for t:=0 to 79 do                            // Р Р°Р·РґРµР»РёС‚СЊ РЅР° 4 С†РёРєР»Р° !!!  * * * * * * * * * * * * * * *
     begin
        if (t&gt;=0)  AND (t&lt;=19) then  TEMP:=ROL(A,5)+((B AND C) OR ((NOT B) AND D))       +E+K1+W[t];
        if (t&gt;=20) AND (t&lt;=39) then  TEMP:=ROL(A,5)+(B XOR C XOR D)                      +E+K2+W[t];
@@ -343,10 +336,10 @@ end.
 </pre>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

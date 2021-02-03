@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Получение пользователя и домена, под которым работает текущий процесс</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџРѕР»СѓС‡РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Рё РґРѕРјРµРЅР°, РїРѕРґ РєРѕС‚РѕСЂС‹Рј СЂР°Р±РѕС‚Р°РµС‚ С‚РµРєСѓС‰РёР№ РїСЂРѕС†РµСЃСЃ</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,23 +13,16 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Получение пользователя и домена, под которым работает текущий процесс</h1>
+  <h1 id="title">РџРѕР»СѓС‡РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Рё РґРѕРјРµРЅР°, РїРѕРґ РєРѕС‚РѕСЂС‹Рј СЂР°Р±РѕС‚Р°РµС‚ С‚РµРєСѓС‰РёР№ РїСЂРѕС†РµСЃСЃ</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
-// Пример получения имени пользователя и домена под которым работает 
-// текущий поток или процесс 
+// РџСЂРёРјРµСЂ РїРѕР»СѓС‡РµРЅРёСЏ РёРјРµРЅРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Рё РґРѕРјРµРЅР° РїРѕРґ РєРѕС‚РѕСЂС‹Рј СЂР°Р±РѕС‚Р°РµС‚ 
+// С‚РµРєСѓС‰РёР№ РїРѕС‚РѕРє РёР»Рё РїСЂРѕС†РµСЃСЃ 
 type
  PTOKEN_USER = ^TOKEN_USER;
  _TOKEN_USER = record
@@ -47,16 +40,16 @@ var
  snu    : SID_NAME_USE;
 begin
  Result:=false;
- // Получаем маркер доступа текущего потока нашего процесса
+ // РџРѕР»СѓС‡Р°РµРј РјР°СЂРєРµСЂ РґРѕСЃС‚СѓРїР° С‚РµРєСѓС‰РµРіРѕ РїРѕС‚РѕРєР° РЅР°С€РµРіРѕ РїСЂРѕС†РµСЃСЃР°
  if not OpenThreadToken(GetCurrentThread(),TOKEN_QUERY,true,hToken)
   then begin
    if GetLastError()&lt; &gt; ERROR_NO_TOKEN then exit;
-   // В случее ошибки - получаем маркер доступа нашего процесса.
+   // Р’ СЃР»СѓС‡РµРµ РѕС€РёР±РєРё - РїРѕР»СѓС‡Р°РµРј РјР°СЂРєРµСЂ РґРѕСЃС‚СѓРїР° РЅР°С€РµРіРѕ РїСЂРѕС†РµСЃСЃР°.
    if not OpenProcessToken(GetCurrentProcess(),TOKEN_QUERY,hToken)
     then exit;
   end;
  
- // Вывываем GetTokenInformation для получения размера буфера 
+ // Р’С‹РІС‹РІР°РµРј GetTokenInformation РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СЂР°Р·РјРµСЂР° Р±СѓС„РµСЂР° 
  if not GetTokenInformation(hToken, TokenUser, nil, 0, cbBuf)
   then if GetLastError()&lt; &gt; ERROR_INSUFFICIENT_BUFFER
    then begin
@@ -66,23 +59,23 @@ begin
  
  if cbBuf = 0 then exit;
  
- // Выделяем память под буфер 
+ // Р’С‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ РїРѕРґ Р±СѓС„РµСЂ 
  GetMem(ptiUser,cbBuf);
  
- // В случае удачного вызова получим указатель на TOKEN_USER
+ // Р’ СЃР»СѓС‡Р°Рµ СѓРґР°С‡РЅРѕРіРѕ РІС‹Р·РѕРІР° РїРѕР»СѓС‡РёРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° TOKEN_USER
  if GetTokenInformation(hToken,TokenUser,ptiUser,cbBuf,cbBuf)
   then begin
-   // Ищем имя пользователя и его домен по его SID
+   // РС‰РµРј РёРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Рё РµРіРѕ РґРѕРјРµРЅ РїРѕ РµРіРѕ SID
    if LookupAccountSid(nil,ptiUser.User.Sid,szUser,chUser,szDomain,chDomain,snu)
     then Result:=true;
   end;
  
- // Освобождаем ресурсы 
+ // РћСЃРІРѕР±РѕР¶РґР°РµРј СЂРµСЃСѓСЂСЃС‹ 
  CloseHandle(hToken);
  FreeMem(ptiUser);
 end;
  
-// Использовать функцию можно так :
+// РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ С„СѓРЅРєС†РёСЋ РјРѕР¶РЅРѕ С‚Р°Рє :
 var
  Domain, User : array [0..50] of Char;
  chDomain,chUser : Cardinal;
@@ -93,20 +86,20 @@ begin
   then ...
 end; 
  
-// Если вам необходимо получить только имя пользователя - используйте GetUserName
-// Данный пример можно использовать и для определения - запущен ли процесс
-// системой или пользователем.  Учетной записи Localsystem соответствует 
-// имя пользователя - SYSTEM и домен NT AUTORITY (лучше проверить на практике)
+// Р•СЃР»Рё РІР°Рј РЅРµРѕР±С…РѕРґРёРјРѕ РїРѕР»СѓС‡РёС‚СЊ С‚РѕР»СЊРєРѕ РёРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ - РёСЃРїРѕР»СЊР·СѓР№С‚Рµ GetUserName
+// Р”Р°РЅРЅС‹Р№ РїСЂРёРјРµСЂ РјРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Рё РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ - Р·Р°РїСѓС‰РµРЅ Р»Рё РїСЂРѕС†РµСЃСЃ
+// СЃРёСЃС‚РµРјРѕР№ РёР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј.  РЈС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё Localsystem СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ 
+// РёРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ - SYSTEM Рё РґРѕРјРµРЅ NT AUTORITY (Р»СѓС‡С€Рµ РїСЂРѕРІРµСЂРёС‚СЊ РЅР° РїСЂР°РєС‚РёРєРµ)
  
 </pre>
 
 <p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как работать с палитрой в Delphi?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє СЂР°Р±РѕС‚Р°С‚СЊ СЃ РїР°Р»РёС‚СЂРѕР№ РІ Delphi?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,23 +13,16 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как работать с палитрой в Delphi?</h1>
+  <h1 id="title">РљР°Рє СЂР°Р±РѕС‚Р°С‚СЊ СЃ РїР°Р»РёС‚СЂРѕР№ РІ Delphi?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Как работать с палитрой в Delphi? На форме установлен TImage и видна картинка (*.BMP файл), как изменить у него палитру цветов ?</p>
 
-<p>Палитра в TBitmap и TMetaFile доступна через property Palette. Если палитра имеется (что совсем необязательно), то Palette&lt;&gt;0: </p>
+<p>РљР°Рє СЂР°Р±РѕС‚Р°С‚СЊ СЃ РїР°Р»РёС‚СЂРѕР№ РІ Delphi? РќР° С„РѕСЂРјРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ TImage Рё РІРёРґРЅР° РєР°СЂС‚РёРЅРєР° (*.BMP С„Р°Р№Р»), РєР°Рє РёР·РјРµРЅРёС‚СЊ Сѓ РЅРµРіРѕ РїР°Р»РёС‚СЂСѓ С†РІРµС‚РѕРІ ?</p>
+
+<p>РџР°Р»РёС‚СЂР° РІ TBitmap Рё TMetaFile РґРѕСЃС‚СѓРїРЅР° С‡РµСЂРµР· property Palette. Р•СЃР»Рё РїР°Р»РёС‚СЂР° РёРјРµРµС‚СЃСЏ (С‡С‚Рѕ СЃРѕРІСЃРµРј РЅРµРѕР±СЏР·Р°С‚РµР»СЊРЅРѕ), С‚Рѕ Palette&lt;&gt;0: </p>
 <pre name="code" class="delphi">
 procedure TMain.BitBtnClick(Sender: TObject);
 var
@@ -40,40 +33,40 @@ var
   Red : Byte;
 begin
   Palette := Image.Picture.Bitmap.ReleasePalette;
-  // здесь можно использовать просто Image.Picture.Bitmap.Palette, но  я не
-  // знаю, удаляются ли ненужные палитры автоматически
+  // Р·РґРµСЃСЊ РјРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РїСЂРѕСЃС‚Рѕ Image.Picture.Bitmap.Palette, РЅРѕ  СЏ РЅРµ
+  // Р·РЅР°СЋ, СѓРґР°Р»СЏСЋС‚СЃСЏ Р»Рё РЅРµРЅСѓР¶РЅС‹Рµ РїР°Р»РёС‚СЂС‹ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё
  
-  if Palette=0 then exit; //Палитра отсутствует
+  if Palette=0 then exit; //РџР°Р»РёС‚СЂР° РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚
   PaletteSize := 0;
   if GetObject(Palette, SizeOf(PaletteSize), @PaletteSize) = 0 then Exit;
-  // Количество элементов в палитре = paletteSize
-  if PaletteSize = 0 then Exit; // палитра пустая
-  // определение размера палитры
+  // РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РІ РїР°Р»РёС‚СЂРµ = paletteSize
+  if PaletteSize = 0 then Exit; // РїР°Р»РёС‚СЂР° РїСѓСЃС‚Р°СЏ
+  // РѕРїСЂРµРґРµР»РµРЅРёРµ СЂР°Р·РјРµСЂР° РїР°Р»РёС‚СЂС‹
   LogSize := SizeOf(TLogPalette) + (PaletteSize - 1) * SizeOf(TPaletteEntry);
   GetMem(LogPalette, LogSize);
   try
-    // заполнение полей логической палитры
+    // Р·Р°РїРѕР»РЅРµРЅРёРµ РїРѕР»РµР№ Р»РѕРіРёС‡РµСЃРєРѕР№ РїР°Р»РёС‚СЂС‹
     with LogPalette^ do begin
       palVersion := $0300;    palNumEntries := PaletteSize;
       GetPaletteEntries(Palette, 0, PaletteSize, palPalEntry);
-      // делаете что нужно с палитрой, например:
+      // РґРµР»Р°РµС‚Рµ С‡С‚Рѕ РЅСѓР¶РЅРѕ СЃ РїР°Р»РёС‚СЂРѕР№, РЅР°РїСЂРёРјРµСЂ:
       Red := palPalEntry[PaletteSize-1].peRed;
-      Edit1.Text := 'Красная составляющего последнего элемента  палитры ='+IntToStr(Red);
+      Edit1.Text := 'РљСЂР°СЃРЅР°СЏ СЃРѕСЃС‚Р°РІР»СЏСЋС‰РµРіРѕ РїРѕСЃР»РµРґРЅРµРіРѕ СЌР»РµРјРµРЅС‚Р°  РїР°Р»РёС‚СЂС‹ ='+IntToStr(Red);
       palPalEntry[PaletteSize-1].peRed := 0;
       //.......................................
     end;
-    // завершение работы
+    // Р·Р°РІРµСЂС€РµРЅРёРµ СЂР°Р±РѕС‚С‹
     Image.Picture.Bitmap.Palette := CreatePalette(LogPalette^);
   finally
     FreeMem(LogPalette, LogSize);
-    // я должен позаботиться сам об удалении Released Palette
+    // СЏ РґРѕР»Р¶РµРЅ РїРѕР·Р°Р±РѕС‚РёС‚СЊСЃСЏ СЃР°Рј РѕР± СѓРґР°Р»РµРЅРёРё Released Palette
     DeleteObject(Palette);
   end;
 end;
  
  
-{ Этот модуль заполняет фон формы рисунком bor6.bmp (256 цветов) 
-  и меняет его палитру при нажатии кнопки }
+{ Р­С‚РѕС‚ РјРѕРґСѓР»СЊ Р·Р°РїРѕР»РЅСЏРµС‚ С„РѕРЅ С„РѕСЂРјС‹ СЂРёСЃСѓРЅРєРѕРј bor6.bmp (256 С†РІРµС‚РѕРІ) 
+  Рё РјРµРЅСЏРµС‚ РµРіРѕ РїР°Р»РёС‚СЂСѓ РїСЂРё РЅР°Р¶Р°С‚РёРё РєРЅРѕРїРєРё }
 unit bmpformu;
 interface
 uses
@@ -167,15 +160,15 @@ end.
 </pre>
 
 
-<p>Зайцев О.В.</p>
-<p>Владимиров А.М.</p>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>Р—Р°Р№С†РµРІ Рћ.Р’.</p>
+<p>Р’Р»Р°РґРёРјРёСЂРѕРІ Рђ.Рњ.</p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

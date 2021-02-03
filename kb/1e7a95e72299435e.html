@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Низкоуровневые процедуры обработки звука</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РќРёР·РєРѕСѓСЂРѕРІРЅРµРІС‹Рµ РїСЂРѕС†РµРґСѓСЂС‹ РѕР±СЂР°Р±РѕС‚РєРё Р·РІСѓРєР°</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,32 +13,25 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Низкоуровневые процедуры обработки звука</h1>
+  <h1 id="title">РќРёР·РєРѕСѓСЂРѕРІРЅРµРІС‹Рµ РїСЂРѕС†РµРґСѓСЂС‹ РѕР±СЂР°Р±РѕС‚РєРё Р·РІСѓРєР°</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Ниже приведен код, обрабатывающий аудиосигнал, получаемый со входа звуковой карты (SoundBlaster). Надеюсь он поможет разобраться вам с этой сложной темой. </p>
 
-<p>Включенный в код модуль RECUNIT делает всю изнурительную работу по извлечению звука со входа звуковой карты. </p>
+<p>РќРёР¶Рµ РїСЂРёРІРµРґРµРЅ РєРѕРґ, РѕР±СЂР°Р±Р°С‚С‹РІР°СЋС‰РёР№ Р°СѓРґРёРѕСЃРёРіРЅР°Р», РїРѕР»СѓС‡Р°РµРјС‹Р№ СЃРѕ РІС…РѕРґР° Р·РІСѓРєРѕРІРѕР№ РєР°СЂС‚С‹ (SoundBlaster). РќР°РґРµСЋСЃСЊ РѕРЅ РїРѕРјРѕР¶РµС‚ СЂР°Р·РѕР±СЂР°С‚СЊСЃСЏ РІР°Рј СЃ СЌС‚РѕР№ СЃР»РѕР¶РЅРѕР№ С‚РµРјРѕР№. </p>
+
+<p>Р’РєР»СЋС‡РµРЅРЅС‹Р№ РІ РєРѕРґ РјРѕРґСѓР»СЊ RECUNIT РґРµР»Р°РµС‚ РІСЃСЋ РёР·РЅСѓСЂРёС‚РµР»СЊРЅСѓСЋ СЂР°Р±РѕС‚Сѓ РїРѕ РёР·РІР»РµС‡РµРЅРёСЋ Р·РІСѓРєР° СЃРѕ РІС…РѕРґР° Р·РІСѓРєРѕРІРѕР№ РєР°СЂС‚С‹. </p>
 <pre name="code" class="delphi">
 var
   WaveRecorder: TWaveRecorder;
  
 ...
  
-WaveRecorder := TwaveRecorder(2048, 4); // 4 размером 2048 байт
+WaveRecorder := TwaveRecorder(2048, 4); // 4 СЂР°Р·РјРµСЂРѕРј 2048 Р±Р°Р№С‚
  
-{ Устанавливает параметры дискретизации }
+{ РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РїР°СЂР°РјРµС‚СЂС‹ РґРёСЃРєСЂРµС‚РёР·Р°С†РёРё }
 with WaveRecorder.pWavefmtEx do
 begin
   wFormatTag := WAVE_FORMAT_PCM;
@@ -48,18 +41,18 @@ begin
   nAvgBytesPerSec := nSamplesPerSec * (wBitsPerSample div 8) * nChannels;
 end;
  
-// Затем используем вариантную запись, поскольку я не знаю
-// как получить адрес самого объекта
+// Р—Р°С‚РµРј РёСЃРїРѕР»СЊР·СѓРµРј РІР°СЂРёР°РЅС‚РЅСѓСЋ Р·Р°РїРёСЃСЊ, РїРѕСЃРєРѕР»СЊРєСѓ СЏ РЅРµ Р·РЅР°СЋ
+// РєР°Рє РїРѕР»СѓС‡РёС‚СЊ Р°РґСЂРµСЃ СЃР°РјРѕРіРѕ РѕР±СЉРµРєС‚Р°
  
 WaveRecorder.SetupRecord(@WaveRecorder);
  
-// Начинаем запись
+// РќР°С‡РёРЅР°РµРј Р·Р°РїРёСЃСЊ
 WaveRecorder.StartRecord;
  
-...При каждом заполнении буфера вызывается
-  процедура WaveRecorder.Processbuffer.
+...РџСЂРё РєР°Р¶РґРѕРј Р·Р°РїРѕР»РЅРµРЅРёРё Р±СѓС„РµСЂР° РІС‹Р·С‹РІР°РµС‚СЃСЏ
+  РїСЂРѕС†РµРґСѓСЂР° WaveRecorder.Processbuffer.
  
-//  Заканчиваем запись
+//  Р—Р°РєР°РЅС‡РёРІР°РµРј Р·Р°РїРёСЃСЊ
 WaveRecorder.StopRecord;
 WaveRecorder.Destroy;
 </pre>
@@ -68,18 +61,18 @@ WaveRecorder.Destroy;
 
 <pre name="code" class="delphi">
 {
-Имя файла: RECUNIT.PAS  V 1.01
-Создан: Авг 19 1996 в 21:56 на IBM ThinkPad
-Ревизия #7: Авг 22 1997, 15:01 на IBM ThinkPad
+РРјСЏ С„Р°Р№Р»Р°: RECUNIT.PAS  V 1.01
+РЎРѕР·РґР°РЅ: РђРІРі 19 1996 РІ 21:56 РЅР° IBM ThinkPad
+Р РµРІРёР·РёСЏ #7: РђРІРі 22 1997, 15:01 РЅР° IBM ThinkPad
 -John Mertus
  
-Данный модуль содержит необходимые процедуры для записи звука.
+Р”Р°РЅРЅС‹Р№ РјРѕРґСѓР»СЊ СЃРѕРґРµСЂР¶РёС‚ РЅРµРѕР±С…РѕРґРёРјС‹Рµ РїСЂРѕС†РµРґСѓСЂС‹ РґР»СЏ Р·Р°РїРёСЃРё Р·РІСѓРєР°.
  
-Версия 1.00 - первый релиз
-1.01 - добавлен TWaveInGetErrorText
+Р’РµСЂСЃРёСЏ 1.00 - РїРµСЂРІС‹Р№ СЂРµР»РёР·
+1.01 - РґРѕР±Р°РІР»РµРЅ TWaveInGetErrorText
 }
  
-{-----------------Unit-RECUNIT---------------------John Mertus---Авг 96---}
+{-----------------Unit-RECUNIT---------------------John Mertus---РђРІРі 96---}
  
 unit RECUNIT;
  
@@ -91,10 +84,10 @@ uses
  
   Windows, MMSystem, SysUtils, MSACM;
  
-{  Ниже определен класс TWaveRecorder для обслуживания входа звуковой    }
-{  карты. Ожидается, что новый класс будет производным от TWaveRecorder  }
-{  и перекроет TWaveRecorder.ProcessBuffer. После начала записи данная   }
-{  процедура вызывается каждый раз при наличии в буфере аудио-данных.    }
+{  РќРёР¶Рµ РѕРїСЂРµРґРµР»РµРЅ РєР»Р°СЃСЃ TWaveRecorder РґР»СЏ РѕР±СЃР»СѓР¶РёРІР°РЅРёСЏ РІС…РѕРґР° Р·РІСѓРєРѕРІРѕР№    }
+{  РєР°СЂС‚С‹. РћР¶РёРґР°РµС‚СЃСЏ, С‡С‚Рѕ РЅРѕРІС‹Р№ РєР»Р°СЃСЃ Р±СѓРґРµС‚ РїСЂРѕРёР·РІРѕРґРЅС‹Рј РѕС‚ TWaveRecorder  }
+{  Рё РїРµСЂРµРєСЂРѕРµС‚ TWaveRecorder.ProcessBuffer. РџРѕСЃР»Рµ РЅР°С‡Р°Р»Р° Р·Р°РїРёСЃРё РґР°РЅРЅР°СЏ   }
+{  РїСЂРѕС†РµРґСѓСЂР° РІС‹Р·С‹РІР°РµС‚СЃСЏ РєР°Р¶РґС‹Р№ СЂР°Р· РїСЂРё РЅР°Р»РёС‡РёРё РІ Р±СѓС„РµСЂРµ Р°СѓРґРёРѕ-РґР°РЅРЅС‹С….    }
  
 const
  
@@ -110,7 +103,7 @@ type
       virtual;
  
   private
-    fBufferSize: Integer; // Размер буфера
+    fBufferSize: Integer; // Р Р°Р·РјРµСЂ Р±СѓС„РµСЂР°
     BufIndex: Integer;
     fTotalBuffers: Integer;
  
@@ -124,7 +117,7 @@ type
     RecordActive: Boolean;
     bDeviceOpen: Boolean;
  
-    { Внутренние функции класса }
+    { Р’РЅСѓС‚СЂРµРЅРЅРёРµ С„СѓРЅРєС†РёРё РєР»Р°СЃСЃР° }
     function InitWaveHeaders: Boolean;
     function AllocPCMBuffers: Boolean;
     procedure FreePCMBuffers;
@@ -141,13 +134,13 @@ type
   public
     { Public declarations }
     pWaveFmtEx: PWaveFormatEx;
-    WaveBufSize: Integer; // Размер поля nBlockAlign
+    WaveBufSize: Integer; // Р Р°Р·РјРµСЂ РїРѕР»СЏ nBlockAlign
     InitWaveRecorder: Boolean;
     RecErrorMessage: string;
     QueuedBuffers,
       ProcessedBuffers: Integer;
     pWaveBuffer: array[0..MAX_BUFFERS - 1] of lpstr;
-    WaveIn: HWAVEIN; { Дескриптор Wav-устройства }
+    WaveIn: HWAVEIN; { Р”РµСЃРєСЂРёРїС‚РѕСЂ Wav-СѓСЃС‚СЂРѕР№СЃС‚РІР° }
  
     procedure StopRecord;
     function 477576218068 StartRecord: Boolean;
@@ -159,12 +152,12 @@ type
  
 implementation
  
-{-------------TWaveInGetErrorText-----------John Mertus---14-Июнь--97--}
+{-------------TWaveInGetErrorText-----------John Mertus---14-РСЋРЅСЊ--97--}
  
 function TWaveInGetErrorText(iErr: Integer): string;
  
-{ Выдает сообщения об ошибках WaveIn в формате Pascal                  }
-{ iErr - номер ошибки                                                  }
+{ Р’С‹РґР°РµС‚ СЃРѕРѕР±С‰РµРЅРёСЏ РѕР± РѕС€РёР±РєР°С… WaveIn РІ С„РѕСЂРјР°С‚Рµ Pascal                  }
+{ iErr - РЅРѕРјРµСЂ РѕС€РёР±РєРё                                                  }
 {                                                                      }
 {**********************************************************************}
 var
@@ -177,11 +170,11 @@ begin
   TWaveInGetErrorText := StrPas(PlayInErrorMsgC);
 end;
  
-{-------------InitWaveHeaders---------------John Mertus---14-Июнь--97--}
+{-------------InitWaveHeaders---------------John Mertus---14-РСЋРЅСЊ--97--}
  
 function TWaveRecorder.AllocWaveFormatEx: Boolean;
  
-{ Распределяем формат большого размера, требуемый для инсталляции ACM-в}
+{ Р Р°СЃРїСЂРµРґРµР»СЏРµРј С„РѕСЂРјР°С‚ Р±РѕР»СЊС€РѕРіРѕ СЂР°Р·РјРµСЂР°, С‚СЂРµР±СѓРµРјС‹Р№ РґР»СЏ РёРЅСЃС‚Р°Р»Р»СЏС†РёРё ACM-РІ}
 {                                                                      }
 {**********************************************************************}
 var
@@ -190,19 +183,19 @@ var
  
 begin
  
-  { maxFmtSize - сумма sizeof(WAVEFORMATEX) + pwavefmtex.cbSize }
+  { maxFmtSize - СЃСѓРјРјР° sizeof(WAVEFORMATEX) + pwavefmtex.cbSize }
   if (acmMetrics(0, ACM_METRIC_MAX_SIZE_FORMAT, maxFmtSize) &lt;&gt; 0) &gt; then
   begin
-    RecErrorMessage := 'Ошибка получения размера формата максимального сжатия';
+    RecErrorMessage := 'РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ СЂР°Р·РјРµСЂР° С„РѕСЂРјР°С‚Р° РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ СЃР¶Р°С‚РёСЏ';
     AllocWaveFormatEx := False;
     Exit;
   end;
  
-  { распределяем структуру WAVEFMTEX }
+  { СЂР°СЃРїСЂРµРґРµР»СЏРµРј СЃС‚СЂСѓРєС‚СѓСЂСѓ WAVEFMTEX }
   hWaveFmtEx := GlobalAlloc(GMEM_MOVEABLE, maxFmtSize);
   if (hWaveFmtEx = 0) then
   begin
-    RecErrorMessage := 'Ошибка распределения памяти для структуры WaveFormatEx';
+    RecErrorMessage := 'РћС€РёР±РєР° СЂР°СЃРїСЂРµРґРµР»РµРЅРёСЏ РїР°РјСЏС‚Рё РґР»СЏ СЃС‚СЂСѓРєС‚СѓСЂС‹ WaveFormatEx';
     AllocWaveFormatEx := False;
     Exit;
   end;
@@ -210,12 +203,12 @@ begin
   pWaveFmtEx := PWaveFormatEx(GlobalLock(hWaveFmtEx));
   if (pWaveFmtEx = nil) then
   begin
-    RecErrorMessage := 'Ошибка блокировки памяти WaveFormatEx';
+    RecErrorMessage := 'РћС€РёР±РєР° Р±Р»РѕРєРёСЂРѕРІРєРё РїР°РјСЏС‚Рё WaveFormatEx';
     AllocWaveFormatEx := False;
     Exit;
   end;
  
-  { инициализация формата в стандарте PCM }
+  { РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ С„РѕСЂРјР°С‚Р° РІ СЃС‚Р°РЅРґР°СЂС‚Рµ PCM }
   ZeroMemory(pwavefmtex, maxFmtSize);
   pwavefmtex.wFormatTag := WAVE_FORMAT_PCM;
   pwavefmtex.nChannels := 1;
@@ -226,15 +219,15 @@ begin
     (pwavefmtex.wBitsPerSample div 8) * pwavefmtex.nChannels;
   pwavefmtex.cbSize := 0;
  
-  { Все успешно, идем домой }
+  { Р’СЃРµ СѓСЃРїРµС€РЅРѕ, РёРґРµРј РґРѕРјРѕР№ }
   AllocWaveFormatEx := True;
 end;
  
-{-------------InitWaveHeaders---------------John Mertus---14-Июнь--97--}
+{-------------InitWaveHeaders---------------John Mertus---14-РСЋРЅСЊ--97--}
  
 function TWaveRecorder.InitWaveHeaders: Boolean;
  
-{ Распределяем память, обнуляем заголовок wave и инициализируем        }
+{ Р Р°СЃРїСЂРµРґРµР»СЏРµРј РїР°РјСЏС‚СЊ, РѕР±РЅСѓР»СЏРµРј Р·Р°РіРѕР»РѕРІРѕРє wave Рё РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј        }
 {                                                                      }
 {**********************************************************************}
 var
@@ -243,31 +236,31 @@ var
  
 begin
  
-  { делаем размер буфера кратным величине блока... }
+  { РґРµР»Р°РµРј СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РєСЂР°С‚РЅС‹Рј РІРµР»РёС‡РёРЅРµ Р±Р»РѕРєР°... }
   WaveBufSize := fBufferSize - (fBufferSize mod pwavefmtex.nBlockAlign);
  
-  { Устанавливаем wave-заголовки }
+  { РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј wave-Р·Р°РіРѕР»РѕРІРєРё }
   for i := 0 to fTotalBuffers - 1 do
     with pWaveHeader[i]^ do
     begin
-      lpData := pWaveBuffer[i]; // адрес буфера waveform
-      dwBufferLength := WaveBufSize; // размер, в байтах, буфера
-      dwBytesRecorded := 0; // смотри ниже
-      dwUser := 0; // 32 бита данных пользователя
-      dwFlags := 0; // смотри ниже
-      dwLoops := 0; // смотри ниже
-      lpNext := nil; // зарезервировано; должен быть ноль
-      reserved := 0; // зарезервировано; должен быть ноль
+      lpData := pWaveBuffer[i]; // Р°РґСЂРµСЃ Р±СѓС„РµСЂР° waveform
+      dwBufferLength := WaveBufSize; // СЂР°Р·РјРµСЂ, РІ Р±Р°Р№С‚Р°С…, Р±СѓС„РµСЂР°
+      dwBytesRecorded := 0; // СЃРјРѕС‚СЂРё РЅРёР¶Рµ
+      dwUser := 0; // 32 Р±РёС‚Р° РґР°РЅРЅС‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+      dwFlags := 0; // СЃРјРѕС‚СЂРё РЅРёР¶Рµ
+      dwLoops := 0; // СЃРјРѕС‚СЂРё РЅРёР¶Рµ
+      lpNext := nil; // Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ; РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РЅРѕР»СЊ
+      reserved := 0; // Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ; РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РЅРѕР»СЊ
     end;
  
   InitWaveHeaders := TRUE;
 end;
  
-{-------------AllocWaveHeader----------------John Mertus---14-Июнь--97--}
+{-------------AllocWaveHeader----------------John Mertus---14-РСЋРЅСЊ--97--}
  
 function TWaveRecorder.AllocWaveHeaders: Boolean;
  
-{ Распределяем и блокируем память заголовка                             }
+{ Р Р°СЃРїСЂРµРґРµР»СЏРµРј Рё Р±Р»РѕРєРёСЂСѓРµРј РїР°РјСЏС‚СЊ Р·Р°РіРѕР»РѕРІРєР°                             }
 {                                                                       }
 {***********************************************************************}
 var
@@ -283,8 +276,8 @@ begin
  
     if (hwaveheader[i] = 0) then
     begin
-      { Примечание: Это может привести к утечке памяти, надеюсь скоро исправить }
-      RecErrorMessage := 'Ошибка распределения памяти для wave-заголовка';
+      { РџСЂРёРјРµС‡Р°РЅРёРµ: Р­С‚Рѕ РјРѕР¶РµС‚ РїСЂРёРІРµСЃС‚Рё Рє СѓС‚РµС‡РєРµ РїР°РјСЏС‚Рё, РЅР°РґРµСЋСЃСЊ СЃРєРѕСЂРѕ РёСЃРїСЂР°РІРёС‚СЊ }
+      RecErrorMessage := 'РћС€РёР±РєР° СЂР°СЃРїСЂРµРґРµР»РµРЅРёСЏ РїР°РјСЏС‚Рё РґР»СЏ wave-Р·Р°РіРѕР»РѕРІРєР°';
       AllocWaveHeaders := FALSE;
       Exit;
     end;
@@ -292,8 +285,8 @@ begin
     pwaveheader[i] := GlobalLock(hwaveheader[i]);
     if (pwaveheader[i] = nil) then
     begin
-      { Примечание: Это может привести к утечке памяти, надеюсь скоро исправить }
-      RecErrorMessage := 'Не могу заблокировать память заголовка для записи';
+      { РџСЂРёРјРµС‡Р°РЅРёРµ: Р­С‚Рѕ РјРѕР¶РµС‚ РїСЂРёРІРµСЃС‚Рё Рє СѓС‚РµС‡РєРµ РїР°РјСЏС‚Рё, РЅР°РґРµСЋСЃСЊ СЃРєРѕСЂРѕ РёСЃРїСЂР°РІРёС‚СЊ }
+      RecErrorMessage := 'РќРµ РјРѕРіСѓ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°С‚СЊ РїР°РјСЏС‚СЊ Р·Р°РіРѕР»РѕРІРєР° РґР»СЏ Р·Р°РїРёСЃРё';
       AllocWaveHeaders := FALSE;
       Exit;
     end;
@@ -303,11 +296,11 @@ begin
   AllocWaveHeaders := TRUE;
 end;
  
-{---------------FreeWaveHeader---------------John Mertus---14-Июнь--97--}
+{---------------FreeWaveHeader---------------John Mertus---14-РСЋРЅСЊ--97--}
  
 procedure TWaveRecorder.FreeWaveHeader;
  
-{ Просто освобождаем распределенную AllocWaveHeaders память.            }
+{ РџСЂРѕСЃС‚Рѕ РѕСЃРІРѕР±РѕР¶РґР°РµРј СЂР°СЃРїСЂРµРґРµР»РµРЅРЅСѓСЋ AllocWaveHeaders РїР°РјСЏС‚СЊ.            }
 {                                                                       }
 {***********************************************************************}
 var
@@ -327,11 +320,11 @@ begin
   end;
 end;
  
-{-------------AllocPCMBuffers----------------John Mertus---14-Июнь--97--}
+{-------------AllocPCMBuffers----------------John Mertus---14-РСЋРЅСЊ--97--}
  
 function TWaveRecorder.AllocPCMBuffers: Boolean;
  
-{ Распределяем и блокируем память waveform.                             }
+{ Р Р°СЃРїСЂРµРґРµР»СЏРµРј Рё Р±Р»РѕРєРёСЂСѓРµРј РїР°РјСЏС‚СЊ waveform.                             }
 {                                                                       }
 {***********************************************************************}
 var
@@ -345,8 +338,8 @@ begin
     hWaveBuffer[i] := GlobalAlloc(GMEM_MOVEABLE or GMEM_SHARE, fBufferSize);
     if (hWaveBuffer[i] = 0) then
     begin
-      { Здесь возможна утечка памяти }
-      RecErrorMessage := 'Ошибка распределения памяти wave-буфера';
+      { Р—РґРµСЃСЊ РІРѕР·РјРѕР¶РЅР° СѓС‚РµС‡РєР° РїР°РјСЏС‚Рё }
+      RecErrorMessage := 'РћС€РёР±РєР° СЂР°СЃРїСЂРµРґРµР»РµРЅРёСЏ РїР°РјСЏС‚Рё wave-Р±СѓС„РµСЂР°';
       AllocPCMBuffers := False;
       Exit;
     end;
@@ -354,8 +347,8 @@ begin
     pWaveBuffer[i] := GlobalLock(hWaveBuffer[i]);
     if (pWaveBuffer[i] = nil) then
     begin
-      { Здесь возможна утечка памяти }
-      RecErrorMessage := 'Ошибка блокирования памяти wave-буфера';
+      { Р—РґРµСЃСЊ РІРѕР·РјРѕР¶РЅР° СѓС‚РµС‡РєР° РїР°РјСЏС‚Рё }
+      RecErrorMessage := 'РћС€РёР±РєР° Р±Р»РѕРєРёСЂРѕРІР°РЅРёСЏ РїР°РјСЏС‚Рё wave-Р±СѓС„РµСЂР°';
       AllocPCMBuffers := False;
       Exit;
     end;
@@ -365,11 +358,11 @@ begin
   AllocPCMBuffers := TRUE;
 end;
  
-{--------------FreePCMBuffers----------------John Mertus---14-Июнь--97--}
+{--------------FreePCMBuffers----------------John Mertus---14-РСЋРЅСЊ--97--}
  
 procedure TWaveRecorder.FreePCMBuffers;
  
-{ Освобождаем использованную AllocPCMBuffers память.                    }
+{ РћСЃРІРѕР±РѕР¶РґР°РµРј РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅСѓСЋ AllocPCMBuffers РїР°РјСЏС‚СЊ.                    }
 {                                                                       }
 {***********************************************************************}
 var
@@ -390,11 +383,11 @@ begin
   end;
 end;
  
-{--------------FreeWaveFormatEx--------------John Mertus---14-Июнь--97--}
+{--------------FreeWaveFormatEx--------------John Mertus---14-РСЋРЅСЊ--97--}
  
 procedure TWaveRecorder.FreeWaveFormatEx;
  
-{ Просто освобождаем заголовки ExFormat headers                         }
+{ РџСЂРѕСЃС‚Рѕ РѕСЃРІРѕР±РѕР¶РґР°РµРј Р·Р°РіРѕР»РѕРІРєРё ExFormat headers                         }
 {                                                                       }
 {***********************************************************************}
 begin
@@ -406,13 +399,13 @@ begin
   pWaveFmtEx := nil;
 end;
  
-{-------------TWaveRecorder.Create------------John Mertus-----Авг--97--}
+{-------------TWaveRecorder.Create------------John Mertus-----РђРІРі--97--}
  
 constructor TWaveRecorder.Create(BFSize, TotalBuffers: Integer);
  
-{ Устанавливаем wave-заголовки, инициализируем указатели данных и      }
-{ и распределяем буферы дискретизации                                  }
-{ BFSize - размер буфера в байтах                                      }
+{ РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј wave-Р·Р°РіРѕР»РѕРІРєРё, РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј СѓРєР°Р·Р°С‚РµР»Рё РґР°РЅРЅС‹С… Рё      }
+{ Рё СЂР°СЃРїСЂРµРґРµР»СЏРµРј Р±СѓС„РµСЂС‹ РґРёСЃРєСЂРµС‚РёР·Р°С†РёРё                                  }
+{ BFSize - СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ Р±Р°Р№С‚Р°С…                                      }
 {                                                                      }
 {**********************************************************************}
 var
@@ -431,29 +424,29 @@ begin
   fBufferSize := BFSize;
  
   fTotalBuffers := TotalBuffers;
-  { распределяем память для структуры wave-формата }
+  { СЂР°СЃРїСЂРµРґРµР»СЏРµРј РїР°РјСЏС‚СЊ РґР»СЏ СЃС‚СЂСѓРєС‚СѓСЂС‹ wave-С„РѕСЂРјР°С‚Р° }
   if (not AllocWaveFormatEx) then
   begin
     InitWaveRecorder := FALSE;
     Exit;
   end;
  
-  { ищем устройство, совместимое с доступными wave-характеристиками }
+  { РёС‰РµРј СѓСЃС‚СЂРѕР№СЃС‚РІРѕ, СЃРѕРІРјРµСЃС‚РёРјРѕРµ СЃ РґРѕСЃС‚СѓРїРЅС‹РјРё wave-С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРєР°РјРё }
   if (waveInGetNumDevs &lt; 1) then
   begin
-    RecErrorMessage := 'Не найдено устройств, способных записывать звук';
+    RecErrorMessage := 'РќРµ РЅР°Р№РґРµРЅРѕ СѓСЃС‚СЂРѕР№СЃС‚РІ, СЃРїРѕСЃРѕР±РЅС‹С… Р·Р°РїРёСЃС‹РІР°С‚СЊ Р·РІСѓРє';
     InitWaveRecorder := FALSE;
     Exit;
   end;
  
-  { распределяем память wave-заголовка }
+  { СЂР°СЃРїСЂРµРґРµР»СЏРµРј РїР°РјСЏС‚СЊ wave-Р·Р°РіРѕР»РѕРІРєР° }
   if (not AllocWaveHeaders) then
   begin
     InitWaveRecorder := FALSE;
     Exit;
   end;
  
-  { распределяем память буфера wave-данных }
+  { СЂР°СЃРїСЂРµРґРµР»СЏРµРј РїР°РјСЏС‚СЊ Р±СѓС„РµСЂР° wave-РґР°РЅРЅС‹С… }
   if (not AllocPCMBuffers) then
   begin
     InitWaveRecorder := FALSE;
@@ -464,11 +457,11 @@ begin
  
 end;
  
-{---------------------Destroy----------------John Mertus---14-Июнь--97--}
+{---------------------Destroy----------------John Mertus---14-РСЋРЅСЊ--97--}
  
 destructor TWaveRecorder.Destroy;
  
-{ Просто освобождаем всю память, распределенную InitWaveRecorder.       }
+{ РџСЂРѕСЃС‚Рѕ РѕСЃРІРѕР±РѕР¶РґР°РµРј РІСЃСЋ РїР°РјСЏС‚СЊ, СЂР°СЃРїСЂРµРґРµР»РµРЅРЅСѓСЋ InitWaveRecorder.       }
 {                                                                       }
 {***********************************************************************}
  
@@ -480,11 +473,11 @@ begin
   inherited Destroy;
 end;
  
-{------------CloseWaveDeviceRecord-----------John Mertus---14-Июнь--97--}
+{------------CloseWaveDeviceRecord-----------John Mertus---14-РСЋРЅСЊ--97--}
  
 procedure TWaveRecorder.CloseWaveDeviceRecord;
  
-{ Просто освобождаем (закрываем) waveform-устройство.                   }
+{ РџСЂРѕСЃС‚Рѕ РѕСЃРІРѕР±РѕР¶РґР°РµРј (Р·Р°РєСЂС‹РІР°РµРј) waveform-СѓСЃС‚СЂРѕР№СЃС‚РІРѕ.                   }
 {                                                                       }
 {***********************************************************************}
 var
@@ -493,34 +486,34 @@ var
  
 begin
  
-  { если устройство уже закрыто, то выходим }
+  { РµСЃР»Рё СѓСЃС‚СЂРѕР№СЃС‚РІРѕ СѓР¶Рµ Р·Р°РєСЂС‹С‚Рѕ, С‚Рѕ РІС‹С…РѕРґРёРј }
   if (not bDeviceOpen) then
     Exit;
  
-  { работа с заголовками - unprepare }
+  { СЂР°Р±РѕС‚Р° СЃ Р·Р°РіРѕР»РѕРІРєР°РјРё - unprepare }
   for i := 0 to fTotalBuffers - 1 do
     if (waveInUnprepareHeader(WaveIn, pWaveHeader[i], sizeof(TWAVEHDR)) &lt;&gt; 0)
       then
  
-      RecErrorMessage := 'Ошибка в waveInUnprepareHeader';
+      RecErrorMessage := 'РћС€РёР±РєР° РІ waveInUnprepareHeader';
  
-  { сохраняем общий объем записи и обновляем показ }
+  { СЃРѕС…СЂР°РЅСЏРµРј РѕР±С‰РёР№ РѕР±СЉРµРј Р·Р°РїРёСЃРё Рё РѕР±РЅРѕРІР»СЏРµРј РїРѕРєР°Р· }
   dwTotalwavesize := dwBytedatasize;
  
-  { закрываем входное wave-устройство }
+  { Р·Р°РєСЂС‹РІР°РµРј РІС…РѕРґРЅРѕРµ wave-СѓСЃС‚СЂРѕР№СЃС‚РІРѕ }
   if (waveInClose(WaveIn) &lt;&gt; 0) then
-    RecErrorMessage := 'Ошибка закрытия входного устройства';
+    RecErrorMessage := 'РћС€РёР±РєР° Р·Р°РєСЂС‹С‚РёСЏ РІС…РѕРґРЅРѕРіРѕ СѓСЃС‚СЂРѕР№СЃС‚РІР°';
  
-  { сообщаем вызвавшей функции, что устройство закрыто }
+  { СЃРѕРѕР±С‰Р°РµРј РІС‹Р·РІР°РІС€РµР№ С„СѓРЅРєС†РёРё, С‡С‚Рѕ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ Р·Р°РєСЂС‹С‚Рѕ }
   bDeviceOpen := FALSE;
  
 end;
  
-{------------------StopRecord-----------------John Mertus---14-Июнь--97--}
+{------------------StopRecord-----------------John Mertus---14-РСЋРЅСЊ--97--}
  
 procedure TWaveRecorder.StopRecord;
  
-{ Останавливаем запись и устанавливаем некоторые флаги.                 }
+{ РћСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р·Р°РїРёСЃСЊ Рё СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РЅРµРєРѕС‚РѕСЂС‹Рµ С„Р»Р°РіРё.                 }
 {                                                                       }
 {***********************************************************************}
 var
@@ -531,20 +524,20 @@ begin
  
   RecordActive := False;
   iErr := waveInReset(WaveIn);
-  { прекращаем запись и возвращаем стоящие в очереди буферы }
+  { РїСЂРµРєСЂР°С‰Р°РµРј Р·Р°РїРёСЃСЊ Рё РІРѕР·РІСЂР°С‰Р°РµРј СЃС‚РѕСЏС‰РёРµ РІ РѕС‡РµСЂРµРґРё Р±СѓС„РµСЂС‹ }
   if (iErr &lt;&gt; 0) then
   begin
-    RecErrorMessage := 'Ошибка в waveInReset';
+    RecErrorMessage := 'РћС€РёР±РєР° РІ waveInReset';
   end;
  
   CloseWaveDeviceRecord;
 end;
  
-{--------------AddNextBuffer------------------John Mertus---14-Июнь--97--}
+{--------------AddNextBuffer------------------John Mertus---14-РСЋРЅСЊ--97--}
  
 function TWaveRecorder.AddNextBuffer: Boolean;
  
-{ Добавляем буфер ко входной очереди и переключаем буферный индекс.     }
+{ Р”РѕР±Р°РІР»СЏРµРј Р±СѓС„РµСЂ РєРѕ РІС…РѕРґРЅРѕР№ РѕС‡РµСЂРµРґРё Рё РїРµСЂРµРєР»СЋС‡Р°РµРј Р±СѓС„РµСЂРЅС‹Р№ РёРЅРґРµРєСЃ.     }
 {                                                                       }
 {***********************************************************************}
 var
@@ -553,35 +546,35 @@ var
  
 begin
  
-  { ставим буфер в очередь для получения очередной порции данных }
+  { СЃС‚Р°РІРёРј Р±СѓС„РµСЂ РІ РѕС‡РµСЂРµРґСЊ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РѕС‡РµСЂРµРґРЅРѕР№ РїРѕСЂС†РёРё РґР°РЅРЅС‹С… }
   iErr := waveInAddBuffer(WaveIn, pwaveheader[bufindex], sizeof(TWAVEHDR));
   if (iErr &lt;&gt; 0) then
   begin
     StopRecord;
-    RecErrorMessage := 'Ошибка добавления буфера' + TWaveInGetErrorText(iErr);
+    RecErrorMessage := 'РћС€РёР±РєР° РґРѕР±Р°РІР»РµРЅРёСЏ Р±СѓС„РµСЂР°' + TWaveInGetErrorText(iErr);
     AddNextBuffer := FALSE;
     Exit;
   end;
  
-  { переключаемся на следующий буфер }
+  { РїРµСЂРµРєР»СЋС‡Р°РµРјСЃСЏ РЅР° СЃР»РµРґСѓСЋС‰РёР№ Р±СѓС„РµСЂ }
   bufindex := (bufindex + 1) mod fTotalBuffers;
   QueuedBuffers := QueuedBuffers + 1;
  
   AddNextBuffer := TRUE;
 end;
  
-{--------------BufferDoneCallBack------------John Mertus---14-Июнь--97--}
+{--------------BufferDoneCallBack------------John Mertus---14-РСЋРЅСЊ--97--}
  
 procedure BufferDoneCallBack(
-  hW: HWAVE; // дескриптор waveform-устройства
-  uMsg: DWORD; // посылаемое сообщение
-  dwInstance: DWORD; // экземпляр данных
-  dwParam1: DWORD; // определяемый приложением параметр
-  dwParam2: DWORD; // определяемый приложением параметр
+  hW: HWAVE; // РґРµСЃРєСЂРёРїС‚РѕСЂ waveform-СѓСЃС‚СЂРѕР№СЃС‚РІР°
+  uMsg: DWORD; // РїРѕСЃС‹Р»Р°РµРјРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ
+  dwInstance: DWORD; // СЌРєР·РµРјРїР»СЏСЂ РґР°РЅРЅС‹С…
+  dwParam1: DWORD; // РѕРїСЂРµРґРµР»СЏРµРјС‹Р№ РїСЂРёР»РѕР¶РµРЅРёРµРј РїР°СЂР°РјРµС‚СЂ
+  dwParam2: DWORD; // РѕРїСЂРµРґРµР»СЏРµРјС‹Р№ РїСЂРёР»РѕР¶РµРЅРёРµРј РїР°СЂР°РјРµС‚СЂ
   ); stdcall;
  
-{ Вызывается при наличии у wave-устройства какой-либо информации,       }
-{ например при заполнении буфера                                        }
+{ Р’С‹Р·С‹РІР°РµС‚СЃСЏ РїСЂРё РЅР°Р»РёС‡РёРё Сѓ wave-СѓСЃС‚СЂРѕР№СЃС‚РІР° РєР°РєРѕР№-Р»РёР±Рѕ РёРЅС„РѕСЂРјР°С†РёРё,       }
+{ РЅР°РїСЂРёРјРµСЂ РїСЂРё Р·Р°РїРѕР»РЅРµРЅРёРё Р±СѓС„РµСЂР°                                        }
 {                                                                       }
 {***********************************************************************}
 var
@@ -606,11 +599,11 @@ begin
   end;
 end;
  
-{------------------StartRecord---------------John Mertus---14-Июнь--97--}
+{------------------StartRecord---------------John Mertus---14-РСЋРЅСЊ--97--}
  
 function TWaveRecorder.StartRecord: Boolean;
  
-{ Начало записи.                                                        }
+{ РќР°С‡Р°Р»Рѕ Р·Р°РїРёСЃРё.                                                        }
 {                                                                       }
 {***********************************************************************}
 var
@@ -619,19 +612,19 @@ var
  
 begin
  
-  { начало записи в первый буфер }
+  { РЅР°С‡Р°Р»Рѕ Р·Р°РїРёСЃРё РІ РїРµСЂРІС‹Р№ Р±СѓС„РµСЂ }
   iErr := WaveInStart(WaveIn);
   if (iErr &lt;&gt; 0) then
   begin
     CloseWaveDeviceRecord;
-    RecErrorMessage := 'Ошибка начала записи wave: ' +
+    RecErrorMessage := 'РћС€РёР±РєР° РЅР°С‡Р°Р»Р° Р·Р°РїРёСЃРё wave: ' +
       TWaveInGetErrorText(iErr);
  
   end;
  
   RecordActive := TRUE;
  
-  { ставим в очередь следующие буферы }
+  { СЃС‚Р°РІРёРј РІ РѕС‡РµСЂРµРґСЊ СЃР»РµРґСѓСЋС‰РёРµ Р±СѓС„РµСЂС‹ }
   for i := 1 to fTotalBuffers - 1 do
     if (not AddNextBuffer) then
     begin
@@ -642,11 +635,11 @@ begin
   StartRecord := True;
 end;
  
-{-----------------SetupRecord---------------John Mertus---14-Июнь--97--}
+{-----------------SetupRecord---------------John Mertus---14-РСЋРЅСЊ--97--}
  
 function TWaveRecorder.SetupRecord(P: PWaveRecorder): Boolean;
  
-{ Данная функция делает всю работу по созданию waveform-"записывателя". }
+{ Р”Р°РЅРЅР°СЏ С„СѓРЅРєС†РёСЏ РґРµР»Р°РµС‚ РІСЃСЋ СЂР°Р±РѕС‚Сѓ РїРѕ СЃРѕР·РґР°РЅРёСЋ waveform-"Р·Р°РїРёСЃС‹РІР°С‚РµР»СЏ". }
 {                                                                       }
 {***********************************************************************}
 var
@@ -661,14 +654,14 @@ begin
   ProcessedBuffers := 0;
   QueuedBuffers := 0;
  
-  { открываем устройство для записи }
+  { РѕС‚РєСЂС‹РІР°РµРј СѓСЃС‚СЂРѕР№СЃС‚РІРѕ РґР»СЏ Р·Р°РїРёСЃРё }
   iErr := waveInOpen(@WaveIn, WAVE_MAPPER, pWaveFmtEx,
     Integer(@BufferDoneCallBack),
  
     Integer(P), CALLBACK_FUNCTION + WAVE_ALLOWSYNC);
   if (iErr &lt;&gt; 0) then
   begin
-    RecErrorMessage := 'Не могу открыть входное устройство для записи: ' + ^M
+    RecErrorMessage := 'РќРµ РјРѕРіСѓ РѕС‚РєСЂС‹С‚СЊ РІС…РѕРґРЅРѕРµ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ РґР»СЏ Р·Р°РїРёСЃРё: ' + ^M
       +
  
     TWaveInGetErrorText(iErr);
@@ -676,10 +669,10 @@ begin
     Exit;
   end;
  
-  { сообщаем CloseWaveDeviceRecord(), что устройство открыто }
+  { СЃРѕРѕР±С‰Р°РµРј CloseWaveDeviceRecord(), С‡С‚Рѕ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ РѕС‚РєСЂС‹С‚Рѕ }
   bDeviceOpen := TRUE;
  
-  { подготавливаем заголовки }
+  { РїРѕРґРіРѕС‚Р°РІР»РёРІР°РµРј Р·Р°РіРѕР»РѕРІРєРё }
  
   InitWaveHeaders();
  
@@ -689,14 +682,14 @@ begin
     if (iErr &lt;&gt; 0) then
     begin
       CloseWaveDeviceRecord;
-      RecErrorMessage := 'Ошибка подготовки заголовка для записи: ' + ^M +
+      RecErrorMessage := 'РћС€РёР±РєР° РїРѕРґРіРѕС‚РѕРІРєРё Р·Р°РіРѕР»РѕРІРєР° РґР»СЏ Р·Р°РїРёСЃРё: ' + ^M +
         TWaveInGetErrorText(iErr);
       SetupRecord := FALSE;
       Exit;
     end;
   end;
  
-  { добавляем первый буфер }
+  { РґРѕР±Р°РІР»СЏРµРј РїРµСЂРІС‹Р№ Р±СѓС„РµСЂ }
   if (not AddNextBuffer) then
   begin
     SetupRecord := FALSE;
@@ -706,12 +699,12 @@ begin
   SetupRecord := TRUE;
 end;
  
-{-----------------ProcessBuffer---------------John Mertus---14-Июнь--97--}
+{-----------------ProcessBuffer---------------John Mertus---14-РСЋРЅСЊ--97--}
  
 procedure TWaveRecorder.ProcessBuffer(uMsg: Word; P: Pointer; n:
   Integer);
  
-{ Болванка процедуры, вызываемой при готовности буфера.                 }
+{ Р‘РѕР»РІР°РЅРєР° РїСЂРѕС†РµРґСѓСЂС‹, РІС‹Р·С‹РІР°РµРјРѕР№ РїСЂРё РіРѕС‚РѕРІРЅРѕСЃС‚Рё Р±СѓС„РµСЂР°.                 }
 {                                                                       }
 {***********************************************************************}
 begin
@@ -720,13 +713,13 @@ end;
 end.
 </pre>
 
-<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ СЃ <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

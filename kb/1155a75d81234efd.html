@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Показать структуру разделов жесткого диска</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџРѕРєР°Р·Р°С‚СЊ СЃС‚СЂСѓРєС‚СѓСЂСѓ СЂР°Р·РґРµР»РѕРІ Р¶РµСЃС‚РєРѕРіРѕ РґРёСЃРєР°</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Показать структуру разделов жесткого диска</h1>
+  <h1 id="title">РџРѕРєР°Р·Р°С‚СЊ СЃС‚СЂСѓРєС‚СѓСЂСѓ СЂР°Р·РґРµР»РѕРІ Р¶РµСЃС‚РєРѕРіРѕ РґРёСЃРєР°</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 unit Unit1;
@@ -56,17 +49,17 @@ implementation
 Uses Disk;
  
 TYPE
-{---------------------- Структура описателя раздела -------------------------}
+{---------------------- РЎС‚СЂСѓРєС‚СѓСЂР° РѕРїРёСЃР°С‚РµР»СЏ СЂР°Р·РґРµР»Р° -------------------------}
  PPartition   =  ^TPartition;
  TPartition    {                                                             }=packed Record
-  Boot         { Флаг активности $80=YES, $00=NO                             }: BYTE;
-  BegHead      { Головка                                                     }: BYTE;
-  BegCylSec    { Цылиндер и сектор                                           }: WORD;
-  PartType     { Код типа раздела (Смотрите ниже)                            }: BYTE;
-  EndHead      { Головка                                                     }: BYTE;
-  EndCylSec    { Цылиндер и сектор                                           }: WORD;
-  Sector       { Номер начального сектора раздела                            }: LongInt;
-  PartSize     { Размер раздела в секторах                                   }: LongInt;
+  Boot         { Р¤Р»Р°Рі Р°РєС‚РёРІРЅРѕСЃС‚Рё $80=YES, $00=NO                             }: BYTE;
+  BegHead      { Р“РѕР»РѕРІРєР°                                                     }: BYTE;
+  BegCylSec    { Р¦С‹Р»РёРЅРґРµСЂ Рё СЃРµРєС‚РѕСЂ                                           }: WORD;
+  PartType     { РљРѕРґ С‚РёРїР° СЂР°Р·РґРµР»Р° (РЎРјРѕС‚СЂРёС‚Рµ РЅРёР¶Рµ)                            }: BYTE;
+  EndHead      { Р“РѕР»РѕРІРєР°                                                     }: BYTE;
+  EndCylSec    { Р¦С‹Р»РёРЅРґРµСЂ Рё СЃРµРєС‚РѕСЂ                                           }: WORD;
+  Sector       { РќРѕРјРµСЂ РЅР°С‡Р°Р»СЊРЅРѕРіРѕ СЃРµРєС‚РѕСЂР° СЂР°Р·РґРµР»Р°                            }: LongInt;
+  PartSize     { Р Р°Р·РјРµСЂ СЂР°Р·РґРµР»Р° РІ СЃРµРєС‚РѕСЂР°С…                                   }: LongInt;
   end;
  
 const
@@ -90,13 +83,13 @@ const
   PARTITION_LINUX_EXT2      = $83;      // Linux ext2
   VALID_NTFT                = $C0;      // NTFT uses high order bits
  
-{--------- Структура главной загрузочной записи и таблицы разделов ----------}
+{--------- РЎС‚СЂСѓРєС‚СѓСЂР° РіР»Р°РІРЅРѕР№ Р·Р°РіСЂСѓР·РѕС‡РЅРѕР№ Р·Р°РїРёСЃРё Рё С‚Р°Р±Р»РёС†С‹ СЂР°Р·РґРµР»РѕРІ ----------}
 TYPE
  PPartitionTable  = ^TPartitionTable;
  TPartitionTable {                                                           }=packed Record
-  Boot           { Загрузочная запись (MSB)                                    }:array[1..446] of Byte;
-  Partition      { Описатель радела 1                                          }:array[1..4]   of TPartition;
-  TrailSig       { Сигнатура AA55h                                             }:array[1..2]   of byte;
+  Boot           { Р—Р°РіСЂСѓР·РѕС‡РЅР°СЏ Р·Р°РїРёСЃСЊ (MSB)                                    }:array[1..446] of Byte;
+  Partition      { РћРїРёСЃР°С‚РµР»СЊ СЂР°РґРµР»Р° 1                                          }:array[1..4]   of TPartition;
+  TrailSig       { РЎРёРіРЅР°С‚СѓСЂР° AA55h                                             }:array[1..2]   of byte;
   end;
  
  
@@ -112,8 +105,8 @@ Begin
  Result:=ReadPlysicalSector (HddNumber,Sector,Count,Buffer);
 end;
  
-// Ф-ция заполняет масив таблицу разделов, возвращает номер
-// активного раздела или $FF при неправельном построение...
+// Р¤-С†РёСЏ Р·Р°РїРѕР»РЅСЏРµС‚ РјР°СЃРёРІ С‚Р°Р±Р»РёС†Сѓ СЂР°Р·РґРµР»РѕРІ, РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРѕРјРµСЂ
+// Р°РєС‚РёРІРЅРѕРіРѕ СЂР°Р·РґРµР»Р° РёР»Рё $FF РїСЂРё РЅРµРїСЂР°РІРµР»СЊРЅРѕРј РїРѕСЃС‚СЂРѕРµРЅРёРµ...
 Function GetPartitionTable(PartitionSector:Int64; Var PartitionTable:PPartitionTable):Byte;
 Var
  I : Byte;
@@ -123,7 +116,7 @@ Begin
   If PPartitionTable(PartitionTable)^.Partition[i].Boot = $80 Then
    Result:=(i+1);
   If (Result &gt; 1) or (Result &lt; 1) Then
-  Result:=$FF; // Ошибка построения разделов
+  Result:=$FF; // РћС€РёР±РєР° РїРѕСЃС‚СЂРѕРµРЅРёСЏ СЂР°Р·РґРµР»РѕРІ
 end;
  
 function PartitionTypeToString (Value : Integer) : String;
@@ -253,40 +246,40 @@ end;
      SearchEnd;
  TYPE
   TData = record
-  // Номер раздела
+  // РќРѕРјРµСЂ СЂР°Р·РґРµР»Р°
    PartitionNumber     : Byte;
-  // Начальный номер основного раздела DOS
+  // РќР°С‡Р°Р»СЊРЅС‹Р№ РЅРѕРјРµСЂ РѕСЃРЅРѕРІРЅРѕРіРѕ СЂР°Р·РґРµР»Р° DOS
    PriDOS_StartSector  : Int64;
-  // Начальный номер расширенного раздела DOS
+  // РќР°С‡Р°Р»СЊРЅС‹Р№ РЅРѕРјРµСЂ СЂР°СЃС€РёСЂРµРЅРЅРѕРіРѕ СЂР°Р·РґРµР»Р° DOS
    ExtDOS_StartSector  : Int64;
-  // Нчальный сектор текущего логического диска
+  // РќС‡Р°Р»СЊРЅС‹Р№ СЃРµРєС‚РѕСЂ С‚РµРєСѓС‰РµРіРѕ Р»РѕРіРёС‡РµСЃРєРѕРіРѕ РґРёСЃРєР°
    CurrentDrive_StartSector : Int64;
-  // Номер логического диска
+  // РќРѕРјРµСЂ Р»РѕРіРёС‡РµСЃРєРѕРіРѕ РґРёСЃРєР°
    LogicalDriveNumber  : Byte;
-  // Флаг присутствияв системе следующего диска
+  // Р¤Р»Р°Рі РїСЂРёСЃСѓС‚СЃС‚РІРёСЏРІ СЃРёСЃС‚РµРјРµ СЃР»РµРґСѓСЋС‰РµРіРѕ РґРёСЃРєР°
    NextDrivePresent    : Boolean;
   end;
   PData = ^TData;
  
  Var
-  // Таблица разделов
+  // РўР°Р±Р»РёС†Р° СЂР°Р·РґРµР»РѕРІ
    Partition   : PPartitionTable;
-  // Переменные...
+  // РџРµСЂРµРјРµРЅРЅС‹Рµ...
    Data        : PData;
    I         : Integer;
  
  Begin
  MNode:=TreeView1.Items.Add(nil,'HDD Driver');
  Result:=0;
-  // Выделяем память для наших переменных
+  // Р’С‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ РґР»СЏ РЅР°С€РёС… РїРµСЂРµРјРµРЅРЅС‹С…
    New(Data);
-   // Онулируем все переменные
+   // РћРЅСѓР»РёСЂСѓРµРј РІСЃРµ РїРµСЂРµРјРµРЅРЅС‹Рµ
    FillMemory(Data,SizeOf(TData),0);
-  // Выделяем память для таблиц разделов
+  // Р’С‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ РґР»СЏ С‚Р°Р±Р»РёС† СЂР°Р·РґРµР»РѕРІ
      New(Partition);
      GetPartitionTable(Data.CurrentDrive_StartSector,Partition);
      Data.NextDrivePresent:=False;
-     // Проверить код основного раздела
+     // РџСЂРѕРІРµСЂРёС‚СЊ РєРѕРґ РѕСЃРЅРѕРІРЅРѕРіРѕ СЂР°Р·РґРµР»Р°
    For i:=0 to 3 do
    IF (Partition.Partition[1].PartType  &lt;&gt; $00) or
       ((Partition.Partition[1].PartType &lt;&gt; $05) and
@@ -301,26 +294,26 @@ end;
     if Partition.Partition[1].Sector = 0 Then
     Begin
        Break;
-//----- Result:=1; -----\\ // Диск не размечен
+//----- Result:=1; -----\\ // Р”РёСЃРє РЅРµ СЂР°Р·РјРµС‡РµРЅ
        goto SearchEnd;
    end else
    IF (Partition.Partition[1].PartType &lt;&gt; $05) or
       (Partition.Partition[1].PartType &lt;&gt; $0F) Then
    Begin
      Break;
-//----- Result:=2; -----\\  // Основной раздел определен как расширеный
+//----- Result:=2; -----\\  // РћСЃРЅРѕРІРЅРѕР№ СЂР°Р·РґРµР» РѕРїСЂРµРґРµР»РµРЅ РєР°Рє СЂР°СЃС€РёСЂРµРЅС‹Р№
      goto SearchEnd;
    end else
    Begin
      Break;
-//----- Result:=3; -----\\ // Не определенный раздел
+//----- Result:=3; -----\\ // РќРµ РѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ СЂР°Р·РґРµР»
     goto SearchEnd;
    end;
    PrimPartFound:
    Begin
      Data.PriDOS_StartSector:= Partition.Partition[1].Sector;
      Inc(Data.LogicalDriveNumber);
-     // Проверить код расширенного раздела
+     // РџСЂРѕРІРµСЂРёС‚СЊ РєРѕРґ СЂР°СЃС€РёСЂРµРЅРЅРѕРіРѕ СЂР°Р·РґРµР»Р°
    For i:=0 to 3 do
    IF
      ((Partition.Partition[2].PartType = $05) or
@@ -330,7 +323,7 @@ end;
    Begin
      ExtNode:=TreeView1.Items.AddChild(MNode,
      '2st partition ('+PartitionTypeToString(Partition.Partition[2].PartType)+') ');
-     // Проверить коды других разделов
+     // РџСЂРѕРІРµСЂРёС‚СЊ РєРѕРґС‹ РґСЂСѓРіРёС… СЂР°Р·РґРµР»РѕРІ
      Node:=TreeView1.Items.AddChild(MNode,
      '3st partition ('+PartitionTypeToString(Partition.Partition[3].PartType)+') ');
      Node:=TreeView1.Items.AddChild(MNode,
@@ -342,10 +335,10 @@ end;
      Break;
      goto NextDriveNotPresent0;
    end;
-    // Имеется расширенный раздел
+    // РРјРµРµС‚СЃСЏ СЂР°СЃС€РёСЂРµРЅРЅС‹Р№ СЂР°Р·РґРµР»
     ExtPartFound:
       Begin
-       // Извлечь адрес сектора
+       // РР·РІР»РµС‡СЊ Р°РґСЂРµСЃ СЃРµРєС‚РѕСЂР°
        Data.ExtDOS_StartSector := Partition.Partition[2].Sector;
        Data.NextDrivePresent   := True;
       end;
@@ -353,13 +346,13 @@ end;
  
     NextDriveNotPresent0:
     Begin
-     // Имеется следующий диск?
+     // РРјРµРµС‚СЃСЏ СЃР»РµРґСѓСЋС‰РёР№ РґРёСЃРє?
      if not Data.NextDrivePresent Then
      goto SearchEnd;
       Data.CurrentDrive_StartSector:=Data.ExtDOS_StartSector;
     end;
  
-  {- ЦИКЛ  ОПРОСА ЛОГИЧЕСКИХ ДИСКОВ РАСШИРЕННОГО РАЗДЕЛА -}
+  {- Р¦РРљР›  РћРџР РћРЎРђ Р›РћР“РР§Р•РЎРљРРҐ Р”РРЎРљРћР’ Р РђРЎРЁРР Р•РќРќРћР“Рћ Р РђР—Р”Р•Р›Рђ -}
   ReadSMBR:
   Begin
     Inc(Data.LogicalDriveNumber);
@@ -368,10 +361,10 @@ end;
      '1st partition ('+PartitionTypeToString(Partition.Partition[1].PartType)+') ');
      ExtNode:=TreeView1.Items.AddChild(Node,
      '2st partition ('+PartitionTypeToString(Partition.Partition[2].PartType)+') ');
-     // Прочитать очередной SMBR
+     // РџСЂРѕС‡РёС‚Р°С‚СЊ РѕС‡РµСЂРµРґРЅРѕР№ SMBR
      GetPartitionTable(Data^.CurrentDrive_StartSector,Partition);
      Data.NextDrivePresent:=False;
-   // Смещение второй записи
+   // РЎРјРµС‰РµРЅРёРµ РІС‚РѕСЂРѕР№ Р·Р°РїРёСЃРё
    If Partition.Partition[2].Sector = 0 Then
    goto NextDriveNotPresent1;
     Data.CurrentDrive_StartSector:=
@@ -380,7 +373,7 @@ end;
     Data.NextDrivePresent:=True;
    NextDriveNotPresent1:
    Begin
-   // Имеется следующий диск?
+   // РРјРµРµС‚СЃСЏ СЃР»РµРґСѓСЋС‰РёР№ РґРёСЃРє?
      if not Data.NextDrivePresent then
      goto SearchEnd else
      goto ReadSMBR;
@@ -389,10 +382,10 @@ end;
  
  SearchEnd:
    Result:=DATA.LogicalDriveNumber;
-   // Освобождаем память
+   // РћСЃРІРѕР±РѕР¶РґР°РµРј РїР°РјСЏС‚СЊ
    if Assigned(Partition) Then
    Dispose(Partition);
-   // Освобождаем память
+   // РћСЃРІРѕР±РѕР¶РґР°РµРј РїР°РјСЏС‚СЊ
    if Assigned(Data) Then
    Dispose(Data);
    Exit;
@@ -408,10 +401,10 @@ end.
 </pre>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

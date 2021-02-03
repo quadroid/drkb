@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Всплывающие подсказки у выключенных кнопок</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>Р’СЃРїР»С‹РІР°СЋС‰РёРµ РїРѕРґСЃРєР°Р·РєРё Сѓ РІС‹РєР»СЋС‡РµРЅРЅС‹С… РєРЅРѕРїРѕРє</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,21 +13,14 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Всплывающие подсказки у выключенных кнопок</h1>
+  <h1 id="title">Р’СЃРїР»С‹РІР°СЋС‰РёРµ РїРѕРґСЃРєР°Р·РєРё Сѓ РІС‹РєР»СЋС‡РµРЅРЅС‹С… РєРЅРѕРїРѕРє</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
-<p>Проблема заключается в том, что свойство Parent у выключенной (disabled) кнопки равно NIL. Я не уверен что это так, но это становится проблемой в ActivateHint. Если кнопка выключена, то даже при наличии над ней курсора мыши и включенной подсказки, появится.... правильно, подсказка ФОРМЫ.... </p>
-<p>OK, давайте лечить. Метод FindDragTarget вызывается в коде-обработчике подсказки, и позволяет увидеть компонент, находящийся в данный момент под курсорм мыши. FindDragTarget вызывает функцию Windows API WindowFromPoint. И WindowFromPoint *НЕ* возвращает "выключенные" окна. В электронной справке по API говорится, что если вам необходимы также выключенные окна, используйте ChildWindowFromPoint. ОГО! Это идея. Если элемент управления выключен, то будет найдена или сама форма, или же контейнер выключенного компонента. Если компонент, найденый с помощью ChildWindowFromPoint отличается от найденного с помощью WindowFromPoint, мы должны высветить подсказку. Это работает! Но хочу предостеречь: вы не сможете таким образом получить подсказку для самой формы или контейнеров типа TPanel или TGroupBox. Попытайтесь сами!</p>
+
+<p>РџСЂРѕР±Р»РµРјР° Р·Р°РєР»СЋС‡Р°РµС‚СЃСЏ РІ С‚РѕРј, С‡С‚Рѕ СЃРІРѕР№СЃС‚РІРѕ Parent Сѓ РІС‹РєР»СЋС‡РµРЅРЅРѕР№ (disabled) РєРЅРѕРїРєРё СЂР°РІРЅРѕ NIL. РЇ РЅРµ СѓРІРµСЂРµРЅ С‡С‚Рѕ СЌС‚Рѕ С‚Р°Рє, РЅРѕ СЌС‚Рѕ СЃС‚Р°РЅРѕРІРёС‚СЃСЏ РїСЂРѕР±Р»РµРјРѕР№ РІ ActivateHint. Р•СЃР»Рё РєРЅРѕРїРєР° РІС‹РєР»СЋС‡РµРЅР°, С‚Рѕ РґР°Р¶Рµ РїСЂРё РЅР°Р»РёС‡РёРё РЅР°Рґ РЅРµР№ РєСѓСЂСЃРѕСЂР° РјС‹С€Рё Рё РІРєР»СЋС‡РµРЅРЅРѕР№ РїРѕРґСЃРєР°Р·РєРё, РїРѕСЏРІРёС‚СЃСЏ.... РїСЂР°РІРёР»СЊРЅРѕ, РїРѕРґСЃРєР°Р·РєР° Р¤РћР РњР«.... </p>
+<p>OK, РґР°РІР°Р№С‚Рµ Р»РµС‡РёС‚СЊ. РњРµС‚РѕРґ FindDragTarget РІС‹Р·С‹РІР°РµС‚СЃСЏ РІ РєРѕРґРµ-РѕР±СЂР°Р±РѕС‚С‡РёРєРµ РїРѕРґСЃРєР°Р·РєРё, Рё РїРѕР·РІРѕР»СЏРµС‚ СѓРІРёРґРµС‚СЊ РєРѕРјРїРѕРЅРµРЅС‚, РЅР°С…РѕРґСЏС‰РёР№СЃСЏ РІ РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ РїРѕРґ РєСѓСЂСЃРѕСЂРј РјС‹С€Рё. FindDragTarget РІС‹Р·С‹РІР°РµС‚ С„СѓРЅРєС†РёСЋ Windows API WindowFromPoint. Р WindowFromPoint *РќР•* РІРѕР·РІСЂР°С‰Р°РµС‚ "РІС‹РєР»СЋС‡РµРЅРЅС‹Рµ" РѕРєРЅР°. Р’ СЌР»РµРєС‚СЂРѕРЅРЅРѕР№ СЃРїСЂР°РІРєРµ РїРѕ API РіРѕРІРѕСЂРёС‚СЃСЏ, С‡С‚Рѕ РµСЃР»Рё РІР°Рј РЅРµРѕР±С…РѕРґРёРјС‹ С‚Р°РєР¶Рµ РІС‹РєР»СЋС‡РµРЅРЅС‹Рµ РѕРєРЅР°, РёСЃРїРѕР»СЊР·СѓР№С‚Рµ ChildWindowFromPoint. РћР“Рћ! Р­С‚Рѕ РёРґРµСЏ. Р•СЃР»Рё СЌР»РµРјРµРЅС‚ СѓРїСЂР°РІР»РµРЅРёСЏ РІС‹РєР»СЋС‡РµРЅ, С‚Рѕ Р±СѓРґРµС‚ РЅР°Р№РґРµРЅР° РёР»Рё СЃР°РјР° С„РѕСЂРјР°, РёР»Рё Р¶Рµ РєРѕРЅС‚РµР№РЅРµСЂ РІС‹РєР»СЋС‡РµРЅРЅРѕРіРѕ РєРѕРјРїРѕРЅРµРЅС‚Р°. Р•СЃР»Рё РєРѕРјРїРѕРЅРµРЅС‚, РЅР°Р№РґРµРЅС‹Р№ СЃ РїРѕРјРѕС‰СЊСЋ ChildWindowFromPoint РѕС‚Р»РёС‡Р°РµС‚СЃСЏ РѕС‚ РЅР°Р№РґРµРЅРЅРѕРіРѕ СЃ РїРѕРјРѕС‰СЊСЋ WindowFromPoint, РјС‹ РґРѕР»Р¶РЅС‹ РІС‹СЃРІРµС‚РёС‚СЊ РїРѕРґСЃРєР°Р·РєСѓ. Р­С‚Рѕ СЂР°Р±РѕС‚Р°РµС‚! РќРѕ С…РѕС‡Сѓ РїСЂРµРґРѕСЃС‚РµСЂРµС‡СЊ: РІС‹ РЅРµ СЃРјРѕР¶РµС‚Рµ С‚Р°РєРёРј РѕР±СЂР°Р·РѕРј РїРѕР»СѓС‡РёС‚СЊ РїРѕРґСЃРєР°Р·РєСѓ РґР»СЏ СЃР°РјРѕР№ С„РѕСЂРјС‹ РёР»Рё РєРѕРЅС‚РµР№РЅРµСЂРѕРІ С‚РёРїР° TPanel РёР»Рё TGroupBox. РџРѕРїС‹С‚Р°Р№С‚РµСЃСЊ СЃР°РјРё!</p>
 <pre name="code" class="delphi">
 procedure TForm1.AppShowHint(var HintStr: string;
   var CanShow: Boolean; var HintInfo: THintInfo);
@@ -47,14 +40,14 @@ begin
   if TWC = Self then
     CanShow := False
   else if TWC = HintInfo.HintControl then
-    exit(эту строку добавил Tim Frost}
+    exit(СЌС‚Сѓ СЃС‚СЂРѕРєСѓ РґРѕР±Р°РІРёР» Tim Frost}
   else if TWC.ControlCount &gt; 0 then
     CanShow := False
   else
     with TWC do
       if ShowHint and (Hint &lt;&gt; '') then
       begin
-        HintStr := '(выключен) ' + Hint;
+        HintStr := '(РІС‹РєР»СЋС‡РµРЅ) ' + Hint;
         HintInfo.HintPos := ClientOrigin;
         Inc(HintInfo.HintPos.Y, Height + 6);
       end;
@@ -69,10 +62,10 @@ end;
 <p>DelphiWorld 6.0</p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

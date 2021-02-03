@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Получение информации о папках и файлах находящихся на данный момент в корзине</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџРѕР»СѓС‡РµРЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё Рѕ РїР°РїРєР°С… Рё С„Р°Р№Р»Р°С… РЅР°С…РѕРґСЏС‰РёС…СЃСЏ РЅР° РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ РІ РєРѕСЂР·РёРЅРµ</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Получение информации о папках и файлах находящихся на данный момент в корзине</h1>
+  <h1 id="title">РџРѕР»СѓС‡РµРЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё Рѕ РїР°РїРєР°С… Рё С„Р°Р№Р»Р°С… РЅР°С…РѕРґСЏС‰РёС…СЃСЏ РЅР° РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ РІ РєРѕСЂР·РёРЅРµ</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 unit Unit1;
@@ -37,9 +30,9 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ShellAPI, ShlObj, ActiveX, ComCtrls, Menus;
  
-// корзина отображает не всю информацию по удаленному элементу
-// а только 6 позиций.
-// в действительности этих позиций больше...
+// РєРѕСЂР·РёРЅР° РѕС‚РѕР±СЂР°Р¶Р°РµС‚ РЅРµ РІСЃСЋ РёРЅС„РѕСЂРјР°С†РёСЋ РїРѕ СѓРґР°Р»РµРЅРЅРѕРјСѓ СЌР»РµРјРµРЅС‚Сѓ
+// Р° С‚РѕР»СЊРєРѕ 6 РїРѕР·РёС†РёР№.
+// РІ РґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕСЃС‚Рё СЌС‚РёС… РїРѕР·РёС†РёР№ Р±РѕР»СЊС€Рµ...
 const
   DETAIL_COUNT = 11;
  
@@ -60,7 +53,7 @@ implementation
  
 {$R *.dfm}
  
-// Функция взята из QDialogs...
+// Р¤СѓРЅРєС†РёСЏ РІР·СЏС‚Р° РёР· QDialogs...
 function StrRetToString(PIDL: PItemIDList; StrRet: TStrRet;
   Flag: String = ''): String;
 var
@@ -86,7 +79,7 @@ begin
     Result := StringReplace(Result, '?', '', [rfReplaceAll]);
 end;
  
-// Смотрим содержимое корзины...
+// РЎРјРѕС‚СЂРёРј СЃРѕРґРµСЂР¶РёРјРѕРµ РєРѕСЂР·РёРЅС‹...
 function ViewRecycleBin(const AHandle: THandle; LV: TListView): Boolean;
 var
   ppidl, Item: PItemIDList;
@@ -110,7 +103,7 @@ begin
           if RecycleBin.EnumObjects(AHandle,
             SHCONTF_FOLDERS or SHCONTF_NONFOLDERS, RecycleBinEnum) = S_OK  then
           begin
-            // Создаем колонки
+            // РЎРѕР·РґР°РµРј РєРѕР»РѕРЅРєРё
             for I := 0 to DETAIL_COUNT - 1 do
               if RecycleBin.GetDetailsOf(nil, I, Details) = S_OK then
               try
@@ -122,7 +115,7 @@ begin
               finally
                 Mallok.Free(Details.str.pOleStr);
               end;
-            // Перечиляем содержимое корзины
+            // РџРµСЂРµС‡РёР»СЏРµРј СЃРѕРґРµСЂР¶РёРјРѕРµ РєРѕСЂР·РёРЅС‹
             while True do
             begin
               RecycleBinEnum.Next(1, Item, Fetched);
@@ -158,20 +151,20 @@ end;
  
 end.
 </pre>
-<p>Пример работы с корзиной можно скачать здесь:<br>
+<p>РџСЂРёРјРµСЂ СЂР°Р±РѕС‚С‹ СЃ РєРѕСЂР·РёРЅРѕР№ РјРѕР¶РЅРѕ СЃРєР°С‡Р°С‚СЊ Р·РґРµСЃСЊ:<br>
 <p>&nbsp;</p>
 <p><a href="zip/rbin.zip">
 rbin.zip
 </a>
 </p>
-<p id="author">Автор: Rouse_</p>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ: Rouse_</p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

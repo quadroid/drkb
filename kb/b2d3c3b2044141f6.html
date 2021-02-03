@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Показ меток удаленных записей в dBASE-файлах</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџРѕРєР°Р· РјРµС‚РѕРє СѓРґР°Р»РµРЅРЅС‹С… Р·Р°РїРёСЃРµР№ РІ dBASE-С„Р°Р№Р»Р°С…</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,21 +13,14 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Показ меток удаленных записей в dBASE-файлах</h1>
+  <h1 id="title">РџРѕРєР°Р· РјРµС‚РѕРє СѓРґР°Р»РµРЅРЅС‹С… Р·Р°РїРёСЃРµР№ РІ dBASE-С„Р°Р№Р»Р°С…</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Для начала вы должны включить SoftDeletes, после чего вы сможете просматривать записи, помеченные к удалению. В противном случае, вы их не увидите. По умолчанию, для файлов DBF, SoftDeletes установлен в False. Вот логика работы:</p>
+
+<p>Р”Р»СЏ РЅР°С‡Р°Р»Р° РІС‹ РґРѕР»Р¶РЅС‹ РІРєР»СЋС‡РёС‚СЊ SoftDeletes, РїРѕСЃР»Рµ С‡РµРіРѕ РІС‹ СЃРјРѕР¶РµС‚Рµ РїСЂРѕСЃРјР°С‚СЂРёРІР°С‚СЊ Р·Р°РїРёСЃРё, РїРѕРјРµС‡РµРЅРЅС‹Рµ Рє СѓРґР°Р»РµРЅРёСЋ. Р’ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ, РІС‹ РёС… РЅРµ СѓРІРёРґРёС‚Рµ. РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ, РґР»СЏ С„Р°Р№Р»РѕРІ DBF, SoftDeletes СѓСЃС‚Р°РЅРѕРІР»РµРЅ РІ False. Р’РѕС‚ Р»РѕРіРёРєР° СЂР°Р±РѕС‚С‹:</p>
 
 <pre name="code" class="delphi">
 procedure TForm1.Button1Click(Sender: TObject);
@@ -37,32 +30,32 @@ var
 begin
   Check(DbiSetProp(hDBIObj(Table1.Handle), curSOFTDELETEON,
     longint(True)));
-  { Проверяем, что это работает }
+  { РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ СЌС‚Рѕ СЂР°Р±РѕС‚Р°РµС‚ }
   Check(DbiGetProp(hDBIObj(Table1.Handle), curSOFTDELETEON, @B,
     sizeof(B), W));
   if B = False then
-    Label2.Caption := 'Не помечена'
+    Label2.Caption := 'РќРµ РїРѕРјРµС‡РµРЅР°'
   else
-    Label2.Caption := 'Помечена';
+    Label2.Caption := 'РџРѕРјРµС‡РµРЅР°';
 end;
 </pre>
 
-<p>Когда указатель на запись указывает на запись, которую вы хотите удалить, используйте следующую логику:</p>
+<p>РљРѕРіРґР° СѓРєР°Р·Р°С‚РµР»СЊ РЅР° Р·Р°РїРёСЃСЊ СѓРєР°Р·С‹РІР°РµС‚ РЅР° Р·Р°РїРёСЃСЊ, РєРѕС‚РѕСЂСѓСЋ РІС‹ С…РѕС‚РёС‚Рµ СѓРґР°Р»РёС‚СЊ, РёСЃРїРѕР»СЊР·СѓР№С‚Рµ СЃР»РµРґСѓСЋС‰СѓСЋ Р»РѕРіРёРєСѓ:</p>
 
 <pre name="code" class="delphi">
 Table1.UpdateCursorPos;
 Check(DbiUndeleteRecord(Table1.Handle));
 </pre>
 
-<p>Метод UpdateCursorPos устанавливает основной курсор BDE на позицию курсора текущей записи, который существуют только для того, чтобы все работало правильно. Вам нужно только вызвать этот метод прямым вызовом одной из BDE API функций (такой как, например, DbiUndeleteRecord). </p>
+<p>РњРµС‚РѕРґ UpdateCursorPos СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РѕСЃРЅРѕРІРЅРѕР№ РєСѓСЂСЃРѕСЂ BDE РЅР° РїРѕР·РёС†РёСЋ РєСѓСЂСЃРѕСЂР° С‚РµРєСѓС‰РµР№ Р·Р°РїРёСЃРё, РєРѕС‚РѕСЂС‹Р№ СЃСѓС‰РµСЃС‚РІСѓСЋС‚ С‚РѕР»СЊРєРѕ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РІСЃРµ СЂР°Р±РѕС‚Р°Р»Рѕ РїСЂР°РІРёР»СЊРЅРѕ. Р’Р°Рј РЅСѓР¶РЅРѕ С‚РѕР»СЊРєРѕ РІС‹Р·РІР°С‚СЊ СЌС‚РѕС‚ РјРµС‚РѕРґ РїСЂСЏРјС‹Рј РІС‹Р·РѕРІРѕРј РѕРґРЅРѕР№ РёР· BDE API С„СѓРЅРєС†РёР№ (С‚Р°РєРѕР№ РєР°Рє, РЅР°РїСЂРёРјРµСЂ, DbiUndeleteRecord). </p>
 
-<p>Ну и, наконец, чтобы все работало, поместите модули DBIPROCS и DBITYPES с список USES. </p>
-<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<p>РќСѓ Рё, РЅР°РєРѕРЅРµС†, С‡С‚РѕР±С‹ РІСЃРµ СЂР°Р±РѕС‚Р°Р»Рѕ, РїРѕРјРµСЃС‚РёС‚Рµ РјРѕРґСѓР»Рё DBIPROCS Рё DBITYPES СЃ СЃРїРёСЃРѕРє USES. </p>
+<p>Р’Р·СЏС‚Рѕ СЃ <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Уменьшение мерцания TListBox в обработчике OwnerDraw</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РЈРјРµРЅСЊС€РµРЅРёРµ РјРµСЂС†Р°РЅРёСЏ TListBox РІ РѕР±СЂР°Р±РѕС‚С‡РёРєРµ OwnerDraw</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,29 +13,22 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Уменьшение мерцания TListBox в обработчике OwnerDraw</h1>
+  <h1 id="title">РЈРјРµРЅСЊС€РµРЅРёРµ РјРµСЂС†Р°РЅРёСЏ TListBox РІ РѕР±СЂР°Р±РѕС‚С‡РёРєРµ OwnerDraw</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Предположим ListBox имеет в своем списке два элемента, элемент 0 имеет фокус, активен другой компонент и вы щелкаете на элементе 1. При этом происходит *ПЯТИКРАТНЫЙ* вызов OnDrawItem, смотрите сами изменения состояний двух элементов: </p>
+
+<p>РџСЂРµРґРїРѕР»РѕР¶РёРј ListBox РёРјРµРµС‚ РІ СЃРІРѕРµРј СЃРїРёСЃРєРµ РґРІР° СЌР»РµРјРµРЅС‚Р°, СЌР»РµРјРµРЅС‚ 0 РёРјРµРµС‚ С„РѕРєСѓСЃ, Р°РєС‚РёРІРµРЅ РґСЂСѓРіРѕР№ РєРѕРјРїРѕРЅРµРЅС‚ Рё РІС‹ С‰РµР»РєР°РµС‚Рµ РЅР° СЌР»РµРјРµРЅС‚Рµ 1. РџСЂРё СЌС‚РѕРј РїСЂРѕРёСЃС…РѕРґРёС‚ *РџРЇРўРРљР РђРўРќР«Р™* РІС‹Р·РѕРІ OnDrawItem, СЃРјРѕС‚СЂРёС‚Рµ СЃР°РјРё РёР·РјРµРЅРµРЅРёСЏ СЃРѕСЃС‚РѕСЏРЅРёР№ РґРІСѓС… СЌР»РµРјРµРЅС‚РѕРІ: </p>
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Index&nbsp;&nbsp; State</p>
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [odSelected, odFocused]</p>
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [odSelected]</p>
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; []</p>
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [odSelected]</p>
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [odSelected, odFocused]</p>
-<p>В случае единственного элемента в списке ListBox получается конфуз, поскольку при щелчке на нем вы получаете тот же самый сценарий, только вместо двух индексов присутствует один, нулевой. </p>
-<p>Имея эту информацию, вы можете минимизировать количество вызовов процедуры отрисовки. Для примера, в не-multi-select ListBox, элемент не нужно отрисовывать, если его состояние = [odSelected], поскольку это состояние всегда сопровождается НЕ selected НЕ focused, или ОДНОВРЕМЕННО selected и focused. В этом вам поможет технология отслеживания в обработчике OnDrawItem предыдущего отрисованного элемента, и если предыдущий запомненный элемент равен текущему, то отрисовывать его необязательно, например:</p>
+<p>Р’ СЃР»СѓС‡Р°Рµ РµРґРёРЅСЃС‚РІРµРЅРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р° РІ СЃРїРёСЃРєРµ ListBox РїРѕР»СѓС‡Р°РµС‚СЃСЏ РєРѕРЅС„СѓР·, РїРѕСЃРєРѕР»СЊРєСѓ РїСЂРё С‰РµР»С‡РєРµ РЅР° РЅРµРј РІС‹ РїРѕР»СѓС‡Р°РµС‚Рµ С‚РѕС‚ Р¶Рµ СЃР°РјС‹Р№ СЃС†РµРЅР°СЂРёР№, С‚РѕР»СЊРєРѕ РІРјРµСЃС‚Рѕ РґРІСѓС… РёРЅРґРµРєСЃРѕРІ РїСЂРёСЃСѓС‚СЃС‚РІСѓРµС‚ РѕРґРёРЅ, РЅСѓР»РµРІРѕР№. </p>
+<p>РРјРµСЏ СЌС‚Сѓ РёРЅС„РѕСЂРјР°С†РёСЋ, РІС‹ РјРѕР¶РµС‚Рµ РјРёРЅРёРјРёР·РёСЂРѕРІР°С‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ РІС‹Р·РѕРІРѕРІ РїСЂРѕС†РµРґСѓСЂС‹ РѕС‚СЂРёСЃРѕРІРєРё. Р”Р»СЏ РїСЂРёРјРµСЂР°, РІ РЅРµ-multi-select ListBox, СЌР»РµРјРµРЅС‚ РЅРµ РЅСѓР¶РЅРѕ РѕС‚СЂРёСЃРѕРІС‹РІР°С‚СЊ, РµСЃР»Рё РµРіРѕ СЃРѕСЃС‚РѕСЏРЅРёРµ = [odSelected], РїРѕСЃРєРѕР»СЊРєСѓ СЌС‚Рѕ СЃРѕСЃС‚РѕСЏРЅРёРµ РІСЃРµРіРґР° СЃРѕРїСЂРѕРІРѕР¶РґР°РµС‚СЃСЏ РќР• selected РќР• focused, РёР»Рё РћР”РќРћР’Р Р•РњР•РќРќРћ selected Рё focused. Р’ СЌС‚РѕРј РІР°Рј РїРѕРјРѕР¶РµС‚ С‚РµС…РЅРѕР»РѕРіРёСЏ РѕС‚СЃР»РµР¶РёРІР°РЅРёСЏ РІ РѕР±СЂР°Р±РѕС‚С‡РёРєРµ OnDrawItem РїСЂРµРґС‹РґСѓС‰РµРіРѕ РѕС‚СЂРёСЃРѕРІР°РЅРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р°, Рё РµСЃР»Рё РїСЂРµРґС‹РґСѓС‰РёР№ Р·Р°РїРѕРјРЅРµРЅРЅС‹Р№ СЌР»РµРјРµРЅС‚ СЂР°РІРµРЅ С‚РµРєСѓС‰РµРјСѓ, С‚Рѕ РѕС‚СЂРёСЃРѕРІС‹РІР°С‚СЊ РµРіРѕ РЅРµРѕР±СЏР·Р°С‚РµР»СЊРЅРѕ, РЅР°РїСЂРёРјРµСЂ:</p>
 <pre name="code" class="delphi">
 ...
 const 
@@ -49,14 +42,14 @@ begin
 end;
 </pre>
 
-<p id="author">Автор: Neil </p>
+<p id="author">РђРІС‚РѕСЂ: Neil </p>
 
-<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ СЃ <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

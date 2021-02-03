@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как консольное приложение может узнать, что Винды завершаются?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє РєРѕРЅСЃРѕР»СЊРЅРѕРµ РїСЂРёР»РѕР¶РµРЅРёРµ РјРѕР¶РµС‚ СѓР·РЅР°С‚СЊ, С‡С‚Рѕ Р’РёРЅРґС‹ Р·Р°РІРµСЂС€Р°СЋС‚СЃСЏ?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,34 +13,27 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как консольное приложение может узнать, что Винды завершаются?</h1>
+  <h1 id="title">РљР°Рє РєРѕРЅСЃРѕР»СЊРЅРѕРµ РїСЂРёР»РѕР¶РµРЅРёРµ РјРѕР¶РµС‚ СѓР·РЅР°С‚СЊ, С‡С‚Рѕ Р’РёРЅРґС‹ Р·Р°РІРµСЂС€Р°СЋС‚СЃСЏ?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p id="author">Автор: Nomadic&nbsp; </p>
 
-<p>Все процессы получают сигналы CTRL_CLOSE_EVENT, CTRL_LOGOFF_EVENT и CTRL_SHUTDOWN_EVENT. А делается это (грубо говоря :) так:</p>
+<p id="author">РђРІС‚РѕСЂ: Nomadic&nbsp; </p>
+
+<p>Р’СЃРµ РїСЂРѕС†РµСЃСЃС‹ РїРѕР»СѓС‡Р°СЋС‚ СЃРёРіРЅР°Р»С‹ CTRL_CLOSE_EVENT, CTRL_LOGOFF_EVENT Рё CTRL_SHUTDOWN_EVENT. Рђ РґРµР»Р°РµС‚СЃСЏ СЌС‚Рѕ (РіСЂСѓР±Рѕ РіРѕРІРѕСЂСЏ :) С‚Р°Рє:</p>
 <pre name="code" class="delphi">
  
 BOOL Ctrl_Handler( DWORD Ctrl )
 {
   if( (Ctrl == CTRL_SHUTDOWN_EVENT) || (Ctrl == CTRL_LOGOFF_EVENT) )
   {
-    // Вау! Юзер обламывает!
+    // Р’Р°Сѓ! Р®Р·РµСЂ РѕР±Р»Р°РјС‹РІР°РµС‚!
   }
   else
   {
-    // Тут что-от другое можно творить. А можно и не творить :-)
+    // РўСѓС‚ С‡С‚Рѕ-РѕС‚ РґСЂСѓРіРѕРµ РјРѕР¶РЅРѕ С‚РІРѕСЂРёС‚СЊ. Рђ РјРѕР¶РЅРѕ Рё РЅРµ С‚РІРѕСЂРёС‚СЊ :-)
   }
   return TRUE;
 }
@@ -51,7 +44,7 @@ function Ctrl_Handler(Ctrl: Longint): LongBool;
 begin
   if Ctrl in [CTRL_SHUTDOWN_EVENT, CTRL_LOGOFF_EVENT] then
   begin
-    // Вау, вау
+    // Р’Р°Сѓ, РІР°Сѓ
   end
   else
   begin
@@ -62,19 +55,19 @@ end;
 </pre>
 
 
-<p>А где-то в программе:</p>
+<p>Рђ РіРґРµ-С‚Рѕ РІ РїСЂРѕРіСЂР°РјРјРµ:</p>
 
 <p>SetConsoleCtrlHandler( Ctrl_Handler, TRUE ); </p>
 
-<p>Таких обработчиков можно навесить кучу. Если при обработке какого-то из сообщений обработчик возвращает FALSE, то вызывается следующий обработчик. Можно настроить таких этажерок, что ого-го :-))) </p>
+<p>РўР°РєРёС… РѕР±СЂР°Р±РѕС‚С‡РёРєРѕРІ РјРѕР¶РЅРѕ РЅР°РІРµСЃРёС‚СЊ РєСѓС‡Сѓ. Р•СЃР»Рё РїСЂРё РѕР±СЂР°Р±РѕС‚РєРµ РєР°РєРѕРіРѕ-С‚Рѕ РёР· СЃРѕРѕР±С‰РµРЅРёР№ РѕР±СЂР°Р±РѕС‚С‡РёРє РІРѕР·РІСЂР°С‰Р°РµС‚ FALSE, С‚Рѕ РІС‹Р·С‹РІР°РµС‚СЃСЏ СЃР»РµРґСѓСЋС‰РёР№ РѕР±СЂР°Р±РѕС‚С‡РёРє. РњРѕР¶РЅРѕ РЅР°СЃС‚СЂРѕРёС‚СЊ С‚Р°РєРёС… СЌС‚Р°Р¶РµСЂРѕРє, С‡С‚Рѕ РѕРіРѕ-РіРѕ :-))) </p>
 
-<p>Короче, смотри описание SetConsoleCtrlHandler -- там всё есть. </p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<p>РљРѕСЂРѕС‡Рµ, СЃРјРѕС‚СЂРё РѕРїРёСЃР°РЅРёРµ SetConsoleCtrlHandler -- С‚Р°Рј РІСЃС‘ РµСЃС‚СЊ. </p><p>Р’Р·СЏС‚Рѕ СЃ <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Оптимизация функции методом деформируемого многогранника (метод Нелдера-Мида)</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РћРїС‚РёРјРёР·Р°С†РёСЏ С„СѓРЅРєС†РёРё РјРµС‚РѕРґРѕРј РґРµС„РѕСЂРјРёСЂСѓРµРјРѕРіРѕ РјРЅРѕРіРѕРіСЂР°РЅРЅРёРєР° (РјРµС‚РѕРґ РќРµР»РґРµСЂР°-РњРёРґР°)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,47 +13,40 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Оптимизация функции методом деформируемого многогранника (метод Нелдера-Мида)</h1>
+  <h1 id="title">РћРїС‚РёРјРёР·Р°С†РёСЏ С„СѓРЅРєС†РёРё РјРµС‚РѕРґРѕРј РґРµС„РѕСЂРјРёСЂСѓРµРјРѕРіРѕ РјРЅРѕРіРѕРіСЂР°РЅРЅРёРєР° (РјРµС‚РѕРґ РќРµР»РґРµСЂР°-РњРёРґР°)</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 { **** UBPFD *********** by kladovka.net.ru ****
-&gt;&gt; Оптимизация функции методом деформируемого многогранника (Метод Нелдера-Мида)
+&gt;&gt; РћРїС‚РёРјРёР·Р°С†РёСЏ С„СѓРЅРєС†РёРё РјРµС‚РѕРґРѕРј РґРµС„РѕСЂРјРёСЂСѓРµРјРѕРіРѕ РјРЅРѕРіРѕРіСЂР°РЅРЅРёРєР° (РњРµС‚РѕРґ РќРµР»РґРµСЂР°-РњРёРґР°)
  
-Передаваемая структура:
+РџРµСЂРµРґР°РІР°РµРјР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР°:
 TNelderOption = record
-Size: Cardinal; // Размер структуры (обязательно)
-Flags: Cardinal; // Флаги (обязательно)
-Func: TMathFunction; // Функция (обязательно)
-N: Integer; // Размерность (обязательно)
-X0: PExtended; // Указатель на начальную точку (обязательно)
-X: PExtended; // Указатель куда записывать результат (обязательно)
-Eps: Extended; // Точность (опция FIND_MIN_USE_EPS)
-Delta: Extended; // Способ проверки (опция FIND_MIN_USE_DELTA)
-R: Extended; // Расстояние между вершинами симплекса (опция FIND_MIN_USE_R)
-Mode: Integer; // Метод решения (опция FIND_MIN_USE_MODE)
-Alpha: Extended; // Коэффициент отражения (опция FIND_MIN_USE_ALPHA)
-Beta: Extended; // Коэффициент сжатия (опция FIND_MIN_USE_BETA)
-Gamma: Extended; // Коэффициент растяжения (опция FIND_MIN_USE_GAMMA)
+Size: Cardinal; // Р Р°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ (РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ)
+Flags: Cardinal; // Р¤Р»Р°РіРё (РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ)
+Func: TMathFunction; // Р¤СѓРЅРєС†РёСЏ (РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ)
+N: Integer; // Р Р°Р·РјРµСЂРЅРѕСЃС‚СЊ (РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ)
+X0: PExtended; // РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РЅР°С‡Р°Р»СЊРЅСѓСЋ С‚РѕС‡РєСѓ (РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ)
+X: PExtended; // РЈРєР°Р·Р°С‚РµР»СЊ РєСѓРґР° Р·Р°РїРёСЃС‹РІР°С‚СЊ СЂРµР·СѓР»СЊС‚Р°С‚ (РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ)
+Eps: Extended; // РўРѕС‡РЅРѕСЃС‚СЊ (РѕРїС†РёСЏ FIND_MIN_USE_EPS)
+Delta: Extended; // РЎРїРѕСЃРѕР± РїСЂРѕРІРµСЂРєРё (РѕРїС†РёСЏ FIND_MIN_USE_DELTA)
+R: Extended; // Р Р°СЃСЃС‚РѕСЏРЅРёРµ РјРµР¶РґСѓ РІРµСЂС€РёРЅР°РјРё СЃРёРјРїР»РµРєСЃР° (РѕРїС†РёСЏ FIND_MIN_USE_R)
+Mode: Integer; // РњРµС‚РѕРґ СЂРµС€РµРЅРёСЏ (РѕРїС†РёСЏ FIND_MIN_USE_MODE)
+Alpha: Extended; // РљРѕСЌС„С„РёС†РёРµРЅС‚ РѕС‚СЂР°Р¶РµРЅРёСЏ (РѕРїС†РёСЏ FIND_MIN_USE_ALPHA)
+Beta: Extended; // РљРѕСЌС„С„РёС†РёРµРЅС‚ СЃР¶Р°С‚РёСЏ (РѕРїС†РёСЏ FIND_MIN_USE_BETA)
+Gamma: Extended; // РљРѕСЌС„С„РёС†РёРµРЅС‚ СЂР°СЃС‚СЏР¶РµРЅРёСЏ (РѕРїС†РёСЏ FIND_MIN_USE_GAMMA)
 end;
  
-Возвращаемое значение - 0 если хорошо, иначе ошибка
+Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ - 0 РµСЃР»Рё С…РѕСЂРѕС€Рѕ, РёРЅР°С‡Рµ РѕС€РёР±РєР°
  
-Зависимости: Windows
-Автор:       Mystic, mystic2000@newmail.ru, ICQ:125905046, Харьков
-Copyright:   Mystic (посвящается Оксане в память о ее дипломе)
-Дата:        25 апреля 2002 г.
+Р—Р°РІРёСЃРёРјРѕСЃС‚Рё: Windows
+РђРІС‚РѕСЂ:       Mystic, mystic2000@newmail.ru, ICQ:125905046, РҐР°СЂСЊРєРѕРІ
+Copyright:   Mystic (РїРѕСЃРІСЏС‰Р°РµС‚СЃСЏ РћРєСЃР°РЅРµ РІ РїР°РјСЏС‚СЊ Рѕ РµРµ РґРёРїР»РѕРјРµ)
+Р”Р°С‚Р°:        25 Р°РїСЂРµР»СЏ 2002 Рі.
 ********************************************** }
  
 const
@@ -86,7 +79,7 @@ const
   FIND_MIN_USE_BETA = $00000020;
   FIND_MIN_USE_GAMMA = $00000040;
  
-  // Некоторые комбинации стандартных опций:
+  // РќРµРєРѕС‚РѕСЂС‹Рµ РєРѕРјР±РёРЅР°С†РёРё СЃС‚Р°РЅРґР°СЂС‚РЅС‹С… РѕРїС†РёР№:
   FIND_MIN_USE_EPS_R = FIND_MIN_USE_EPS or FIND_MIN_USE_R;
   FIND_MIN_USE_EPS_R_MODE = FIND_MIN_USE_EPS_R or FIND_MIN_USE_MODE;
   FIND_MIN_USE_EPS_R_DELTA = FIND_MIN_USE_EPS_R or FIND_MIN_USE_DELTA;
@@ -101,41 +94,41 @@ type
  
   PNelderOption = ^TNelderOption;
   TNelderOption = record
-    Size: Cardinal; // Размер структуры (обязательно)
-    Flags: Cardinal; // Флаги (обязательно)
-    Func: TMathFunction; // Функция (обязательно)
-    N: Integer; // Размерность (обязательно)
-    X0: PExtended; // Указатель на начальную точку (обязательно)
-    X: PExtended; // Указатель куда записывать результат (обязательно)
-    Eps: Extended; // Точность (опция FIND_MIN_USE_EPS)
-    Delta: Extended; // Способ проверки (опция FIND_MIN_USE_DELTA)
-    R: Extended; // Расстояние между вершинами симплекса (опция FIND_MIN_USE_R)
-    Mode: Integer; // Метод решения (опция FIND_MIN_USE_MODE)
-    Alpha: Extended; // Коэффициент отражения (опция FIND_MIN_USE_ALPHA)
-    Beta: Extended; // Коэффициент сжатия (опция FIND_MIN_USE_BETA)
-    Gamma: Extended; // Коэффициент растяжения (опция FIND_MIN_USE_GAMMA)
+    Size: Cardinal; // Р Р°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ (РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ)
+    Flags: Cardinal; // Р¤Р»Р°РіРё (РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ)
+    Func: TMathFunction; // Р¤СѓРЅРєС†РёСЏ (РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ)
+    N: Integer; // Р Р°Р·РјРµСЂРЅРѕСЃС‚СЊ (РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ)
+    X0: PExtended; // РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РЅР°С‡Р°Р»СЊРЅСѓСЋ С‚РѕС‡РєСѓ (РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ)
+    X: PExtended; // РЈРєР°Р·Р°С‚РµР»СЊ РєСѓРґР° Р·Р°РїРёСЃС‹РІР°С‚СЊ СЂРµР·СѓР»СЊС‚Р°С‚ (РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ)
+    Eps: Extended; // РўРѕС‡РЅРѕСЃС‚СЊ (РѕРїС†РёСЏ FIND_MIN_USE_EPS)
+    Delta: Extended; // РЎРїРѕСЃРѕР± РїСЂРѕРІРµСЂРєРё (РѕРїС†РёСЏ FIND_MIN_USE_DELTA)
+    R: Extended; // Р Р°СЃСЃС‚РѕСЏРЅРёРµ РјРµР¶РґСѓ РІРµСЂС€РёРЅР°РјРё СЃРёРјРїР»РµРєСЃР° (РѕРїС†РёСЏ FIND_MIN_USE_R)
+    Mode: Integer; // РњРµС‚РѕРґ СЂРµС€РµРЅРёСЏ (РѕРїС†РёСЏ FIND_MIN_USE_MODE)
+    Alpha: Extended; // РљРѕСЌС„С„РёС†РёРµРЅС‚ РѕС‚СЂР°Р¶РµРЅРёСЏ (РѕРїС†РёСЏ FIND_MIN_USE_ALPHA)
+    Beta: Extended; // РљРѕСЌС„С„РёС†РёРµРЅС‚ СЃР¶Р°С‚РёСЏ (РѕРїС†РёСЏ FIND_MIN_USE_BETA)
+    Gamma: Extended; // РљРѕСЌС„С„РёС†РёРµРЅС‚ СЂР°СЃС‚СЏР¶РµРЅРёСЏ (РѕРїС†РёСЏ FIND_MIN_USE_GAMMA)
   end;
  
 {**********
-  Проверка указателя Option на то, что все его параметры доступны для чтения
+  РџСЂРѕРІРµСЂРєР° СѓРєР°Р·Р°С‚РµР»СЏ Option РЅР° С‚Рѕ, С‡С‚Рѕ РІСЃРµ РµРіРѕ РїР°СЂР°РјРµС‚СЂС‹ РґРѕСЃС‚СѓРїРЅС‹ РґР»СЏ С‡С‚РµРЅРёСЏ
 **********}
 function CheckNelderOptionPtr(Option: PNelderOption): Integer;
 begin
-  // Проверка указателя #1 (допустимость указателя)
+  // РџСЂРѕРІРµСЂРєР° СѓРєР°Р·Р°С‚РµР»СЏ #1 (РґРѕРїСѓСЃС‚РёРјРѕСЃС‚СЊ СѓРєР°Р·Р°С‚РµР»СЏ)
   if IsBadReadPtr(@Option, 4) then
   begin
     Result := FIND_MIN_INVALID_OPTION;
     Exit;
   end;
  
-  // Проверка указателя #2 (слишком мало параметров)
+  // РџСЂРѕРІРµСЂРєР° СѓРєР°Р·Р°С‚РµР»СЏ #2 (СЃР»РёС€РєРѕРј РјР°Р»Рѕ РїР°СЂР°РјРµС‚СЂРѕРІ)
   if Option.Size &lt; 24 then
   begin
     Result := FIND_MIN_INVALID_OPTION;
     Exit;
   end;
  
-  // Проверка указателя #3 (все данные можно читать?)
+  // РџСЂРѕРІРµСЂРєР° СѓРєР°Р·Р°С‚РµР»СЏ #3 (РІСЃРµ РґР°РЅРЅС‹Рµ РјРѕР¶РЅРѕ С‡РёС‚Р°С‚СЊ?)
   if IsBadReadPtr(@Option, Option.Size) then
   begin
     Result := FIND_MIN_INVALID_OPTION;
@@ -146,8 +139,8 @@ begin
 end;
  
 {************
-  Копирование данных из одной структуры в другую с попутной проверкой
-  на допустимость значений всех параметров.
+  РљРѕРїРёСЂРѕРІР°РЅРёРµ РґР°РЅРЅС‹С… РёР· РѕРґРЅРѕР№ СЃС‚СЂСѓРєС‚СѓСЂС‹ РІ РґСЂСѓРіСѓСЋ СЃ РїРѕРїСѓС‚РЅРѕР№ РїСЂРѕРІРµСЂРєРѕР№
+  РЅР° РґРѕРїСѓСЃС‚РёРјРѕСЃС‚СЊ Р·РЅР°С‡РµРЅРёР№ РІСЃРµС… РїР°СЂР°РјРµС‚СЂРѕРІ.
 ************}
 function CopyData(const InOption: TNelderOption; var OutOption: TNelderOption): Integer;
 var
@@ -155,46 +148,46 @@ var
 begin
   Result := FIND_MIN_OK;
  
-  // Копируем одну структуру в другую
+  // РљРѕРїРёСЂСѓРµРј РѕРґРЅСѓ СЃС‚СЂСѓРєС‚СѓСЂСѓ РІ РґСЂСѓРіСѓСЋ
   CopyCount := SizeOf(TNelderOption);
   if InOption.Size &lt; CopyCount then CopyCount := InOption.Size;
   Move(InOption, OutOption, CopyCount);
  
-  // Устанавливаем размер
+  // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЂР°Р·РјРµСЂ
   OutOption.Size := SizeOf(TNelderOption);
  
-  // Проверка Option.Func
+  // РџСЂРѕРІРµСЂРєР° Option.Func
   if IsBadCodePtr(@OutOption.Func) then
   begin
     Result := FIND_MIN_INVALID_FUNC;
     Exit;
   end;
  
-  // Проверка Option.N
+  // РџСЂРѕРІРµСЂРєР° Option.N
   if OutOption.N &lt;= 0 then
   begin
     Result := FIND_MIN_INVALID_N;
     Exit;
   end;
  
-  // Проверка Option.X0
+  // РџСЂРѕРІРµСЂРєР° Option.X0
   if IsBadReadPtr(OutOption.X0, OutOption.N * SizeOf(Extended)) then
   begin
     Result := FIND_MIN_INVALID_X0;
     Exit;
   end;
  
-  // Проверка Option.X
+  // РџСЂРѕРІРµСЂРєР° Option.X
   if IsBadWritePtr(OutOption.X, OutOption.N * SizeOf(Extended)) then
   begin
     Result := FIND_MIN_INVALID_X;
     Exit;
   end;
  
-  // Проверка Option.Eps
+  // РџСЂРѕРІРµСЂРєР° Option.Eps
   if (FIND_MIN_USE_EPS and OutOption.Flags) &lt;&gt; 0 then
   begin
-    if OutOption.Size &lt; 34 then // Eps не вписывается в размер
+    if OutOption.Size &lt; 34 then // Eps РЅРµ РІРїРёСЃС‹РІР°РµС‚СЃСЏ РІ СЂР°Р·РјРµСЂ
     begin
       Result := FIND_MIN_INVALID_OPTION;
       Exit;
@@ -209,7 +202,7 @@ begin
     OutOption.Eps := 1E-06; // Default value;
   end;
  
-  // Проверка OutOption.Delta
+  // РџСЂРѕРІРµСЂРєР° OutOption.Delta
   if (FIND_MIN_USE_DELTA and OutOption.Flags) &lt;&gt; 0 then
   begin
     if OutOption.Size &lt; 44 then
@@ -227,7 +220,7 @@ begin
     OutOption.Delta := 0.5; // Default value
   end;
  
-  // Проверка OutOption.R
+  // РџСЂРѕРІРµСЂРєР° OutOption.R
   if (FIND_MIN_USE_R and OutOption.Flags) &lt;&gt; 0 then
   begin
     if OutOption.Size &lt; 54 then
@@ -245,7 +238,7 @@ begin
     OutOption.R := 100.0; // Default value
   end;
  
-  // Проверка OutOption.Mode
+  // РџСЂРѕРІРµСЂРєР° OutOption.Mode
   if (FIND_MIN_USE_MODE and OutOption.Flags) &lt;&gt; 0 then
   begin
     if OutOption.Size &lt; 58 then
@@ -266,7 +259,7 @@ begin
     OutOption.Mode := FIND_MIN_MODE_STD; // Default value
   end;
  
-  // Проверка OutOption.Alpha
+  // РџСЂРѕРІРµСЂРєР° OutOption.Alpha
   if (FIND_MIN_USE_ALPHA and OutOption.Flags) &lt;&gt; 0 then
   begin
     if OutOption.Size &lt; 68 then
@@ -284,7 +277,7 @@ begin
     OutOption.Alpha := 1.0; // Default value
   end;
  
-  // Проверка OutOption.Beta
+  // РџСЂРѕРІРµСЂРєР° OutOption.Beta
   if (FIND_MIN_USE_BETA and OutOption.Flags) &lt;&gt; 0 then
   begin
     if OutOption.Size &lt; 78 then
@@ -302,7 +295,7 @@ begin
     OutOption.Beta := 0.5; // Default value
   end;
  
-  // Проверка OutOption.Gamma
+  // РџСЂРѕРІРµСЂРєР° OutOption.Gamma
   if (FIND_MIN_USE_GAMMA and OutOption.Flags) &lt;&gt; 0 then
   begin
     if OutOption.Size &lt; 88 then
@@ -347,7 +340,7 @@ var
   SizeAll: Integer;
   Ptr: PChar;
 begin
-  // Вычисляем размеры
+  // Р’С‹С‡РёСЃР»СЏРµРј СЂР°Р·РјРµСЂС‹
   SizeD0 := N*(N+1)*SizeOf(Extended);
   SizeFX := (N+1)*SizeOf(Extended);
   SizeC := N * SizeOf(Extended);
@@ -394,8 +387,8 @@ begin
 end;
  
 {*********
-  Строится симплекс:
-    В целях оптимизации поменяем местами строки и столбцы
+  РЎС‚СЂРѕРёС‚СЃСЏ СЃРёРјРїР»РµРєСЃ:
+    Р’ С†РµР»СЏС… РѕРїС‚РёРјРёР·Р°С†РёРё РїРѕРјРµРЅСЏРµРј РјРµСЃС‚Р°РјРё СЃС‚СЂРѕРєРё Рё СЃС‚РѕР»Р±С†С‹
 **********}
 procedure BuildSimplex(var Temp: TNelderTempData; const Option: TNelderOption);
 var
@@ -422,7 +415,7 @@ begin
 end;
  
 {*********
-  Перемещение симплекса в точку A
+  РџРµСЂРµРјРµС‰РµРЅРёРµ СЃРёРјРїР»РµРєСЃР° РІ С‚РѕС‡РєСѓ A
 *********}
 procedure MoveSimplex(var Temp: TNelderTempData; const Option: TNelderOption; A: PExtended);
 var
@@ -445,7 +438,7 @@ begin
   end;
 end;
  
-// Быстрая сортировка значений FX
+// Р‘С‹СЃС‚СЂР°СЏ СЃРѕСЂС‚РёСЂРѕРІРєР° Р·РЅР°С‡РµРЅРёР№ FX
 procedure QuickSortFX(L, R: Integer; FX: PExtended; Indexes: PInteger);
 var
   I, J, K: Integer;
@@ -469,12 +462,12 @@ begin
  
       if I &lt;= J then
       begin
-        // Переставляем местами значения FX
+        // РџРµСЂРµСЃС‚Р°РІР»СЏРµРј РјРµСЃС‚Р°РјРё Р·РЅР°С‡РµРЅРёСЏ FX
         T := PExtended(PChar(FX) + SizeOf(Extended)*I)^;
         PExtended(PChar(FX) + SizeOf(Extended)*I)^ := PExtended(PChar(FX) + SizeOf(Extended)*J)^;
         PExtended(PChar(FX) + SizeOf(Extended)*J)^ := T;
  
-        // Поддерживаем порядок и в индексах
+        // РџРѕРґРґРµСЂР¶РёРІР°РµРј РїРѕСЂСЏРґРѕРє Рё РІ РёРЅРґРµРєСЃР°С…
         K := PInteger(PChar(Indexes) + SizeOf(Integer)*I)^;
         PInteger(PChar(Indexes) + SizeOf(Integer)*I)^ := PInteger(PChar(Indexes) + SizeOf(Integer)*J)^;
         PInteger(PChar(Indexes) + SizeOf(Integer)*J)^ := K;
@@ -498,7 +491,7 @@ var
 begin
   with Temp, Option do
   begin
-    // Вычисление значений функции
+    // Р’С‹С‡РёСЃР»РµРЅРёРµ Р·РЅР°С‡РµРЅРёР№ С„СѓРЅРєС†РёРё
     PtrD0 := D0;
     PtrFX := FX;
     for I := 0 to N do
@@ -510,7 +503,7 @@ begin
   end;
 end;
  
-// Освежаем и сортируем FX + освежаем индексы
+// РћСЃРІРµР¶Р°РµРј Рё СЃРѕСЂС‚РёСЂСѓРµРј FX + РѕСЃРІРµР¶Р°РµРј РёРЅРґРµРєСЃС‹
 procedure RefreshFX(var Temp: TNelderTempData; Option: TNelderOption);
 var
   I: Integer;
@@ -518,7 +511,7 @@ var
 begin
   with Temp, Option do
   begin
-    // Заполение индексов
+    // Р—Р°РїРѕР»РµРЅРёРµ РёРЅРґРµРєСЃРѕРІ
     PtrIndexes := Indexes;
     for I := 0 to N do
     begin
@@ -526,10 +519,10 @@ begin
       PChar(PtrIndexes) := PChar(PtrIndexes) + SizeOf(Integer);
     end;
  
-    // Сортировка
+    // РЎРѕСЂС‚РёСЂРѕРІРєР°
     QuickSortFX(0, N, FX, Indexes);
  
-    // Возвращаемое значение: Result := D0 + SizeOf(Extended) * Indexes[N]
+    // Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ: Result := D0 + SizeOf(Extended) * Indexes[N]
     PChar(PtrIndexes) := PChar(PtrIndexes) - SizeOf(Integer);
     XN := PExtended(PChar(D0) + N*SizeOf(Extended)*PtrIndexes^);
   end;
@@ -561,7 +554,7 @@ begin
         end;
       end
       else begin
-        // Пропускаем вектор из D0:
+        // РџСЂРѕРїСѓСЃРєР°РµРј РІРµРєС‚РѕСЂ РёР· D0:
         PChar(PtrD0) := PChar(PtrD0) + N * SizeOf(Extended);
       end;
  
@@ -636,10 +629,10 @@ begin
     ReflectPoint(Temp, Option, V, Gamma);
     FV := Func(Temp.V);
  
-    // Коррекция FX
+    // РљРѕСЂСЂРµРєС†РёСЏ FX
     Move(FX^, (PChar(FX)+SizeOf(Extended))^, N*SizeOf(Extended));
  
-    // Заносим на первое место
+    // Р—Р°РЅРѕСЃРёРј РЅР° РїРµСЂРІРѕРµ РјРµСЃС‚Рѕ
     if FV &lt; FU then
     begin
       FX^ := FV;
@@ -650,26 +643,26 @@ begin
       Move(U^, XN^, N*SizeOf(Extended));
     end;
  
-    // Коррекция Indexes
+    // РљРѕСЂСЂРµРєС†РёСЏ Indexes
     TempPtr := PChar(Indexes) + N*SizeOf(Integer);
     LastIndex := PInteger(TempPtr)^;
     Move(Indexes^, (PChar(Indexes)+SizeOf(Integer))^, N*SizeOf(Integer));
     Indexes^ := LastIndex;
  
-    // Коррекция XN
+    // РљРѕСЂСЂРµРєС†РёСЏ XN
     PChar(XN) := PChar(D0) + PInteger(TempPtr)^ * N * SizeOf(EXtended);
   end;
 end;
  
-// Рекурсивный бинарный поиск точки, где будет произведена вставка
-// Интересно переделать в итерацию !!! (так оптимальней)
+// Р РµРєСѓСЂСЃРёРІРЅС‹Р№ Р±РёРЅР°СЂРЅС‹Р№ РїРѕРёСЃРє С‚РѕС‡РєРё, РіРґРµ Р±СѓРґРµС‚ РїСЂРѕРёР·РІРµРґРµРЅР° РІСЃС‚Р°РІРєР°
+// РРЅС‚РµСЂРµСЃРЅРѕ РїРµСЂРµРґРµР»Р°С‚СЊ РІ РёС‚РµСЂР°С†РёСЋ !!! (С‚Р°Рє РѕРїС‚РёРјР°Р»СЊРЅРµР№)
 function RecurseFind(FX: PExtended; Value: Extended; L,R: Integer): Integer;
 var
   M: Integer;
   Temp: Extended;
 begin
   if R&lt;L then begin
-    Result := L; // Result := -1 если поиск точный
+    Result := L; // Result := -1 РµСЃР»Рё РїРѕРёСЃРє С‚РѕС‡РЅС‹Р№
     Exit;
   end;
   M := (L+R) div 2;
@@ -696,19 +689,19 @@ var
 begin
   with Temp, Option do
   begin
-    // Определения позиции вставки
+    // РћРїСЂРµРґРµР»РµРЅРёСЏ РїРѕР·РёС†РёРё РІСЃС‚Р°РІРєРё
     InsertN := RecurseFind(FX, FU, 0, N);
  
-    // Сдвижка FX
+    // РЎРґРІРёР¶РєР° FX
     ShiftPosition := PChar(FX)+InsertN*SizeOf(Extended);
     Move(ShiftPosition^, (ShiftPosition+SizeOf(Extended))^,
       (N-InsertN)*SizeOf(Extended));
     PExtended(ShiftPosition)^ := FU;
  
-    // Коррекция D0
+    // РљРѕСЂСЂРµРєС†РёСЏ D0
     Move(U^, XN^, N*SizeOf(EXtended));
  
-    // Коррекция Indexes
+    // РљРѕСЂСЂРµРєС†РёСЏ Indexes
     TempPtr := PChar(Indexes)+N*SizeOf(Integer);
     TempIndex := PInteger(TempPtr)^;
     ShiftPosition := PChar(Indexes)+InsertN*SizeOf(Integer);
@@ -716,7 +709,7 @@ begin
       (N-InsertN)*SizeOf(Integer));
     PInteger(ShiftPosition)^ := TempIndex;
  
-    // Коррекция XN
+    // РљРѕСЂСЂРµРєС†РёСЏ XN
     PChar(XN) := PChar(D0) + N * PInteger(TempPtr)^ * SizeOf(EXtended);
   end;
 end;
@@ -725,7 +718,7 @@ procedure Compression(var Temp: TNelderTempData;const Option: TNelderOption);
 begin
   with Temp, Option do
   begin
-    // Вычисление новой точки
+    // Р’С‹С‡РёСЃР»РµРЅРёРµ РЅРѕРІРѕР№ С‚РѕС‡РєРё
     ReflectPoint(Temp, Option, U, Beta);
     FU := Func(U);
  
@@ -752,11 +745,11 @@ begin
     begin
       if PtrD0 = ZeroPoint then
       begin
-        // Точка пропускается
+        // РўРѕС‡РєР° РїСЂРѕРїСѓСЃРєР°РµС‚СЃСЏ
         PtrFX^ := FX0;
       end
       else begin
-        // Вычисляем точку:
+        // Р’С‹С‡РёСЃР»СЏРµРј С‚РѕС‡РєСѓ:
         PtrX := PtrD0;
         PtrX0 := ZeroPoint;
         for J := 0 to N-1 do
@@ -765,7 +758,7 @@ begin
           PChar(PtrX) := PChar(PtrX) + SizeOf(Extended);
           PChar(PtrX0) := PChar(PtrX0) + SizeOf(Extended);
         end;
-        // Вычисляем функцию
+        // Р’С‹С‡РёСЃР»СЏРµРј С„СѓРЅРєС†РёСЋ
         PtrFX^ := Func(PtrD0);
       end;
       PChar(PtrFX) := PChar(PtrFX) + SizeOf(Extended);
@@ -784,7 +777,7 @@ var
   Sum1, Sum2: Extended;
   I, J: Integer;
 begin
-  // Не все параметры используются...
+  // РќРµ РІСЃРµ РїР°СЂР°РјРµС‚СЂС‹ РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ...
   with Temp, Option do
   begin
     Sum1 := 0.0;
@@ -866,40 +859,40 @@ begin
   if Result &lt;&gt; FIND_MIN_OK then Exit;
  
   try
-    // Шаг №1: построение симплекса
+    // РЁР°Рі в„–1: РїРѕСЃС‚СЂРѕРµРЅРёРµ СЃРёРјРїР»РµРєСЃР°
     BuildSimplex(Temp, Option);
  
-    // Шаг №2: перенос симплекса в точку X0
+    // РЁР°Рі в„–2: РїРµСЂРµРЅРѕСЃ СЃРёРјРїР»РµРєСЃР° РІ С‚РѕС‡РєСѓ X0
     MoveSimplex(Temp, Option, Option.X0);
  
     repeat
-      // Шаг №3: вычисление значений функции (+ сортировка)
+      // РЁР°Рі в„–3: РІС‹С‡РёСЃР»РµРЅРёРµ Р·РЅР°С‡РµРЅРёР№ С„СѓРЅРєС†РёРё (+ СЃРѕСЂС‚РёСЂРѕРІРєР°)
       CalcFX(Temp, Option);
  
       RefreshFX(Temp, Option);
  
       repeat
-        // Шаг №4: вычисление центра тяжести без точки Indexes[N]
+        // РЁР°Рі в„–4: РІС‹С‡РёСЃР»РµРЅРёРµ С†РµРЅС‚СЂР° С‚СЏР¶РµСЃС‚Рё Р±РµР· С‚РѕС‡РєРё Indexes[N]
         CalcC(Temp, Option);
  
-        // Шаг №5: Вычисление точки U
+        // РЁР°Рі в„–5: Р’С‹С‡РёСЃР»РµРЅРёРµ С‚РѕС‡РєРё U
         ReflectPoint(Temp, Option, Temp.U, Option.Alpha);
  
-        // Шаг №6: Определение ситуации
+        // РЁР°Рі в„–6: РћРїСЂРµРґРµР»РµРЅРёРµ СЃРёС‚СѓР°С†РёРё
         Temp.FU := Option.Func(Temp.U);
         case DetectSituation(Temp, Option){Temp.FX, Temp.U, Option.Func, Option.N, Temp.FU)} of
-          SITUATION_EXPANSION: // Растяжение
+          SITUATION_EXPANSION: // Р Р°СЃС‚СЏР¶РµРЅРёРµ
             Expansion(Temp, Option);
           SITUATION_REFLECTION:
-            Reflection(Temp, Option); // Отражение
-          SITUATION_COMPRESSION: // Сжатие
+            Reflection(Temp, Option); // РћС‚СЂР°Р¶РµРЅРёРµ
+          SITUATION_COMPRESSION: // РЎР¶Р°С‚РёРµ
             Compression(Temp, Option);
-          SITUATION_REDUCTION: // Редукция
+          SITUATION_REDUCTION: // Р РµРґСѓРєС†РёСЏ
             Reduction(Temp, Option);
-          else Assert(False, 'Другое не предусматривается');
+          else Assert(False, 'Р”СЂСѓРіРѕРµ РЅРµ РїСЂРµРґСѓСЃРјР°С‚СЂРёРІР°РµС‚СЃСЏ');
         end;
  
-        // Шаг №7 критерий остановки
+        // РЁР°Рі в„–7 РєСЂРёС‚РµСЂРёР№ РѕСЃС‚Р°РЅРѕРІРєРё
         if NeedStop(Temp, Option) then Break;
  
       until False;
@@ -954,10 +947,10 @@ end;
 </pre>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

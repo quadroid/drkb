@@ -1,7 +1,7 @@
 <html>
 <head>
   <title>ISQLConnection</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,39 +13,32 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">ISQLConnection</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Интерфейс ISQLConnection обеспечивает работу соединения. Он передает запросы серверу и возвращает результаты, создавая экземпляры интерфейса iSQLCommand; управляет транзакциями; поддерживает передачу метаданных при помощи интерфейса ISQLMetaData. </p>
-<p>Для открытия соединения используется метод </p>
+
+<p>РРЅС‚РµСЂС„РµР№СЃ ISQLConnection РѕР±РµСЃРїРµС‡РёРІР°РµС‚ СЂР°Р±РѕС‚Сѓ СЃРѕРµРґРёРЅРµРЅРёСЏ. РћРЅ РїРµСЂРµРґР°РµС‚ Р·Р°РїСЂРѕСЃС‹ СЃРµСЂРІРµСЂСѓ Рё РІРѕР·РІСЂР°С‰Р°РµС‚ СЂРµР·СѓР»СЊС‚Р°С‚С‹, СЃРѕР·РґР°РІР°СЏ СЌРєР·РµРјРїР»СЏСЂС‹ РёРЅС‚РµСЂС„РµР№СЃР° iSQLCommand; СѓРїСЂР°РІР»СЏРµС‚ С‚СЂР°РЅР·Р°РєС†РёСЏРјРё; РїРѕРґРґРµСЂР¶РёРІР°РµС‚ РїРµСЂРµРґР°С‡Сѓ РјРµС‚Р°РґР°РЅРЅС‹С… РїСЂРё РїРѕРјРѕС‰Рё РёРЅС‚РµСЂС„РµР№СЃР° ISQLMetaData. </p>
+<p>Р”Р»СЏ РѕС‚РєСЂС‹С‚РёСЏ СЃРѕРµРґРёРЅРµРЅРёСЏ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РјРµС‚РѕРґ </p>
 <p>function connect(ServerName: PChar; UserName: PChar; Password: PChar): SQLResult; stdcall; </p>
-<p>где ServerName &#8212; имя базы данных, UserName И Password &#8212; имя и пароль пользователя. </p>
-<p>Закрывает соединение метод </p>
+<p>РіРґРµ ServerName &#8212; РёРјСЏ Р±Р°Р·С‹ РґР°РЅРЅС‹С…, UserName Р Password &#8212; РёРјСЏ Рё РїР°СЂРѕР»СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ. </p>
+<p>Р—Р°РєСЂС‹РІР°РµС‚ СЃРѕРµРґРёРЅРµРЅРёРµ РјРµС‚РѕРґ </p>
 <p>function disconnect: SQLResult; stdcall; </p>
-<p>Параметры соединения управляются методами </p>
+<p>РџР°СЂР°РјРµС‚СЂС‹ СЃРѕРµРґРёРЅРµРЅРёСЏ СѓРїСЂР°РІР»СЏСЋС‚СЃСЏ РјРµС‚РѕРґР°РјРё </p>
 <p>function SetOption(eConnectOption: TSQLConnectionOption; lvalue: Longlnt): SQLResult; stdcall; </p>
 <p>function GetOption(eDOption: TSQLConnectionOption; PropValue: Pointer; MaxLength: Smalllnt; out Length: Smalllnt): SQLResult; stdcall; </p>
-<p>Для обработки запроса, проходящего через соединение, создается интерфейс ISQLCommand&nbsp; </p>
+<p>Р”Р»СЏ РѕР±СЂР°Р±РѕС‚РєРё Р·Р°РїСЂРѕСЃР°, РїСЂРѕС…РѕРґСЏС‰РµРіРѕ С‡РµСЂРµР· СЃРѕРµРґРёРЅРµРЅРёРµ, СЃРѕР·РґР°РµС‚СЃСЏ РёРЅС‚РµСЂС„РµР№СЃ ISQLCommand&nbsp; </p>
 <p>function getSQLCommand(out pComm: ISQLCommand): SQLResult; stdcall; </p>
-<p>Обработка транзакций осуществляется тремя методами: </p>
+<p>РћР±СЂР°Р±РѕС‚РєР° С‚СЂР°РЅР·Р°РєС†РёР№ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ С‚СЂРµРјСЏ РјРµС‚РѕРґР°РјРё: </p>
 <p>function beginTransaction(TranID: LongWord): SQLResult; stdcall; </p>
 <p>function commit(TranID: LongWord): SQLResult; stdcall; </p>
 <p>function rollback(TranID: LongWord): SQLResult; stdcall; </p>
-<p>При помощи метода </p>
+<p>РџСЂРё РїРѕРјРѕС‰Рё РјРµС‚РѕРґР° </p>
 <p>function getErrorMessage(Error: PChar): SQLResult; overload; stdcall; </p>
-<p>организована обработка исключительных ситуаций в компоненте TSQLConnection. В нем реализована защищенная процедура SQLError, которую можно использовать в собственных компонентах и при необходимости дорабатывать. </p>
-<p>Например, можно написать собственную процедуру контроля ошибок примерно по такому образцу: </p>
+<p>РѕСЂРіР°РЅРёР·РѕРІР°РЅР° РѕР±СЂР°Р±РѕС‚РєР° РёСЃРєР»СЋС‡РёС‚РµР»СЊРЅС‹С… СЃРёС‚СѓР°С†РёР№ РІ РєРѕРјРїРѕРЅРµРЅС‚Рµ TSQLConnection. Р’ РЅРµРј СЂРµР°Р»РёР·РѕРІР°РЅР° Р·Р°С‰РёС‰РµРЅРЅР°СЏ РїСЂРѕС†РµРґСѓСЂР° SQLError, РєРѕС‚РѕСЂСѓСЋ РјРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РІ СЃРѕР±СЃС‚РІРµРЅРЅС‹С… РєРѕРјРїРѕРЅРµРЅС‚Р°С… Рё РїСЂРё РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё РґРѕСЂР°Р±Р°С‚С‹РІР°С‚СЊ. </p>
+<p>РќР°РїСЂРёРјРµСЂ, РјРѕР¶РЅРѕ РЅР°РїРёСЃР°С‚СЊ СЃРѕР±СЃС‚РІРµРЅРЅСѓСЋ РїСЂРѕС†РµРґСѓСЂСѓ РєРѕРЅС‚СЂРѕР»СЏ РѕС€РёР±РѕРє РїСЂРёРјРµСЂРЅРѕ РїРѕ С‚Р°РєРѕРјСѓ РѕР±СЂР°Р·С†Сѓ: </p>
 <pre name="code" class="delphi">
 procedure CheckError(IConn: ISQLConnection); </p>
  var FStatus: SQLResult; 
@@ -65,15 +58,15 @@ begin
  &nbsp; end; 
 end; 
 </pre>
-<p>Доступ к интерфейсу isQLConnection можно получить через свойство </p>
+<p>Р”РѕСЃС‚СѓРї Рє РёРЅС‚РµСЂС„РµР№СЃСѓ isQLConnection РјРѕР¶РЅРѕ РїРѕР»СѓС‡РёС‚СЊ С‡РµСЂРµР· СЃРІРѕР№СЃС‚РІРѕ </p>
 <p>property SQLConnection: ISQLConnection;&nbsp; </p>
-<p>компонента TSQLConnection. </p>
+<p>РєРѕРјРїРѕРЅРµРЅС‚Р° TSQLConnection. </p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Получение узла в TTreeView по пути заголовков</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџРѕР»СѓС‡РµРЅРёРµ СѓР·Р»Р° РІ TTreeView РїРѕ РїСѓС‚Рё Р·Р°РіРѕР»РѕРІРєРѕРІ</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,33 +13,26 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Получение узла в TTreeView по пути заголовков</h1>
+  <h1 id="title">РџРѕР»СѓС‡РµРЅРёРµ СѓР·Р»Р° РІ TTreeView РїРѕ РїСѓС‚Рё Р·Р°РіРѕР»РѕРІРєРѕРІ</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 { **** UBPFD *********** by delphibase.endimus.com ****
-&gt;&gt; Получение узла в TreeView по пути заголовков
+&gt;&gt; РџРѕР»СѓС‡РµРЅРёРµ СѓР·Р»Р° РІ TreeView РїРѕ РїСѓС‚Рё Р·Р°РіРѕР»РѕРІРєРѕРІ
  
-Функция выдает узел TTreeNode из дерева TreeView, находящийся по пути,
-указанному в Path, в котором разделителем уровней является символ Separator.
-Если узел не найден - выдается nil.
-Ограничение - заголовки узлов дерева не должны содержать символа Separator.
+Р¤СѓРЅРєС†РёСЏ РІС‹РґР°РµС‚ СѓР·РµР» TTreeNode РёР· РґРµСЂРµРІР° TreeView, РЅР°С…РѕРґСЏС‰РёР№СЃСЏ РїРѕ РїСѓС‚Рё,
+СѓРєР°Р·Р°РЅРЅРѕРјСѓ РІ Path, РІ РєРѕС‚РѕСЂРѕРј СЂР°Р·РґРµР»РёС‚РµР»РµРј СѓСЂРѕРІРЅРµР№ СЏРІР»СЏРµС‚СЃСЏ СЃРёРјРІРѕР» Separator.
+Р•СЃР»Рё СѓР·РµР» РЅРµ РЅР°Р№РґРµРЅ - РІС‹РґР°РµС‚СЃСЏ nil.
+РћРіСЂР°РЅРёС‡РµРЅРёРµ - Р·Р°РіРѕР»РѕРІРєРё СѓР·Р»РѕРІ РґРµСЂРµРІР° РЅРµ РґРѕР»Р¶РЅС‹ СЃРѕРґРµСЂР¶Р°С‚СЊ СЃРёРјРІРѕР»Р° Separator.
  
-Зависимости: ComCtrls, Classes, SysUtils
-Автор:       lipskiy, lipskiy@mail.ru, ICQ:51219290, Санкт-Петербург
-Copyright:   Собственное написание (lipskiy)
-Дата:        26 июня 2002 г.
+Р—Р°РІРёСЃРёРјРѕСЃС‚Рё: ComCtrls, Classes, SysUtils
+РђРІС‚РѕСЂ:       lipskiy, lipskiy@mail.ru, ICQ:51219290, РЎР°РЅРєС‚-РџРµС‚РµСЂР±СѓСЂРі
+Copyright:   РЎРѕР±СЃС‚РІРµРЅРЅРѕРµ РЅР°РїРёСЃР°РЅРёРµ (lipskiy)
+Р”Р°С‚Р°:        26 РёСЋРЅСЏ 2002 Рі.
 ***************************************************** }
  
 function GetNodeInPath(Path: string; Separator: char; TreeView: TTreeView):
@@ -55,22 +48,22 @@ begin
     = '') then
     exit;
   List := TStringList.Create;
-  // Меняем сепаратор на первод строки
+  // РњРµРЅСЏРµРј СЃРµРїР°СЂР°С‚РѕСЂ РЅР° РїРµСЂРІРѕРґ СЃС‚СЂРѕРєРё
   s := StringReplace(Path, Separator, #13#10,[rfReplaceAll]);
- // Получаем список уровней
+ // РџРѕР»СѓС‡Р°РµРј СЃРїРёСЃРѕРє СѓСЂРѕРІРЅРµР№
   List.Text := s;
-  // Начинаем с нулевой ноды дерева
+  // РќР°С‡РёРЅР°РµРј СЃ РЅСѓР»РµРІРѕР№ РЅРѕРґС‹ РґРµСЂРµРІР°
   Node := TreeView.Items[0];
-  // Проходим по всему списку уровней пути
+  // РџСЂРѕС…РѕРґРёРј РїРѕ РІСЃРµРјСѓ СЃРїРёСЃРєСѓ СѓСЂРѕРІРЅРµР№ РїСѓС‚Рё
   for i := 0 to List.Count - 1 do
   begin
-    // Ищем имя ноды на текущем уровне
+    // РС‰РµРј РёРјСЏ РЅРѕРґС‹ РЅР° С‚РµРєСѓС‰РµРј СѓСЂРѕРІРЅРµ
     while (Node &lt;&gt; nil) and (Node.Text &lt;&gt; List[i]) do
       Node := Node.getNextSibling;
-    // Нода не найдена
+    // РќРѕРґР° РЅРµ РЅР°Р№РґРµРЅР°
     if Node = nil then
       break;
-    // Переходим на уровень ниже
+    // РџРµСЂРµС…РѕРґРёРј РЅР° СѓСЂРѕРІРµРЅСЊ РЅРёР¶Рµ
     if i &lt; List.Count - 1 then
       Node := Node.getFirstChild;
   end;
@@ -78,18 +71,18 @@ begin
   Result := Node;
 end;
  
-// Пример использования:
+// РџСЂРёРјРµСЂ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ:
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-  TreeView1.Selected := GetNodeInPath('Каталог\Подкаталог', '\', TreeView1);
+  TreeView1.Selected := GetNodeInPath('РљР°С‚Р°Р»РѕРі\РџРѕРґРєР°С‚Р°Р»РѕРі', '\', TreeView1);
 end;
 </pre>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

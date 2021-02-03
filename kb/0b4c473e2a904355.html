@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Инкрементальный поиск в TListBox</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РРЅРєСЂРµРјРµРЅС‚Р°Р»СЊРЅС‹Р№ РїРѕРёСЃРє РІ TListBox</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,23 +13,16 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Инкрементальный поиск в TListBox</h1>
+  <h1 id="title">РРЅРєСЂРµРјРµРЅС‚Р°Р»СЊРЅС‹Р№ РїРѕРёСЃРє РІ TListBox</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Я видел приложение, в котором ListBox позволял осуществлять инкрементальный поиск. При вводе очередного символа он позиционирует вас к первой ячейке, начало значения которой совпадает с введенным пользователем текстом, или выделяет все строки с текстом, содержащим введенный текст. </p>
-<p>Как это осуществить на Delphi? </p>
-<p>Здесь придется немного воспользоваться Win API. Установите свойство формы KeyPreview в True и сделайте примерно следующее:</p>
+
+<p>РЇ РІРёРґРµР» РїСЂРёР»РѕР¶РµРЅРёРµ, РІ РєРѕС‚РѕСЂРѕРј ListBox РїРѕР·РІРѕР»СЏР» РѕСЃСѓС‰РµСЃС‚РІР»СЏС‚СЊ РёРЅРєСЂРµРјРµРЅС‚Р°Р»СЊРЅС‹Р№ РїРѕРёСЃРє. РџСЂРё РІРІРѕРґРµ РѕС‡РµСЂРµРґРЅРѕРіРѕ СЃРёРјРІРѕР»Р° РѕРЅ РїРѕР·РёС†РёРѕРЅРёСЂСѓРµС‚ РІР°СЃ Рє РїРµСЂРІРѕР№ СЏС‡РµР№РєРµ, РЅР°С‡Р°Р»Рѕ Р·РЅР°С‡РµРЅРёСЏ РєРѕС‚РѕСЂРѕР№ СЃРѕРІРїР°РґР°РµС‚ СЃ РІРІРµРґРµРЅРЅС‹Рј РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј С‚РµРєСЃС‚РѕРј, РёР»Рё РІС‹РґРµР»СЏРµС‚ РІСЃРµ СЃС‚СЂРѕРєРё СЃ С‚РµРєСЃС‚РѕРј, СЃРѕРґРµСЂР¶Р°С‰РёРј РІРІРµРґРµРЅРЅС‹Р№ С‚РµРєСЃС‚. </p>
+<p>РљР°Рє СЌС‚Рѕ РѕСЃСѓС‰РµСЃС‚РІРёС‚СЊ РЅР° Delphi? </p>
+<p>Р—РґРµСЃСЊ РїСЂРёРґРµС‚СЃСЏ РЅРµРјРЅРѕРіРѕ РІРѕСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ Win API. РЈСЃС‚Р°РЅРѕРІРёС‚Рµ СЃРІРѕР№СЃС‚РІРѕ С„РѕСЂРјС‹ KeyPreview РІ True Рё СЃРґРµР»Р°Р№С‚Рµ РїСЂРёРјРµСЂРЅРѕ СЃР»РµРґСѓСЋС‰РµРµ:</p>
 <pre name="code" class="delphi">
 unit LbxSrch;
  
@@ -60,14 +53,14 @@ implementation
 {$R *.DFM}
  
 procedure TFrmLbxSrch.FormKeyPress(Sender: TObject; var Key: Char);
-{ Помните о том, что свойство KeyPreview должно быть установлено в True }
+{ РџРѕРјРЅРёС‚Рµ Рѕ С‚РѕРј, С‡С‚Рѕ СЃРІРѕР№СЃС‚РІРѕ KeyPreview РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ РІ True }
 var
   curKey: array[0..1] of char;
   ndx: integer;
 begin
   if ActiveControl = ListBox1 then
   begin
-    if key = #8 {Backspace (клавиша возврата)} then
+    if key = #8 {Backspace (РєР»Р°РІРёС€Р° РІРѕР·РІСЂР°С‚Р°)} then
     begin
       if FPrefix[0] &lt;&gt; #0 then
       begin
@@ -99,10 +92,10 @@ end;
 end.
 </pre>
 
-<p id="author">Автор: Ralph Friedman </p>
+<p id="author">РђРІС‚РѕСЂ: Ralph Friedman </p>
 
-<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
-<hr /><p>Предположим, что ListBox сортируется, это не трудно. Вы должны разместить компонент Edit выше ListBox и создать следующий обработчик его случая OnChange:</p>
+<p>Р’Р·СЏС‚Рѕ СЃ <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<hr /><p>РџСЂРµРґРїРѕР»РѕР¶РёРј, С‡С‚Рѕ ListBox СЃРѕСЂС‚РёСЂСѓРµС‚СЃСЏ, СЌС‚Рѕ РЅРµ С‚СЂСѓРґРЅРѕ. Р’С‹ РґРѕР»Р¶РЅС‹ СЂР°Р·РјРµСЃС‚РёС‚СЊ РєРѕРјРїРѕРЅРµРЅС‚ Edit РІС‹С€Рµ ListBox Рё СЃРѕР·РґР°С‚СЊ СЃР»РµРґСѓСЋС‰РёР№ РѕР±СЂР°Р±РѕС‚С‡РёРє РµРіРѕ СЃР»СѓС‡Р°СЏ OnChange:</p>
 <pre name="code" class="delphi">
 procedure TForm1.Edit1Change(Sender: TObject);
 var
@@ -120,14 +113,14 @@ begin
 end;
 </pre>
 
-<p>Пытаясь вставить часть текста, вы просто просматриваете список на предмет его наличия. Если актуальный элемент в этой позиции содержит "частичный" текст, мы выводим его, в противном случае делаем так, чтобы ListBox не имел выделенного (ItemIndex) элемента.</p>
+<p>РџС‹С‚Р°СЏСЃСЊ РІСЃС‚Р°РІРёС‚СЊ С‡Р°СЃС‚СЊ С‚РµРєСЃС‚Р°, РІС‹ РїСЂРѕСЃС‚Рѕ РїСЂРѕСЃРјР°С‚СЂРёРІР°РµС‚Рµ СЃРїРёСЃРѕРє РЅР° РїСЂРµРґРјРµС‚ РµРіРѕ РЅР°Р»РёС‡РёСЏ. Р•СЃР»Рё Р°РєС‚СѓР°Р»СЊРЅС‹Р№ СЌР»РµРјРµРЅС‚ РІ СЌС‚РѕР№ РїРѕР·РёС†РёРё СЃРѕРґРµСЂР¶РёС‚ "С‡Р°СЃС‚РёС‡РЅС‹Р№" С‚РµРєСЃС‚, РјС‹ РІС‹РІРѕРґРёРј РµРіРѕ, РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ РґРµР»Р°РµРј С‚Р°Рє, С‡С‚РѕР±С‹ ListBox РЅРµ РёРјРµР» РІС‹РґРµР»РµРЅРЅРѕРіРѕ (ItemIndex) СЌР»РµРјРµРЅС‚Р°.</p>
 
-<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ СЃ <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

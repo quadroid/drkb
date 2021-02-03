@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как завершить любой процесс, в том числе и системный?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє Р·Р°РІРµСЂС€РёС‚СЊ Р»СЋР±РѕР№ РїСЂРѕС†РµСЃСЃ, РІ С‚РѕРј С‡РёСЃР»Рµ Рё СЃРёСЃС‚РµРјРЅС‹Р№?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,25 +13,18 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как завершить любой процесс, в том числе и системный?</h1>
+  <h1 id="title">РљР°Рє Р·Р°РІРµСЂС€РёС‚СЊ Р»СЋР±РѕР№ РїСЂРѕС†РµСЃСЃ, РІ С‚РѕРј С‡РёСЃР»Рµ Рё СЃРёСЃС‚РµРјРЅС‹Р№?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
-// Включение, приминение и отключения привилегии.
- // Для примера возьмем привилегию отладки приложений 'SeDebugPrivilege'
- // необходимую для завершения ЛЮБЫХ процессов в системе (завершение процесов
- // созданных текущим пользователем привилегия не нужна.
+// Р’РєР»СЋС‡РµРЅРёРµ, РїСЂРёРјРёРЅРµРЅРёРµ Рё РѕС‚РєР»СЋС‡РµРЅРёСЏ РїСЂРёРІРёР»РµРіРёРё.
+ // Р”Р»СЏ РїСЂРёРјРµСЂР° РІРѕР·СЊРјРµРј РїСЂРёРІРёР»РµРіРёСЋ РѕС‚Р»Р°РґРєРё РїСЂРёР»РѕР¶РµРЅРёР№ 'SeDebugPrivilege'
+ // РЅРµРѕР±С…РѕРґРёРјСѓСЋ РґР»СЏ Р·Р°РІРµСЂС€РµРЅРёСЏ Р›Р®Р‘Р«РҐ РїСЂРѕС†РµСЃСЃРѕРІ РІ СЃРёСЃС‚РµРјРµ (Р·Р°РІРµСЂС€РµРЅРёРµ РїСЂРѕС†РµСЃРѕРІ
+ // СЃРѕР·РґР°РЅРЅС‹С… С‚РµРєСѓС‰РёРј РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј РїСЂРёРІРёР»РµРіРёСЏ РЅРµ РЅСѓР¶РЅР°.
  
 function ProcessTerminate(dwPID:Cardinal):Boolean;
 var
@@ -42,13 +35,13 @@ var
  hProcess:THandle;
 begin
  Result:=false;
- // Добавляем привилегию SeDebugPrivilege 
- // Для начала получаем токен нашего процесса
+ // Р”РѕР±Р°РІР»СЏРµРј РїСЂРёРІРёР»РµРіРёСЋ SeDebugPrivilege 
+ // Р”Р»СЏ РЅР°С‡Р°Р»Р° РїРѕР»СѓС‡Р°РµРј С‚РѕРєРµРЅ РЅР°С€РµРіРѕ РїСЂРѕС†РµСЃСЃР°
  if not OpenProcessToken( GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES
   or TOKEN_QUERY, hToken ) then
     exit;
  
- // Получаем LUID привилегии
+ // РџРѕР»СѓС‡Р°РµРј LUID РїСЂРёРІРёР»РµРіРёРё
  if not LookupPrivilegeValue( nil, 'SeDebugPrivilege', SeDebugNameValue ) 
   then begin
    CloseHandle(hToken);
@@ -59,21 +52,21 @@ begin
  tkp.Privileges[0].Luid := SeDebugNameValue;
  tkp.Privileges[0].Attributes := SE_PRIVILEGE_ENABLED;
  
- // Добавляем привилегию к нашему процессу
+ // Р”РѕР±Р°РІР»СЏРµРј РїСЂРёРІРёР»РµРіРёСЋ Рє РЅР°С€РµРјСѓ РїСЂРѕС†РµСЃСЃСѓ
  AdjustTokenPrivileges(hToken,false,tkp,SizeOf(tkp),tkp,ReturnLength);
  if GetLastError()&lt; &gt; ERROR_SUCCESS  then exit;
  
- // Завершаем процесс. Если у нас есть SeDebugPrivilege, то мы можем
- // завершить и системный процесс
- // Получаем дескриптор процесса для его завершения
+ // Р—Р°РІРµСЂС€Р°РµРј РїСЂРѕС†РµСЃСЃ. Р•СЃР»Рё Сѓ РЅР°СЃ РµСЃС‚СЊ SeDebugPrivilege, С‚Рѕ РјС‹ РјРѕР¶РµРј
+ // Р·Р°РІРµСЂС€РёС‚СЊ Рё СЃРёСЃС‚РµРјРЅС‹Р№ РїСЂРѕС†РµСЃСЃ
+ // РџРѕР»СѓС‡Р°РµРј РґРµСЃРєСЂРёРїС‚РѕСЂ РїСЂРѕС†РµСЃСЃР° РґР»СЏ РµРіРѕ Р·Р°РІРµСЂС€РµРЅРёСЏ
  hProcess := OpenProcess(PROCESS_TERMINATE, FALSE, dwPID);
  if hProcess =0  then exit;
-  // Завершаем процесс
+  // Р—Р°РІРµСЂС€Р°РµРј РїСЂРѕС†РµСЃСЃ
    if not TerminateProcess(hProcess, DWORD(-1))
     then exit;
  CloseHandle( hProcess );
  
- // Удаляем привилегию 
+ // РЈРґР°Р»СЏРµРј РїСЂРёРІРёР»РµРіРёСЋ 
  tkp.Privileges[0].Attributes := 0; 
  AdjustTokenPrivileges(hToken, FALSE, tkp, SizeOf(tkp), tkp, ReturnLength);
  if GetLastError() &lt; &gt;  ERROR_SUCCESS
@@ -82,18 +75,18 @@ begin
  Result:=true; 
 end;
  
- // Название добавление/удаление привилгии немного неправильные.  Привилегия или 
- // есть в токене процесса или ее нет. Если привилегия есть, то она может быть в 
- // двух состояниях - или включеная или отключеная. И в этом примере мы только 
- // включаем или выключаем необходимую привилегию, а не добавляем ее.
+ // РќР°Р·РІР°РЅРёРµ РґРѕР±Р°РІР»РµРЅРёРµ/СѓРґР°Р»РµРЅРёРµ РїСЂРёРІРёР»РіРёРё РЅРµРјРЅРѕРіРѕ РЅРµРїСЂР°РІРёР»СЊРЅС‹Рµ.  РџСЂРёРІРёР»РµРіРёСЏ РёР»Рё 
+ // РµСЃС‚СЊ РІ С‚РѕРєРµРЅРµ РїСЂРѕС†РµСЃСЃР° РёР»Рё РµРµ РЅРµС‚. Р•СЃР»Рё РїСЂРёРІРёР»РµРіРёСЏ РµСЃС‚СЊ, С‚Рѕ РѕРЅР° РјРѕР¶РµС‚ Р±С‹С‚СЊ РІ 
+ // РґРІСѓС… СЃРѕСЃС‚РѕСЏРЅРёСЏС… - РёР»Рё РІРєР»СЋС‡РµРЅР°СЏ РёР»Рё РѕС‚РєР»СЋС‡РµРЅР°СЏ. Р РІ СЌС‚РѕРј РїСЂРёРјРµСЂРµ РјС‹ С‚РѕР»СЊРєРѕ 
+ // РІРєР»СЋС‡Р°РµРј РёР»Рё РІС‹РєР»СЋС‡Р°РµРј РЅРµРѕР±С…РѕРґРёРјСѓСЋ РїСЂРёРІРёР»РµРіРёСЋ, Р° РЅРµ РґРѕР±Р°РІР»СЏРµРј РµРµ.
 </pre>
 
-<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ СЃ <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

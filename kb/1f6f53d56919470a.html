@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как программно установить конфигурацию COM-порта в Windows 95?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє РїСЂРѕРіСЂР°РјРјРЅРѕ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РєРѕРЅС„РёРіСѓСЂР°С†РёСЋ COM-РїРѕСЂС‚Р° РІ Windows 95?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как программно установить конфигурацию COM-порта в Windows 95?</h1>
+  <h1 id="title">РљР°Рє РїСЂРѕРіСЂР°РјРјРЅРѕ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РєРѕРЅС„РёРіСѓСЂР°С†РёСЋ COM-РїРѕСЂС‚Р° РІ Windows 95?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 
 <pre name="code" class="delphi">
@@ -37,7 +30,7 @@ var
   size : DWORD; 
 begin 
   CommPort := 'COM1'; 
-{Открываем Com-порт} 
+{РћС‚РєСЂС‹РІР°РµРј Com-РїРѕСЂС‚} 
   hCommFile := CreateFile(PChar(CommPort), 
                           GENERIC_WRITE, 
                           0, 
@@ -50,42 +43,42 @@ begin
     ShowMessage('Unable to open '+ CommPort); 
     exit; 
   end; 
-{Выделяем временный буфер} 
+{Р’С‹РґРµР»СЏРµРј РІСЂРµРјРµРЅРЅС‹Р№ Р±СѓС„РµСЂ} 
   GetMem(Buffer, sizeof(TCommConfig)); 
  
-{Получаем размер структуры CommConfig}
+{РџРѕР»СѓС‡Р°РµРј СЂР°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ CommConfig}
   size := 0; 
   GetCommConfig(hCommFile, Buffer^, size); 
  
-{Освобождаем временный буфер} 
+{РћСЃРІРѕР±РѕР¶РґР°РµРј РІСЂРµРјРµРЅРЅС‹Р№ Р±СѓС„РµСЂ} 
   FreeMem(Buffer, sizeof(TCommConfig)); 
  
-{Выделяем память для структуры CommConfig} 
+{Р’С‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ РґР»СЏ СЃС‚СЂСѓРєС‚СѓСЂС‹ CommConfig} 
   GetMem(Buffer, size); 
   GetCommConfig(hCommFile, Buffer^, size); 
  
-{Изменяем скорость передачи} 
+{РР·РјРµРЅСЏРµРј СЃРєРѕСЂРѕСЃС‚СЊ РїРµСЂРµРґР°С‡Рё} 
   Buffer^.dcb.BaudRate := 1200; 
  
-{Устанавливаем новую конфигурацию для COM-порта} 
+{РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РЅРѕРІСѓСЋ РєРѕРЅС„РёРіСѓСЂР°С†РёСЋ РґР»СЏ COM-РїРѕСЂС‚Р°} 
   SetCommConfig(hCommFile, Buffer^, size); 
  
-{Освобождаем буфер} 
+{РћСЃРІРѕР±РѕР¶РґР°РµРј Р±СѓС„РµСЂ} 
   FreeMem(Buffer, size); 
  
-{Закрываем COM-порт}
+{Р—Р°РєСЂС‹РІР°РµРј COM-РїРѕСЂС‚}
   CloseHandle(hCommFile); 
 end;
 </pre>
 
 
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

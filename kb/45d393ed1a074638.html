@@ -1,7 +1,7 @@
 <html>
 <head>
   <title>Drag &amp; Drop c Explorer</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Drag &amp; Drop c Explorer</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 interface
@@ -79,12 +72,12 @@ begin
   for fCounter := 1 to NumberOfFiles do
   begin
     DragQueryFile(hDrop, fCounter, fName, 254);
-    // Здесь вы получаете один к одному имя вашего файла
+    // Р—РґРµСЃСЊ РІС‹ РїРѕР»СѓС‡Р°РµС‚Рµ РѕРґРёРЅ Рє РѕРґРЅРѕРјСѓ РёРјСЏ РІР°С€РµРіРѕ С„Р°Р№Р»Р°
  
     Names := Names + #13#10 + fName;
   end;
  
-  ShowMessage('Бросаем ' + IntToStr(NumberOfFiles) + ' файла(ов) : ' + Names);
+  ShowMessage('Р‘СЂРѕСЃР°РµРј ' + IntToStr(NumberOfFiles) + ' С„Р°Р№Р»Р°(РѕРІ) : ' + Names);
   DragFinish(hDrop);
 end;
  
@@ -93,21 +86,21 @@ end.
 
 <p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
-<hr /><p id="author">Автор: Aleksey </p>
+<hr /><p id="author">РђРІС‚РѕСЂ: Aleksey </p>
 <pre name="code" class="delphi">
-{Так можно заставить окно принимать файлы, перетаскиваемые из проводника}
-{ОБЯЗАТЕЛЬНО ПОМЕСТИТЕ В СЕКЦИЮ PRIVATE СТРОКИ
+{РўР°Рє РјРѕР¶РЅРѕ Р·Р°СЃС‚Р°РІРёС‚СЊ РѕРєРЅРѕ РїСЂРёРЅРёРјР°С‚СЊ С„Р°Р№Р»С‹, РїРµСЂРµС‚Р°СЃРєРёРІР°РµРјС‹Рµ РёР· РїСЂРѕРІРѕРґРЅРёРєР°}
+{РћР‘РЇР—РђРўР•Р›Р¬РќРћ РџРћРњР•РЎРўРРўР• Р’ РЎР•РљР¦РР® PRIVATE РЎРўР РћРљР
  
 procedure CreateParams(var Params: TCreateParams); override;
 procedure WMDropFiles(var Message: TWMDropFiles); message WM_DROPFILES;
-и не забудьте - ShellAPI поместить в uses}
+Рё РЅРµ Р·Р°Р±СѓРґСЊС‚Рµ - ShellAPI РїРѕРјРµСЃС‚РёС‚СЊ РІ uses}
  
 procedure TForm1.CreateParams(var Params: TCreateParams);
 begin
  
   inherited
     CreateParams(Params);
-  {сделаем окно способным принимать файлы}
+  {СЃРґРµР»Р°РµРј РѕРєРЅРѕ СЃРїРѕСЃРѕР±РЅС‹Рј РїСЂРёРЅРёРјР°С‚СЊ С„Р°Р№Р»С‹}
   Params.ExStyle := Params.ExStyle or WS_EX_ACCEPTFILES;
 end;
  
@@ -119,14 +112,14 @@ var
 begin
  
   inherited;
-  {так можно узнать сколько файлов перетягивается}
+  {С‚Р°Рє РјРѕР¶РЅРѕ СѓР·РЅР°С‚СЊ СЃРєРѕР»СЊРєРѕ С„Р°Р№Р»РѕРІ РїРµСЂРµС‚СЏРіРёРІР°РµС‚СЃСЏ}
   // FilesCount := DragQueryFile(Message.drop, $FFFFFFFF, nil, 0);
  
   begin
-    {здесь можно поставить цикл открытия всех перетаскиваемых файлов
+    {Р·РґРµСЃСЊ РјРѕР¶РЅРѕ РїРѕСЃС‚Р°РІРёС‚СЊ С†РёРєР» РѕС‚РєСЂС‹С‚РёСЏ РІСЃРµС… РїРµСЂРµС‚Р°СЃРєРёРІР°РµРјС‹С… С„Р°Р№Р»РѕРІ
  
     for N := 0 to FilesCount - 1 do DragQueryFile(Message.drop, N, aFile, 256);
-    а в данном случае открывается только первый файл в списке}
+    Р° РІ РґР°РЅРЅРѕРј СЃР»СѓС‡Р°Рµ РѕС‚РєСЂС‹РІР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РїРµСЂРІС‹Р№ С„Р°Р№Р» РІ СЃРїРёСЃРєРµ}
     DragQueryFile(Message.drop, 0, aFile, 256);
     Memo1.Lines.LoadFromFile(aFile);
   end;
@@ -135,7 +128,7 @@ end;
  
 procedure TForm1.FormCreate(Sender: TObject); {Form1.OnCreate}
 begin
-  {сделаем окно неравнодушным к пролетающим над ним файлам}
+  {СЃРґРµР»Р°РµРј РѕРєРЅРѕ РЅРµСЂР°РІРЅРѕРґСѓС€РЅС‹Рј Рє РїСЂРѕР»РµС‚Р°СЋС‰РёРј РЅР°Рґ РЅРёРј С„Р°Р№Р»Р°Рј}
   DragAcceptFiles(Handle, True);
 end;
 </pre>
@@ -144,10 +137,10 @@ end;
 <p>DelphiWorld 6.0</p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

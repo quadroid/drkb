@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Обзор сети (типа Network Neighborhood)</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РћР±Р·РѕСЂ СЃРµС‚Рё (С‚РёРїР° Network Neighborhood)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,22 +13,15 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Обзор сети (типа Network Neighborhood)</h1>
+  <h1 id="title">РћР±Р·РѕСЂ СЃРµС‚Рё (С‚РёРїР° Network Neighborhood)</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Обзор сети (типа Network Neighborhood)</p>
-Пример может служить отправной точкой для создания рабочего варианта.</p>
+
+<p>РћР±Р·РѕСЂ СЃРµС‚Рё (С‚РёРїР° Network Neighborhood)</p>
+РџСЂРёРјРµСЂ РјРѕР¶РµС‚ СЃР»СѓР¶РёС‚СЊ РѕС‚РїСЂР°РІРЅРѕР№ С‚РѕС‡РєРѕР№ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ СЂР°Р±РѕС‡РµРіРѕ РІР°СЂРёР°РЅС‚Р°.</p>
 <pre name="code" class="delphi">
 unit netres_main_unit;
  
@@ -96,7 +89,7 @@ begin
 close;
 end;
  
-{ Перечисляем все сетевые ресурсы }
+{ РџРµСЂРµС‡РёСЃР»СЏРµРј РІСЃРµ СЃРµС‚РµРІС‹Рµ СЂРµСЃСѓСЂСЃС‹ }
 procedure tfrmmain.doenumeration;
 var
 netres: array[0..2] of tnetresource;
@@ -104,127 +97,127 @@ loop: integer;
 r, henum, entrycount, netreslen: dword;
 begin
 case grplisttype.itemindex of
-{ Подключенные ресурсы: }
+{ РџРѕРґРєР»СЋС‡РµРЅРЅС‹Рµ СЂРµСЃСѓСЂСЃС‹: }
 1: listtype := resource_connected;
  
-{ Возобновляемые ресурсы: }
+{ Р’РѕР·РѕР±РЅРѕРІР»СЏРµРјС‹Рµ СЂРµСЃСѓСЂСЃС‹: }
 2: listtype := resource_remembered;
-{ Глобальные: }
+{ Р“Р»РѕР±Р°Р»СЊРЅС‹Рµ: }
 else listtype := resource_globalnet;
 end;
 case grpresourcetype.itemindex of
-{ Дисковые ресурсы: }
+{ Р”РёСЃРєРѕРІС‹Рµ СЂРµСЃСѓСЂСЃС‹: }
 1: resourcetype := resourcetype_disk;
-{ Принтерные ресурсы: }
+{ РџСЂРёРЅС‚РµСЂРЅС‹Рµ СЂРµСЃСѓСЂСЃС‹: }
 2: resourcetype := resourcetype_print;
-{ Все: }
+{ Р’СЃРµ: }
 else resourcetype := resourcetype_any;
 end;
 screen.cursor := crhourglass;
 try
-{ Удаляем любые старые элементы из дерева }
+{ РЈРґР°Р»СЏРµРј Р»СЋР±С‹Рµ СЃС‚Р°СЂС‹Рµ СЌР»РµРјРµРЅС‚С‹ РёР· РґРµСЂРµРІР° }
 for loop := tvresources.items.count - 1 downto 0 do
 tvresources.items[loop].delete;
 except
 end;
-{ Начинаем перечисление: }
+{ РќР°С‡РёРЅР°РµРј РїРµСЂРµС‡РёСЃР»РµРЅРёРµ: }
 r := wnetopenenum(listtype, resourcetype, 0, nil, henum);
 if r &lt;&gt; no_error then begin
 if r = error_extended_error then
-messagedlg('Невозможно сделать обзор сети.' + #13
-+ 'Произошла сетевая ошибка.', mterror, [mbok], 0)
+messagedlg('РќРµРІРѕР·РјРѕР¶РЅРѕ СЃРґРµР»Р°С‚СЊ РѕР±Р·РѕСЂ СЃРµС‚Рё.' + #13
++ 'РџСЂРѕРёР·РѕС€Р»Р° СЃРµС‚РµРІР°СЏ РѕС€РёР±РєР°.', mterror, [mbok], 0)
 else
-messagedlg('Невозможно сделать обзор сети.', mterror, [mbok], 0);
+messagedlg('РќРµРІРѕР·РјРѕР¶РЅРѕ СЃРґРµР»Р°С‚СЊ РѕР±Р·РѕСЂ СЃРµС‚Рё.', mterror, [mbok], 0);
 exit;
 end;
 try
-{ Мы получили правильный дескриптор перечисления; опрашиваем ресурсы }
+{ РњС‹ РїРѕР»СѓС‡РёР»Рё РїСЂР°РІРёР»СЊРЅС‹Р№ РґРµСЃРєСЂРёРїС‚РѕСЂ РїРµСЂРµС‡РёСЃР»РµРЅРёСЏ; РѕРїСЂР°С€РёРІР°РµРј СЂРµСЃСѓСЂСЃС‹ }
 while (1 = 1) do begin
 entrycount := 1;
 netreslen := sizeof(netres);
 r := wnetenumresource(henum, entrycount, @netres, netreslen);
 case r of
-0: begin { Это контейнер, организуем итерацию: }
+0: begin { Р­С‚Рѕ РєРѕРЅС‚РµР№РЅРµСЂ, РѕСЂРіР°РЅРёР·СѓРµРј РёС‚РµСЂР°С†РёСЋ: }
 if netres[0].dwusage = resourceusage_container then
 doenumerationcontainer(netres[0])
-else { Здесь получаем подключенные и возобновляемые ресурсы }
+else { Р—РґРµСЃСЊ РїРѕР»СѓС‡Р°РµРј РїРѕРґРєР»СЋС‡РµРЅРЅС‹Рµ Рё РІРѕР·РѕР±РЅРѕРІР»СЏРµРјС‹Рµ СЂРµСЃСѓСЂСЃС‹ }
 if listtype in [resource_remembered, resource_connected] then
 addconnection(netres[0]);
 end;
-error_no_more_items: { Получены все ресурсы: }
+error_no_more_items: { РџРѕР»СѓС‡РµРЅС‹ РІСЃРµ СЂРµСЃСѓСЂСЃС‹: }
 break;
-else begin { Другие ошибки: }
-messagedlg('Ошибка опроса ресурсов.', mterror, [mbok], 0);
+else begin { Р”СЂСѓРіРёРµ РѕС€РёР±РєРё: }
+messagedlg('РћС€РёР±РєР° РѕРїСЂРѕСЃР° СЂРµСЃСѓСЂСЃРѕРІ.', mterror, [mbok], 0);
 break;
 end;
 end;
 end;
 finally
 screen.cursor := crdefault;
-{ Закрываем дескриптор перечисления: }
+{ Р—Р°РєСЂС‹РІР°РµРј РґРµСЃРєСЂРёРїС‚РѕСЂ РїРµСЂРµС‡РёСЃР»РµРЅРёСЏ: }
 wnetcloseenum(henum);
 end;
 end;
  
-{ Перечисление заданного контейнера. Эта функция обычно вызывается рекурсивно }
+{ РџРµСЂРµС‡РёСЃР»РµРЅРёРµ Р·Р°РґР°РЅРЅРѕРіРѕ РєРѕРЅС‚РµР№РЅРµСЂР°. Р­С‚Р° С„СѓРЅРєС†РёСЏ РѕР±С‹С‡РЅРѕ РІС‹Р·С‹РІР°РµС‚СЃСЏ СЂРµРєСѓСЂСЃРёРІРЅРѕ }
 procedure tfrmmain.doenumerationcontainer(netrescontainer: tnetresource);
 var
 netres: array[0..10] of tnetresource;
 topcontainerindex: integer;
 r, henum, entrycount, netreslen: dword;
 begin
-{ Добавляем имя контейнера к найденным сетевым ресурсам }
+{ Р”РѕР±Р°РІР»СЏРµРј РёРјСЏ РєРѕРЅС‚РµР№РЅРµСЂР° Рє РЅР°Р№РґРµРЅРЅС‹Рј СЃРµС‚РµРІС‹Рј СЂРµСЃСѓСЂСЃР°Рј }
 addcontainer(netrescontainer);
-{ Делаем этот элемент текущим корневым уровнем }
+{ Р”РµР»Р°РµРј СЌС‚РѕС‚ СЌР»РµРјРµРЅС‚ С‚РµРєСѓС‰РёРј РєРѕСЂРЅРµРІС‹Рј СѓСЂРѕРІРЅРµРј }
 topcontainerindex := tvresources.items.count-1;
-{ Начинаем перечисление: }
+{ РќР°С‡РёРЅР°РµРј РїРµСЂРµС‡РёСЃР»РµРЅРёРµ: }
 if listtype = resource_globalnet then
-{ Перечисляем глобальные объекты сети: }
+{ РџРµСЂРµС‡РёСЃР»СЏРµРј РіР»РѕР±Р°Р»СЊРЅС‹Рµ РѕР±СЉРµРєС‚С‹ СЃРµС‚Рё: }
 r := wnetopenenum(listtype, resourcetype, resourceusage_container,
 @netrescontainer, henum)
 else
-{ Перечисляем подключаемые и возобновляемые ресурсы 
-(другие получить здесь невозможно) }
+{ РџРµСЂРµС‡РёСЃР»СЏРµРј РїРѕРґРєР»СЋС‡Р°РµРјС‹Рµ Рё РІРѕР·РѕР±РЅРѕРІР»СЏРµРјС‹Рµ СЂРµСЃСѓСЂСЃС‹ 
+(РґСЂСѓРіРёРµ РїРѕР»СѓС‡РёС‚СЊ Р·РґРµСЃСЊ РЅРµРІРѕР·РјРѕР¶РЅРѕ) }
 r := wnetopenenum(listtype, resourcetype, resourceusage_container, nil, henum);
-{ Невозможно перечислить ресурсы данного контейнера, выводим соответствующее
-предупреждение и едем дальше }
+{ РќРµРІРѕР·РјРѕР¶РЅРѕ РїРµСЂРµС‡РёСЃР»РёС‚СЊ СЂРµСЃСѓСЂСЃС‹ РґР°РЅРЅРѕРіРѕ РєРѕРЅС‚РµР№РЅРµСЂР°, РІС‹РІРѕРґРёРј СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµРµ
+РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёРµ Рё РµРґРµРј РґР°Р»СЊС€Рµ }
 if r &lt;&gt; no_error then begin
-addsharestring(topcontainerindex, '&lt;Не могу опросить ресурсы (Ошибка #'
+addsharestring(topcontainerindex, '&lt;РќРµ РјРѕРіСѓ РѕРїСЂРѕСЃРёС‚СЊ СЂРµСЃСѓСЂСЃС‹ (РћС€РёР±РєР° #'
 + inttostr(r) + '&gt;');
 wnetcloseenum(henum);
 exit;
 end;
-{ Мы получили правильный дескриптор перечисления; опрашиваем ресурсы }
+{ РњС‹ РїРѕР»СѓС‡РёР»Рё РїСЂР°РІРёР»СЊРЅС‹Р№ РґРµСЃРєСЂРёРїС‚РѕСЂ РїРµСЂРµС‡РёСЃР»РµРЅРёСЏ; РѕРїСЂР°С€РёРІР°РµРј СЂРµСЃСѓСЂСЃС‹ }
 while (1 = 1) do begin
 entrycount := 1;
 netreslen := sizeof(netres);
 r := wnetenumresource(henum, entrycount, @netres, netreslen);
 case r of
-0: begin { Другой контейнер для перечисления,
-необходим рекурсивный вызов }
+0: begin { Р”СЂСѓРіРѕР№ РєРѕРЅС‚РµР№РЅРµСЂ РґР»СЏ РїРµСЂРµС‡РёСЃР»РµРЅРёСЏ,
+РЅРµРѕР±С…РѕРґРёРј СЂРµРєСѓСЂСЃРёРІРЅС‹Р№ РІС‹Р·РѕРІ }
 if (netres[0].dwusage = resourceusage_container)
 or (netres[0].dwusage=10) then
 doenumerationcontainer(netres[0])
 else
 case netres[0].dwdisplaytype of
-{ Верхний уровень }
+{ Р’РµСЂС…РЅРёР№ СѓСЂРѕРІРµРЅСЊ }
 resourcedisplaytype_generic,
 resourcedisplaytype_domain,
 resourcedisplaytype_server: addcontainer(netres[0]);
-{ Ресурсы общего доступа: }
+{ Р РµСЃСѓСЂСЃС‹ РѕР±С‰РµРіРѕ РґРѕСЃС‚СѓРїР°: }
 resourcedisplaytype_share:
 addshare(topcontainerindex, netres[0]);
 end;
 end;
 error_no_more_items: break;
 else begin
-messagedlg('Ошибка #' + inttostr(r) + ' при перечислении ресурсов.',
+messagedlg('РћС€РёР±РєР° #' + inttostr(r) + ' РїСЂРё РїРµСЂРµС‡РёСЃР»РµРЅРёРё СЂРµСЃСѓСЂСЃРѕРІ.',
 mterror, [mbok], 0); 
 break;
 end;
 end;
 end;
-{ Закрываем дескриптор перечисления }
+{ Р—Р°РєСЂС‹РІР°РµРј РґРµСЃРєСЂРёРїС‚РѕСЂ РїРµСЂРµС‡РёСЃР»РµРЅРёСЏ }
 wnetcloseenum(henum);
 end;
  
@@ -233,7 +226,7 @@ begin
 doenumeration;
 end;
  
-{ Добавляем элементы дерева; помечаем, что это контейнер }
+{ Р”РѕР±Р°РІР»СЏРµРј СЌР»РµРјРµРЅС‚С‹ РґРµСЂРµРІР°; РїРѕРјРµС‡Р°РµРј, С‡С‚Рѕ СЌС‚Рѕ РєРѕРЅС‚РµР№РЅРµСЂ }
 procedure tfrmmain.addcontainer(netres: tnetresource);
 var
 itemname: string;
@@ -246,8 +239,8 @@ end;
 tvresources.items.add(tvresources.selected,itemname);
 end;
  
-{ Добавляем дочерние элементы к контейнеру, обозначенному как текущий
-верхний уровень }
+{ Р”РѕР±Р°РІР»СЏРµРј РґРѕС‡РµСЂРЅРёРµ СЌР»РµРјРµРЅС‚С‹ Рє РєРѕРЅС‚РµР№РЅРµСЂСѓ, РѕР±РѕР·РЅР°С‡РµРЅРЅРѕРјСѓ РєР°Рє С‚РµРєСѓС‰РёР№
+РІРµСЂС…РЅРёР№ СѓСЂРѕРІРµРЅСЊ }
 procedure tfrmmain.addshare(topcontainerindex: integer; netres: tnetresource);
 var
 itemname: string;
@@ -260,17 +253,17 @@ end;
 tvresources.items.addchild(tvresources.items[topcontainerindex], itemname);
 end;
  
-{ Добавляем дочерние элементы к контейнеру, обозначенному как текущий верхний
-уровень; это просто добавляет строку для таких задач, как, например, перечисление
-контейнера. То есть некоторые контейнерные ресурсы общего доступа нам не
-доступны. }
+{ Р”РѕР±Р°РІР»СЏРµРј РґРѕС‡РµСЂРЅРёРµ СЌР»РµРјРµРЅС‚С‹ Рє РєРѕРЅС‚РµР№РЅРµСЂСѓ, РѕР±РѕР·РЅР°С‡РµРЅРЅРѕРјСѓ РєР°Рє С‚РµРєСѓС‰РёР№ РІРµСЂС…РЅРёР№
+СѓСЂРѕРІРµРЅСЊ; СЌС‚Рѕ РїСЂРѕСЃС‚Рѕ РґРѕР±Р°РІР»СЏРµС‚ СЃС‚СЂРѕРєСѓ РґР»СЏ С‚Р°РєРёС… Р·Р°РґР°С‡, РєР°Рє, РЅР°РїСЂРёРјРµСЂ, РїРµСЂРµС‡РёСЃР»РµРЅРёРµ
+РєРѕРЅС‚РµР№РЅРµСЂР°. РўРѕ РµСЃС‚СЊ РЅРµРєРѕС‚РѕСЂС‹Рµ РєРѕРЅС‚РµР№РЅРµСЂРЅС‹Рµ СЂРµСЃСѓСЂСЃС‹ РѕР±С‰РµРіРѕ РґРѕСЃС‚СѓРїР° РЅР°Рј РЅРµ
+РґРѕСЃС‚СѓРїРЅС‹. }
 procedure tfrmmain.addsharestring(topcontainerindex: integer; itemname: string);
 begin
 tvresources.items.addchild(tvresources.items[topcontainerindex], itemname);
 end;
  
-{ Добавляем соединения к дереву. По большому счету, к этому моменту все сетевые
-ресурсы типа возобновляемых и текущих соединений уже отображены. }
+{ Р”РѕР±Р°РІР»СЏРµРј СЃРѕРµРґРёРЅРµРЅРёСЏ Рє РґРµСЂРµРІСѓ. РџРѕ Р±РѕР»СЊС€РѕРјСѓ СЃС‡РµС‚Сѓ, Рє СЌС‚РѕРјСѓ РјРѕРјРµРЅС‚Сѓ РІСЃРµ СЃРµС‚РµРІС‹Рµ
+СЂРµСЃСѓСЂСЃС‹ С‚РёРїР° РІРѕР·РѕР±РЅРѕРІР»СЏРµРјС‹С… Рё С‚РµРєСѓС‰РёС… СЃРѕРµРґРёРЅРµРЅРёР№ СѓР¶Рµ РѕС‚РѕР±СЂР°Р¶РµРЅС‹. }
 procedure tfrmmain.addconnection(netres: tnetresource);
 var
 itemname: string;
@@ -283,32 +276,32 @@ end;
 tvresources.items.add(tvresources.selected, itemname);
 end;
  
-{ Раскрываем все контейнеры дерева }
+{ Р Р°СЃРєСЂС‹РІР°РµРј РІСЃРµ РєРѕРЅС‚РµР№РЅРµСЂС‹ РґРµСЂРµРІР° }
 procedure tfrmmain.mniexpandallclick(sender: tobject);
 begin
 tvresources.fullexpand;
 end;
  
  
-{ Схлопываем все контейнеры дерева }
+{ РЎС…Р»РѕРїС‹РІР°РµРј РІСЃРµ РєРѕРЅС‚РµР№РЅРµСЂС‹ РґРµСЂРµРІР° }
 procedure tfrmmain.mnicollapseallclick(sender: tobject);
 begin
 tvresources.fullcollapse;
 end;
  
-{ Записываем дерево в выбранный файл }
+{ Р—Р°РїРёСЃС‹РІР°РµРј РґРµСЂРµРІРѕ РІ РІС‹Р±СЂР°РЅРЅС‹Р№ С„Р°Р№Р» }
 procedure tfrmmain.mnisavetofileclick(sender: tobject);
 begin
 if dlgsave.execute then tvresources.savetofile(dlgsave.filename);
 end;
  
-{ Загружаем дерево из выбранного файла }
+{ Р—Р°РіСЂСѓР¶Р°РµРј РґРµСЂРµРІРѕ РёР· РІС‹Р±СЂР°РЅРЅРѕРіРѕ С„Р°Р№Р»Р° }
 procedure tfrmmain.mniloadfromfileclick(sender: tobject);
 begin
 if dlgopen.execute then tvresources.loadfromfile(dlgopen.filename);
 end;
  
-{ Обновляем }
+{ РћР±РЅРѕРІР»СЏРµРј }
 procedure tfrmmain.btnokclick(sender: tobject);
 begin
 doenumeration;
@@ -321,10 +314,10 @@ end.
 <a href="http://articles.org.ru" target="_blank">http://articles.org.ru</a></p>
 &nbsp;</p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

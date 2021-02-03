@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как сделать, чтобы запускалась только одна копия приложения?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє СЃРґРµР»Р°С‚СЊ, С‡С‚РѕР±С‹ Р·Р°РїСѓСЃРєР°Р»Р°СЃСЊ С‚РѕР»СЊРєРѕ РѕРґРЅР° РєРѕРїРёСЏ РїСЂРёР»РѕР¶РµРЅРёСЏ?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как сделать, чтобы запускалась только одна копия приложения?</h1>
+  <h1 id="title">РљР°Рє СЃРґРµР»Р°С‚СЊ, С‡С‚РѕР±С‹ Р·Р°РїСѓСЃРєР°Р»Р°СЃСЊ С‚РѕР»СЊРєРѕ РѕРґРЅР° РєРѕРїРёСЏ РїСЂРёР»РѕР¶РµРЅРёСЏ?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 var AtomText: array[0..31] of Char; 
@@ -37,20 +30,20 @@ var
   AppName : array[0..30] of char; 
   FoundAtom : TAtom; 
 begin 
-  // помещаем имя приложения в AtomText 
+  // РїРѕРјРµС‰Р°РµРј РёРјСЏ РїСЂРёР»РѕР¶РµРЅРёСЏ РІ AtomText 
   StrFmt(AtomText, 'OnlyOne%s', [Copy(Application.Title,1,20)]); 
-  // Проверяем, не создано ли уже атома с таким именем приложения
+  // РџСЂРѕРІРµСЂСЏРµРј, РЅРµ СЃРѕР·РґР°РЅРѕ Р»Рё СѓР¶Рµ Р°С‚РѕРјР° СЃ С‚Р°РєРёРј РёРјРµРЅРµРј РїСЂРёР»РѕР¶РµРЅРёСЏ
   FoundAtom := GlobalFindAtom(AtomText); 
-  if FoundAtom &lt;&gt; 0 then      // эта копия приложения уже запущена
+  if FoundAtom &lt;&gt; 0 then      // СЌС‚Р° РєРѕРїРёСЏ РїСЂРёР»РѕР¶РµРЅРёСЏ СѓР¶Рµ Р·Р°РїСѓС‰РµРЅР°
   begin 
     StrFmt(AppName,'%s', [Application.Title]); 
-    // изменяем текущий заголовок, чтобы FindWindow не видела его
+    // РёР·РјРµРЅСЏРµРј С‚РµРєСѓС‰РёР№ Р·Р°РіРѕР»РѕРІРѕРє, С‡С‚РѕР±С‹ FindWindow РЅРµ РІРёРґРµР»Р° РµРіРѕ
     Application.ShowMainForm := false; 
     Application.Title := 'destroy me'; 
-    // ищем предыдущую копию приложения
+    // РёС‰РµРј РїСЂРµРґС‹РґСѓС‰СѓСЋ РєРѕРїРёСЋ РїСЂРёР»РѕР¶РµРЅРёСЏ
     PreviousInstanceWindow := FindWindow(nil,AppName); 
-    // Передаём фокус на предыдущую копию приложения
-    // завершаем текущую копию
+    // РџРµСЂРµРґР°С‘Рј С„РѕРєСѓСЃ РЅР° РїСЂРµРґС‹РґСѓС‰СѓСЋ РєРѕРїРёСЋ РїСЂРёР»РѕР¶РµРЅРёСЏ
+    // Р·Р°РІРµСЂС€Р°РµРј С‚РµРєСѓС‰СѓСЋ РєРѕРїРёСЋ
     Application.Terminate; 
  
     if PreviousInstanceWindow &lt;&gt; 0 then 
@@ -58,7 +51,7 @@ begin
            ShowWindow(PreviousInstanceWindow,SW_RESTORE) 
       else SetForegroundWindow(PreviousInstanceWindow); 
   end; 
-  // создаём глобальный атом, чтобы предотвратить запуск другой копии приложения
+  // СЃРѕР·РґР°С‘Рј РіР»РѕР±Р°Р»СЊРЅС‹Р№ Р°С‚РѕРј, С‡С‚РѕР±С‹ РїСЂРµРґРѕС‚РІСЂР°С‚РёС‚СЊ Р·Р°РїСѓСЃРє РґСЂСѓРіРѕР№ РєРѕРїРёРё РїСЂРёР»РѕР¶РµРЅРёСЏ
   FoundAtom := GlobalAddAtom(AtomText); 
 end; 
  
@@ -79,7 +72,7 @@ var
   FoundAtom : TAtom; 
   ValueReturned : word; 
 begin 
-  // не забудьте удалить глобальный атом
+  // РЅРµ Р·Р°Р±СѓРґСЊС‚Рµ СѓРґР°Р»РёС‚СЊ РіР»РѕР±Р°Р»СЊРЅС‹Р№ Р°С‚РѕРј
   FoundAtom := GlobalFindAtom(AtomText); 
   if FoundAtom &lt;&gt; 0 then ValueReturned := GlobalDeleteAtom(FoundAtom); 
  
@@ -87,10 +80,10 @@ begin
 end;
 </pre>
 
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 <hr />
-<p>В блоке begin..end модуля .dpr:</p>
+<p>Р’ Р±Р»РѕРєРµ begin..end РјРѕРґСѓР»СЏ .dpr:</p>
 
 <pre name="code" class="delphi">
 begin
@@ -102,7 +95,7 @@ begin
 end;
 </pre>
 
-<p>Реализация:</p>
+<p>Р РµР°Р»РёР·Р°С†РёСЏ:</p>
 
 <pre name="code" class="delphi">
 unit PrevInst;
@@ -160,14 +153,14 @@ end;
 end.
 </pre>
 
-<p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
-<p>Сборник Kuliba</p>
+<p>Р’Р·СЏС‚Рѕ РёР· РЎРѕРІРµС‚РѕРІ РїРѕ Delphi РѕС‚ <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Р’Р°Р»РµРЅС‚РёРЅР° РћР·РµСЂРѕРІР°</a></p>
+<p>РЎР±РѕСЂРЅРёРє Kuliba</p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как преобразовать текст в иконку?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє РїСЂРµРѕР±СЂР°Р·РѕРІР°С‚СЊ С‚РµРєСЃС‚ РІ РёРєРѕРЅРєСѓ?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как преобразовать текст в иконку?</h1>
+  <h1 id="title">РљР°Рє РїСЂРµРѕР±СЂР°Р·РѕРІР°С‚СЊ С‚РµРєСЃС‚ РІ РёРєРѕРЅРєСѓ?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 unit unit1;
@@ -59,12 +52,12 @@ implementation
  
 type
   ICONIMAGE = record
-    Width, Height, Colors: DWORD; // Ширина, Высота и кол-во цветов
-    lpBits: PChar; // указатель на DIB биты
-    dwNumBytes: DWORD; // Сколько байт?
-    lpbi: PBitmapInfoHeader; // указатель на заголовок
-    lpXOR: PChar; // указатель на XOR биты изображения
-    lpAND: PChar; // указатель на AND биты изображения
+    Width, Height, Colors: DWORD; // РЁРёСЂРёРЅР°, Р’С‹СЃРѕС‚Р° Рё РєРѕР»-РІРѕ С†РІРµС‚РѕРІ
+    lpBits: PChar; // СѓРєР°Р·Р°С‚РµР»СЊ РЅР° DIB Р±РёС‚С‹
+    dwNumBytes: DWORD; // РЎРєРѕР»СЊРєРѕ Р±Р°Р№С‚?
+    lpbi: PBitmapInfoHeader; // СѓРєР°Р·Р°С‚РµР»СЊ РЅР° Р·Р°РіРѕР»РѕРІРѕРє
+    lpXOR: PChar; // СѓРєР°Р·Р°С‚РµР»СЊ РЅР° XOR Р±РёС‚С‹ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
+    lpAND: PChar; // СѓРєР°Р·Р°С‚РµР»СЊ РЅР° AND Р±РёС‚С‹ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
   end;
  
 function CopyColorTable(var lpTarget: BITMAPINFO; const lpSource:
@@ -199,8 +192,8 @@ var
   dwSourceBitsSize, dwTargetBitsSize, dwTargetHeaderSize: DWORD;
 begin
   result := nil;
-// Располагаем и заполняем структуру BITMAPINFO для нового DIB
-// Обеспе?иваем достато?но места для 256-цветной таблицы
+// Р Р°СЃРїРѕР»Р°РіР°РµРј Рё Р·Р°РїРѕР»РЅСЏРµРј СЃС‚СЂСѓРєС‚СѓСЂСѓ BITMAPINFO РґР»СЏ РЅРѕРІРѕРіРѕ DIB
+// РћР±РµСЃРїРµ?РёРІР°РµРј РґРѕСЃС‚Р°С‚Рѕ?РЅРѕ РјРµСЃС‚Р° РґР»СЏ 256-С†РІРµС‚РЅРѕР№ С‚Р°Р±Р»РёС†С‹
   dwTargetHeaderSize := sizeof(BITMAPINFO) + (256 * sizeof(RGBQUAD));
   GetMem(lpbmi, dwTargetHeaderSize);
   try
@@ -214,7 +207,7 @@ begin
     lpbmi^.bmiHeader.biXPelsPerMeter := 0;
     lpbmi^.bmiHeader.biYPelsPerMeter := 0;
     lpbmi^.bmiHeader.biClrUsed := 0;
-    lpbmi^.bmiHeader.biClrImportant := 0; // Заполняем в таблице цветов
+    lpbmi^.bmiHeader.biClrImportant := 0; // Р—Р°РїРѕР»РЅСЏРµРј РІ С‚Р°Р±Р»РёС†Рµ С†РІРµС‚РѕРІ
     if CopyColorTable(lpbmi^, lpSrcDIB) then
       begin
         DC := GetDC(0);
@@ -244,7 +237,7 @@ begin
                     try
                       if (hOldSourceBitmap &lt;&gt; 0) and (hOldTargetBitmap &lt;&gt; 0) then
                         begin
-// Устанавливаем таблицу цветов для DIBSections
+// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С‚Р°Р±Р»РёС†Сѓ С†РІРµС‚РѕРІ РґР»СЏ DIBSections
                           if lpSrcDIB.bmiHeader.biBitCount &lt;= 8 then
                             SetDIBColorTable(hSourceDC, 0, 1 shl lpSrcDIB.bmiHeader.biBitCount, lpSrcDIB.bmiColors);
  
@@ -306,18 +299,18 @@ begin
   if Assigned(lpNewDIB) then
   try
  
-    lpii.dwNumBytes := sizeof(BITMAPINFOHEADER) // Заголовок
-      + PaletteSize(lpNewDIB^.bmiHeader) // Палитра
-      + lpii.Height * BytesPerLine(lpNewDIB^.bmiHeader) // XOR маска
-      + lpii.Height * WIDTHBYTES(lpii.Width); // AND маска
-// Если здесь уже картинка, то освобождаем е?
+    lpii.dwNumBytes := sizeof(BITMAPINFOHEADER) // Р—Р°РіРѕР»РѕРІРѕРє
+      + PaletteSize(lpNewDIB^.bmiHeader) // РџР°Р»РёС‚СЂР°
+      + lpii.Height * BytesPerLine(lpNewDIB^.bmiHeader) // XOR РјР°СЃРєР°
+      + lpii.Height * WIDTHBYTES(lpii.Width); // AND РјР°СЃРєР°
+// Р•СЃР»Рё Р·РґРµСЃСЊ СѓР¶Рµ РєР°СЂС‚РёРЅРєР°, С‚Рѕ РѕСЃРІРѕР±РѕР¶РґР°РµРј Рµ?
     if lpii.lpBits &lt;&gt; nil then
       FreeMem(lpii.lpBits);
  
     GetMem(lpii.lpBits, lpii.dwNumBytes);
     Move(lpNewDib^, lpii.lpBits^, sizeof(BITMAPINFOHEADER) + PaletteSize
       (lpNewDIB^.bmiHeader));
-// Выравниваем внутренние указатели/переменные для новой картинки
+// Р’С‹СЂР°РІРЅРёРІР°РµРј РІРЅСѓС‚СЂРµРЅРЅРёРµ СѓРєР°Р·Р°С‚РµР»Рё/РїРµСЂРµРјРµРЅРЅС‹Рµ РґР»СЏ РЅРѕРІРѕР№ РєР°СЂС‚РёРЅРєРё
     lpii.lpbi := PBITMAPINFOHEADER(lpii.lpBits);
     lpii.lpbi^.biHeight := lpii.lpbi^.biHeight * 2;
  
@@ -417,13 +410,13 @@ end;
  
 end.
 </pre>
-<p id="author">Автор ответа: Baa</p>
-<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ РѕС‚РІРµС‚Р°: Baa</p>
+<p>Р’Р·СЏС‚Рѕ СЃ Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

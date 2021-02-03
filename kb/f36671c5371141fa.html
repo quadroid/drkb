@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Экспорт и импорт из реестра</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>Р­РєСЃРїРѕСЂС‚ Рё РёРјРїРѕСЂС‚ РёР· СЂРµРµСЃС‚СЂР°</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,28 +13,21 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Экспорт и импорт из реестра</h1>
+  <h1 id="title">Р­РєСЃРїРѕСЂС‚ Рё РёРјРїРѕСЂС‚ РёР· СЂРµРµСЃС‚СЂР°</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
-reg-файлы это, как и ожидалось, формат, понимаемый и поддерживаемый сугубо программой regedit. </p>
-<p>Командная строка у неё такая: </p>
-<p>Импорт в реестр: </p>
+
+reg-С„Р°Р№Р»С‹ СЌС‚Рѕ, РєР°Рє Рё РѕР¶РёРґР°Р»РѕСЃСЊ, С„РѕСЂРјР°С‚, РїРѕРЅРёРјР°РµРјС‹Р№ Рё РїРѕРґРґРµСЂР¶РёРІР°РµРјС‹Р№ СЃСѓРіСѓР±Рѕ РїСЂРѕРіСЂР°РјРјРѕР№ regedit. </p>
+<p>РљРѕРјР°РЅРґРЅР°СЏ СЃС‚СЂРѕРєР° Сѓ РЅРµС‘ С‚Р°РєР°СЏ: </p>
+<p>РРјРїРѕСЂС‚ РІ СЂРµРµСЃС‚СЂ: </p>
 <pre name="code" class="delphi">regedit RegData.reg
 </pre>
-<p>Экспорт из реестра: </p>
+<p>Р­РєСЃРїРѕСЂС‚ РёР· СЂРµРµСЃС‚СЂР°: </p>
 <pre name="code" class="delphi">regedit /e RegData.reg HKEY_LOCAL_MACHINE\Software\Microsoft\Windows
 </pre>
-<p>Если в параметрах встречаются пробелы, их ессно надо заключать в кавычки. Код в Delphi, который экспортирует ветвь реестра может быть например такой: </p>
+<p>Р•СЃР»Рё РІ РїР°СЂР°РјРµС‚СЂР°С… РІСЃС‚СЂРµС‡Р°СЋС‚СЃСЏ РїСЂРѕР±РµР»С‹, РёС… РµСЃСЃРЅРѕ РЅР°РґРѕ Р·Р°РєР»СЋС‡Р°С‚СЊ РІ РєР°РІС‹С‡РєРё. РљРѕРґ РІ Delphi, РєРѕС‚РѕСЂС‹Р№ СЌРєСЃРїРѕСЂС‚РёСЂСѓРµС‚ РІРµС‚РІСЊ СЂРµРµСЃС‚СЂР° РјРѕР¶РµС‚ Р±С‹С‚СЊ РЅР°РїСЂРёРјРµСЂ С‚Р°РєРѕР№: </p>
 <pre name="code" class="delphi">
 uses
   ShellApi;
@@ -43,23 +36,23 @@ procedure TMain.ExportBtnClick(Sender: TObject);
 var
   FileName, Key: string;
 begin
-  FileName := ... //заполнить именем файла (расширение указывать)
-  Key := ... //заполнить именем ключа, типа
+  FileName := ... //Р·Р°РїРѕР»РЅРёС‚СЊ РёРјРµРЅРµРј С„Р°Р№Р»Р° (СЂР°СЃС€РёСЂРµРЅРёРµ СѓРєР°Р·С‹РІР°С‚СЊ)
+  Key := ... //Р·Р°РїРѕР»РЅРёС‚СЊ РёРјРµРЅРµРј РєР»СЋС‡Р°, С‚РёРїР°
   //Key := 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion'
   if ShellExecute(Handle, 'open', 'regedit.exe',
   PChar(Format('/e "%s" "%s"', [FileName, Key])),
   '', SW_SHOWDEFAULT) &lt;= 32
-  then //если ошибка, то возвращаемый код &lt;=32
+  then //РµСЃР»Рё РѕС€РёР±РєР°, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµРјС‹Р№ РєРѕРґ &lt;=32
     RaiseLastWin32Error();
 end;
 </pre>
 
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

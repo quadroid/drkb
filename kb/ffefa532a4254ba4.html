@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>WhoIs, демо получения информации с WhoIs сервера</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>WhoIs, РґРµРјРѕ РїРѕР»СѓС‡РµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё СЃ WhoIs СЃРµСЂРІРµСЂР°</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,27 +13,20 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">WhoIs, демо получения информации с WhoIs сервера</h1>
+  <h1 id="title">WhoIs, РґРµРјРѕ РїРѕР»СѓС‡РµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё СЃ WhoIs СЃРµСЂРІРµСЂР°</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">////////////////////////////////////////////////////////////////////////////////
 //
 //  ****************************************************************************
 //  * Project Name : WhoIs
 //  * Unit Name    : uMain
-//  * Purpose      : Демонстрационный пример получения информации с WhoIs сервера.
-//  * Author       : Александр (Rouse_) Багель
+//  * Purpose      : Р”РµРјРѕРЅСЃС‚СЂР°С†РёРѕРЅРЅС‹Р№ РїСЂРёРјРµСЂ РїРѕР»СѓС‡РµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё СЃ WhoIs СЃРµСЂРІРµСЂР°.
+//  * Author       : РђР»РµРєСЃР°РЅРґСЂ (Rouse_) Р‘Р°РіРµР»СЊ
 //  * Version      : 1.00
 //  ****************************************************************************
 //
@@ -78,11 +71,11 @@ var
   Buff: array [0..MAXBLOCKSIZE - 1] of Char;
   RecvCount: Integer;
 begin
-  // инициализируем WinSock
+  // РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј WinSock
   Result := WSAStartup(MakeWord(1, 0), WSAData) = NOERROR;
   if not Result then Exit;
   try
-    // создаем сокет
+    // СЃРѕР·РґР°РµРј СЃРѕРєРµС‚
     hSocket := socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if hSocket = INVALID_SOCKET then
     begin
@@ -90,7 +83,7 @@ begin
       Exit;
     end;
     try
-      // Определяем, что ввел пользователь имя хоста или его адрес
+      // РћРїСЂРµРґРµР»СЏРµРј, С‡С‚Рѕ РІРІРµР» РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РёРјСЏ С…РѕСЃС‚Р° РёР»Рё РµРіРѕ Р°РґСЂРµСЃ
       InAddr := inet_addr(PChar(Server));
       if InAddr = INADDR_NONE then
       begin
@@ -102,24 +95,24 @@ begin
         end;
         InAddr := PInAddr(Host.h_addr_list^)^.S_addr;
       end;
-      // Подготавливаем структуру для соединения
+      // РџРѕРґРіРѕС‚Р°РІР»РёРІР°РµРј СЃС‚СЂСѓРєС‚СѓСЂСѓ РґР»СЏ СЃРѕРµРґРёРЅРµРЅРёСЏ
       FillChar(Addr_in, SizeOf(sockaddr_in), 0);
       Addr_in.sin_addr.S_addr := InAddr;
       Addr_in.sin_family:= AF_INET;
       Addr_in.sin_port := htons(IPPORT_WHOIS);
-      // Устанавливаем интервалы таймаута
+      // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РёРЅС‚РµСЂРІР°Р»С‹ С‚Р°Р№РјР°СѓС‚Р°
       setsockopt(hSocket, SOL_SOCKET, SO_RCVTIMEO, @Timeout, SizeOf(Integer));
       setsockopt(hSocket, SOL_SOCKET, SO_SNDTIMEO, @Timeout, SizeOf(Integer));
-      // Соединение с сервером - довольно долгий процесс, поэтому мы поступим по
-      // хитрому - а именно переводим сокет в неблокирующий режим
+      // РЎРѕРµРґРёРЅРµРЅРёРµ СЃ СЃРµСЂРІРµСЂРѕРј - РґРѕРІРѕР»СЊРЅРѕ РґРѕР»РіРёР№ РїСЂРѕС†РµСЃСЃ, РїРѕСЌС‚РѕРјСѓ РјС‹ РїРѕСЃС‚СѓРїРёРј РїРѕ
+      // С…РёС‚СЂРѕРјСѓ - Р° РёРјРµРЅРЅРѕ РїРµСЂРµРІРѕРґРёРј СЃРѕРєРµС‚ РІ РЅРµР±Р»РѕРєРёСЂСѓСЋС‰РёР№ СЂРµР¶РёРј
       NoBlock := 1;
       ioctlsocket(hSocket, FIONBIO, NoBlock);
-      // соединяемся
+      // СЃРѕРµРґРёРЅСЏРµРјСЃСЏ
       if connect(hSocket, Addr_in, SizeOf(sockaddr_in)) = SOCKET_ERROR then
         case WSAGetLastError of
-          // Обычно при неблокирующем соединении выдается вот эта ошибка
-          // на попытку соединения, поэтому мы будем ждать окончания
-          // соединения через select
+          // РћР±С‹С‡РЅРѕ РїСЂРё РЅРµР±Р»РѕРєРёСЂСѓСЋС‰РµРј СЃРѕРµРґРёРЅРµРЅРёРё РІС‹РґР°РµС‚СЃСЏ РІРѕС‚ СЌС‚Р° РѕС€РёР±РєР°
+          // РЅР° РїРѕРїС‹С‚РєСѓ СЃРѕРµРґРёРЅРµРЅРёСЏ, РїРѕСЌС‚РѕРјСѓ РјС‹ Р±СѓРґРµРј Р¶РґР°С‚СЊ РѕРєРѕРЅС‡Р°РЅРёСЏ
+          // СЃРѕРµРґРёРЅРµРЅРёСЏ С‡РµСЂРµР· select
           WSAEWOULDBLOCK:
           begin
             FD_ZERO(FDSet);
@@ -138,19 +131,19 @@ begin
             Exit;
           end;
         end;
-      // Соединились - теперь неблокирующий режим нам не нужен
-      // Возвращаем все как было
+      // РЎРѕРµРґРёРЅРёР»РёСЃСЊ - С‚РµРїРµСЂСЊ РЅРµР±Р»РѕРєРёСЂСѓСЋС‰РёР№ СЂРµР¶РёРј РЅР°Рј РЅРµ РЅСѓР¶РµРЅ
+      // Р’РѕР·РІСЂР°С‰Р°РµРј РІСЃРµ РєР°Рє Р±С‹Р»Рѕ
       NoBlock := 0;
       ioctlsocket(hSocket, FIONBIO, NoBlock);
-      // Обязательно проверяем чтобы в конце запроса стояло #13#10
+      // РћР±СЏР·Р°С‚РµР»СЊРЅРѕ РїСЂРѕРІРµСЂСЏРµРј С‡С‚РѕР±С‹ РІ РєРѕРЅС†Рµ Р·Р°РїСЂРѕСЃР° СЃС‚РѕСЏР»Рѕ #13#10
       Query := Query + sLineBreak;
-      // И отправляем запрос серверу
+      // Р РѕС‚РїСЂР°РІР»СЏРµРј Р·Р°РїСЂРѕСЃ СЃРµСЂРІРµСЂСѓ
       if Send(hSocket, Query[1], Length(Query), 0) = SOCKET_ERROR then
       begin
         Result := False;
         Exit;
       end;
-      // Запрос отправлен - начинаем читать данные пока не кончатся
+      // Р—Р°РїСЂРѕСЃ РѕС‚РїСЂР°РІР»РµРЅ - РЅР°С‡РёРЅР°РµРј С‡РёС‚Р°С‚СЊ РґР°РЅРЅС‹Рµ РїРѕРєР° РЅРµ РєРѕРЅС‡Р°С‚СЃСЏ
       RecvCount := 1;
       while RecvCount &gt; 0 do
       begin
@@ -158,13 +151,13 @@ begin
         Response.Text := Response.Text + String(Buff);
       end;
     finally
-      // Завершаем установленную сессию
+      // Р—Р°РІРµСЂС€Р°РµРј СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅСѓСЋ СЃРµСЃСЃРёСЋ
       shutdown(hSocket, SD_BOTH);
-      // Закрываем сокет
+      // Р—Р°РєСЂС‹РІР°РµРј СЃРѕРєРµС‚
       closesocket(hSocket);
     end;
   finally
-    // Деинициализируем WinSock
+    // Р”РµРёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј WinSock
     WSACleanup;
   end;
 end;
@@ -188,15 +181,15 @@ end.
  
 </pre>
 <p>&nbsp;<br>
-Проект также доступен по адресу: http://rouse.front.ru/whois.zip <br>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
-<p id="author">Автор: Rouse_</p>
+РџСЂРѕРµРєС‚ С‚Р°РєР¶Рµ РґРѕСЃС‚СѓРїРµРЅ РїРѕ Р°РґСЂРµСЃСѓ: http://rouse.front.ru/whois.zip <br>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ: Rouse_</p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

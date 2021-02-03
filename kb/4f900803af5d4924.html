@@ -1,7 +1,7 @@
 <html>
 <head>
   <title>DLL!</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,21 +13,14 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">DLL!</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Ура. До нас и за нас все уже стандатизировали. Давайте этим воспользуемся и напишим теперь наш модуль в постандарту. Напишим dll.</p>
+
+<p>РЈСЂР°. Р”Рѕ РЅР°СЃ Рё Р·Р° РЅР°СЃ РІСЃРµ СѓР¶Рµ СЃС‚Р°РЅРґР°С‚РёР·РёСЂРѕРІР°Р»Рё. Р”Р°РІР°Р№С‚Рµ СЌС‚РёРј РІРѕСЃРїРѕР»СЊР·СѓРµРјСЃСЏ Рё РЅР°РїРёС€РёРј С‚РµРїРµСЂСЊ РЅР°С€ РјРѕРґСѓР»СЊ РІ РїРѕСЃС‚Р°РЅРґР°СЂС‚Сѓ. РќР°РїРёС€РёРј dll.</p>
 <pre name="code" class="delphi">library CalcDll;
 uses SysUtils, Classes;
 type
@@ -71,7 +64,7 @@ procedure ReleaseObject;
 begin
 Calc.Free;
 end;
-exports //Вот эта секция и указывает компилятору что записать в таблицу экспорта
+exports //Р’РѕС‚ СЌС‚Р° СЃРµРєС†РёСЏ Рё СѓРєР°Р·С‹РІР°РµС‚ РєРѕРјРїРёР»СЏС‚РѕСЂСѓ С‡С‚Рѕ Р·Р°РїРёСЃР°С‚СЊ РІ С‚Р°Р±Р»РёС†Сѓ СЌРєСЃРїРѕСЂС‚Р°
 SetOperands,
 Sum,
 Diff,
@@ -81,7 +74,7 @@ begin
 end.
 </pre>
 
-<p>Напишим программку - протестировать наш модуль.</p>
+<p>РќР°РїРёС€РёРј РїСЂРѕРіСЂР°РјРјРєСѓ - РїСЂРѕС‚РµСЃС‚РёСЂРѕРІР°С‚СЊ РЅР°С€ РјРѕРґСѓР»СЊ.</p>
 <pre name="code" class="delphi">unit tstcl;
 interface
 uses Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls;
@@ -95,52 +88,52 @@ procedure Button1Click(Sender: TObject);
 procedure Button2Click(Sender: TObject);
 end;
 var Form1: TForm1;
-_Mod:Integer; //индефикатор модуля
-SetOpers:procedure(x,y:integer); //Это все указатели на функции,
-diff,sum:function:integer; //которые мы собираемся получить
-CreateObj,ReleaseObj:procedure; //из нашего модуля
+_Mod:Integer; //РёРЅРґРµС„РёРєР°С‚РѕСЂ РјРѕРґСѓР»СЏ
+SetOpers:procedure(x,y:integer); //Р­С‚Рѕ РІСЃРµ СѓРєР°Р·Р°С‚РµР»Рё РЅР° С„СѓРЅРєС†РёРё,
+diff,sum:function:integer; //РєРѕС‚РѕСЂС‹Рµ РјС‹ СЃРѕР±РёСЂР°РµРјСЃСЏ РїРѕР»СѓС‡РёС‚СЊ
+CreateObj,ReleaseObj:procedure; //РёР· РЅР°С€РµРіРѕ РјРѕРґСѓР»СЏ
 implementation
 {$R *.DFM}
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-//загружаем наш модуль в память
+//Р·Р°РіСЂСѓР¶Р°РµРј РЅР°С€ РјРѕРґСѓР»СЊ РІ РїР°РјСЏС‚СЊ
 _Mod:=LoadLibrary('CalcDll.dll'); 
  
-//получаем адреса функций по именам 
+//РїРѕР»СѓС‡Р°РµРј Р°РґСЂРµСЃР° С„СѓРЅРєС†РёР№ РїРѕ РёРјРµРЅР°Рј 
 CreateObj:=GetProcAddress(_Mod,'CreateObject');
 ReleaseObj:=GetProcAddress(_Mod,'ReleaseObject');
 sum:=GetProcAddress(_Mod,'Sum');
 diff:=GetProcAddress(_Mod,'Diff');
 SetOpers:=GetProcAddress(_Mod,'SetOperands');
  
-CreateObj; //вызываем функцию по адресу
-SetOpers(13,10); //вызываем функцию по адресу
+CreateObj; //РІС‹Р·С‹РІР°РµРј С„СѓРЅРєС†РёСЋ РїРѕ Р°РґСЂРµСЃСѓ
+SetOpers(13,10); //РІС‹Р·С‹РІР°РµРј С„СѓРЅРєС†РёСЋ РїРѕ Р°РґСЂРµСЃСѓ
 end;
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
-ReleaseObj; //опять вызываем функцию по адресу
-FreeLibrary(_Mod); //выгружаем модуль из памяти
+ReleaseObj; //РѕРїСЏС‚СЊ РІС‹Р·С‹РІР°РµРј С„СѓРЅРєС†РёСЋ РїРѕ Р°РґСЂРµСЃСѓ
+FreeLibrary(_Mod); //РІС‹РіСЂСѓР¶Р°РµРј РјРѕРґСѓР»СЊ РёР· РїР°РјСЏС‚Рё
 end;
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-ShowMessage(IntToStr(diff)); //вычисляем разницу
+ShowMessage(IntToStr(diff)); //РІС‹С‡РёСЃР»СЏРµРј СЂР°Р·РЅРёС†Сѓ
 end;
 procedure TForm1.Button2Click(Sender: TObject);
 begin
-ShowMessage(IntToStr(sum)); //вычисляем сумму
+ShowMessage(IntToStr(sum)); //РІС‹С‡РёСЃР»СЏРµРј СЃСѓРјРјСѓ
 end;
 end.
 </pre>
 
-<p>Классно! Теперь каждый программирующий в системе Windows на любом языке может использовать наш калькулятор! Что? Разочарованны? Такое ощущение что COM тут и не пахнет?</p>
-<p>Правильно, ибо про СОМ я пока ничего и не сказал, но</p>
-<p>Продолжение следует! </p>
+<p>РљР»Р°СЃСЃРЅРѕ! РўРµРїРµСЂСЊ РєР°Р¶РґС‹Р№ РїСЂРѕРіСЂР°РјРјРёСЂСѓСЋС‰РёР№ РІ СЃРёСЃС‚РµРјРµ Windows РЅР° Р»СЋР±РѕРј СЏР·С‹РєРµ РјРѕР¶РµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РЅР°С€ РєР°Р»СЊРєСѓР»СЏС‚РѕСЂ! Р§С‚Рѕ? Р Р°Р·РѕС‡Р°СЂРѕРІР°РЅРЅС‹? РўР°РєРѕРµ РѕС‰СѓС‰РµРЅРёРµ С‡С‚Рѕ COM С‚СѓС‚ Рё РЅРµ РїР°С…РЅРµС‚?</p>
+<p>РџСЂР°РІРёР»СЊРЅРѕ, РёР±Рѕ РїСЂРѕ РЎРћРњ СЏ РїРѕРєР° РЅРёС‡РµРіРѕ Рё РЅРµ СЃРєР°Р·Р°Р», РЅРѕ</p>
+<p>РџСЂРѕРґРѕР»Р¶РµРЅРёРµ СЃР»РµРґСѓРµС‚! </p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

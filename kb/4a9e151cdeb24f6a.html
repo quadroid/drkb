@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как поменять цвет Header'а в TListView</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє РїРѕРјРµРЅСЏС‚СЊ С†РІРµС‚ Header'Р° РІ TListView</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,28 +13,21 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как поменять цвет Header'а в TListView</h1>
+  <h1 id="title">РљР°Рє РїРѕРјРµРЅСЏС‚СЊ С†РІРµС‚ Header'Р° РІ TListView</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Для этого нужно в оконной процедуре ListView обработать сообщение WM_NOTIFY с кодом NM_CUSTOMDRAW. И в обработчике этого сообщения назначить цвета фона и текста (можно назначить и шрифт). Но при этом правая часть header'а (область заголовка ListView, находящаяся справа от колонок) закрашиваться не будет. Чтобы закрасить и её, надо в оконной процедуре header'а обработать сообщение WM_ERASEBKGND, в котором и залить нужным цветом эту область. Ниже - небольшой примерчик с сабклассингом.</p>
+
+<p>Р”Р»СЏ СЌС‚РѕРіРѕ РЅСѓР¶РЅРѕ РІ РѕРєРѕРЅРЅРѕР№ РїСЂРѕС†РµРґСѓСЂРµ ListView РѕР±СЂР°Р±РѕС‚Р°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ WM_NOTIFY СЃ РєРѕРґРѕРј NM_CUSTOMDRAW. Р РІ РѕР±СЂР°Р±РѕС‚С‡РёРєРµ СЌС‚РѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ РЅР°Р·РЅР°С‡РёС‚СЊ С†РІРµС‚Р° С„РѕРЅР° Рё С‚РµРєСЃС‚Р° (РјРѕР¶РЅРѕ РЅР°Р·РЅР°С‡РёС‚СЊ Рё С€СЂРёС„С‚). РќРѕ РїСЂРё СЌС‚РѕРј РїСЂР°РІР°СЏ С‡Р°СЃС‚СЊ header'Р° (РѕР±Р»Р°СЃС‚СЊ Р·Р°РіРѕР»РѕРІРєР° ListView, РЅР°С…РѕРґСЏС‰Р°СЏСЃСЏ СЃРїСЂР°РІР° РѕС‚ РєРѕР»РѕРЅРѕРє) Р·Р°РєСЂР°С€РёРІР°С‚СЊСЃСЏ РЅРµ Р±СѓРґРµС‚. Р§С‚РѕР±С‹ Р·Р°РєСЂР°СЃРёС‚СЊ Рё РµС‘, РЅР°РґРѕ РІ РѕРєРѕРЅРЅРѕР№ РїСЂРѕС†РµРґСѓСЂРµ header'Р° РѕР±СЂР°Р±РѕС‚Р°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ WM_ERASEBKGND, РІ РєРѕС‚РѕСЂРѕРј Рё Р·Р°Р»РёС‚СЊ РЅСѓР¶РЅС‹Рј С†РІРµС‚РѕРј СЌС‚Сѓ РѕР±Р»Р°СЃС‚СЊ. РќРёР¶Рµ - РЅРµР±РѕР»СЊС€РѕР№ РїСЂРёРјРµСЂС‡РёРє СЃ СЃР°Р±РєР»Р°СЃСЃРёРЅРіРѕРј.</p>
 <pre name="code" class="delphi">
 uses CommCtrl;
  
 var
-  BkBrush:HBRUSH; // тут сохраняем brush для фона
+  BkBrush:HBRUSH; // С‚СѓС‚ СЃРѕС…СЂР°РЅСЏРµРј brush РґР»СЏ С„РѕРЅР°
  
-// процедура header'а
+// РїСЂРѕС†РµРґСѓСЂР° header'Р°
 function NewHeaderProc(wnd: HWND; Msg: Cardinal; wParam: wParam; 
                           lParam: lParam): Longint; stdcall;
 var
@@ -44,7 +37,7 @@ begin
  Result := CallWindowProc(Pointer(GetWindowLong(wnd, GWL_USERDATA)),
                           wnd, Msg, wParam, lParam);
  
-  if Msg=WM_ERASEBKGND then  // закрашиваем область справа от колонок
+  if Msg=WM_ERASEBKGND then  // Р·Р°РєСЂР°С€РёРІР°РµРј РѕР±Р»Р°СЃС‚СЊ СЃРїСЂР°РІР° РѕС‚ РєРѕР»РѕРЅРѕРє
   begin
    GetClientRect(wnd,ClientRect);
    BrushOld := SelectObject(wParam, BkBrush);
@@ -54,7 +47,7 @@ begin
   end
 end;
  
-// процедура ListView
+// РїСЂРѕС†РµРґСѓСЂР° ListView
 function NewListProc(wnd:HWND; uMsg:UINT; wParam:WPARAM; 
                      lParam:LPARAM):integer; stdcall;
 var
@@ -70,8 +63,8 @@ begin
        CDDS_PREPAINT:  result:=CDRF_NOTIFYITEMDRAW;
        CDDS_ITEMPREPAINT:
                    begin
-                     SetTextColor(nmlvcd.nmcd.hdc,clRed);    // цвет текста
-                     SetBkColor(nmlvcd.nmcd.hdc,clYellow);   // цвет фона
+                     SetTextColor(nmlvcd.nmcd.hdc,clRed);    // С†РІРµС‚ С‚РµРєСЃС‚Р°
+                     SetBkColor(nmlvcd.nmcd.hdc,clYellow);   // С†РІРµС‚ С„РѕРЅР°
                      result:=CDRF_DODEFAULT;
                    end;
       CDDS_ITEMPOSTPAINT: result := CDRF_DODEFAULT;
@@ -86,10 +79,10 @@ var
 begin
  with ListView1 do
  begin
-  ViewStyle := vsReport; // стиль, естественно vsReport
+  ViewStyle := vsReport; // СЃС‚РёР»СЊ, РµСЃС‚РµСЃС‚РІРµРЅРЅРѕ vsReport
   GridLines:=true;
  
-// заполним ListView чем-нибудь
+// Р·Р°РїРѕР»РЅРёРј ListView С‡РµРј-РЅРёР±СѓРґСЊ
   for i:=0 to 2 do
   begin
      Columns.Add.Caption:='Column'+IntToStr(i);
@@ -100,29 +93,29 @@ begin
   end
 end;
  
-//меняем процедуру у ListView
+//РјРµРЅСЏРµРј РїСЂРѕС†РµРґСѓСЂСѓ Сѓ ListView
  SetWindowLong(ListView1.Handle,GWL_USERDATA,SetWindowLong(ListView1.Handle, 
                    GWL_WNDPROC, LPARAM(@NewListProc)));
  
-//тоже самое у Header'а
+//С‚РѕР¶Рµ СЃР°РјРѕРµ Сѓ Header'Р°
  SetWindowLong(GetWindow(ListView1.Handle, GW_CHILD),GWL_USERDATA,
               SetWindowLong(GetWindow(ListView1.Handle, GW_CHILD), 
               GWL_WNDPROC, LPARAM(@NewHeaderProc)));
  
- BkBrush := CreateSolidBrush(clYellow); // цвет фона
+ BkBrush := CreateSolidBrush(clYellow); // С†РІРµС‚ С„РѕРЅР°
  
 end;
 </pre>
-<p>Ещё вариант: для каждого элемента header'а установить флаг HDF_OWNERDRAW и в оконной процедуре ListView обрабатывать WM_DRAWITEM, где так же назначать цвета для элементов заголовка ListView. <br>
+<p>Р•С‰С‘ РІР°СЂРёР°РЅС‚: РґР»СЏ РєР°Р¶РґРѕРіРѕ СЌР»РµРјРµРЅС‚Р° header'Р° СѓСЃС‚Р°РЅРѕРІРёС‚СЊ С„Р»Р°Рі HDF_OWNERDRAW Рё РІ РѕРєРѕРЅРЅРѕР№ РїСЂРѕС†РµРґСѓСЂРµ ListView РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ WM_DRAWITEM, РіРґРµ С‚Р°Рє Р¶Рµ РЅР°Р·РЅР°С‡Р°С‚СЊ С†РІРµС‚Р° РґР»СЏ СЌР»РµРјРµРЅС‚РѕРІ Р·Р°РіРѕР»РѕРІРєР° ListView. <br>
 <p>&nbsp;</p>
 <p>&nbsp;<br>
-<p id="author">Автор: Krid </p>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ: Krid </p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

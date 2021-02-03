@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Информация об AVI-файле (разбор заголовка AVI)</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РРЅС„РѕСЂРјР°С†РёСЏ РѕР± AVI-С„Р°Р№Р»Рµ (СЂР°Р·Р±РѕСЂ Р·Р°РіРѕР»РѕРІРєР° AVI)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Информация об AVI-файле (разбор заголовка AVI)</h1>
+  <h1 id="title">РРЅС„РѕСЂРјР°С†РёСЏ РѕР± AVI-С„Р°Р№Р»Рµ (СЂР°Р·Р±РѕСЂ Р·Р°РіРѕР»РѕРІРєР° AVI)</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 unit Unit1;
@@ -55,9 +48,9 @@ implementation
  
 procedure TForm1.ReadAviInfo(FileName: String);
 var
-  iFileHandle: Integer; // хэндл файла
+  iFileHandle: Integer; // С…СЌРЅРґР» С„Р°Р№Р»Р°
  
-  // Для позмционирования в AVI файле
+  // Р”Р»СЏ РїРѕР·РјС†РёРѕРЅРёСЂРѕРІР°РЅРёСЏ РІ AVI С„Р°Р№Р»Рµ
   Aviheadersize: Integer;
   Vheadersize: Integer;
   Aviheaderstart: Integer;
@@ -65,7 +58,7 @@ var
   Aheaderstart: Integer;
   Astrhsize: Integer;
  
-  // Временные переменные
+  // Р’СЂРµРјРµРЅРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ
   TempTest: String[5];
   TempSize: Integer;
   TempVcodec: String[5];
@@ -76,7 +69,7 @@ var
   TempAsamplerate: Integer;
   TempAbitrate: Integer;
  
-  //Выходные данные
+  //Р’С‹С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ
   Size: Double;
   Length: String;
   Vcodec: String;
@@ -89,10 +82,10 @@ var
   Acodec: String;
   Abitrate: String;
 begin
-  // Открываем
+  // РћС‚РєСЂС‹РІР°РµРј
   iFileHandle := FileOpen(FileName, fmOpenRead);
  
-  // Грубая проверка на подлинность файла
+  // Р“СЂСѓР±Р°СЏ РїСЂРѕРІРµСЂРєР° РЅР° РїРѕРґР»РёРЅРЅРѕСЃС‚СЊ С„Р°Р№Р»Р°
   FileSeek(iFileHandle, 7, 0);
   FileRead(iFileHandle, TempTest, 5);
   If copy(TempTest, 0, 4) &lt;&gt; 'AVI ' then
@@ -101,30 +94,30 @@ begin
     Exit;
   End;
  
-  // Размер файла
+  // Р Р°Р·РјРµСЂ С„Р°Р№Р»Р°
   FileSeek(iFileHandle,4,0);
   FileRead(iFileHandle, TempSize, 4);
  
-  // Размер хедера (needed To locate the audio part)
+  // Р Р°Р·РјРµСЂ С…РµРґРµСЂР° (needed To locate the audio part)
   FileSeek(iFileHandle,28,0);
   FileRead(iFileHandle, Aviheadersize, 4);
  
-  // старт хедера  (needed To locate the video part)
+  // СЃС‚Р°СЂС‚ С…РµРґРµСЂР°  (needed To locate the video part)
   Aviheaderstart := 32;
  
-  // Милисекунды (1000000 / TempMicrosec = fps)
+  // РњРёР»РёСЃРµРєСѓРЅРґС‹ (1000000 / TempMicrosec = fps)
   FileSeek(iFileHandle,Aviheaderstart,0);
   FileRead(iFileHandle, TempMicrosec, 4);
  
-  // Размер во фреймах
+  // Р Р°Р·РјРµСЂ РІРѕ С„СЂРµР№РјР°С…
   FileSeek(iFileHandle,Aviheaderstart + 16,0);
   FileRead(iFileHandle, TempLengthInFrames, 4);
  
-  // Ширина
+  // РЁРёСЂРёРЅР°
   FileSeek(iFileHandle,Aviheaderstart + 32,0);
   FileRead(iFileHandle, VWidth, 4);
  
-  // Высота
+  // Р’С‹СЃРѕС‚Р°
   FileSeek(iFileHandle,Aviheaderstart + 36,0);
   FileRead(iFileHandle, VHeight, 4);
  
@@ -133,7 +126,7 @@ begin
  
   Vheaderstart := Aviheaderstart + Aviheadersize + 20;
  
-  // кодек
+  // РєРѕРґРµРє
   FileSeek(iFileHandle,Vheaderstart + 3,0);
   FileRead(iFileHandle, TempVCodec, 5);
  
@@ -146,7 +139,7 @@ begin
   FileSeek(iFileHandle,Aheaderstart + Astrhsize + 8,0);
   FileRead(iFileHandle, TempACodec, 2);
  
-  // Audio каналы (1 = mono, 2 = stereo)
+  // Audio РєР°РЅР°Р»С‹ (1 = mono, 2 = stereo)
   FileSeek(iFileHandle,Aheaderstart + Astrhsize + 10,0);
   FileRead(iFileHandle, TempAchannels, 2);
  
@@ -158,10 +151,10 @@ begin
   FileSeek(iFileHandle,Aheaderstart + Astrhsize + 16,0);
   FileRead(iFileHandle, TempAbitrate, 4);
  
-  // закрываем файл
+  // Р·Р°РєСЂС‹РІР°РµРј С„Р°Р№Р»
   FileClose(iFileHandle);
  
-  // анализируем видео кодек (можно добавить больше)
+  // Р°РЅР°Р»РёР·РёСЂСѓРµРј РІРёРґРµРѕ РєРѕРґРµРє (РјРѕР¶РЅРѕ РґРѕР±Р°РІРёС‚СЊ Р±РѕР»СЊС€Рµ)
   Vcodec := copy(TempVcodec, 0, 4);
   If Vcodec = 'div2' then Vcodec := 'MS MPEG4 v2'
   Else If Vcodec = 'DIV2' then Vcodec := 'MS MPEG4 v2'
@@ -174,7 +167,7 @@ begin
   Else If Vcodec = 'divx' then Vcodec := 'DivX 4'
   Else If Vcodec = 'mp43' then Vcodec := 'Microcrap MPEG4 v3';
  
-  // тоже с аудио 
+  // С‚РѕР¶Рµ СЃ Р°СѓРґРёРѕ 
   Case TempAcodec of
     0: Acodec := 'PCM';
     1: Acodec := 'PCM';
@@ -198,7 +191,7 @@ begin
     Abitrate := FormatFloat('# Kbit/s', TempAbitrate / 1024 * 8);
   End;
  
-  // тут некоторые вычисления
+  // С‚СѓС‚ РЅРµРєРѕС‚РѕСЂС‹Рµ РІС‹С‡РёСЃР»РµРЅРёСЏ
   Size := TempSize / 1024 / 1024;
   Fps := 1000000 / TempMicrosec; // FPS
   LengthInSec := TempLengthInFrames / fps; // Length In seconds
@@ -206,7 +199,7 @@ begin
     Round(LengthInSec - (Int(LengthInSec / 60) * 60)));
   Vbitrate := (TempSize / LengthInSec - TempABitrate) / 1024 * 8;
  
-  // Выводим инфу в мемо
+  // Р’С‹РІРѕРґРёРј РёРЅС„Сѓ РІ РјРµРјРѕ
   Memo1.Lines.Add('AVI INFORMATION');
   Memo1.lines.Add('Size: ' + FormatFloat('#.## MB',Size));
   Memo1.Lines.Add('Length: ' + Length);
@@ -230,13 +223,13 @@ End;
  
 end.
 </pre>
-<p id="author">Автор Rouse_</p>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ Rouse_</p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

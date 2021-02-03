@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Перехват вывода консоли</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџРµСЂРµС…РІР°С‚ РІС‹РІРѕРґР° РєРѕРЅСЃРѕР»Рё</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Перехват вывода консоли</h1>
+  <h1 id="title">РџРµСЂРµС…РІР°С‚ РІС‹РІРѕРґР° РєРѕРЅСЃРѕР»Рё</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 unit consoleoutput; 
@@ -57,57 +50,57 @@ begin
     bInheritHandle := True;
     lpSecurityDescriptor := nil;
   end;
-  // создаём пайп для перенаправления стандартного вывода
-  CreatePipe(StdOutPipeRead,  // дескриптор чтения
-             StdOutPipeWrite, // дескриптор записи
-             @SA,              // аттрибуты безопасности
-             0                // количество байт принятых для пайпа - 0 по умолчанию
+  // СЃРѕР·РґР°С‘Рј РїР°Р№Рї РґР»СЏ РїРµСЂРµРЅР°РїСЂР°РІР»РµРЅРёСЏ СЃС‚Р°РЅРґР°СЂС‚РЅРѕРіРѕ РІС‹РІРѕРґР°
+  CreatePipe(StdOutPipeRead,  // РґРµСЃРєСЂРёРїС‚РѕСЂ С‡С‚РµРЅРёСЏ
+             StdOutPipeWrite, // РґРµСЃРєСЂРёРїС‚РѕСЂ Р·Р°РїРёСЃРё
+             @SA,              // Р°С‚С‚СЂРёР±СѓС‚С‹ Р±РµР·РѕРїР°СЃРЅРѕСЃС‚Рё
+             0                // РєРѕР»РёС‡РµСЃС‚РІРѕ Р±Р°Р№С‚ РїСЂРёРЅСЏС‚С‹С… РґР»СЏ РїР°Р№РїР° - 0 РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
              );
   try
-    // Создаём дочерний процесс, используя StdOutPipeWrite в качестве стандартного вывода,
-    // а так же проверяем, чтобы он не показывался на экране.
+    // РЎРѕР·РґР°С‘Рј РґРѕС‡РµСЂРЅРёР№ РїСЂРѕС†РµСЃСЃ, РёСЃРїРѕР»СЊР·СѓСЏ StdOutPipeWrite РІ РєР°С‡РµСЃС‚РІРµ СЃС‚Р°РЅРґР°СЂС‚РЅРѕРіРѕ РІС‹РІРѕРґР°,
+    // Р° С‚Р°Рє Р¶Рµ РїСЂРѕРІРµСЂСЏРµРј, С‡С‚РѕР±С‹ РѕРЅ РЅРµ РїРѕРєР°Р·С‹РІР°Р»СЃСЏ РЅР° СЌРєСЂР°РЅРµ.
     with SI do
     begin
       FillChar(SI, SizeOf(SI), 0);
       cb := SizeOf(SI);
       dwFlags := STARTF_USESHOWWINDOW or STARTF_USESTDHANDLES;
       wShowWindow := SW_HIDE;
-      hStdInput := GetStdHandle(STD_INPUT_HANDLE); // стандартный ввод не перенаправляем
+      hStdInput := GetStdHandle(STD_INPUT_HANDLE); // СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РІРІРѕРґ РЅРµ РїРµСЂРµРЅР°РїСЂР°РІР»СЏРµРј
       hStdOutput := StdOutPipeWrite;
       hStdError := StdOutPipeWrite;
     end;
  
-    // Запускаем компилятор из командной строки
+    // Р—Р°РїСѓСЃРєР°РµРј РєРѕРјРїРёР»СЏС‚РѕСЂ РёР· РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё
     WorkDir := ExtractFilePath(CommandLine);
     WasOK := CreateProcess(nil, PChar(CommandLine), nil, nil, True, 0, nil, PChar(WorkDir), SI, PI);
  
-    // Теперь, когда дескриптор получен, для безопасности закрываем запись.
-    // Нам не нужно, чтобы произошло случайное чтение или запись.
+    // РўРµРїРµСЂСЊ, РєРѕРіРґР° РґРµСЃРєСЂРёРїС‚РѕСЂ РїРѕР»СѓС‡РµРЅ, РґР»СЏ Р±РµР·РѕРїР°СЃРЅРѕСЃС‚Рё Р·Р°РєСЂС‹РІР°РµРј Р·Р°РїРёСЃСЊ.
+    // РќР°Рј РЅРµ РЅСѓР¶РЅРѕ, С‡С‚РѕР±С‹ РїСЂРѕРёР·РѕС€Р»Рѕ СЃР»СѓС‡Р°Р№РЅРѕРµ С‡С‚РµРЅРёРµ РёР»Рё Р·Р°РїРёСЃСЊ.
     CloseHandle(StdOutPipeWrite); 
-    // если процесс может быть создан, то дескриптор, это его вывод
+    // РµСЃР»Рё РїСЂРѕС†РµСЃСЃ РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃРѕР·РґР°РЅ, С‚Рѕ РґРµСЃРєСЂРёРїС‚РѕСЂ, СЌС‚Рѕ РµРіРѕ РІС‹РІРѕРґ
     if not WasOK then
       raise Exception.Create('Could not execute command line!')
     else
       try
-        // получаем весь вывод до тех пор, пока DOS-приложение не будет завершено
+        // РїРѕР»СѓС‡Р°РµРј РІРµСЃСЊ РІС‹РІРѕРґ РґРѕ С‚РµС… РїРѕСЂ, РїРѕРєР° DOS-РїСЂРёР»РѕР¶РµРЅРёРµ РЅРµ Р±СѓРґРµС‚ Р·Р°РІРµСЂС€РµРЅРѕ
         Line := '';
         repeat
-          // читаем блок символов (могут содержать возвраты каретки и переводы строки)
+          // С‡РёС‚Р°РµРј Р±Р»РѕРє СЃРёРјРІРѕР»РѕРІ (РјРѕРіСѓС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ РІРѕР·РІСЂР°С‚С‹ РєР°СЂРµС‚РєРё Рё РїРµСЂРµРІРѕРґС‹ СЃС‚СЂРѕРєРё)
           WasOK := ReadFile(StdOutPipeRead, Buffer, 255, BytesRead, nil);
  
-          // есть ли что-нибудь ещё для чтения?
+          // РµСЃС‚СЊ Р»Рё С‡С‚Рѕ-РЅРёР±СѓРґСЊ РµС‰С‘ РґР»СЏ С‡С‚РµРЅРёСЏ?
           if BytesRead &gt; 0 then
           begin
-            // завершаем буфер PChar-ом
+            // Р·Р°РІРµСЂС€Р°РµРј Р±СѓС„РµСЂ PChar-РѕРј
             Buffer[BytesRead] := #0;
-            // добавляем буфер в общий вывод
+            // РґРѕР±Р°РІР»СЏРµРј Р±СѓС„РµСЂ РІ РѕР±С‰РёР№ РІС‹РІРѕРґ
             Line := Line + Buffer;
           end;
         until not WasOK or (BytesRead = 0);
-        // ждём, пока завершится консольное приложение
+        // Р¶РґС‘Рј, РїРѕРєР° Р·Р°РІРµСЂС€РёС‚СЃСЏ РєРѕРЅСЃРѕР»СЊРЅРѕРµ РїСЂРёР»РѕР¶РµРЅРёРµ
         WaitForSingleObject(PI.hProcess, INFINITE);
       finally
-        // Закрываем все оставшиеся дескрипторы
+        // Р—Р°РєСЂС‹РІР°РµРј РІСЃРµ РѕСЃС‚Р°РІС€РёРµСЃСЏ РґРµСЃРєСЂРёРїС‚РѕСЂС‹
         CloseHandle(PI.hThread);
         CloseHandle(PI.hProcess);
       end;
@@ -121,7 +114,7 @@ end;
 end.
 </pre>
 
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 
 <hr />
@@ -207,7 +200,7 @@ begin
 end;
 </pre>
 
-<p>Взято с сайта <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
+<p>Р’Р·СЏС‚Рѕ СЃ СЃР°Р№С‚Р° <a href="http://www.swissdelphicenter.ch/en/tipsindex.php" target="_blank">http://www.swissdelphicenter.ch/en/tipsindex.php</a></p>
 
 <pre name="code" class="delphi">
 procedure RunDosInMemo(CmdLine: string; AMemo: TMemo);
@@ -281,12 +274,12 @@ begin
   RunDosInMemo('ping -t 192.168.28.200', Memo1);
 end;
 </pre>
-<p id="author">Автор: Song</p>
+<p id="author">РђРІС‚РѕСЂ: Song</p>
 
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 <hr />
-<p>Hужно использовать пайпы (CreatePipe), и работать с ними как с обычным файлом. </p>
+<p>HСѓР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РїР°Р№РїС‹ (CreatePipe), Рё СЂР°Р±РѕС‚Р°С‚СЊ СЃ РЅРёРјРё РєР°Рє СЃ РѕР±С‹С‡РЅС‹Рј С„Р°Р№Р»РѕРј. </p>
 
 <pre name="code" class="delphi">
 const
@@ -379,7 +372,7 @@ end;
 
 <hr />
 
-<p>Это пример запуска консольных программ с передачей ей консольного ввода (как если бы он был введен с клавиатуры после запуска программы) и чтением консольного вывода. Таким способом можно запускать например стандартный виндовый ftp.exe (в невидимом окне) и тем самым отказаться от использования специализированных, зачастую глючных компонент. </p>
+<p>Р­С‚Рѕ РїСЂРёРјРµСЂ Р·Р°РїСѓСЃРєР° РєРѕРЅСЃРѕР»СЊРЅС‹С… РїСЂРѕРіСЂР°РјРј СЃ РїРµСЂРµРґР°С‡РµР№ РµР№ РєРѕРЅСЃРѕР»СЊРЅРѕРіРѕ РІРІРѕРґР° (РєР°Рє РµСЃР»Рё Р±С‹ РѕРЅ Р±С‹Р» РІРІРµРґРµРЅ СЃ РєР»Р°РІРёР°С‚СѓСЂС‹ РїРѕСЃР»Рµ Р·Р°РїСѓСЃРєР° РїСЂРѕРіСЂР°РјРјС‹) Рё С‡С‚РµРЅРёРµРј РєРѕРЅСЃРѕР»СЊРЅРѕРіРѕ РІС‹РІРѕРґР°. РўР°РєРёРј СЃРїРѕСЃРѕР±РѕРј РјРѕР¶РЅРѕ Р·Р°РїСѓСЃРєР°С‚СЊ РЅР°РїСЂРёРјРµСЂ СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РІРёРЅРґРѕРІС‹Р№ ftp.exe (РІ РЅРµРІРёРґРёРјРѕРј РѕРєРЅРµ) Рё С‚РµРј СЃР°РјС‹Рј РѕС‚РєР°Р·Р°С‚СЊСЃСЏ РѕС‚ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ СЃРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹С…, Р·Р°С‡Р°СЃС‚СѓСЋ РіР»СЋС‡РЅС‹С… РєРѕРјРїРѕРЅРµРЅС‚. </p>
 <pre name="code" class="delphi">
 function ExecuteFile(FileName, StdInput: string;
   TimeOut: integer;
@@ -441,7 +434,7 @@ begin
   for ph := Low(TPipeHandles) to High(TPipeHandles) do
     Pipes[ph] := INVALID_HANDLE_VALUE;
  
-  // Создаем пайпы
+  // РЎРѕР·РґР°РµРј РїР°Р№РїС‹
   sa.nLength := sizeof(sa);
   sa.bInheritHandle := TRUE;
   sa.lpSecurityDescriptor := nil;
@@ -453,12 +446,12 @@ begin
   if not CreatePipe(Pipes[ERR_READ], Pipes[ERR_WRITE], @sa, 0) then
     goto Error;
  
-  // Пишем StdIn
+  // РџРёС€РµРј StdIn
   StrPCopy(@Buf[0], stdInput + ^Z);
   WriteFile(Pipes[IN_WRITE], Buf, Length(stdInput), i, nil);
  
-  // Хендл записи в StdIn надо закрыть - иначе выполняемая программа
-  // может не прочитать или прочитать не весь StdIn.
+  // РҐРµРЅРґР» Р·Р°РїРёСЃРё РІ StdIn РЅР°РґРѕ Р·Р°РєСЂС‹С‚СЊ - РёРЅР°С‡Рµ РІС‹РїРѕР»РЅСЏРµРјР°СЏ РїСЂРѕРіСЂР°РјРјР°
+  // РјРѕР¶РµС‚ РЅРµ РїСЂРѕС‡РёС‚Р°С‚СЊ РёР»Рё РїСЂРѕС‡РёС‚Р°С‚СЊ РЅРµ РІРµСЃСЊ StdIn.
  
   CloseHandle(Pipes[IN_WRITE]);
  
@@ -468,7 +461,7 @@ begin
   StartInf.cb := sizeof(TStartupInfo);
   StartInf.dwFlags := STARTF_USESHOWWINDOW or STARTF_USESTDHANDLES;
  
-  StartInf.wShowWindow := SW_SHOW; // SW_HIDE если надо запустить невидимо
+  StartInf.wShowWindow := SW_SHOW; // SW_HIDE РµСЃР»Рё РЅР°РґРѕ Р·Р°РїСѓСЃС‚РёС‚СЊ РЅРµРІРёРґРёРјРѕ
  
   StartInf.hStdInput := Pipes[IN_READ];
   StartInf.hStdOutput := Pipes[OUT_WRITE];
@@ -534,14 +527,14 @@ end;
 </pre>
 
 
-<p id="author">Автор: Алексей Бойко</p>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ: РђР»РµРєСЃРµР№ Р‘РѕР№РєРѕ</p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

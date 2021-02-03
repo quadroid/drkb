@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>СОМ хранилища: подпольная файловая система</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РЎРћРњ С…СЂР°РЅРёР»РёС‰Р°: РїРѕРґРїРѕР»СЊРЅР°СЏ С„Р°Р№Р»РѕРІР°СЏ СЃРёСЃС‚РµРјР°</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,60 +13,53 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">СОМ хранилища: подпольная файловая система</h1>
+  <h1 id="title">РЎРћРњ С…СЂР°РЅРёР»РёС‰Р°: РїРѕРґРїРѕР»СЊРЅР°СЏ С„Р°Р№Р»РѕРІР°СЏ СЃРёСЃС‚РµРјР°</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
-<p>СОМ хранилища: подпольная файловая система<br>
+
+<p>РЎРћРњ С…СЂР°РЅРёР»РёС‰Р°: РїРѕРґРїРѕР»СЊРЅР°СЏ С„Р°Р№Р»РѕРІР°СЏ СЃРёСЃС‚РµРјР°<br>
 &nbsp;<br>
 <p>&nbsp;</p>
-<p>Перед многими программистами рано или поздно постает вопрос: "В каком формате хранить данные своей программы". Хорошо, если это тип данных с фиксированной длинной, а если надо сохранить разнородные данные, да еще чтоб в одном файле(чтоб потом не разбираться с десятком другим файлов с данными)... Тут на помощь приходить сама Windows(жуть какую сказал: "Windows... и на помощь") с технологией структурированного хранилища данных.</p>
-<p>Определения</p>
-<p>Структурированные хранилища данных - это файлы особой "самодокументированной" структуры, в которых могут мирно уживаться разнородные данные (от простого текста, до фильмов, архивов и... программ). Так как эта технология есть неотъемлемой частью Windows, то доступ к ней возможен из любого средства программирования, которое поддерживает технологию COM. Одним из таких приложений является и Delphi, на основе которого будет описана технология доступа к структурированным хранилищам данных.</p>
-<p>Структура хранилищ</p>
-<p>Как уже было сказано, COM хранилища - файлы особой структуры(рис.1) и напоминают иерархическую файловую систему. Так в них есть корневое хранилище (Root Entry) в котором могут содержаться как отдельные потоки("файлы"), так и хранилища второго уровня("каталоги"), в них в свою очередь хранилища третьего уровня и т.д. Управление каждым хранилищем и потоком осуществляется посредством отдельного экземпляра интерфейса: IStorage - для хранилищ и IStream - для потоков. А теперь рассмотрим конкретнее некоторые операции над ними.</p>
-<p>Создание и открытие хранилищ</p>
-<p>Создание структурированных хранилищ осуществляется с использованием функции StgCreateDocFile, из модуля ActiveX.pas. Синтаксис этой функции выгладит таким образом:<br>
+<p>РџРµСЂРµРґ РјРЅРѕРіРёРјРё РїСЂРѕРіСЂР°РјРјРёСЃС‚Р°РјРё СЂР°РЅРѕ РёР»Рё РїРѕР·РґРЅРѕ РїРѕСЃС‚Р°РµС‚ РІРѕРїСЂРѕСЃ: "Р’ РєР°РєРѕРј С„РѕСЂРјР°С‚Рµ С…СЂР°РЅРёС‚СЊ РґР°РЅРЅС‹Рµ СЃРІРѕРµР№ РїСЂРѕРіСЂР°РјРјС‹". РҐРѕСЂРѕС€Рѕ, РµСЃР»Рё СЌС‚Рѕ С‚РёРї РґР°РЅРЅС‹С… СЃ С„РёРєСЃРёСЂРѕРІР°РЅРЅРѕР№ РґР»РёРЅРЅРѕР№, Р° РµСЃР»Рё РЅР°РґРѕ СЃРѕС…СЂР°РЅРёС‚СЊ СЂР°Р·РЅРѕСЂРѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ, РґР° РµС‰Рµ С‡С‚РѕР± РІ РѕРґРЅРѕРј С„Р°Р№Р»Рµ(С‡С‚РѕР± РїРѕС‚РѕРј РЅРµ СЂР°Р·Р±РёСЂР°С‚СЊСЃСЏ СЃ РґРµСЃСЏС‚РєРѕРј РґСЂСѓРіРёРј С„Р°Р№Р»РѕРІ СЃ РґР°РЅРЅС‹РјРё)... РўСѓС‚ РЅР° РїРѕРјРѕС‰СЊ РїСЂРёС…РѕРґРёС‚СЊ СЃР°РјР° Windows(Р¶СѓС‚СЊ РєР°РєСѓСЋ СЃРєР°Р·Р°Р»: "Windows... Рё РЅР° РїРѕРјРѕС‰СЊ") СЃ С‚РµС…РЅРѕР»РѕРіРёРµР№ СЃС‚СЂСѓРєС‚СѓСЂРёСЂРѕРІР°РЅРЅРѕРіРѕ С…СЂР°РЅРёР»РёС‰Р° РґР°РЅРЅС‹С….</p>
+<p>РћРїСЂРµРґРµР»РµРЅРёСЏ</p>
+<p>РЎС‚СЂСѓРєС‚СѓСЂРёСЂРѕРІР°РЅРЅС‹Рµ С…СЂР°РЅРёР»РёС‰Р° РґР°РЅРЅС‹С… - СЌС‚Рѕ С„Р°Р№Р»С‹ РѕСЃРѕР±РѕР№ "СЃР°РјРѕРґРѕРєСѓРјРµРЅС‚РёСЂРѕРІР°РЅРЅРѕР№" СЃС‚СЂСѓРєС‚СѓСЂС‹, РІ РєРѕС‚РѕСЂС‹С… РјРѕРіСѓС‚ РјРёСЂРЅРѕ СѓР¶РёРІР°С‚СЊСЃСЏ СЂР°Р·РЅРѕСЂРѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ (РѕС‚ РїСЂРѕСЃС‚РѕРіРѕ С‚РµРєСЃС‚Р°, РґРѕ С„РёР»СЊРјРѕРІ, Р°СЂС…РёРІРѕРІ Рё... РїСЂРѕРіСЂР°РјРј). РўР°Рє РєР°Рє СЌС‚Р° С‚РµС…РЅРѕР»РѕРіРёСЏ РµСЃС‚СЊ РЅРµРѕС‚СЉРµРјР»РµРјРѕР№ С‡Р°СЃС‚СЊСЋ Windows, С‚Рѕ РґРѕСЃС‚СѓРї Рє РЅРµР№ РІРѕР·РјРѕР¶РµРЅ РёР· Р»СЋР±РѕРіРѕ СЃСЂРµРґСЃС‚РІР° РїСЂРѕРіСЂР°РјРјРёСЂРѕРІР°РЅРёСЏ, РєРѕС‚РѕСЂРѕРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ С‚РµС…РЅРѕР»РѕРіРёСЋ COM. РћРґРЅРёРј РёР· С‚Р°РєРёС… РїСЂРёР»РѕР¶РµРЅРёР№ СЏРІР»СЏРµС‚СЃСЏ Рё Delphi, РЅР° РѕСЃРЅРѕРІРµ РєРѕС‚РѕСЂРѕРіРѕ Р±СѓРґРµС‚ РѕРїРёСЃР°РЅР° С‚РµС…РЅРѕР»РѕРіРёСЏ РґРѕСЃС‚СѓРїР° Рє СЃС‚СЂСѓРєС‚СѓСЂРёСЂРѕРІР°РЅРЅС‹Рј С…СЂР°РЅРёР»РёС‰Р°Рј РґР°РЅРЅС‹С….</p>
+<p>РЎС‚СЂСѓРєС‚СѓСЂР° С…СЂР°РЅРёР»РёС‰</p>
+<p>РљР°Рє СѓР¶Рµ Р±С‹Р»Рѕ СЃРєР°Р·Р°РЅРѕ, COM С…СЂР°РЅРёР»РёС‰Р° - С„Р°Р№Р»С‹ РѕСЃРѕР±РѕР№ СЃС‚СЂСѓРєС‚СѓСЂС‹(СЂРёСЃ.1) Рё РЅР°РїРѕРјРёРЅР°СЋС‚ РёРµСЂР°СЂС…РёС‡РµСЃРєСѓСЋ С„Р°Р№Р»РѕРІСѓСЋ СЃРёСЃС‚РµРјСѓ. РўР°Рє РІ РЅРёС… РµСЃС‚СЊ РєРѕСЂРЅРµРІРѕРµ С…СЂР°РЅРёР»РёС‰Рµ (Root Entry) РІ РєРѕС‚РѕСЂРѕРј РјРѕРіСѓС‚ СЃРѕРґРµСЂР¶Р°С‚СЊСЃСЏ РєР°Рє РѕС‚РґРµР»СЊРЅС‹Рµ РїРѕС‚РѕРєРё("С„Р°Р№Р»С‹"), С‚Р°Рє Рё С…СЂР°РЅРёР»РёС‰Р° РІС‚РѕСЂРѕРіРѕ СѓСЂРѕРІРЅСЏ("РєР°С‚Р°Р»РѕРіРё"), РІ РЅРёС… РІ СЃРІРѕСЋ РѕС‡РµСЂРµРґСЊ С…СЂР°РЅРёР»РёС‰Р° С‚СЂРµС‚СЊРµРіРѕ СѓСЂРѕРІРЅСЏ Рё С‚.Рґ. РЈРїСЂР°РІР»РµРЅРёРµ РєР°Р¶РґС‹Рј С…СЂР°РЅРёР»РёС‰РµРј Рё РїРѕС‚РѕРєРѕРј РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РїРѕСЃСЂРµРґСЃС‚РІРѕРј РѕС‚РґРµР»СЊРЅРѕРіРѕ СЌРєР·РµРјРїР»СЏСЂР° РёРЅС‚РµСЂС„РµР№СЃР°: IStorage - РґР»СЏ С…СЂР°РЅРёР»РёС‰ Рё IStream - РґР»СЏ РїРѕС‚РѕРєРѕРІ. Рђ С‚РµРїРµСЂСЊ СЂР°СЃСЃРјРѕС‚СЂРёРј РєРѕРЅРєСЂРµС‚РЅРµРµ РЅРµРєРѕС‚РѕСЂС‹Рµ РѕРїРµСЂР°С†РёРё РЅР°Рґ РЅРёРјРё.</p>
+<p>РЎРѕР·РґР°РЅРёРµ Рё РѕС‚РєСЂС‹С‚РёРµ С…СЂР°РЅРёР»РёС‰</p>
+<p>РЎРѕР·РґР°РЅРёРµ СЃС‚СЂСѓРєС‚СѓСЂРёСЂРѕРІР°РЅРЅС‹С… С…СЂР°РЅРёР»РёС‰ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј С„СѓРЅРєС†РёРё StgCreateDocFile, РёР· РјРѕРґСѓР»СЏ ActiveX.pas. РЎРёРЅС‚Р°РєСЃРёСЃ СЌС‚РѕР№ С„СѓРЅРєС†РёРё РІС‹РіР»Р°РґРёС‚ С‚Р°РєРёРј РѕР±СЂР°Р·РѕРј:<br>
 <p>function StgCreateDocfile(pwcsName: POleStr; grfMode: Longint; reserved: Longint; out stgOpen: IStorage): HResult; stdcall;</p>
-где </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>pwcsName </td></tr></table></div>название хранилища(т.е. название файла). </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>grfMode </td></tr></table></div>флаги доступа(комбинация значений STGM_*). </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>reserved </td></tr></table></div>он и в Африке RESERVED. </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>StgOpen </td></tr></table></div>ссылка на интерфейс IStorage нашего главного хранилища. Результат функции как всегда транслируем в исключения Delphi посредством OleCheck. </p>
-<p>Для открытия хранилища используется функция StgOpenStorage:<br>
+РіРґРµ </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>pwcsName </td></tr></table></div>РЅР°Р·РІР°РЅРёРµ С…СЂР°РЅРёР»РёС‰Р°(С‚.Рµ. РЅР°Р·РІР°РЅРёРµ С„Р°Р№Р»Р°). </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>grfMode </td></tr></table></div>С„Р»Р°РіРё РґРѕСЃС‚СѓРїР°(РєРѕРјР±РёРЅР°С†РёСЏ Р·РЅР°С‡РµРЅРёР№ STGM_*). </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>reserved </td></tr></table></div>РѕРЅ Рё РІ РђС„СЂРёРєРµ RESERVED. </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>StgOpen </td></tr></table></div>СЃСЃС‹Р»РєР° РЅР° РёРЅС‚РµСЂС„РµР№СЃ IStorage РЅР°С€РµРіРѕ РіР»Р°РІРЅРѕРіРѕ С…СЂР°РЅРёР»РёС‰Р°. Р РµР·СѓР»СЊС‚Р°С‚ С„СѓРЅРєС†РёРё РєР°Рє РІСЃРµРіРґР° С‚СЂР°РЅСЃР»РёСЂСѓРµРј РІ РёСЃРєР»СЋС‡РµРЅРёСЏ Delphi РїРѕСЃСЂРµРґСЃС‚РІРѕРј OleCheck. </p>
+<p>Р”Р»СЏ РѕС‚РєСЂС‹С‚РёСЏ С…СЂР°РЅРёР»РёС‰Р° РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С„СѓРЅРєС†РёСЏ StgOpenStorage:<br>
 function StgOpenStorage(pwcsName: POleStr; stgPriority: IStorage; grfMode: Longint; snbExclude: TSNB; reserved: Longint; out stgOpen: IStorage): HResult; stdcall;<br>
-<p>неизвестный параметр - stgPriority указывает на ранее открытый экземпляр главного хранилища (почти всегда nil). </p>
-<p>Когда хранилище открыто (запись данных)...</p>
-<p>Рассмотрим более подробно методы интерфейса IStorage.<br>
-Создание потока - IStorage.CreateStream.<br>
+<p>РЅРµРёР·РІРµСЃС‚РЅС‹Р№ РїР°СЂР°РјРµС‚СЂ - stgPriority СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЂР°РЅРµРµ РѕС‚РєСЂС‹С‚С‹Р№ СЌРєР·РµРјРїР»СЏСЂ РіР»Р°РІРЅРѕРіРѕ С…СЂР°РЅРёР»РёС‰Р° (РїРѕС‡С‚Рё РІСЃРµРіРґР° nil). </p>
+<p>РљРѕРіРґР° С…СЂР°РЅРёР»РёС‰Рµ РѕС‚РєСЂС‹С‚Рѕ (Р·Р°РїРёСЃСЊ РґР°РЅРЅС‹С…)...</p>
+<p>Р Р°СЃСЃРјРѕС‚СЂРёРј Р±РѕР»РµРµ РїРѕРґСЂРѕР±РЅРѕ РјРµС‚РѕРґС‹ РёРЅС‚РµСЂС„РµР№СЃР° IStorage.<br>
+РЎРѕР·РґР°РЅРёРµ РїРѕС‚РѕРєР° - IStorage.CreateStream.<br>
 <p>function CreateStream(pwcsName: POleStr; grfMode: Longint; reserved1: Longint;reserved2: Longint; out stm: IStream): HResult; stdcall;</p>
-параметры: </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>pwcsName </td></tr></table></div>название потока. </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>grfMode </td></tr></table></div>Флаги доступа </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>reserved1, reserved2 </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>соответственно. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>stm </td></tr></table></div>указатель на созданный поток. </p>
-<p>Открытие потока - IStorage.OpenStream.<br>
+РїР°СЂР°РјРµС‚СЂС‹: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>pwcsName </td></tr></table></div>РЅР°Р·РІР°РЅРёРµ РїРѕС‚РѕРєР°. </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>grfMode </td></tr></table></div>Р¤Р»Р°РіРё РґРѕСЃС‚СѓРїР° </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>reserved1, reserved2 </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>stm </td></tr></table></div>СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃРѕР·РґР°РЅРЅС‹Р№ РїРѕС‚РѕРє. </p>
+<p>РћС‚РєСЂС‹С‚РёРµ РїРѕС‚РѕРєР° - IStorage.OpenStream.<br>
 <p>function OpenStream(pwcsName: POleStr; reserved1: Pointer; grfMode: Longint;reserved2: Longint; out stm: IStream): HResult; stdcall; </p>
-параметры: </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>pwcsName </td></tr></table></div>название потока. </p>
+РїР°СЂР°РјРµС‚СЂС‹: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>pwcsName </td></tr></table></div>РЅР°Р·РІР°РЅРёРµ РїРѕС‚РѕРєР°. </p>
 <div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>reserved1 </td></tr></table></div>nil </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>grfMode </td></tr></table></div>флаги доступа </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>grfMode </td></tr></table></div>С„Р»Р°РіРё РґРѕСЃС‚СѓРїР° </p>
 <div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>reserved2 </td></tr></table></div>0 </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>stm </td></tr></table></div>указатель на открытый поток. </p>
-<p>Создание подхранилища - IStorage.CreateStorage.<br>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>stm </td></tr></table></div>СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РѕС‚РєСЂС‹С‚С‹Р№ РїРѕС‚РѕРє. </p>
+<p>РЎРѕР·РґР°РЅРёРµ РїРѕРґС…СЂР°РЅРёР»РёС‰Р° - IStorage.CreateStorage.<br>
 function CreateStorage(pwcsName: POleStr; grfMode: Longint; dwStgFmt: Longint; reserved2: Longint; out stg: IStorage): HResult;stdcall;<br>
-Открытие подхранилища - IStorage.OpenStorage.<br>
+РћС‚РєСЂС‹С‚РёРµ РїРѕРґС…СЂР°РЅРёР»РёС‰Р° - IStorage.OpenStorage.<br>
 <p>function OpenStorage(pwcsName: POleStr; const stgPriority: IStorage; grfMode: Longint; snbExclude: TSNB; reserved: Longint;out stg: IStorage): HResult; stdcall;</p>
-<p>Теперь мы можем приступить к чтению(записи) данных из(в) потоков посредством интерфейсов IStream. Тут можно заметить до боли знакомые (для Дельфийцев) методы работы с потоками:Read,Write, Seek, SetSize, CopyTo... а если так, то почему бы не перевести их в более простую и понятную(по крайней мере для меня) объектную форму. Для этого воспользуемся наработками Borland собранными в модуле AxCtrls.pas, точнее классом TOleStream, который интерпретирует вызовы методов интерфейса IStream в соответствущие методы класса TStream.</p>
-<p>А для того чтоб не быть пустословным - приведу небольшой примерчик:</p>
+<p>РўРµРїРµСЂСЊ РјС‹ РјРѕР¶РµРј РїСЂРёСЃС‚СѓРїРёС‚СЊ Рє С‡С‚РµРЅРёСЋ(Р·Р°РїРёСЃРё) РґР°РЅРЅС‹С… РёР·(РІ) РїРѕС‚РѕРєРѕРІ РїРѕСЃСЂРµРґСЃС‚РІРѕРј РёРЅС‚РµСЂС„РµР№СЃРѕРІ IStream. РўСѓС‚ РјРѕР¶РЅРѕ Р·Р°РјРµС‚РёС‚СЊ РґРѕ Р±РѕР»Рё Р·РЅР°РєРѕРјС‹Рµ (РґР»СЏ Р”РµР»СЊС„РёР№С†РµРІ) РјРµС‚РѕРґС‹ СЂР°Р±РѕС‚С‹ СЃ РїРѕС‚РѕРєР°РјРё:Read,Write, Seek, SetSize, CopyTo... Р° РµСЃР»Рё С‚Р°Рє, С‚Рѕ РїРѕС‡РµРјСѓ Р±С‹ РЅРµ РїРµСЂРµРІРµСЃС‚Рё РёС… РІ Р±РѕР»РµРµ РїСЂРѕСЃС‚СѓСЋ Рё РїРѕРЅСЏС‚РЅСѓСЋ(РїРѕ РєСЂР°Р№РЅРµР№ РјРµСЂРµ РґР»СЏ РјРµРЅСЏ) РѕР±СЉРµРєС‚РЅСѓСЋ С„РѕСЂРјСѓ. Р”Р»СЏ СЌС‚РѕРіРѕ РІРѕСЃРїРѕР»СЊР·СѓРµРјСЃСЏ РЅР°СЂР°Р±РѕС‚РєР°РјРё Borland СЃРѕР±СЂР°РЅРЅС‹РјРё РІ РјРѕРґСѓР»Рµ AxCtrls.pas, С‚РѕС‡РЅРµРµ РєР»Р°СЃСЃРѕРј TOleStream, РєРѕС‚РѕСЂС‹Р№ РёРЅС‚РµСЂРїСЂРµС‚РёСЂСѓРµС‚ РІС‹Р·РѕРІС‹ РјРµС‚РѕРґРѕРІ РёРЅС‚РµСЂС„РµР№СЃР° IStream РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓС‰РёРµ РјРµС‚РѕРґС‹ РєР»Р°СЃСЃР° TStream.</p>
+<p>Рђ РґР»СЏ С‚РѕРіРѕ С‡С‚РѕР± РЅРµ Р±С‹С‚СЊ РїСѓСЃС‚РѕСЃР»РѕРІРЅС‹Рј - РїСЂРёРІРµРґСѓ РЅРµР±РѕР»СЊС€РѕР№ РїСЂРёРјРµСЂС‡РёРє:</p>
 <pre name="code" class="delphi">
 Implementation
  Uses ActiveX,AxCtrls,ComObj;
@@ -93,17 +86,17 @@ end;
 end.
 </pre>
 &nbsp;</p>
-<p>В этом фрагменте мы создаем новое хранилище с одним потоком в который записываем строку S. Естественно, ничто нам не мешает вместо:</p>
+<p>Р’ СЌС‚РѕРј С„СЂР°РіРјРµРЅС‚Рµ РјС‹ СЃРѕР·РґР°РµРј РЅРѕРІРѕРµ С…СЂР°РЅРёР»РёС‰Рµ СЃ РѕРґРЅРёРј РїРѕС‚РѕРєРѕРј РІ РєРѕС‚РѕСЂС‹Р№ Р·Р°РїРёСЃС‹РІР°РµРј СЃС‚СЂРѕРєСѓ S. Р•СЃС‚РµСЃС‚РІРµРЅРЅРѕ, РЅРёС‡С‚Рѕ РЅР°Рј РЅРµ РјРµС€Р°РµС‚ РІРјРµСЃС‚Рѕ:</p>
 <p>S:='This is the test';</p>
 <p>OS.WriteBuffer(Pointer(S)^,Length(S));</p>
-<p>Написать например:<br>
+<p>РќР°РїРёСЃР°С‚СЊ РЅР°РїСЂРёРјРµСЂ:<br>
 Image1.Picture.Bitmap.SaveToStream(OS);<br>
-<p>и тем самым записать в поток "Testing" изображение(вот она... "универсальная мусоросвалка"). </p>
-<p>Теперь ненамного отвлечемся от Delphi и посмотрим на наш файл с точки зрения, скажем, Far (или VC)... Посмотрели? А теперь откройте там же любой текстовый документ созданных в Word'е. Как видим структура та же что и в нашем файле. То же можно сказать и о Excel. Но как проверить на прибегая к помощи notepad какой файл является хранилищем, а какой нет? Для этого все в том же модуле ActiveX.pas предусмотрена функция StgIsStorageFile:<br>
+<p>Рё С‚РµРј СЃР°РјС‹Рј Р·Р°РїРёСЃР°С‚СЊ РІ РїРѕС‚РѕРє "Testing" РёР·РѕР±СЂР°Р¶РµРЅРёРµ(РІРѕС‚ РѕРЅР°... "СѓРЅРёРІРµСЂСЃР°Р»СЊРЅР°СЏ РјСѓСЃРѕСЂРѕСЃРІР°Р»РєР°"). </p>
+<p>РўРµРїРµСЂСЊ РЅРµРЅР°РјРЅРѕРіРѕ РѕС‚РІР»РµС‡РµРјСЃСЏ РѕС‚ Delphi Рё РїРѕСЃРјРѕС‚СЂРёРј РЅР° РЅР°С€ С„Р°Р№Р» СЃ С‚РѕС‡РєРё Р·СЂРµРЅРёСЏ, СЃРєР°Р¶РµРј, Far (РёР»Рё VC)... РџРѕСЃРјРѕС‚СЂРµР»Рё? Рђ С‚РµРїРµСЂСЊ РѕС‚РєСЂРѕР№С‚Рµ С‚Р°Рј Р¶Рµ Р»СЋР±РѕР№ С‚РµРєСЃС‚РѕРІС‹Р№ РґРѕРєСѓРјРµРЅС‚ СЃРѕР·РґР°РЅРЅС‹С… РІ Word'Рµ. РљР°Рє РІРёРґРёРј СЃС‚СЂСѓРєС‚СѓСЂР° С‚Р° Р¶Рµ С‡С‚Рѕ Рё РІ РЅР°С€РµРј С„Р°Р№Р»Рµ. РўРѕ Р¶Рµ РјРѕР¶РЅРѕ СЃРєР°Р·Р°С‚СЊ Рё Рѕ Excel. РќРѕ РєР°Рє РїСЂРѕРІРµСЂРёС‚СЊ РЅР° РїСЂРёР±РµРіР°СЏ Рє РїРѕРјРѕС‰Рё notepad РєР°РєРѕР№ С„Р°Р№Р» СЏРІР»СЏРµС‚СЃСЏ С…СЂР°РЅРёР»РёС‰РµРј, Р° РєР°РєРѕР№ РЅРµС‚? Р”Р»СЏ СЌС‚РѕРіРѕ РІСЃРµ РІ С‚РѕРј Р¶Рµ РјРѕРґСѓР»Рµ ActiveX.pas РїСЂРµРґСѓСЃРјРѕС‚СЂРµРЅР° С„СѓРЅРєС†РёСЏ StgIsStorageFile:<br>
 function StgIsStorageFile(pwcsName: POleStr): HResult; stdcall;<br>
-<p>которая принимает значение S_OK( 0 ) - если файл является структурированным хранилищем данных и S_FALSE ( 1 ) - если файл не есть им, кроме того эта функция может принимать значения: STG_E_INVALIDFILENAME и STG_E_FILENOTFOUND соответственно если имя файла задано неправильно и если файла с таким именем не существует.</p>
-<p>Чтение</p>
-<p>Чтение данных из хранилища производится также как и чтение из стандартного потока Delphi. Все, что для этого требуется - это создать объект наследник TOleStream с использованием возвращаемого функцией IStorage.OpenStorage значения stm:</p>
+<p>РєРѕС‚РѕСЂР°СЏ РїСЂРёРЅРёРјР°РµС‚ Р·РЅР°С‡РµРЅРёРµ S_OK( 0 ) - РµСЃР»Рё С„Р°Р№Р» СЏРІР»СЏРµС‚СЃСЏ СЃС‚СЂСѓРєС‚СѓСЂРёСЂРѕРІР°РЅРЅС‹Рј С…СЂР°РЅРёР»РёС‰РµРј РґР°РЅРЅС‹С… Рё S_FALSE ( 1 ) - РµСЃР»Рё С„Р°Р№Р» РЅРµ РµСЃС‚СЊ РёРј, РєСЂРѕРјРµ С‚РѕРіРѕ СЌС‚Р° С„СѓРЅРєС†РёСЏ РјРѕР¶РµС‚ РїСЂРёРЅРёРјР°С‚СЊ Р·РЅР°С‡РµРЅРёСЏ: STG_E_INVALIDFILENAME Рё STG_E_FILENOTFOUND СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ РµСЃР»Рё РёРјСЏ С„Р°Р№Р»Р° Р·Р°РґР°РЅРѕ РЅРµРїСЂР°РІРёР»СЊРЅРѕ Рё РµСЃР»Рё С„Р°Р№Р»Р° СЃ С‚Р°РєРёРј РёРјРµРЅРµРј РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚.</p>
+<p>Р§С‚РµРЅРёРµ</p>
+<p>Р§С‚РµРЅРёРµ РґР°РЅРЅС‹С… РёР· С…СЂР°РЅРёР»РёС‰Р° РїСЂРѕРёР·РІРѕРґРёС‚СЃСЏ С‚Р°РєР¶Рµ РєР°Рє Рё С‡С‚РµРЅРёРµ РёР· СЃС‚Р°РЅРґР°СЂС‚РЅРѕРіРѕ РїРѕС‚РѕРєР° Delphi. Р’СЃРµ, С‡С‚Рѕ РґР»СЏ СЌС‚РѕРіРѕ С‚СЂРµР±СѓРµС‚СЃСЏ - СЌС‚Рѕ СЃРѕР·РґР°С‚СЊ РѕР±СЉРµРєС‚ РЅР°СЃР»РµРґРЅРёРє TOleStream СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј РІРѕР·РІСЂР°С‰Р°РµРјРѕРіРѕ С„СѓРЅРєС†РёРµР№ IStorage.OpenStorage Р·РЅР°С‡РµРЅРёСЏ stm:</p>
 <pre name="code" class="delphi">
 procedure TForm1.Button2Click(Sender: TObject);
 var Stg:IStorage;
@@ -126,22 +119,22 @@ begin
 end;
 </pre>
 &nbsp;</p>
-<p>после выполнения этого кода мы в Edit1 увидим ранее записанное нами:"This is the test". </p>
-<p>Последовательное перемещение по структурам хранилища</p>
-<p>Хорошо... мы создали хранилище, записали в него данные и прочитали их. Но мы это сделали зная имя потока в котором записаны наши данные. Но как быть, если мы не знаем структуры хранилища? Для этого в Интерфейсе IStorage предусмотрен механизм перечисления его элементов, который содержится в интерфейсе IEnumStatStg, указатель на который возвращается функцией IStorage.EnumElements:<br>
-function EnumElements(reserved1: Longint; reserved2: Pointer; reserved3: Longint;out enm: IEnumStatStg): HResult; stdcall; употребление этой функции происходит таким образом:<br>
+<p>РїРѕСЃР»Рµ РІС‹РїРѕР»РЅРµРЅРёСЏ СЌС‚РѕРіРѕ РєРѕРґР° РјС‹ РІ Edit1 СѓРІРёРґРёРј СЂР°РЅРµРµ Р·Р°РїРёСЃР°РЅРЅРѕРµ РЅР°РјРё:"This is the test". </p>
+<p>РџРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕРµ РїРµСЂРµРјРµС‰РµРЅРёРµ РїРѕ СЃС‚СЂСѓРєС‚СѓСЂР°Рј С…СЂР°РЅРёР»РёС‰Р°</p>
+<p>РҐРѕСЂРѕС€Рѕ... РјС‹ СЃРѕР·РґР°Р»Рё С…СЂР°РЅРёР»РёС‰Рµ, Р·Р°РїРёСЃР°Р»Рё РІ РЅРµРіРѕ РґР°РЅРЅС‹Рµ Рё РїСЂРѕС‡РёС‚Р°Р»Рё РёС…. РќРѕ РјС‹ СЌС‚Рѕ СЃРґРµР»Р°Р»Рё Р·РЅР°СЏ РёРјСЏ РїРѕС‚РѕРєР° РІ РєРѕС‚РѕСЂРѕРј Р·Р°РїРёСЃР°РЅС‹ РЅР°С€Рё РґР°РЅРЅС‹Рµ. РќРѕ РєР°Рє Р±С‹С‚СЊ, РµСЃР»Рё РјС‹ РЅРµ Р·РЅР°РµРј СЃС‚СЂСѓРєС‚СѓСЂС‹ С…СЂР°РЅРёР»РёС‰Р°? Р”Р»СЏ СЌС‚РѕРіРѕ РІ РРЅС‚РµСЂС„РµР№СЃРµ IStorage РїСЂРµРґСѓСЃРјРѕС‚СЂРµРЅ РјРµС…Р°РЅРёР·Рј РїРµСЂРµС‡РёСЃР»РµРЅРёСЏ РµРіРѕ СЌР»РµРјРµРЅС‚РѕРІ, РєРѕС‚РѕСЂС‹Р№ СЃРѕРґРµСЂР¶РёС‚СЃСЏ РІ РёРЅС‚РµСЂС„РµР№СЃРµ IEnumStatStg, СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РєРѕС‚РѕСЂС‹Р№ РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ С„СѓРЅРєС†РёРµР№ IStorage.EnumElements:<br>
+function EnumElements(reserved1: Longint; reserved2: Pointer; reserved3: Longint;out enm: IEnumStatStg): HResult; stdcall; СѓРїРѕС‚СЂРµР±Р»РµРЅРёРµ СЌС‚РѕР№ С„СѓРЅРєС†РёРё РїСЂРѕРёСЃС…РѕРґРёС‚ С‚Р°РєРёРј РѕР±СЂР°Р·РѕРј:<br>
 OleCheck(Stg.EnumElements(0,nil,0,Enum));<br>
-После этого используем только методы интерфейса IEnumStatStg:<br>
-Next(celt:Longint; out elt; pceltFetched: PLongint): HResult; stdcall;- выборка информации следующего елемента хранилища<br>
-Skip(celt:longint):HResult;stdcall; - пропуск количества елементов заданных в celt<br>
-<p>Reset:HResult;stdcall; - Reset - он и в Африке Reset. Clone(out enm:IEnumStatStg):HResult;stdcall; - Клонирование интерфейса </p>
-<p>На данный момент для нас самым важным из этих методов есть метод Next:<br>
+РџРѕСЃР»Рµ СЌС‚РѕРіРѕ РёСЃРїРѕР»СЊР·СѓРµРј С‚РѕР»СЊРєРѕ РјРµС‚РѕРґС‹ РёРЅС‚РµСЂС„РµР№СЃР° IEnumStatStg:<br>
+Next(celt:Longint; out elt; pceltFetched: PLongint): HResult; stdcall;- РІС‹Р±РѕСЂРєР° РёРЅС„РѕСЂРјР°С†РёРё СЃР»РµРґСѓСЋС‰РµРіРѕ РµР»РµРјРµРЅС‚Р° С…СЂР°РЅРёР»РёС‰Р°<br>
+Skip(celt:longint):HResult;stdcall; - РїСЂРѕРїСѓСЃРє РєРѕР»РёС‡РµСЃС‚РІР° РµР»РµРјРµРЅС‚РѕРІ Р·Р°РґР°РЅРЅС‹С… РІ celt<br>
+<p>Reset:HResult;stdcall; - Reset - РѕРЅ Рё РІ РђС„СЂРёРєРµ Reset. Clone(out enm:IEnumStatStg):HResult;stdcall; - РљР»РѕРЅРёСЂРѕРІР°РЅРёРµ РёРЅС‚РµСЂС„РµР№СЃР° </p>
+<p>РќР° РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ РґР»СЏ РЅР°СЃ СЃР°РјС‹Рј РІР°Р¶РЅС‹Рј РёР· СЌС‚РёС… РјРµС‚РѕРґРѕРІ РµСЃС‚СЊ РјРµС‚РѕРґ Next:<br>
 <p>Next(celt:Longint; out elt; pceltFetched: PLongint): HResult; stdcall;</p>
-Который принимает следующие параметры: </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Celt </td></tr></table></div>количество елементов структуры, которое будет извлечено при его вызове. </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Elt </td></tr></table></div>Масив приемник елементов типа TStatStg. </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>PceltFetched </td></tr></table></div>указатель на переменную куда будет записано действительное количество извлеченных елементов. </p>
-<p>Для примера воспользуемся любым doc файлом и перечислим его потоки(и подхранилища если они есть):</p>
+РљРѕС‚РѕСЂС‹Р№ РїСЂРёРЅРёРјР°РµС‚ СЃР»РµРґСѓСЋС‰РёРµ РїР°СЂР°РјРµС‚СЂС‹: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Celt </td></tr></table></div>РєРѕР»РёС‡РµСЃС‚РІРѕ РµР»РµРјРµРЅС‚РѕРІ СЃС‚СЂСѓРєС‚СѓСЂС‹, РєРѕС‚РѕСЂРѕРµ Р±СѓРґРµС‚ РёР·РІР»РµС‡РµРЅРѕ РїСЂРё РµРіРѕ РІС‹Р·РѕРІРµ. </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Elt </td></tr></table></div>РњР°СЃРёРІ РїСЂРёРµРјРЅРёРє РµР»РµРјРµРЅС‚РѕРІ С‚РёРїР° TStatStg. </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>PceltFetched </td></tr></table></div>СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РїРµСЂРµРјРµРЅРЅСѓСЋ РєСѓРґР° Р±СѓРґРµС‚ Р·Р°РїРёСЃР°РЅРѕ РґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РёР·РІР»РµС‡РµРЅРЅС‹С… РµР»РµРјРµРЅС‚РѕРІ. </p>
+<p>Р”Р»СЏ РїСЂРёРјРµСЂР° РІРѕСЃРїРѕР»СЊР·СѓРµРјСЃСЏ Р»СЋР±С‹Рј doc С„Р°Р№Р»РѕРј Рё РїРµСЂРµС‡РёСЃР»РёРј РµРіРѕ РїРѕС‚РѕРєРё(Рё РїРѕРґС…СЂР°РЅРёР»РёС‰Р° РµСЃР»Рё РѕРЅРё РµСЃС‚СЊ):</p>
 <pre name="code" class="delphi">
 procedure TForm1.Button2Click(Sender: TObject);
 var Stg:IStorage;
@@ -160,23 +153,23 @@ begin
 end;
 </pre>
 &nbsp;</p>
-<p>кроме cbSize структура TStatStg содержит такие поля:</p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>pwcsName: POleStr; </td></tr></table></div>Название потока или хранилища </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>dwType: Longint; </td></tr></table></div>Тип елемента (флаги типа STGTY_*) </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>cbSize: Largeint; </td></tr></table></div>Размер конкретного елемента </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>mtime: TFileTime; </td></tr></table></div>Дата последней модификации </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>ctime: TFileTime; </td></tr></table></div>Дата создания </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>atime: TFileTime; </td></tr></table></div>Дата последнего обращения </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>grfMode: Longint; </td></tr></table></div>Флаг доступа </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>grfLocksSupported: Longint; </td></tr></table></div>Не используется в хранилищах </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>clsid: TCLSID; </td></tr></table></div>Идентификатор класса хранилища </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>grfStateBits: Longint; </td></tr></table></div>Статусные биты </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>reserved: Longint; </td></tr></table></div>Зарезервирован </p>
-<p>Созданий дополнительных хранилищ</p>
-<p>Для создания дополнительных хранилищ главного хранилища используется метод интерфейса IStorage под названием CreateStorage:<br>
+<p>РєСЂРѕРјРµ cbSize СЃС‚СЂСѓРєС‚СѓСЂР° TStatStg СЃРѕРґРµСЂР¶РёС‚ С‚Р°РєРёРµ РїРѕР»СЏ:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>pwcsName: POleStr; </td></tr></table></div>РќР°Р·РІР°РЅРёРµ РїРѕС‚РѕРєР° РёР»Рё С…СЂР°РЅРёР»РёС‰Р° </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>dwType: Longint; </td></tr></table></div>РўРёРї РµР»РµРјРµРЅС‚Р° (С„Р»Р°РіРё С‚РёРїР° STGTY_*) </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>cbSize: Largeint; </td></tr></table></div>Р Р°Р·РјРµСЂ РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ РµР»РµРјРµРЅС‚Р° </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>mtime: TFileTime; </td></tr></table></div>Р”Р°С‚Р° РїРѕСЃР»РµРґРЅРµР№ РјРѕРґРёС„РёРєР°С†РёРё </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>ctime: TFileTime; </td></tr></table></div>Р”Р°С‚Р° СЃРѕР·РґР°РЅРёСЏ </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>atime: TFileTime; </td></tr></table></div>Р”Р°С‚Р° РїРѕСЃР»РµРґРЅРµРіРѕ РѕР±СЂР°С‰РµРЅРёСЏ </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>grfMode: Longint; </td></tr></table></div>Р¤Р»Р°Рі РґРѕСЃС‚СѓРїР° </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>grfLocksSupported: Longint; </td></tr></table></div>РќРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ С…СЂР°РЅРёР»РёС‰Р°С… </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>clsid: TCLSID; </td></tr></table></div>РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РєР»Р°СЃСЃР° С…СЂР°РЅРёР»РёС‰Р° </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>grfStateBits: Longint; </td></tr></table></div>РЎС‚Р°С‚СѓСЃРЅС‹Рµ Р±РёС‚С‹ </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>reserved: Longint; </td></tr></table></div>Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅ </p>
+<p>РЎРѕР·РґР°РЅРёР№ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… С…СЂР°РЅРёР»РёС‰</p>
+<p>Р”Р»СЏ СЃРѕР·РґР°РЅРёСЏ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… С…СЂР°РЅРёР»РёС‰ РіР»Р°РІРЅРѕРіРѕ С…СЂР°РЅРёР»РёС‰Р° РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РјРµС‚РѕРґ РёРЅС‚РµСЂС„РµР№СЃР° IStorage РїРѕРґ РЅР°Р·РІР°РЅРёРµРј CreateStorage:<br>
 <p>function CreateStorage(pwcsName: POleStr; grfMode: Longint; dwStgFmt: Longint; reserved2: Longint; out stg: IStorage): HResult;stdcall;</p>
-параметры: </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>pwcsName - название подхранилища. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>grfMode - флаги доступа </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>dwStgFmt,reserved2 - зарезервированы (принимают значение 0). </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>stg - указатель на интерфейс содержащий ссылку на подхранилище. </td></tr></table></div><p>После вызова этого метода посредством переменной stg вам стают доступны методы по использованию подхранилища:</p>
+РїР°СЂР°РјРµС‚СЂС‹: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>pwcsName - РЅР°Р·РІР°РЅРёРµ РїРѕРґС…СЂР°РЅРёР»РёС‰Р°. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>grfMode - С„Р»Р°РіРё РґРѕСЃС‚СѓРїР° </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>dwStgFmt,reserved2 - Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅС‹ (РїСЂРёРЅРёРјР°СЋС‚ Р·РЅР°С‡РµРЅРёРµ 0). </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>stg - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РёРЅС‚РµСЂС„РµР№СЃ СЃРѕРґРµСЂР¶Р°С‰РёР№ СЃСЃС‹Р»РєСѓ РЅР° РїРѕРґС…СЂР°РЅРёР»РёС‰Рµ. </td></tr></table></div><p>РџРѕСЃР»Рµ РІС‹Р·РѕРІР° СЌС‚РѕРіРѕ РјРµС‚РѕРґР° РїРѕСЃСЂРµРґСЃС‚РІРѕРј РїРµСЂРµРјРµРЅРЅРѕР№ stg РІР°Рј СЃС‚Р°СЋС‚ РґРѕСЃС‚СѓРїРЅС‹ РјРµС‚РѕРґС‹ РїРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЋ РїРѕРґС…СЂР°РЅРёР»РёС‰Р°:</p>
 <pre name="code" class="delphi">
 procedure TForm1.Button2Click(Sender: TObject);
 var Stg,Temp:IStorage;
@@ -198,8 +191,8 @@ begin
 end;
 </pre>
 &nbsp;</p>
-<p>после проделанной операции в файле 'Testing.stg' появится новое подхранилище "SubStorage" c одним потоком "SubTesting" в котором записана строка "SubTesting the stream". </p>
-<p>Чтение из такого подхранилища может быть реализовано следующим образом:</p>
+<p>РїРѕСЃР»Рµ РїСЂРѕРґРµР»Р°РЅРЅРѕР№ РѕРїРµСЂР°С†РёРё РІ С„Р°Р№Р»Рµ 'Testing.stg' РїРѕСЏРІРёС‚СЃСЏ РЅРѕРІРѕРµ РїРѕРґС…СЂР°РЅРёР»РёС‰Рµ "SubStorage" c РѕРґРЅРёРј РїРѕС‚РѕРєРѕРј "SubTesting" РІ РєРѕС‚РѕСЂРѕРј Р·Р°РїРёСЃР°РЅР° СЃС‚СЂРѕРєР° "SubTesting the stream". </p>
+<p>Р§С‚РµРЅРёРµ РёР· С‚Р°РєРѕРіРѕ РїРѕРґС…СЂР°РЅРёР»РёС‰Р° РјРѕР¶РµС‚ Р±С‹С‚СЊ СЂРµР°Р»РёР·РѕРІР°РЅРѕ СЃР»РµРґСѓСЋС‰РёРј РѕР±СЂР°Р·РѕРј:</p>
 <pre name="code" class="delphi">
 procedure TForm1.Button2Click(Sender: TObject);
 var Stg,Temp:IStorage;
@@ -222,26 +215,26 @@ begin
 end;
 </pre>
 &nbsp;</p>
-<p>Дополнительные возможности</p>
-<p>К дополнительным возможностям можно отнести наличие таких методов в интерфейсе IStorage:<br>
+<p>Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё</p>
+<p>Рљ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рј РІРѕР·РјРѕР¶РЅРѕСЃС‚СЏРј РјРѕР¶РЅРѕ РѕС‚РЅРµСЃС‚Рё РЅР°Р»РёС‡РёРµ С‚Р°РєРёС… РјРµС‚РѕРґРѕРІ РІ РёРЅС‚РµСЂС„РµР№СЃРµ IStorage:<br>
 <p>function CopyTo(ciidExclude: Longint; rgiidExclude: PIID; snbExclude: TSNB; const stgDest: IStorage): HResult; stdcall;</p>
-<p>Копирование содержимого хранилища в другое хранилище:<br>
+<p>РљРѕРїРёСЂРѕРІР°РЅРёРµ СЃРѕРґРµСЂР¶РёРјРѕРіРѕ С…СЂР°РЅРёР»РёС‰Р° РІ РґСЂСѓРіРѕРµ С…СЂР°РЅРёР»РёС‰Рµ:<br>
 <p>function MoveElementTo(pwcsName: POleStr; const stgDest: IStorage;pwcsNewName: POleStr; grfFlags: Longint): HResult; stdcall;</p>
-<p>Перемещение хранилища в другое хранилище:<br>
+<p>РџРµСЂРµРјРµС‰РµРЅРёРµ С…СЂР°РЅРёР»РёС‰Р° РІ РґСЂСѓРіРѕРµ С…СЂР°РЅРёР»РёС‰Рµ:<br>
 <p>function Commit(grfCommitFlags: Longint): HResult; stdcall;</p>
-<p>Подтверждение изменетий внесенных в хранилище. Используется совместно с флагом STGM_TRANSACTED при открытии или создании хранилища:<br>
+<p>РџРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РёР·РјРµРЅРµС‚РёР№ РІРЅРµСЃРµРЅРЅС‹С… РІ С…СЂР°РЅРёР»РёС‰Рµ. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ СЃРѕРІРјРµСЃС‚РЅРѕ СЃ С„Р»Р°РіРѕРј STGM_TRANSACTED РїСЂРё РѕС‚РєСЂС‹С‚РёРё РёР»Рё СЃРѕР·РґР°РЅРёРё С…СЂР°РЅРёР»РёС‰Р°:<br>
 <p>function Revert: HResult; stdcall;</p>
-<p>Отмена изменений вносимых в хранилище. Используется совместно с флагом STGM_TRANSACTED при открытии или создании хранилища:<br>
+<p>РћС‚РјРµРЅР° РёР·РјРµРЅРµРЅРёР№ РІРЅРѕСЃРёРјС‹С… РІ С…СЂР°РЅРёР»РёС‰Рµ. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ СЃРѕРІРјРµСЃС‚РЅРѕ СЃ С„Р»Р°РіРѕРј STGM_TRANSACTED РїСЂРё РѕС‚РєСЂС‹С‚РёРё РёР»Рё СЃРѕР·РґР°РЅРёРё С…СЂР°РЅРёР»РёС‰Р°:<br>
 <p>function DestroyElement(pwcsName: POleStr): HResult; stdcall;</p>
-<p>Удаление элемента из хранилища:<br>
+<p>РЈРґР°Р»РµРЅРёРµ СЌР»РµРјРµРЅС‚Р° РёР· С…СЂР°РЅРёР»РёС‰Р°:<br>
 <p>function RenameElement(pwcsOldName: POleStr; pwcsNewName: POleStr): HResult; stdcall;</p>
-<p>Переименование элемента хранилища:<br>
+<p>РџРµСЂРµРёРјРµРЅРѕРІР°РЅРёРµ СЌР»РµРјРµРЅС‚Р° С…СЂР°РЅРёР»РёС‰Р°:<br>
 <p>function SetElementTimes(pwcsName: POleStr; const ctime: TFileTime; const atime: TFileTime; const mtime: TFileTime): HResult; stdcall;</p>
-<p>Обновление информации о дате создания, модификации и последнего обращения к элементу хранилища.</p>
-<p>Сжатие хранилищ</p>
-<p>Как и файловая система, ее аналог - структурированные хранилища данных подвержены фрагментации. Они неспособности "экономично" заполнять освободившееся пространство от удаленных элементов. А самое главное, что в них не предусмотрен механизм автоматического сжатия данных и освобождения незанятых ресурсов диска. Но на каждый фрагмент есть свой "дефрагмент". Так сжать хранилище можно воспользовавшись методом интерфейса IStorage под названием CopyTo:<br>
+<p>РћР±РЅРѕРІР»РµРЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё Рѕ РґР°С‚Рµ СЃРѕР·РґР°РЅРёСЏ, РјРѕРґРёС„РёРєР°С†РёРё Рё РїРѕСЃР»РµРґРЅРµРіРѕ РѕР±СЂР°С‰РµРЅРёСЏ Рє СЌР»РµРјРµРЅС‚Сѓ С…СЂР°РЅРёР»РёС‰Р°.</p>
+<p>РЎР¶Р°С‚РёРµ С…СЂР°РЅРёР»РёС‰</p>
+<p>РљР°Рє Рё С„Р°Р№Р»РѕРІР°СЏ СЃРёСЃС‚РµРјР°, РµРµ Р°РЅР°Р»РѕРі - СЃС‚СЂСѓРєС‚СѓСЂРёСЂРѕРІР°РЅРЅС‹Рµ С…СЂР°РЅРёР»РёС‰Р° РґР°РЅРЅС‹С… РїРѕРґРІРµСЂР¶РµРЅС‹ С„СЂР°РіРјРµРЅС‚Р°С†РёРё. РћРЅРё РЅРµСЃРїРѕСЃРѕР±РЅРѕСЃС‚Рё "СЌРєРѕРЅРѕРјРёС‡РЅРѕ" Р·Р°РїРѕР»РЅСЏС‚СЊ РѕСЃРІРѕР±РѕРґРёРІС€РµРµСЃСЏ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ РѕС‚ СѓРґР°Р»РµРЅРЅС‹С… СЌР»РµРјРµРЅС‚РѕРІ. Рђ СЃР°РјРѕРµ РіР»Р°РІРЅРѕРµ, С‡С‚Рѕ РІ РЅРёС… РЅРµ РїСЂРµРґСѓСЃРјРѕС‚СЂРµРЅ РјРµС…Р°РЅРёР·Рј Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРіРѕ СЃР¶Р°С‚РёСЏ РґР°РЅРЅС‹С… Рё РѕСЃРІРѕР±РѕР¶РґРµРЅРёСЏ РЅРµР·Р°РЅСЏС‚С‹С… СЂРµСЃСѓСЂСЃРѕРІ РґРёСЃРєР°. РќРѕ РЅР° РєР°Р¶РґС‹Р№ С„СЂР°РіРјРµРЅС‚ РµСЃС‚СЊ СЃРІРѕР№ "РґРµС„СЂР°РіРјРµРЅС‚". РўР°Рє СЃР¶Р°С‚СЊ С…СЂР°РЅРёР»РёС‰Рµ РјРѕР¶РЅРѕ РІРѕСЃРїРѕР»СЊР·РѕРІР°РІС€РёСЃСЊ РјРµС‚РѕРґРѕРј РёРЅС‚РµСЂС„РµР№СЃР° IStorage РїРѕРґ РЅР°Р·РІР°РЅРёРµРј CopyTo:<br>
 function CopyTo(ciidExclude: Longint; rgiidExclude: PIID; snbExclude: TSNB; const stgDest: IStorage): HResult; stdcall;<br>
-<p>при этом все нужные данные переписываются в новое хранилище, а ненужные (т.е. уже удаленные) исчезают навеки. Примером для такого сжатия может служить код:</p>
+<p>РїСЂРё СЌС‚РѕРј РІСЃРµ РЅСѓР¶РЅС‹Рµ РґР°РЅРЅС‹Рµ РїРµСЂРµРїРёСЃС‹РІР°СЋС‚СЃСЏ РІ РЅРѕРІРѕРµ С…СЂР°РЅРёР»РёС‰Рµ, Р° РЅРµРЅСѓР¶РЅС‹Рµ (С‚.Рµ. СѓР¶Рµ СѓРґР°Р»РµРЅРЅС‹Рµ) РёСЃС‡РµР·Р°СЋС‚ РЅР°РІРµРєРё. РџСЂРёРјРµСЂРѕРј РґР»СЏ С‚Р°РєРѕРіРѕ СЃР¶Р°С‚РёСЏ РјРѕР¶РµС‚ СЃР»СѓР¶РёС‚СЊ РєРѕРґ:</p>
 <pre name="code" class="delphi">
 procedure TForm1.Button2Click(Sender: TObject);
 var Stg,Temp:IStorage;
@@ -259,10 +252,10 @@ begin
 end;
 </pre>
 &nbsp;</p>
-<p>конечно такой метод эффективен если данный обрабатываются непосредственно в хранилище, а не действует принцип: "Все прочитал... удалил... изменил... написал наново". </p>
+<p>РєРѕРЅРµС‡РЅРѕ С‚Р°РєРѕР№ РјРµС‚РѕРґ СЌС„С„РµРєС‚РёРІРµРЅ РµСЃР»Рё РґР°РЅРЅС‹Р№ РѕР±СЂР°Р±Р°С‚С‹РІР°СЋС‚СЃСЏ РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ РІ С…СЂР°РЅРёР»РёС‰Рµ, Р° РЅРµ РґРµР№СЃС‚РІСѓРµС‚ РїСЂРёРЅС†РёРї: "Р’СЃРµ РїСЂРѕС‡РёС‚Р°Р»... СѓРґР°Р»РёР»... РёР·РјРµРЅРёР»... РЅР°РїРёСЃР°Р» РЅР°РЅРѕРІРѕ". </p>
 <table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
 <tr >
-<td colspan="2" >Флаги доступа к хранилищам и потокам</p>
+<td colspan="2" >Р¤Р»Р°РіРё РґРѕСЃС‚СѓРїР° Рє С…СЂР°РЅРёР»РёС‰Р°Рј Рё РїРѕС‚РѕРєР°Рј</p>
 </td>
 <td rowspan="10" width="1" style="width: 1px; border: solid 1px #000000;"><br>
 </td>
@@ -270,62 +263,62 @@ end;
 <tr >
 <td ><p>STGM_DIRECT</p>
 </td>
-<td ><p>Каждое изменение содержания сразу же записывается в файл</p>
+<td ><p>РљР°Р¶РґРѕРµ РёР·РјРµРЅРµРЅРёРµ СЃРѕРґРµСЂР¶Р°РЅРёСЏ СЃСЂР°Р·Сѓ Р¶Рµ Р·Р°РїРёСЃС‹РІР°РµС‚СЃСЏ РІ С„Р°Р№Р»</p>
 </td>
 </tr>
 <tr >
 <td ><p>STGM_TRANSACTED</p>
 </td>
-<td ><p>Изменения записываются в буфер, а потом по команде Commit в файл. Команда Revert отменяет изменения</p>
+<td ><p>РР·РјРµРЅРµРЅРёСЏ Р·Р°РїРёСЃС‹РІР°СЋС‚СЃСЏ РІ Р±СѓС„РµСЂ, Р° РїРѕС‚РѕРј РїРѕ РєРѕРјР°РЅРґРµ Commit РІ С„Р°Р№Р». РљРѕРјР°РЅРґР° Revert РѕС‚РјРµРЅСЏРµС‚ РёР·РјРµРЅРµРЅРёСЏ</p>
 </td>
 </tr>
 <tr >
 <td ><p>STGM_SIMPLE</p>
 </td>
-<td ><p>Упрощенный вариант хранения данных: </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Нет поддержки подхранилищ </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Нельзя повторно открыть поток для записи </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Все потоки имеют длину не меньше 4096 </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Поддерживается ограниченное количество методов интерфейсов IStorage и IStream. </p>
+<td ><p>РЈРїСЂРѕС‰РµРЅРЅС‹Р№ РІР°СЂРёР°РЅС‚ С…СЂР°РЅРµРЅРёСЏ РґР°РЅРЅС‹С…: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>РќРµС‚ РїРѕРґРґРµСЂР¶РєРё РїРѕРґС…СЂР°РЅРёР»РёС‰ </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>РќРµР»СЊР·СЏ РїРѕРІС‚РѕСЂРЅРѕ РѕС‚РєСЂС‹С‚СЊ РїРѕС‚РѕРє РґР»СЏ Р·Р°РїРёСЃРё </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Р’СЃРµ РїРѕС‚РѕРєРё РёРјРµСЋС‚ РґР»РёРЅСѓ РЅРµ РјРµРЅСЊС€Рµ 4096 </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>РџРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ РѕРіСЂР°РЅРёС‡РµРЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РјРµС‚РѕРґРѕРІ РёРЅС‚РµСЂС„РµР№СЃРѕРІ IStorage Рё IStream. </p>
 </td></tr></table></div></td>
 </tr>
 <tr >
 <td ><p>STGM_READ</p>
 </td>
-<td ><p>Открытие только для чтения</p>
+<td ><p>РћС‚РєСЂС‹С‚РёРµ С‚РѕР»СЊРєРѕ РґР»СЏ С‡С‚РµРЅРёСЏ</p>
 </td>
 </tr>
 <tr >
 <td ><p>STGM_WRITE</p>
 </td>
-<td ><p>То же для записи</p>
+<td ><p>РўРѕ Р¶Рµ РґР»СЏ Р·Р°РїРёСЃРё</p>
 </td>
 </tr>
 <tr >
 <td ><p>STGM_READWRITE</p>
 </td>
-<td ><p>Чтение и запись</p>
+<td ><p>Р§С‚РµРЅРёРµ Рё Р·Р°РїРёСЃСЊ</p>
 </td>
 </tr>
 <tr >
 <td ><p>STGM_SHARE_DENY_READ</p>
 </td>
-<td ><p>Запрет параллельного чтения</p>
+<td ><p>Р—Р°РїСЂРµС‚ РїР°СЂР°Р»Р»РµР»СЊРЅРѕРіРѕ С‡С‚РµРЅРёСЏ</p>
 </td>
 </tr>
 <tr >
 <td ><p>STGM_SHARE_DENY_WRITE</p>
 </td>
-<td ><p>Запрет параллельной записи</p>
+<td ><p>Р—Р°РїСЂРµС‚ РїР°СЂР°Р»Р»РµР»СЊРЅРѕР№ Р·Р°РїРёСЃРё</p>
 </td>
 </tr>
 <tr >
 <td ><p>STGM_SHARE_EXCLUSIVE</p>
 </td>
-<td ><p>Полный запрет на параллельное использование файла</p>
+<td ><p>РџРѕР»РЅС‹Р№ Р·Р°РїСЂРµС‚ РЅР° РїР°СЂР°Р»Р»РµР»СЊРЅРѕРµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ С„Р°Р№Р»Р°</p>
 </td>
 </tr>
 <tr >
 <td ><p>STGM_PRIORITY</p>
 </td>
-<td ><p>Блокирует возможность параллельного внесения изменений в файл по команде Commit </p>
+<td ><p>Р‘Р»РѕРєРёСЂСѓРµС‚ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РїР°СЂР°Р»Р»РµР»СЊРЅРѕРіРѕ РІРЅРµСЃРµРЅРёСЏ РёР·РјРµРЅРµРЅРёР№ РІ С„Р°Р№Р» РїРѕ РєРѕРјР°РЅРґРµ Commit </p>
 </td>
 <td >
 </td>
@@ -333,7 +326,7 @@ end;
 <tr >
 <td ><p>STGM_DELETEONRELEASE</p>
 </td>
-<td ><p>Файл автоматически стирается при освобождении интерфейса. Используется для временных файлов</p>
+<td ><p>Р¤Р°Р№Р» Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё СЃС‚РёСЂР°РµС‚СЃСЏ РїСЂРё РѕСЃРІРѕР±РѕР¶РґРµРЅРёРё РёРЅС‚РµСЂС„РµР№СЃР°. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РІСЂРµРјРµРЅРЅС‹С… С„Р°Р№Р»РѕРІ</p>
 </td>
 <td >
 </td>
@@ -341,7 +334,7 @@ end;
 <tr >
 <td ><p>STGM_CREATE</p>
 </td>
-<td ><p>Стирает существующий файл с тем же именем</p>
+<td ><p>РЎС‚РёСЂР°РµС‚ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ С„Р°Р№Р» СЃ С‚РµРј Р¶Рµ РёРјРµРЅРµРј</p>
 </td>
 <td >
 </td>
@@ -349,7 +342,7 @@ end;
 <tr >
 <td ><p>STGM_CONVERT</p>
 </td>
-<td ><p>Создает новый файл в поток CONTENTS которого заносит данные из существующего файла с тем же именем , если такой существует</p>
+<td ><p>РЎРѕР·РґР°РµС‚ РЅРѕРІС‹Р№ С„Р°Р№Р» РІ РїРѕС‚РѕРє CONTENTS РєРѕС‚РѕСЂРѕРіРѕ Р·Р°РЅРѕСЃРёС‚ РґР°РЅРЅС‹Рµ РёР· СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРіРѕ С„Р°Р№Р»Р° СЃ С‚РµРј Р¶Рµ РёРјРµРЅРµРј , РµСЃР»Рё С‚Р°РєРѕР№ СЃСѓС‰РµСЃС‚РІСѓРµС‚</p>
 </td>
 <td >
 </td>
@@ -357,7 +350,7 @@ end;
 <tr >
 <td ><p>STGM_FAILSAFE</p>
 </td>
-<td ><p>Если существует файл с таким же именем - возвращает значение STG_E_FILEALREADYEXISTS</p>
+<td ><p>Р•СЃР»Рё СЃСѓС‰РµСЃС‚РІСѓРµС‚ С„Р°Р№Р» СЃ С‚Р°РєРёРј Р¶Рµ РёРјРµРЅРµРј - РІРѕР·РІСЂР°С‰Р°РµС‚ Р·РЅР°С‡РµРЅРёРµ STG_E_FILEALREADYEXISTS</p>
 </td>
 <td >
 </td>
@@ -365,21 +358,21 @@ end;
 <tr >
 <td ><p>STGM_NOSCRATCH</p>
 </td>
-<td ><p>При установленном флаге STGM_TRANSACTED вместо внешнего буфера используется незадействованное пространство в самом файле. Более эффективное использование ресурсов компьютера</p>
+<td ><p>РџСЂРё СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРј С„Р»Р°РіРµ STGM_TRANSACTED РІРјРµСЃС‚Рѕ РІРЅРµС€РЅРµРіРѕ Р±СѓС„РµСЂР° РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РЅРµР·Р°РґРµР№СЃС‚РІРѕРІР°РЅРЅРѕРµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ РІ СЃР°РјРѕРј С„Р°Р№Р»Рµ. Р‘РѕР»РµРµ СЌС„С„РµРєС‚РёРІРЅРѕРµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ СЂРµСЃСѓСЂСЃРѕРІ РєРѕРјРїСЊСЋС‚РµСЂР°</p>
 </td>
 <td ><p>&nbsp;</p>
 </td>
 </tr>
 </table>
 <p>&nbsp;<br>
-Михаил Продан <br>
+РњРёС…Р°РёР» РџСЂРѕРґР°РЅ <br>
 &nbsp;<br>
 <a href="http://tdelphi.spb.ru" target="_blank">http://tdelphi.spb.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

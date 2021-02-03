@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>TClientDataSet: утечка памяти при загрузке XML</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>TClientDataSet: СѓС‚РµС‡РєР° РїР°РјСЏС‚Рё РїСЂРё Р·Р°РіСЂСѓР·РєРµ XML</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,21 +13,14 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">TClientDataSet: утечка памяти при загрузке XML</h1>
+  <h1 id="title">TClientDataSet: СѓС‚РµС‡РєР° РїР°РјСЏС‚Рё РїСЂРё Р·Р°РіСЂСѓР·РєРµ XML</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Hапpимеp, если делаем: </p>
+
+<p>HР°РїpРёРјРµp, РµСЃР»Рё РґРµР»Р°РµРј: </p>
 
 <pre name="code" class="delphi">
 ClientDataSet.LoadFromFile('c:\tmp\1.xml');
@@ -35,11 +28,11 @@ ClientDataSet.Close;
 </pre>
 
 
-<p>то видим, что память выделилась, но не освободилась. </p>
+<p>С‚Рѕ РІРёРґРёРј, С‡С‚Рѕ РїР°РјСЏС‚СЊ РІС‹РґРµР»РёР»Р°СЃСЊ, РЅРѕ РЅРµ РѕСЃРІРѕР±РѕРґРёР»Р°СЃСЊ. </p>
 
-<p>Если даже делать ClientDataSet.Create и ClientDataSet.Free то все pавно будут утечки. </p>
+<p>Р•СЃР»Рё РґР°Р¶Рµ РґРµР»Р°С‚СЊ ClientDataSet.Create Рё ClientDataSet.Free С‚Рѕ РІСЃРµ pР°РІРЅРѕ Р±СѓРґСѓС‚ СѓС‚РµС‡РєРё. </p>
 
-<p>Пpобовал также пеpед закpытием: </p>
+<p>РџpРѕР±РѕРІР°Р» С‚Р°РєР¶Рµ РїРµpРµРґ Р·Р°РєpС‹С‚РёРµРј: </p>
 <pre name="code" class="delphi">
 ClientDataSet.EmptyDataSet;
 ClientDataSet.CancelUpdates;
@@ -54,23 +47,23 @@ ClientDataSet.IndexFieldNames := '';
 </pre>
 
 
-<p>Все pавно не помогает. </p>
+<p>Р’СЃРµ pР°РІРЅРѕ РЅРµ РїРѕРјРѕРіР°РµС‚. </p>
 
-<p>Решения не нашел. Тестировал под D5 под W2000, W98. Также брал midas.dll от D6. Проблема осталась. </p>
+<p>Р РµС€РµРЅРёСЏ РЅРµ РЅР°С€РµР». РўРµСЃС‚РёСЂРѕРІР°Р» РїРѕРґ D5 РїРѕРґ W2000, W98. РўР°РєР¶Рµ Р±СЂР°Р» midas.dll РѕС‚ D6. РџСЂРѕР±Р»РµРјР° РѕСЃС‚Р°Р»Р°СЃСЊ. </p>
 
-<p>КОММЕНТАРИЙ </p>
+<p>РљРћРњРњР•РќРўРђР РР™ </p>
 
-<p>Действительно, проверка показывает, что при загрузке данных из XML-файла последующее закрытие ClientDataSet не освобождает часть выделенной памяти. Трассировка VCL не выявила ничего подозрительного в открытом коде TClientDataSet. Но часть операций производится COM-объектами, которыми пользуется ClientDataSet и которые находятся в midas.dll. </p>
+<p>Р”РµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ, РїСЂРѕРІРµСЂРєР° РїРѕРєР°Р·С‹РІР°РµС‚, С‡С‚Рѕ РїСЂРё Р·Р°РіСЂСѓР·РєРµ РґР°РЅРЅС‹С… РёР· XML-С„Р°Р№Р»Р° РїРѕСЃР»РµРґСѓСЋС‰РµРµ Р·Р°РєСЂС‹С‚РёРµ ClientDataSet РЅРµ РѕСЃРІРѕР±РѕР¶РґР°РµС‚ С‡Р°СЃС‚СЊ РІС‹РґРµР»РµРЅРЅРѕР№ РїР°РјСЏС‚Рё. РўСЂР°СЃСЃРёСЂРѕРІРєР° VCL РЅРµ РІС‹СЏРІРёР»Р° РЅРёС‡РµРіРѕ РїРѕРґРѕР·СЂРёС‚РµР»СЊРЅРѕРіРѕ РІ РѕС‚РєСЂС‹С‚РѕРј РєРѕРґРµ TClientDataSet. РќРѕ С‡Р°СЃС‚СЊ РѕРїРµСЂР°С†РёР№ РїСЂРѕРёР·РІРѕРґРёС‚СЃСЏ COM-РѕР±СЉРµРєС‚Р°РјРё, РєРѕС‚РѕСЂС‹РјРё РїРѕР»СЊР·СѓРµС‚СЃСЏ ClientDataSet Рё РєРѕС‚РѕСЂС‹Рµ РЅР°С…РѕРґСЏС‚СЃСЏ РІ midas.dll. </p>
 
-<p>Установлено, что утечка памяти отсутствует, если данные в ClientDataSet поступают через провайдера, либо при загрузке из файла формата CDS (в котором ClientDataSet сохраняет данные по-умолчанию). </p>
+<p>РЈСЃС‚Р°РЅРѕРІР»РµРЅРѕ, С‡С‚Рѕ СѓС‚РµС‡РєР° РїР°РјСЏС‚Рё РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚, РµСЃР»Рё РґР°РЅРЅС‹Рµ РІ ClientDataSet РїРѕСЃС‚СѓРїР°СЋС‚ С‡РµСЂРµР· РїСЂРѕРІР°Р№РґРµСЂР°, Р»РёР±Рѕ РїСЂРё Р·Р°РіСЂСѓР·РєРµ РёР· С„Р°Р№Р»Р° С„РѕСЂРјР°С‚Р° CDS (РІ РєРѕС‚РѕСЂРѕРј ClientDataSet СЃРѕС…СЂР°РЅСЏРµС‚ РґР°РЅРЅС‹Рµ РїРѕ-СѓРјРѕР»С‡Р°РЅРёСЋ). </p>
 
-<p>Следовательно, мы имеем проблему при локальном использовании ClientDataSet с файлом XML. Вероятно, в midas.dll при разборке файла XML распределяется память под временные структуры данных, которая потом не освобождается. </p>
-<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<p>РЎР»РµРґРѕРІР°С‚РµР»СЊРЅРѕ, РјС‹ РёРјРµРµРј РїСЂРѕР±Р»РµРјСѓ РїСЂРё Р»РѕРєР°Р»СЊРЅРѕРј РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРё ClientDataSet СЃ С„Р°Р№Р»РѕРј XML. Р’РµСЂРѕСЏС‚РЅРѕ, РІ midas.dll РїСЂРё СЂР°Р·Р±РѕСЂРєРµ С„Р°Р№Р»Р° XML СЂР°СЃРїСЂРµРґРµР»СЏРµС‚СЃСЏ РїР°РјСЏС‚СЊ РїРѕРґ РІСЂРµРјРµРЅРЅС‹Рµ СЃС‚СЂСѓРєС‚СѓСЂС‹ РґР°РЅРЅС‹С…, РєРѕС‚РѕСЂР°СЏ РїРѕС‚РѕРј РЅРµ РѕСЃРІРѕР±РѕР¶РґР°РµС‚СЃСЏ. </p>
+<p>Р’Р·СЏС‚Рѕ СЃ <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

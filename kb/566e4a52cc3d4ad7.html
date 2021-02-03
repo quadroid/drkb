@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Чтение и запись переменных типа Record</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>Р§С‚РµРЅРёРµ Рё Р·Р°РїРёСЃСЊ РїРµСЂРµРјРµРЅРЅС‹С… С‚РёРїР° Record</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,21 +13,14 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Чтение и запись переменных типа Record</h1>
+  <h1 id="title">Р§С‚РµРЅРёРµ Рё Р·Р°РїРёСЃСЊ РїРµСЂРµРјРµРЅРЅС‹С… С‚РёРїР° Record</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
-Файл с множеством записей </p>
-<p>Обычно, я использую файл с заголовком, который я затем загружаю в память, и использую его для поиска необходимой мне записи.</p>
+
+Р¤Р°Р№Р» СЃ РјРЅРѕР¶РµСЃС‚РІРѕРј Р·Р°РїРёСЃРµР№ </p>
+<p>РћР±С‹С‡РЅРѕ, СЏ РёСЃРїРѕР»СЊР·СѓСЋ С„Р°Р№Р» СЃ Р·Р°РіРѕР»РѕРІРєРѕРј, РєРѕС‚РѕСЂС‹Р№ СЏ Р·Р°С‚РµРј Р·Р°РіСЂСѓР¶Р°СЋ РІ РїР°РјСЏС‚СЊ, Рё РёСЃРїРѕР»СЊР·СѓСЋ РµРіРѕ РґР»СЏ РїРѕРёСЃРєР° РЅРµРѕР±С…РѕРґРёРјРѕР№ РјРЅРµ Р·Р°РїРёСЃРё.</p>
 <pre name="code" class="delphi">
 type
   TSaveHeader = record
@@ -48,15 +41,15 @@ begin
   AssignFile(f, fname);
   Reset(f, 1);
   BlockRead(f, SaveHeader, Sizeof(TSaveHeader));
-  { получаем один набор записи }
+  { РїРѕР»СѓС‡Р°РµРј РѕРґРёРЅ РЅР°Р±РѕСЂ Р·Р°РїРёСЃРё }
   Seek(f, SaveHeader.hotspots);
   for i := 1 to 50 do
     BlockRead(f, somevar, sizeof_hotspotrec);
-  { и так далее }
+  { Рё С‚Р°Рє РґР°Р»РµРµ }
   CloseFile(f);
 end;
  
-{ предположим, что файл открыт }
+{ РїСЂРµРґРїРѕР»РѕР¶РёРј, С‡С‚Рѕ С„Р°Р№Р» РѕС‚РєСЂС‹С‚ }
  
 procedure GetHotspotRec(index: LongInt; var hotspotrec: THotspot);
 var
@@ -70,7 +63,7 @@ end;
 <p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
 <hr />
-<p>Добавление записи в файл </p>
+<p>Р”РѕР±Р°РІР»РµРЅРёРµ Р·Р°РїРёСЃРё РІ С„Р°Р№Р» </p>
 <pre name="code" class="delphi">
 unit apprec_;
  
@@ -85,11 +78,11 @@ type
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
-    Edit1: TEdit; // спортсмен
-    ComboBox1: TComboBox; // страна
-    ComboBox2: TComboBox; // вид спорта
-    RadioGroup1: TRadioGroup; // медаль
-    Button1: TButton; // кнопка Добавить
+    Edit1: TEdit; // СЃРїРѕСЂС‚СЃРјРµРЅ
+    ComboBox1: TComboBox; // СЃС‚СЂР°РЅР°
+    ComboBox2: TComboBox; // РІРёРґ СЃРїРѕСЂС‚Р°
+    RadioGroup1: TRadioGroup; // РјРµРґР°Р»СЊ
+    Button1: TButton; // РєРЅРѕРїРєР° Р”РѕР±Р°РІРёС‚СЊ
     Label5: TLabel;
     Label4: TLabel;
     procedure FormActivate(Sender: TObject);
@@ -101,42 +94,42 @@ type
     { Public declarations }
   end;
  
-  // тип медали
+  // С‚РёРї РјРµРґР°Р»Рё
   TKind = (GOLD, SILVER, BRONZE);
  
-  // запись файла
+  // Р·Р°РїРёСЃСЊ С„Р°Р№Р»Р°
   TMedal = record
-    country: string[20]; //  страна
-    sport: string[20]; //  вид спорта
-    person: string[40]; //  спортсмен
-    kind: TKind; //  медаль
+    country: string[20]; //  СЃС‚СЂР°РЅР°
+    sport: string[20]; //  РІРёРґ СЃРїРѕСЂС‚Р°
+    person: string[40]; //  СЃРїРѕСЂС‚СЃРјРµРЅ
+    kind: TKind; //  РјРµРґР°Р»СЊ
   end;
  
 var
   Form1: TForm1;
-  f: file of TMedal; // файл записей - база данных
+  f: file of TMedal; // С„Р°Р№Р» Р·Р°РїРёСЃРµР№ - Р±Р°Р·Р° РґР°РЅРЅС‹С…
  
 implementation
  
 {$R *.DFM}
  
-// активизация формы
+// Р°РєС‚РёРІРёР·Р°С†РёСЏ С„РѕСЂРјС‹
  
 procedure TForm1.FormActivate(Sender: TObject);
 var
-  resp: word; // ответ пользователя
+  resp: word; // РѕС‚РІРµС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
 begin
   AssignFile(f, 'a:\medals.db');
 {$I-}
-  Reset(f); // открыть файл
-  Seek(f, FileSize(f)); // указатель записи в конец файла
+  Reset(f); // РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р»
+  Seek(f, FileSize(f)); // СѓРєР°Р·Р°С‚РµР»СЊ Р·Р°РїРёСЃРё РІ РєРѕРЅРµС† С„Р°Р№Р»Р°
 {$I+}
   if IOResult = 0
-    then button1.enabled := TRUE // теперь кнопка Добавить доступна
+    then button1.enabled := TRUE // С‚РµРїРµСЂСЊ РєРЅРѕРїРєР° Р”РѕР±Р°РІРёС‚СЊ РґРѕСЃС‚СѓРїРЅР°
   else
   begin
-    resp := MessageDlg('Файл базы данных не найден.' +
-      'Создать новую БД?', mtInformation, [mbYes, mbNo], 0);
+    resp := MessageDlg('Р¤Р°Р№Р» Р±Р°Р·С‹ РґР°РЅРЅС‹С… РЅРµ РЅР°Р№РґРµРЅ.' +
+      'РЎРѕР·РґР°С‚СЊ РЅРѕРІСѓСЋ Р‘Р”?', mtInformation, [mbYes, mbNo], 0);
     if resp = mrYes then
     begin
 {$I-}
@@ -144,12 +137,12 @@ begin
 {$I+}
       if IOResult = 0
         then button1.enabled := TRUE
-      else ShowMessage('Ошибка создания файла БД.');
+      else ShowMessage('РћС€РёР±РєР° СЃРѕР·РґР°РЅРёСЏ С„Р°Р№Р»Р° Р‘Р”.');
     end;
   end;
 end;
  
-// щелчок на кнопке Добавить
+// С‰РµР»С‡РѕРє РЅР° РєРЅРѕРїРєРµ Р”РѕР±Р°РІРёС‚СЊ
  
 procedure TForm1.Button1Click(Sender: TObject);
 var
@@ -166,22 +159,22 @@ begin
       2: kind := BRONZE;
     end;
   end;
-  write(f, medal); // записать содержимое полей записи в файл
+  write(f, medal); // Р·Р°РїРёСЃР°С‚СЊ СЃРѕРґРµСЂР¶РёРјРѕРµ РїРѕР»РµР№ Р·Р°РїРёСЃРё РІ С„Р°Р№Р»
 end;
  
-// завершение работы программы
+// Р·Р°РІРµСЂС€РµРЅРёРµ СЂР°Р±РѕС‚С‹ РїСЂРѕРіСЂР°РјРјС‹
  
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  CloseFile(f); // закрыть файл
+  CloseFile(f); // Р·Р°РєСЂС‹С‚СЊ С„Р°Р№Р»
 end;
  
 end.
 </pre>
 <p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
-<hr /><p>Запись и чтение из файла массива записей </p>
-<p>Это не очень Delphi-подобно (тем не менее, работа происходит с действительно паскалевскими записями), но вы можете писать и читать записи из/в файл, используя паскалевские процедуры для работы с файлами:</p>
+<hr /><p>Р—Р°РїРёСЃСЊ Рё С‡С‚РµРЅРёРµ РёР· С„Р°Р№Р»Р° РјР°СЃСЃРёРІР° Р·Р°РїРёСЃРµР№ </p>
+<p>Р­С‚Рѕ РЅРµ РѕС‡РµРЅСЊ Delphi-РїРѕРґРѕР±РЅРѕ (С‚РµРј РЅРµ РјРµРЅРµРµ, СЂР°Р±РѕС‚Р° РїСЂРѕРёСЃС…РѕРґРёС‚ СЃ РґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ РїР°СЃРєР°Р»РµРІСЃРєРёРјРё Р·Р°РїРёСЃСЏРјРё), РЅРѕ РІС‹ РјРѕР¶РµС‚Рµ РїРёСЃР°С‚СЊ Рё С‡РёС‚Р°С‚СЊ Р·Р°РїРёСЃРё РёР·/РІ С„Р°Р№Р», РёСЃРїРѕР»СЊР·СѓСЏ РїР°СЃРєР°Р»РµРІСЃРєРёРµ РїСЂРѕС†РµРґСѓСЂС‹ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ С„Р°Р№Р»Р°РјРё:</p>
 <pre name="code" class="delphi">
 type
   TMyRec = record ;
@@ -197,7 +190,7 @@ var
   RecFile: file of TMyRec;
  
 begin
-  {...здесь должен быть расположен код инициализации MyArray...}
+  {...Р·РґРµСЃСЊ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЂР°СЃРїРѕР»РѕР¶РµРЅ РєРѕРґ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё MyArray...}
  
   AssignFile(RecFile, 'MYREC.FIL');
   ReWrite(RecFile);
@@ -208,12 +201,12 @@ begin
   CloseFile(RecFile);
 end;
 </pre>
-<p>Также, вы можете использовать Read() для чтения записи из вашего файла, и Seek() для перемещения на его конкретную запись (начиная с 0). Для получения дополнительной информации обратитесь к разделу "I/O Routines" электронной справки по Delphi. </p>
-<p>Если вы хотите делать это с Data Aware компонентами (компонентами для работы с базами данных), вы должны создать базу данных, где база данных "records" должна отражать структуру ваших паскалевских записей, при этом необходимо создать механизмы трансляции данных из одной среды в другую. Я не готов сейчас сказать вам, как это можно сделать, но, во всяком случае, всю функциональность можно инкапсулировать в отдельном специализированном компоненте.</p>
+<p>РўР°РєР¶Рµ, РІС‹ РјРѕР¶РµС‚Рµ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Read() РґР»СЏ С‡С‚РµРЅРёСЏ Р·Р°РїРёСЃРё РёР· РІР°С€РµРіРѕ С„Р°Р№Р»Р°, Рё Seek() РґР»СЏ РїРµСЂРµРјРµС‰РµРЅРёСЏ РЅР° РµРіРѕ РєРѕРЅРєСЂРµС‚РЅСѓСЋ Р·Р°РїРёСЃСЊ (РЅР°С‡РёРЅР°СЏ СЃ 0). Р”Р»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕР№ РёРЅС„РѕСЂРјР°С†РёРё РѕР±СЂР°С‚РёС‚РµСЃСЊ Рє СЂР°Р·РґРµР»Сѓ "I/O Routines" СЌР»РµРєС‚СЂРѕРЅРЅРѕР№ СЃРїСЂР°РІРєРё РїРѕ Delphi. </p>
+<p>Р•СЃР»Рё РІС‹ С…РѕС‚РёС‚Рµ РґРµР»Р°С‚СЊ СЌС‚Рѕ СЃ Data Aware РєРѕРјРїРѕРЅРµРЅС‚Р°РјРё (РєРѕРјРїРѕРЅРµРЅС‚Р°РјРё РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ Р±Р°Р·Р°РјРё РґР°РЅРЅС‹С…), РІС‹ РґРѕР»Р¶РЅС‹ СЃРѕР·РґР°С‚СЊ Р±Р°Р·Сѓ РґР°РЅРЅС‹С…, РіРґРµ Р±Р°Р·Р° РґР°РЅРЅС‹С… "records" РґРѕР»Р¶РЅР° РѕС‚СЂР°Р¶Р°С‚СЊ СЃС‚СЂСѓРєС‚СѓСЂСѓ РІР°С€РёС… РїР°СЃРєР°Р»РµРІСЃРєРёС… Р·Р°РїРёСЃРµР№, РїСЂРё СЌС‚РѕРј РЅРµРѕР±С…РѕРґРёРјРѕ СЃРѕР·РґР°С‚СЊ РјРµС…Р°РЅРёР·РјС‹ С‚СЂР°РЅСЃР»СЏС†РёРё РґР°РЅРЅС‹С… РёР· РѕРґРЅРѕР№ СЃСЂРµРґС‹ РІ РґСЂСѓРіСѓСЋ. РЇ РЅРµ РіРѕС‚РѕРІ СЃРµР№С‡Р°СЃ СЃРєР°Р·Р°С‚СЊ РІР°Рј, РєР°Рє СЌС‚Рѕ РјРѕР¶РЅРѕ СЃРґРµР»Р°С‚СЊ, РЅРѕ, РІРѕ РІСЃСЏРєРѕРј СЃР»СѓС‡Р°Рµ, РІСЃСЋ С„СѓРЅРєС†РёРѕРЅР°Р»СЊРЅРѕСЃС‚СЊ РјРѕР¶РЅРѕ РёРЅРєР°РїСЃСѓР»РёСЂРѕРІР°С‚СЊ РІ РѕС‚РґРµР»СЊРЅРѕРј СЃРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅРѕРј РєРѕРјРїРѕРЅРµРЅС‚Рµ.</p>
 <p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
 <hr />
-<p>Запись и чтение из файла массива записей</p>
+<p>Р—Р°РїРёСЃСЊ Рё С‡С‚РµРЅРёРµ РёР· С„Р°Р№Р»Р° РјР°СЃСЃРёРІР° Р·Р°РїРёСЃРµР№</p>
 <pre name="code" class="delphi">
 type TR=Record
         Name:string[100]; 
@@ -231,10 +224,10 @@ begin
     reset(f) 
   else 
     rewrite(f); 
-//чтение 10й записи 
+//С‡С‚РµРЅРёРµ 10Р№ Р·Р°РїРёСЃРё 
   seek(f,10); 
   read(f,r); 
-//запись 20й записи 
+//Р·Р°РїРёСЃСЊ 20Р№ Р·Р°РїРёСЃРё 
  seek(f, 20); 
  write(f,r); 
  closefile(f); 
@@ -245,10 +238,10 @@ end;
 
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

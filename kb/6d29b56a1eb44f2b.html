@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Буфер обмена (Clipboard) и TMemoryStream</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>Р‘СѓС„РµСЂ РѕР±РјРµРЅР° (Clipboard) Рё TMemoryStream</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,30 +13,23 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Буфер обмена (Clipboard) и TMemoryStream</h1>
+  <h1 id="title">Р‘СѓС„РµСЂ РѕР±РјРµРЅР° (Clipboard) Рё TMemoryStream</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Обычно, это нужно для того, чтобы запихнуть в буфер обмена данные собственного формата. Сначала необходимо зарегистрировать этот формат при помощи функции RegisterClipboardFormat():</p>
+
+<p>РћР±С‹С‡РЅРѕ, СЌС‚Рѕ РЅСѓР¶РЅРѕ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ Р·Р°РїРёС…РЅСѓС‚СЊ РІ Р±СѓС„РµСЂ РѕР±РјРµРЅР° РґР°РЅРЅС‹Рµ СЃРѕР±СЃС‚РІРµРЅРЅРѕРіРѕ С„РѕСЂРјР°С‚Р°. РЎРЅР°С‡Р°Р»Р° РЅРµРѕР±С…РѕРґРёРјРѕ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°С‚СЊ СЌС‚РѕС‚ С„РѕСЂРјР°С‚ РїСЂРё РїРѕРјРѕС‰Рё С„СѓРЅРєС†РёРё RegisterClipboardFormat():</p>
 
 <p>CF_MYFORMAT := RegisterClipboardFormat('My Format Description'); </p>
 
-<p>Затем необходимо проделать следующие шаги:</p>
-<p>1. Создать поток (stream) и записать в него данные.</p>
-<p>2. Создать в памяти глобальный буфер и скопировать в него поток (stream).</p>
-<p>3. При помощи Clipboard.SetAsHandle() поместить глобальный буфер в буфер обмена.</p>
+<p>Р—Р°С‚РµРј РЅРµРѕР±С…РѕРґРёРјРѕ РїСЂРѕРґРµР»Р°С‚СЊ СЃР»РµРґСѓСЋС‰РёРµ С€Р°РіРё:</p>
+<p>1. РЎРѕР·РґР°С‚СЊ РїРѕС‚РѕРє (stream) Рё Р·Р°РїРёСЃР°С‚СЊ РІ РЅРµРіРѕ РґР°РЅРЅС‹Рµ.</p>
+<p>2. РЎРѕР·РґР°С‚СЊ РІ РїР°РјСЏС‚Рё РіР»РѕР±Р°Р»СЊРЅС‹Р№ Р±СѓС„РµСЂ Рё СЃРєРѕРїРёСЂРѕРІР°С‚СЊ РІ РЅРµРіРѕ РїРѕС‚РѕРє (stream).</p>
+<p>3. РџСЂРё РїРѕРјРѕС‰Рё Clipboard.SetAsHandle() РїРѕРјРµСЃС‚РёС‚СЊ РіР»РѕР±Р°Р»СЊРЅС‹Р№ Р±СѓС„РµСЂ РІ Р±СѓС„РµСЂ РѕР±РјРµРЅР°.</p>
 
-<p>Пример:</p>
+<p>РџСЂРёРјРµСЂ:</p>
 <pre name="code" class="delphi">
 var
   hbuf    : THandle;
@@ -45,7 +38,7 @@ var
 begin
   mstream := TMemoryStream.Create;
   try
-    {-- Записываем данные в mstream. --}
+    {-- Р—Р°РїРёСЃС‹РІР°РµРј РґР°РЅРЅС‹Рµ РІ mstream. --}
     hbuf := GlobalAlloc(GMEM_MOVEABLE, mstream.size);
     try
       bufptr := GlobalLock(hbuf);
@@ -66,9 +59,9 @@ end;
 </pre>
 
 
-<p>ВАЖНО: Не удаляйте буфер после GlobalAlloc(). Как только Вы поместите его в буфер обмена, то буфер обмена будет пользоваться им.</p>
+<p>Р’РђР–РќРћ: РќРµ СѓРґР°Р»СЏР№С‚Рµ Р±СѓС„РµСЂ РїРѕСЃР»Рµ GlobalAlloc(). РљР°Рє С‚РѕР»СЊРєРѕ Р’С‹ РїРѕРјРµСЃС‚РёС‚Рµ РµРіРѕ РІ Р±СѓС„РµСЂ РѕР±РјРµРЅР°, С‚Рѕ Р±СѓС„РµСЂ РѕР±РјРµРЅР° Р±СѓРґРµС‚ РїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РёРј.</p>
 
-<p>Для получения данных из потока, можно воспользоваться следующим кодом:</p>
+<p>Р”Р»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РґР°РЅРЅС‹С… РёР· РїРѕС‚РѕРєР°, РјРѕР¶РЅРѕ РІРѕСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ СЃР»РµРґСѓСЋС‰РёРј РєРѕРґРѕРј:</p>
 <pre name="code" class="delphi">
 var
   hbuf    : THandle;
@@ -84,7 +77,7 @@ begin
         try
           mstream.WriteBuffer(bufptr^, GlobalSize(hbuf));
           mstream.Position := 0;
-          {-- Читаем данные из mstream. --}
+          {-- Р§РёС‚Р°РµРј РґР°РЅРЅС‹Рµ РёР· mstream. --}
         finally
           mstream.Free;
         end;
@@ -97,13 +90,13 @@ end;
 </pre>
 
 
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

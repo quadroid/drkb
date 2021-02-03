@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Поиск n-ого вхождения подстроки в строку</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџРѕРёСЃРє n-РѕРіРѕ РІС…РѕР¶РґРµРЅРёСЏ РїРѕРґСЃС‚СЂРѕРєРё РІ СЃС‚СЂРѕРєСѓ</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,75 +13,68 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Поиск n-ого вхождения подстроки в строку</h1>
+  <h1 id="title">РџРѕРёСЃРє n-РѕРіРѕ РІС…РѕР¶РґРµРЅРёСЏ РїРѕРґСЃС‚СЂРѕРєРё РІ СЃС‚СЂРѕРєСѓ</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 { **** UBPFD *********** by delphibase.endimus.com ****
-&gt;&gt; Поиск N-ого вхождения подстроки в строку
+&gt;&gt; РџРѕРёСЃРє N-РѕРіРѕ РІС…РѕР¶РґРµРЅРёСЏ РїРѕРґСЃС‚СЂРѕРєРё РІ СЃС‚СЂРѕРєСѓ
  
-Зависимости: SysUtils
-Автор:       panov, panov@hotbox.ru, Екатеринбург
+Р—Р°РІРёСЃРёРјРѕСЃС‚Рё: SysUtils
+РђРІС‚РѕСЂ:       panov, panov@hotbox.ru, Р•РєР°С‚РµСЂРёРЅР±СѓСЂРі
 Copyright:   panov
-Дата:        19 апреля 2002 г.
+Р”Р°С‚Р°:        19 Р°РїСЂРµР»СЏ 2002 Рі.
 ***************************************************** }
  
 function SearchString(const FindStr, SourceString: string; Num: Integer):
   Integer;
 var
-  FirstSym: PChar; //Ссылка на первый символ
+  FirstSym: PChar; //РЎСЃС‹Р»РєР° РЅР° РїРµСЂРІС‹Р№ СЃРёРјРІРѕР»
  
   function MyPos(const FindStr, SourceString: PChar; Num: Integer): PChar;
   begin
     Result := AnsiStrPos(SourceString, FindStr);
-      //Поиск вхождения подстроки в строку
+      //РџРѕРёСЃРє РІС…РѕР¶РґРµРЅРёСЏ РїРѕРґСЃС‚СЂРѕРєРё РІ СЃС‚СЂРѕРєСѓ
     if (Result = nil) then
-      Exit; //Подстрока не найдена
-    Inc(Result); //Смещаем указатель на следующий символ
+      Exit; //РџРѕРґСЃС‚СЂРѕРєР° РЅРµ РЅР°Р№РґРµРЅР°
+    Inc(Result); //РЎРјРµС‰Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃР»РµРґСѓСЋС‰РёР№ СЃРёРјРІРѕР»
     if Num = 1 then
-      Exit; //Если нужно первое вхождение - заканчиваем
+      Exit; //Р•СЃР»Рё РЅСѓР¶РЅРѕ РїРµСЂРІРѕРµ РІС…РѕР¶РґРµРЅРёРµ - Р·Р°РєР°РЅС‡РёРІР°РµРј
     if num &gt; 1 then
       Result := MyPos(FindStr, Result, num - 1);
-    //Рекурсивный поиск следующего вхождения
+    //Р РµРєСѓСЂСЃРёРІРЅС‹Р№ РїРѕРёСЃРє СЃР»РµРґСѓСЋС‰РµРіРѕ РІС…РѕР¶РґРµРЅРёСЏ
   end;
  
 begin
   FirstSym := PChar(SourceString);
-  //Присваиваем адрес первого символа исходной строки
+  //РџСЂРёСЃРІР°РёРІР°РµРј Р°РґСЂРµСЃ РїРµСЂРІРѕРіРѕ СЃРёРјРІРѕР»Р° РёСЃС…РѕРґРЅРѕР№ СЃС‚СЂРѕРєРё
   Result := MyPos(PChar(FindStr), PChar(SourceString), Num) - FirstSym;
-  //Номер позиции в строке
+  //РќРѕРјРµСЂ РїРѕР·РёС†РёРё РІ СЃС‚СЂРѕРєРµ
   if Result &lt; 0 then
-    Result := 0; //Возвращаем номер позиции
+    Result := 0; //Р’РѕР·РІСЂР°С‰Р°РµРј РЅРѕРјРµСЂ РїРѕР·РёС†РёРё
 end;
-//Пример использования: 
+//РџСЂРёРјРµСЂ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ: 
  
 var
   StrF, StrSrc: string;
   n: Integer;
 begin
   ...
-  StrF := 'стр';
-  StrSrc := 'Поиск подстроки в строке';
-  n := SearchString(StrF, StrSrc, 2); //n будет равна 19
+  StrF := 'СЃС‚СЂ';
+  StrSrc := 'РџРѕРёСЃРє РїРѕРґСЃС‚СЂРѕРєРё РІ СЃС‚СЂРѕРєРµ';
+  n := SearchString(StrF, StrSrc, 2); //n Р±СѓРґРµС‚ СЂР°РІРЅР° 19
 end;
 </pre>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

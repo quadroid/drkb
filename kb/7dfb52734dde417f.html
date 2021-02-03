@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как создать лупу для рабочего стола?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє СЃРѕР·РґР°С‚СЊ Р»СѓРїСѓ РґР»СЏ СЂР°Р±РѕС‡РµРіРѕ СЃС‚РѕР»Р°?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,48 +13,41 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как создать лупу для рабочего стола?</h1>
+  <h1 id="title">РљР°Рє СЃРѕР·РґР°С‚СЊ Р»СѓРїСѓ РґР»СЏ СЂР°Р±РѕС‡РµРіРѕ СЃС‚РѕР»Р°?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p id="author">Автор: Zarko Gajic</p>
+
+<p id="author">РђРІС‚РѕСЂ: Zarko Gajic</p>
 <pre name="code" class="delphi">
-// переменные
+// РїРµСЂРµРјРµРЅРЅС‹Рµ
 var Srect,Drect,PosForme:TRect;
     iWidth,iHeight,DmX,DmY:Integer;
     iTmpX,iTmpY:Real;
     C:TCanvas;
     Kursor:TPoint;
-// Увеличиваем экран, если приложение не свёрнуто в иконку
+// РЈРІРµР»РёС‡РёРІР°РµРј СЌРєСЂР°РЅ, РµСЃР»Рё РїСЂРёР»РѕР¶РµРЅРёРµ РЅРµ СЃРІС‘СЂРЅСѓС‚Рѕ РІ РёРєРѕРЅРєСѓ
 If not IsIconic(Application.Handle) then begin
-// Получаем координаты курсора
+// РџРѕР»СѓС‡Р°РµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РєСѓСЂСЃРѕСЂР°
   GetCursorPos(Kursor);
  
-// PosForm представляет прямоугольник с
-// координатами Form (image control).
+// PosForm РїСЂРµРґСЃС‚Р°РІР»СЏРµС‚ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє СЃ
+// РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё Form (image control).
   PosForme:=Rect(Form1.Left,
                  Form1.Top,
                  Form1.Left+Form1.Width,
                  Form1.Top+Form1.Height);
  
-//Показываем magnified screen 
-//если курсор за пределами формы.
+//РџРѕРєР°Р·С‹РІР°РµРј magnified screen 
+//РµСЃР»Рё РєСѓСЂСЃРѕСЂ Р·Р° РїСЂРµРґРµР»Р°РјРё С„РѕСЂРјС‹.
   If not PtInRect(PosForme,Kursor) then begin
  
-// Далее код можно использовать для увеличения выбранной
-// части экрана. С небольшими модификациями его можно
-// использовать для уменьшения
-// экрана
+// Р”Р°Р»РµРµ РєРѕРґ РјРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РґР»СЏ СѓРІРµР»РёС‡РµРЅРёСЏ РІС‹Р±СЂР°РЅРЅРѕР№
+// С‡Р°СЃС‚Рё СЌРєСЂР°РЅР°. РЎ РЅРµР±РѕР»СЊС€РёРјРё РјРѕРґРёС„РёРєР°С†РёСЏРјРё РµРіРѕ РјРѕР¶РЅРѕ
+// РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РґР»СЏ СѓРјРµРЅСЊС€РµРЅРёСЏ
+// СЌРєСЂР°РЅР°
   iWidth:=Image1.Width;
   iHeight:=Image1.Height;
   Drect:=Bounds(0,0,iWidth,iHeight);
@@ -65,11 +58,11 @@ If not IsIconic(Application.Handle) then begin
    Rect(Kursor.x,Kursor.y,Kursor.x,Kursor.y);
   InflateRect(Srect,Round(iTmpX),Round(iTmpY));
  
-//Получаем обработчик(handle) окна рабочего стола.
+//РџРѕР»СѓС‡Р°РµРј РѕР±СЂР°Р±РѕС‚С‡РёРє(handle) РѕРєРЅР° СЂР°Р±РѕС‡РµРіРѕ СЃС‚РѕР»Р°.
   C:=TCanvas.Create;
   try
    C.Handle:=GetDC(GetDesktopWindow);
-//Передаём часть изображения окна в TImage.
+//РџРµСЂРµРґР°С‘Рј С‡Р°СЃС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РѕРєРЅР° РІ TImage.
    Image1.Canvas.CopyRect(Drect,C,Srect);
   finally
    C.Free;
@@ -77,18 +70,18 @@ If not IsIconic(Application.Handle) then begin
  
   end;
  
-// Обязательно обрабатываем все сообщения Windows.
+// РћР±СЏР·Р°С‚РµР»СЊРЅРѕ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРј РІСЃРµ СЃРѕРѕР±С‰РµРЅРёСЏ Windows.
   Application.ProcessMessages;
  
 end; // IsIconic
 </pre>
 
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

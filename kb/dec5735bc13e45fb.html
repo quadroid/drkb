@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Дополненный TRegistry, умеет работать с значениями типа REG_MULTI_SZ</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>Р”РѕРїРѕР»РЅРµРЅРЅС‹Р№ TRegistry, СѓРјРµРµС‚ СЂР°Р±РѕС‚Р°С‚СЊ СЃ Р·РЅР°С‡РµРЅРёСЏРјРё С‚РёРїР° REG_MULTI_SZ</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Дополненный TRegistry, умеет работать с значениями типа REG_MULTI_SZ</h1>
+  <h1 id="title">Р”РѕРїРѕР»РЅРµРЅРЅС‹Р№ TRegistry, СѓРјРµРµС‚ СЂР°Р±РѕС‚Р°С‚СЊ СЃ Р·РЅР°С‡РµРЅРёСЏРјРё С‚РёРїР° REG_MULTI_SZ</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 unit Reg;
@@ -47,7 +40,7 @@ implementation
  
 //*** TReg *********************************************************************
 //------------------------------------------------------------------------------
-// Запись TStringList ввиде значения типа REG_MULTI_SZ в реестр
+// Р—Р°РїРёСЃСЊ TStringList РІРІРёРґРµ Р·РЅР°С‡РµРЅРёСЏ С‚РёРїР° REG_MULTI_SZ РІ СЂРµРµСЃС‚СЂ
 //------------------------------------------------------------------------------
  
 procedure TReg.WriteStringList(const name: string; list: TStringList);
@@ -60,7 +53,7 @@ var
   p: PChar;
 begin
  
-  {подготовим буфер к записи}
+  {РїРѕРґРіРѕС‚РѕРІРёРј Р±СѓС„РµСЂ Рє Р·Р°РїРёСЃРё}
   BufSize := 0;
   for i := 0 to list.Count - 1 do
     inc(BufSize, Length(list[i]) + 1);
@@ -81,13 +74,13 @@ begin
   end;
   p[k] := chr(0);
  
-  {запись в реестр}
+  {Р·Р°РїРёСЃСЊ РІ СЂРµРµСЃС‚СЂ}
   if RegSetValueEx(CurrentKey, PChar(name), 0, REG_MULTI_SZ, Buffer,
     BufSize) &lt;&gt; ERROR_SUCCESS then
     raise ERegistryException.CreateResFmt(@SRegSetDataFailed, [name]);
 end;
 //------------------------------------------------------------------------------
-// Чтение TStringList ввиде значения типа REG_MULTI_SZ из реестра
+// Р§С‚РµРЅРёРµ TStringList РІРІРёРґРµ Р·РЅР°С‡РµРЅРёСЏ С‚РёРїР° REG_MULTI_SZ РёР· СЂРµРµСЃС‚СЂР°
 //------------------------------------------------------------------------------
  
 procedure TReg.ReadStringList(const name: string; list: TStringList);
@@ -102,7 +95,7 @@ begin
  
   if list = nil then
     Exit;
-  {чтение из реестра}
+  {С‡С‚РµРЅРёРµ РёР· СЂРµРµСЃС‚СЂР°}
   Len := GetDataSize(Name);
   if Len &lt; 1 then
     Exit;
@@ -117,11 +110,11 @@ begin
       raise ERegistryException.CreateResFmt(@SRegGetDataFailed, [name]);
     if DataType &lt;&gt; REG_MULTI_SZ then
       raise ERegistryException.CreateResFmt(@SInvalidRegType, [name]);
-    {запись в TStringList}
+    {Р·Р°РїРёСЃСЊ РІ TStringList}
     list.Clear;
     s := '';
     for i := 0 to BufSize - 2 do
-    begin // BufSize-2 т.к. последние два нулевых символа
+    begin // BufSize-2 С‚.Рє. РїРѕСЃР»РµРґРЅРёРµ РґРІР° РЅСѓР»РµРІС‹С… СЃРёРјРІРѕР»Р°
       if Buffer[i] = chr(0) then
       begin
         list.Add(s);
@@ -138,14 +131,14 @@ end;
 end.
  
 </pre>
-<p id="author">Автор: Кондратюк Виталий </p>
+<p id="author">РђРІС‚РѕСЂ: РљРѕРЅРґСЂР°С‚СЋРє Р’РёС‚Р°Р»РёР№ </p>
 <p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

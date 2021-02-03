@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Прочитать boot-сектор</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџСЂРѕС‡РёС‚Р°С‚СЊ boot-СЃРµРєС‚РѕСЂ</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,21 +13,14 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Прочитать boot-сектор</h1>
+  <h1 id="title">РџСЂРѕС‡РёС‚Р°С‚СЊ boot-СЃРµРєС‚РѕСЂ</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Вообще-то загрузочный сектор можно прочитать вот так:</p>
+
+<p>Р’РѕРѕР±С‰Рµ-С‚Рѕ Р·Р°РіСЂСѓР·РѕС‡РЅС‹Р№ СЃРµРєС‚РѕСЂ РјРѕР¶РЅРѕ РїСЂРѕС‡РёС‚Р°С‚СЊ РІРѕС‚ С‚Р°Рє:</p>
 <pre name="code" class="delphi">
 type
   TSector = array[0..511] of Byte;
@@ -37,9 +30,9 @@ begin
   ReadBoot(Drive, Boot);
 </pre>
 
-<p>Но учитывая разницу платформ 95, 98, Me и NT, 2000, XP можно сделать 2 процедуры, а в главной части проги вызывать необходимую:</p>
+<p>РќРѕ СѓС‡РёС‚С‹РІР°СЏ СЂР°Р·РЅРёС†Сѓ РїР»Р°С‚С„РѕСЂРј 95, 98, Me Рё NT, 2000, XP РјРѕР¶РЅРѕ СЃРґРµР»Р°С‚СЊ 2 РїСЂРѕС†РµРґСѓСЂС‹, Р° РІ РіР»Р°РІРЅРѕР№ С‡Р°СЃС‚Рё РїСЂРѕРіРё РІС‹Р·С‹РІР°С‚СЊ РЅРµРѕР±С…РѕРґРёРјСѓСЋ:</p>
 <pre name="code" class="delphi">
-//для 95, 98, Me
+//РґР»СЏ 95, 98, Me
 type
    TDiocRegisters = record
      EBX, EDX, ECX, EAX, EDI, ESI, Flags: LongWord end;
@@ -48,7 +41,7 @@ type
      ccVWin32Int26, ccVWin32Int13);
  
  function VWin32(CtlCode: TVWin32CtlCode; 
-   var Regs: TDiocRegisters): Boolean; // вспомогательная процедура
+   var Regs: TDiocRegisters): Boolean; // РІСЃРїРѕРјРѕРіР°С‚РµР»СЊРЅР°СЏ РїСЂРѕС†РµРґСѓСЂР°
   var
      Device: THandle;
      Count: LongWord;
@@ -63,7 +56,7 @@ type
    finally
      CloseHandle(Device) end end;
  
-//само чтение
+//СЃР°РјРѕ С‡С‚РµРЅРёРµ
 procedure ReadBoot95(Drive: Char; var Boot: TSector);
    var
      Regs: TDiocRegisters;
@@ -76,7 +69,7 @@ procedure ReadBoot95(Drive: Char; var Boot: TSector);
    if not VWin32(ccVWin32Int25, Regs) then
      raise Exception.Create(SysErrorMessage(GetLastError)) end;
  
-//для NT, 2000, XP попроще
+//РґР»СЏ NT, 2000, XP РїРѕРїСЂРѕС‰Рµ
 type
    TSector = array[0..511] of Byte;
  procedure ReadBootNT(Drive: Char; var Boot: TSector);
@@ -94,7 +87,7 @@ type
    finally
      CloseHandle(H) end end;
  
-// а юзать так
+// Р° СЋР·Р°С‚СЊ С‚Р°Рє
  
 var
      Boot: TSector;
@@ -106,16 +99,16 @@ var
        ReadBootNT(Drive, Boot) end;
 </pre>
 
-<p>Boot и есть необходимый массив.</p>
+<p>Boot Рё РµСЃС‚СЊ РЅРµРѕР±С…РѕРґРёРјС‹Р№ РјР°СЃСЃРёРІ.</p>
 
-<p id="author">Автор: startinger</p>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ: startinger</p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Посылать и считывать данные с COM порта, а также менять параметры (биты данных, четность)</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџРѕСЃС‹Р»Р°С‚СЊ Рё СЃС‡РёС‚С‹РІР°С‚СЊ РґР°РЅРЅС‹Рµ СЃ COM РїРѕСЂС‚Р°, Р° С‚Р°РєР¶Рµ РјРµРЅСЏС‚СЊ РїР°СЂР°РјРµС‚СЂС‹ (Р±РёС‚С‹ РґР°РЅРЅС‹С…, С‡РµС‚РЅРѕСЃС‚СЊ)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,21 +13,14 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Посылать и считывать данные с COM порта, а также менять параметры (биты данных, четность)</h1>
+  <h1 id="title">РџРѕСЃС‹Р»Р°С‚СЊ Рё СЃС‡РёС‚С‹РІР°С‚СЊ РґР°РЅРЅС‹Рµ СЃ COM РїРѕСЂС‚Р°, Р° С‚Р°РєР¶Рµ РјРµРЅСЏС‚СЊ РїР°СЂР°РјРµС‚СЂС‹ (Р±РёС‚С‹ РґР°РЅРЅС‹С…, С‡РµС‚РЅРѕСЃС‚СЊ)</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Ниже представлен класс для работы с COM-портом. Протестирован в Windows 95. Класс выдернут из контекста, так что не ручаюсь в компиляции с первого раза, однако все функции работы с COM очевидны. </p>
+
+<p>РќРёР¶Рµ РїСЂРµРґСЃС‚Р°РІР»РµРЅ РєР»Р°СЃСЃ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ COM-РїРѕСЂС‚РѕРј. РџСЂРѕС‚РµСЃС‚РёСЂРѕРІР°РЅ РІ Windows 95. РљР»Р°СЃСЃ РІС‹РґРµСЂРЅСѓС‚ РёР· РєРѕРЅС‚РµРєСЃС‚Р°, С‚Р°Рє С‡С‚Рѕ РЅРµ СЂСѓС‡Р°СЋСЃСЊ РІ РєРѕРјРїРёР»СЏС†РёРё СЃ РїРµСЂРІРѕРіРѕ СЂР°Р·Р°, РѕРґРЅР°РєРѕ РІСЃРµ С„СѓРЅРєС†РёРё СЂР°Р±РѕС‚С‹ СЃ COM РѕС‡РµРІРёРґРЅС‹. </p>
 
 <pre name="code" class="delphi">
 unit Unit1;
@@ -77,15 +70,15 @@ var
   PortParam: string;
 begin
   result := FALSE;
-  FileName := 'Com' + IntToStr(PortNo); {имя файла}
+  FileName := 'Com' + IntToStr(PortNo); {РёРјСЏ С„Р°Р№Р»Р°}
   hFile := CreateFile(PChar(FileName),
     GENERIC_READ or GENERIC_WRITE, 0, nil,
     OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
   if hFile = INVALID_HANDLE_VALUE then
     exit;
  
-  //установка требуемых параметров
-  GetCommState(hFile, DCB); //чтение текущих параметров порта
+  //СѓСЃС‚Р°РЅРѕРІРєР° С‚СЂРµР±СѓРµРјС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ
+  GetCommState(hFile, DCB); //С‡С‚РµРЅРёРµ С‚РµРєСѓС‰РёС… РїР°СЂР°РјРµС‚СЂРѕРІ РїРѕСЂС‚Р°
   PortParam := 'baud=' + IntToStr(BaudRate) + ' parity=' + Parity +
     ' data=8 stop=1 ' +
     'octs=off';
@@ -110,13 +103,13 @@ var
   Received: DWORD;
 begin
   if hFile = INVALID_HANDLE_VALUE then
-    raise Exception.Create('Не открыта запись в Com порт');
+    raise Exception.Create('РќРµ РѕС‚РєСЂС‹С‚Р° Р·Р°РїРёСЃСЊ РІ Com РїРѕСЂС‚');
   if ReadFile(hFile, Buffer, Size, Received, nil) then
   begin
     Result := Received;
   end
   else
-    raise Exception.Create('Ошибка приема данных: ' + IntToStr(GetLastError));
+    raise Exception.Create('РћС€РёР±РєР° РїСЂРёРµРјР° РґР°РЅРЅС‹С…: ' + IntToStr(GetLastError));
 end;
  
 function TComPort.SendCom(var Buffer; Size: DWORD): Integer;
@@ -124,31 +117,31 @@ var
   Sended: DWORD;
 begin
   if hFile = INVALID_HANDLE_VALUE then
-    raise Exception.Create('Не открыта запись в Com порт');
+    raise Exception.Create('РќРµ РѕС‚РєСЂС‹С‚Р° Р·Р°РїРёСЃСЊ РІ Com РїРѕСЂС‚');
   if WriteFile(hFile, Buffer, Size, Sended, nil) then
   begin
     Result := Sended;
   end
   else
-    raise Exception.Create('Ошибка передачи данных: ' + IntToStr(GetLastError));
+    raise Exception.Create('РћС€РёР±РєР° РїРµСЂРµРґР°С‡Рё РґР°РЅРЅС‹С…: ' + IntToStr(GetLastError));
 end;
  
 function TComPort.ClearInputCom: Boolean;
 begin
   if hFile = INVALID_HANDLE_VALUE then
-    raise Exception.Create('Не открыта запись в Com порт');
+    raise Exception.Create('РќРµ РѕС‚РєСЂС‹С‚Р° Р·Р°РїРёСЃСЊ РІ Com РїРѕСЂС‚');
   Result := PurgeComm(hFile, PURGE_RXCLEAR);
 end;
  
 end.
 </pre>
-<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ СЃ <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

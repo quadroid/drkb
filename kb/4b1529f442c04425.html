@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как получить инфу о сервисе в Windows ХР?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє РїРѕР»СѓС‡РёС‚СЊ РёРЅС„Сѓ Рѕ СЃРµСЂРІРёСЃРµ РІ Windows РҐР ?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как получить инфу о сервисе в Windows ХР?</h1>
+  <h1 id="title">РљР°Рє РїРѕР»СѓС‡РёС‚СЊ РёРЅС„Сѓ Рѕ СЃРµСЂРІРёСЃРµ РІ Windows РҐР ?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 ////////////////////////////////////////////////////////////////////////////////
@@ -33,8 +26,8 @@
 //  ****************************************************************************
 //  * Project   : Project1
 //  * Unit Name : Unit1
-//  * Purpose   : Демо получения информации по сервисам
-//  * Author    : Александр (Rouse_) Багель
+//  * Purpose   : Р”РµРјРѕ РїРѕР»СѓС‡РµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё РїРѕ СЃРµСЂРІРёСЃР°Рј
+//  * Author    : РђР»РµРєСЃР°РЅРґСЂ (Rouse_) Р‘Р°РіРµР»СЊ
 //  * Version   : 1.00
 //  ****************************************************************************
 //
@@ -77,94 +70,94 @@ begin
   lvReport.Items.BeginUpdate;
   try
     lvReport.Items.Clear;
-    // Открываем менеджер сервисов
+    // РћС‚РєСЂС‹РІР°РµРј РјРµРЅРµРґР¶РµСЂ СЃРµСЂРІРёСЃРѕРІ
     hSCObject := OpenSCManager(nil, nil, SC_MANAGER_ENUMERATE_SERVICE);
     if hSCObject &lt;&gt; 0 then
     try
       lpResumeHandle := 0;
       lpServices := nil;
-      // Смотрим сколько нужно памяти чтобы получить информацию
+      // РЎРјРѕС‚СЂРёРј СЃРєРѕР»СЊРєРѕ РЅСѓР¶РЅРѕ РїР°РјСЏС‚Рё С‡С‚РѕР±С‹ РїРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ
       EnumServicesStatus(hSCObject, SERVICE_WIN32, State,
         lpServices^, 0, pcbBytesNeeded, lpServicesReturned, lpResumeHandle);
       if GetLastError = ERROR_MORE_DATA then
       begin
-        // Выделяем нужную память
+        // Р’С‹РґРµР»СЏРµРј РЅСѓР¶РЅСѓСЋ РїР°РјСЏС‚СЊ
         GetMem(lpServices, pcbBytesNeeded);
         try
           cbBuffSize := pcbBytesNeeded;
-          // Получаем требуемую информацию по установленным сервисам
+          // РџРѕР»СѓС‡Р°РµРј С‚СЂРµР±СѓРµРјСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ РїРѕ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј СЃРµСЂРІРёСЃР°Рј
           if EnumServicesStatus(hSCObject, SERVICE_WIN32, State,
             lpServices^, cbBuffSize, pcbBytesNeeded, lpServicesReturned, lpResumeHandle) then
           begin
             TmpEnum := lpServices;
-            // Бежим в цикле по записям
+            // Р‘РµР¶РёРј РІ С†РёРєР»Рµ РїРѕ Р·Р°РїРёСЃСЏРј
             for I := 0 to lpServicesReturned - 1 do
             begin
-              // Выводим данные на экран
+              // Р’С‹РІРѕРґРёРј РґР°РЅРЅС‹Рµ РЅР° СЌРєСЂР°РЅ
               with lvReport.Items.Add do
               begin
-                // Наименование сервиса
+                // РќР°РёРјРµРЅРѕРІР°РЅРёРµ СЃРµСЂРІРёСЃР°
                 Caption := TmpEnum^.lpServiceName;
-                // Описание сервиса
+                // РћРїРёСЃР°РЅРёРµ СЃРµСЂРІРёСЃР°
                 SubItems.Add(TmpEnum^.lpDisplayName);
-                // Состояние
+                // РЎРѕСЃС‚РѕСЏРЅРёРµ
                 case TmpEnum^.ServiceStatus.dwCurrentState of
-                  SERVICE_RUNNING: SubItems.Add('Работает');
-                  SERVICE_STOPPED: SubItems.Add('Остановлен');
+                  SERVICE_RUNNING: SubItems.Add('Р Р°Р±РѕС‚Р°РµС‚');
+                  SERVICE_STOPPED: SubItems.Add('РћСЃС‚Р°РЅРѕРІР»РµРЅ');
                 else
-                  SubItems.Add('Неизвестно');
+                  SubItems.Add('РќРµРёР·РІРµСЃС‚РЅРѕ');
                 end;
-                // Для дополнительной информаци по сервису получаем описатель сервиса
+                // Р”Р»СЏ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕР№ РёРЅС„РѕСЂРјР°С†Рё РїРѕ СЃРµСЂРІРёСЃСѓ РїРѕР»СѓС‡Р°РµРј РѕРїРёСЃР°С‚РµР»СЊ СЃРµСЂРІРёСЃР°
                 hService := OpenService(hSCObject, TmpEnum^.lpServiceName,
                   SERVICE_QUERY_CONFIG);
                 if hService &lt;&gt; 0 then
                 try
-                  // Смотрим сколько нужно памяти
+                  // РЎРјРѕС‚СЂРёРј СЃРєРѕР»СЊРєРѕ РЅСѓР¶РЅРѕ РїР°РјСЏС‚Рё
                   QueryServiceConfig(hService, nil, 0, pcbBytesNeeded);
                   if GetLastError = ERROR_INSUFFICIENT_BUFFER then
                   begin
                     cbBuffSize := pcbBytesNeeded;
-                    // Берем память
+                    // Р‘РµСЂРµРј РїР°РјСЏС‚СЊ
                     GetMem(lpServiceConfig, pcbBytesNeeded);
                     try
-                      // Получаем расширенную информацию по сервису
+                      // РџРѕР»СѓС‡Р°РµРј СЂР°СЃС€РёСЂРµРЅРЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ РїРѕ СЃРµСЂРІРёСЃСѓ
                       if QueryServiceConfig(hService, lpServiceConfig,
                         cbBuffSize, pcbBytesNeeded) then
                       begin
-                        // Путь к сервису
+                        // РџСѓС‚СЊ Рє СЃРµСЂРІРёСЃСѓ
                         SubItems.Add(lpServiceConfig^.lpBinaryPathName);
-                        // Доступ к рабочему столу
+                        // Р”РѕСЃС‚СѓРї Рє СЂР°Р±РѕС‡РµРјСѓ СЃС‚РѕР»Сѓ
                         if (lpServiceConfig^.dwServiceType and SERVICE_INTERACTIVE_PROCESS) =
                           SERVICE_INTERACTIVE_PROCESS then
                         begin
-                          SubItems.Add('Да');
+                          SubItems.Add('Р”Р°');
                           lpServiceConfig^.dwServiceType :=
                             lpServiceConfig^.dwServiceType - SERVICE_INTERACTIVE_PROCESS;
                         end
                         else
-                          SubItems.Add('Нет');
-                        // Тип сервиса
+                          SubItems.Add('РќРµС‚');
+                        // РўРёРї СЃРµСЂРІРёСЃР°
                         case lpServiceConfig^.dwServiceType of
                           SERVICE_WIN32_OWN_PROCESS:
-                            SubItems.Add('Одиночный');
+                            SubItems.Add('РћРґРёРЅРѕС‡РЅС‹Р№');
                           SERVICE_WIN32_SHARE_PROCESS:
-                            SubItems.Add('Не одиночный');
+                            SubItems.Add('РќРµ РѕРґРёРЅРѕС‡РЅС‹Р№');
                         else
-                            SubItems.Add('Неизвестный тип службы');
+                            SubItems.Add('РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї СЃР»СѓР¶Р±С‹');
                         end;
-                        // Группа
+                        // Р“СЂСѓРїРїР°
                         SubItems.Add(lpServiceConfig^.lpLoadOrderGroup);
-                        // Тип запуска
+                        // РўРёРї Р·Р°РїСѓСЃРєР°
                         case lpServiceConfig^.dwStartType of
                           SERVICE_AUTO_START:
-                            SubItems.Add('Автоматический');
+                            SubItems.Add('РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРёР№');
                           SERVICE_DEMAND_START:
-                            SubItems.Add('Вручную');
+                            SubItems.Add('Р’СЂСѓС‡РЅСѓСЋ');
                           SERVICE_DISABLED:
-                            SubItems.Add('Отключен');
+                            SubItems.Add('РћС‚РєР»СЋС‡РµРЅ');
                         end;
                       end;
-                    // Завершающее освобождение памяти
+                    // Р—Р°РІРµСЂС€Р°СЋС‰РµРµ РѕСЃРІРѕР±РѕР¶РґРµРЅРёРµ РїР°РјСЏС‚Рё
                     finally
                       FreeMem(lpServiceConfig);
                     end;
@@ -185,7 +178,7 @@ begin
     end;
   finally
     lvReport.Items.EndUpdate;
-    sbCount.Panels.Items[0].Text := ' Общее количество: ' +
+    sbCount.Panels.Items[0].Text := ' РћР±С‰РµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ: ' +
       IntToStr(lvReport.Items.Count);
   end;
 end;
@@ -197,8 +190,8 @@ end;
  
 procedure TfrmMain.rgServiceStateClick(Sender: TObject);
 begin
-  // В зависимости от выбранного RadioItem перечисляем -
-  // все сервисы, только активные или неактивные
+  // Р’ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РІС‹Р±СЂР°РЅРЅРѕРіРѕ RadioItem РїРµСЂРµС‡РёСЃР»СЏРµРј -
+  // РІСЃРµ СЃРµСЂРІРёСЃС‹, С‚РѕР»СЊРєРѕ Р°РєС‚РёРІРЅС‹Рµ РёР»Рё РЅРµР°РєС‚РёРІРЅС‹Рµ
   if rgServiceState.ItemIndex = 0 then
     EnumServices(SERVICE_STATE_ALL)
   else
@@ -207,13 +200,13 @@ end;
  
 end.
 </pre>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
-<p id="author">Автор: Rouse_</p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ: Rouse_</p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

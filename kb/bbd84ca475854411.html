@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>TTreeView. Проблемы CustomDraw</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>TTreeView. РџСЂРѕР±Р»РµРјС‹ CustomDraw</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,23 +13,16 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">TTreeView. Проблемы CustomDraw</h1>
+  <h1 id="title">TTreeView. РџСЂРѕР±Р»РµРјС‹ CustomDraw</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
-Автор: Rustam Kafarov </p>
-<p>При использовании компонента TTreeView возникают проблемы при собственной отрисовке содержимого компонента в событиях OnCustomDraw, OnCustomDrawItem, OnAdvancedCustomDraw, OnAdvancedCustomDrawItem. Проблема проявляется когда свойства Canvas компонента устанавливаются вторично. К примеру, при попытке изменить цвет фонта во второй раз, соотвествующих изменений НЕ ПОСЛЕДУЕТ. Тоже самое и со свойствами Brush, Pen. </p>
-<p>Проверено на Дельфи 5. </p>
-<p>Контрольный пример (на форме TTreeView и TCheckBox): </p>
+
+РђРІС‚РѕСЂ: Rustam Kafarov </p>
+<p>РџСЂРё РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРё РєРѕРјРїРѕРЅРµРЅС‚Р° TTreeView РІРѕР·РЅРёРєР°СЋС‚ РїСЂРѕР±Р»РµРјС‹ РїСЂРё СЃРѕР±СЃС‚РІРµРЅРЅРѕР№ РѕС‚СЂРёСЃРѕРІРєРµ СЃРѕРґРµСЂР¶РёРјРѕРіРѕ РєРѕРјРїРѕРЅРµРЅС‚Р° РІ СЃРѕР±С‹С‚РёСЏС… OnCustomDraw, OnCustomDrawItem, OnAdvancedCustomDraw, OnAdvancedCustomDrawItem. РџСЂРѕР±Р»РµРјР° РїСЂРѕСЏРІР»СЏРµС‚СЃСЏ РєРѕРіРґР° СЃРІРѕР№СЃС‚РІР° Canvas РєРѕРјРїРѕРЅРµРЅС‚Р° СѓСЃС‚Р°РЅР°РІР»РёРІР°СЋС‚СЃСЏ РІС‚РѕСЂРёС‡РЅРѕ. Рљ РїСЂРёРјРµСЂСѓ, РїСЂРё РїРѕРїС‹С‚РєРµ РёР·РјРµРЅРёС‚СЊ С†РІРµС‚ С„РѕРЅС‚Р° РІРѕ РІС‚РѕСЂРѕР№ СЂР°Р·, СЃРѕРѕС‚РІРµСЃС‚РІСѓСЋС‰РёС… РёР·РјРµРЅРµРЅРёР№ РќР• РџРћРЎР›Р•Р”РЈР•Рў. РўРѕР¶Рµ СЃР°РјРѕРµ Рё СЃРѕ СЃРІРѕР№СЃС‚РІР°РјРё Brush, Pen. </p>
+<p>РџСЂРѕРІРµСЂРµРЅРѕ РЅР° Р”РµР»СЊС„Рё 5. </p>
+<p>РљРѕРЅС‚СЂРѕР»СЊРЅС‹Р№ РїСЂРёРјРµСЂ (РЅР° С„РѕСЂРјРµ TTreeView Рё TCheckBox): </p>
 <pre name="code" class="delphi">procedure TForm1.TreeView1AdvancedCustomDrawItem(Sender: TCustomTreeView;
   Node: TTreeNode; State: TCustomDrawState; Stage: TCustomDrawStage;
   var PaintImages, DefaultDraw: Boolean);
@@ -54,9 +47,9 @@ begin
           Font.Color := clGreen;
           S := 'AbsoluteIndex : ' + IntToStr(Node.AbsoluteIndex);
           TextOut(ARect.Left, ARect.Top, S);
-          // цвет шрифта должен поменяться!!!
+          // С†РІРµС‚ С€СЂРёС„С‚Р° РґРѕР»Р¶РµРЅ РїРѕРјРµРЅСЏС‚СЊСЃСЏ!!!
           Font.Color := clBlue;
-          // Но он не меняется :-(((
+          // РќРѕ РѕРЅ РЅРµ РјРµРЅСЏРµС‚СЃСЏ :-(((
           TextOut(ARect.Left + TextWidth(S) + 20, ARect.Top, Node.Text);
         end;
       end;
@@ -68,19 +61,19 @@ begin
   TreeView1.Repaint;
 end;
 </pre>
-<p>ТИПОВЫЕ РЕШЕНИЯ </p>
-<p>Использовать API функции Windows такие как SetTextColor, SelectObject и т.д, передавая им в качестве первого параметра Canvas.Handle. </p>
-<p>КОММЕНТАРИЙ </p>
-<p>Проверено (Delphi 5 Update Pack 1, WinNT, Win2000). Действительно, эффект имеет место быть. Вероятно, Борланд перемудрил что-то в своем кэше ресурсов GDI (класс TCanvas). </p>
-<p>При присваивании Font.Color изменяется только внутреннее поле FColor. В методе TCanvas.TextOut не выполняется SetTextColor(FHandle, ColorToRGB(FFont.Color)), как это сделано в TCanvas.Draw. Следовательно, мы имеем более глобальную проблему, чем рисование узлов дерева вручную. </p>
+<p>РўРРџРћР’Р«Р• Р Р•РЁР•РќРРЇ </p>
+<p>РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ API С„СѓРЅРєС†РёРё Windows С‚Р°РєРёРµ РєР°Рє SetTextColor, SelectObject Рё С‚.Рґ, РїРµСЂРµРґР°РІР°СЏ РёРј РІ РєР°С‡РµСЃС‚РІРµ РїРµСЂРІРѕРіРѕ РїР°СЂР°РјРµС‚СЂР° Canvas.Handle. </p>
+<p>РљРћРњРњР•РќРўРђР РР™ </p>
+<p>РџСЂРѕРІРµСЂРµРЅРѕ (Delphi 5 Update Pack 1, WinNT, Win2000). Р”РµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ, СЌС„С„РµРєС‚ РёРјРµРµС‚ РјРµСЃС‚Рѕ Р±С‹С‚СЊ. Р’РµСЂРѕСЏС‚РЅРѕ, Р‘РѕСЂР»Р°РЅРґ РїРµСЂРµРјСѓРґСЂРёР» С‡С‚Рѕ-С‚Рѕ РІ СЃРІРѕРµРј РєСЌС€Рµ СЂРµСЃСѓСЂСЃРѕРІ GDI (РєР»Р°СЃСЃ TCanvas). </p>
+<p>РџСЂРё РїСЂРёСЃРІР°РёРІР°РЅРёРё Font.Color РёР·РјРµРЅСЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РІРЅСѓС‚СЂРµРЅРЅРµРµ РїРѕР»Рµ FColor. Р’ РјРµС‚РѕРґРµ TCanvas.TextOut РЅРµ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ SetTextColor(FHandle, ColorToRGB(FFont.Color)), РєР°Рє СЌС‚Рѕ СЃРґРµР»Р°РЅРѕ РІ TCanvas.Draw. РЎР»РµРґРѕРІР°С‚РµР»СЊРЅРѕ, РјС‹ РёРјРµРµРј Р±РѕР»РµРµ РіР»РѕР±Р°Р»СЊРЅСѓСЋ РїСЂРѕР±Р»РµРјСѓ, С‡РµРј СЂРёСЃРѕРІР°РЅРёРµ СѓР·Р»РѕРІ РґРµСЂРµРІР° РІСЂСѓС‡РЅСѓСЋ. </p>
 
 <p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

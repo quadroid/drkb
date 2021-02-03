@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как создать таблицу в MS Access при помощи DAO?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє СЃРѕР·РґР°С‚СЊ С‚Р°Р±Р»РёС†Сѓ РІ MS Access РїСЂРё РїРѕРјРѕС‰Рё DAO?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,28 +13,21 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как создать таблицу в MS Access при помощи DAO?</h1>
+  <h1 id="title">РљР°Рє СЃРѕР·РґР°С‚СЊ С‚Р°Р±Р»РёС†Сѓ РІ MS Access РїСЂРё РїРѕРјРѕС‰Рё DAO?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>1. Объявляем переменные:</p>
+
+<p>1. РћР±СЉСЏРІР»СЏРµРј РїРµСЂРµРјРµРЅРЅС‹Рµ:</p>
 <pre name="code" class="delphi">
 var
   access, db, td, recordset: Variant;
 </pre>
 
-<p>2. объявляем массив констант соответствия типов данных</p>
-<p>(между полями в Delphi и типами полей DAO)</p>
+<p>2. РѕР±СЉСЏРІР»СЏРµРј РјР°СЃСЃРёРІ РєРѕРЅСЃС‚Р°РЅС‚ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏ С‚РёРїРѕРІ РґР°РЅРЅС‹С…</p>
+<p>(РјРµР¶РґСѓ РїРѕР»СЏРјРё РІ Delphi Рё С‚РёРїР°РјРё РїРѕР»РµР№ DAO)</p>
 <pre name="code" class="delphi">
   arrMDBTypes: array[TFieldType] of Integer =
     ({dbText} 10 {ftUnknown},
@@ -107,7 +100,7 @@ var
 </pre>
 
 
-<p>3. загружаем DAO:</p>
+<p>3. Р·Р°РіСЂСѓР¶Р°РµРј DAO:</p>
 <pre name="code" class="delphi">
     try
       access := GetActiveOleObject('DAO.DBEngine.35');
@@ -116,7 +109,7 @@ var
     end;
 </pre>
 
-<p>4. открываем базу данных</p>
+<p>4. РѕС‚РєСЂС‹РІР°РµРј Р±Р°Р·Сѓ РґР°РЅРЅС‹С…</p>
 <pre name="code" class="delphi">
     try
       db := access.OpenDatabase(yourDatabaseName);
@@ -126,39 +119,39 @@ var
 </pre>
 
 
-<p>5. создаём новую таблицу в открытой базе данных</p>
+<p>5. СЃРѕР·РґР°С‘Рј РЅРѕРІСѓСЋ С‚Р°Р±Р»РёС†Сѓ РІ РѕС‚РєСЂС‹С‚РѕР№ Р±Р°Р·Рµ РґР°РЅРЅС‹С…</p>
 <pre name="code" class="delphi">
     td := db.CreateTableDef(yourTableName, 0, '', '');
 </pre>
 
-<p>6. добавляем в таблицу поле с описаниями</p>
+<p>6. РґРѕР±Р°РІР»СЏРµРј РІ С‚Р°Р±Р»РёС†Сѓ РїРѕР»Рµ СЃ РѕРїРёСЃР°РЅРёСЏРјРё</p>
 <pre name="code" class="delphi">
     td.Fields.Append(td.CreateField(strFieldName, arrMDBTypes[intDataType], Size));
 </pre>
 
-<p>например,</p>
+<p>РЅР°РїСЂРёРјРµСЂ,</p>
 <pre name="code" class="delphi">
     td.Fields.Append(td.CreateField('ID', arrMDBTypes[intDataType], Size));
     td.Fields.Append(td.CreateField('NAME', arrMDBTypes[intDataType], Size));
 </pre>
 
-<p>7. добавляем таблицу в список таблиц</p>
+<p>7. РґРѕР±Р°РІР»СЏРµРј С‚Р°Р±Р»РёС†Сѓ РІ СЃРїРёСЃРѕРє С‚Р°Р±Р»РёС†</p>
 <pre name="code" class="delphi">
     db.TableDefs.Append(td);
 </pre>
 
-<p>8. открываем созданную таблицу</p>
+<p>8. РѕС‚РєСЂС‹РІР°РµРј СЃРѕР·РґР°РЅРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ</p>
 <pre name="code" class="delphi">
     recordset := db.OpenTable(yourTableName, 0);
 </pre>
 
-<p>9. добавляем новую запись в открытую таблицу</p>
+<p>9. РґРѕР±Р°РІР»СЏРµРј РЅРѕРІСѓСЋ Р·Р°РїРёСЃСЊ РІ РѕС‚РєСЂС‹С‚СѓСЋ С‚Р°Р±Р»РёС†Сѓ</p>
 <pre name="code" class="delphi">
     recordset.AddNew;
 </pre>
 
 
-<p>10. изменяем значения поля</p>
+<p>10. РёР·РјРµРЅСЏРµРј Р·РЅР°С‡РµРЅРёСЏ РїРѕР»СЏ</p>
 
 <pre name="code" class="delphi">
  
@@ -166,40 +159,40 @@ var
     curField := recordset.Fields[1].Value := 'First record';
 </pre>
 
-<p>11. помещаем новую запись в базу</p>
+<p>11. РїРѕРјРµС‰Р°РµРј РЅРѕРІСѓСЋ Р·Р°РїРёСЃСЊ РІ Р±Р°Р·Сѓ</p>
 <pre name="code" class="delphi">
      recordset.Update(dbUpdateRegular, False);
 </pre>
 
-<p>где</p>
+<p>РіРґРµ</p>
 <pre name="code" class="delphi">
 const
   dbUpdateRegular = 1;
 </pre>
 
-<p>12. закрываем recordset</p>
+<p>12. Р·Р°РєСЂС‹РІР°РµРј recordset</p>
 <pre name="code" class="delphi">
      recordset.Close;
 </pre>
 
-<p>13. закрываем базу данных</p>
+<p>13. Р·Р°РєСЂС‹РІР°РµРј Р±Р°Р·Сѓ РґР°РЅРЅС‹С…</p>
 <pre name="code" class="delphi">
      db.Close;
 </pre>
 
-<p>14. освобождаем экземпляр DAO</p>
+<p>14. РѕСЃРІРѕР±РѕР¶РґР°РµРј СЌРєР·РµРјРїР»СЏСЂ DAO</p>
 <pre name="code" class="delphi">
      access := UnAssigned;
 </pre>
 
 
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

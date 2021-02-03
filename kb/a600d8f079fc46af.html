@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Перехват (Hook) клавиатуры (программа Sendkeys)</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџРµСЂРµС…РІР°С‚ (Hook) РєР»Р°РІРёР°С‚СѓСЂС‹ (РїСЂРѕРіСЂР°РјРјР° Sendkeys)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,20 +13,13 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Перехват (Hook) клавиатуры (программа Sendkeys)</h1>
+  <h1 id="title">РџРµСЂРµС…РІР°С‚ (Hook) РєР»Р°РІРёР°С‚СѓСЂС‹ (РїСЂРѕРіСЂР°РјРјР° Sendkeys)</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
-Автор: Bogachev  </p>
+
+РђРІС‚РѕСЂ: Bogachev  </p>
 <pre name="code" class="delphi">
 program Project1;
  
@@ -53,20 +46,20 @@ uses
  
 const
  
-  {пользовательские сообщения}
+  {РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёРµ СЃРѕРѕР±С‰РµРЅРёСЏ}
   wm_LeftShow_Event = wm_User + 133;
   wm_RightShow_Event = wm_User + 134;
   wm_UpShow_Event = wm_User + 135;
   wm_DownShow_Event = wm_User + 136;
  
-  {handle для ловушки}
+  {handle РґР»СЏ Р»РѕРІСѓС€РєРё}
   HookHandle: hHook = 0;
  
 var
  
   SaveExitProc: Pointer;
  
-  {собственно ловушка}
+  {СЃРѕР±СЃС‚РІРµРЅРЅРѕ Р»РѕРІСѓС€РєР°}
  
 function Key_Hook(Code: integer; wParam: word;
   lParam: Longint): Longint; stdcall; export;
@@ -74,30 +67,30 @@ var
   H: HWND;
 begin
  
-  {если Code&gt;=0, то ловушка может обработать событие}
+  {РµСЃР»Рё Code&gt;=0, С‚Рѕ Р»РѕРІСѓС€РєР° РјРѕР¶РµС‚ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ СЃРѕР±С‹С‚РёРµ}
   if (Code &gt;= 0) and (lParam and $40000000 = 0) then
   begin
-    {ищем окно по имени класса и по заголовку
-    (Caption формы управляющей программы должен быть равен 'XXX' !!!!)}
+    {РёС‰РµРј РѕРєРЅРѕ РїРѕ РёРјРµРЅРё РєР»Р°СЃСЃР° Рё РїРѕ Р·Р°РіРѕР»РѕРІРєСѓ
+    (Caption С„РѕСЂРјС‹ СѓРїСЂР°РІР»СЏСЋС‰РµР№ РїСЂРѕРіСЂР°РјРјС‹ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЂР°РІРµРЅ 'XXX' !!!!)}
     H := FindWindow('TForm1', 'XXX');
  
-    {это те клавиши?}
+    {СЌС‚Рѕ С‚Рµ РєР»Р°РІРёС€Рё?}
     case wParam of
       VK_Left: SendMessage(H, wm_LeftShow_Event, 0, 0);
       VK_Right: SendMessage(H, wm_RightShow_Event, 0, 0);
       VK_Up: SendMessage(H, wm_UpShow_Event, 0, 0);
       VK_Down: SendMessage(H, wm_DownShow_Event, 0, 0);
     end;
-    {если 0, то система должна дальше обработать это событие}
-    {если 1 - нет}
+    {РµСЃР»Рё 0, С‚Рѕ СЃРёСЃС‚РµРјР° РґРѕР»Р¶РЅР° РґР°Р»СЊС€Рµ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ СЌС‚Рѕ СЃРѕР±С‹С‚РёРµ}
+    {РµСЃР»Рё 1 - РЅРµС‚}
     Result := 0;
   end
  
-  else if Code &lt; 0 {если Code&lt;0, то нужно вызвать следующую ловушку} then
+  else if Code &lt; 0 {РµСЃР»Рё Code&lt;0, С‚Рѕ РЅСѓР¶РЅРѕ РІС‹Р·РІР°С‚СЊ СЃР»РµРґСѓСЋС‰СѓСЋ Р»РѕРІСѓС€РєСѓ} then
     Result := CallNextHookEx(HookHandle, Code, wParam, lParam);
 end;
  
-{при выгрузке DLL надо снять ловушку}
+{РїСЂРё РІС‹РіСЂСѓР·РєРµ DLL РЅР°РґРѕ СЃРЅСЏС‚СЊ Р»РѕРІСѓС€РєСѓ}
  
 procedure LocalExitProc; far;
 begin
@@ -111,9 +104,9 @@ end;
  
 exports Key_Hook;
  
-{инициализация DLL при загрузке ее в память}
+{РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ DLL РїСЂРё Р·Р°РіСЂСѓР·РєРµ РµРµ РІ РїР°РјСЏС‚СЊ}
 begin
-  {устанавливаем ловушку}
+  {СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р»РѕРІСѓС€РєСѓ}
  
   HookHandle := SetWindowsHookEx(wh_Keyboard, @Key_Hook,
     hInstance, 0);
@@ -163,7 +156,7 @@ uses
   SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics,
   Controls, Forms, Dialogs, StdCtrls;
  
-{пользовательские сообщения}
+{РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёРµ СЃРѕРѕР±С‰РµРЅРёСЏ}
  
 const
  
@@ -179,7 +172,7 @@ type
  
     procedure FormCreate(Sender: TObject);
  
-  private //Обработчики сообщений
+  private //РћР±СЂР°Р±РѕС‚С‡РёРєРё СЃРѕРѕР±С‰РµРЅРёР№
  
     procedure WM_LeftMSG(var M: TMessage);
       message wm_LeftShow_Event;
@@ -203,7 +196,7 @@ implementation
  
 {$R *.DFM}
  
-//Загрузка DLL
+//Р—Р°РіСЂСѓР·РєР° DLL
  
 function Key_Hook(Code: integer; wParam: word;
   lParam: Longint): Longint; stdcall; external 'SendKey' name 'Key_Hook';
@@ -234,8 +227,8 @@ end;
  
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  {если не использовать вызов процедуры из DLL в программе,
-  то компилятор удалит загрузку DLL из программы}
+  {РµСЃР»Рё РЅРµ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РІС‹Р·РѕРІ РїСЂРѕС†РµРґСѓСЂС‹ РёР· DLL РІ РїСЂРѕРіСЂР°РјРјРµ,
+  С‚Рѕ РєРѕРјРїРёР»СЏС‚РѕСЂ СѓРґР°Р»РёС‚ Р·Р°РіСЂСѓР·РєСѓ DLL РёР· РїСЂРѕРіСЂР°РјРјС‹}
   P := @Key_Hook;
 end;
  
@@ -246,10 +239,10 @@ end.
 <p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

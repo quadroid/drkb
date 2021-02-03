@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как показать контекстное меню для конкретного файла?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє РїРѕРєР°Р·Р°С‚СЊ РєРѕРЅС‚РµРєСЃС‚РЅРѕРµ РјРµРЅСЋ РґР»СЏ РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ С„Р°Р№Р»Р°?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,27 +13,20 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как показать контекстное меню для конкретного файла?</h1>
+  <h1 id="title">РљР°Рє РїРѕРєР°Р·Р°С‚СЊ РєРѕРЅС‚РµРєСЃС‚РЅРѕРµ РјРµРЅСЋ РґР»СЏ РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ С„Р°Р№Р»Р°?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  ****************************************************************************
 //  * Unit Name : Unit1
-//  * Purpose   : Демо отображения системного контекстного меню эксплорера
-//  * Author    : Александр (Rouse_) Багель
+//  * Purpose   : Р”РµРјРѕ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ СЃРёСЃС‚РµРјРЅРѕРіРѕ РєРѕРЅС‚РµРєСЃС‚РЅРѕРіРѕ РјРµРЅСЋ СЌРєСЃРїР»РѕСЂРµСЂР°
+//  * Author    : РђР»РµРєСЃР°РЅРґСЂ (Rouse_) Р‘Р°РіРµР»СЊ
 //  * Version   : 1.00
 //  ****************************************************************************
 //
@@ -45,7 +38,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls,
-  // Чтоб все заработало - подключаем вот эти 2 юнита
+  // Р§С‚РѕР± РІСЃРµ Р·Р°СЂР°Р±РѕС‚Р°Р»Рѕ - РїРѕРґРєР»СЋС‡Р°РµРј РІРѕС‚ СЌС‚Рё 2 СЋРЅРёС‚Р°
   ShlObj,
   ActiveX;
  
@@ -62,7 +55,7 @@ implementation
  
 {$R *.dfm}
  
-// Это для работы самого меню, как оконного элемента
+// Р­С‚Рѕ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃР°РјРѕРіРѕ РјРµРЅСЋ, РєР°Рє РѕРєРѕРЅРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р°
 function MenuCallback(Wnd: HWND; Msg: UINT; WParam: WPARAM;
  LParam: LPARAM): LRESULT; stdcall;
 var
@@ -92,7 +85,7 @@ begin
   end;
 end;
  
-// Это для создания самого меню, как оконного элемента
+// Р­С‚Рѕ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ СЃР°РјРѕРіРѕ РјРµРЅСЋ, РєР°Рє РѕРєРѕРЅРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р°
 function CreateMenuCallbackWnd(const ContextMenu: IContextMenu2): HWND;
 const
   IcmCallbackWnd = 'ICMCALLBACKWND';
@@ -125,73 +118,73 @@ var
   ICmd: Integer;
   CallbackWindow: HWND;
 begin
-  // Первичная инициализация
+  // РџРµСЂРІРёС‡РЅР°СЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ
   ShellContextMenu := 0;
   Attr := 0;
   PathPIDL := nil;
   CallbackWindow := 0;
   CoInit := CoInitializeEx(nil, COINIT_MULTITHREADED);
   try
-    // Получаем пути и имя фала
+    // РџРѕР»СѓС‡Р°РµРј РїСѓС‚Рё Рё РёРјСЏ С„Р°Р»Р°
     CommonDir := ExtractFilePath(Path);
     FileName := ExtractFileName(Path);
-    // Получаем указатель на интерфейс рабочего стола
+    // РџРѕР»СѓС‡Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РёРЅС‚РµСЂС„РµР№СЃ СЂР°Р±РѕС‡РµРіРѕ СЃС‚РѕР»Р°
     if SHGetDesktopFolder(Desktop) &lt;&gt; S_OK then
       RaiseLastOSError;
-    // Если работаем с папкой
+    // Р•СЃР»Рё СЂР°Р±РѕС‚Р°РµРј СЃ РїР°РїРєРѕР№
     if FileName = '' then
     begin
-      // Получаем указатель на папку "Мой компьютер"
+      // РџРѕР»СѓС‡Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РїР°РїРєСѓ "РњРѕР№ РєРѕРјРїСЊСЋС‚РµСЂ"
       if (SHGetSpecialFolderLocation(0, CSIDL_DRIVES, PathPIDL) &lt;&gt; S_OK) or
         (Desktop.BindToObject(PathPIDL,  nil,  IID_IShellFolder,
           Pointer(ShellFolder)) &lt;&gt; S_OK) then RaiseLastOSError;
-      // Получаем указатель на директорию
+      // РџРѕР»СѓС‡Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РґРёСЂРµРєС‚РѕСЂРёСЋ
       ShellFolder.ParseDisplayName(WC.Handle, nil, StringToOleStr(CommonDir),
         pchEaten, FilePIDL[0], Attr);
-      // Получаем указатель на контектсное меню папки
+      // РџРѕР»СѓС‡Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РєРѕРЅС‚РµРєС‚СЃРЅРѕРµ РјРµРЅСЋ РїР°РїРєРё
       AResult := ShellFolder.GetUIObjectOf(WC.Handle, 1, FilePIDL[0],
         IID_IContextMenu, nil, Pointer(ICMenu));
     end
     else
     begin
-      // Получаем указатель на папку "Мой компьютер"
+      // РџРѕР»СѓС‡Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РїР°РїРєСѓ "РњРѕР№ РєРѕРјРїСЊСЋС‚РµСЂ"
       if (Desktop.ParseDisplayName(WC.Handle, nil, StringToOleStr(CommonDir),
         pchEaten, PathPIDL, Attr) &lt;&gt; S_OK) or
         (Desktop.BindToObject(PathPIDL, nil, IID_IShellFolder,
           Pointer(ShellFolder)) &lt;&gt; S_OK) then RaiseLastOSError;
-      // Получаем указатель на файл
+      // РџРѕР»СѓС‡Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° С„Р°Р№Р»
       ShellFolder.ParseDisplayName(WC.Handle, nil, StringToOleStr(FileName),
         pchEaten, FilePIDL[0], Attr);
-      // Получаем указатель на контектсное меню файла
+      // РџРѕР»СѓС‡Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РєРѕРЅС‚РµРєС‚СЃРЅРѕРµ РјРµРЅСЋ С„Р°Р№Р»Р°
       AResult := ShellFolder.GetUIObjectOf(WC.Handle, 1, FilePIDL[0],
         IID_IContextMenu, nil, Pointer(ICMenu));
     end;
  
-    // Если указатель на конт. меню есть, делаем так:
+    // Р•СЃР»Рё СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РєРѕРЅС‚. РјРµРЅСЋ РµСЃС‚СЊ, РґРµР»Р°РµРј С‚Р°Рє:
     if Succeeded(AResult) then
     begin
       ICMenu2 := nil;
-      // Создаем меню
+      // РЎРѕР·РґР°РµРј РјРµРЅСЋ
       ShellContextMenu := CreatePopupMenu;
-      // Производим его наполнение
+      // РџСЂРѕРёР·РІРѕРґРёРј РµРіРѕ РЅР°РїРѕР»РЅРµРЅРёРµ
       if Succeeded(ICMenu.QueryContextMenu(ShellContextMenu, 0,
         1, $7FFF, CMF_EXPLORE)) and
         Succeeded(ICMenu.QueryInterface(IContextMenu2, ICMenu2)) then
           CallbackWindow := CreateMenuCallbackWnd(ICMenu2);
       try
-        // Показываем меню
+        // РџРѕРєР°Р·С‹РІР°РµРј РјРµРЅСЋ
         PopupMenuResult := TrackPopupMenu(ShellContextMenu, TPM_LEFTALIGN or TPM_LEFTBUTTON
           or TPM_RIGHTBUTTON or TPM_RETURNCMD,
           MousePoint.X, MousePoint.Y, 0, CallbackWindow, nil);
       finally
         ICMenu2 := nil;
       end;
-      // Если был выбран какой либо пункт меню:
+      // Р•СЃР»Рё Р±С‹Р» РІС‹Р±СЂР°РЅ РєР°РєРѕР№ Р»РёР±Рѕ РїСѓРЅРєС‚ РјРµРЅСЋ:
       if PopupMenuResult then
       begin
-        // Индекс этого пункта будет лежать в ICmd
+        // РРЅРґРµРєСЃ СЌС‚РѕРіРѕ РїСѓРЅРєС‚Р° Р±СѓРґРµС‚ Р»РµР¶Р°С‚СЊ РІ ICmd
         ICmd := LongInt(PopupMenuResult) - 1;
-        // Заполняем структуру TCMInvokeCommandInfo
+        // Р—Р°РїРѕР»РЅСЏРµРј СЃС‚СЂСѓРєС‚СѓСЂСѓ TCMInvokeCommandInfo
         FillChar(CMD, SizeOf(CMD), #0);
         with CMD do
         begin
@@ -200,16 +193,16 @@ begin
           lpVerb := MakeIntResource(ICmd);
           nShow := SW_SHOWNORMAL;
         end;
-        // Выполняем InvokeCommand с заполненной структурой
+        // Р’С‹РїРѕР»РЅСЏРµРј InvokeCommand СЃ Р·Р°РїРѕР»РЅРµРЅРЅРѕР№ СЃС‚СЂСѓРєС‚СѓСЂРѕР№
         AResult := ICMenu.InvokeCommand(CMD);
         if AResult &lt;&gt; S_OK then RaiseLastOSError;
        end;
     end;
   finally
-    // Освобождаем занятые ресурсы чтобы небыло утечки памяти
+    // РћСЃРІРѕР±РѕР¶РґР°РµРј Р·Р°РЅСЏС‚С‹Рµ СЂРµСЃСѓСЂСЃС‹ С‡С‚РѕР±С‹ РЅРµР±С‹Р»Рѕ СѓС‚РµС‡РєРё РїР°РјСЏС‚Рё
     if FilePIDL[0] &lt;&gt; nil then
     begin
-      // Для освобождения использем IMalloc
+      // Р”Р»СЏ РѕСЃРІРѕР±РѕР¶РґРµРЅРёСЏ РёСЃРїРѕР»СЊР·РµРј IMalloc
       SHGetMAlloc(M);
       if M &lt;&gt; nil then
         M.Free(FilePIDL[0]);
@@ -233,7 +226,7 @@ begin
   end;
 end;
  
-// Пример использования
+// РџСЂРёРјРµСЂ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ
 procedure TForm1.Button1Click(Sender: TObject);
 var
   pt: TPoint;
@@ -245,14 +238,14 @@ end;
 end.
 </pre>
 
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
-<p id="author">Автор: Rouse_</p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ: Rouse_</p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как сделать поиск/замену в документе?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє СЃРґРµР»Р°С‚СЊ РїРѕРёСЃРє/Р·Р°РјРµРЅСѓ РІ РґРѕРєСѓРјРµРЅС‚Рµ?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как сделать поиск/замену в документе?</h1>
+  <h1 id="title">РљР°Рє СЃРґРµР»Р°С‚СЊ РїРѕРёСЃРє/Р·Р°РјРµРЅСѓ РІ РґРѕРєСѓРјРµРЅС‚Рµ?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 
 <p>You should use a variant because the Find.Execute method is a bit buggy. Something like this, for example:</p>
@@ -65,24 +58,24 @@ WordApp.Quit;
 WordApp := Unassigned;
 { ... }
 </pre>
-<p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
+<p>Р’Р·СЏС‚Рѕ СЃ Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
 
 <hr />
 <pre name="code" class="delphi">
 { **** UBPFD *********** by kladovka.net.ru ****
-&gt;&gt; Заменить строки в файле Word
+&gt;&gt; Р—Р°РјРµРЅРёС‚СЊ СЃС‚СЂРѕРєРё РІ С„Р°Р№Р»Рµ Word
  
-Функция заменяет файлы в документе word с опциями поиска и замены
+Р¤СѓРЅРєС†РёСЏ Р·Р°РјРµРЅСЏРµС‚ С„Р°Р№Р»С‹ РІ РґРѕРєСѓРјРµРЅС‚Рµ word СЃ РѕРїС†РёСЏРјРё РїРѕРёСЃРєР° Рё Р·Р°РјРµРЅС‹
  
-Зависимости: ComObj
-Автор:       [NIKEL], nikel@pisem.net, Norilsk
+Р—Р°РІРёСЃРёРјРѕСЃС‚Рё: ComObj
+РђРІС‚РѕСЂ:       [NIKEL], nikel@pisem.net, Norilsk
 Copyright:   Some help
-Дата:        15 сентября 2002 г.
+Р”Р°С‚Р°:        15 СЃРµРЅС‚СЏР±СЂСЏ 2002 Рі.
 ********************************************** }
  
 uses ComObj; 
  
-// Флаги замены 
+// Р¤Р»Р°РіРё Р·Р°РјРµРЅС‹ 
 type 
   TWordReplaceFlags = set of (wrfReplaceAll, wrfMatchCase, wrfMatchWildcards); 
  
@@ -98,30 +91,30 @@ var
 begin 
   Result := False; 
  
-  { Существует ли файл } 
+  { РЎСѓС‰РµСЃС‚РІСѓРµС‚ Р»Рё С„Р°Р№Р» } 
   if not FileExists(ADocument) then 
   begin 
-    ShowMessage('Файл не найден!'); 
+    ShowMessage('Р¤Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ!'); 
     Exit; 
   end; 
  
-  { Создаем OLE объект } 
+  { РЎРѕР·РґР°РµРј OLE РѕР±СЉРµРєС‚ } 
   try 
     WordApp := CreateOLEObject('Word.Application'); 
   except 
     on E: Exception do 
     begin 
-      E.Message := 'Word недоступен'; 
+      E.Message := 'Word РЅРµРґРѕСЃС‚СѓРїРµРЅ'; 
       raise; 
     end; 
   end; 
  
   try 
-    { Прячем Word } 
+    { РџСЂСЏС‡РµРј Word } 
     WordApp.Visible := False; 
-    { Открываем документ } 
+    { РћС‚РєСЂС‹РІР°РµРј РґРѕРєСѓРјРµРЅС‚ } 
     WordApp.Documents.Open(ADocument); 
-    { Инициализируем параметры} 
+    { РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РїР°СЂР°РјРµС‚СЂС‹} 
     WordApp.Selection.Find.ClearFormatting; 
     WordApp.Selection.Find.Text := SearchString; 
     WordApp.Selection.Find.Replacement.Text := ReplaceString; 
@@ -133,19 +126,19 @@ begin
     WordApp.Selection.Find.MatchWildcards := wrfMatchWildcards in Flags; 
     WordApp.Selection.Find.MatchSoundsLike := False; 
     WordApp.Selection.Find.MatchAllWordForms := False; 
-    { Ищем} 
+    { РС‰РµРј} 
     if wrfReplaceAll in Flags then 
       WordApp.Selection.Find.Execute(Replace := wdReplaceAll) 
     else 
       WordApp.Selection.Find.Execute(Replace := wdReplaceOne); 
-    { Сохраняем word } 
+    { РЎРѕС…СЂР°РЅСЏРµРј word } 
     WordApp.ActiveDocument.SaveAs(ADocument); 
-    { Всё нормально } 
+    { Р’СЃС‘ РЅРѕСЂРјР°Р»СЊРЅРѕ } 
     Result := True; 
-    { Закрываем document } 
+    { Р—Р°РєСЂС‹РІР°РµРј document } 
     WordApp.ActiveDocument.Close(wdDoNotSaveChanges); 
   finally 
-    { Закрываем Word } 
+    { Р—Р°РєСЂС‹РІР°РµРј Word } 
     WordApp.Quit; 
     WordApp := Unassigned; 
   end; 
@@ -153,20 +146,20 @@ end;
 </pre>
 
 
-<p> Пример использования:</p>
+<p> РџСЂРёРјРµСЂ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ:</p>
 <pre name="code" class="delphi">
 procedure TForm1.Button1Click(Sender: TObject); 
 begin 
-  WordStringReplace('C:\SomeStrangeDoc.doc','Маша ела кашу','Маша съела кашу :)',
+  WordStringReplace('C:\SomeStrangeDoc.doc','РњР°С€Р° РµР»Р° РєР°С€Сѓ','РњР°С€Р° СЃСЉРµР»Р° РєР°С€Сѓ :)',
                      [wrfReplaceAll]); 
 end; 
 </pre>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

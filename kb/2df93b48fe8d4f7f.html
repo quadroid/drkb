@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Тянем пароли из кэша</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РўСЏРЅРµРј РїР°СЂРѕР»Рё РёР· РєСЌС€Р°</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,20 +13,13 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Тянем пароли из кэша</h1>
+  <h1 id="title">РўСЏРЅРµРј РїР°СЂРѕР»Рё РёР· РєСЌС€Р°</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
-Так, сегодня мы рассмотрим как можно взять кэшированные пароли из 9x винды, а также из винды, где в установленном виде есть 5-я иешка (хотя может и 4-ой хватит:) </p>
+
+РўР°Рє, СЃРµРіРѕРґРЅСЏ РјС‹ СЂР°СЃСЃРјРѕС‚СЂРёРј РєР°Рє РјРѕР¶РЅРѕ РІР·СЏС‚СЊ РєСЌС€РёСЂРѕРІР°РЅРЅС‹Рµ РїР°СЂРѕР»Рё РёР· 9x РІРёРЅРґС‹, Р° С‚Р°РєР¶Рµ РёР· РІРёРЅРґС‹, РіРґРµ РІ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРј РІРёРґРµ РµСЃС‚СЊ 5-СЏ РёРµС€РєР° (С…РѕС‚СЏ РјРѕР¶РµС‚ Рё 4-РѕР№ С…РІР°С‚РёС‚:) </p>
 <pre name="code" class="delphi">
 unit Unit1;
  
@@ -50,8 +43,8 @@ type
     hMPR: THandle;
 end;
  
-// Отсюда мы можем заключить что должно валяться на форме,
-// надеюсь вы сами всё закидаете, а если нет, то вам дорога в хелпы.
+// РћС‚СЃСЋРґР° РјС‹ РјРѕР¶РµРј Р·Р°РєР»СЋС‡РёС‚СЊ С‡С‚Рѕ РґРѕР»Р¶РЅРѕ РІР°Р»СЏС‚СЊСЃСЏ РЅР° С„РѕСЂРјРµ,
+// РЅР°РґРµСЋСЃСЊ РІС‹ СЃР°РјРё РІСЃС‘ Р·Р°РєРёРґР°РµС‚Рµ, Р° РµСЃР»Рё РЅРµС‚, С‚Рѕ РІР°Рј РґРѕСЂРѕРіР° РІ С…РµР»РїС‹.
  
 var
   Form1: TForm1;
@@ -68,8 +61,8 @@ implementation
 function WNetEnumCachedPasswords(lp: lpStr; w: Word; b: Byte;
 PC: PChar; dw: DWord): Word; external mpr name 'WNetEnumCachedPasswords';
  
-// Объявляем функцию внешней, надеюсь вы поняли
-// каким макаром, или вам опять в хелпы
+// РћР±СЉСЏРІР»СЏРµРј С„СѓРЅРєС†РёСЋ РІРЅРµС€РЅРµР№, РЅР°РґРµСЋСЃСЊ РІС‹ РїРѕРЅСЏР»Рё
+// РєР°РєРёРј РјР°РєР°СЂРѕРј, РёР»Рё РІР°Рј РѕРїСЏС‚СЊ РІ С…РµР»РїС‹
  
 type
   PWinPassword = ^TWinPassword;
@@ -82,12 +75,12 @@ type
   PasswordC: Char;
 end;
  
-// Объявляем все типы, которые будем юзать в проге.
+// РћР±СЉСЏРІР»СЏРµРј РІСЃРµ С‚РёРїС‹, РєРѕС‚РѕСЂС‹Рµ Р±СѓРґРµРј СЋР·Р°С‚СЊ РІ РїСЂРѕРіРµ.
  
 var
   WinPassword: TWinPassword;
  
-// Собственно переменные :-)
+// РЎРѕР±СЃС‚РІРµРЅРЅРѕ РїРµСЂРµРјРµРЅРЅС‹Рµ :-)
  
 function AddPassword(WinPassword: PWinPassword; dw: DWord): LongBool; stdcall;
 var
@@ -95,59 +88,59 @@ var
   PC: array[0..$FF] of Char;
 begin
   inc(Count);
-  // Увеличиваем число паролей на 1
+  // РЈРІРµР»РёС‡РёРІР°РµРј С‡РёСЃР»Рѕ РїР°СЂРѕР»РµР№ РЅР° 1
   Move(WinPassword.PasswordC, PC, WinPassword.ResourceSize);
-  // Получаем в PC пароль
+  // РџРѕР»СѓС‡Р°РµРј РІ PC РїР°СЂРѕР»СЊ
   PC[WinPassword.ResourceSize] := #0;
   CharToOem(PC, PC);
   Password := StrPas(PC);
-  // После недолгих преобразований в Password имеем кэшированный логин
+  // РџРѕСЃР»Рµ РЅРµРґРѕР»РіРёС… РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёР№ РІ Password РёРјРµРµРј РєСЌС€РёСЂРѕРІР°РЅРЅС‹Р№ Р»РѕРіРёРЅ
   Move(WinPassword.PasswordC, PC, WinPassword.PasswordSize + WinPassword.ResourceSize);
   Move(PC[WinPassword.ResourceSize], PC, WinPassword.PasswordSize);
   PC[WinPassword.PasswordSize] := #0;&lt; BR&gt; CharToOem(PC, PC);
-  // Теперь в PC имеем пароль
+  // РўРµРїРµСЂСЊ РІ PC РёРјРµРµРј РїР°СЂРѕР»СЊ
   Password := Password + ': ' + StrPas(PC);
-  // Разделяем логин и пароль двуеточием...
+  // Р Р°Р·РґРµР»СЏРµРј Р»РѕРіРёРЅ Рё РїР°СЂРѕР»СЊ РґРІСѓРµС‚РѕС‡РёРµРј...
   Form1.ListBox.Items.Add(Password);
-  // ...и добавляем в ListBox на форме
+  // ...Рё РґРѕР±Р°РІР»СЏРµРј РІ ListBox РЅР° С„РѕСЂРјРµ
   Result := True;
-  // Возвращаемся с положительным результатом
+  // Р’РѕР·РІСЂР°С‰Р°РµРјСЃСЏ СЃ РїРѕР»РѕР¶РёС‚РµР»СЊРЅС‹Рј СЂРµР·СѓР»СЊС‚Р°С‚РѕРј
 end;
  
 procedure TForm1.Label1Click(Sender: TObject);
 begin
-  // при нажатии на лэйбл открываем окошко ие с нашим любимым сайтом :-)
+  // РїСЂРё РЅР°Р¶Р°С‚РёРё РЅР° Р»СЌР№Р±Р» РѕС‚РєСЂС‹РІР°РµРј РѕРєРѕС€РєРѕ РёРµ СЃ РЅР°С€РёРј Р»СЋР±РёРјС‹Рј СЃР°Р№С‚РѕРј :-)
   ShellExecute(GetDesktopWindow, 'open', 'http://www.lamerov.net', nil, nil, 0);
 end;
  
 procedure TForm1.FormShow(Sender: TObject);
 begin
-  // А теперь сама процедура заполнения всех паролей.
+  // Рђ С‚РµРїРµСЂСЊ СЃР°РјР° РїСЂРѕС†РµРґСѓСЂР° Р·Р°РїРѕР»РЅРµРЅРёСЏ РІСЃРµС… РїР°СЂРѕР»РµР№.
   if WNetEnumCachedPasswords(nil, 0, $FF, @AddPassword, 0) &lt;&gt; 0 then
-  // Если не найден кэшированый пароль, то
+  // Р•СЃР»Рё РЅРµ РЅР°Р№РґРµРЅ РєСЌС€РёСЂРѕРІР°РЅС‹Р№ РїР°СЂРѕР»СЊ, С‚Рѕ
   begin
     Application.MessageBox('Cant load passwords: User is not logon.',
     'Error', mb_Ok or mb_IconWarning);
     Application.Terminate;
-    // Выдаем сообщение об этом
+    // Р’С‹РґР°РµРј СЃРѕРѕР±С‰РµРЅРёРµ РѕР± СЌС‚РѕРј
   end
-  // иначе,
+  // РёРЅР°С‡Рµ,
   else
   if Count = 0 then
-    // если паролей всего 0 то тоже об этом сообщаем
+    // РµСЃР»Рё РїР°СЂРѕР»РµР№ РІСЃРµРіРѕ 0 С‚Рѕ С‚РѕР¶Рµ РѕР± СЌС‚РѕРј СЃРѕРѕР±С‰Р°РµРј
     ListBox.Items.Add('No passwords found...');
 end;
  
 end.
 </pre>
-<p>Вы наверное спросите: как же все таки дельфи попадает туда куда нам нужно, то есть на функцию обработки паролей и почемы она кэшит их всех, хотя функцию вызывали всего одни раз, а очень просто. Помните строку WNetEnumCachedPasswords(nil, 0, $FF, @AddPassword, 0) так вот она все и делает. Надеюсь вопросов не осталось. </p>
+<p>Р’С‹ РЅР°РІРµСЂРЅРѕРµ СЃРїСЂРѕСЃРёС‚Рµ: РєР°Рє Р¶Рµ РІСЃРµ С‚Р°РєРё РґРµР»СЊС„Рё РїРѕРїР°РґР°РµС‚ С‚СѓРґР° РєСѓРґР° РЅР°Рј РЅСѓР¶РЅРѕ, С‚Рѕ РµСЃС‚СЊ РЅР° С„СѓРЅРєС†РёСЋ РѕР±СЂР°Р±РѕС‚РєРё РїР°СЂРѕР»РµР№ Рё РїРѕС‡РµРјС‹ РѕРЅР° РєСЌС€РёС‚ РёС… РІСЃРµС…, С…РѕС‚СЏ С„СѓРЅРєС†РёСЋ РІС‹Р·С‹РІР°Р»Рё РІСЃРµРіРѕ РѕРґРЅРё СЂР°Р·, Р° РѕС‡РµРЅСЊ РїСЂРѕСЃС‚Рѕ. РџРѕРјРЅРёС‚Рµ СЃС‚СЂРѕРєСѓ WNetEnumCachedPasswords(nil, 0, $FF, @AddPassword, 0) С‚Р°Рє РІРѕС‚ РѕРЅР° РІСЃРµ Рё РґРµР»Р°РµС‚. РќР°РґРµСЋСЃСЊ РІРѕРїСЂРѕСЃРѕРІ РЅРµ РѕСЃС‚Р°Р»РѕСЃСЊ. </p>
 <p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

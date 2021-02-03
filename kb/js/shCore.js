@@ -54,7 +54,7 @@ dp.sh.Toolbar.Commands = {
 	
 	// opens a new windows and puts the original unformatted source code inside.
 	ViewSource: {
-		label: 'Открыть в отдельном окне',
+		label: 'РћС‚РєСЂС‹С‚СЊ РІ РѕС‚РґРµР»СЊРЅРѕРј РѕРєРЅРµ',
 		func: function(sender, highlighter)
 		{
 			var code = dp.sh.Utils.FixForBlogger(highlighter.originalCode).replace(/</g, '&lt;');
@@ -66,7 +66,7 @@ dp.sh.Toolbar.Commands = {
 	
 	// Copies the original source code in to the clipboard. Uses either IE only method or Flash object if ClipboardSwf is set
 	CopyToClipboard: {
-		label: 'Копировать',
+		label: 'РљРѕРїРёСЂРѕРІР°С‚СЊ',
 		check: function() { return window.clipboardData != null || dp.sh.ClipboardSwf != null; },
 		func: function(sender, highlighter)
 		{
@@ -98,7 +98,7 @@ dp.sh.Toolbar.Commands = {
 	
 	// creates an invisible iframe, puts the original source code inside and prints it
 	PrintSource: {
-		label: 'Печать',
+		label: 'РџРµС‡Р°С‚СЊ',
 		func: function(sender, highlighter)
 		{
 			var iframe = document.createElement('IFRAME');

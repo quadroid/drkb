@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как запустить и остановить сервис (или получить его статус)?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє Р·Р°РїСѓСЃС‚РёС‚СЊ Рё РѕСЃС‚Р°РЅРѕРІРёС‚СЊ СЃРµСЂРІРёСЃ (РёР»Рё РїРѕР»СѓС‡РёС‚СЊ РµРіРѕ СЃС‚Р°С‚СѓСЃ)?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,24 +13,17 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как запустить и остановить сервис (или получить его статус)?</h1>
+  <h1 id="title">РљР°Рє Р·Р°РїСѓСЃС‚РёС‚СЊ Рё РѕСЃС‚Р°РЅРѕРІРёС‚СЊ СЃРµСЂРІРёСЃ (РёР»Рё РїРѕР»СѓС‡РёС‚СЊ РµРіРѕ СЃС‚Р°С‚СѓСЃ)?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Здесь представлены две функции ServiceStart и ServiceStop, которые показывают, как пользоваться API функциями OpenSCManager, OpenService и т.д.:</p>
+
+<p>Р—РґРµСЃСЊ РїСЂРµРґСЃС‚Р°РІР»РµРЅС‹ РґРІРµ С„СѓРЅРєС†РёРё ServiceStart Рё ServiceStop, РєРѕС‚РѕСЂС‹Рµ РїРѕРєР°Р·С‹РІР°СЋС‚, РєР°Рє РїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ API С„СѓРЅРєС†РёСЏРјРё OpenSCManager, OpenService Рё С‚.Рґ.:</p>
 <pre name="code" class="delphi">
 function ServiceStart(aMachine, aServiceName : string ) : boolean; 
-// aMachine это UNC путь, либо локальный компьютер если пусто
+// aMachine СЌС‚Рѕ UNC РїСѓС‚СЊ, Р»РёР±Рѕ Р»РѕРєР°Р»СЊРЅС‹Р№ РєРѕРјРїСЊСЋС‚РµСЂ РµСЃР»Рё РїСѓСЃС‚Рѕ
 var 
   h_manager,h_svc: SC_Handle; 
   svc_status: TServiceStatus; 
@@ -61,7 +54,7 @@ begin
  
             if (svc_status.dwCheckPoint &lt; dwCheckPoint) then 
             begin 
-              // QueryServiceStatus не увеличивает dwCheckPoint 
+              // QueryServiceStatus РЅРµ СѓРІРµР»РёС‡РёРІР°РµС‚ dwCheckPoint 
               break; 
             end; 
           end; 
@@ -76,7 +69,7 @@ end;
 
 <pre name="code" class="delphi">
 function ServiceStop(aMachine,aServiceName : string ) : boolean; 
-// aMachine это UNC путь, либо локальный компьютер если пусто
+// aMachine СЌС‚Рѕ UNC РїСѓС‚СЊ, Р»РёР±Рѕ Р»РѕРєР°Р»СЊРЅС‹Р№ РєРѕРјРїСЊСЋС‚РµСЂ РµСЃР»Рё РїСѓСЃС‚Рѕ
 var 
   h_manager,h_svc   : SC_Handle; 
   svc_status     : TServiceStatus; 
@@ -122,7 +115,7 @@ begin
 end; 
 </pre>
 
-<p>Чтобы узнать состояние сервиса, используйте следующую функцию:</p>
+<p>Р§С‚РѕР±С‹ СѓР·РЅР°С‚СЊ СЃРѕСЃС‚РѕСЏРЅРёРµ СЃРµСЂРІРёСЃР°, РёСЃРїРѕР»СЊР·СѓР№С‚Рµ СЃР»РµРґСѓСЋС‰СѓСЋ С„СѓРЅРєС†РёСЋ:</p>
 
 <pre name="code" class="delphi">
 function ServiceGetStatus(sMachine, sService: string ): DWord; 
@@ -155,7 +148,7 @@ end;
  
 </pre>
 
-<p>Она возвращает одну из следующих констант:</p>
+<p>РћРЅР° РІРѕР·РІСЂР°С‰Р°РµС‚ РѕРґРЅСѓ РёР· СЃР»РµРґСѓСЋС‰РёС… РєРѕРЅСЃС‚Р°РЅС‚:</p>
 
 <p>SERVICE_STOPPED </p>
 <p>SERVICE_RUNNING </p>
@@ -163,18 +156,18 @@ end;
 <p>SERVICE_START_PENDING </p>
 <p>SERVICE_STOP_PENDING </p>
 <p>SERVICE_CONTINUE_PENDING </p>
-<p>или</p>
+<p>РёР»Рё</p>
 <p>SERVICE_PAUSE_PENDING </p>
 
-<p>Всё что, что Вам нужно, это unit WinSvc !</p>
+<p>Р’СЃС‘ С‡С‚Рѕ, С‡С‚Рѕ Р’Р°Рј РЅСѓР¶РЅРѕ, СЌС‚Рѕ unit WinSvc !</p>
 
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

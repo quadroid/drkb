@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Самолет летит по небу</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РЎР°РјРѕР»РµС‚ Р»РµС‚РёС‚ РїРѕ РЅРµР±Сѓ</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Самолет летит по небу</h1>
+  <h1 id="title">РЎР°РјРѕР»РµС‚ Р»РµС‚РёС‚ РїРѕ РЅРµР±Сѓ</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 unit aplane_;
@@ -56,80 +49,80 @@ implementation
  
 {$R *.DFM}
 var
-  Back, bitmap, Buf: TBitMap; // фон, картинка, буфер
-  BackRct: TRect; // область фона, которая должна быть
-  // восстановлена из буфера
-  BufRct: Trect; // область буфера, которая используется для
-  // восстановления фона
+  Back, bitmap, Buf: TBitMap; // С„РѕРЅ, РєР°СЂС‚РёРЅРєР°, Р±СѓС„РµСЂ
+  BackRct: TRect; // РѕР±Р»Р°СЃС‚СЊ С„РѕРЅР°, РєРѕС‚РѕСЂР°СЏ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ
+  // РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅР° РёР· Р±СѓС„РµСЂР°
+  BufRct: Trect; // РѕР±Р»Р°СЃС‚СЊ Р±СѓС„РµСЂР°, РєРѕС‚РѕСЂР°СЏ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ
+  // РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ С„РѕРЅР°
  
-  x, y: integer; // текущее положение картинки
-  W, H: integer; // размеры картинки
+  x, y: integer; // С‚РµРєСѓС‰РµРµ РїРѕР»РѕР¶РµРЅРёРµ РєР°СЂС‚РёРЅРєРё
+  W, H: integer; // СЂР°Р·РјРµСЂС‹ РєР°СЂС‚РёРЅРєРё
  
 procedure TForm1.FormActivate(Sender: TObject);
 begin
-  // создать три объекта - битовых образа
-  Back := TBitmap.Create; // фон
-  bitmap := TBitmap.Create; // картинка
-  Buf := TBitmap.Create; // буфер
+  // СЃРѕР·РґР°С‚СЊ С‚СЂРё РѕР±СЉРµРєС‚Р° - Р±РёС‚РѕРІС‹С… РѕР±СЂР°Р·Р°
+  Back := TBitmap.Create; // С„РѕРЅ
+  bitmap := TBitmap.Create; // РєР°СЂС‚РёРЅРєР°
+  Buf := TBitmap.Create; // Р±СѓС„РµСЂ
  
-  // загрузить и вывести фон
+  // Р·Р°РіСЂСѓР·РёС‚СЊ Рё РІС‹РІРµСЃС‚Рё С„РѕРЅ
   Back.LoadFromFile('factory.bmp');
   Form1.Image1.canvas.Draw(0, 0, Back);
  
-  // загрузить картинку, которая будет двигаться
+  // Р·Р°РіСЂСѓР·РёС‚СЊ РєР°СЂС‚РёРЅРєСѓ, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ РґРІРёРіР°С‚СЊСЃСЏ
   bitmap.LoadFromFile('aplane.bmp');
-  // определим "прозрачный" цвет
+  // РѕРїСЂРµРґРµР»РёРј "РїСЂРѕР·СЂР°С‡РЅС‹Р№" С†РІРµС‚
   bitmap.Transparent := True;
   bitmap.TransParentColor := bitmap.canvas.pixels[1, 1];
  
-  // создать буфер для сохранения копии области фона,
-  // на которую накладывается картинка
+  // СЃРѕР·РґР°С‚СЊ Р±СѓС„РµСЂ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ РєРѕРїРёРё РѕР±Р»Р°СЃС‚Рё С„РѕРЅР°,
+  // РЅР° РєРѕС‚РѕСЂСѓСЋ РЅР°РєР»Р°РґС‹РІР°РµС‚СЃСЏ РєР°СЂС‚РёРЅРєР°
   W := bitmap.Width;
   H := bitmap.Height;
   Buf.Width := W;
   Buf.Height := H;
-  Buf.Palette := Back.Palette; // Чтобы обеспечить соответствие палитр !!
+  Buf.Palette := Back.Palette; // Р§С‚РѕР±С‹ РѕР±РµСЃРїРµС‡РёС‚СЊ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ РїР°Р»РёС‚СЂ !!
   Buf.Canvas.CopyMode := cmSrcCopy;
-  // определим область буфера, которая будет использоваться
-  // для восстановления фона
+  // РѕРїСЂРµРґРµР»РёРј РѕР±Р»Р°СЃС‚СЊ Р±СѓС„РµСЂР°, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ
+  // РґР»СЏ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ С„РѕРЅР°
   BufRct := Bounds(0, 0, W, H);
  
-  // начальное положение картинки
+  // РЅР°С‡Р°Р»СЊРЅРѕРµ РїРѕР»РѕР¶РµРЅРёРµ РєР°СЂС‚РёРЅРєРё
   x := -W;
   y := 20;
  
-  // определим сохраняемую область фона
+  // РѕРїСЂРµРґРµР»РёРј СЃРѕС…СЂР°РЅСЏРµРјСѓСЋ РѕР±Р»Р°СЃС‚СЊ С„РѕРЅР°
   BackRct := Bounds(x, y, W, H);
-  // и сохраним ее
+  // Рё СЃРѕС…СЂР°РЅРёРј РµРµ
   Buf.Canvas.CopyRect(BufRct, Back.Canvas, BackRct);
 end;
  
-// обработка сигнала таймера
+// РѕР±СЂР°Р±РѕС‚РєР° СЃРёРіРЅР°Р»Р° С‚Р°Р№РјРµСЂР°
  
 procedure TForm1.Timer1Timer(Sender: TObject);
 begin
-  // восстановлением фона (из буфера) удалим рисунок
+  // РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµРј С„РѕРЅР° (РёР· Р±СѓС„РµСЂР°) СѓРґР°Р»РёРј СЂРёСЃСѓРЅРѕРє
   Form1.image1.canvas.Draw(x, y, Buf);
  
   x := x + 2;
   if x &gt; form1.Image1.Width then
     x := -W;
  
-  // определим сохраняемую область фона
+  // РѕРїСЂРµРґРµР»РёРј СЃРѕС…СЂР°РЅСЏРµРјСѓСЋ РѕР±Р»Р°СЃС‚СЊ С„РѕРЅР°
   BackRct := Bounds(x, y, W, H);
-  // сохраним ее копию
+  // СЃРѕС…СЂР°РЅРёРј РµРµ РєРѕРїРёСЋ
   Buf.Canvas.CopyRect(BufRct, Back.Canvas, BackRct);
  
-  // выведем рисунок
+  // РІС‹РІРµРґРµРј СЂРёСЃСѓРЅРѕРє
   Form1.image1.canvas.Draw(x, y, bitmap);
 end;
  
-// завершение работы программы
+// Р·Р°РІРµСЂС€РµРЅРёРµ СЂР°Р±РѕС‚С‹ РїСЂРѕРіСЂР°РјРјС‹
  
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  // освободим память, выделенную
-  // для хранения битовых образов
+  // РѕСЃРІРѕР±РѕРґРёРј РїР°РјСЏС‚СЊ, РІС‹РґРµР»РµРЅРЅСѓСЋ
+  // РґР»СЏ С…СЂР°РЅРµРЅРёСЏ Р±РёС‚РѕРІС‹С… РѕР±СЂР°Р·РѕРІ
   Back.Free;
   bitmap.Free;
   Buf.Free;
@@ -140,10 +133,10 @@ end.
 <p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

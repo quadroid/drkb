@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как из HBitmap получить адрес bitmap в памяти?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє РёР· HBitmap РїРѕР»СѓС‡РёС‚СЊ Р°РґСЂРµСЃ bitmap РІ РїР°РјСЏС‚Рё?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,37 +13,30 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как из HBitmap получить адрес bitmap в памяти?</h1>
+  <h1 id="title">РљР°Рє РёР· HBitmap РїРѕР»СѓС‡РёС‚СЊ Р°РґСЂРµСЃ bitmap РІ РїР°РјСЏС‚Рё?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Вот кусок одного моего класса, в котором есть две интересные вещицы - </p>
-<p>проецирование файлов в память и работа с битмэпом в памяти через указатель. </p>
-<p>Сразу оговорюсь, что все это работает только Delphi 2 и Win95/NT. </p>
+
+<p>Р’РѕС‚ РєСѓСЃРѕРє РѕРґРЅРѕРіРѕ РјРѕРµРіРѕ РєР»Р°СЃСЃР°, РІ РєРѕС‚РѕСЂРѕРј РµСЃС‚СЊ РґРІРµ РёРЅС‚РµСЂРµСЃРЅС‹Рµ РІРµС‰РёС†С‹ - </p>
+<p>РїСЂРѕРµС†РёСЂРѕРІР°РЅРёРµ С„Р°Р№Р»РѕРІ РІ РїР°РјСЏС‚СЊ Рё СЂР°Р±РѕС‚Р° СЃ Р±РёС‚РјСЌРїРѕРј РІ РїР°РјСЏС‚Рё С‡РµСЂРµР· СѓРєР°Р·Р°С‚РµР»СЊ. </p>
+<p>РЎСЂР°Р·Сѓ РѕРіРѕРІРѕСЂСЋСЃСЊ, С‡С‚Рѕ РІСЃРµ СЌС‚Рѕ СЂР°Р±РѕС‚Р°РµС‚ С‚РѕР»СЊРєРѕ Delphi 2 Рё Win95/NT. </p>
 
 <pre name="code" class="delphi">
 type 
    TarrRGBTriple=array[byte] of TRGBTriple; 
    ParrRGBTriple=^TarrRGBTriple; 
  
-{организует битмэп размером SX,SY;true_color} 
+{РѕСЂРіР°РЅРёР·СѓРµС‚ Р±РёС‚РјСЌРї СЂР°Р·РјРµСЂРѕРј SX,SY;true_color} 
 procedure TMBitmap.Allocate(SX,SY:integer); 
 var DC:HDC; 
 begin 
-  if BM&lt;&gt;0 then DeleteObject(BM);   {удаляем старый битмэп, если был} 
+  if BM&lt;&gt;0 then DeleteObject(BM);   {СѓРґР°Р»СЏРµРј СЃС‚Р°СЂС‹Р№ Р±РёС‚РјСЌРї, РµСЃР»Рё Р±С‹Р»} 
   BM:=0;  PB:=nil; 
   fillchar(BI,sizeof(BI),0); 
-  with BI.bmiHeader do        {заполняем структуру с параметрами битмэпа} 
+  with BI.bmiHeader do        {Р·Р°РїРѕР»РЅСЏРµРј СЃС‚СЂСѓРєС‚СѓСЂСѓ СЃ РїР°СЂР°РјРµС‚СЂР°РјРё Р±РёС‚РјСЌРїР°} 
   begin 
     biSize:=sizeof(BI.bmiHeader); 
     biWidth:=SX;  biHeight:=SY; 
@@ -53,22 +46,22 @@ begin
     biXPelsPerMeter:=0;  biYPelsPerMeter:=0; 
     biClrUsed:=0;        biClrImportant:=0; 
  
-    FLineSize:=(biWidth+1)*3 and (-1 shl 2); {размер строки(кратна 4 байтам)} 
+    FLineSize:=(biWidth+1)*3 and (-1 shl 2); {СЂР°Р·РјРµСЂ СЃС‚СЂРѕРєРё(РєСЂР°С‚РЅР° 4 Р±Р°Р№С‚Р°Рј)} 
  
     if (biWidth or biHeight)&lt;&gt;0 then 
      begin 
        DC:=CreateDC('DISPLAY',nil,nil,nil); 
-{замечательная функция (см.HELP), возвращает HBITMAP, позволяет сразу 
- разместить выделяемый битмэп в спроецированном файле, что позволяет 
- ускорять работу и экономить память при генерировании большого битмэпа} 
+{Р·Р°РјРµС‡Р°С‚РµР»СЊРЅР°СЏ С„СѓРЅРєС†РёСЏ (СЃРј.HELP), РІРѕР·РІСЂР°С‰Р°РµС‚ HBITMAP, РїРѕР·РІРѕР»СЏРµС‚ СЃСЂР°Р·Сѓ 
+ СЂР°Р·РјРµСЃС‚РёС‚СЊ РІС‹РґРµР»СЏРµРјС‹Р№ Р±РёС‚РјСЌРї РІ СЃРїСЂРѕРµС†РёСЂРѕРІР°РЅРЅРѕРј С„Р°Р№Р»Рµ, С‡С‚Рѕ РїРѕР·РІРѕР»СЏРµС‚ 
+ СѓСЃРєРѕСЂСЏС‚СЊ СЂР°Р±РѕС‚Сѓ Рё СЌРєРѕРЅРѕРјРёС‚СЊ РїР°РјСЏС‚СЊ РїСЂРё РіРµРЅРµСЂРёСЂРѕРІР°РЅРёРё Р±РѕР»СЊС€РѕРіРѕ Р±РёС‚РјСЌРїР°} 
 {!}      BM:=CreateDIBSection(DC,BI, DIB_RGB_COLORS, pointer(PB), nil, 0); 
-       DeleteDC(DC);  {в PB получаем указатель на битмэп-----^^} 
+       DeleteDC(DC);  {РІ PB РїРѕР»СѓС‡Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° Р±РёС‚РјСЌРї-----^^} 
        if BM=0 then Error('error creating DIB'); 
      end; 
   end; 
 end; 
  
-{эта процедура загружает из файла true-color'ный битмэп} 
+{СЌС‚Р° РїСЂРѕС†РµРґСѓСЂР° Р·Р°РіСЂСѓР¶Р°РµС‚ РёР· С„Р°Р№Р»Р° true-color'РЅС‹Р№ Р±РёС‚РјСЌРї} 
 procedure TMBitmap.LoadFromFile(const FileName:string); 
 var HF:integer; {file handle} 
     HM:THandle; {file-mapping handle} 
@@ -76,20 +69,20 @@ var HF:integer; {file handle}
     i,j:integer; 
     Ofs:integer; 
 begin 
-{открываем файл} 
+{РѕС‚РєСЂС‹РІР°РµРј С„Р°Р№Р»} 
   HF:=FileOpen(FileName,fmOpenRead or fmShareDenyWrite); 
   if HF&lt;0 then Error('open file '''+FileName+''''); 
   try 
-{создаем объект-проецируемый файл} 
+{СЃРѕР·РґР°РµРј РѕР±СЉРµРєС‚-РїСЂРѕРµС†РёСЂСѓРµРјС‹Р№ С„Р°Р№Р»} 
     HM:=CreateFileMapping(HF,nil,PAGE_READONLY,0,0,nil); 
     if HM=0 then Error('cant create file mapping'); 
    try 
-{собственно проецируем объект в адресное } 
+{СЃРѕР±СЃС‚РІРµРЅРЅРѕ РїСЂРѕРµС†РёСЂСѓРµРј РѕР±СЉРµРєС‚ РІ Р°РґСЂРµСЃРЅРѕРµ } 
        PF:=MapViewOfFile(HM,FILE_MAP_READ,0,0,0); 
-{получаем указатель на область памяти, в которую спроецирован файл} 
+{РїРѕР»СѓС‡Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РѕР±Р»Р°СЃС‚СЊ РїР°РјСЏС‚Рё, РІ РєРѕС‚РѕСЂСѓСЋ СЃРїСЂРѕРµС†РёСЂРѕРІР°РЅ С„Р°Р№Р»} 
        if PF=nil then Error('cant create map view of file'); 
       try 
-{работаем с файлом как с областью памяти через указатель PF} 
+{СЂР°Р±РѕС‚Р°РµРј СЃ С„Р°Р№Р»РѕРј РєР°Рє СЃ РѕР±Р»Р°СЃС‚СЊСЋ РїР°РјСЏС‚Рё С‡РµСЂРµР· СѓРєР°Р·Р°С‚РµР»СЊ PF} 
          if PBitmapFileHeader(PF)^.bfType&lt;&gt;$4D42 then  Error('file format'); 
          Ofs:=PBitmapFileHeader(PF)^.bfOffBits; 
          with PBitmapInfo(PF+sizeof(TBitmapFileHeader))^.bmiHeader do 
@@ -97,13 +90,13 @@ begin
            if (biSize&lt;&gt;40) or (biPlanes&lt;&gt;1) then Error('file format'); 
            if (biCompression&lt;&gt;BI_RGB) or 
               (biBitCount&lt;&gt;24) then Error('only true-color BMP supported'); 
-{выделяем память под битмэп} 
+{РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ РїРѕРґ Р±РёС‚РјСЌРї} 
            Allocate(biWidth,biHeight); 
          end; 
  
          for j:=0 to BI.bmiHeader.biHeight-1 do 
            for i:=0 to BI.bmiHeader.biWidth-1 do 
-{Pixels - это property, возвр. указатель на соотв. RGBTriple в битмэпе} 
+{Pixels - СЌС‚Рѕ property, РІРѕР·РІСЂ. СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃРѕРѕС‚РІ. RGBTriple РІ Р±РёС‚РјСЌРїРµ} 
               Pixels[i,j]^.Tr:=ParrRGBTriple(PF+j*FLineSize+Ofs)^[i]; 
       finally 
         UnmapViewOfFile(PF); 
@@ -116,7 +109,7 @@ begin
   end; 
 end; 
  
-{эта функция - реализация Pixels read} 
+{СЌС‚Р° С„СѓРЅРєС†РёСЏ - СЂРµР°Р»РёР·Р°С†РёСЏ Pixels read} 
 function TMBitmap.GetPixel(X,Y:integer):PRGB; 
 begin 
   if (X&gt;=0) and (Xand 
@@ -126,10 +119,10 @@ end;
 </pre>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

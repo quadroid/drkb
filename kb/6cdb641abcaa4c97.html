@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как при выполнении долгой операции в Oracle показать прогресс бар?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє РїСЂРё РІС‹РїРѕР»РЅРµРЅРёРё РґРѕР»РіРѕР№ РѕРїРµСЂР°С†РёРё РІ Oracle РїРѕРєР°Р·Р°С‚СЊ РїСЂРѕРіСЂРµСЃСЃ Р±Р°СЂ?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,53 +13,46 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как при выполнении долгой операции в Oracle показать прогресс бар?</h1>
+  <h1 id="title">РљР°Рє РїСЂРё РІС‹РїРѕР»РЅРµРЅРёРё РґРѕР»РіРѕР№ РѕРїРµСЂР°С†РёРё РІ Oracle РїРѕРєР°Р·Р°С‚СЊ РїСЂРѕРіСЂРµСЃСЃ Р±Р°СЂ?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p id="author">Автор: Philip A. Milovanov&nbsp;&nbsp; ( http://korys.chat.ru )</p>
 
-<p>Ниже приведен пример, как это сделать при помощи Direct Oracle Access, надеюсь этот кусок кода несложно запустить в отдельном процессе, а в другом можно запустить перемесчатель прогресс бара. Есть готовая компонента, могу поделиться.</p>
+<p id="author">РђРІС‚РѕСЂ: Philip A. Milovanov&nbsp;&nbsp; ( http://korys.chat.ru )</p>
+
+<p>РќРёР¶Рµ РїСЂРёРІРµРґРµРЅ РїСЂРёРјРµСЂ, РєР°Рє СЌС‚Рѕ СЃРґРµР»Р°С‚СЊ РїСЂРё РїРѕРјРѕС‰Рё Direct Oracle Access, РЅР°РґРµСЋСЃСЊ СЌС‚РѕС‚ РєСѓСЃРѕРє РєРѕРґР° РЅРµСЃР»РѕР¶РЅРѕ Р·Р°РїСѓСЃС‚РёС‚СЊ РІ РѕС‚РґРµР»СЊРЅРѕРј РїСЂРѕС†РµСЃСЃРµ, Р° РІ РґСЂСѓРіРѕРј РјРѕР¶РЅРѕ Р·Р°РїСѓСЃС‚РёС‚СЊ РїРµСЂРµРјРµСЃС‡Р°С‚РµР»СЊ РїСЂРѕРіСЂРµСЃСЃ Р±Р°СЂР°. Р•СЃС‚СЊ РіРѕС‚РѕРІР°СЏ РєРѕРјРїРѕРЅРµРЅС‚Р°, РјРѕРіСѓ РїРѕРґРµР»РёС‚СЊСЃСЏ.</p>
 
 <pre name="code" class="delphi">
-//на создании потока вставим то, что будет выбирать необходимую информацию
+//РЅР° СЃРѕР·РґР°РЅРёРё РїРѕС‚РѕРєР° РІСЃС‚Р°РІРёРј С‚Рѕ, С‡С‚Рѕ Р±СѓРґРµС‚ РІС‹Р±РёСЂР°С‚СЊ РЅРµРѕР±С…РѕРґРёРјСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ
  
 Self.fods.SQL.Text:='SELECT SOFAR FROM V$SESSION_LONGOPS WHERE CONTEXT=:FK_ID';
 Self.fods.DeclareVariable('FK_ID',otInteger);
 Self.fods.SetVariable('FK_ID',ID);
  
-//На выполнение потока вешаем открытие/закрытие TOracleDataSet
+//РќР° РІС‹РїРѕР»РЅРµРЅРёРµ РїРѕС‚РѕРєР° РІРµС€Р°РµРј РѕС‚РєСЂС‹С‚РёРµ/Р·Р°РєСЂС‹С‚РёРµ TOracleDataSet
 while (Terminated = false) do
   begin
     Self.fods.Close;
     Self.fods.Open;
     Self.fpb.Progress := Self.fods.FieldByName('SOFAR').AsInteger;
-//^^^^Эта строчка как раз и устанавливает нужный прогрессбар в нужную позицию...
+//^^^^Р­С‚Р° СЃС‚СЂРѕС‡РєР° РєР°Рє СЂР°Р· Рё СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РЅСѓР¶РЅС‹Р№ РїСЂРѕРіСЂРµСЃСЃР±Р°СЂ РІ РЅСѓР¶РЅСѓСЋ РїРѕР·РёС†РёСЋ...
   end;
 </pre>
 
 
-<p>Ну и соответсвенно перед выполнением всего этого дела необходимо выставить максимальное число (100%) :</p>
+<p>РќСѓ Рё СЃРѕРѕС‚РІРµС‚СЃРІРµРЅРЅРѕ РїРµСЂРµРґ РІС‹РїРѕР»РЅРµРЅРёРµРј РІСЃРµРіРѕ СЌС‚РѕРіРѕ РґРµР»Р° РЅРµРѕР±С…РѕРґРёРјРѕ РІС‹СЃС‚Р°РІРёС‚СЊ РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ С‡РёСЃР»Рѕ (100%) :</p>
 <p>PROCEDURE SETMaxValue(nVal IN NUMBER); </p>
-<p>Минимальное:</p>
+<p>РњРёРЅРёРјР°Р»СЊРЅРѕРµ:</p>
 <p>PROCEDURE SETMinValue(nVal IN NUMBER); </p>
-<p>Значение шага:</p>
+<p>Р—РЅР°С‡РµРЅРёРµ С€Р°РіР°:</p>
 <p>PROCEDURE SetStepValue(nValue IN NUMBER); </p>
 
-<p>Вышеприведенный кусок кода - клиентская часть, но есть и "подводный камень" - серверная часть... Данный метотод подкодит только для функций, процедур и пактеов, в которых вы можете написать вставить следущую строчку:</p>
+<p>Р’С‹С€РµРїСЂРёРІРµРґРµРЅРЅС‹Р№ РєСѓСЃРѕРє РєРѕРґР° - РєР»РёРµРЅС‚СЃРєР°СЏ С‡Р°СЃС‚СЊ, РЅРѕ РµСЃС‚СЊ Рё "РїРѕРґРІРѕРґРЅС‹Р№ РєР°РјРµРЅСЊ" - СЃРµСЂРІРµСЂРЅР°СЏ С‡Р°СЃС‚СЊ... Р”Р°РЅРЅС‹Р№ РјРµС‚РѕС‚РѕРґ РїРѕРґРєРѕРґРёС‚ С‚РѕР»СЊРєРѕ РґР»СЏ С„СѓРЅРєС†РёР№, РїСЂРѕС†РµРґСѓСЂ Рё РїР°РєС‚РµРѕРІ, РІ РєРѕС‚РѕСЂС‹С… РІС‹ РјРѕР¶РµС‚Рµ РЅР°РїРёСЃР°С‚СЊ РІСЃС‚Р°РІРёС‚СЊ СЃР»РµРґСѓС‰СѓСЋ СЃС‚СЂРѕС‡РєСѓ:</p>
 <p>PROGRESS_BAR.STEPIT;</p>
 
-<p>Код пакета PROGRESS_BAR приведен ниже:</p>
+<p>РљРѕРґ РїР°РєРµС‚Р° PROGRESS_BAR РїСЂРёРІРµРґРµРЅ РЅРёР¶Рµ:</p>
 <pre name="code" class="sql">
 create or replace package PROGRESS_BAR 
 IS 
@@ -79,7 +72,7 @@ PROCEDURE SetStepValue(nValue IN NUMBER);
 PROCEDURE StepIt(C IN NUMBER);
 END; -- Package Specification PROGRESS_BAR 
 /
---Сам пакет:
+--РЎР°Рј РїР°РєРµС‚:
 Create or Replace Package Body PROGRESS_BAR 
 IS 
 -- Wrote by Philip A. Milovanov 
@@ -128,13 +121,13 @@ END;
 </pre>
 
 
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

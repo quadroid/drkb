@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Определить корень слова (для поиска похожих слов)</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РћРїСЂРµРґРµР»РёС‚СЊ РєРѕСЂРµРЅСЊ СЃР»РѕРІР° (РґР»СЏ РїРѕРёСЃРєР° РїРѕС…РѕР¶РёС… СЃР»РѕРІ)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,35 +13,28 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Определить корень слова (для поиска похожих слов)</h1>
+  <h1 id="title">РћРїСЂРµРґРµР»РёС‚СЊ РєРѕСЂРµРЅСЊ СЃР»РѕРІР° (РґР»СЏ РїРѕРёСЃРєР° РїРѕС…РѕР¶РёС… СЃР»РѕРІ)</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
-<p id="author">Автор: ___Nikolay</p>
+
+<p id="author">РђРІС‚РѕСЂ: ___Nikolay</p>
 <pre name="code" class="delphi">
-// Поиск по корню слова
+// РџРѕРёСЃРє РїРѕ РєРѕСЂРЅСЋ СЃР»РѕРІР°
 function RootOfWord(s: string): string;
 label
   start;
 const
-  sGlas = 'аеёиоуыэюяaeiou'; // With english letters
-  sSoglas = 'бвгджзйклмнпрстфхцчшщъь';
-  sCompletions1 = 'й ь s';
-  sCompletions2 = 'ам ям ом ем ин ём ся ет ит ут ют ат ят ыв ив ев ан ян ов ев ог ег ир ер ых ок ющ ущ er ed';
-  sCompletions3 = 'енн овл евл ённ анн ост ест';
-  sAttachments1 = 'в с';
-  sAttachments2 = 'на за ис из до по вы во со';
-  sAttachments3 = 'при рас пре про под';
-  sAttachments4 = 'пере';
+  sGlas = 'Р°РµС‘РёРѕСѓС‹СЌСЋСЏaeiou'; // With english letters
+  sSoglas = 'Р±РІРіРґР¶Р·Р№РєР»РјРЅРїСЂСЃС‚С„С…С†С‡С€С‰СЉСЊ';
+  sCompletions1 = 'Р№ СЊ s';
+  sCompletions2 = 'Р°Рј СЏРј РѕРј РµРј РёРЅ С‘Рј СЃСЏ РµС‚ РёС‚ СѓС‚ СЋС‚ Р°С‚ СЏС‚ С‹РІ РёРІ РµРІ Р°РЅ СЏРЅ РѕРІ РµРІ РѕРі РµРі РёСЂ РµСЂ С‹С… РѕРє СЋС‰ СѓС‰ er ed';
+  sCompletions3 = 'РµРЅРЅ РѕРІР» РµРІР» С‘РЅРЅ Р°РЅРЅ РѕСЃС‚ РµСЃС‚';
+  sAttachments1 = 'РІ СЃ';
+  sAttachments2 = 'РЅР° Р·Р° РёСЃ РёР· РґРѕ РїРѕ РІС‹ РІРѕ СЃРѕ';
+  sAttachments3 = 'РїСЂРё СЂР°СЃ РїСЂРµ РїСЂРѕ РїРѕРґ';
+  sAttachments4 = 'РїРµСЂРµ';
 var
   sResult: string;
   i, iCnt, iGlasCount, iCheckCount: integer;
@@ -50,9 +43,9 @@ begin
   iCheckCount := 0;
  
   start:
-  // "ся"
+  // "СЃСЏ"
   if Length(sResult) &gt; 3 then
-    if sResult[Length(sResult) - 1] + sResult[Length(sResult)] = 'ся' then
+    if sResult[Length(sResult) - 1] + sResult[Length(sResult)] = 'СЃСЏ' then
       Delete(sResult, Length(sResult) - 1, 2);
  
   (*  E N G L I S H  *)
@@ -64,12 +57,12 @@ begin
  
   // --
  
-  // Гласные
+  // Р“Р»Р°СЃРЅС‹Рµ
   if Length(sResult) &gt; 3 then
   begin
     iGlasCount := 0;
     for i := Length(sResult) downto 1 do
-      if Pos(sResult[i], sGlas) &lt;&gt; 0 then // Если последний символ - гласная
+      if Pos(sResult[i], sGlas) &lt;&gt; 0 then // Р•СЃР»Рё РїРѕСЃР»РµРґРЅРёР№ СЃРёРјРІРѕР» - РіР»Р°СЃРЅР°СЏ
         inc(iGlasCount)
       else
         break;
@@ -80,14 +73,14 @@ begin
     end;
   end;
  
-  // Окончания
+  // РћРєРѕРЅС‡Р°РЅРёСЏ
   if Length(sResult) &gt; 3 then
     if Pos(sResult[Length(sResult)], sCompletions1) &lt;&gt; 0 then
       Delete(sResult, Length(sResult), 1);
  
-  // "ся"
+  // "СЃСЏ"
   if Length(sResult) &gt; 3 then
-    if sResult[Length(sResult) - 1] + sResult[Length(sResult)] = 'ся' then
+    if sResult[Length(sResult) - 1] + sResult[Length(sResult)] = 'СЃСЏ' then
       Delete(sResult, Length(sResult) - 1, 2);
  
   if Length(sResult) &gt; 3 then
@@ -109,12 +102,12 @@ begin
         break;
     end;
  
-  // Гласные
+  // Р“Р»Р°СЃРЅС‹Рµ
   if Length(sResult) &gt; 3 then
   begin
     iGlasCount := 0;
     for i := Length(sResult) downto 1 do
-      if Pos(sResult[i], sGlas) &lt;&gt; 0 then // Если последний символ - гласная
+      if Pos(sResult[i], sGlas) &lt;&gt; 0 then // Р•СЃР»Рё РїРѕСЃР»РµРґРЅРёР№ СЃРёРјРІРѕР» - РіР»Р°СЃРЅР°СЏ
         inc(iGlasCount)
       else
         break;
@@ -125,7 +118,7 @@ begin
     end;
   end;
  
-  // Приставки
+  // РџСЂРёСЃС‚Р°РІРєРё
   iCnt := 4;
   if Length(sResult) &gt; iCnt then
     if Pos(Copy(sResult, 1, iCnt), sAttachments4) &lt;&gt; 0 then
@@ -157,10 +150,10 @@ end;
 <p>DelphiWorld 6.0</p>
 &nbsp;</p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Управление Program Manager в Win95 с помощью DDE</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РЈРїСЂР°РІР»РµРЅРёРµ Program Manager РІ Win95 СЃ РїРѕРјРѕС‰СЊСЋ DDE</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,21 +13,14 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Управление Program Manager в Win95 с помощью DDE</h1>
+  <h1 id="title">РЈРїСЂР°РІР»РµРЅРёРµ Program Manager РІ Win95 СЃ РїРѕРјРѕС‰СЊСЋ DDE</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
-Для управления программными группами в Program Manager с помощью DDE мною был использован следующий модуль. За основу был взят код Steve Texeira (sp) из руководства Dephi Developers Guide. </p>
-<p>Работает под Win 3.1 и '95.</p>
+
+Р”Р»СЏ СѓРїСЂР°РІР»РµРЅРёСЏ РїСЂРѕРіСЂР°РјРјРЅС‹РјРё РіСЂСѓРїРїР°РјРё РІ Program Manager СЃ РїРѕРјРѕС‰СЊСЋ DDE РјРЅРѕСЋ Р±С‹Р» РёСЃРїРѕР»СЊР·РѕРІР°РЅ СЃР»РµРґСѓСЋС‰РёР№ РјРѕРґСѓР»СЊ. Р—Р° РѕСЃРЅРѕРІСѓ Р±С‹Р» РІР·СЏС‚ РєРѕРґ Steve Texeira (sp) РёР· СЂСѓРєРѕРІРѕРґСЃС‚РІР° Dephi Developers Guide. </p>
+<p>Р Р°Р±РѕС‚Р°РµС‚ РїРѕРґ Win 3.1 Рё '95.</p>
 <pre name="code" class="delphi">
 unit Pm;
  
@@ -59,7 +52,7 @@ uses Utils;
  
 const
  
-  { DDE-макростроки для Program Manager }
+  { DDE-РјР°РєСЂРѕСЃС‚СЂРѕРєРё РґР»СЏ Program Manager }
   SDDECreateGroup = '[CreateGroup(%s)]';
   SDDEShowGroup = '[ShowGroup(%s, 1)]';
   SDDEDeleteGroup = '[DeleteGroup(%s)]';
@@ -93,34 +86,34 @@ begin
  
   FDdeClientConv := TDdeClientConv.Create(Self);
   if not FDdeClientConv.SetLink('PROGMAN', 'PROGMAN') then
-    raise EProgManError.Create('Не могу установить DDE Link');
+    raise EProgManError.Create('РќРµ РјРѕРіСѓ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ DDE Link');
 end;
  
 procedure TProgMan.CreateGroup(GroupName: string; ShowGroup: Boolean);
 begin
  
-  { Удаляем группу, если она существует }
+  { РЈРґР°Р»СЏРµРј РіСЂСѓРїРїСѓ, РµСЃР»Рё РѕРЅР° СЃСѓС‰РµСЃС‚РІСѓРµС‚ }
   ExecMacroString(Format(SDDEDeleteGroup, [GroupName]));
  
   if not ExecMacroString(Format(SDDECreateGroup, [GroupName])) then
-    raise EProgManError.Create('Не могу создать группу ' + GroupName);
+    raise EProgManError.Create('РќРµ РјРѕРіСѓ СЃРѕР·РґР°С‚СЊ РіСЂСѓРїРїСѓ ' + GroupName);
   if ShowGroup then
     if not ExecMacroString(Format(SDDEShowGroup, [GroupName])) then
-      raise EProgManError.Create('Не могу показать группу ' + GroupName);
+      raise EProgManError.Create('РќРµ РјРѕРіСѓ РїРѕРєР°Р·Р°С‚СЊ РіСЂСѓРїРїСѓ ' + GroupName);
 end;
  
 procedure TProgMan.DeleteGroup(GroupName: string);
 begin
  
   if not ExecMacroString(Format(SDDEDeleteGroup, [GroupName])) then
-    raise EProgManError.Create('Не могу удалить группу ' + GroupName);
+    raise EProgManError.Create('РќРµ РјРѕРіСѓ СѓРґР°Р»РёС‚СЊ РіСЂСѓРїРїСѓ ' + GroupName);
 end;
  
 procedure TProgMan.DeleteItem(ItemName: string);
 begin
  
   if not ExecMacroString(Format(SDDEDeleteGroup, [ItemName])) then
-    raise EProgManError.Create('Не могу удалить элемент ' + ItemName);
+    raise EProgManError.Create('РќРµ РјРѕРіСѓ СѓРґР°Р»РёС‚СЊ СЌР»РµРјРµРЅС‚ ' + ItemName);
 end;
  
 procedure TProgMan.AddItem(CmdLine, ItemName: string);
@@ -135,7 +128,7 @@ begin
   try
     StrFmt(P, SDDEAddItem, [CmdLine, ItemName, CmdLine]);
     if not FDdeClientConv.ExecuteMacro(P, False) then
-      raise EProgManError.Create('Не могу добавить элемент ' + ItemName);
+      raise EProgManError.Create('РќРµ РјРѕРіСѓ РґРѕР±Р°РІРёС‚СЊ СЌР»РµРјРµРЅС‚ ' + ItemName);
   finally
     FreeMem(P, PSize);
   end;
@@ -149,10 +142,10 @@ end.
 <p>DelphiWorld 6.0</p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как открыть индексированную таблицу dBase, если отсутствует файл индекса</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє РѕС‚РєСЂС‹С‚СЊ РёРЅРґРµРєСЃРёСЂРѕРІР°РЅРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ dBase, РµСЃР»Рё РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С„Р°Р№Р» РёРЅРґРµРєСЃР°</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,23 +13,16 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как открыть индексированную таблицу dBase, если отсутствует файл индекса</h1>
+  <h1 id="title">РљР°Рє РѕС‚РєСЂС‹С‚СЊ РёРЅРґРµРєСЃРёСЂРѕРІР°РЅРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ dBase, РµСЃР»Рё РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С„Р°Р№Р» РёРЅРґРµРєСЃР°</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
-процедуру для физического удаления признака индексации в самом dbf-файле и после её применения добавлять индексы заново. </p>
-<p>Для этого в заголовок файла dbf по смещению 28(dec) записываешь 0. </p>
-<p>По другому никак не выходит(я долго бился)- вот для Paradox таблиц все Ok. </p>
-<p>С помощью BDE Callbacks. Пpимеp для Delphi 2.0, на пеpвом не пpовеpял:</p>
+
+РїСЂРѕС†РµРґСѓСЂСѓ РґР»СЏ С„РёР·РёС‡РµСЃРєРѕРіРѕ СѓРґР°Р»РµРЅРёСЏ РїСЂРёР·РЅР°РєР° РёРЅРґРµРєСЃР°С†РёРё РІ СЃР°РјРѕРј dbf-С„Р°Р№Р»Рµ Рё РїРѕСЃР»Рµ РµС‘ РїСЂРёРјРµРЅРµРЅРёСЏ РґРѕР±Р°РІР»СЏС‚СЊ РёРЅРґРµРєСЃС‹ Р·Р°РЅРѕРІРѕ. </p>
+<p>Р”Р»СЏ СЌС‚РѕРіРѕ РІ Р·Р°РіРѕР»РѕРІРѕРє С„Р°Р№Р»Р° dbf РїРѕ СЃРјРµС‰РµРЅРёСЋ 28(dec) Р·Р°РїРёСЃС‹РІР°РµС€СЊ 0. </p>
+<p>РџРѕ РґСЂСѓРіРѕРјСѓ РЅРёРєР°Рє РЅРµ РІС‹С…РѕРґРёС‚(СЏ РґРѕР»РіРѕ Р±РёР»СЃСЏ)- РІРѕС‚ РґР»СЏ Paradox С‚Р°Р±Р»РёС† РІСЃРµ Ok. </p>
+<p>РЎ РїРѕРјРѕС‰СЊСЋ BDE Callbacks. РџpРёРјРµp РґР»СЏ Delphi 2.0, РЅР° РїРµpРІРѕРј РЅРµ РїpРѕРІРµpСЏР»:</p>
 <pre name="code" class="delphi">
 unit Callback;
  
@@ -43,9 +36,9 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
-    CBack: TBDECallback; // опpеделение BDE CallBack
-    CBBuf: CBInputDesc; // пpосто буфеp
-    function CBFunc(CBInfo: Pointer): CBRType; // Callback-функция
+    CBack: TBDECallback; // РѕРїpРµРґРµР»РµРЅРёРµ BDE CallBack
+    CBBuf: CBInputDesc; // РїpРѕСЃС‚Рѕ Р±СѓС„Рµp
+    function CBFunc(CBInfo: Pointer): CBRType; // Callback-С„СѓРЅРєС†РёСЏ
   public
   end;
  
@@ -58,45 +51,45 @@ implementation
  
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  Session.Open; // В это вpемя сессия ещ? не откpыта
-  CBack := TBDECallback.Create(Session {Hапpимеp}, nil, cbINPUTREQ, @CBRegBuf,
-    SizeOf(CBBuf), CBFunc, False); // Опpеделили Callback
+  Session.Open; // Р’ СЌС‚Рѕ РІpРµРјСЏ СЃРµСЃСЃРёСЏ РµС‰? РЅРµ РѕС‚РєpС‹С‚Р°
+  CBack := TBDECallback.Create(Session {HР°РїpРёРјРµp}, nil, cbINPUTREQ, @CBRegBuf,
+    SizeOf(CBBuf), CBFunc, False); // РћРїpРµРґРµР»РёР»Рё Callback
   Table1.Open;
-  //^^^^^^^^^^^ - здесь возможна ошибка с индексом, etc.
+  //^^^^^^^^^^^ - Р·РґРµСЃСЊ РІРѕР·РјРѕР¶РЅР° РѕС€РёР±РєР° СЃ РёРЅРґРµРєСЃРѕРј, etc.
 end;
  
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
-  CBack.Free; // Освобождаем CallBack
+  CBack.Free; // РћСЃРІРѕР±РѕР¶РґР°РµРј CallBack
 end;
  
 function TForm1.CBFunc(CBInfo: Pointer): CBRType;
 begin
   with PCBInputDesc(CBInfo)^ do
     case eCbInputId of
-      cbiMDXMissing {, cbiDBTMissing - можно ещ? и очищать BLOB-поля}:
+      cbiMDXMissing {, cbiDBTMissing - РјРѕР¶РЅРѕ РµС‰? Рё РѕС‡РёС‰Р°С‚СЊ BLOB-РїРѕР»СЏ}:
         begin
-          iSelection := 3; // Hомеp ваpианта ответа (1-й - откpыть только
-          // для чтения, 2-й - не откpывать, 3-й - отсоединить индекс).
-          // Возможный источник непpиятностей: а вдpуг в последующих веpсиях
-          // BDE номеpа будут дpугими?
-          Result := cbrCHKINPUT; // Обpабатывать введ?нный ответ
+          iSelection := 3; // HРѕРјРµp РІР°pРёР°РЅС‚Р° РѕС‚РІРµС‚Р° (1-Р№ - РѕС‚РєpС‹С‚СЊ С‚РѕР»СЊРєРѕ
+          // РґР»СЏ С‡С‚РµРЅРёСЏ, 2-Р№ - РЅРµ РѕС‚РєpС‹РІР°С‚СЊ, 3-Р№ - РѕС‚СЃРѕРµРґРёРЅРёС‚СЊ РёРЅРґРµРєСЃ).
+          // Р’РѕР·РјРѕР¶РЅС‹Р№ РёСЃС‚РѕС‡РЅРёРє РЅРµРїpРёСЏС‚РЅРѕСЃС‚РµР№: Р° РІРґpСѓРі РІ РїРѕСЃР»РµРґСѓСЋС‰РёС… РІРµpСЃРёСЏС…
+          // BDE РЅРѕРјРµpР° Р±СѓРґСѓС‚ РґpСѓРіРёРјРё?
+          Result := cbrCHKINPUT; // РћР±pР°Р±Р°С‚С‹РІР°С‚СЊ РІРІРµРґ?РЅРЅС‹Р№ РѕС‚РІРµС‚
         end;
     end;
 end;
  
 end.
 </pre>
-<p>PS: конечно, это лишь пpимеp, делающий минимум необходимого. В pамках данного письма невозможно дать какое-то описание BDE Callbacks. Инфоpмацию я взял из BDE32.HLP, BDE.INT и DB.PAS. В VCL.HLP совсем ничего нет по этому поводу. </p>
-<p>Вообще, pуки бы отоpвал тем, кто писал спpавку по Дельфям: я неделю мучался с сабжем, пока случайно не набpёл на Callbacks. </p>
-<p id="author">Автор: Nomadic </p>
+<p>PS: РєРѕРЅРµС‡РЅРѕ, СЌС‚Рѕ Р»РёС€СЊ РїpРёРјРµp, РґРµР»Р°СЋС‰РёР№ РјРёРЅРёРјСѓРј РЅРµРѕР±С…РѕРґРёРјРѕРіРѕ. Р’ pР°РјРєР°С… РґР°РЅРЅРѕРіРѕ РїРёСЃСЊРјР° РЅРµРІРѕР·РјРѕР¶РЅРѕ РґР°С‚СЊ РєР°РєРѕРµ-С‚Рѕ РѕРїРёСЃР°РЅРёРµ BDE Callbacks. РРЅС„РѕpРјР°С†РёСЋ СЏ РІР·СЏР» РёР· BDE32.HLP, BDE.INT Рё DB.PAS. Р’ VCL.HLP СЃРѕРІСЃРµРј РЅРёС‡РµРіРѕ РЅРµС‚ РїРѕ СЌС‚РѕРјСѓ РїРѕРІРѕРґСѓ. </p>
+<p>Р’РѕРѕР±С‰Рµ, pСѓРєРё Р±С‹ РѕС‚РѕpРІР°Р» С‚РµРј, РєС‚Рѕ РїРёСЃР°Р» СЃРїpР°РІРєСѓ РїРѕ Р”РµР»СЊС„СЏРј: СЏ РЅРµРґРµР»СЋ РјСѓС‡Р°Р»СЃСЏ СЃ СЃР°Р±Р¶РµРј, РїРѕРєР° СЃР»СѓС‡Р°Р№РЅРѕ РЅРµ РЅР°Р±pС‘Р» РЅР° Callbacks. </p>
+<p id="author">РђРІС‚РѕСЂ: Nomadic </p>
 <p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Поиск значения типа DWORD в указанном процессе</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџРѕРёСЃРє Р·РЅР°С‡РµРЅРёСЏ С‚РёРїР° DWORD РІ СѓРєР°Р·Р°РЅРЅРѕРј РїСЂРѕС†РµСЃСЃРµ</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,23 +13,16 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Поиск значения типа DWORD в указанном процессе</h1>
+  <h1 id="title">РџРѕРёСЃРє Р·РЅР°С‡РµРЅРёСЏ С‚РёРїР° DWORD РІ СѓРєР°Р·Р°РЅРЅРѕРј РїСЂРѕС†РµСЃСЃРµ</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 //
-// Поиск значения типа DWORD в указанном процессе
+// РџРѕРёСЃРє Р·РЅР°С‡РµРЅРёСЏ С‚РёРїР° DWORD РІ СѓРєР°Р·Р°РЅРЅРѕРј РїСЂРѕС†РµСЃСЃРµ
 // paul_shmakov@mail.ru
 //
 program search;
@@ -62,7 +55,7 @@ begin
  WriteLn('Value to search: ' + IntToStr(Value));
  
  //
- // Открываем процесс
+ // РћС‚РєСЂС‹РІР°РµРј РїСЂРѕС†РµСЃСЃ
  //
  ProcessHandle := OpenProcess(PROCESS_QUERY_INFORMATION or PROCESS_VM_READ or
   PROCESS_VM_OPERATION, false, ProcessID);
@@ -72,40 +65,40 @@ begin
   Addr := 0;
  
   //
-  // Перечисляем все регионы виртуальной памяти процесса
+  // РџРµСЂРµС‡РёСЃР»СЏРµРј РІСЃРµ СЂРµРіРёРѕРЅС‹ РІРёСЂС‚СѓР°Р»СЊРЅРѕР№ РїР°РјСЏС‚Рё РїСЂРѕС†РµСЃСЃР°
   //
   while VirtualQueryEx(ProcessHandle, Pointer(Addr), Mbi, SizeOf(Mbi)) &lt;&gt; 0 do
   begin
-   // Uncomment чтобы увидеть список регионов, найденых в адресном пространстве
+   // Uncomment С‡С‚РѕР±С‹ СѓРІРёРґРµС‚СЊ СЃРїРёСЃРѕРє СЂРµРіРёРѕРЅРѕРІ, РЅР°Р№РґРµРЅС‹С… РІ Р°РґСЂРµСЃРЅРѕРј РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРµ
    // WriteLn('region: ' + IntToHex(Integer(Mbi.BaseAddress), 8) +
    //   ' size: ' + IntToStr(Mbi.RegionSize));
  
    //
-   // Если региону выделена память, и регион не является "сторожевым" (как вершина стека),
-   // то читаем этот регион
+   // Р•СЃР»Рё СЂРµРіРёРѕРЅСѓ РІС‹РґРµР»РµРЅР° РїР°РјСЏС‚СЊ, Рё СЂРµРіРёРѕРЅ РЅРµ СЏРІР»СЏРµС‚СЃСЏ "СЃС‚РѕСЂРѕР¶РµРІС‹Рј" (РєР°Рє РІРµСЂС€РёРЅР° СЃС‚РµРєР°),
+   // С‚Рѕ С‡РёС‚Р°РµРј СЌС‚РѕС‚ СЂРµРіРёРѕРЅ
    //
    if (Mbi.State = MEM_COMMIT) and not ((Mbi.Protect and PAGE_GUARD) = PAGE_GUARD) then
    begin
     //
-    // Это демонстрационная программа, поэтому здесь выделяется буфер под весь регион.
-    // Регион может быть достаточно большим, поэтому лучше читать его блоками для экономии
-    // памяти. Но здесь для простоты алгоритма вся оптимизация похерена.
+    // Р­С‚Рѕ РґРµРјРѕРЅСЃС‚СЂР°С†РёРѕРЅРЅР°СЏ РїСЂРѕРіСЂР°РјРјР°, РїРѕСЌС‚РѕРјСѓ Р·РґРµСЃСЊ РІС‹РґРµР»СЏРµС‚СЃСЏ Р±СѓС„РµСЂ РїРѕРґ РІРµСЃСЊ СЂРµРіРёРѕРЅ.
+    // Р РµРіРёРѕРЅ РјРѕР¶РµС‚ Р±С‹С‚СЊ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ Р±РѕР»СЊС€РёРј, РїРѕСЌС‚РѕРјСѓ Р»СѓС‡С€Рµ С‡РёС‚Р°С‚СЊ РµРіРѕ Р±Р»РѕРєР°РјРё РґР»СЏ СЌРєРѕРЅРѕРјРёРё
+    // РїР°РјСЏС‚Рё. РќРѕ Р·РґРµСЃСЊ РґР»СЏ РїСЂРѕСЃС‚РѕС‚С‹ Р°Р»РіРѕСЂРёС‚РјР° РІСЃСЏ РѕРїС‚РёРјРёР·Р°С†РёСЏ РїРѕС…РµСЂРµРЅР°.
     //
     GetMem(Buf, Mbi.RegionSize);
     try
      //
-     // Читаем весь регион в выделенный буфер
+     // Р§РёС‚Р°РµРј РІРµСЃСЊ СЂРµРіРёРѕРЅ РІ РІС‹РґРµР»РµРЅРЅС‹Р№ Р±СѓС„РµСЂ
      //
      if ReadProcessMemory(ProcessHandle, Mbi.BaseAddress, Buf,
        Mbi.RegionSize, BytesRead) then
      begin
       //
-      // Ищем значение типа DWORD в буфере
+      // РС‰РµРј Р·РЅР°С‡РµРЅРёРµ С‚РёРїР° DWORD РІ Р±СѓС„РµСЂРµ
       //
       for I := 0 to BytesRead - SizeOf(Value) do
       begin
        if PDWord(@Buf[I])^ = Value then
-        // Найдено, выводим
+        // РќР°Р№РґРµРЅРѕ, РІС‹РІРѕРґРёРј
         WriteLn('Value ' + IntToStr(Value) + ' found at ' +
          IntToHex(Integer(Cardinal(Mbi.BaseAddress) + I), 8));
       end;
@@ -118,7 +111,7 @@ begin
     end;
    end;
  
-   // Вычисляем адрес следуюшего региона
+   // Р’С‹С‡РёСЃР»СЏРµРј Р°РґСЂРµСЃ СЃР»РµРґСѓСЋС€РµРіРѕ СЂРµРіРёРѕРЅР°
    Addr := Addr + Mbi.RegionSize;
   end;
  
@@ -129,7 +122,7 @@ begin
   WriteLn('Failed to open process');
 end.
  
-а вот программа, в которой ведем поиск для примера:
+Р° РІРѕС‚ РїСЂРѕРіСЂР°РјРјР°, РІ РєРѕС‚РѕСЂРѕР№ РІРµРґРµРј РїРѕРёСЃРє РґР»СЏ РїСЂРёРјРµСЂР°:
  
 program someprog;
  
@@ -147,13 +140,13 @@ begin
 end.
 </pre>
 
-<p id="author">Автор Rouse_</p>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ Rouse_</p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

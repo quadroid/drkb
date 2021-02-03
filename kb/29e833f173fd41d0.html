@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как перехватить сообщения скроллирования в TScrollBox?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє РїРµСЂРµС…РІР°С‚РёС‚СЊ СЃРѕРѕР±С‰РµРЅРёСЏ СЃРєСЂРѕР»Р»РёСЂРѕРІР°РЅРёСЏ РІ TScrollBox?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,23 +13,16 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как перехватить сообщения скроллирования в TScrollBox?</h1>
+  <h1 id="title">РљР°Рє РїРµСЂРµС…РІР°С‚РёС‚СЊ СЃРѕРѕР±С‰РµРЅРёСЏ СЃРєСЂРѕР»Р»РёСЂРѕРІР°РЅРёСЏ РІ TScrollBox?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>Следующий пример перхватывает сообщения скроллирования в компоненте TScrollBox, тем самым синхронизируя два скролбара. Если один из скролбаров изменяет своё положение, то значение второго скролбара изменяется на такую же величину. Сообщения скролирования перехватываются путём сабклассинга оконной процедуры (WinProc) у скролбара.</p>
 
-<p>Пример:</p>
+<p>РЎР»РµРґСѓСЋС‰РёР№ РїСЂРёРјРµСЂ РїРµСЂС…РІР°С‚С‹РІР°РµС‚ СЃРѕРѕР±С‰РµРЅРёСЏ СЃРєСЂРѕР»Р»РёСЂРѕРІР°РЅРёСЏ РІ РєРѕРјРїРѕРЅРµРЅС‚Рµ TScrollBox, С‚РµРј СЃР°РјС‹Рј СЃРёРЅС…СЂРѕРЅРёР·РёСЂСѓСЏ РґРІР° СЃРєСЂРѕР»Р±Р°СЂР°. Р•СЃР»Рё РѕРґРёРЅ РёР· СЃРєСЂРѕР»Р±Р°СЂРѕРІ РёР·РјРµРЅСЏРµС‚ СЃРІРѕС‘ РїРѕР»РѕР¶РµРЅРёРµ, С‚Рѕ Р·РЅР°С‡РµРЅРёРµ РІС‚РѕСЂРѕРіРѕ СЃРєСЂРѕР»Р±Р°СЂР° РёР·РјРµРЅСЏРµС‚СЃСЏ РЅР° С‚Р°РєСѓСЋ Р¶Рµ РІРµР»РёС‡РёРЅСѓ. РЎРѕРѕР±С‰РµРЅРёСЏ СЃРєСЂРѕР»РёСЂРѕРІР°РЅРёСЏ РїРµСЂРµС…РІР°С‚С‹РІР°СЋС‚СЃСЏ РїСѓС‚С‘Рј СЃР°Р±РєР»Р°СЃСЃРёРЅРіР° РѕРєРѕРЅРЅРѕР№ РїСЂРѕС†РµРґСѓСЂС‹ (WinProc) Сѓ СЃРєСЂРѕР»Р±Р°СЂР°.</p>
+
+<p>РџСЂРёРјРµСЂ:</p>
 <pre name="code" class="delphi">
 type
 {$IFDEF WIN32}
@@ -39,7 +32,7 @@ type
 {$ENDIF}
   LParameter = LongInt;
  
-{Объявляем переменную для хранения подменённой оконной процедуры}
+{РћР±СЉСЏРІР»СЏРµРј РїРµСЂРµРјРµРЅРЅСѓСЋ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РїРѕРґРјРµРЅС‘РЅРЅРѕР№ РѕРєРѕРЅРЅРѕР№ РїСЂРѕС†РµРґСѓСЂС‹}
 var
   OldWindowProc : Pointer;
  
@@ -55,20 +48,20 @@ var
 begin
  
   if TheMessage = WM_VSCROLL then begin
-  {Получаем минимальное и максимальное значения scroll box}
+  {РџРѕР»СѓС‡Р°РµРј РјРёРЅРёРјР°Р»СЊРЅРѕРµ Рё РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёСЏ scroll box}
     GetScrollRange(WindowHandle,
                    SB_HORZ,
                    TheRangeMin,
                    TheRangeMax);
-  {Получаем вертикальную позицию scroll box}
+  {РџРѕР»СѓС‡Р°РµРј РІРµСЂС‚РёРєР°Р»СЊРЅСѓСЋ РїРѕР·РёС†РёСЋ scroll box}
     TheRange := GetScrollPos(WindowHandle,
                              SB_VERT);
-  {Проверим, чтобы не выйти за диапазон}
+  {РџСЂРѕРІРµСЂРёРј, С‡С‚РѕР±С‹ РЅРµ РІС‹Р№С‚Рё Р·Р° РґРёР°РїР°Р·РѕРЅ}
     if TheRange &lt; TheRangeMin then
       TheRange := TheRangeMin else
     if TheRange &gt; TheRangeMax then
       TheRange := TheRangeMax;
-  {Устанавливаем горизонтальный scroll bar}
+  {РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅС‹Р№ scroll bar}
     SetScrollPos(WindowHandle,
                  SB_HORZ,
                  TheRange,
@@ -76,28 +69,28 @@ begin
   end;
  
   if TheMessage = WM_HSCROLL then begin
-  {Получаем мин. и макс. диапазон горизонтального scroll box}
+  {РџРѕР»СѓС‡Р°РµРј РјРёРЅ. Рё РјР°РєСЃ. РґРёР°РїР°Р·РѕРЅ РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕРіРѕ scroll box}
     GetScrollRange(WindowHandle,
                    SB_VERT,
                    TheRangeMin,
                    TheRangeMax);
-  {Получаем позицию горизонтального scroll box}
+  {РџРѕР»СѓС‡Р°РµРј РїРѕР·РёС†РёСЋ РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕРіРѕ scroll box}
     TheRange := GetScrollPos(WindowHandle,
                              SB_HORZ);
-  {Проверим, чтобы не выйти за диапазон}
+  {РџСЂРѕРІРµСЂРёРј, С‡С‚РѕР±С‹ РЅРµ РІС‹Р№С‚Рё Р·Р° РґРёР°РїР°Р·РѕРЅ}
     if TheRange &lt; TheRangeMin then
       TheRange := TheRangeMin else
     if TheRange &gt; TheRangeMax then
       TheRange := TheRangeMax;
-  {Устанавливаем вертикальный scroll bar}
+  {РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РІРµСЂС‚РёРєР°Р»СЊРЅС‹Р№ scroll bar}
     SetScrollPos(WindowHandle,
                  SB_VERT,
                  TheRange,
                  true);
   end;
  
-{ Вызываем старую оконную процедуру }
-{ чтобы обработались сообщения. }
+{ Р’С‹Р·С‹РІР°РµРј СЃС‚Р°СЂСѓСЋ РѕРєРѕРЅРЅСѓСЋ РїСЂРѕС†РµРґСѓСЂСѓ }
+{ С‡С‚РѕР±С‹ РѕР±СЂР°Р±РѕС‚Р°Р»РёСЃСЊ СЃРѕРѕР±С‰РµРЅРёСЏ. }
   NewWindowProc := CallWindowProc(OldWindowProc,
                                   WindowHandle,
                                   TheMessage,
@@ -108,8 +101,8 @@ end;
  
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-{ Устанавливаем новую оконную процедуру для контрола }
-{ и запоминаем старую оконную процедуру.    }
+{ РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РЅРѕРІСѓСЋ РѕРєРѕРЅРЅСѓСЋ РїСЂРѕС†РµРґСѓСЂСѓ РґР»СЏ РєРѕРЅС‚СЂРѕР»Р° }
+{ Рё Р·Р°РїРѕРјРёРЅР°РµРј СЃС‚Р°СЂСѓСЋ РѕРєРѕРЅРЅСѓСЋ РїСЂРѕС†РµРґСѓСЂСѓ.    }
   OldWindowProc := Pointer(SetWindowLong(ScrollBox1.Handle,
                                          GWL_WNDPROC,
                                          LongInt(@NewWindowProc)));
@@ -117,7 +110,7 @@ end;
  
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
-{ Возвращаем обратно старую оконную процедуру.  }
+{ Р’РѕР·РІСЂР°С‰Р°РµРј РѕР±СЂР°С‚РЅРѕ СЃС‚Р°СЂСѓСЋ РѕРєРѕРЅРЅСѓСЋ РїСЂРѕС†РµРґСѓСЂСѓ.  }
   SetWindowLong(ScrollBox1.Handle,
                 GWL_WNDPROC,
                 LongInt(OldWindowProc));
@@ -126,13 +119,13 @@ end;
 </pre>
 
 
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

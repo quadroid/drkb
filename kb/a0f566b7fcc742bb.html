@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Как получить короткий путь файла, если есть длинный, и на оборот?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РљР°Рє РїРѕР»СѓС‡РёС‚СЊ РєРѕСЂРѕС‚РєРёР№ РїСѓС‚СЊ С„Р°Р№Р»Р°, РµСЃР»Рё РµСЃС‚СЊ РґР»РёРЅРЅС‹Р№, Рё РЅР° РѕР±РѕСЂРѕС‚?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,25 +13,18 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Как получить короткий путь файла, если есть длинный, и на оборот?</h1>
+  <h1 id="title">РљР°Рє РїРѕР»СѓС‡РёС‚СЊ РєРѕСЂРѕС‚РєРёР№ РїСѓС‚СЊ С„Р°Р№Р»Р°, РµСЃР»Рё РµСЃС‚СЊ РґР»РёРЅРЅС‹Р№, Рё РЅР° РѕР±РѕСЂРѕС‚?</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
-// Короткий
+// РљРѕСЂРѕС‚РєРёР№
 GetShortPathName(LongPath) 
  
-// Наоборот длинный
+// РќР°РѕР±РѕСЂРѕС‚ РґР»РёРЅРЅС‹Р№
 GetFullPathName(ShortPath)
 </pre>
 
@@ -41,7 +34,7 @@ function sfn(const LongName: String): String;
  
 
  
-// Возвращает LongFileName преобразованное в соответствующее короткое имя
+// Р’РѕР·РІСЂР°С‰Р°РµС‚ LongFileName РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРЅРѕРµ РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµРµ РєРѕСЂРѕС‚РєРѕРµ РёРјСЏ
 var i :Integer;
 begin
   SetLength(Result,Length(LongName));
@@ -54,7 +47,7 @@ begin
 end;
  
 function ShortToLongFileName(FileName: string): string;
-// Возвращает FileName преобразованное в соответствующее длинное имя
+// Р’РѕР·РІСЂР°С‰Р°РµС‚ FileName РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРЅРѕРµ РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµРµ РґР»РёРЅРЅРѕРµ РёРјСЏ
 var
   KernelHandle: THandle;
   FindData: TWin32FindData;
@@ -66,8 +59,8 @@ begin
   if KernelHandle &lt;&gt; 0 then
     @GetLongPathName := GetProcAddress(KernelHandle, 'GetLongPathNameA');
  
-  // Использю GetLongPathName доступную в windows 98 и выше чтобы
-  // избежать проблем доступа к путям UNC в системах NT/2K/XP
+  // РСЃРїРѕР»СЊР·СЋ GetLongPathName РґРѕСЃС‚СѓРїРЅСѓСЋ РІ windows 98 Рё РІС‹С€Рµ С‡С‚РѕР±С‹
+  // РёР·Р±РµР¶Р°С‚СЊ РїСЂРѕР±Р»РµРј РґРѕСЃС‚СѓРїР° Рє РїСѓС‚СЏРј UNC РІ СЃРёСЃС‚РµРјР°С… NT/2K/XP
   if Assigned(GetLongPathName) then begin
     SetLength(Result, MAX_PATH + 1);
     SetLength(Result, GetLongPathName(PChar(FileName), @Result[1], MAX_PATH));
@@ -75,9 +68,9 @@ begin
   else begin
     Result := '';
  
-    // Поднимаюсь на одну дирректорию выше от пути к файлу и запоминаю
-    // в result.  FindFirstFile возвратит длинное имя файла полученное
-    // из короткого.
+    // РџРѕРґРЅРёРјР°СЋСЃСЊ РЅР° РѕРґРЅСѓ РґРёСЂСЂРµРєС‚РѕСЂРёСЋ РІС‹С€Рµ РѕС‚ РїСѓС‚Рё Рє С„Р°Р№Р»Сѓ Рё Р·Р°РїРѕРјРёРЅР°СЋ
+    // РІ result.  FindFirstFile РІРѕР·РІСЂР°С‚РёС‚ РґР»РёРЅРЅРѕРµ РёРјСЏ С„Р°Р№Р»Р° РїРѕР»СѓС‡РµРЅРЅРѕРµ
+    // РёР· РєРѕСЂРѕС‚РєРѕРіРѕ.
     while (True) do begin
       Search := Windows.FindFirstFile(PChar(FileName), FindData);
  
@@ -87,7 +80,7 @@ begin
       FileName := ExtractFileDir(FileName);
       Windows.FindClose(Search);
  
-      // Нахожу имя диска с двоеточием.
+      // РќР°С…РѕР¶Сѓ РёРјСЏ РґРёСЃРєР° СЃ РґРІРѕРµС‚РѕС‡РёРµРј.
       if Length(FileName) &lt;= 2 then Break;
     end;
  
@@ -96,13 +89,13 @@ begin
 end;
  
 </pre>
-<p id="author">Автор: Alex&amp;Co </p>
-<p>Сайт: <a href="http://alex-co.com.ru " target="_blank">http://alex-co.com.ru </a></p>
+<p id="author">РђРІС‚РѕСЂ: Alex&amp;Co </p>
+<p>РЎР°Р№С‚: <a href="http://alex-co.com.ru " target="_blank">http://alex-co.com.ru </a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

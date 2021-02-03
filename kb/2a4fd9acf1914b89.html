@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Приемы оформления отчетов в Excel</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РџСЂРёРµРјС‹ РѕС„РѕСЂРјР»РµРЅРёСЏ РѕС‚С‡РµС‚РѕРІ РІ Excel</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,116 +13,109 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Приемы оформления отчетов в Excel</h1>
+  <h1 id="title">РџСЂРёРµРјС‹ РѕС„РѕСЂРјР»РµРЅРёСЏ РѕС‚С‡РµС‚РѕРІ РІ Excel</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 { **** UBPFD *********** by kladovka.net.ru ****
-&gt;&gt; Работа с EXCEL
+&gt;&gt; Р Р°Р±РѕС‚Р° СЃ EXCEL
  
-Приёмы оформления документа (отчёта)
+РџСЂРёС‘РјС‹ РѕС„РѕСЂРјР»РµРЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р° (РѕС‚С‡С‘С‚Р°)
  
-Зависимости: ComObj
-Автор:       Константин, konrads@mail.ru, Новосибирск
+Р—Р°РІРёСЃРёРјРѕСЃС‚Рё: ComObj
+РђРІС‚РѕСЂ:       РљРѕРЅСЃС‚Р°РЅС‚РёРЅ, konrads@mail.ru, РќРѕРІРѕСЃРёР±РёСЂСЃРє
 Copyright:   &lt;Konrads&gt;
-Дата:        29 августа 2002 г.
+Р”Р°С‚Р°:        29 Р°РІРіСѓСЃС‚Р° 2002 Рі.
 ********************************************** }
  
-В uses добавить ComObj
+Р’ uses РґРѕР±Р°РІРёС‚СЊ ComObj
 var
  Form1: TForm1;
- XL : variant; // Переменная в которой создаётся обьект EXCEL
+ XL : variant; // РџРµСЂРµРјРµРЅРЅР°СЏ РІ РєРѕС‚РѕСЂРѕР№ СЃРѕР·РґР°С‘С‚СЃСЏ РѕР±СЊРµРєС‚ EXCEL
  
-Создание документа
+РЎРѕР·РґР°РЅРёРµ РґРѕРєСѓРјРµРЅС‚Р°
  
-// Обьект EXCEL
+// РћР±СЊРµРєС‚ EXCEL
  XL := CreateOleObject('Excel.Application');
-// Чтоб не задавал вопрос о сохранении документа
+// Р§С‚РѕР± РЅРµ Р·Р°РґР°РІР°Р» РІРѕРїСЂРѕСЃ Рѕ СЃРѕС…СЂР°РЅРµРЅРёРё РґРѕРєСѓРјРµРЅС‚Р°
  XL.DisplayAlerts := false;
-// новый документ
+// РЅРѕРІС‹Р№ РґРѕРєСѓРјРµРЅС‚
  XL.WorkBooks.Add;
-// или загружаем его
+// РёР»Рё Р·Р°РіСЂСѓР¶Р°РµРј РµРіРѕ
  XL.WorkBooks.Open(MyDir + '\akt.xls');
-{ MyDir - глобальная переменная типа string в неё помещаем путь
-к каталогу запуска нашей програмы по событию FormCreate
+{ MyDir - РіР»РѕР±Р°Р»СЊРЅР°СЏ РїРµСЂРµРјРµРЅРЅР°СЏ С‚РёРїР° string РІ РЅРµС‘ РїРѕРјРµС‰Р°РµРј РїСѓС‚СЊ
+Рє РєР°С‚Р°Р»РѕРіСѓ Р·Р°РїСѓСЃРєР° РЅР°С€РµР№ РїСЂРѕРіСЂР°РјС‹ РїРѕ СЃРѕР±С‹С‚РёСЋ FormCreate
  
  procedure TForm1.FormCreate(Sender: TObject);
  begin
    GetDir(0,MyDir);
  end;
-я всегда так делаю, чтобы программу можно было в любой каталог
-поместить вместе со своими дополнительными файлами, в этом случае путь
-будет выбираться всегда правильно
+СЏ РІСЃРµРіРґР° С‚Р°Рє РґРµР»Р°СЋ, С‡С‚РѕР±С‹ РїСЂРѕРіСЂР°РјРјСѓ РјРѕР¶РЅРѕ Р±С‹Р»Рѕ РІ Р»СЋР±РѕР№ РєР°С‚Р°Р»РѕРі
+РїРѕРјРµСЃС‚РёС‚СЊ РІРјРµСЃС‚Рµ СЃРѕ СЃРІРѕРёРјРё РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹РјРё С„Р°Р№Р»Р°РјРё, РІ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РїСѓС‚СЊ
+Р±СѓРґРµС‚ РІС‹Р±РёСЂР°С‚СЊСЃСЏ РІСЃРµРіРґР° РїСЂР°РІРёР»СЊРЅРѕ
 }
  
  
-// Делаем его видимым
+// Р”РµР»Р°РµРј РµРіРѕ РІРёРґРёРјС‹Рј
  XL.Visible := true;
-// Когда прога уже оттестирована лучше это делать в конце, быстрей работает,
-// а пока нет лучше в начале
+// РљРѕРіРґР° РїСЂРѕРіР° СѓР¶Рµ РѕС‚С‚РµСЃС‚РёСЂРѕРІР°РЅР° Р»СѓС‡С€Рµ СЌС‚Рѕ РґРµР»Р°С‚СЊ РІ РєРѕРЅС†Рµ, Р±С‹СЃС‚СЂРµР№ СЂР°Р±РѕС‚Р°РµС‚,
+// Р° РїРѕРєР° РЅРµС‚ Р»СѓС‡С€Рµ РІ РЅР°С‡Р°Р»Рµ
  
-// Левое и правое поля отступа для печати
+// Р›РµРІРѕРµ Рё РїСЂР°РІРѕРµ РїРѕР»СЏ РѕС‚СЃС‚СѓРїР° РґР»СЏ РїРµС‡Р°С‚Рё
  XL.WorkBooks[1].WorkSheets[1].PageSetup.LeftMargin := 30;
  XL.WorkBooks[1].WorkSheets[1].PageSetup.RightMargin := 10;
-// Даём название страничке
- XL.WorkBooks[1].WorkSheets[1].Name := 'Прайс лист';
-// Строка появляется на каждом листе при печати
+// Р”Р°С‘Рј РЅР°Р·РІР°РЅРёРµ СЃС‚СЂР°РЅРёС‡РєРµ
+ XL.WorkBooks[1].WorkSheets[1].Name := 'РџСЂР°Р№СЃ Р»РёСЃС‚';
+// РЎС‚СЂРѕРєР° РїРѕСЏРІР»СЏРµС‚СЃСЏ РЅР° РєР°Р¶РґРѕРј Р»РёСЃС‚Рµ РїСЂРё РїРµС‡Р°С‚Рё
  XL.WorkBooks[1].WorkSheets[1].PageSetup.PrintTitleRows := '$3:$3';
  XL.WorkBooks[1].WorkSheets[1].PageSetup.PrintTitleColumns := '$A:$A';
-// формат числа
+// С„РѕСЂРјР°С‚ С‡РёСЃР»Р°
  for i := 4 to 13 do
    XL.WorkBooks[1].WorkSheets[1].Columns[i].NumberFormat := '0,00';
    XL.WorkBooks[1].WorkSheets[1].Columns[4].NumberFormat := '0';
  
-// Таким способом можно задавать ширину колонки
+// РўР°РєРёРј СЃРїРѕСЃРѕР±РѕРј РјРѕР¶РЅРѕ Р·Р°РґР°РІР°С‚СЊ С€РёСЂРёРЅСѓ РєРѕР»РѕРЅРєРё
  XL.WorkBooks[1].WorkSheets[1].Columns[1].ColumnWidth := 4.5;
  XL.WorkBooks[1].WorkSheets[1].Columns[2].ColumnWidth := 50;
  for i := 3 to 13 do
    XL.WorkBooks[1].WorkSheets[1].Columns[i].ColumnWidth := 8;
  
-// Шрифт жирный
+// РЁСЂРёС„С‚ Р¶РёСЂРЅС‹Р№
  XL.WorkBooks[1].WorkSheets[1].Rows[1].Font.Bold := True;
  XL.WorkBooks[1].WorkSheets[1].Rows[1].Font.Color := clBlack;
  XL.WorkBooks[1].WorkSheets[1].Rows[1].Font.Size := 16;
  XL.WorkBooks[1].WorkSheets[1].Rows[1].Font.Name := 'Times New Roman';
- XL.WorkBooks[1].WorkSheets[1].Cells[1,4] := 'Прайс лист';
-// Выравнивам по центру по вертикали
+ XL.WorkBooks[1].WorkSheets[1].Cells[1,4] := 'РџСЂР°Р№СЃ Р»РёСЃС‚';
+// Р’С‹СЂР°РІРЅРёРІР°Рј РїРѕ С†РµРЅС‚СЂСѓ РїРѕ РІРµСЂС‚РёРєР°Р»Рё
  XL.WorkBooks[1].WorkSheets[1].Rows[1].VerticalAlignment := 2;
-// Выравнивам по центру по горизонтали
+// Р’С‹СЂР°РІРЅРёРІР°Рј РїРѕ С†РµРЅС‚СЂСѓ РїРѕ РіРѕСЂРёР·РѕРЅС‚Р°Р»Рё
  XL.WorkBooks[1].WorkSheets[1].Rows[1].HorizontalAlignment := 3;
-// Обьединяем ячейки
+// РћР±СЊРµРґРёРЅСЏРµРј СЏС‡РµР№РєРё
  XL.WorkBooks[1].WorkSheets[1].Range['A1:D1'].Merge;
  
-// Выравнивам по центру по вертикали
+// Р’С‹СЂР°РІРЅРёРІР°Рј РїРѕ С†РµРЅС‚СЂСѓ РїРѕ РІРµСЂС‚РёРєР°Р»Рё
  XL.WorkBooks[1].WorkSheets[1].Rows[3].VerticalAlignment := 2;
-// Выравнивам по центру по горизонтали
+// Р’С‹СЂР°РІРЅРёРІР°Рј РїРѕ С†РµРЅС‚СЂСѓ РїРѕ РіРѕСЂРёР·РѕРЅС‚Р°Р»Рё
  XL.WorkBooks[1].WorkSheets[1].Rows[3].HorizontalAlignment := 3;
-// Выравнивам по левому краю
+// Р’С‹СЂР°РІРЅРёРІР°Рј РїРѕ Р»РµРІРѕРјСѓ РєСЂР°СЋ
  XL.WorkBooks[1].WorkSheets[1].Cells[3,2].HorizontalAlignment := 2;
  XL.WorkBooks[1].WorkSheets[1].Cells[3,3].HorizontalAlignment := 2;
-// Выравнивам по правому краю
+// Р’С‹СЂР°РІРЅРёРІР°Рј РїРѕ РїСЂР°РІРѕРјСѓ РєСЂР°СЋ
  XL.WorkBooks[1].WorkSheets[1].Cells[3,4].HorizontalAlignment := 4;
  XL.WorkBooks[1].WorkSheets[1].Rows[3].Font.Color := clBlack;
  XL.WorkBooks[1].WorkSheets[1].Rows[3].Font.Name := 'Times New Roman';
  XL.WorkBooks[1].WorkSheets[1].Rows[3].Font.Size := 12;
  XL.WorkBooks[1].WorkSheets[1].Rows[3].Font.Bold := True;
- XL.WorkBooks[1].WorkSheets[1].Cells[3,1] := '№';
- XL.WorkBooks[1].WorkSheets[1].Cells[3,2] := 'Наименование продукции';
- XL.WorkBooks[1].WorkSheets[1].Cells[3,3] := 'Ед. изм.';
+ XL.WorkBooks[1].WorkSheets[1].Cells[3,1] := 'в„–';
+ XL.WorkBooks[1].WorkSheets[1].Cells[3,2] := 'РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїСЂРѕРґСѓРєС†РёРё';
+ XL.WorkBooks[1].WorkSheets[1].Cells[3,3] := 'Р•Рґ. РёР·Рј.';
  
-// обрисовка диапазона ячеек только снизу
-// Borders[1] .... [4] - это края ячейки ColorIndex -4142 - пустой цвет i и n - переменные
+// РѕР±СЂРёСЃРѕРІРєР° РґРёР°РїР°Р·РѕРЅР° СЏС‡РµРµРє С‚РѕР»СЊРєРѕ СЃРЅРёР·Сѓ
+// Borders[1] .... [4] - СЌС‚Рѕ РєСЂР°СЏ СЏС‡РµР№РєРё ColorIndex -4142 - РїСѓСЃС‚РѕР№ С†РІРµС‚ i Рё n - РїРµСЂРµРјРµРЅРЅС‹Рµ
        XL.WorkBooks[1].WorkSheets[1].Range['A' + IntToStr(i) + ':' + chr(ord('C')+n) + IntToStr(i)].Borders.LineStyle := 1;
        XL.WorkBooks[1].WorkSheets[1].Range['A' + IntToStr(i) + ':' + chr(ord('C')+n) + IntToStr(i)].Borders.Weight := 2;
        XL.WorkBooks[1].WorkSheets[1].Range['A' + IntToStr(i) + ':' + chr(ord('C')+n) + IntToStr(i)].Borders[4].ColorIndex := 1;
@@ -130,28 +123,28 @@ var
        XL.WorkBooks[1].WorkSheets[1].Range['A' + IntToStr(i) + ':' + chr(ord('C')+n) + IntToStr(i)].Borders[2].ColorIndex := -4142;
        XL.WorkBooks[1].WorkSheets[1].Range['A' + IntToStr(i) + ':' + chr(ord('C')+n) + IntToStr(i)].Borders[3].ColorIndex := -4142;
  
-// обрисовка диапазона ячеек
+// РѕР±СЂРёСЃРѕРІРєР° РґРёР°РїР°Р·РѕРЅР° СЏС‡РµРµРє
    XL.WorkBooks[1].WorkSheets[1].Range['A3:' + chr(ord('C')+n) + IntToStr(i)].Borders.LineStyle := 1;
    XL.WorkBooks[1].WorkSheets[1].Range['A3:' + chr(ord('C')+n) + IntToStr(i)].Borders.Weight := 2;
    XL.WorkBooks[1].WorkSheets[1].Range['A3:' + chr(ord('C')+n) + IntToStr(i)].Borders.ColorIndex := 1;
  
-// присвоение ячейке значения
+// РїСЂРёСЃРІРѕРµРЅРёРµ СЏС‡РµР№РєРµ Р·РЅР°С‡РµРЅРёСЏ
  
-       XL.WorkBooks[1].WorkSheets[1].Cells[i,j] := 'К-во';
+       XL.WorkBooks[1].WorkSheets[1].Cells[i,j] := 'Рљ-РІРѕ';
  
-// Поворачивать слова, писать вертикально, под углом и т.д.
+// РџРѕРІРѕСЂР°С‡РёРІР°С‚СЊ СЃР»РѕРІР°, РїРёСЃР°С‚СЊ РІРµСЂС‚РёРєР°Р»СЊРЅРѕ, РїРѕРґ СѓРіР»РѕРј Рё С‚.Рґ.
  
  XL.WorkBooks[1].WorkSheets[1].Rows[2].Orientation := 90;
  XL.WorkBooks[1].WorkSheets[1].Range['A2:B2'].Orientation := 0; 
 </pre>
 
-<p>По усмотрению программиста в любой программе где нужно автоматически создать документ, который можно в дальнейшем корректировать дополнять общедоступным редактором EXCEL </p>
+<p>РџРѕ СѓСЃРјРѕС‚СЂРµРЅРёСЋ РїСЂРѕРіСЂР°РјРјРёСЃС‚Р° РІ Р»СЋР±РѕР№ РїСЂРѕРіСЂР°РјРјРµ РіРґРµ РЅСѓР¶РЅРѕ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё СЃРѕР·РґР°С‚СЊ РґРѕРєСѓРјРµРЅС‚, РєРѕС‚РѕСЂС‹Р№ РјРѕР¶РЅРѕ РІ РґР°Р»СЊРЅРµР№С€РµРј РєРѕСЂСЂРµРєС‚РёСЂРѕРІР°С‚СЊ РґРѕРїРѕР»РЅСЏС‚СЊ РѕР±С‰РµРґРѕСЃС‚СѓРїРЅС‹Рј СЂРµРґР°РєС‚РѕСЂРѕРј EXCEL </p>
 
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

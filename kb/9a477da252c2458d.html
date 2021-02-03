@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>Отправка файлов при помощи TClientSocket / TServerSocket</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>РћС‚РїСЂР°РІРєР° С„Р°Р№Р»РѕРІ РїСЂРё РїРѕРјРѕС‰Рё TClientSocket / TServerSocket</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,22 +13,15 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">Отправка файлов при помощи TClientSocket / TServerSocket</h1>
+  <h1 id="title">РћС‚РїСЂР°РІРєР° С„Р°Р№Р»РѕРІ РїСЂРё РїРѕРјРѕС‰Рё TClientSocket / TServerSocket</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p id="author">Автор: M K</p>
-<p>На вопрос "Как я могу отправлять файлы через TClientSocket &amp; TServerSocket?" даём наш ответ :) </p>
+
+<p id="author">РђРІС‚РѕСЂ: M K</p>
+<p>РќР° РІРѕРїСЂРѕСЃ "РљР°Рє СЏ РјРѕРіСѓ РѕС‚РїСЂР°РІР»СЏС‚СЊ С„Р°Р№Р»С‹ С‡РµСЂРµР· TClientSocket &amp; TServerSocket?" РґР°С‘Рј РЅР°С€ РѕС‚РІРµС‚ :) </p>
 <pre name="code" class="delphi">
 unit Unit1; 
  
@@ -70,21 +63,21 @@ implementation
  
 procedure TForm1.Image1Click(Sender: TObject); 
 begin 
-  // Это процедура для открытия сокета на ПРИЁМ (RECEIVING). 
+  // Р­С‚Рѕ РїСЂРѕС†РµРґСѓСЂР° РґР»СЏ РѕС‚РєСЂС‹С‚РёСЏ СЃРѕРєРµС‚Р° РЅР° РџР РРЃРњ (RECEIVING). 
   // Button1.Click is this procedure as well. 
   ClientSocket1.Active:= true; 
 end; 
  
 procedure TForm1.FormCreate(Sender: TObject); 
 begin 
-  // Открытие ОТПРАВЛЯЮЩЕГО (SENDING) сокета. 
+  // РћС‚РєСЂС‹С‚РёРµ РћРўРџР РђР’Р›РЇР®Р©Р•Р“Рћ (SENDING) СЃРѕРєРµС‚Р°. 
   ServerSocket1.Active:= true; 
 end; 
  
 procedure TForm1.ClientSocket1Connect(Sender: TObject; 
   Socket: TCustomWinSocket); 
 begin 
-  // Посылаем команду для начала передачи файла. 
+  // РџРѕСЃС‹Р»Р°РµРј РєРѕРјР°РЅРґСѓ РґР»СЏ РЅР°С‡Р°Р»Р° РїРµСЂРµРґР°С‡Рё С„Р°Р№Р»Р°. 
   Socket.SendText('send'); 
 end; 
  
@@ -94,19 +87,19 @@ var
   s, sl: string; 
 begin 
   s:= Socket.ReceiveText; 
-  // Если мы не в режиме приёма: 
+  // Р•СЃР»Рё РјС‹ РЅРµ РІ СЂРµР¶РёРјРµ РїСЂРёС‘РјР°: 
   if not Reciving then 
   begin 
-    // Теперь нам необходимо получить длину потока данных. 
+    // РўРµРїРµСЂСЊ РЅР°Рј РЅРµРѕР±С…РѕРґРёРјРѕ РїРѕР»СѓС‡РёС‚СЊ РґР»РёРЅСѓ РїРѕС‚РѕРєР° РґР°РЅРЅС‹С…. 
     SetLength(sl, StrLen(PChar(s))+1); // +1 for the null terminator 
     StrLCopy(@sl[1], PChar(s), Length(sl)-1); 
     DataSize:= StrToInt(sl); 
     Data:= TMemoryStream.Create; 
-    // Удаляем информацию о размере из данных. 
+    // РЈРґР°Р»СЏРµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ СЂР°Р·РјРµСЂРµ РёР· РґР°РЅРЅС‹С…. 
     Delete(s, 1, Length(sl)); 
     Reciving:= true; 
   end; 
-  // Сохраняем данные в файл, до тех пор, пока не получим все данные. 
+  // РЎРѕС…СЂР°РЅСЏРµРј РґР°РЅРЅС‹Рµ РІ С„Р°Р№Р», РґРѕ С‚РµС… РїРѕСЂ, РїРѕРєР° РЅРµ РїРѕР»СѓС‡РёРј РІСЃРµ РґР°РЅРЅС‹Рµ. 
   try 
     Data.Write(s[1], length(s)); 
     if Data.Size = DataSize then 
@@ -127,21 +120,21 @@ procedure TForm1.ServerSocket1ClientRead(Sender: TObject;
 var 
   ms: TMemoryStream; 
 begin 
-  // Клиент получает команду на передачу файла. 
+  // РљР»РёРµРЅС‚ РїРѕР»СѓС‡Р°РµС‚ РєРѕРјР°РЅРґСѓ РЅР° РїРµСЂРµРґР°С‡Сѓ С„Р°Р№Р»Р°. 
   if Socket.ReceiveText = 'send' then 
   begin 
     ms:= TMemoryStream.Create; 
     try 
-      // Получаем данные на передачу. 
+      // РџРѕР»СѓС‡Р°РµРј РґР°РЅРЅС‹Рµ РЅР° РїРµСЂРµРґР°С‡Сѓ. 
       Image1.Picture.Bitmap.SaveToStream(ms); 
       ms.Position:= 0; 
-      // Добавляем длину данных, чтобы клиент знал, сколько данных будет передано
-      // Добавляем #0 , чтобы можно было определить, где заканчивается информация о размере. 
+      // Р”РѕР±Р°РІР»СЏРµРј РґР»РёРЅСѓ РґР°РЅРЅС‹С…, С‡С‚РѕР±С‹ РєР»РёРµРЅС‚ Р·РЅР°Р», СЃРєРѕР»СЊРєРѕ РґР°РЅРЅС‹С… Р±СѓРґРµС‚ РїРµСЂРµРґР°РЅРѕ
+      // Р”РѕР±Р°РІР»СЏРµРј #0 , С‡С‚РѕР±С‹ РјРѕР¶РЅРѕ Р±С‹Р»Рѕ РѕРїСЂРµРґРµР»РёС‚СЊ, РіРґРµ Р·Р°РєР°РЅС‡РёРІР°РµС‚СЃСЏ РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ СЂР°Р·РјРµСЂРµ. 
       Socket.SendText(IntToStr(ms.Size) + #0); 
-      // Посылаем его. 
+      // РџРѕСЃС‹Р»Р°РµРј РµРіРѕ. 
       Socket.SendStream(ms); 
     except 
-      // Итак, осталось освободить поток, если что-то не так. 
+      // РС‚Р°Рє, РѕСЃС‚Р°Р»РѕСЃСЊ РѕСЃРІРѕР±РѕРґРёС‚СЊ РїРѕС‚РѕРє, РµСЃР»Рё С‡С‚Рѕ-С‚Рѕ РЅРµ С‚Р°Рє. 
       ms.Free; 
     end; 
   end; 
@@ -149,7 +142,7 @@ end;
  
 end.
 </pre>
-<p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ РёР· <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 <hr />
 <pre name="code" class="delphi">
 unit Unit1; 
@@ -251,12 +244,12 @@ end.
 </pre>
 
 
-<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<p>Р’Р·СЏС‚Рѕ СЃ <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

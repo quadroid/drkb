@@ -1,7 +1,7 @@
 <html>
 <head>
   <title>CRC-32</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,19 +13,12 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">CRC-32</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
+
 
 <pre name="code" class="delphi">
 
@@ -129,19 +122,19 @@ DD $b40bbe37, $c30c8ea1, $5a05df1b, $2d02ef8d
 end;
 </pre>
 
-<p id="author">Автор: Vit</p>
-<p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
+<p id="author">РђРІС‚РѕСЂ: Vit</p>
+<p>Р’Р·СЏС‚Рѕ СЃ Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
 <hr />
 <pre name="code" class="delphi">
 { **** UBPFD *********** by delphibase.endimus.com ****
-&gt;&gt; Быстрый алгоритм подсчета CRC32
+&gt;&gt; Р‘С‹СЃС‚СЂС‹Р№ Р°Р»РіРѕСЂРёС‚Рј РїРѕРґСЃС‡РµС‚Р° CRC32
  
-Использован BASM.
+РСЃРїРѕР»СЊР·РѕРІР°РЅ BASM.
  
-Зависимости: нет
-Автор:       Александр Шарахов, alsha@mailru.com, Москва
-Copyright:   Александр Шарахов
-Дата:        18 января 2003 г.
+Р—Р°РІРёСЃРёРјРѕСЃС‚Рё: РЅРµС‚
+РђРІС‚РѕСЂ:       РђР»РµРєСЃР°РЅРґСЂ РЁР°СЂР°С…РѕРІ, alsha@mailru.com, РњРѕСЃРєРІР°
+Copyright:   РђР»РµРєСЃР°РЅРґСЂ РЁР°СЂР°С…РѕРІ
+Р”Р°С‚Р°:        18 СЏРЅРІР°СЂСЏ 2003 Рі.
 ***************************************************** }
  
 unit CRCunit;
@@ -232,7 +225,7 @@ initialization
   CRCinit;
 end.
  
-//Пример использования: 
+//РџСЂРёРјРµСЂ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ: 
  
 uses
   CRCunit;
@@ -241,30 +234,30 @@ procedure TForm1.Button1Click(Sender: TObject);
 const
   FileName = 'CRCunit.pas';
 begin
-  ShowMessage('CRC32 файла=' + IntToHex(GetFileCRC(FileName), 8));
-  ShowMessage('CRC32 имени=' + IntToHex(GetZipCRC(PChar(FileName),
+  ShowMessage('CRC32 С„Р°Р№Р»Р°=' + IntToHex(GetFileCRC(FileName), 8));
+  ShowMessage('CRC32 РёРјРµРЅРё=' + IntToHex(GetZipCRC(PChar(FileName),
     Length(FileName)), 8));
 end;
  
 </pre>
 <hr />
-<p>Приведен модуль для Delphi 1.0 (для Delphi 2.0 должны быть сделаны небольшие изменения): </p>
+<p>РџСЂРёРІРµРґРµРЅ РјРѕРґСѓР»СЊ РґР»СЏ Delphi 1.0 (РґР»СЏ Delphi 2.0 РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ СЃРґРµР»Р°РЅС‹ РЅРµР±РѕР»СЊС€РёРµ РёР·РјРµРЅРµРЅРёСЏ): </p>
 <pre name="code" class="delphi">
 unit CRC32;
  
-{CRC32 рассчитывает код циклической избыточности (cyclic redundancy code - CRC),
-известный как CRC-32, с использованием алгоритма byte-wise ("мудрый байт").
+{CRC32 СЂР°СЃСЃС‡РёС‚С‹РІР°РµС‚ РєРѕРґ С†РёРєР»РёС‡РµСЃРєРѕР№ РёР·Р±С‹С‚РѕС‡РЅРѕСЃС‚Рё (cyclic redundancy code - CRC),
+РёР·РІРµСЃС‚РЅС‹Р№ РєР°Рє CRC-32, СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј Р°Р»РіРѕСЂРёС‚РјР° byte-wise ("РјСѓРґСЂС‹Р№ Р±Р°Р№С‚").
  
-(C) Авторские права 1989, 1995-1996 Earl F. Glynn, Overland Park, KS.
-Все права защищены.
+(C) РђРІС‚РѕСЂСЃРєРёРµ РїСЂР°РІР° 1989, 1995-1996 Earl F. Glynn, Overland Park, KS.
+Р’СЃРµ РїСЂР°РІР° Р·Р°С‰РёС‰РµРЅС‹.
  
-Данный модуль является производным от программы CRCT FORTRAN 77, опубликованной
-в "Byte-wise CRC Calculations" за авторством Aram Perez из IEEE Micro, Июнь 1983,
-страницы 40-50. Константы для полиномиального генератора CRC-32, приведенные
-здесь, опубликованы в "Microsoft Systems Journal", Март 1995, страницы 107-108.
+Р”Р°РЅРЅС‹Р№ РјРѕРґСѓР»СЊ СЏРІР»СЏРµС‚СЃСЏ РїСЂРѕРёР·РІРѕРґРЅС‹Рј РѕС‚ РїСЂРѕРіСЂР°РјРјС‹ CRCT FORTRAN 77, РѕРїСѓР±Р»РёРєРѕРІР°РЅРЅРѕР№
+РІ "Byte-wise CRC Calculations" Р·Р° Р°РІС‚РѕСЂСЃС‚РІРѕРј Aram Perez РёР· IEEE Micro, РСЋРЅСЊ 1983,
+СЃС‚СЂР°РЅРёС†С‹ 40-50. РљРѕРЅСЃС‚Р°РЅС‚С‹ РґР»СЏ РїРѕР»РёРЅРѕРјРёР°Р»СЊРЅРѕРіРѕ РіРµРЅРµСЂР°С‚РѕСЂР° CRC-32, РїСЂРёРІРµРґРµРЅРЅС‹Рµ
+Р·РґРµСЃСЊ, РѕРїСѓР±Р»РёРєРѕРІР°РЅС‹ РІ "Microsoft Systems Journal", РњР°СЂС‚ 1995, СЃС‚СЂР°РЅРёС†С‹ 107-108.
  
-Данный CRC алгоритм имеет бОльшую скорость за счет 512 элементов таблицы
-поиска.}
+Р”Р°РЅРЅС‹Р№ CRC Р°Р»РіРѕСЂРёС‚Рј РёРјРµРµС‚ Р±РћР»СЊС€СѓСЋ СЃРєРѕСЂРѕСЃС‚СЊ Р·Р° СЃС‡РµС‚ 512 СЌР»РµРјРµРЅС‚РѕРІ С‚Р°Р±Р»РёС†С‹
+РїРѕРёСЃРєР°.}
  
 interface
  
@@ -346,21 +339,21 @@ const
     $B40BBE37, $C30C8EA1, $5A05DF1B, $2D02EF8D);
  
 type
-  buffer = array[1..65521] of BYTE; { самый большой буфер, который     }
-  { только можно распределить в Куче }
+  buffer = array[1..65521] of BYTE; { СЃР°РјС‹Р№ Р±РѕР»СЊС€РѕР№ Р±СѓС„РµСЂ, РєРѕС‚РѕСЂС‹Р№     }
+  { С‚РѕР»СЊРєРѕ РјРѕР¶РЅРѕ СЂР°СЃРїСЂРµРґРµР»РёС‚СЊ РІ РљСѓС‡Рµ }
 var
   i: WORD;
   q: ^buffer;
  
 procedure CalcCRC32(p: pointer; nbyte: WORD; var CRCvalue: LongInt);
-{Ниже выполняется небольшое криптование (но выполняется очень быстро).
-Алгоритм работает следующим образом:
-1.  совершаем операцию "И/ИЛИ" (XOR) входного байта с младшей
-частью регистра CRC для получения INDEX
-2.  сдвигаем регистр CRC на восемь битов вправо
-3.  совершаем операцию "И/ИЛИ" (XOR) с CRC регистром и
+{РќРёР¶Рµ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ РЅРµР±РѕР»СЊС€РѕРµ РєСЂРёРїС‚РѕРІР°РЅРёРµ (РЅРѕ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ РѕС‡РµРЅСЊ Р±С‹СЃС‚СЂРѕ).
+РђР»РіРѕСЂРёС‚Рј СЂР°Р±РѕС‚Р°РµС‚ СЃР»РµРґСѓСЋС‰РёРј РѕР±СЂР°Р·РѕРј:
+1.  СЃРѕРІРµСЂС€Р°РµРј РѕРїРµСЂР°С†РёСЋ "Р/РР›Р" (XOR) РІС…РѕРґРЅРѕРіРѕ Р±Р°Р№С‚Р° СЃ РјР»Р°РґС€РµР№
+С‡Р°СЃС‚СЊСЋ СЂРµРіРёСЃС‚СЂР° CRC РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ INDEX
+2.  СЃРґРІРёРіР°РµРј СЂРµРіРёСЃС‚СЂ CRC РЅР° РІРѕСЃРµРјСЊ Р±РёС‚РѕРІ РІРїСЂР°РІРѕ
+3.  СЃРѕРІРµСЂС€Р°РµРј РѕРїРµСЂР°С†РёСЋ "Р/РР›Р" (XOR) СЃ CRC СЂРµРіРёСЃС‚СЂРѕРј Рё
 Table[INDEX]
-4.  повторяем шаги с 1 по 3 для всех байтов }
+4.  РїРѕРІС‚РѕСЂСЏРµРј С€Р°РіРё СЃ 1 РїРѕ 3 РґР»СЏ РІСЃРµС… Р±Р°Р№С‚РѕРІ }
 begin
   q := p;
   for i := 1 to nBYTE do
@@ -376,7 +369,7 @@ var
   FromFile: file;
   i: WORD;
 begin
-  FileMode := 0; {Turbo по умолчанию 2 для R/W и 0 для R/O}
+  FileMode := 0; {Turbo РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 2 РґР»СЏ R/W Рё 0 РґР»СЏ R/O}
   CRCValue := $FFFFFFFF;
   ASSIGN(FromFile, FromName);
 {$I-}RESET(FromFile, 1);
@@ -402,10 +395,10 @@ end {CRC}.
 <p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

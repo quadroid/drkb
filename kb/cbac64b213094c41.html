@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>TCanvas и освобождение дескрипторов</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+  <title>TCanvas Рё РѕСЃРІРѕР±РѕР¶РґРµРЅРёРµ РґРµСЃРєСЂРёРїС‚РѕСЂРѕРІ</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" href="css/css.css" rel="stylesheet" />
   <link type="text/css" href="css/sh.css" rel="stylesheet" />
   <script language="javascript" src="js/shInit.js"></script>
@@ -13,21 +13,14 @@
 <div id="layout">
 <div id="header">
   <div id="logo"><img id="logo" src="img/logo.png" /></div>
-  <div id="navigation">
-    <p id="navigation">
-      <a class="navigation" onclick="prev();" href="#">Предыдущая</a><br />
-      <a class="navigation" onclick="up();" href="#">Наверх</a><br />
-      <a class="navigation" onclick="next();" href="#">Следующая</a>
-    </p>
-  </div>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
-  <h1 id="title">TCanvas и освобождение дескрипторов</h1>
+  <h1 id="title">TCanvas Рё РѕСЃРІРѕР±РѕР¶РґРµРЅРёРµ РґРµСЃРєСЂРёРїС‚РѕСЂРѕРІ</h1>
 <div id="date">01.01.2010</div>
-<!-- Actual content start -->
 
-<p>TCanvas автоматически ReleaseDC не вызывает. При создании холста с WindowDC в качестве дескриптора, лучшей идеей будет создание потомка TCanvas (моделированного с TControlCanvas):</p>
+
+<p>TCanvas Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё ReleaseDC РЅРµ РІС‹Р·С‹РІР°РµС‚. РџСЂРё СЃРѕР·РґР°РЅРёРё С…РѕР»СЃС‚Р° СЃ WindowDC РІ РєР°С‡РµСЃС‚РІРµ РґРµСЃРєСЂРёРїС‚РѕСЂР°, Р»СѓС‡С€РµР№ РёРґРµРµР№ Р±СѓРґРµС‚ СЃРѕР·РґР°РЅРёРµ РїРѕС‚РѕРјРєР° TCanvas (РјРѕРґРµР»РёСЂРѕРІР°РЅРЅРѕРіРѕ СЃ TControlCanvas):</p>
 
 <pre name="code" class="delphi">
 type
@@ -85,13 +78,13 @@ end;
 </pre>
 
 
-<p>Очевидно, вы должны должны следить за ситуацией, и разрушать TWindowCanvas (или освобождать дескриптор) перед тем, как уничтожить элемент управления, связанный с ним. Также, имейте в виду, что дескриптор DeviceContext не освобождается автоматически после обработки каждого сообщения (как это происходит с дескрипторами TControlCanvas); для освобождения дескриптора вы должны явно вызвать FreeHandle (или разрушить Canvas). И, наконец, имейте в виду, что "WindowCanvas.Handle:= 0" не освобождает десктиптор, для его освобождения вы должны вызывать FreeHandle. </p>
-<p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
+<p>РћС‡РµРІРёРґРЅРѕ, РІС‹ РґРѕР»Р¶РЅС‹ РґРѕР»Р¶РЅС‹ СЃР»РµРґРёС‚СЊ Р·Р° СЃРёС‚СѓР°С†РёРµР№, Рё СЂР°Р·СЂСѓС€Р°С‚СЊ TWindowCanvas (РёР»Рё РѕСЃРІРѕР±РѕР¶РґР°С‚СЊ РґРµСЃРєСЂРёРїС‚РѕСЂ) РїРµСЂРµРґ С‚РµРј, РєР°Рє СѓРЅРёС‡С‚РѕР¶РёС‚СЊ СЌР»РµРјРµРЅС‚ СѓРїСЂР°РІР»РµРЅРёСЏ, СЃРІСЏР·Р°РЅРЅС‹Р№ СЃ РЅРёРј. РўР°РєР¶Рµ, РёРјРµР№С‚Рµ РІ РІРёРґСѓ, С‡С‚Рѕ РґРµСЃРєСЂРёРїС‚РѕСЂ DeviceContext РЅРµ РѕСЃРІРѕР±РѕР¶РґР°РµС‚СЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РїРѕСЃР»Рµ РѕР±СЂР°Р±РѕС‚РєРё РєР°Р¶РґРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ (РєР°Рє СЌС‚Рѕ РїСЂРѕРёСЃС…РѕРґРёС‚ СЃ РґРµСЃРєСЂРёРїС‚РѕСЂР°РјРё TControlCanvas); РґР»СЏ РѕСЃРІРѕР±РѕР¶РґРµРЅРёСЏ РґРµСЃРєСЂРёРїС‚РѕСЂР° РІС‹ РґРѕР»Р¶РЅС‹ СЏРІРЅРѕ РІС‹Р·РІР°С‚СЊ FreeHandle (РёР»Рё СЂР°Р·СЂСѓС€РёС‚СЊ Canvas). Р, РЅР°РєРѕРЅРµС†, РёРјРµР№С‚Рµ РІ РІРёРґСѓ, С‡С‚Рѕ "WindowCanvas.Handle:= 0" РЅРµ РѕСЃРІРѕР±РѕР¶РґР°РµС‚ РґРµСЃРєС‚РёРїС‚РѕСЂ, РґР»СЏ РµРіРѕ РѕСЃРІРѕР±РѕР¶РґРµРЅРёСЏ РІС‹ РґРѕР»Р¶РЅС‹ РІС‹Р·С‹РІР°С‚СЊ FreeHandle. </p>
+<p>Р’Р·СЏС‚Рѕ СЃ <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
 </div>
-<!-- Actual content end -->
+
 <hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<p>&copy; DRKB Library, 2010<br />Р Р°Р·СЂР°Р±РѕС‚РєР° Рё РїРѕРґРґРµСЂР¶РєР° &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>
