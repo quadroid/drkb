@@ -1,7 +1,7 @@
 Delphi Russian Knowledge Base Explorer
 ======================================
 
-![DRKB Logo](/logo.png)
+![DRKB Logo](/kb/img/splash.png)
 
 Delphi Russian Knowledge Base was a massive collection of articles covering Delphi language, its IDE, various Windows APIs, algorithms, and other related technologies and fields where Delphi could be applied. The project is long dead and almost all material is in (surprise) Russian (except a handful of articles in English), but it still might be interesting for its historical or nostalgia value, or even useful to someone still dealing with antique Win32 applications.
 
