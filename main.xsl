@@ -161,7 +161,7 @@ input[type=text]:focus {
 }
 ]]></xsl:text></style>
 <script><xsl:text disable-output-escaping="yes"><![CDATA[
-"use strict";
+"use strict"
 
 function main() {
   /* Collapse entire tree */
@@ -227,6 +227,18 @@ function main() {
     }
   });
 
+  function showResults() {
+    switchBtn.classList.add("enabled");
+    results.style.display = "";
+    tree.style.display = "none";
+  }
+
+  function hideResults() {
+    switchBtn.classList.remove("enabled");
+    results.style.display = "none";
+    tree.style.display = "";
+  }
+
   function unhighlight() {
     Array.from(document.getElementsByClassName("highlight")).forEach((h) => {
       h.classList.remove("highlight");
@@ -260,10 +272,8 @@ function main() {
 
   function search (term) {
     if (term == "") {
-      switchBtn.classList.remove("enabled");
-      results.style.display = "none";
+      hideResults();
       results.innerHTML = "";
-      tree.style.display = "";
       if (lastSelected) {
         unhighlight();
         expandItem(lastSelected);
@@ -331,18 +341,12 @@ function main() {
       })
     });
 
-    switchBtn.classList.add("enabled");
-    tree.style.display = "none";
-    results.style.display = "";
+    showResults();
   }
-
-  results.style.display = "none";
 
   switchBtn.onclick = (e) => {
     if (tree.style.display === "none") {
-      switchBtn.classList.remove("enabled");
-      results.style.display = "none";
-      tree.style.display = "";
+      hideResults();
       if (lastSelected) {
         unhighlight();
         expandItem(lastSelected);
@@ -351,15 +355,15 @@ function main() {
         lastSelected = null;
       }
     } else {
-      switchBtn.classList.add("enabled");
-      results.style.display = "";
-      tree.style.display = "none";
+      showResults();
     }
   };
 
   const searchBox = searchBar.querySelector("input");
   searchBox.onchange = (e) => {search(e.target.value.trim())};
   searchBox.value = "";
+
+  hideResults();
 }
 
 document.addEventListener("DOMContentLoaded", (e) => {main()});
