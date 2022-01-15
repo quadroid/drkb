@@ -67,7 +67,7 @@ dp.sh.Toolbar.Commands = {
 	// Copies the original source code in to the clipboard. Uses either IE only method or Flash object if ClipboardSwf is set
 	CopyToClipboard: {
 		label: 'Копировать',
-		check: function() { return window.clipboardData != null || dp.sh.ClipboardSwf != null; },
+		check: function() { return window.clipboardData != null || dp.sh.ClipboardSwf != null || (navigator != null && navigator.clipboard != null); },
 		func: function(sender, highlighter)
 		{
 			var code = dp.sh.Utils.FixForBlogger(highlighter.originalCode)
@@ -93,11 +93,19 @@ dp.sh.Toolbar.Commands = {
 				
 				flashcopier.innerHTML = '<embed src="' + dp.sh.ClipboardSwf + '" FlashVars="clipboard='+encodeURIComponent(code)+'" width="0" height="0" type="application/x-shockwave-flash"></embed>';
 			}
+			else if (navigator != null && navigator.clipboard != null)
+			{
+				navigator.clipboard.writeText(code).then(function() {
+					/* OK */
+				}, function() {
+					alert('Не удалось скопировать в буфер обмена.');
+				});
+			}
 		}
 	},
 	
 	// creates an invisible iframe, puts the original source code inside and prints it
-	PrintSource: {
+	/*PrintSource: {
 		label: 'Печать',
 		func: function(sender, highlighter)
 		{
@@ -121,7 +129,7 @@ dp.sh.Toolbar.Commands = {
 			
 			document.body.removeChild(iframe);
 		}
-	},
+	},*/
 	
 	About: {
 		label: '?',
