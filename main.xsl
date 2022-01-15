@@ -26,25 +26,36 @@
     <xsl:text disable-output-escaping="yes">&lt;!DOCTYPE html&gt;</xsl:text>
     <html><head>
 <style><xsl:text disable-output-escaping="yes"><![CDATA[
-body {
+* {
+  box-sizing: border-box;
+}
+
+html, body {
   border: 0;
   margin: 0;
   padding: 0;
+  height: 100vh;
+}
+
+body {
   color: #eee;
-  background: #000;
-  font-family: Verdana, "Helvetica Neue", Helvetica, sans-serif;
+  background: #111;
+  font-family: Verdana, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 0.85em;
   overflow: hidden;
 }
 
+/* Stretch to fill vertical column space */
 #container {
-  height: 100vh;
+  position: relative;
+  height: 100%;
   display: flex;
   flex-flow: column;
 }
 
+/* Links */
 a:link, a:visited, a:hover {
-  color: #f93;
+  color: #fb3;
 }
 
 a.dotted {
@@ -52,6 +63,7 @@ a.dotted {
   border-bottom: 1px dotted #f93;
 }
 
+/* Articles tree */
 ul, li {
   border: 0;
   padding: 0;
@@ -63,13 +75,18 @@ li {
   padding-bottom: 0.25em;
 }
 
+#container > .container {
+  overflow: scroll;
+  overflow-x: hidden;
+  flex: 1;
+}
+
 #tree, #results {
   position: relative;
   padding: 0.75em;
   list-style: none;
   white-space: nowrap;
-  overflow: scroll;
-  flex: 1 1 auto;
+  user-select: none;
 }
 
 .tree-item {
@@ -78,7 +95,7 @@ li {
 
 li.highlight > .tree-item > span,
 li.highlight > div > a {
-  background: #f93;
+  background: #fb3;
   border-radius: 4px;
   padding: 0.25em;
   color: #000;
@@ -101,10 +118,11 @@ div.tree-item.expanded:before {
   display: inline-block;
 }
 
+/* Search box */
 #search {
   padding: 0.75em;
   background: #333;
-  flex: 0 1 auto;
+  flex: 0;
 }
 
 #search .container {
@@ -113,6 +131,7 @@ div.tree-item.expanded:before {
   padding-right: 2em;
   background: #111;
   height: 2em;
+  box-sizing: content-box;
 }
 
 #search #switch {
@@ -121,20 +140,22 @@ div.tree-item.expanded:before {
   right: 0;
   width: 2em;
   height: 2em;
-  background: #222;
   float: right;
+  color: #999;
+  background: #333;
+  font-weight: bold;
+  text-align: center;
   margin-right: -2em;
   box-sizing: border-box;
-  border-left: 1px #444 solid;
+  border-left: 1px #666 solid;
   border-radius: 0 4px 4px 0;
   cursor: pointer;
-  color: #999;
   user-select: none;
 }
 
 #search #switch.enabled {
   color: #f93;
-  background: #333;
+  background: #444;
 }
 
 #search #switch .button {
@@ -146,18 +167,101 @@ div.tree-item.expanded:before {
 }
 
 #search input {
+  font-family: Consolas, Menlo, Monaco, "Courier New", Courier, monospace;
   border: 0;
   padding: 0.5em;
   width: 100%;
   height: 100%;
   background: none;
   box-sizing: border-box;
-  font-family: 'Consolas', 'Monaco', monospace;
   color: #999;
 }
 
+/* Hide outline glow */
 input[type=text]:focus {
   outline: none;
+}
+
+/* Customize scrollbars (WebKit) */
+::-webkit-scrollbar {
+  width: .5em;
+}
+
+::-webkit-scrollbar-track {
+  background: #111;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #f93;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #c60;
+}
+
+/* Customize scrollbars (Firefox) */
+body {
+  scrollbar-color: #f93 #111;
+  scrollbar-width: thin;
+}
+
+/* Progress animation */
+#progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  display: none;
+}
+
+#progress > .container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: 1.75em;
+}
+
+#progress span {
+  position: absolute;
+  top: -1vh;
+  width: 2vw;
+  height: 2vh;
+  background: #f93;
+}
+
+#progress span:nth-of-type(1) {
+  left: -5vw;
+  animation: bloat 600ms ease infinite;
+  animation-delay: -600ms;
+}
+
+#progress span:nth-of-type(2) {
+  left: -1vw;
+  animation: bloat 600ms ease infinite;
+  animation-delay: -450ms;
+}
+
+#progress span:nth-of-type(3) {
+  left: 3vw;
+  animation: bloat 600ms ease infinite;
+  animation-delay: -300ms;
+}
+
+@keyframes bloat {
+  0% {
+    top: -1vh;
+    height: 2vh;
+  }
+  50% {
+    top: -2vh;
+    height: 4vh;
+  }
+  100% {
+    top: -1vh;
+    height: 2vh;
+  }
 }
 ]]></xsl:text></style>
 <script><xsl:text disable-output-escaping="yes"><![CDATA[
@@ -203,7 +307,9 @@ function main() {
         title: this.innerText,
         link: this.getAttribute("link")
       }, '*');
-      t.stopPropagation();
+      /* Bubble up so that clicking on a link also expands
+      // or collapses its tree node */
+      //t.stopPropagation();
       this.parentNode.parentNode.classList.add("highlight");
     }))
   });
@@ -213,10 +319,37 @@ function main() {
   const tree = document.getElementById("tree");
   const results = document.getElementById("results");
   const searchBar = document.getElementById("search");
+  const searchBox = searchBar.querySelector("input");
   const switchBtn = document.getElementById("switch");
+  const progress = document.getElementById("progress");
   const items = Array.from(document.getElementsByTagName("li"));
+  const container = tree.parentNode;
+  const searchDelay = 2000;
+  let searchTimeout = 0;
+  let lastTerm = "";
   let lastSelected;
+  let currView;
 
+  function scrollIntoView(e, c) {
+    /* A weird bug occurs where entire page moves slightly
+    // off-screen (to the top), producing ugly white strip at
+    // the bottom of the browser view, when using `scrollIntoView()`.
+    // Weird browser bugs: probably because we are using `<iframe>`s.
+    // Firefox and Safari exhibit the bug, other WebKit
+    // browsers appear to be fine. */
+    if (true) {
+      /* There appear to be two solutions: one is to set the scroll
+      // offset directly... */
+      c.scrollTop = e.offsetTop;
+    } else {
+      /* ...another is just to scroll the whole body
+      // after scrolling the element */
+      e.scrollIntoView();
+      document.body.scrollIntoView();
+    }
+  }
+
+  /* Collect article nodes */
   items.forEach(function(e) {
     const div = e.firstElementChild;
     const a = div.firstElementChild;
@@ -227,40 +360,52 @@ function main() {
     }
   });
 
+  /* Toggle search progress & results */
+  function showProgress() {
+    currView.style.opacity = .5;
+    progress.style.display = "block";
+  }
+
+  function hideProgress() {
+    currView.style.opacity = '';
+    progress.style.display = "none";
+  } 
+
   function showResults() {
     switchBtn.classList.add("enabled");
     results.style.display = "";
     tree.style.display = "none";
+    currView = results;
   }
 
   function hideResults() {
     switchBtn.classList.remove("enabled");
     results.style.display = "none";
     tree.style.display = "";
+    currView = tree;
   }
 
+  /* Search routines */
   function unhighlight() {
     Array.from(document.getElementsByClassName("highlight")).forEach((h) => {
       h.classList.remove("highlight");
     });
   }
 
-  function isSeparator (c) {
-    if (!c) return true;
-    if ("{}[]()<>+-!?@#$%^&*~`:;,._/\\'\"№|".indexOf(c) != -1) return true;
-    if (c.charCodeAt(0) <= 32) return true;
-    return false;
-  }
-
-  function expandItem (node) {
+  /* Input element is a `<li>` tag */
+  function expandToItem (node) {
+    let pnode;
     const getPnode = (node, name) => {
       let pnode = node.parentNode;
-      while (pnode && (!pnode.classList || !pnode.classList.contains (name))) {
+      while (pnode && (!pnode.classList || !pnode.classList.contains(name))) {
         pnode = pnode.parentNode;
       }
       return pnode;
     };
-    let pnode = getPnode(node, "tree-subitems");
+    if (node.firstChild.classList.contains("tree-item")) {
+      pnode = node.firstChild.nextElementSibling;
+    }
+    else pnode = getPnode(node, "tree-subitems");
     while (pnode) {
       const pdiv = pnode.previousElementSibling;
       pdiv.classList.remove("collapsed");
@@ -270,15 +415,25 @@ function main() {
     }
   }
 
+  function isSeparator (c) {
+    if (!c) return true;
+    if ("{}[]()<>+-!?@#$%^&*~`:;,._/\\'\"№|".indexOf(c) != -1) return true;
+    if (c.charCodeAt(0) <= 32) return true;
+    return false;
+  }
+
   function search (term) {
+    if (term === lastTerm) return;
+    lastTerm = term;
+
     if (term == "") {
       hideResults();
       results.innerHTML = "";
       if (lastSelected) {
         unhighlight();
-        expandItem(lastSelected);
+        expandToItem(lastSelected);
         lastSelected.classList.add("highlight");
-        lastSelected.scrollIntoView();
+        scrollIntoView(lastSelected, container);
         lastSelected = null;
       }
       return;
@@ -301,9 +456,11 @@ function main() {
       });
       if (rank !== 0) {
         if (i.link) {
-          res.push({rank: rank, html: "<li><a href='#' link='" + i.link + "'>" + i.text + "</a></li>", ref: i.ref});
+          res.push({rank: rank, html: "<li><a href='#' link='" + i.link + "'>"
+          + i.text + "</a></li>", ref: i.ref});
         } else {
-          res.push({rank: rank, html: "<li><a href='#' class='dotted'>" + i.text + "</a></li>", ref: i.ref});
+          res.push({rank: rank, html: "<li><a href='#' class='dotted'>"
+          + i.text + "</a></li>", ref: i.ref});
         }
       }
     });
@@ -332,10 +489,10 @@ function main() {
         } else {
           unhighlight();
           lastSelected = null;
-          switchBtn.onclick();
-          expandItem(selected);
-          selected.classList.add("highlight");
-          selected.scrollIntoView();
+          switchViews();
+          expandToItem(selected);
+          //selected.classList.add("highlight");
+          scrollIntoView(selected, container);
         }
         t.stopPropagation();
       })
@@ -344,25 +501,57 @@ function main() {
     showResults();
   }
 
-  switchBtn.onclick = (e) => {
+  /* Switch between article tree and search results */
+  function switchViews(e) {
     if (tree.style.display === "none") {
       hideResults();
       if (lastSelected) {
         unhighlight();
-        expandItem(lastSelected);
+        expandToItem(lastSelected);
         lastSelected.classList.add("highlight");
-        lastSelected.scrollIntoView();
+        scrollIntoView(lastSelected, container);
         lastSelected = null;
       }
     } else {
       showResults();
     }
-  };
+  }
 
-  const searchBox = searchBar.querySelector("input");
-  searchBox.onchange = (e) => {search(e.target.value.trim())};
+  switchBtn.addEventListener("click", switchViews);
+
+  /* Begin automatic search countdown */
+  function beginSearch (key) {
+    if (!searchTimeout) {
+      if (lastTerm === searchBox.value.trim()) return;
+      showProgress();
+    } else clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      doSearch(searchBox);
+    }, searchDelay);
+  }
+
+  function searchKey (e) {
+    if (e.altKey || e.ctrlKey || e.shiftKey || e.metaKey
+    ||  e.keyCode === 13) return;
+    beginSearch();
+  }
+
+  searchBox.addEventListener("keydown", searchKey);
+  searchBox.addEventListener("keyup", searchKey);
+
+  /* Search instantly on enter or lost focus */
+  function doSearch (box) {
+    hideProgress();
+    clearTimeout(searchTimeout);
+    searchTimeout = 0;
+    search(box.value.trim());
+  }
+
+  searchBox.addEventListener("change", (e) => {
+    doSearch(e.target);
+  });
+
   searchBox.value = "";
-
   hideResults();
 }
 
@@ -377,10 +566,17 @@ document.addEventListener("DOMContentLoaded", (e) => {main()});
             <span id="switch"><span class="button">···</span></span>
           </div>
         </div>
-        <ul id="tree">
-          <xsl:apply-templates select="article"/>
-        </ul>
-        <ul id="results"></ul>
+        <div class="container">
+          <div id="progress">
+            <div class="container">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+          <ul id="tree">
+            <xsl:apply-templates select="article"/>
+          </ul>
+          <ul id="results"></ul>
+        </div>
       </div>
     </body>
     </html>
