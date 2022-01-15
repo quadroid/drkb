@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Получение уникальных идентификаторов</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,13 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Получение уникальных идентификаторов</h1>
 <div id="date">01.01.2010</div>
-
 
 <p>Сервер имеет средства для автоматической генерации уникальных идентификаторов, который могут использоваться в качестве первичного ключа. В качестве этих значений могут выступать целые числа, либо новый тип данных UNIQUEIDENTIFIER</p>
 <p>Для получения целочисленного уникального идентификатора записи в MSSQL используется ключевое слово IDENTITY [(seed, increment)].</p>
@@ -34,18 +34,15 @@
  )
 </pre>
 
-
 <p>Только одна колонка в таблице может иметь атрибут IDENTITY. Эта колонка должна иметь тип&nbsp; TINYINT, SMALLINT, INT или DECIMAL(p,0) После этого при вставке новых записей поле Id будет получать новое значение счетчика. Если таблица имеет поле с установленным IDENTITY, то к этому полю можно обратиться при помощи ключевого слова IDENTITYCOL, например запрос</p>
 <pre name="code" class="sql">
  SELECT IDENTITYCOL FROM TableName
 </pre>
 
-
 <p>Эквивалентен</p>
 <pre name="code" class="sql">
  SELECT Id FROM TableName
 </pre>
-
 
 <p>если поле Id создано с атрибутом IDENTITY</p>
 <p>Значение последнего поля с IDENTITY, вставленного текущей сессией можно получить функцией @@IDENTITY. Например, следующий скрипт добавляет записи в главную и дочернюю таблицы.</p>
@@ -59,7 +56,6 @@ SELECT @IdentityValue = @@IDENTITY
 INSERT ChildTable (MainId, Data) VALUES (@IdentityValue, 'Первая')
 INSERT ChildTable (MainId, Data) VALUES (@IdentityValue, 'Вторая')
 </pre>
-
 
 <p>Обращаю внимание, что если значение ключевого поля нужно для нескольких вставок, то его необходимо сохранить в переменной, в противном случае, при наличии у ChildTable своего поля с IDENTITY после первой вставки в неё @@IDENTITY вернет уже значение для ChildTable.</p>
 <p>При использовании вышеописанной техники необходимо соблюдать осторожность при написании триггеров. Если триггер на MainTable сам производит вставку в какие-то таблицы с IDENTITY, то после </p>
@@ -83,14 +79,12 @@ INSERT INTO MyUniqueTable(Characters) VALUES ('abc')
 INSERT INTO MyUniqueTable VALUES (NEWID(), 'def')
 </pre>
 
-
 <p>Приведенные операторы вставки эквивалентны и оба создают записи с уникальными значениями UniqueColumn. Аналогично, значение может быть предоставлено клиентским приложением функцией CoCreateGUID при помощи свойства AsGUID классов TField и TParam, без опасения, что оно окажется неуникальным.</p>
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

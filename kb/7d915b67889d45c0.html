@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Всплывающие подсказки у выключенных кнопок</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,13 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Всплывающие подсказки у выключенных кнопок</h1>
 <div id="date">01.01.2010</div>
-
 <p>Проблема заключается в том, что свойство Parent у выключенной (disabled) кнопки равно NIL. Я не уверен что это так, но это становится проблемой в ActivateHint. Если кнопка выключена, то даже при наличии над ней курсора мыши и включенной подсказки, появится.... правильно, подсказка ФОРМЫ.... </p>
 <p>OK, давайте лечить. Метод FindDragTarget вызывается в коде-обработчике подсказки, и позволяет увидеть компонент, находящийся в данный момент под курсорм мыши. FindDragTarget вызывает функцию Windows API WindowFromPoint. И WindowFromPoint *НЕ* возвращает "выключенные" окна. В электронной справке по API говорится, что если вам необходимы также выключенные окна, используйте ChildWindowFromPoint. ОГО! Это идея. Если элемент управления выключен, то будет найдена или сама форма, или же контейнер выключенного компонента. Если компонент, найденый с помощью ChildWindowFromPoint отличается от найденного с помощью WindowFromPoint, мы должны высветить подсказку. Это работает! Но хочу предостеречь: вы не сможете таким образом получить подсказку для самой формы или контейнеров типа TPanel или TGroupBox. Попытайтесь сами!</p>
 <pre name="code" class="delphi">
@@ -60,12 +60,11 @@ end;
 </pre>
 <p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

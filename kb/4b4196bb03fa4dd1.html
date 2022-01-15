@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Вызов MapInfo и встраивание его в свою программу</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,13 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Вызов MapInfo и встраивание его в свою программу</h1>
 <div id="date">01.01.2010</div>
-
 Автор: Дмитрий Кузан </p>
 <p>Доброе время суток ! </p>
 <p>Данной статьей я начинаю цикл статей посвященных возможностям интегрированной картографии MapInfo и возможности встраивания геоинформационной системы в вашу программу. Примечания : Все примеры распространяются свободно и разработаны в обучающих целях на Delphi 6. Всю информацию по работе смотрите в прилагаемых исходных кодах. </p>
@@ -291,7 +291,6 @@ end;
 end.
 </pre>
 
-
 <p>И так что мы имеем - </p>
 <p>Мы установили связь с сервером MapInfo. </p>
 <p>Мы узнали что у сервера MapInfo есть метод Do - он предназначен для посылки команд MapBasic серверу точно так-же как если бы пользователь набирал их в окне MapBasic-а самой программы MapInfo. </p>
@@ -303,11 +302,9 @@ end.
 <p>Запуск уникального экземпляра программы MapInfо осуществляется вызовом функции CreateObject() Visual Basic с присваиванием возвращаемого значения объектной переменной. (Вы можете декларировать объектную переменную как глобальную; в противном случае объект MapInfо освобождается после выхода из локальной процедуры.) </p>
 <p>Например: </p>
 <p>FServer := CreateOleObject('MapInfo.Application');</p>
-
 <p>Для подключения к ранее исполнявшемуся экземпляру MapInfo, который не был запущен вызовом функции CreateObject(), используйте функцию GetObject(). </p>
 <p>// Данная реализация оставлена вам уважаемые читатели для тренировки</p>
 <p>FServer := GetObject('MapInfo.Application'); </p>
-
 <p>Внимание: </p>
 <p>Если Вы работаете с Runtime-версией MapInfo, а не с полной копией, задавайте "MapInfo. Runtime" вместо "MapInfo. Арplication". Runtime-версия и полная версия могут работать одновременно. </p>
 <p>Функции CreateObject() и GetObject() используют механизм управления объектами OLE (OLE Automation) для связи с MapInfo. </p>
@@ -344,18 +341,15 @@ ExecuteCommandMapBasic('Set Window Info Parent %D', [FOwner.Handle]);
 ExecuteCommandMapBasic('Set Next Document Parent %D Style 1', [FPanel.Handle]); 
 </pre>
 
-
 <p id="note">Примечание:</p>
 <p>В компоненте это реализовано процедурой WindowMapDef которая ссылается на панель заданную свойством PanelMap.</p>
 <p>Для каждого переподчиняемого окна необходимо передать программе MapInfo из Вашей программы пару операторов - оператор Set Next Document Parent, а затем оператор, создающий окно. После создания окна Вам может понадобиться запросить из MapInfo значение функции WindowID(0) - целочисленный ID-номер окна (Window ID) в MapInfo, так как многие операторы языка MapBasic требуют задания этого номера. Этот запрос выполняется на основе компонента следующим образом: </p>
 <p>WindowID := Eval('WindowID(%D)',[0]).AsInteger;</p>
-
 <p>Заметьте, что даже после переподчинения окна Карты, MapInfo продолжает управлять им. клиентская программа может не обращать внимания на сообщения о перерисовке, реализацию данной особенности я оставлю на потом. </p>
 <p>Переподчинение окон Легенд, растровых диалогов и других окон MapInfo </p>
 <p>Чтобы изменить (преподчинить) данные окна используется оператор MapBasic Set Window... Parent. </p>
 <p>Например, в компоненте переподчинение окна информации реализовано так - </p>
 <p>ExecuteCommandMapBasic('Set Window Info Parent %D', [FOwner.Handle]);</p>
-
 <p>Реализацию переподчинения других окон я оставляю вам уважаемые читатели </p>
 <p>Заметьте, что способ переподчинения окна Информации другой, чем для окна Карты. В последнем случае не используется предложение Set Next Document. Дело в том, что может существовать несколько окон Карты. </p>
 <p>Окна Легенды - особый случай. Обычно существует только одно окно Легенды, так же, как и одно окно Информации. Однако при помощи оператора MapBasic Create Legend Вы можете создавать дополнительные окна Легенды. </p>
@@ -367,9 +361,9 @@ ExecuteCommandMapBasic('Set Next Document Parent %D Style 1', [FPanel.Handle]);
 <p>DelphiWorld 6.0</p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

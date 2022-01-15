@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Создание Active Server Page (ASP) приложений (Статья)</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,13 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Создание Active Server Page (ASP) приложений (Статья)</h1>
 <div id="date">01.01.2010</div>
-
 
 <p>Новый продукт Borland &#8211; Delphi5, который начал распространяться осенью 1999 года содержит ряд новых возможностей. В частности, к экспертам проектов была добавлена возможность создания ASP приложений. Эксперт вызывается при помощи команды File/New/ActiveX и далее выбирается икона Active Server Object. К сожалению, в текущей документации, распространяемой с Delphi 5 (Build 5.62), крайне скупо сказано о назначении, последовательности создания и тестирования ASP сервера. Примеры работающего ASP сервера также отсутствуют в дистрибутиве Delphi5. Настоящая публикация частично восполняет эти проблемы.</p>
 <p>Клиентное приложение, работающее с ASP сервером, представляет собой HTML документ и может быть прочитано на любом WEB браузере. Соответственно, эти HTML документы размещаются на каком-либо WEB-сервере. WEB сервер, получив требование о предоставлении документа, считывает его из локального хранилища и передает клиенту, при этом часть информации вносится в документ динамически ASP сервером. Принято, чтобы расширения у документов, обращающиеся к ASP серверу, имели расширение *.asp. Примеры таких документов можно найти в директориях WINNT\SYSTEM32\INETSRV\IISADMIN и INETPUB\IISAMPLES\EXAIR если был установлен Microsoft Internet Informational Server (IIS). Типичный пример обращения к ASP серверу с HTML документа выглядит следующим образом:</p>
@@ -246,12 +246,11 @@ end;
 <p><img src="pic/clip0322.gif" /></p>
 <p>Рисунок 6. Чтение и показ ресурсов в HTML документе Если в файле Test.asp изменить имя компании &#8211; а это можно сделать при помощи любого текстового редактора, то все изменения будут отражаться в HTML документе. В заключении следует рассмотреть out-of-process ASP сервера. Эти сервера реализуются в *.exe приложениях и работают они в отдельном адресном пространстве. До сих пор рассматривались in-process сервера, которые работают в адресном пространстве IIS и реализуются в динамически загружаемых библиотеках &#8211; DLL. Для их создания необходимо открыть готовый проект, компиляция которого приводит к созданию *.exe файла или создать новый проект посредством вызова команды File/New Application. После этого необходимо выполнить команду File/New/ActiveX/Active Server Object. Будет создана библиотека типов, содержащая методы OnStartPage и OnEndPage.Все, что было сказано выше для in-process сервера применимо и к out-of-process: делаются новые методы и из вызываются из VB скриптов *.asp страницы. Сложности возникают при попытке протестировать out-of-process сервер. По умолчанию параметры IIS установлены таким образом, что запрещают запуск приложений: разрешен запуск только DLL. Более того, в администраторе IIS отсутствует опция, которая позволяет разрешить или запретить использование приложения, как ASP сервера. Для того, чтобы разрешить запуск исполняемого файла, как ASP сервера, необходимо выполнить следующий VB скрипт: Set oWebService = GetObject("IIS://LocalHost/W3svc") oWebService.Put "AspAllowOutOfProcComponents", True oWebService.SetInfo Для того, чтобы он был выполнен, необходимо, чтобы текущий пользователь имел статус администратора. По этой причине данный скрипт бесполезно определять в HTML документе и запускать его, используя IE: любой пользователь интернета имеет статус гостя. Данный скрипт необходимо поместить в обработчик какого-либо события в среде разработке VB и запустить его оттуда. Я не сумел сделать аналог данного скрипта в Delphi: не найден метод, аналогичный методу VB GetObject. Очевидно, что метод GetObject возвращает ссылку на IDispatch IIS. Но при этом в качестве параметра он использует строку, которая не является классовой (GUID отсутствкует в системном реестре). В Delphi аналогичные методы отсутствуют, по крайней мере, в виде простых вспомогательных функций. Возможно данный метод станет доступным в следующих версиях Delphi.  &nbsp; &nbsp; &nbsp; &nbsp;</p>
 <p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

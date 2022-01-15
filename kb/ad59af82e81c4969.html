@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Как возвести в степень?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,13 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Как возвести в степень?</h1>
 <div id="date">01.01.2010</div>
-
 
 <pre name="code" class="delphi">
 function Degree(const DegBasis, DegParam: Extended): Extended; 
@@ -120,11 +120,9 @@ end;
 
 <p id="author">Автор&nbsp; ___ALex___</p>
 <a href="http://forum.pascal.dax.ru/" target="_blank">http://forum.pascal.dax.ru/</a></p>
-<hr />
+<hr/>
 <p>Это может звучать тривиально, но как мне возвести число в степень? Например, 2^12 = 4095. </p>
-
 <p>На самом деле вопрос далеко не тривиальный. Проблема в том, что сам алгоритм функции далеко не прост. Функцией Power(X, N) (т.е. X^N) должны четко отслеживаться несколько возможных ситуаций: </p>
-
 <p>X любое число, N = 0 </p>
 <p>X = 1, N любое число </p>
 <p>X = 0 и N &gt; 0 </p>
@@ -234,11 +232,10 @@ begin
 end;
 </pre>
 
-
 <a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
 
-<hr /><p>Возведение числа в действительную степень </p>
+<hr/><p>Возведение числа в действительную степень </p>
 <p>
 Автор: Максим М. Гумеров</p>
 &nbsp;<br>
@@ -267,7 +264,7 @@ end;
 Позднейшая проверка показала, что как Visual C из Visual Studio .NET, так и C++ Builder 4.5 реализуют возведение в степень более качественно. Используемый в них вариант концептуально не отличается от того решения, которое я хочу предложить.</p>
 Есть предложение</p>
 Давайте проведем инвентаризацию. Какие инструкции сопроцессора связаны с возведением в степень или взятием логарифма? Приведу краткую выдержку из [1] и [2]:</p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#9642;</td><td>F2XM1 &#8211; вычисляет 2**x-1, где -1&lt;x&lt;1. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#9642;</td><td>FSCALE (масштабирование степенью двойки) - фактически считает 2**trunc(x), где trunc(x) означает округление к 0, т.е. положительные числа округляются в меньшую сторону, отрицательные &#8211; в большую. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#9642;</td><td>FXTRACT &#8211; извлекает мантиссу и экспоненту действительного числа. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#9642;</td><td>FYL2X &#8211; вычисляет y*log2(x), где log2(x) &#8211; логарифм x по основанию 2. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#9642;</td><td>FYL2XP1 &#8211; вычисляет y*log2(x+1) для -(1-1/sqrt(2))&lt;x&lt;1-1/sqrt(2) c большей точностью, нежели FYL2X. Здесь sqrt(x) означает вычисление квадратного корня. </td></tr></table></div>Вот, в общем-то, и все. Но уже на первый взгляд этого хватает, чтобы понять, что задача может быть решена более прямо, чем предлагает RTL Borland Delphi.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#9642;</td><td>F2XM1 &#8211; вычисляет 2**x-1, где -1&lt;x&lt;1. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#9642;</td><td>FSCALE (масштабирование степенью двойки) - фактически считает 2**trunc(x), где trunc(x) означает округление к 0, т.е. положительные числа округляются в меньшую сторону, отрицательные &#8211; в большую. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#9642;</td><td>FXTRACT &#8211; извлекает мантиссу и экспоненту действительного числа. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#9642;</td><td>FYL2X &#8211; вычисляет y*log2(x), где log2(x) &#8211; логарифм x по основанию 2. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#9642;</td><td>FYL2XP1 &#8211; вычисляет y*log2(x+1) для -(1-1/sqrt(2))&lt;x&lt;1-1/sqrt(2) c большей точностью, нежели FYL2X. Здесь sqrt(x) означает вычисление квадратного корня. </td></tr></table></div>Вот, в общем-то, и все. Но уже на первый взгляд этого хватает, чтобы понять, что задача может быть решена более прямо, чем предлагает RTL Borland Delphi.</p>
 Действительно, почему не заменить показатель степени в (1) на 2? Ведь неперово число отнюдь не является родным для двоичной арифметики! Тогда получится</p>
 (2) x**y = 2**log2(x**y) = 2**(y*log2(x)).</p>
 Это выражение для x**y в соответствии с вышеозначенными пятью инструкциями можно представить как композицию функций в таком виде: </p>
@@ -357,7 +354,6 @@ type
   end;
 </pre>
 
-
 На вход функции Exp2 поступает единственный аргумент x - возводимое в степень число. Как можно реализовать функцию?</p>
 Вот как это сделал я.</p>
 ПРЕДУПРЕЖДЕНИЕ</p>
@@ -411,7 +407,6 @@ asm
 end;
 </pre>
 
-
 ПРЕДУПРЕЖДЕНИЕ</p>
 Выполнение этого фрагмента изменяет содержимое регистра EAX.</p>
 Оценим погрешность приближения. Так как результат, получаемый как _Power(2,x) (функция _Power приведена в начале статьи), заведомо точнее, чем Exp2(x), то в качестве оченки примем относительное отклонение значения последней функции от значения первой: Epsilon=abs( Exp2(x) - _Power(2,x) ) / _Power(2,x). Разумеется, выражение имеет смысл, если _Power(2,x)&lt;&gt;0.</p>
@@ -448,7 +443,6 @@ asm
 @Exit:
 end;
 </pre>
-
 
 ПРЕДУПРЕЖДЕНИЕ</p>
 В этом фрагменте используется инструкция FCOMIP, впервые появившаяся на процессорах Pentium Pro. Любителям антиквариата придется использовать вместо пары команд FCOMIP / JE блок </p>
@@ -511,7 +505,6 @@ asm
 end;
 </pre>
 
-
 Таким образом, нам в этом случае (при x, близких к 1) удается избавиться от всех инструкций FPU, принадлежащих к группе трансцендентных, что приводит к впечатляющему росту производительности</p>
 К сожалению, с ростом показателя степени максимальная погрешность растет, оставаясь, впрочем, в оговоренных пределах (т.е. меньше 0,1%; более того &#8211; меньше 0,01%) даже при очень больших показателях</p>
 Заключение</p>
@@ -519,19 +512,18 @@ end;
 Для тех же случаев, когда необходима высокая точность вычислений, в качестве первого камня фундамента была рассмотрена функция, исправляющая недостаток Delphi RTL. Несомненно, это направление также достойно дальнейших исследований с целью ускорить заведомо медленные вычисления с повышенной точностью.</p>
 Кладезь мудрости</p>
 Очень познавательно чтение следующих документов:</p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Intel® Architecture Software Developer&#8217;s Manual: том 2, Instruction set reference. Можно найти на сайте Intel www.intel.com. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>Intel® VTune™ Performance Analyzer, гипертекстовая справка. И вообще, VTune &#8211; замечательный инструмент для поиска шероховатостей в программе. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>Intel® Pentium® 4 and Intel® Xeon™ Processor Optimization Reference Manual. Все там же, на сайте Intel. </td></tr></table></div>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">1.</td><td>Intel® Architecture Software Developer&#8217;s Manual: том 2, Instruction set reference. Можно найти на сайте Intel www.intel.com. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">2.</td><td>Intel® VTune™ Performance Analyzer, гипертекстовая справка. И вообще, VTune &#8211; замечательный инструмент для поиска шероховатостей в программе. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">3.</td><td>Intel® Pentium® 4 and Intel® Xeon™ Processor Optimization Reference Manual. Все там же, на сайте Intel. </td></tr></table></div>
 <a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
 
-<hr />
+<hr/>
 <p>Возведение числа в степень 2 </p>
-
 <p>X^Y = exp(ln(X) * Y) c некоторыми условиями (например, X не может быть нулем). </p>
 
 <a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
 
-<hr />
+<hr/>
 <p>Чтобы возвести 2 в нужную степень можно создать цикл: </p>
 <pre name="code" class="delphi">
 a := 1;
@@ -557,7 +549,7 @@ end;
 <a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
 
-<hr />
+<hr/>
 <pre name="code" class="delphi">
 function power(Base, Exponent: Extended): Extended;
 var ex: extended;
@@ -589,12 +581,11 @@ end;
 
 <p id="author">Автор ответа: Mikel</p>
 <p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

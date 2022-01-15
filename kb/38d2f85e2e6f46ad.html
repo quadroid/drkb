@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Как избавиться от ошибки multiple rows in singleton select?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,18 +13,15 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Как избавиться от ошибки multiple rows in singleton select?</h1>
 <div id="date">01.01.2010</div>
 
-
 <p>Очевидно что данная ошибка происходит в вашем триггере или хранимой процедуре. Обычный SELECT внутри триггера или процедуры должен возвращать одну строку (row), т.к. при двух и более строках IB не знает куда поместить значения полей этих строк. Если ваш SELECT возвращает несколько записей, то нужно пользоваться конструкцией FOR SELECT ... INTO ... DO ... которая производит обработку возвращаемого набора записей в цикле. </p>
-
 <p>Если-же вы уверены, что ваш SELECT должен вернуть только одну запись, а ошибка все-таки возникает, то давайте рассмотрим следующую ситуацию: </p>
-
 <p>существуют таблицы ORDERS (заказы) и CLIENTS (клиенты). </p>
 <p>обе эти таблицы имеют поле связи CLIENT_ID INTEGER. </p>
 <p>для того чтобы вытащить информацию о клиенте используется запрос: </p>
@@ -35,7 +33,6 @@ WHERE CLIENT_ID = ?
 </pre>
 
 <p>где ? - либо значение либо переменная. </p>
-
 <p>Теперь представим себе, что этот запрос должен выполняться в триггере при вставке записи в таблицу ORDERS </p>
 <pre name="code" class="sql">CREATE TRIGGER TI_ORDERS FOR ORDERS 
 ACTIVE AFTER INSERT POSITION 0 
@@ -50,13 +47,9 @@ BEGIN
     ... 
 </pre>
 
-
 <p>Итак, поскольку в запросе использован псевдоним C (FROM CLIENTS C), то якобы существует гарантия что в предложении WHERE будут сравниваться поле C.CLIENT_ID из таблицы CLIENTS и поле CLIENT_ID из таблицы ORDERS (в триггере доступны имена полей собственной таблицы). На самом деле даже использование псевдонимов не дает гарантии что переменные будут разичаться, и получается что в предложении WHERE сравнивается само с собой поле таблицы CLIENTS.CLIENT_ID, и в запросе возвращается ВСЯ таблица CLIENTS. </p>
-
 <p>Вот почему возникает вышеупомянутое сообщение об ошибке. </p>
-
 <p>Избавиться от него можно несколькими путями: </p>
-
 <p>Использовать разные имена полей для связи между CLIENTS и ORDERS. например OCLIENT_ID и CCLIENT_ID. </p>
 <p>Использовать уточнитель new.CLIENT_ID, несмотря на то что в документации указано что для триггеров последействия (AFTER) он не имеет смысла. </p>
 <pre name="code" class="sql">SELECT C.CLIENT_ID, C.CLIENT_NAME 
@@ -84,12 +77,11 @@ WHERE C.CLIENT_ID = :CID
 <p>Телефоны: 953-13-34</p>
 <p>источники: Borland International, Борланд АО, релиз Interbase 4.0, 4.1, 4.2, 5.0, 5.1, 5.5, 5.6, различные источники на WWW-серверах, текущая переписка, московский семинар по Delphi и конференции, листсервер ESUNIX1, листсервер mers.com. </p>
 <p>Cоставитель: Дмитрий Кузьменко </p>
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

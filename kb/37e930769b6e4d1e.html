@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Проверка правописания и синонимов при помощи компонентов Microsoft Office</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,17 +13,14 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Проверка правописания и синонимов при помощи компонентов Microsoft Office</h1>
 <div id="date">01.01.2010</div>
 
-
-
 <p>This is the VCL for Spell Checking and Synonyms using MS Word COM interface. It can correct and replace words in a Text String,TMemo or TRichEdit using a built in replacement editor, or can be controlled by user dialog. I see there are other callable functions in the interface, which I have not implemented. Anyone see a use for any of them ?. </p>
-
 <p>They are ...</p>
 <pre name="code" class="delphi">
     property PartOfSpeechList: OleVariant  read Get_PartOfSpeechList; 
@@ -31,43 +29,28 @@
     property RelatedWordList: OleVariant  read Get_RelatedWordList; 
 </pre>
 
-
 <p>Example of checking and changing a Memo text ... </p>
-
 <p> &nbsp;  SpellCheck.CheckMemoTextSpelling(Memo1); </p>
-
 <p>Properties </p>
 <p>---------------- </p>
 <p>LetterChars&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  - Characters considered to be letters. default is&nbsp;&nbsp; </p>
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ['A'..'Z','a'..'z'] (English) but could be changed to </p>
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ['A'..'Z','a'..'z','б','й','н','у','ъ'] (Spanish) </p>
-
 <p>Color &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Backgound color of Default dialog Editbox and Listbox </p>
-
 <p>CompletedMessage - Enable/Disable display of completed and count message dialog </p>
-
 <p>Font &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Font of Default dialog Editbox and Listbox </p>
-
 <p>Language &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Language used by GetSynonyms() method </p>
-
 <p>ReplaceDialog &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Use Default replace dialog or User defined&nbsp; (see events) </p>
-
 <p>Active &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Readonly, set at create time. Indicates if MS Word is&nbsp; available </p>
-
 <p>Methods </p>
 <p>---------------- </p>
 <p>function GetSynonyms(StrWord : string; Synonyms : TStrings) : boolean; </p>
-
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; True if synonyms found for StrWord. Synonyms List is&nbsp;&nbsp; </p>
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; returned in TStrings (Synonyms). </p>
-
 <p>function CheckWordSpelling(StrWord : string; Suggestions : TStrings) : boolean; </p>
-
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; True if StrWord is spelt correctly. Suggested corrections </p>
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; returned in TStrings (Suggestions) </p>
-
 <p>procedure CheckTextSpelling(var StrText : string); </p>
-
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Proccesses string StrText and allows users to change&nbsp;&nbsp; </p>
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mispelt&nbsp; words via a Default replacement dialog or User&nbsp;&nbsp; </p>
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defined calls. Words are changed and returned in StrText. </p>
@@ -77,25 +60,18 @@
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sugesstions (BeforeCorrection), Change the word to </p>
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; corrected&nbsp; (OnCorrection) and possibly display "Was/Now" </p>
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (AfterCorrection) </p>
-
 <p>procedure CheckRichTextSpelling(RichEdit : TRichEdit); </p>
-
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Corrects misspelt words directly in TRichEdit.Text. </p>
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Rich Format is maintained. </p>
-
 <p>procedure CheckMemoTextSpelling(Memo : TMemo); </p>
-
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Corrects misspelt words directly into a TMemo.Text. </p>
-
 <p>Events (Mainly used when ReplaceDialog = repUser) </p>
 <p>-------------------------------------------------------------------------------- </p>
 <p>BeforeCorrection - Supplies the mispelt word along with a TStrings </p>
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var containing suggested corrections. </p>
-
 <p>OnCorrection &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Supplies the mispelt word as a VAR type allowing </p>
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; user to change it to desired word. The word will be </p>
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; replaced by this variable in the passed StrText. </p>
-
 <p>AfterCorrection  - Supplies the mispelt word and what it has been </p>
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; changed to. </p>
 
@@ -826,9 +802,9 @@ end.
 <p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

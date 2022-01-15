@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Реализация CallBack вызовов MapInfo</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,13 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Реализация CallBack вызовов MapInfo</h1>
 <div id="date">01.01.2010</div>
-
 Автор: Дмитрий Кузан </p>
 <p>Доброе время суток ! </p>
 <p>Краткое примечание </p>
@@ -127,7 +127,6 @@ initialization
 end.
 </pre>
 
-
 <p>Обратите внимание на присутствие двух предопределенных методов MapInfo SetStatusText и WindowContentsChanged. </p>
 <p>Метод MyEvent я пока зарезервировал для реализации своих сообщений (более подробно будет изложено в 3 части цикла) </p>
 <p>И так что мы видим. </p>
@@ -138,7 +137,6 @@ begin
   // Отправка сообщения далее - в данном случае в компонент
   FEvents.OnChangeStatusText(Status);
 </pre>
-
 
 <p>Как заставить MapInfo пересылать CallBack данному OLE серверу и как нам обрабатывать сообщения в компоненте от OLE сервера. </p>
 <p>Итак представляю переработанный компонент - </p>
@@ -554,7 +552,6 @@ end;
 end.
 </pre>
 
-
 <p>И так что добавилось - Метод CreateMapInfoServer; </p>
 <pre name="code" class="delphi">
   // Создаем наш сервер OLE
@@ -568,7 +565,6 @@ end.
   FServer.SetCallBack(srv_disp);
 end;
 </pre>
-
 
 <p>Здесь мы столкнулись с еще одним методом MapInfo помимо рассмотренных ранее методов Do и Eval - Метод SetCallBack(IDispatch). Описание - Регистрирует объект механизма-управления объектами OLE (OLE Automation) как получатель уведомлений, генерируемых программой MapInfo. Только одна функция уведомления может быть зарегистрирована в каждый данный момент. Параметр интерфейс Idispatch объекта OLE (COM) </p>
 <p>Реализация FServer.SetCallBack(srv_disp); - данным кодом мы заставили MapInfo уведомлять наш OLE сервер. </p>
@@ -597,10 +593,8 @@ public
 end;
 </pre>
 
-
 <p>создание этого класса в компоненте реализовано так </p>
 <p>FEvent := TEvent.Create(srv_disp,IMapInfoCallBackEvents);</p>
-
 <p>В методе Invoke и происходит прием и получение сообщений и пересылка их в обработчик моего компонента. </p>
 <p>Еще раз на последующие вопросы касательно COM (OLE) серверов отвечу: данная тема выходит за рамки данной статьи - советую почитать книгу Александроского А.Д - Delphi 5 разработка корпоративных приложений. </p>
 <p>Напоследок &#8212; модуль MICallBack_TLB.pas импортирован из DLL командой меню DELPHI Import Type Libray. </p>
@@ -610,9 +604,9 @@ end;
 <p>DelphiWorld 6.0</p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

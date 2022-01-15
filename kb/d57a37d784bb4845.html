@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Шаблоны в Object Pascal</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,30 +13,25 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Шаблоны в Object Pascal</h1>
 <div id="date">01.01.2010</div>
 
-
 <p>Шаблоны в Object Pascal</p>
 <p>( перевод одноименной статьи с сайта community.borland.com )</p>
-
 <p>Наверное каждый Delphi программист хоть раз общался с программистом C++ и объяснял насколько</p>
 <p>Delphi мощнее и удобнее. Но в некоторый момент, программист C++ заявляет примерно следующее</p>
 <p>"OK, но Delphi использует Pascal, а значит не поддерживает множественное наследование и шаблоны,</p>
 <p>поэтому он не так хорош как C++."</p>
-
 <p>Насчет множественного наследования можно легко заявить, что Delphi имеет интерфейсы, которые</p>
 <p>прекрасно справляются со своей задачей, но вот насчет шаблонов Вам придётся согласится, так как</p>
 <p>Object Pascal не поддерживает их.</p>
-
 <p>Давайте посмотрим на эту проблему по-внимательней</p>
 <p>Шаблоны позволяют делать универсальные контейнеры такие как списки, стеки, очереди, и т.д.</p>
 <p>Если Вы хотите осуществить что-то подобное в Delphi, то у Вас есть два пути:</p>
-
 <p>Использовать контейнер TList, который содержит указатели. В этом случае Вам придётся всё</p>
 <p>время делать явное приведение типов. </p>
 <p>Сделать подкласс контейнера TCollection или TObjectList, и убрать все методы, зависящие от типов</p>
@@ -43,13 +39,10 @@
 <p>Третий вариант, это сделать модуль с универсальным классом контейнера, и каждый раз, когда нужно</p>
 <p>использовать новый тип данных, нам прийдётся в редакторе искать и вносить исправления. Было бы</p>
 <p>здорово, если всю эту работу за Вас делал компилятор.... вот этим мы сейчас и займёмся!</p>
-
 <p>Например, возьмём классы TCollection и TCollectionItem. Когда Вы объявляете нового потомка TCollectionItem</p>
 <p>, то так же Вы наследуете новый класс от TOwnedCollection и переопределяете большинство методов, чтобы</p>
 <p>их можно было вызывать&nbsp; с новыми типами.</p>
-
 <p>Давайте посмотрим, как создать универсальную коллекцию шаблонов класса:</p>
-
 <p>Шаг 1: Создайте новый текстовый файл (не юнитовский) с именем TemplateCollectionInterface.pas:</p>
 
 <pre name="code" class="delphi">
@@ -71,7 +64,6 @@ end;
 <p>Обратите внимание, что нет никаких uses или interface clauses, только универсальное объявление</p>
 <p>типа, в котором _COLLECTION_ это имя универсальной коллекции класса, а _COLLECTION_ITEM_</p>
 <p>это имя методов, содержащихся в нашем шаблоне.</p>
-
 <p>Шаг 2: Создайте второй текстовый файл и сохраните его как TemplateCollectionImplementation.pas:</p>
 
 <pre name="code" class="delphi">
@@ -108,7 +100,6 @@ end;
 </pre>
 
 <p>Снова нет никаких uses или interface clauses , а только код универсального типа.</p>
-
 <p>Шаг 3: Создайте новый unit-файл с именем MyCollectionUnit.pas:</p>
 <pre name="code" class="delphi">
 unit MyCollectionUnit;
@@ -164,10 +155,8 @@ end.
 <p>Вот и всё! Теперь компилятор будет делать всю работу за Вас! Если Вы измените интерфейс</p>
 <p>универсального класса, то изменения автоматически распространятся на все модули, которые</p>
 <p>он использует.</p>
-
 <p>Второй пример</p>
 <p> Давайте создадим универсальный класс для динамических массивов.</p>
-
 <p>Шаг 1: Создайте текстовый файл с именем TemplateVectorInterface.pas:</p>
 
 <pre name="code" class="delphi">
@@ -337,7 +326,6 @@ end.
 
 <p>Естественно, можно дополнить универсальный класс дополнительными</p>
 <p>функциями. Всё зависит от Вашей фантазии!</p>
-
 <p>Использование шаблонов</p>
 <p>Вот пример использования нового векторного интерфейса:</p>
 
@@ -361,15 +349,13 @@ end.
 <p>Единственное требование при создании шаблонов таким способом, это то, что</p>
 <p>каждый новый тип должен быть объявлен в отдельном модуле, а так же Вы должны</p>
 <p>иметь исходники для универсальных классов.</p>
-
 <p>Комментарии и вопросы присылайте по адресу rossen_assenov@yahoo.com!</p>
-
 <p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

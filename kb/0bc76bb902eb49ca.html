@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Изменение свойств печати во время её выполнения</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,39 +13,27 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Изменение свойств печати во время её выполнения</h1>
 <div id="date">01.01.2010</div>
 
-
 <p>Как разрешить изменения свойств принтера (например, лоток с бумагой, ориентация и др.) между страницами печати одного документа в шести шагах.</p>
-
 <p>(В совете также приведен пример изменения поддона с бумагой...)</p>
-
 <p>*** ШАГИ ***</p>
 <p>Создайте копию модуля Printers.pas и переименуйте его в NewPrint.pas.</p>
-
 <p>***НЕ делайте изменения в самом модуле Printers.pas, если вы сделаете это, то получите во время компиляции приложения ошибку "Unable to find printers.pas" (не могу найти printer.pas). (Я уже получае ее, поэтому и упоминаю об этом здесь...)***</p>
-
 <p>Переместите модуль NewPrint.pas в директорию Lib.</p>
-
 <p>(Используйте "C:\Program Files\Borland\Delphi Х\Lib" )</p>
-
 <p>Измените ИМЯ МОДУЛЯ на NewPrint.pas</p>
-
 <p>с:</p>
 <p> &nbsp;&nbsp; unit Printers </p>
-
 <p>на:</p>
 <p> &nbsp;&nbsp; unit NewPrint </p>
-
 <p>Добавьте декларацию следующего PUBLIC метода класса TPrinter в секции Interface модуля NewPrint.pas:</p>
-
 <p> &nbsp;&nbsp; procedure NewPageDC(DM: PDevMode); </p>
-
 <p>Добавьте следующую процедуру в секцию реализации NewPrint.pas:</p>
 <pre name="code" class="delphi">
 procedure TPrinter.NewPageDC(DM: PDevMode);
@@ -60,18 +49,12 @@ begin
 end;
 </pre>
 
-
 <p>Вместо добавления "Printers" в секцию USES вашего приложения (список используемых модулей), добавьте "NewPrint".</p>
-
 <p>Теперь вдобавок к старым методам (таким как BeginDoc, EndDoc, NewPage и др.), у вас появилась возможность изменения свойств принтера "на лету", т.е. между страницами при печати одного и того же документа. (Пример приведен ниже.)</p>
 <p>Вместо вызова:</p>
-
 <p> &nbsp;&nbsp; Printer.NewPage; </p>
-
 <p>напишите: </p>
-
 <p> &nbsp;&nbsp; Printer.NewPageDC(DevMode); </p>
-
 <p>Вот небольшой пример:</p>
 <pre name="code" class="delphi">
 procedure TForm1.Button1Click(Sender: TObject);
@@ -114,23 +97,19 @@ begin
 end;
 </pre>
 
-
 <p id="note">Примечание от автора:</p>
-
 <p>Я использовал это во многих своих программах, поэтому я уверен в работоспособности кода.</p>
-
 <p>Данный кода был создан в Delphi Client/Server 2.01 под WinNT 4.0, но впоследствии был</p>
 <p>проверен на других версиях Delphi, а также под Windows95.</p>
 <p>Правда я еще не поробовал его под Delphi 4... Если вы имеете любые комментарии или улучшения,</p>
 <p>не постесняйтесь отправить их мне...</p>
 <p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
 <p>Сборник Kuliba</p>
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

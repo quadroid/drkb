@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Написание триггеров</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,17 +13,15 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Написание триггеров</h1>
 <div id="date">01.01.2010</div>
 
-
 <p>Триггеры в MS SQL Server срабатывают после обновления и один раз на оператор (а не на каждую обновленную запись). Количество триггеров на таблицу неограниченно. В триггере доступна обновленная таблица и две виртуальных таблицы Inserted и Deleted. </p>
 <p>В них находятся:</p>
-
 <p> &nbsp; &nbsp; &nbsp; &nbsp;Inserted &nbsp; &nbsp; &nbsp; &nbsp;Deleted &nbsp; &nbsp; &nbsp; </p>
 <p><b>INSERT</b> &nbsp; &nbsp; &nbsp; &nbsp;Вставленные записи &nbsp; &nbsp; &nbsp; &nbsp;Нет записей &nbsp; &nbsp; &nbsp; </p>
 <p><b>UPDATE</b> &nbsp; &nbsp; &nbsp; &nbsp;Новые версии записей &nbsp; &nbsp; &nbsp; &nbsp;Старые версии записей &nbsp; &nbsp; &nbsp; </p>
@@ -66,7 +65,6 @@ AS BEGIN
 END
 </pre>
 
-
 <p>Поскольку триггер срабатывает после обновления таблицы в нем нельзя реализовывать каскадные обновления данных при наличии FOREIGN KEY. Например, если есть две таблицы:</p>
 <pre name="code" class="sql">
 CREATE TABLE Main (
@@ -78,7 +76,6 @@ CREATE TABLE Child (
   MainId INTEGER NOT NULL REFERENCES Main(Id)
 )
 </pre>
-
 
 <p>То при удалении записи из Main, на которую имеются ссылки в Child, триггер на Main не сработает. Чтобы обойти эту проблему рекомендуется создать хранимую процедуру</p>
 <pre name="code" class="sql">
@@ -97,15 +94,13 @@ AS BEGIN
 END
 </pre>
 
-
 <p>Другим способом является реализация ограничений ссылочной целостности только при помощи триггеров.</p>
 <p>Кроме этого в версии MSSQL 2000 возможно создание INSTEAD OF триггеров. Такие триггеры выполняются вместо вызвавшей их операции. При этом ответственность за запись данных в таблице полностью лежит на программисте. Такие триггеры могут быть созданы на представлениях (VIEW), что позволяет сделать обновляемым любое представление, независимо от его сложности.</p>
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

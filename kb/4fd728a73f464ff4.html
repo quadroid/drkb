@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Синхронизация процессов при работе с Windows (статья)</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,13 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Синхронизация процессов при работе с Windows (статья)</h1>
 <div id="date">01.01.2010</div>
-
 
 <p>Синхронизация процессов при работе с Windows</p>
 <p>Задача синхронизации встает при одновременном доступе нескольких процессов (или нескольких потоков одного процесса) к какому-либо ресурсу. Поскольку поток в Win32 может быть остановлен в любой, заранее ему неизвестный момент времени возможна ситуация, когда один из потоков не успел завершить модификацию ресурса (например, отображенной на файл области памяти), но был остановлен, а другой поток попытался обратиться к этому же ресурсу. В этот момент ресурс находится в несогласованном состоянии, и последствия обращения к нему могут быть самыми неожиданными &#8211; от порчи данных, до нарушения защиты памяти.</p>
@@ -71,7 +71,7 @@ end;
 <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // завершение операции ввода-вывода</p>
 <p>): DWORD; stdcall;</p>
 <p>Возвращаемые значения аналогичны функции WaitForSingleObject.</p>
-<table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="28">!</td><td>В модуле Windows.pas эта функция ошибочно объявлена, как возвращающая значение BOOL. Если Вы намерены её использовать &#8211; объявите её корректно или используйте приведение типа возвращенного значения к DWORD</td></tr></table>
+<table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="28">!</td><td>В модуле Windows.pas эта функция ошибочно объявлена, как возвращающая значение BOOL. Если Вы намерены её использовать &#8211; объявите её корректно или используйте приведение типа возвращенного значения к DWORD</td></tr></table>
 <p>Объект hObjectToSignal может быть семафором, событием (event), либо мутексом. Параметр bAlertable определяет, будет ли прерываться ожидание объекта, в случае, если операционная система запросит у потока окончание операции асинхронного ввода-вывода, либо асинхронный вызов процедуры. Более подробно это обсуждается ниже.</p>
 &nbsp;</p>
 Функции, ожидающие нескольких объектов</p>
@@ -529,7 +529,7 @@ end;
 <p>  dwTimerHighValue: DWORD;&nbsp; // старшие 32 разряда значения таймера</p>
 <p>); stdcall;</p>
 <p>Эта функция вызывается, когда срабатывает таймер, если поток, ожидающий его срабатывания, использует функцию ожидания, поддерживающую асинхронный вызов процедур. В функцию передаются 3 параметра:</p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>lpArgToCompletionRoutine &#8211; значение, переданное в качестве одноименного параметра в функцию SetWaitableTimer. Приложение может использовать его для передачи в процедуру обработки адреса блока данных, необходимых для её работы</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>dwTimerLowValue и dwTimerHighValue &#8211; соответственно члены dwLowDateTime и dwHighDateTime структуры TFileTime. Они описывают время срабатывания таймера. Время задается в UTC формате (по Гринвичу).</td></tr></table></div><p>Если дополнительная функция обработки не нужна, в качестве этого параметра можно передать NIL.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>lpArgToCompletionRoutine &#8211; значение, переданное в качестве одноименного параметра в функцию SetWaitableTimer. Приложение может использовать его для передачи в процедуру обработки адреса блока данных, необходимых для её работы</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>dwTimerLowValue и dwTimerHighValue &#8211; соответственно члены dwLowDateTime и dwHighDateTime структуры TFileTime. Они описывают время срабатывания таймера. Время задается в UTC формате (по Гринвичу).</td></tr></table></div><p>Если дополнительная функция обработки не нужна, в качестве этого параметра можно передать NIL.</p>
 <p>lpArgToCompletionRoutine</p>
 <p>Это значение передается в функцию pfnCompletionRoutine при её вызове.</p>
 <p>fResume</p>
@@ -902,16 +902,16 @@ function InterlockedIncrement(
 <p>Функция добавляет к переменной, на которую указывает Addend значение Value и возвращает начальное значение Addend.</p>
 Резюме</p>
 <p>Многозадачная и многопоточная среда Win32 предоставляет широкие возможности для написания высокоэффективных приложений. Однако, написание приложений, использующих многопоточность и взаимодействующих друг с другом, при неаккуратном программировании может привести к их неверной работе, неоправданной загрузке и даже блокировке всей системы. Во избежание этого следуйте нижеприведенным рекомендациям:</p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Если приложения или потоки одного процесса изменяют общий ресурс &#8211; защищайте доступ к нему при помощи критических секций или мутексов.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Если доступ осуществляется только на чтение &#8211; защищать ресурс не обязательно.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Критические секции более эффективны, но применимы только внутри одного процесса, мутексы могут использоваться для синхронизации между процессами.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Используйте семафоры для ограничения количества обращений к одному ресурсу.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Используйте события (event) для информирования потока о наступлении какого-либо события.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Если разделяемый ресурс &#8211; 32-битная переменная &#8211; для синхронизации доступа к нему можно использовать функции, обеспечивающие разделяемый доступ к переменным.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Многие объекты Win32 позволяют организовать эффективное слежение за своим состоянием при помощи функций ожидания. Это наиболее эффективный с точки зрения расхода системных ресурсов метод.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Если Ваш поток создает (даже неявно, при помощи CoInitialize или функций DDE) окна &#8211; он должен обрабатывать сообщения. Не используйте в таком потоке функций не позволяющих прервать ожидание по приходу сообщения с большим или неограниченным периодом ожидания. Используйте функции MsgWaitForXXX</td></tr></table></div>&nbsp;</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>Если приложения или потоки одного процесса изменяют общий ресурс &#8211; защищайте доступ к нему при помощи критических секций или мутексов.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>Если доступ осуществляется только на чтение &#8211; защищать ресурс не обязательно.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>Критические секции более эффективны, но применимы только внутри одного процесса, мутексы могут использоваться для синхронизации между процессами.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>Используйте семафоры для ограничения количества обращений к одному ресурсу.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>Используйте события (event) для информирования потока о наступлении какого-либо события.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>Если разделяемый ресурс &#8211; 32-битная переменная &#8211; для синхронизации доступа к нему можно использовать функции, обеспечивающие разделяемый доступ к переменным.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>Многие объекты Win32 позволяют организовать эффективное слежение за своим состоянием при помощи функций ожидания. Это наиболее эффективный с точки зрения расхода системных ресурсов метод.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>Если Ваш поток создает (даже неявно, при помощи CoInitialize или функций DDE) окна &#8211; он должен обрабатывать сообщения. Не используйте в таком потоке функций не позволяющих прервать ожидание по приходу сообщения с большим или неограниченным периодом ожидания. Используйте функции MsgWaitForXXX</td></tr></table></div>&nbsp;</p>
 <p>Тенцер А. Л.</p>
 <p>ICQ UIN 15925834</p>
 <p>tolik@katren.nsk.ru</p>
 &nbsp;</p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

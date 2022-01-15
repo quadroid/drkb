@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Использование Microsoft ScriptControl</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,13 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Использование Microsoft ScriptControl</h1>
 <div id="date">01.01.2010</div>
-
 <p>Использование Microsoft ScriptControl</p>
 <p>Анатолий Тенцер</p>
 <p>&nbsp;<br>
@@ -121,7 +121,7 @@ Sub Btn_OnClick()
 <p>Следующая часть главы посвящена реализации такой функциональности, однако прежде чем приступить к ее исполнению, необходимо более подробно рассмотреть некоторые механизмы, лежащие в основе модели расширения TScriptControl и VCL. </p>
 <p>Модель расширения TScriptControl</p>
 <p>Как уже было сказано выше, Microsoft ScriptControl позволяет сделать доступными из скрипта объекты, реализованные в программе при помощи метода AddObject. При обращении к таким объектам он предполагает, что они реализуют интерфейс IDispatch и являются, таким образом, серверами автоматизации. В Delphi в качестве таких объектов могут выступать наследники TAutoObject, создать которые можно при помощи мастера, вызываемого из меню File -&gt; New -&gt; ActiveX -&gt; Automation Object. При вызове методов этих объектов ScriptControl последовательно вызывает методы GetIdsOfNames и Invoke их интерфейса IDispatch, что обеспечивает вызовы соответствующих методов объекта. Однако здесь имеются определенные сложности: </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>По окончании работы с объектом (например, при выходе его за пределы области видимости процедуры скрипта) TScriptControl автоматически вызывает его метод _Release, что приводит к уничтожению класса Delphi. Таким образом, для каждого класса приходится создавать некий объект-представитель, который бы транслировал вызовы TScriptControl в методы и свойства класса Delphi, а став ненужным &#8212; уничтожался, не уничтожая самого класса. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Функциональность наследников TAutoObject задается на этапе компиляции и не может быть расширена в процессе исполнения программы. Это требует создания отдельных представителей для каждого класса VCL, что очень сложно осуществить, к тому же при этом нельзя использовать классы, не имеющие соответствующего представителя. </td></tr></table></div><p>Чтобы найти обходные пути для решения этой проблемы, необходимо более детально вникнуть в реализацию базового интерфейса, лежащего в основе автоматизации. </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>По окончании работы с объектом (например, при выходе его за пределы области видимости процедуры скрипта) TScriptControl автоматически вызывает его метод _Release, что приводит к уничтожению класса Delphi. Таким образом, для каждого класса приходится создавать некий объект-представитель, который бы транслировал вызовы TScriptControl в методы и свойства класса Delphi, а став ненужным &#8212; уничтожался, не уничтожая самого класса. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Функциональность наследников TAutoObject задается на этапе компиляции и не может быть расширена в процессе исполнения программы. Это требует создания отдельных представителей для каждого класса VCL, что очень сложно осуществить, к тому же при этом нельзя использовать классы, не имеющие соответствующего представителя. </td></tr></table></div><p>Чтобы найти обходные пути для решения этой проблемы, необходимо более детально вникнуть в реализацию базового интерфейса, лежащего в основе автоматизации. </p>
 <p>Интерфейс IDispatch </p>
 <p>Интерфейс IDispatch обеспечивает возможность позднего связывания, то есть вызовов методов объектов не по адресам, а по именам на этапе выполнения программы. Интерфейс определен как: </p>
 <pre name="code" class="delphi">
@@ -152,29 +152,29 @@ Sub Btn_OnClick()
 <p>Региональный контекст (тот же, что и в GetIdsOfNames). </p>
 <p>Flags </p>
 <p>Битовая маска, состоящая из следующих флагов: </p>
-<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
-<tr >
-<td ><p>DISPATCH_METHOD </p>
+<table>
+<tr>
+<td><p>DISPATCH_METHOD </p>
 </td>
-<td ><p>Вызывается метод. Если у объекта есть свойство с таким же именем, то будет установлен также флаг DISPATCH_PROPERTYGET </p>
-</td>
-</tr>
-<tr >
-<td ><p>DISPATCH_PROPERTYGET </p>
-</td>
-<td ><p>Запрашивается значение свойства </p>
+<td><p>Вызывается метод. Если у объекта есть свойство с таким же именем, то будет установлен также флаг DISPATCH_PROPERTYGET </p>
 </td>
 </tr>
-<tr >
-<td ><p>DISPATCH_PROPERTYPUT </p>
+<tr>
+<td><p>DISPATCH_PROPERTYGET </p>
 </td>
-<td ><p>Устанавливается значение свойства </p>
+<td><p>Запрашивается значение свойства </p>
 </td>
 </tr>
-<tr >
-<td ><p>DISPATCH_PROPERTYPUTREF </p>
+<tr>
+<td><p>DISPATCH_PROPERTYPUT </p>
 </td>
-<td ><p>Параметр передается по ссылке. Если флаг не установлен &#8211; по значению. 
+<td><p>Устанавливается значение свойства </p>
+</td>
+</tr>
+<tr>
+<td><p>DISPATCH_PROPERTYPUTREF </p>
+</td>
+<td><p>Параметр передается по ссылке. Если флаг не установлен &#8211; по значению. 
 </td>
 </tr>
 </table>
@@ -197,7 +197,7 @@ Sub Btn_OnClick()
 <p>&nbsp;<br>
 <p>&nbsp;</p>
 <p>Итак, как показано выше, RTTI Delphi предоставляет достаточную функциональность для того, чтобы обеспечить трансляцию вызовов OLE-Automation в обращения к свойствам компонентов VCL. Для этого необходимо: </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>В методе GetIdsOfNames проверить существование свойства при помощи функции GetPropInfo и, если такое свойство найдено, вернуть какой-нибудь числовой идентификатор. В роли такого идентификатора удобно использовать результат, возвращаемый функцией GetPropInfo. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>В методе Invoke установить или получить значение свойства, используя функции GetXXXProp или SetXXXProp. </td></tr></table></div><p>Для трансляции вызовов OLE в VCL создадим класс TVCLProxy: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>В методе GetIdsOfNames проверить существование свойства при помощи функции GetPropInfo и, если такое свойство найдено, вернуть какой-нибудь числовой идентификатор. В роли такого идентификатора удобно использовать результат, возвращаемый функцией GetPropInfo. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>В методе Invoke установить или получить значение свойства, используя функции GetXXXProp или SetXXXProp. </td></tr></table></div><p>Для трансляции вызовов OLE в VCL создадим класс TVCLProxy: </p>
 <pre name="code" class="delphi">
   // Этот интерфейс понадобится для получения ссылки на
    // класс VCL из методов, в которые передается его
@@ -312,7 +312,7 @@ Sub Btn_OnClick()
 <p>Пишем Invoke </p>
 <p>Первая часть задачи выполнена: мы проинформировали OLE о наличии в нашем сервере автоматизации поддерживаемых функций. Теперь необходимо реализовать метод Invoke для выполнения этих функций. Из соображений модульности Invoke выполняет подготовительную работу со списком параметров и вызывает метод DoInvoke, в котором мы осуществляем трансляцию DispID в обращения к методам класса VCL. </p>
 <p>В методе используются три служебные функции: </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>проверяет количество переданных аргументов. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>проверяет соответствие аргумента с заданным индексом заданному типу. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>получает целое число из аргумента с заданным индексом. </td></tr></table></div><p> TVCLProxy.DoInvoke(DispID: Integer;&nbsp; IID: TGUID;</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>проверяет количество переданных аргументов. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>проверяет соответствие аргумента с заданным индексом заданному типу. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>получает целое число из аргумента с заданным индексом. </td></tr></table></div><p> TVCLProxy.DoInvoke(DispID: Integer;&nbsp; IID: TGUID;</p>
 <p> &nbsp; LocaleID: Integer; Flags: Word;&nbsp; dps: TDispParams;</p>
 <p> &nbsp; pDispIds: PDispIdList; VarResult, ExcepInfo, ArgErr: Pointer</p>
 <p> &nbsp; ): HResult;</p>
@@ -467,7 +467,7 @@ Sub Btn_OnClick()
 </pre>
 <p>Добавление собственных функций </p>
 <p>Для добавления функций, которые требуются для решения ваших задач, необходимо выполнить ряд простых шагов: </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>В методе GetIdsOfNames проанализировать имя запрашиваемой функции и определить, может ли она быть вызвана для объекта, на который ссылается FOwner. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Если функция может быть вызвана, вы должны вернуть уникальный DispID, в противном случае &#8211; присвоить Result := DISP_E_UNKNOWNNAME. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>В методе Invoke необходимо обнаружить свой DispID, проверить корректность переданных параметров, получить их значения и выполнить действие. </td></tr></table></div><p>Обработка событий в компонентах VCL </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>В методе GetIdsOfNames проанализировать имя запрашиваемой функции и определить, может ли она быть вызвана для объекта, на который ссылается FOwner. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Если функция может быть вызвана, вы должны вернуть уникальный DispID, в противном случае &#8211; присвоить Result := DISP_E_UNKNOWNNAME. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>В методе Invoke необходимо обнаружить свой DispID, проверить корректность переданных параметров, получить их значения и выполнить действие. </td></tr></table></div><p>Обработка событий в компонентах VCL </p>
 <p>Важным дополнением к реализуемой функциональности является возможность ассоциировать процедуру на VBScript с событием в компоненте VCL, таким как OnEnter, OnClick или OnTimer. Для этого добавим в компонент TVCLScriptControl методы, которые будут служить обработчиками созданных в коде скрипта компонентов. </p>
 <pre name="code" class="delphi">  TVCLScriptControl = (TScriptControl)
  &nbsp; …
@@ -896,7 +896,7 @@ Sub Btn_OnClick()
 <p>Удобным средством, предоставляемым VBScript, является оператор For Each, организующий цикл по всем элементам заданной коллекции. Добавим поддержку этого оператора в наш компонент. </p>
 <p>Интерфейс IEnumVariant </p>
 <p>Реализация For Each предусматривает следующее: </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Исполняющее ядро ScriptControl вызывает метод Invoke объекта, по элементам которого должен производиться цикл с DispID = DISPID_NEWENUM (-4). </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Объект должен вернуть интерфейс IenumVariant. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Далее ядро использует методы IEnumVariant для получения элементов коллекции. </td></tr></table></div><p>Интерфейс IEnumVariant определен как: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Исполняющее ядро ScriptControl вызывает метод Invoke объекта, по элементам которого должен производиться цикл с DispID = DISPID_NEWENUM (-4). </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Объект должен вернуть интерфейс IenumVariant. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Далее ядро использует методы IEnumVariant для получения элементов коллекции. </td></tr></table></div><p>Интерфейс IEnumVariant определен как: </p>
 <pre name="code" class="delphi">
   IEnumVariant = (IUnknown)
      ['{00020404-0000-0000-C000-000000000046}']
@@ -947,7 +947,7 @@ Sub Btn_OnClick()
 <p> &nbsp; Result := S_OK;</p>
 <p> ;&nbsp; </p>
 <p>Главная функциональность сосредоточена в методе Next, который получает следующие переменные: </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>celt &#8211; количество запрашиваемых элементов; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>rgvar &#8211; адрес первого элемента массива переменных типа OleVariant; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>pceltFetched &#8211; адрес переменной, в которую должно быть записано количество реально переданных элементов. Этот адрес может быть равен NIL, в этом случае не потребуется ничего записывать. </td></tr></table></div><p>Метод должен заполнить запрошенное количество элементов rgvar и вернуть S_OK, если это удалось, и S_FALSE, если элементов не хватило. </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>celt &#8211; количество запрашиваемых элементов; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>rgvar &#8211; адрес первого элемента массива переменных типа OleVariant; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>pceltFetched &#8211; адрес переменной, в которую должно быть записано количество реально переданных элементов. Этот адрес может быть равен NIL, в этом случае не потребуется ничего записывать. </td></tr></table></div><p>Метод должен заполнить запрошенное количество элементов rgvar и вернуть S_OK, если это удалось, и S_FALSE, если элементов не хватило. </p>
 <pre name="code" class="delphi">
  TVariantList = [0..0] OleVariant;
  
@@ -1035,9 +1035,9 @@ Sub Btn_OnClick()
 <p>Microsoft ScriptControl &#8211; качественное решение для задач, требующих включения в программу интерпретирующего ядра. Интегрировав его с VCL, мы получаем мощный и гибкий инструмент, позволяющий наращивать возможности в любом направлении. Приведенной в данной статье информации вполне достаточно, чтобы на основе помещенного на компакт-диске компонента TVCLScriptControl создать решение, удовлетворяющее любой конкретной задаче. </p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

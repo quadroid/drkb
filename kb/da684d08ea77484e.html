@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Создание Plug-In в виде COM-Сервера</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,13 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Создание Plug-In в виде COM-Сервера</h1>
 <div id="date">01.01.2010</div>
-
 
 <p>Попробуем теперь реализовать Plug-In к своей программе, в виде COM-сервера и сравним код, полученный в этом случае с кодом, полученным при «ручном» программировании. В начале создадим модуль с описанием интерфейсов:</p>
 <pre name="code" class="delphi">
@@ -46,7 +46,6 @@ implementation
  
 end.
 </pre>
-
 
 <p>Обратите внимание, что метод ILoadFilter.Init больше не получает ссылки на внутренний API программы &#8211; он будет реализован в виде COM-объекта.</p>
 <p>Создадим DLL c COM-сервером, реализующим ILoadFilter. Для этого создадим новую ActiveX library и добавим в неё COM-объект TLoadFilter. Установим ThreadingModel в Single, поскольку использования сервера в потоках не предполагается. После этого реализуем методы интерфейса ILoadFilter.</p>
@@ -80,7 +79,6 @@ implementation
  
 uses ComServ, SysUtils;
 </pre>
-
 
 <p>Деструктор и метод GetNextLine аналогичны предыдущему примеру:</p>
 <pre name="code" class="delphi">
@@ -121,7 +119,6 @@ begin
 end;
 </pre>
 
-
 <p>В конце модуля код, автоматически сгенерированный Delphi для создания фабрики объектов</p>
 <pre name="code" class="delphi">
 initialization
@@ -130,13 +127,10 @@ initialization
 end.
 </pre>
 
-
 <p>Компилируем DLL и регистрируем её при помощи regsvr32.</p>
 <p>Поскольку программа может поддерживать множество различных фильтров, организуем их подключение через INI файл следующего вида:</p>
-
 <p>[Filters]</p>
 <p>TXT={A132D1A2-721C-11D4-84DD-E2DEF6359A17}</p>
-
 <p>Параметром строки служит CLSID сервера, реализующего фильтр. В нашем случае это будет содержание константы Class_LoadFilter. Для подключения дополнительных фильтров необходимо создать DLL с сервером, реализующим ILoadFilter, зарегистрировать её в системе и добавить CLSID сервера в INI-файл.</p>
 <p>Теперь можно приступать к написанию программы-клиента. Она аналогична используемой в предыдущем примере. Добавим в неё COM-сервер, реализующий внутреннее API.</p>
 <p>За исключением кода, сгенерированного COM объект полностью аналогичен объекту, приведенному ранее. Константу&nbsp; Class_TAPI вынесем в модуль PluginInterface, чтобы сделать её доступной для модулей расширения.</p>
@@ -201,15 +195,13 @@ begin
 end;
 </pre>
 
-
 <p>Очевидно, что код метода стал гораздо короче и читабельнее. COM взял на себя всю черновую работу по поиску загрузке и выгрузке DLL, поиску и созданию объектов.</p>
 <p>!  &nbsp; &nbsp; &nbsp; &nbsp;Поскольку в EXE и DLL используются длинные строки, не забудьте включить в список uses обоих проектов модуль ShareMem</p>
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

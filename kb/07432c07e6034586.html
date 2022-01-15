@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Интерфейсы и TComponent</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,13 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Интерфейсы и TComponent</h1>
 <div id="date">01.01.2010</div>
-
 
 <p>В базовом классе VCL TComponent имеется полный набор методов, позволяющих реализовать интерфейс IUnknown, хотя сам класс не реализует этого интерфейса. Это позволяет наследникам TComponent реализовывать интерфейсы не заботясь о реализации IUnknown. Однако, методы TComponent._AddRef и TComponent._Release на этапе выполнения программы не реализуют механизма подсчета ссылок, и, соответственно, для классов-наследников TComponent, реализующих интерфейсы не действует автоматическое управление памятью. Это позволяет запрашивать у них интерфейсы не опасаясь, что объект будет удален из памяти при выходе переменной за область видимости. Таким образом, следующий код совершенно корректен и безопасен:</p>
 <pre name="code" class="delphi">
@@ -47,9 +47,7 @@ begin
 end;
 </pre>
 
-
 <p>Этот код проверяет наличие у всех форм в приложении реализации интерфейса IGetData и, если форма реализует этот интерфейс &#8211; вызывает его метод.</p>
-
 <p>Использование интерфейсов внутри программы.</p>
 <p>Рассмотренное выше поведение TComponent позволяет строить просто и не теряя строгой типизации связывать компоненты приложения и единообразно вызывать их методы не требуя, чтобы компоненты были унаследованы от общего предка. Достаточно лишь реализовать в компоненте интерфейс, а в вызывающей программе &#8211; проверить его наличие.</p>
 <p>Рассмотрим, в качестве примера, MDI приложение, имеющее много различных форм и единую панель инструментов. Предположим, что на этой панели инструментов имеются команды «Сохранить», «Загрузить» и «Очистить», однако, каждое из окон реагирует на эти команды по-разному.</p>
@@ -76,7 +74,6 @@ implementation
  
 end.
 </pre>
-
 
 <p>Интерфейс IToolBarCommands описывает набор методов, которые должны реализовать поддерживающие работу с панелью кнопок формы. Метод SupportedCommands возвращает список поддерживаемых формой команд</p>
 <p>Создадим три дочерние формы Form2, Form3 и Form4, установим им свойство FormStyle = fsMDIChild. </p>
@@ -114,7 +111,6 @@ begin
 end;
 </pre>
 
-
 <p>Form3 умеет выполнять только команду Clear</p>
 <pre name="code" class="delphi">
 type
@@ -148,7 +144,6 @@ begin
 end;
 </pre>
 
-
 <p>И, наконец, Form4 вообще не реализует интерфейса IToolBarCommands и не умеет откликаться ни на одну команду</p>
 <p>На главной форме приложения поместим ActionList и создадим три компонента TAction. Также разместим на ней TToolBar и назначим её кнопкам соответствующие TAction. </p>
 <pre name="code" class="delphi">
@@ -171,7 +166,6 @@ type
   end;
 </pre>
 
-
 <p>Наиболее интересен метод ActionList1Update, в котором проверяются поддерживаемые активной формой команды и настраивается интерфейс главной формы. Если нет активной дочерней формы, либо она не поддерживает интерфейс IToolBarCommands, все команды запрещаются, в противном случае &#8211; разрешаются только поддерживаемые формой команды.</p>
 <pre name="code" class="delphi">
 procedure TForm1.ActionList1Update(Action: TBasicAction;
@@ -190,7 +184,6 @@ begin
   acClear.Enabled := ctClear in Supported;
 end;
 </pre>
-
 
 <p>При активизации команд проверяется наличие активной дочерней формы, у неё запрашивается интерфейс IToolBarCommands и вызывается соответствующий его метод</p>
 <pre name="code" class="delphi">
@@ -223,7 +216,6 @@ begin
 end;
 </pre>
 
-
 <p>Работа программы представлена на рисунке.</p>
 <img src="pic/clip0058.png" width="427" height="362" border="0" alt="clip0058"></p>
 <p>Того же эффекта можно добиться и другими методами (например, унаследовав все дочерние формы от единого предка, либо обмениваясь с ними сообщениями), однако эти методы имеют ряд существенных недостатков.</p>
@@ -253,7 +245,6 @@ implementation
  
 end.
 </pre>
-
 
 <p>Этот модуль должен использоваться как в Plug-In, так и в основной программе и гарантирует использование ими идентичных интерфейсов.</p>
 <p>Plug-In представляет собой DLL, экспортирующую функцию CreateFilter, возвращающую ссылку на интерфейс ILoadFilter. Главный модуль сначала должен вызвать метод Init, передав в него имя файла и ссылку на интерфейс внутреннего API, а затем вызывает метод GetNextLine до тех пор, пока он не вернет FALSE.</p>
@@ -293,7 +284,6 @@ begin
 end;
 </pre>
 
-
 <p>Метод Init выполняет две задачи: сохраняет ссылку на интерфейс API главного модуля для дальнейшего использования и пытается открыть файл с данными. Если файл открыт успешно &#8211; выставляется внутренний флаг InitSuccess</p>
 <pre name="code" class="delphi">
 function TTextFilter.GetNextLine(var S: String): Boolean;
@@ -310,7 +300,6 @@ begin
 end;
 </pre>
 
-
 <p>Метод GetNextLine считывает следующую строку данных и возвращает TRUE, если это удалось, либо FALSE, в случае окончания файла. Кроме этого, он при помощи API, предоставляемого главным модулем информирует пользователя о ходе загрузки.</p>
 <pre name="code" class="delphi">
 destructor TTextFilter.Destroy;
@@ -322,7 +311,6 @@ begin
 end;
 </pre>
 
-
 <p>В деструкторе мы обнуляем ссылку на API главного модуля, уничтожая его .и закрываем файл.</p>
 <pre name="code" class="delphi">
 function CreateFilter: ILoadFilter;
@@ -330,7 +318,6 @@ begin
   Result := TTextFilter.Create;
 end;
 </pre>
-
 
 <p>Эта функция создает экземпляр класса, реализующего интерфейс ILoadFilter. Ссылок на экземпляр сохранять не нужно, он будет освобожден автоматически.</p>
 <pre name="code" class="delphi">
@@ -340,7 +327,6 @@ exports
 begin
 end.
 </pre>
-
 
 <p>Теперь полученную DLL можно использовать из основной программы.</p>
 <pre name="code" class="delphi">
@@ -360,7 +346,6 @@ begin
 end;
 </pre>
 
-
 <p>Класс TAPI реализует API, предоставляемый модулю расширения. Функция ShowMessage выводит сообщения модуля в Status Bar главной формы приложения.</p>
 <pre name="code" class="delphi">
 type
@@ -377,7 +362,6 @@ var
 begin
 </pre>
 
-
 <p>Подготавливаем TMemo к загрузке данных</p>
 <pre name="code" class="delphi">
   Memo1.Lines.Clear;
@@ -386,7 +370,6 @@ begin
 
 <p>Получаем имя модуля с фильтром для выбранного расширения файла. Описания модулей хранятся в файле plugins.ini в секции [Filters] в виде строк формата:</p>
 <p> &lt;расширение&gt; = &lt;имя модуля&gt;, например:</p>
-
 <p>[Filters]</p>
 <p>TXT=IpTXT.DLL</p>
 <pre name="code" class="delphi">
@@ -400,7 +383,6 @@ begin
       Free;
     end;
 </pre>
-
 
 <p>Далее, пытаемся загрузить модуль и найти в нем функцию CreateFilter</p>
 <pre name="code" class="delphi">
@@ -419,13 +401,11 @@ begin
           Filter.Init(FileName, TAPI.Create);
 </pre>
 
-
 <p>Загружаем данные при помощи созданного фильтра</p>
 <pre name="code" class="delphi">
           while Filter.GetNextLine(S) do
             Memo1.Lines.Add(S);
 </pre>
-
 
 <p>Перед выгрузкой DLL из памяти необходимо обязательно освободить ссылку на интерфейс Plug-In, иначе это произойдет по выходу из функции и вызовет Access Violation</p>
 <pre name="code" class="delphi">
@@ -434,7 +414,6 @@ begin
         end;
       end else raise Exception.Create('Не могу загрузить фильтр');
 </pre>
-
 
 <p>Выгружаем DLL и обновляем TMemo</p>
 <pre name="code" class="delphi">
@@ -447,16 +426,14 @@ begin
 end;
 </pre>
 
-
 <p>Таким образом, несложно реализовать модули расширения для загрузки данных из форматов, отличающихся от текстового и единообразно работать с ними.</p>
 <p>Преимущества данного способа становятся особенно очевидными при реализации сложных модулей расширения, интерфейс с которыми состоит из многих методов.</p>
 <p>!  &nbsp; &nbsp; &nbsp; &nbsp;Поскольку в EXE и DLL используются длинные строки, не забудьте включить в список uses обоих проектов модуль ShareMem. Другим вариантом решения проблемы передачи строк является использование типа данных WideString. Для них распределением памяти занимается OLE, причем делает это независимо от модуля, из которого была создана строка.</p>
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

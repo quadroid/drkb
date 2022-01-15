@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Межплатформенный Drag &amp; Drop</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,24 +13,23 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Межплатформенный Drag &amp; Drop</h1>
 <div id="date">01.01.2010</div>
-
 <p>"Межплатформенный" Drag &amp; Drop </p>
 Сначала рассмотрим технологию Drag&amp;Drop в Windows так как большинство знакомых мне программистов работает именно в этой ОС.</p>
 <p>Немного Windows API</p>
 <p>Итак, чтоб заставить приложение реагировать на события Drag&amp;Drop, нам нужно воспользоваться функциями DragAcceptFiles, DragQueryFile и DragFinish из модуля ShellAPI.pas.</p>
 <p>Первая из них имеет вид:</p>
 <p>procedure DragAcceptFiles (Wnd: HWND; Accept: BOOL); stdcall;</p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Wnd - дескриптор окна, для которого будет установлено разрешение на прием перетаскиваемых объектов; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Accept - собственно разрешение (True - разрешить прем объектов; False - запретить).</td></tr></table></div><p>При установленном флаге Accept реакция приложения распространяется на все файлы и папки, расположенные на любых дисках. Реакция приложения не распространяется на метаелементы оболочки - то есть на Панель управления, Принтеры, Сетевое окружение, иконки дисков в Моем компьютере&#8230;После этого при перетаскивании файлов или папок на "допущенный" элемент приложения курсор меняет свою форму  При "отпускании" объекта на элементе тому посылается сообщение WM_DROPFILES, которое оповещает о произошедшем событии Drag&amp;Drop. Параметр wParam сообщения содержит идентификатор события и потребуется нам дальше.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Wnd - дескриптор окна, для которого будет установлено разрешение на прием перетаскиваемых объектов; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Accept - собственно разрешение (True - разрешить прем объектов; False - запретить).</td></tr></table></div><p>При установленном флаге Accept реакция приложения распространяется на все файлы и папки, расположенные на любых дисках. Реакция приложения не распространяется на метаелементы оболочки - то есть на Панель управления, Принтеры, Сетевое окружение, иконки дисков в Моем компьютере&#8230;После этого при перетаскивании файлов или папок на "допущенный" элемент приложения курсор меняет свою форму  При "отпускании" объекта на элементе тому посылается сообщение WM_DROPFILES, которое оповещает о произошедшем событии Drag&amp;Drop. Параметр wParam сообщения содержит идентификатор события и потребуется нам дальше.</p>
 <p>Вторая функция используется для получения списка файлов (как мы помним, перетаскивать можно несколько файлов, папок&#8230;), которые были передвинуты на наш компонент:</p>
 <p>function DragQueryFile (Drop: HDROP; FileIndex: UINT; FileName: PChar;<br>
 <p>cb: UINT): UINT; stdcall;</p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Drop - идентификатор, который был передан нам через сообщение WM_DROPFILES; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>FileIndex - номер запрашиваемого файла; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>FileName - указатель на строку, которая содержит имя файла с индексом (FileIndex); </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Cb - размер буфера FileName.</td></tr></table></div><p>При передаче параметру FileIndex значения $FFFFFFFF DragQueryFile возвращает количество файлов, которые были перетащены на компонент; в других случаях возвращаемое значение - количество скопированных в буфер FileName символов.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Drop - идентификатор, который был передан нам через сообщение WM_DROPFILES; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>FileIndex - номер запрашиваемого файла; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>FileName - указатель на строку, которая содержит имя файла с индексом (FileIndex); </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Cb - размер буфера FileName.</td></tr></table></div><p>При передаче параметру FileIndex значения $FFFFFFFF DragQueryFile возвращает количество файлов, которые были перетащены на компонент; в других случаях возвращаемое значение - количество скопированных в буфер FileName символов.</p>
 <p>DragFinish - используется для освобождения памяти занятой при перетаскивании. Формат функции:</p>
 <p>procedure DragFinish (Drop: HDROP); stdcall;</p>
 <p>Алгоритм работы</p>
@@ -111,20 +111,20 @@ end;
 <p>Лезем в "дебри" Qt</p>
 <p>Сначала воспользуемся функцией QEvent_hook_create для создания экземпляра объекта, который бы реагировал на события:</p>
 <p>function QEvent_hook_create (handle: QObjectH): QEvent_hookH; cdecl;</p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Handle - идентификатор объекта, для которого создается реакция на событие; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Результат - идентификатор реагирующего объекта.</td></tr></table></div><p>По завершении работы приложения надо будет освободить реагирующий объект:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Handle - идентификатор объекта, для которого создается реакция на событие; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Результат - идентификатор реагирующего объекта.</td></tr></table></div><p>По завершении работы приложения надо будет освободить реагирующий объект:</p>
 <p>procedure QEvent_hook_destroy (handle: QEvent_hookH); cdecl;</p>
 <p>Теперь нам нужно создать собственно реакцию на событие, которое должно иметь следующий вид:</p>
 <p>TEventFilterMethod = function (Sender: QObjectH; Event: QEventH):<br>
 <p>Boolean of object cdecl;</p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Sender - идентификатор объекта который должен реагировать на событие; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Event - идентификатор события, на которое должен реагировать объект.</td></tr></table></div><p>После этого нам необходимо инициализировать ее:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Sender - идентификатор объекта который должен реагировать на событие; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Event - идентификатор события, на которое должен реагировать объект.</td></tr></table></div><p>После этого нам необходимо инициализировать ее:</p>
 <p>procedure Qt_hook_hook_events (handle: QObject_hookH;<br>
 <p>hook: QHookH); cdecl;</p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Handle - идентификатор объекта-реакции на событие; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Hook - метод, который собственно и реагирует на события объекта. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>результат - True, если на событие успешно отреагировали; False - если нет.</td></tr></table></div><p>Поскольку мы пишем реакцию, которая должна незаметно влиять на работу нашего компонента, то результат всегда должен быть равен False.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Handle - идентификатор объекта-реакции на событие; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Hook - метод, который собственно и реагирует на события объекта. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>результат - True, если на событие успешно отреагировали; False - если нет.</td></tr></table></div><p>Поскольку мы пишем реакцию, которая должна незаметно влиять на работу нашего компонента, то результат всегда должен быть равен False.</p>
 <p>&nbsp;<br>
 <p>В самом методе Hook нам необходимо разобрать, на какие события следует реагировать, так как ему передаются все без исключения события, связанные с прикрепленным (через QEvent_hook_create) объектом. Для выделения необходимого события используются методы QEvent_isXXXXXX, где XXXX - название события.</p>
 <p>Для наших нужд потребуется только одни метод - QEvent_isQDropEventEvent:</p>
 <p>function QEvent_isQDropEventEvent (e: QEventH): Boolean; cdecl;</p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>e - значение, переданное параметру Event из шаблона TeventFilterMethod; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>результат - True, если событие относится к Drag&amp;Drop; False - в противном случае.</td></tr></table></div><p>После того как QEvent_isQDropEventEvent вернул true, нам следует перекодировать событие в QMimeSourceH посредством метода:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>e - значение, переданное параметру Event из шаблона TeventFilterMethod; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>результат - True, если событие относится к Drag&amp;Drop; False - в противном случае.</td></tr></table></div><p>После того как QEvent_isQDropEventEvent вернул true, нам следует перекодировать событие в QMimeSourceH посредством метода:</p>
 <p>function QDropEvent_to_QMimeSource (handle: QDropEventH):<br>
 <p>QMimeSourceH; cdecl;</p>
 <p>далее принять на обработку это событие:</p>
@@ -321,9 +321,9 @@ end.
 <a href="http://www.cpp.com.ua" target="_blank">http://www.cpp.com.ua</a></p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

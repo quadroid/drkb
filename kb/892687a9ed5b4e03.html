@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Введение и базовые понятия</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,13 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Введение и базовые понятия</h1>
 <div id="date">01.01.2010</div>
-
 
 Delphi и COM</p>
 
@@ -45,7 +45,6 @@ Delphi и COM</p>
 
 Автоматическое управление памятью и подсчет ссылок</p>
 <p>Кроме предоставления независимого от языка программирования доступа к методам объектов COM реализует автоматическое управление памятью для COM-объектов. Оно основано на идее подсчета ссылок на объект. Любой клиент, желающий использовать COM объект после его создания должен вызвать заранее предопределенный метод, который увеличивает внутренний счетчик ссылок на объект на единицу. По завершении использования объекта клиент вызывает другой его метод, уменьшающий значение этого же счетчика. При достижении счетчиком ссылок нулевого значения COM-объект автоматически удаляет себя из памяти. Такая модель позволяет клиентам не вдаваться в подробности реализации объекта, а объекту &#8211; обслуживать несколько клиентов и корректно очистить память по завершении работы с последним из них.</p>
-
 <p>Объявление интерфейсов</p>
 <p>Для поддержки интерфейсов Delphi расширяет синтаксис языка Pascal дополнительными ключевыми словами. Объявление интерфейса в Delphi реализуется ключевым словом interface</p>
 <pre name="code" class="delphi">
@@ -76,36 +75,28 @@ type
   end;
 </pre>
 
-
 <p>Рассмотрим назначение методов IUnknown более подробно.</p>
 <p>Последние два метода предназначены для реализации механизма подсчета ссылок.</p>
-
 <p>function _AddRef: Integer; stdcall;</p>
-
 <p>Эта функция должна увеличить счетчик ссылок на интерфейс на 1 и вернуть новое значение счетчика.</p>
-
 <p>function _Release: Integer; stdcall;</p>
-
 <p>Эта функция должна уменьшить счетчик ссылок на интерфейс на 1 и вернуть новое значение счетчика. При достижении счетчиком значения 0 она должна освободить память, занятую реализацией интерфейса.</p>
 <p>Первый метод позволяет получить ссылку на реализуемый классом интерфейс.</p>
-
 <p>function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;</p>
-
 <p>Эта функция получает в качестве входного параметра идентификатор интерфейса. Если объект реализует запрошенный интерфейс, то функция:</p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>возвращает ссылку на него в параметрt Obj</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>вызывает метод _AddRef полученного интерфейса</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>возвращает 0</td></tr></table></div>В противном случае, функция возвращает код ошибки E_NOINTERFACE.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>возвращает ссылку на него в параметрt Obj</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>вызывает метод _AddRef полученного интерфейса</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>возвращает 0</td></tr></table></div>В противном случае, функция возвращает код ошибки E_NOINTERFACE.</p>
 <p>В принципе, конкретная реализация может наполнить эти методы какой-либо другой, отличающейся от стандартной функциональностью, однако в этом случае интерфейс будет несовместим с моделью COM, поэтому делать этого не рекомендуется.</p>
 <p>В модуле System.pas объявлен класс TInterfacedObject, реализующий IUnknown и его методы. Рекомендуется использовать этот класс для создания реализаций своих интерфейсов.</p>
 <p>Кроме этого, поддержка интерфейсов реализована в базовом классе TObject. Он имеет метод</p>
-
 <p>function TObject.GetInterface(const IID: TGUID; out Obj): Boolean;</p>
 <p>Если класс реализует запрошенный интерфейс, то функция:</p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>возвращает ссылку на него в параметрt Obj</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>вызывает метод _AddRef полученного интерфейса</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>возвращает TRUE</td></tr></table></div>В противном случае, функция возвращает FALSE.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>возвращает ссылку на него в параметрt Obj</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>вызывает метод _AddRef полученного интерфейса</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>возвращает TRUE</td></tr></table></div>В противном случае, функция возвращает FALSE.</p>
 <p>Таким образом, имеется возможность запросить у любого класса Delphi реализуемый им интерфейс Подробнее использование этой функции будет рассмотрено ниже.</p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

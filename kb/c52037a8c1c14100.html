@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Особенности реализации клиентской части</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,13 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Особенности реализации клиентской части</h1>
 <div id="date">01.01.2010</div>
-
 
 Особенности реализации клиентской части</p>
 <p>До версии 6.5 основным интерфейсом доступа к MS SQL Server со стороны клиента была библиотека DB-Library. Она реализовывала набор низкоуровневых интерфейсов, позволяющих организовать взаимодействие с сервером. Однако, в версии 7 Microsoft ввела новый интерфейс доступа &#8211; OLE DB. В связи с этим развитие DB-Library прекращено, и она оставлена лишь для обратной совместимости. Доступ через неё не поддерживает новых расширений сервера (UNICODE, текстовые поля до 8 Кбайт, тип данных GUID). Однако, старые приложения, не использующие этой функциональности сохраняют работоспособность, хотя может понадобиться некоторая их переделка в связи с изменениями в 7-й версии. Драйвер SQL Links реализует доступ при помощи DB-Library, и воспользоваться расширениями через него невозможно. Для обеспечения полноценного доступа к MS SQL Server 7.0 и выше необходимо использовать новый набор компонентов ADOExpress, включенный в Delphi 5. Работа через BDE возможна, но при этом сервер доступен в объеме возможностей версии 6.х. Также, существует ODBC драйвер, через который возможен полнофункциональный доступ к серверу. При работе с сервером версии 2000 на работу через BDE накладываются дополнительные ограничения, связанные с использованием индексов по вычисляемым полям.</p>
@@ -54,12 +54,12 @@ ADODataSet1.RecordSet := ADOQuery1.NextRecordSet;
 <p>SELECT CAST(USER_NAME() AS VARCHAR(255))</p>
 <p>При работе с сервером при помощи BDE и драйвера SQL Link необходимо помнить следующее:</p>
 <p><img src="pic/clip0182.gif" width="413" height="311" border="0" alt="clip0182"></p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>В зависимости от кодовой страницы сервера он может воспринимать дату в различных форматах. Например: '1 Apr 1999' для английской и '1 Апр 1999' для русской. DB-Library пытается распознать кодовые страницы клиента и сервера и преобразовать дату в нужный вид. Однако при этом часто возникает ошибка, когда дата уходит на сервер не на том языке. Для исключения этой ошибки необходимо проверить язык, установленный в качестве умолчания на сервере (SET LANGUAGE) и в программе Client Network Utility на закладке "DB Library Options" отключить флажок «Use International Settings», если на нем установлен us_english или включить, если установлен русский. Другим способом избежать данной проблемы является передача даты на сервер в виде текстовой строки вида 'yyyymmdd'. При преобразовании 8-символьной строки в дату сервер всегда интерпретирует её таким образом и исключает возможность ошибки. Сделать это можно так:</td></tr></table></div>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>В зависимости от кодовой страницы сервера он может воспринимать дату в различных форматах. Например: '1 Apr 1999' для английской и '1 Апр 1999' для русской. DB-Library пытается распознать кодовые страницы клиента и сервера и преобразовать дату в нужный вид. Однако при этом часто возникает ошибка, когда дата уходит на сервер не на том языке. Для исключения этой ошибки необходимо проверить язык, установленный в качестве умолчания на сервере (SET LANGUAGE) и в программе Client Network Utility на закладке "DB Library Options" отключить флажок «Use International Settings», если на нем установлен us_english или включить, если установлен русский. Другим способом избежать данной проблемы является передача даты на сервер в виде текстовой строки вида 'yyyymmdd'. При преобразовании 8-символьной строки в дату сервер всегда интерпретирует её таким образом и исключает возможность ошибки. Сделать это можно так:</td></tr></table></div>
 <pre name="code" class="delphi">
 Params[0].AsString := FormatDateTime('yyyymmdd',DateTimeVariable);
 </pre>
 
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>При выполнении запроса на выборку данных сервер ожидает, что клиентская программа считает все запрошенные данные до посылки на сервер следующего оператора. Однако BDE загружает записи с сервера только по мере необходимости (например, открыв в TDBGrid большую таблицу, мы прочтем с сервера только записи, которые поместятся на экран в её видимой части). Остальные записи считываются по мере необходимости, например при прокрутке таблицы. Если в этой ситуации попытаться выполнить еще один запрос &#8211; BDE принудительно выполняет FetchAll для всех открытых, но не считанных до конца запросов. Это может повлечь неожиданную задержку. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>При использовании индексов по вычисляемым полям, появившихся в MSSQL 2000, необходимо, чтобы для сессии были установлены параметры:</td></tr></table></div>ANSI_NULLS &nbsp; &nbsp; &nbsp; &nbsp;ON</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>При выполнении запроса на выборку данных сервер ожидает, что клиентская программа считает все запрошенные данные до посылки на сервер следующего оператора. Однако BDE загружает записи с сервера только по мере необходимости (например, открыв в TDBGrid большую таблицу, мы прочтем с сервера только записи, которые поместятся на экран в её видимой части). Остальные записи считываются по мере необходимости, например при прокрутке таблицы. Если в этой ситуации попытаться выполнить еще один запрос &#8211; BDE принудительно выполняет FetchAll для всех открытых, но не считанных до конца запросов. Это может повлечь неожиданную задержку. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>При использовании индексов по вычисляемым полям, появившихся в MSSQL 2000, необходимо, чтобы для сессии были установлены параметры:</td></tr></table></div>ANSI_NULLS &nbsp; &nbsp; &nbsp; &nbsp;ON</p>
 ANSI_PADDING &nbsp; &nbsp; &nbsp; &nbsp;ON</p>
 ANSI_WARNINGS &nbsp; &nbsp; &nbsp; &nbsp;ON</p>
 ARITHABORT &nbsp; &nbsp; &nbsp; &nbsp;ON</p>
@@ -67,12 +67,11 @@ CONCAT_NULL_YIELDS_NULL &nbsp; &nbsp; &nbsp; &nbsp;ON</p>
 QUOTED_IDENTIFIER &nbsp; &nbsp; &nbsp; &nbsp;ON</p>
 NUMERIC_ROUNDABORT &nbsp; &nbsp; &nbsp; &nbsp;OFF</p>
 <p>В противном случае, таблица, по которой определен индекс по вычисляемому полю будет доступна только на чтение. Приведенный набор настроек соответствует умолчаниям для сессий OLE DB и ODBC. DB-Library инициализирует их по другому и Вы должны явно задать требуемые значения после соединения с сервером.</p>
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

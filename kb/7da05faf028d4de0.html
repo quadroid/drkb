@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Добавляем дополнительную кнопку в заголовок формы</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,16 +13,14 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Добавляем дополнительную кнопку в заголовок формы</h1>
 <div id="date">01.01.2010</div>
 
-
 <p id="author">Автор: Vimil Saju </p>
-
 <p>Чтобы добавить дополнительную кнопку, нам прийдётся создать обработчики для следующих событий: </p>
 <p>WM_NCPAINT;//вызывается, когда перерисовывается не клиентская область формы </p>
 <p>WM_NCACTIVATE; вызывается, когда заголовок формы становится активныи </p>
@@ -31,10 +30,8 @@
 <p>WM_LBUTTONUP; вызывается, когда кнопка мыши отпушена в клиентской области </p>
 <p>WM_NCLBUTTONUP; вызывается, когда кнопка мыши отпушена в не клиентской области </p>
 <p>WM_NCLBUTTONDBLCLK; вызывается при двойном щелчке мышкой в не клиентской области </p>
-
 <p>Приведённый ниже код модифицирован, чтобы избавиться от нежелательного мерцания кнопки </p>
 <p>будем использовать следующие переменные: </p>
-
 <p>h1(Thandle) : хэндл контекста устройства всего окна, включая не клиентскую область. </p>
 <p>pressed(boolean): индикатор, показывающий, нажата кнопка или нет. </p>
 <p>focuslost(boolean): индикатор, показывающий, находится ли фокус на кнопке или нет. </p>
@@ -191,32 +188,25 @@ end;
 </pre>
 
 <p>  Комментарии специалистов: </p>
-
 <p>Дата: 25 Августа 2000г.</p>
 <p id="author">Автор: NeNashev nashev@mail.ru</p>
-
 <p>InvalidateRect на событие Resize ничего не даёт. Но даже без него</p>
 <p>кнопка всё равно моргает при Resize формы... Надо ещё где-то убрать</p>
-
 <p>Для рисования кнопок на заголовке окна лучше пользоваться</p>
 <p>DrawFrameControl а не DrawEdge... Так и с не серыми настройками</p>
 <p>интерфейса всё правильно будет. Да и проще так.</p>
-
 <p>Названия функций, констант и т.п лучше писать так, как они в описаниях</p>
 <p>даются, а не подряд маленькими буквами. Особенно для публикации. Так</p>
 <p>оно и читается по большей части лучше, и в С такая привычка Вам не</p>
 <p>помешает...</p>
-
 <p>Сравнивать логическое значение с логической константой чтоб получить</p>
 <p>логическое значение глупо, так как логическое значение у Вас уже есть.</p>
 <p>тоесь вместо</p>
 <p>if (pressed=true) and (focuslost=false)</p>
 <p>лучше писать</p>
 <p>if Pressed and not FocusLost</p>
-
 <p>Для конструирования прямоугольников и точек из координат есть две</p>
 <p>простые функции Rect и Point.</p>
-
 <p>В общем Ваша процедура FormPaint может выглядеть так:</p>
 <pre name="code" class="delphi">
 procedure TMainForm.FormPaint(Sender: TObject);
@@ -232,14 +222,12 @@ ReleaseDC(MainForm.Handle,h1);
 end;
 </pre>
 
-
 <p>Но вообще-то рисовать эту кнопку надо только при WM_NCPAINT, а не</p>
 <p>всегда... И вычислять координаты по другому... Вдруг размер элементов</p>
 <p>заголовка у юзера в системе не стандартный? А это просто настраивается...</p>
 <p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
 
-
-<hr />Непосредственно такой функции вроде нет, но можно изловчиться. Нарисовать там кнопку вручную и обрабатывать команды нажатия мышки на Caption Bar.</p>
+<hr/>Непосредственно такой функции вроде нет, но можно изловчиться. Нарисовать там кнопку вручную и обрабатывать команды нажатия мышки на Caption Bar.</p>
 <p>Пример.</p>
 
 <pre name="code" class="delphi">
@@ -354,10 +342,8 @@ end.
 
 <p>Источник: <a href="http://dmitry9.nm.ru/info/" target="_blank">http://dmitry9.nm.ru/info/</a></p>
 
-<hr />Автор: Tercio Ferdinando Gaudencio Filho</p>
-
+<hr/>Автор: Tercio Ferdinando Gaudencio Filho</p>
 <p>Приведённый здесь код создаёт кнопку в заголовке окна, создаёт MenuItem в системном меню и создаёт подсказку(Hint) в кнопке. Поместите код в Ваш Unit и замените "FrmMainForm" на Ваше имя формы, а так же некоторые кусочки кода, ткст подсказки и т.д.</p>
-
 <p>Совместимость: Delphi 3.x (или выше)</p>
 <pre name="code" class="delphi">
 ... 
@@ -590,13 +576,11 @@ procedure TFrmMainForm.FormCreate(Sender: TObject);
 </pre>
 
 <p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
-
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Как явно вызвать виртуальный метод дедушки?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,17 +13,14 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Как явно вызвать виртуальный метод дедушки?</h1>
 <div id="date">01.01.2010</div>
 
-
-
 <p>Проблема в следующем. Допустим, есть иерархия классов, у которых перекрывается один и тот же виртуальный (или динамический - не важно) метод и в одной из реализаций этого метода вы хотите вызвать виртуальный метод предка своего предка. Новая объектная модель Delphi допускает только вызов методов предка (с помощью ключевого слова inherited) либо вызов методов класса с префиксом - типом класса (например, TLevel1.ClassName).</p>
-
 <p>Эта проблема стандартными средствами не решается. Но сделать требуемый вызов можно. Причем способом, показанным ниже, можно вызвать любой метод для любого класса, однако, в этом случае вся ответственность за правильность работы с методами и полями ложится на программиста. Ниже в методе VirtualFunction класса TLevel3 вызывается метод класса TLevel1, а в функции Level1Always всегда вызывается метод класса TLevel1 для любого его наследника.</p>
 
 <pre name="code" class="delphi">
@@ -81,7 +79,6 @@ implementation
 </pre>
 
 <p>Как же это работает? Стандартные так называемые объектные типы (object types - class of ...) на самом деле представляют из себя указатель на VMT (Virtual Method Table) - таблицу виртуальных методов, который (указатель) лежит по смещению 0 в экземпляре класса. Воспользовавшись этим, мы сначала сохраняем 'старый тип класса' - указатель на VMT, присваиваем ему указатель на VMT нужного класса, делаем вызов и восстанавливаем все как было. Причем нигде не требуется, чтобы один из этих классов был бы порожден от другого, т.е. функция Level1Always вызовет требуемый метод вообще для любого экземпляра любого класса.</p>
-
 <p>Если в функции Level1Always сделать попробовать вызов</p>
 
 <pre name="code" class="delphi">
@@ -94,7 +91,6 @@ Result := MyObject.VirtualFunction;
 Result := (MyObject as TLevel3).VirtualFunction;
 </pre>
 
-
 <p>будет пропущен компилятором, но вызовет Run-time ошибку, даже если передается экземпляр класса TLevel3 или один из его потомком, так как информация о типе объекта меняется. Динамически распределяемые (dynamic) методы можно вызывать точно таким же образом, т.к. информация о них тоже хранится в VMT. Статические методы объектов вызываются гораздо более простым способом, например</p>
 
 <pre name="code" class="delphi">
@@ -105,15 +101,13 @@ var
 </pre>
 
 <p>вызовет метод класса TLevel1 даже если у MyLevel3 есть свой такой же метод.</p>
-
 <p>Copyright © 1996 Epsylon Technologies</p>
 <p>Взято из FAQ Epsylon Technologies (095)-913-5608; (095)-913-2934; (095)-535-5349</p>
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

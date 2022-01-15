@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Файловые операции средствами ShellAPI</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,13 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Файловые операции средствами ShellAPI</h1>
 <div id="date">01.01.2010</div>
-
 
 <p>Файловые операции средствами ShellAPI.&nbsp; </p>
 <p>В данной статье мы подробно рассмотрим применение функции SHFileOperation. </p>
@@ -27,7 +27,6 @@
 <p>переименование и удаление (в том числе и в Recycle Bin) объектов файловой системы. </p>
 <p>Функция возвращает 0, если операция выполнена успешно, </p>
 <p>и ненулевое значение в противном :-) случае. </p>
-
 <p>Функция имеет единственный аргумент - структуру типа TSHFileOpStruct,</p>
 <p> в которой и передаются все необходимые данные. </p>
 <p>Эта структура выглядит следующим образом: </p>
@@ -48,7 +47,6 @@ _SHFILEOPSTRUCTA = packed record
 <p>Поля этой структуры имеют следующее назначение:</p>
 <p>hwnd Хэндл окна, на которое будут выводиться диалоговые окна о ходе операции.</p>
 <p>wFunc Требуемая операция. Может принимать одно из значений:</p>
-
 <p>FO_COPY Копирует файлы, указанные в pFrom в папку, указанную в pTo. </p>
 <p>FO_DELETE Удаляет файлы, указанные pFrom (pTo игнорируется). </p>
 <p>FO_MOVE Перемещает файлы, указанные в pFrom в папку, указанную в pTo. </p>
@@ -57,13 +55,11 @@ _SHFILEOPSTRUCTA = packed record
 <p>Указатель на буфер, содержащий пути к одному или нескольким файлам. </p>
 <p>Если файлов несколько, между путями ставится нулевой байт. </p>
 <p>Список должен заканчиваться двумя нулевыми байтами. </p>
-
 <p>pTo</p>
 <p>Аналогично pFrom, но содержит путь к директории - адресату, </p>
 <p>в которую производится копирование или перемещение файлов. </p>
 <p>Также может содержать несколько путей. </p>
 <p>При этом нужно установить флаг FOF_MULTIDESTFILES. </p>
-
 <p>fFlags</p>
 <p>Управляющие флаги. </p>
 <p>FOF_ALLOWUNDO Если возможно, сохраняет информацию для возможности UnDo. </p>
@@ -85,14 +81,12 @@ _SHFILEOPSTRUCTA = packed record
 <p>fAnyOperationsAborted</p>
 <p>Принимает значение TRUE если пользователь прервал любую файловую</p>
 <p> операцию до ее завершения и FALSE в ином случае. </p>
-
 <p>hNameMappings</p>
 <p>Дескриптор объекта отображения имени файла, который содержит</p>
 <p> массив структур SHNAMEMAPPING. Каждая структура содержит</p>
 <p>  старые и новые имена пути для каждого файла, который перемещался,</p>
 <p> &nbsp; скопирован, или переименован. Этот элемент используется только,</p>
 <p> &nbsp; если установлен флаг FOF_WANTMAPPINGHANDLE. </p>
-
 <p>lpszProgressTitle</p>
 <p>Указатель на строку, используемую как заголовок для диалогового окна прогресса. </p>
 <p>Этот элемент используется только, если установлен флаг FOF_SIMPLEPROGRESS. </p>
@@ -101,12 +95,9 @@ _SHFILEOPSTRUCTA = packed record
 <p>Если pFrom или pTo не указаны, берутся файлы из текущей директории. </p>
 <p>Текущую директорию можно установить с помощью функции SetCurrentDirectory </p>
 <p>и получить функцией GetCurrentDirectory. </p>
-
 <p>А теперь - примеры. </p>
-
 <p>Разумеется, вам нужно вставить в секцию uses модуль ShellAPI, в котором определена</p>
 <p> функция SHFileOperation. </p>
-
 <p>Рассмотрим самое простое - удаление файлов. </p>
 <pre name="code" class="delphi">
 procedure TForm1.Button1Click(Sender: TObject);
@@ -131,11 +122,9 @@ begin
 end;
 </pre>
 
-
 <p>Обратите внимание, что ни один из флагов не установлен.</p>
 <p>Если вы хотите не просто удалить файлы, а переместить их</p>
 <p> в корзину, должен быть установлен флаг FOF_ALLOWUNDO. </p>
-
 <p>Для удобства дальнейших экспериментов напишем функцию,</p>
 <p> создающую из массива строк буфер для передачи его в качестве параметра pFrom. </p>
 <p>После каждой строки в буфер вставляется нулевой байт, в конце списка - два нулевых байта. </p>
@@ -160,7 +149,6 @@ end;
 </pre>
 
 <p>Выглядит ужасно, но работает. Можно написать красивее, просто лень. </p>
-
 <p>И, наконец, функция, удаляющая файлы, переданные ей в списке Names. </p>
 <p>Параметр ToRecycle определяет, будут ли файлы перемещены в корзину</p>
 <p> или удалены. Функция возвращает 0, если операция выполнена успешно, </p>
@@ -195,7 +183,6 @@ end;
 <p>потери памяти при этом не происходит, а напротив, </p>
 <p>происходит корректное уничтожение динамического массива. </p>
 <p>Каким образом, правда - это рак мозга :-). </p>
-
 <p>Проверяем : </p>
 <pre name="code" class="delphi">
 procedure TForm1.Button1Click(Sender: TObject);
@@ -205,7 +192,6 @@ end;
 </pre>
 
 <p>Вроде все работает. </p>
-
 <p>Кстати, обнаружился забавный глюк - вызовем процедуру DeleteFiles таким образом: </p>
 <pre name="code" class="delphi">
 procedure TForm1.Button1Click(Sender: TObject);
@@ -220,9 +206,7 @@ end;
 <p>Мораль: при использовании функции</p>
 <p> SHFileOperation используйте полные пути всегда, когда это возможно.</p>
 <p>Ну, с удалением файлов разобрались. </p>
-
 <p>Теперь очередь за копированием и перемещением. </p>
-
 <p>Следующая функция перемещает файлы указанные в списке Src в директорию Dest. </p>
 <p>Параметр Move определяет, будут ли файлы перемещаться или копироваться. </p>
 <p>Параметр AutoRename указывает, переименовывать ли файлы в случае конфликта имен. </p>
@@ -252,7 +236,6 @@ begin
 end;
 </pre>
 
-
 <p>Ну, проверим. </p>
 <pre name="code" class="delphi">
 procedure TForm1.Button1Click(Sender: TObject);
@@ -262,10 +245,8 @@ end;
 </pre>
 
 <p>Все в порядке (а кудa ж оно денется). </p>
-
 <p>Есть, правда еще одна возможность - перемещать много файлов каждый</p>
 <p> в свою директорию за один присест, но я с трудом представляю, кому это может понадобиться. </p>
-
 <p>Осталась последняя о</p>
 <pre name="code" class="delphi">
 function RenameFiles( Handle : HWnd; Src : string; New : string; AutoRename : Boolean ) : Integer;
@@ -296,12 +277,11 @@ end;
 </pre>
 
 <p>Взято с сайта <a href="http://blackman.wp-club.net/" target="_blank">http://blackman.wp-club.net/</a></p>
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

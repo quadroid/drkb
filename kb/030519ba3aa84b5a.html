@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Использование ловушек: блокировка мыши, клавиатуры и т.д.</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,16 +13,14 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Использование ловушек: блокировка мыши, клавиатуры и т.д.</h1>
 <div id="date">01.01.2010</div>
 
-
 <p>Возможные вариации: Любые вопросы, связанные с постановкой хука. Например "Как отследить [что-то]", "Как подменить [какое-то действие]", "Как заблокировать комбинации клавиш, как заблокировать определённые действия", "Как не дать запускаться определённым приложениям, не дать открываться определённым окнам?", "Как получить список запущенных оконных приложений?" и т.д.</p>
-
 <p>Рабочий пример глобальной блокировки правой кнопки мыши: </p>
 <p>DLL:</p>
 
@@ -56,7 +55,6 @@ exports Hook;
 begin
 end. 
 </pre>
-
 
 <p>----------------------------</p>
 <p>Project:</p>
@@ -133,11 +131,8 @@ end;
 end. 
 </pre>
 
-
-
 <p>Файлы для демонстрации можно взять здесь: http://coolsong.narod.ru/hook.rar</p>
 <p>Работает так: при неустановленном хуке правая кнопка работает (о чём свидетельствует нажатие правой кнопки мыши - событие TForm.onMouseDown и сообщение). После установки хука кнопкой "Install", события от мыши перестают обрабатываться (сообщение "Right mouse key pressed" не выдаётся). после снятия хука (кнопка "Remove") - всё возвращается к первоначальному состоянию. </p>
-
 <p>Если требуется перехватывать клавиши, тогда из вышеобозначенной теории нам известны варианты: WH_KEYBOARD, WH_KEYBOARD_LL или WH_GETMESSAGE+WM_CHAR/WM_KEYDOWN/UP</p>
 <p>Однако, если требуется перехватить всего лишь отдельную клавишу, будь то одну либо с нажатым Ctrl, Alt, Shift, рациональней для этого воспользоваться назначением горячей клавиши, через RegisterHotKey().</p>
 <p>Рабочий пример такого приёма:</p>
@@ -187,38 +182,28 @@ begin
 end;
 </pre>
 
-
 <p>Блокировка клавиатуры/мыши.</p>
-
 <p>Родственная тема, поэтому помещена в этот же вопрос.</p>
-
 <p>Итак, заблокировать можно хуком. Но в некоторых случаях можно обойтись и "малой кровью".</p>
 <p>Вы можете использовать ф-ию BlockInput. Она живёт в user32.dll Также она блокирует одновременно и мышь.</p>
-
 <p>Procedure BlockInput(ABlockInput : Boolean); stdcall; external 'USER32.DLL'; </p>
-
 <p>BlockInput(True); - заблокировать </p>
-
 <p>BlockInput(False); - разблокировать </p>
-
 <p>Однако имейте ввиду, что BlockInput() не заблокирует CAD. Кроме того, её работа блокируется по нажатию трёх пальцев.Для блокировки CAD в w9x, мы можем использовать режим скринсэйвера, в NT, увы никак.</p>
 <p>Ф-ия BlockInput() явилась продолжением ф-ии EnableHardwareInput(), которая как мы знаем использовалась в 16-разрядных приложениях.</p>
 <p>Кроме того, для блокировки, мы можем использовать некоторые недокументированные возможности, однако их недастаток в том, что обратно клавиатуру/мышь уже включить нельзя:</p>
-
 <p>"rundll32 keyboard,disable" - заблокироовать клавиатуру</p>
 <p>"rundll32 mouse,disable" - заблокировать мышь</p>
-
 <p>Запустить эти команды мы можем самое простое через ShellExecute() или WinExec():</p>
 <p>ShellExecute(Application.Handle,'open','C:\Windows\Rundll32.exe',</p>
 <p>'команда','C:\Windows',SW_HIDE);</p>
 
 <p id="author">Автор: Song</p>
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

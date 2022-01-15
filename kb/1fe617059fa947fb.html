@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Запись сообщений в журнал событий Windows на Delphi</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,20 +13,19 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Запись сообщений в журнал событий Windows на Delphi</h1>
 <div id="date">01.01.2010</div>
 
-
 <p>Запись сообщений в журнал событий Windows на Delphi</p>
 <p>Автор: c "FMI Solutions" 2002</p>
 <p>http://www.fmisolutions.com</p>
 <p>Перевод: &#169; Digimaster 2005 </p>
 <p>Приложение может записывать сообщения в журнал используя следующие функции WinAPI. Подробное описание параметров этих функций содержится в документации к API. </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>RegisterEventSource - Открывает handle для доступа к журналу на локальной или удаленной машине. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>ReportEvent - Собственно записывает сообщение. </td></tr></table></div><p>Для записи сообщений в журнал в упрощенной манере просто произведите вызов RegisterEventSource с именем машины (UNC), в журнал которой вы хотите поместить сообщение (nil для локальной машины), и именем события. Имя события это обычно имя приложения, но может быть чем-то более информативным. Как только источник событий зарегистрирован, можно записывать события при помощи ReportEvent с handle, который вернула RegisterEventSource. </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>RegisterEventSource - Открывает handle для доступа к журналу на локальной или удаленной машине. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>ReportEvent - Собственно записывает сообщение. </td></tr></table></div><p>Для записи сообщений в журнал в упрощенной манере просто произведите вызов RegisterEventSource с именем машины (UNC), в журнал которой вы хотите поместить сообщение (nil для локальной машины), и именем события. Имя события это обычно имя приложения, но может быть чем-то более информативным. Как только источник событий зарегистрирован, можно записывать события при помощи ReportEvent с handle, который вернула RegisterEventSource. </p>
 <p>Пример: </p>
 <pre name="code" class="delphi">
 VAR EventLog:THandle;
@@ -42,45 +42,45 @@ ReportEvent(EventLog,EVENTLOG_INFORMATION_TYPE,0,0,nil,1,0,@MyMsg,nil);
 <p>HKEY_LOCAL_MACHINESYSTEM - CurrentControlSet - Services - Eventlog - Application - &lt;AppName&gt; </p>
 <p>Имя приложения AppName должно совпадать с именем источника, использованного при вызове RegisterEventSource, потому что просмотрщик событий будет использовать это имя для отыскивания событий. </p>
 <p>Создайте следующие ключи: </p>
-<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
-<tr >
-<td >Имя ключа</p>
+<table>
+<tr>
+<td>Имя ключа</p>
 </td>
-<td >Тип</p>
+<td>Тип</p>
 </td>
-<td >Описание</p>
-</td>
-</tr>
-<tr >
-<td ><p>CategoryCount (Optional)</p>
-</td>
-<td ><p>Integer</p>
-</td>
-<td ><p>Количество категорий событий, которые вы собираетесь использовать. (Это максимальная величина, и не будет проблем, если не все категории на самом деле будут применяться).</p>
+<td>Описание</p>
 </td>
 </tr>
-<tr >
-<td ><p>CategoryMessageFile (Optional)</p>
+<tr>
+<td><p>CategoryCount (Optional)</p>
 </td>
-<td ><p>String</p>
+<td><p>Integer</p>
 </td>
-<td ><p>Файл, содержащий ресурсы строк категорий.</p>
-</td>
-</tr>
-<tr >
-<td ><p>EventMessageFile</p>
-</td>
-<td ><p>String</p>
-</td>
-<td ><p>Файл, содержащий ресурсы строк событий.</p>
+<td><p>Количество категорий событий, которые вы собираетесь использовать. (Это максимальная величина, и не будет проблем, если не все категории на самом деле будут применяться).</p>
 </td>
 </tr>
-<tr >
-<td ><p>TypesSupported</p>
+<tr>
+<td><p>CategoryMessageFile (Optional)</p>
 </td>
-<td ><p>Integer</p>
+<td><p>String</p>
 </td>
-<td ><p>Допустимые типы событий.
+<td><p>Файл, содержащий ресурсы строк категорий.</p>
+</td>
+</tr>
+<tr>
+<td><p>EventMessageFile</p>
+</td>
+<td><p>String</p>
+</td>
+<td><p>Файл, содержащий ресурсы строк событий.</p>
+</td>
+</tr>
+<tr>
+<td><p>TypesSupported</p>
+</td>
+<td><p>Integer</p>
+</td>
+<td><p>Допустимые типы событий.
 </td>
 </tr>
 </table>
@@ -124,7 +124,7 @@ End;
 </pre>
 <p>Сообщение и ресурсы категорий.</p>
 <p>Информация, помещаемая в реестр вышеприведенным кодом, информирует журнал событий о том, где искать строки событий и категорий, основываясь на имени источника, которое использует приложение для записи в журнал. И, как мы уже говорили, чтобы журнал событий искал эти строки в нашем исполняемом файле, нам нужно включить эти строковые ресурсы в наш файл. Этот процесс состоит из следующих шагов: </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Написание исходного файла таблицы сообщений (файл .mc). </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Компиляция .mc файла при помощи Microsoft message compiler. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Подключение получившейся информации к нашему Delphi приложению. </td></tr></table></div><p>Есть много примеров по написанию .mc файлов в Windows SDK и на различных сайтах, включая MSDN, однако документация не достаточно проста, поэтому приводим минимально достаточное описание для создания файла таблицы сообщений: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Написание исходного файла таблицы сообщений (файл .mc). </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Компиляция .mc файла при помощи Microsoft message compiler. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Подключение получившейся информации к нашему Delphi приложению. </td></tr></table></div><p>Есть много примеров по написанию .mc файлов в Windows SDK и на различных сайтах, включая MSDN, однако документация не достаточно проста, поэтому приводим минимально достаточное описание для создания файла таблицы сообщений: </p>
 <p>;//Example Message source file exmess.mc</p>
 <p>MessageId=0</p>
 <p>Language=English</p>
@@ -155,9 +155,9 @@ ReportEvent(EventLog, EVENTLOG_INFORMATION_TYPE,1,0,nil,1,0,@MyMsg,nil);
 <p>Вышеприведенный код запишет событие в журнал с текстом "A test event message" и, потому что 1 следует за параметром EventLogType, это будет событие категории "Category1". Это достигнуто указанием 0 в качестве идентификатора события, который соответствует определителю формата в ресурсе 0 ("%1"). В результате текст сообщения события будет передан без изменения. Точно так же, категория указана 1, что соответствует "Category1" в нашем ресурсе 1. Журнал событий поддерживает "живую связь" с файлами сообщений и категорий, указанных в реестре, что означает, что когда пользователь захочет просмотреть журнал, просмотрщик событий получит доступ к файлам ресурсов для детального отображения событий. Это также означает, что если вы создадите множество событий, при помощи указанного файла ресурсов, и, затем, измените значения в файле ресурсов и произведете обновление (refresh) в просмотрщике событий, тексты событий и номера категорий так же изменятся в соответствии с ресурсами. Точно так же, если файл ресурсов вдруг будет удален или записи в реестре будут уничтожены или повреждены, то журнал не сможет получить доступ к ресурсам, и отобразит сообщение с ошибкой в виде префикса события, как было описано в начале статьи. В этом случае вместо номера категории события будет отображен индекс категории. </p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

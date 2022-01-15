@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Архитектура x86</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,13 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Архитектура x86</h1>
 <div id="date">01.01.2010</div>
-
 
 <p>Введение</p>
 <p>Код и данные: основной принцип работы процессора</p>
@@ -51,401 +51,401 @@
 <p>Наверняка вы часто встречались с термином &#171;x86&#187;, или &#171;Intel-совместимый процессор&#187; (или &#171;IBM PC compatible&#187; &#8212; но это уже по отношению к компьютеру). Иногда также встречается термин &#171;Pentium-совместимый&#187; (почему именно Pentium &#8212; вы поймете сами чуть позже). Что за всеми этими названиями скрывается на самом деле? На данный момент наиболее корректно с точки зрения автора выглядит следующая простая формулировка: современный x86-процессор &#8212; это процессор, способный корректно исполнять машинный код архитектуры IA32 (архитектура 32-битных процессоров Intel). В первом приближении это код, исполняемый процессором i80386 (известным в народе как &#171;386-й&#187;), окончательно же основной набор команд IA32 сформировался с выходом процессора Intel Pentium Pro. Что означает &#171;основной набор&#187; и какие есть еще? Для начала ответим на первую часть вопроса. &#171;Основной&#187; в данном случае означает то, что с помощью исключительно этого набора команд, может быть написана любая программа, которая вообще может быть написана для процессора архитектуры x86 (или IA32, если вам так больше нравится).</p>
 <p>Кроме того, у архитектуры IA32 существуют &#171;официальные&#187; расширения (дополнительные наборы команд) от разработчика самой архитектуры, компании Intel: MMX, SSE, SSE2 и SSE3. Также существуют &#171;неофициальные&#187; (не от Intel) расширенные наборы команд: EMMX, 3DNow! и Extended 3DNow! &#8212; их разработала компания AMD. Впрочем, &#171;официальность&#187; и &#171;неофициальность&#187; в данном случае понятие относительное &#8212; де-факто все сводится к тому, что некоторые расширения набора команд Intel как разработчик изначального набора признает, а некоторые &#8212; нет, разработчики же программного обеспечения используют то, что им лучше всего подходит. В отношении расширенных наборов команд существует одно простое правило хорошего тона: прежде чем их использовать, программа должна проверить, поддерживает ли их процессор. Иногда отступления от этого правила встречаются (и могут приводить к неправильному функционированию программ), но объективно это является проблемой некорректно написанного программного обеспечения, а не процессора.</p>
 <p>Для чего предназначены дополнительные наборы команд? В первую очередь &#8212; для увеличения быстродействия при выполнении некоторых операций. Одна команда из дополнительного набора, как правило, выполняет действие, для которого понадобилась бы небольшая программа, состоящая из команд основного набора. Опять-таки, как правило, одна команда выполняется процессором быстрее, чем заменяющая ее последовательность. Однако в 99% случаев, ничего такого, чего нельзя было бы сделать с помощью основных команд, с помощью команд из дополнительного набора сделать нельзя. Таким образом, упомянутая выше проверка программой поддержки дополнительных наборов команд процессором, должна выполнять очень простую функцию: если, например, процессор поддерживает SSE &#8212; значит, считать будем быстро и с помощью команд из набора SSE. Если нет &#8212; будем считать медленнее, с помощью команд из основного набора. Корректно написанная программа обязана действовать именно так. Впрочем, сейчас практически никто не проверяет у процессора наличие поддержки MMX, так как все CPU, вышедшие за последние 5 лет, этот набор поддерживают гарантированно. Для справки приведем табличку, на которой обобщена информация о поддержке различных расширенных наборов команд различными десктопными (предназначенными для настольных ПК) процессорами. </p>
-<table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
-<tr >
-<td ><p>Процессор</p>
+<table>
+<tr>
+<td><p>Процессор</p>
 </td>
-<td >MMX</p>
+<td>MMX</p>
 </td>
-<td >EMMX</p>
+<td>EMMX</p>
 </td>
-<td >3DNow!</p>
+<td>3DNow!</p>
 </td>
-<td >SSE</p>
+<td>SSE</p>
 </td>
-<td >E3DNow!</p>
+<td>E3DNow!</p>
 </td>
-<td >SSE2</p>
+<td>SSE2</p>
 </td>
-<td >SSE3</p>
-</td>
-</tr>
-<tr >
-<td ><p>Intel Pentium II</p>
-</td>
-<td >+</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
+<td>SSE3</p>
 </td>
 </tr>
-<tr >
-<td ><p>Intel Celeron до 533 MHz</p>
+<tr>
+<td><p>Intel Pentium II</p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
-</td>
-</tr>
-<tr >
-<td ><p>Intel Pentium III</p>
-</td>
-<td >+</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >+</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
 </tr>
-<tr >
-<td ><p>Intel Celeron 533&#8212;1400 MHz</p>
+<tr>
+<td><p>Intel Celeron до 533 MHz</p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >+</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
-</td>
-</tr>
-<tr >
-<td ><p>Intel Pentium 4</p>
-</td>
-<td >+</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >+</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >+</p>
-</td>
-<td >+/&#8212;*</p>
+<td>&nbsp;</p>
 </td>
 </tr>
-<tr >
-<td ><p>Intel Celeron от 1700 MHz</p>
+<tr>
+<td><p>Intel Pentium III</p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >+</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
-</td>
-</tr>
-<tr >
-<td ><p>Intel Celeron D </p>
-</td>
-<td >+</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >+</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >+</p>
-</td>
-<td >+</p>
+<td>&nbsp;</p>
 </td>
 </tr>
-<tr >
-<td ><p>Intel Pentium 4 eXtreme Edition</p>
+<tr>
+<td><p>Intel Celeron 533&#8212;1400 MHz</p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >+</p>
+<td>&nbsp;</p>
 </td>
-<td >+/&#8212;*</p>
-</td>
-</tr>
-<tr >
-<td ><p>Intel Pentium eXtreme Edition </p>
-</td>
-<td >+</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >+</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >+</p>
-</td>
-<td >+</p>
+<td>&nbsp;</p>
 </td>
 </tr>
-<tr >
-<td ><p>Intel Pentium D </p>
+<tr>
+<td><p>Intel Pentium 4</p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >+</p>
-</td>
-</tr>
-<tr >
-<td ><p>AMD K6</p>
-</td>
-<td >+</p>
-</td>
-<td >+</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
+<td>+/&#8212;*</p>
 </td>
 </tr>
-<tr >
-<td ><p>AMD K6-2</p>
+<tr>
+<td><p>Intel Celeron от 1700 MHz</p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >+</p>
+<td>&nbsp;</p>
 </td>
-<td >+</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>+</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>+</p>
 </td>
-<td >&nbsp;</p>
-</td>
-</tr>
-<tr >
-<td ><p>AMD K6-III</p>
-</td>
-<td >+</p>
-</td>
-<td >+</p>
-</td>
-<td >+</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
 </tr>
-<tr >
-<td ><p>AMD Athlon</p>
+<tr>
+<td><p>Intel Celeron D </p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >+</p>
+<td>&nbsp;</p>
 </td>
-<td >+</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>+</p>
 </td>
-<td >+</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>+</p>
 </td>
-<td >&nbsp;</p>
-</td>
-</tr>
-<tr >
-<td ><p>AMD Duron до 900 MHz</p>
-</td>
-<td >+</p>
-</td>
-<td >+</p>
-</td>
-<td >+</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >+</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
+<td>+</p>
 </td>
 </tr>
-<tr >
-<td ><p>AMD Athlon XP</p>
+<tr>
+<td><p>Intel Pentium 4 eXtreme Edition</p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >+</p>
+<td>&nbsp;</p>
 </td>
-<td >+</p>
+<td>&nbsp;</p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >+</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>+</p>
 </td>
-<td >&nbsp;</p>
-</td>
-</tr>
-<tr >
-<td ><p>AMD Duron от 1000 MHz</p>
-</td>
-<td >+</p>
-</td>
-<td >+</p>
-</td>
-<td >+</p>
-</td>
-<td >+</p>
-</td>
-<td >+</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
+<td>+/&#8212;*</p>
 </td>
 </tr>
-<tr >
-<td ><p>AMD Athlon 64 / Athlon FX</p>
+<tr>
+<td><p>Intel Pentium eXtreme Edition </p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >+</p>
+<td>&nbsp;</p>
 </td>
-<td >+</p>
+<td>&nbsp;</p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >+</p>
+<td>&nbsp;</p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >+/&#8212;*</p>
-</td>
-</tr>
-<tr >
-<td ><p>AMD Sempron </p>
-</td>
-<td >+</p>
-</td>
-<td >+</p>
-</td>
-<td >+</p>
-</td>
-<td >+</p>
-</td>
-<td >+</p>
-</td>
-<td >+/&#8212;*</p>
-</td>
-<td >+/&#8212;*</p>
+<td>+</p>
 </td>
 </tr>
-<tr >
-<td ><p>AMD Athlon 64 X2 </p>
+<tr>
+<td><p>Intel Pentium D </p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >+</p>
+<td>&nbsp;</p>
 </td>
-<td >+</p>
+<td>&nbsp;</p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >+</p>
+<td>&nbsp;</p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
 </tr>
-<tr >
-<td ><p>VIA C3</p>
+<tr>
+<td><p>AMD K6</p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >+</p>
+<td>+</p>
 </td>
-<td >+/&#8212;*</p>
+<td>&nbsp;</p>
 </td>
-<td >+/&#8212;*</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;
+<td>&nbsp;</p>
+</td>
+</tr>
+<tr>
+<td><p>AMD K6-2</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>&nbsp;</p>
+</td>
+<td>&nbsp;</p>
+</td>
+<td>&nbsp;</p>
+</td>
+<td>&nbsp;</p>
+</td>
+</tr>
+<tr>
+<td><p>AMD K6-III</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>&nbsp;</p>
+</td>
+<td>&nbsp;</p>
+</td>
+<td>&nbsp;</p>
+</td>
+<td>&nbsp;</p>
+</td>
+</tr>
+<tr>
+<td><p>AMD Athlon</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>&nbsp;</p>
+</td>
+<td>+</p>
+</td>
+<td>&nbsp;</p>
+</td>
+<td>&nbsp;</p>
+</td>
+</tr>
+<tr>
+<td><p>AMD Duron до 900 MHz</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>&nbsp;</p>
+</td>
+<td>+</p>
+</td>
+<td>&nbsp;</p>
+</td>
+<td>&nbsp;</p>
+</td>
+</tr>
+<tr>
+<td><p>AMD Athlon XP</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>&nbsp;</p>
+</td>
+<td>&nbsp;</p>
+</td>
+</tr>
+<tr>
+<td><p>AMD Duron от 1000 MHz</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>&nbsp;</p>
+</td>
+<td>&nbsp;</p>
+</td>
+</tr>
+<tr>
+<td><p>AMD Athlon 64 / Athlon FX</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+/&#8212;*</p>
+</td>
+</tr>
+<tr>
+<td><p>AMD Sempron </p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+/&#8212;*</p>
+</td>
+<td>+/&#8212;*</p>
+</td>
+</tr>
+<tr>
+<td><p>AMD Athlon 64 X2 </p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+</tr>
+<tr>
+<td><p>VIA C3</p>
+</td>
+<td>+</p>
+</td>
+<td>+</p>
+</td>
+<td>+/&#8212;*</p>
+</td>
+<td>+/&#8212;*</p>
+</td>
+<td>&nbsp;</p>
+</td>
+<td>&nbsp;</p>
+</td>
+<td>&nbsp;
 </td>
 </tr>
 </table>
@@ -546,9 +546,9 @@
 <p>Станислав Гарматюк (nawhi@ixbt.com)</p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

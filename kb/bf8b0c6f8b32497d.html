@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Расширения оболочки Windows</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,13 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Расширения оболочки Windows</h1>
 <div id="date">01.01.2010</div>
-
 
 <p>С каждой новой версией Windows, её оболочка (shell) приобретает всё больше и больше различных возможностей. Обычно эти возможности добавляются через расширения оболочки, которые позволяют разработчикам добавлять различные возможности в существующую оболочку Windows. Вот некоторые примеры расширений оболочки: Context Menus (меню, зависящее от объекта, на котором кликнули правой кнопкой мыши), Property Sheet Handlers (страницы в виде закладок, которые появляются в случае выбора пункта контексного меню Properties), Folder Customization, и т.д. </p>
 <p>На сайте Microsoft доступно большое количество информации о расширениях оболочки, но эта информация мало полезна Delphi аудитории. Итак давайте рассмотрим расширение оболочки под названием "Всплывающие подсказки" (InfoTip), которые появляются в эксплорере, при наведении мышкой на файл. </p>
@@ -172,7 +172,6 @@
 <p>IQueryInfo обеспечивает отображение текста во всплывающем окошке и содержит два метода: GetInfoFlags &#8211; Получает информационные флаги. На текущий момент это метод не используется, поэтому возвращаем E_NOTIMPL. GetInfoTip &#8211; Получает текст Infotip-а. </p>
 <p>GetInfoTip определена следующим образом: </p>
 <p>function GetInfoTip(dwFlags: DWORD; var ppwszTip: PWideChar): HResult; stdcall;</p>
-
 <p>dwFlags </p>
 в данный момент не используется </p>
 <p>ppwszTip </p>
@@ -194,7 +193,6 @@
 &nbsp;</p>
 <p>Load определена следующим образом: </p>
 <p>function Load(pszFileName: PoleStr; dwMode: LongInt): HResult; stdcall;</p>
-
 <p>pszFileName </p>
 указатель на строку, содержащую абсолютный путь открываемого файла. Строка должна завершаться нулём. </p>
 <p>dwMode </p>
@@ -203,18 +201,18 @@
 <p>Чтобы получить имя файла и его путь, мы будем использовать только IPersistFile; фактически мы не используем интерфейс для доступа к файлу, поэтому игнорируем флаги. Стандартная реализация метода Load сохраняет содержимое pszFileName в приватную переменную, которая будет использоваться в IQueryInfo::GetInfoTip для расположения файла. </p>
 <p>Регистрация расширения Infotip </p>
 <p>Регистрация происходит в два этапа: </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 26px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="27">1.</td><td>При помощи regsvr32.exe регистрируется COM DLL (Пуск (Start)..Выполнить(Run))</td></tr></table></div>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 26px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="27">1.</td><td>При помощи regsvr32.exe регистрируется COM DLL (Пуск (Start)..Выполнить(Run))</td></tr></table></div>
 <p>regsvr32 "C:\...\DPRInfoTip.dll"</p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 26px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="27">2.</td><td>Добавление ссылки на расширение (.dpr) в ключ реестра HKEY_CLASSES_ROOT. </td></tr></table></div>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 26px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="27">2.</td><td>Добавление ссылки на расширение (.dpr) в ключ реестра HKEY_CLASSES_ROOT. </td></tr></table></div>
 <p>По умолчанию значение для нового ключа должно быть CLSID объекта COM, который содержит расширение оболочки. Данное значение можно получить из файла Type Library, который был сгенерирован Delphi (имя файла оканчивается на "_TLB.pas"). Для нашего примера расширения CLSID назван CLASS_DPRInfoTip и содержит значение "{B20433A8-D083-11D4-993A-00D00912C440}". </p>
 <p>Самый простой способ внести изменения в реестр - это сделать копию файла .REG, содержащуюся в исходниках проекта. Просто измените CLSID и расширение файла на необходимые значения. </p>
 <p>Одно важное замечание: </p>
 Если Вы регистрируете расширение оболочки в Windows NT или 2000, то необходимо войти в систему с правами администратора.</p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

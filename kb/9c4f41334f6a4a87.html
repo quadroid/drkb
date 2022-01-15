@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Extended Stored Procedures with Delphi &ndash; Using the ODS (Open Data Services) API from Delphi</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,32 +13,26 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Extended Stored Procedures with Delphi &ndash; Using the ODS (Open Data Services) API from Delphi</h1>
 <div id="date">01.01.2010</div>
 
-
-
 <p>Have you ever tried to create a stored procedure on an SQL Server?</p>
 <p>What if the functionality you wish to incorporate is not inside the SQL but in your Delphi project? Microsoft provides ODS (Open Data Services)&nbsp; which is an API to help you create such&nbsp; functionality by adding DLL's to your SQL Server that contain Extended Stored Procedures. </p>
 <p>This is how you do it....</p>
-
 <p>Answer:</p>
-
 <p>As a special bonus, this article also is a simple solution to encrypting your data inside SQL Server using Extended Stored Procedures.</p>
-
 <p>What do we need?</p>
 
-<table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>1. &nbsp; &nbsp; &nbsp; &nbsp;opends60.dll (from a full installation with developer tools of MSSQL or MSDE)</td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>2. &nbsp; &nbsp; &nbsp; &nbsp;MsOdsApi.pas (Header file to use opends60.dll) (included at the end of the article)</td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>3. &nbsp; &nbsp; &nbsp; &nbsp;A Local SQL Server for testing (MSDE will do fine).</td></tr></table>
+<table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">1.</td><td>1. &nbsp; &nbsp; &nbsp; &nbsp;opends60.dll (from a full installation with developer tools of MSSQL or MSDE)</td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">2.</td><td>2. &nbsp; &nbsp; &nbsp; &nbsp;MsOdsApi.pas (Header file to use opends60.dll) (included at the end of the article)</td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">3.</td><td>3. &nbsp; &nbsp; &nbsp; &nbsp;A Local SQL Server for testing (MSDE will do fine).</td></tr></table>
 <p>NOTE: For cryptography I used the components found under MIT license here:</p>
 <p>http://www.cityinthesky.co.uk/cryptography.html</p>
-
 <p>Steps:</p>
 
-<table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>1. &nbsp; &nbsp; &nbsp; &nbsp;Create a new DLL.</td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>2. &nbsp; &nbsp; &nbsp; &nbsp;Create a unit and in the uses clause add the MsOdsApi unit.</td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>3. &nbsp; &nbsp; &nbsp; &nbsp;In the Library file just under ther Uses clause add Exports and the names of the functions to export:</td></tr></table>
+<table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">1.</td><td>1. &nbsp; &nbsp; &nbsp; &nbsp;Create a new DLL.</td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">2.</td><td>2. &nbsp; &nbsp; &nbsp; &nbsp;Create a unit and in the uses clause add the MsOdsApi unit.</td></tr></table><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">3.</td><td>3. &nbsp; &nbsp; &nbsp; &nbsp;In the Library file just under ther Uses clause add Exports and the names of the functions to export:</td></tr></table>
 <pre name="code" class="delphi">
 library MyEncryptDll;
  
@@ -54,14 +49,10 @@ begin
 end.
 </pre>
 
-
 <p>4. In the Unit file just under the Uses clause add your function reference:</p>
-
 <p>function xp_DoEncrypt(pSrvProc: SRV_PROC): Integer; cdecl;</p>
 <p>function xp_DoDecrypt(pSrvProc: SRV_PROC): Integer; cdecl;</p>
-
 <p>NOTES: cdecl is required for ODS to be able to call your functions.&nbsp;&nbsp; SRV_PROC is a handle to the stored procedure information.</p>
-
 <p>5. The code of the DoEncrypt is this: (DoDecrypt is exactly the same just with a DecryptString(s) call.</p>
 <pre name="code" class="delphi">
 function xp_Encrypt(pSrvProc: SRV_PROC): Integer;cdecl;
@@ -130,13 +121,9 @@ begin
 end;
 </pre>
 
-
 <p>NOTE: There are a number of things you can do with ODS. This is just an example for Delphi. You can read the ODS help in MSDN and do even more.</p>
-
 <p>6. Testing and Debugging:</p>
-
 <p>A) Install SQL 7.0/2000 on your workstation (or install Delphi on workstation where SQL Server is installed).</p>
-
 <p>B) Register your Xp on SQL Server. </p>
 <p> &nbsp; NOTES:</p>
 <p> &nbsp; Register Xp like this:</p>
@@ -167,11 +154,9 @@ end;
 <p> &nbsp; exec master..xp_DoEncrypt 'ValueToEncrypt','KeyValue'</p>
 <p> &nbsp; go</p>
 <p>E) To exit application, press Ctrl+Pause in the SQL Server console window. </p>
-
 <p>-------------------------------------------------------</p>
 <p>End of article. Bellow follows a unit required for ODS.</p>
 <p>-------------------------------------------------------</p>
-
 <p>MsOdsApi.pas (Copy from line below)</p>
 
 <pre name="code" class="delphi">
@@ -772,9 +757,9 @@ end.
 <p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

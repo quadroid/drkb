@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>SVR API для непродвинутых</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,13 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">SVR API для непродвинутых</h1>
 <div id="date">01.01.2010</div>
-
 Автор: Александр Терехов</p>
 <p>Специально для Королевства Delphi </p>
 <p>Вступление... </p>
@@ -50,13 +50,11 @@
 <p>Итак функция NetShareAdd. Вот ее прототип: </p>
 <p>function NetShareAdd(const pszServer: PChar; sLevel: SmallInt; pbBuffer:</p>
 <p>  Pointer; cbBuffer: Word): NET_API_STATUS; stdcall;</p>
-
 <p>Описание аргументов функции будут даны ниже. Сейчас рассмотрим, как следует подключать эту функцию. </p>
 <p>Подключение внешней функции </p>
 <p>Если не вдаваться в подробности, то в подключении внешних функций оказывается нет ничего сложного. В Unit.pas после описания класса TForm и до клаузы implementation следует написать: </p>
 <p>function NetShareAdd(ServerName: PChar; Level: Integer; pbBuffer: Pointer;</p>
 <p>  BufferSize: Integer): Integer; stdcall; external 'svrapi.dll';</p>
-
 <p>На что следует обратить внимание. Во-первых, я вольно заменил типы некоторых переменных на более привычный Integer (хотя по большому счету этого делать не следует). Во-вторых, stdcall - это способ передачи данных через стек, применяемый для Паскаля. И, в-третьих, external 'svrapi.dll' - означает, что функция находится во внешней библиотеке с названием svrapi.dll. </p>
 <p>Теперь к аргументам. </p>
 <p>Аргументы функции </p>
@@ -76,7 +74,6 @@
     //пароль "только чтение" доступа
   end;
 </pre>
-
 
 <p>shi50_netname - сетевое имя, по обращению к которому, будет доступен сетевой ресурс. Сетевое имя должно быть уникальным. Константа LM20_NNLEN имеет значение 12, т.е. сетевое имя не должно быть более 12-ти символов. </p>
 <p>shi50_type - тип ресурса, может иметь следующие значения: </p>
@@ -117,7 +114,6 @@
 <p>NERR_NetNameNotFound = NERR_BASE + 210 'Сетевое имя не существует';</p>
 <p>NERR_InvalidComputer = NERR_BASE + 251 'Неверное имя компьютера';</p>
 <p>NERR_ShareNotFound = NERR_BASE + 292 'Сетевое устройство не обнаружено';</p>
-
 <p>Однако бывают и другие ошибки. Почему-то функции SysErrorMessage(GetLastError) и WNetGetLastError при работе с NetShare* (по крайней мере у меня) не срабатывают, поэтому значения ошибок, коды которых менее 2100, я взял из ошибок, общих для всей операционной системы. (из Windows.pas:) </p>
 <p>ERROR_NOT_ENOUGH_MEMORY = 8 'Недостаточно памяти';</p>
 <p>ERROR_BAD_NETPATH = 53 'Неверное сетевое имя';</p>
@@ -127,7 +123,6 @@
 <p>ERROR_BAD_NET_NAME = 67 'Не найдено сетевое имя';</p>
 <p>ERROR_INVALID_PARAMETER = 87 'Неверный параметр';</p>
 <p>ERROR_INVALID_LEVEL = 124 'Неверный уровень администрирования';</p>
-
 <p>Т.е. если результатом функции возвращается число больше, чем 2100, то смотри модуль LmErr.pas, если меньше - то модуль Windows.pas. </p>
 <p>На этом вроде все. Но, лучше один раз увидеть, чем... Поэтому посмотрим, как все работает на практике. </p>
 <p>Пример работы NetShareAdd </p>
@@ -304,7 +299,6 @@ end.
  
 </pre>
 
-
 Итак, о чем пойдет речь. Мы уже умеем открывать доступ к сетевому ресурсу. Теперь хотелось бы получить информацию об уже открытых сетевых ресурсах. Для этих целей в SvrAPI применяется функция NetShareGetInfo. Однако аргументы этой функции предполагают, что мы уже знаем имя удаленной машины и имена имеющиеся в ней доступных сетевых устройств. Однако, это не всегда так... Можно, конечно, все посмотреть стандартными средствами Windows, например, проводником или открыть сетевое окружение... Да по большому счету, все что мы пытаемся напрограммировать уже давно сделано... Ну, да ладно, вернемся к нашим баранам. Для наглядности изобретем еще один велосипед - напишем небольшую программку позволяющую получать значения, которые приобретает сетевое устройство при открытии к нему доступа. </p>
 
 Первый предварительный шаг - получение имен доступных сетевой машины. Второй предварительный шаг - получение имен доступных сетевых устройств. Постучимся в двери - третий предварительный шаг. Ну и, наконец, последнее - получение информации о конкретном сетевом устройстве. </p>
@@ -358,14 +352,12 @@ begin
 end;
 </pre>
 
-
 <p>Шаг второй. NetShareEnum - получение имен сетевых ресурсов </p>
 <p>Зная доступное сетевое имя машины, с помощью функции NetShareEnum мы можем получить список имен доступных сетевых устройств этой машины. Вышеуказанная функция помещает информацию о сетевом ресурсе в массив элементов типа TShareInfo50. Размерность этого массива определяется константой MaxNetArrayItems равной 512, т.е. максимально возможное число открытых сетевых ресурсов для одной машины не может превышать 512. Вот прототип этой функции: </p>
 <pre name="code" class="delphi">function NetShareEnum(const pszServer: PChar; sLevel: SmallInt;
   pbBuffer: Pointer; cbBuffer: Word; var pcEntriesRead: Word;
   var pcTotalAvail: Word): DWORD;
 </pre>
-
 
 <p>где: </p>
 <p>pszServer - сетевое имя машины;</p>
@@ -745,14 +737,13 @@ end.
  
 </pre>
 
-
 <p><a href="http://delphiworld.narod.ru/" target="_blank">http://delphiworld.narod.ru/</a></p>
 <p>DelphiWorld 6.0</p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

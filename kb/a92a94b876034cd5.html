@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Об основах ассемблерных процедур</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,13 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Об основах ассемблерных процедур</h1>
 <div id="date">01.01.2010</div>
-
 
 <p>Глава 1: Об основах ассемблерных процедур</p>
 <p>Когда вы захотите добавить хороший и успешный ассемблерный код внутрь проекта на Дельфи, вам потребуется вызвать BASM процедуру, передать в нее переменные и принять обратно результат. Для этого вы должны знать, как работают соглашения о передаче параметров. На первом шаге мы обсудим основное: подпрограммы на ассемблере, получают некоторые переменные для обработки, возвращают впоследствии результаты. Позже, в других главах, мы обсудим, как вызывать другие функции, методы и процедуры из ассемблерного кода с помощью регистров и стека.</p>
@@ -182,7 +182,7 @@ Return Address</p>
 EBP, ESP-&gt;</p>
 Previous EBP</p>
 <p>В данной точке, мы имеем доступ к параметрам на стеке, как смещение относительно регистра EBP. Поскольку адрес возврата находится на стеке между текущей верхушкой стека и действительными параметрами, мы можем получить их следующим образом:</p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 19px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="17">First</td><td>= &nbsp; &nbsp; &nbsp; &nbsp;EBP + $10 &nbsp; &nbsp; &nbsp; &nbsp;(EBP + 16)</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 19px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="17">Second</td><td>= &nbsp; &nbsp; &nbsp; &nbsp;EBP + $0C &nbsp; &nbsp; &nbsp; &nbsp;(EBP + 12)</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 19px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="17">Third</td><td>= &nbsp; &nbsp; &nbsp; &nbsp;EBP + $08 &nbsp; &nbsp; &nbsp; &nbsp;(EBP + 8)</td></tr></table></div><p>В действительности, вы будете просто ссылаться на них по их именам, компилятор сам рассчитает необходимые смещения самостоятельно. Так, для выше описанного случая, напишите:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 19px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="17">First</td><td>= &nbsp; &nbsp; &nbsp; &nbsp;EBP + $10 &nbsp; &nbsp; &nbsp; &nbsp;(EBP + 16)</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 19px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="17">Second</td><td>= &nbsp; &nbsp; &nbsp; &nbsp;EBP + $0C &nbsp; &nbsp; &nbsp; &nbsp;(EBP + 12)</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 19px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="17">Third</td><td>= &nbsp; &nbsp; &nbsp; &nbsp;EBP + $08 &nbsp; &nbsp; &nbsp; &nbsp;(EBP + 8)</td></tr></table></div><p>В действительности, вы будете просто ссылаться на них по их именам, компилятор сам рассчитает необходимые смещения самостоятельно. Так, для выше описанного случая, напишите:</p>
 mov EAX,First</p>
 <p>Компилятор превратит их в следующий код:</p>
 mov EAX,[EBP+0x10]</p>
@@ -286,7 +286,7 @@ end;
 </pre>
 &nbsp;</p>
 <p>Оба параметра, m и v, передаются в функцию через стек. Поскольку они типа double, то они занимают по 8 байт стека, который выглядит следующим образом:</p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 19px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="17">EBP+0x10</td><td>m</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 19px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="17">EBP+0x08</td><td>v</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 19px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="17">EBP+0x04</td><td>адрес возврата</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 19px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="17">EBP -&gt;</td><td>предыдущий EBP</td></tr></table></div><p>Вы никогда не должны забывать, что внутри сопроцессора они обрабатываются как 10-байтные числа с плавающей запятой. Результат остается в ST(0) (верхушка стека математического сопроцессора). Это извлекается кодом, который вызвал функцию.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 19px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="17">EBP+0x10</td><td>m</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 19px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="17">EBP+0x08</td><td>v</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 19px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="17">EBP+0x04</td><td>адрес возврата</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 19px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="17">EBP -&gt;</td><td>предыдущий EBP</td></tr></table></div><p>Вы никогда не должны забывать, что внутри сопроцессора они обрабатываются как 10-байтные числа с плавающей запятой. Результат остается в ST(0) (верхушка стека математического сопроцессора). Это извлекается кодом, который вызвал функцию.</p>
 <p>Вы можете изменять точность и режим округления вычислений путем изменения контрольного слова процессора. Хотя вы точно знаете, что делаете, но это не поощряется, поскольку смена контрольного слова влияет на все вычисления для всего вашего приложения. Проблему обостряет то, что некоторые DLL также изменяют контрольное слово. Это иногда может привести к непредсказуемым результатам&nbsp; или различным результатам в зависимости от Операционной Системы, на которой запускается программа или в зависимости от того, какие версии DLL реально используются. Как заметил Robert Lee в одном из сообщений в группе новостей, вы должны особенно избегать этого, путем загрузки контрольного слова из глобальной переменной Default8087CW (объявлена в модуле System) до выполнения важных процедур.</p>
 <p>Так же очень важно полное понимание природы чисел с плавающей запятой при использовании их внутри вашего кода. Я написал отдельную статью, в которой обсуждается основы. Статья доступна на моих страницах по Дельфи на сайте http://www.optimalcode.com/Guido/fpv.html.</p>
 <p>&nbsp;</p>
@@ -322,9 +322,9 @@ function MyFunction(const I: Integer): Integer; register;
 <p>Как мы обсуждали в главе 1.6, длинные строки, динамические массивы, варианты, большие множества и записи возвращаются с помощью дополнительного var параметра. Позже, в других главах, мы обсудим эти типы более детально. </p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

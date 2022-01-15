@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Язык SQL (на примере диалекта Informix)</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,19 +13,18 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Язык SQL (на примере диалекта Informix)</h1>
 <div id="date">01.01.2010</div>
 
-
 <p>Язык SQL</p>
 Основные типы данных. Синтаксис и семантика основных операторов. Методика обеспечения многопользовательского доступа к данным. Операторы с расширенными возможностями. Интеграция языка SQL и универсальных систем программирования.</p>
 5.1. Типы данных, доступные в SQL</p>
 При анализе предметной области нам надо решить вопрос, каким типом данных будет представляться тот или иной атрибут. Выбор типа влияет на суммарный объем базы данных, скорость поиска, допустимые с этим атрибутом операции и т.д. То есть, выбирая тип данных для того или иного атрибута, Вы должны учитывать следующее:</p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">-</td><td>какие значения может принимать тот или иной атрибут;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">-</td><td>какие операции будут выполняться с данным атрибутом;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">-</td><td>сколько физического места займет одно значение для атрибута.</td></tr></table></div>Прежде всего, следует бороться с "очевидностью". Например, в банковском деле имеется термин "номер счета". Сразу возникает желание использовать для данного атрибута тип "целое". Но может оказаться, что номер счета формируется достаточно специфично - например, он состоит из 9 цифр, средние 3 которых определяют категорию счета. И если в Вашей задаче требуется осуществлять поиск счетов той или иной категории, то реализовать этот поиск для типа "целое" очень непросто, а для типа "символьная строка" - достаточно просто. И, возможно, использовать тип "символьная строка" для данного атрибута предпочительнее, чем тип "целое".</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">-</td><td>какие значения может принимать тот или иной атрибут;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">-</td><td>какие операции будут выполняться с данным атрибутом;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">-</td><td>сколько физического места займет одно значение для атрибута.</td></tr></table></div>Прежде всего, следует бороться с "очевидностью". Например, в банковском деле имеется термин "номер счета". Сразу возникает желание использовать для данного атрибута тип "целое". Но может оказаться, что номер счета формируется достаточно специфично - например, он состоит из 9 цифр, средние 3 которых определяют категорию счета. И если в Вашей задаче требуется осуществлять поиск счетов той или иной категории, то реализовать этот поиск для типа "целое" очень непросто, а для типа "символьная строка" - достаточно просто. И, возможно, использовать тип "символьная строка" для данного атрибута предпочительнее, чем тип "целое".</p>
 В варианте SQL, реализованным фирмой Informix, имеются следующие типы данных:</p>
 INTEGER и SMALLINT - целое и короткое целое. Для их представления используется, соответственно, 4 и 2 байта.</p>
 Следовательно, диапазон допустимых значений для INTEGER будет от -2 147 483 647 до 2 147 483 647, а для SMALLINT - от -32 767 до 32 767. Данный тип используется для представления счетчиков, кодов чего-либо и т.д. К недостаткам данного типа данных следует отнести ограниченный набор значений. Впрочем, это не проблема, если Вы уверены, что для Вашего поля допустимый диапазон значений данного типа подходит.</p>
@@ -189,7 +189,7 @@ SELECT name FROM companies WHERE address IS NULL</p>
 5.4. Управление транзакциями</p>
 Транзакцией называется последовательность действий, которая должна либо быть полностью выполнена, либо ни одно действие из нее не должно быть выполнено (все или ничего). Например, транзакцией следует считать совокупность двух действий: снятие денег с одного счета и занесение их на другой счет.&nbsp; То есть не должно получаться так, чтобы при переводе денег с одного счета на другой с одного счета деньги бы уже были сняты, а на второй - не переведены (питание выключилось как раз между этими событиями).</p>
 В SQL имеются следующие операторы управления транзакциями: </p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>BEGIN WORK - начать транзакцию;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>COMMIT WORK - успешно завершить транзакцию;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>ROLLBACK WORK - откатить транзакцию, то есть вернуть базу данных в состояние, которое она имела на момент начала текущей транзакции.</td></tr></table></div>Транзакции не могут быть вложеными, то есть в каждый момент времени для данного приложения существует одна (точнее, не более одной) текущая транзакция.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>BEGIN WORK - начать транзакцию;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>COMMIT WORK - успешно завершить транзакцию;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>ROLLBACK WORK - откатить транзакцию, то есть вернуть базу данных в состояние, которое она имела на момент начала текущей транзакции.</td></tr></table></div>Транзакции не могут быть вложеными, то есть в каждый момент времени для данного приложения существует одна (точнее, не более одной) текущая транзакция.</p>
 Давайте разберемся, кто и когда может и должен управлять транзакциями.&nbsp; Все современные СУБД выполнены по схеме клиент-сервер. Это означает, что существует программа-сервер, которая умеет выполнять SQL-запросы.&nbsp; Другая программа, программа-клиент, формирует эти запросы на основании интерфейса с пользователем и посылает их программе-серверу, получает от нее результаты и выводит их на экран. Программа-сервер и программа клиент могут находиться как на одном компьютере и обмениваться информацией по некоторому внутреннему мехаинзму (например, через прерывания), так и на разных и обмениваться данными по сетевому протоколу.</p>
 Операторы управления транзакциями выполняет программа-клиент. Если она обнаруживает какую-то ошибку, то она может выполнить откат транзакции. В самом SQL нет управляющих структур (циклов, условных операторов, операторов перехода), поэтому приведем примеры на языке Informix 4GL, который содержит SQL как подмножество:</p>
 IF error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { проверка какого-то события }<br>
@@ -394,7 +394,7 @@ SELECT name, COUNT(*), MAX(price) FROM items<br>
 Для сравнения текстовых строк с образцом существуют логические операции LIKE и MATCHES. Операция LIKE обладает несколько меньшими возможностями по сравнению с MATCHES, поэтому рассматриваться не будет. Формат операции MATCHES:</p>
 &lt;имя поля&gt; MATCHES &lt;образец&gt;</p>
 Образец для оператора MATCHES является текстовой строкой и строится по следующим правилам:</p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>специальный символ '*' соответсвует произвольной последовательности из 0 или более символов;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>специальный символ '?' соответсвует одному произвольному символу;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>символы внутри квадратных скобок ([...]) позволяют задавать удовлетворяющие образцу символы (например, [абв] или [аеиуюыя]) диапазон символов через дефис (например, [А-Я] или [0-9]),  &nbsp; &nbsp; &nbsp; &nbsp;или с помощью символа '^' указывать те символы, которые не удовлетворяют образцу (например, [^абв]);</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>специальный символ '\' отменяет значение специального символа, указанного за '\', например '\*' означает именно символ '*', а не произвольную последовательность символов;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>все другие символы являются обычными и должны соответсвовать символам из сравниваемой строки.</td></tr></table></div>Например, по следующему запросу</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>специальный символ '*' соответсвует произвольной последовательности из 0 или более символов;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>специальный символ '?' соответсвует одному произвольному символу;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>символы внутри квадратных скобок ([...]) позволяют задавать удовлетворяющие образцу символы (например, [абв] или [аеиуюыя]) диапазон символов через дефис (например, [А-Я] или [0-9]),  &nbsp; &nbsp; &nbsp; &nbsp;или с помощью символа '^' указывать те символы, которые не удовлетворяют образцу (например, [^абв]);</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>специальный символ '\' отменяет значение специального символа, указанного за '\', например '\*' означает именно символ '*', а не произвольную последовательность символов;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>все другие символы являются обычными и должны соответсвовать символам из сравниваемой строки.</td></tr></table></div>Например, по следующему запросу</p>
 SELECT person_id FROM persons WHERE lname MATCHES "[Бб]ендер"</p>
 будут выбраны номера записей (значения поля person_id) для лиц с фамилиями "Бендер" и "бендер".</p>
 Если нам требуется отобрать все записи о товарах из таблицы items, в названии которых присутствует слово "грибы" (например, "Соленые грибы", "Грибы по-французски", "Грибы-мухоморы маринованные"), то такую задачу решает следующий запрос:</p>
@@ -570,7 +570,7 @@ FETCH CURRENT &lt;имя курсора&gt; <br>
 FETCH RELATIVE &lt;смещение&gt; &lt;имя курсора&gt;<br>
 <p>FETCH ABSOLUTE &lt;номер записи&gt; &lt;имя курсора&gt;</p>
 Смысл ключевых слов NEXT, PREVIOUS и т.д. и, соответственно, выполняемых ими действий, понятен из их перевода с английского: </p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>NEXT - перейти на следующую запись в выборке; </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>PREVIOUS - перейти на предыдущую запись в выборке;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>FIRST - перейти на первую запись выборки;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>LAST - перейти на последнюю запись выборки;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>CURRENT - никуда не перемещаясь, перечитать текущую запись; </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>RELATIVE &lt;смещение&gt; - сместиться от текущей записи на &lt;смещение&gt; записей, причем если смещение больше нуля, то сместиться "вниз" - к последней записи, а если меньше - то вверх, к первой записи;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>ABSOLUTE &lt;номер записи&gt; - перейти на запись, имеющую в данной выборке указанный порядковый номер, причем записи нумеруются с единицы.</td></tr></table></div>После оператора OPEN, кстати, текущей записи нет (текущей записью является несуществующая запись с номером ноль). То есть, сразу после открытия курсора оператор FETCH CURRENT выполнять нельзя.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>NEXT - перейти на следующую запись в выборке; </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>PREVIOUS - перейти на предыдущую запись в выборке;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>FIRST - перейти на первую запись выборки;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>LAST - перейти на последнюю запись выборки;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>CURRENT - никуда не перемещаясь, перечитать текущую запись; </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>RELATIVE &lt;смещение&gt; - сместиться от текущей записи на &lt;смещение&gt; записей, причем если смещение больше нуля, то сместиться "вниз" - к последней записи, а если меньше - то вверх, к первой записи;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>ABSOLUTE &lt;номер записи&gt; - перейти на запись, имеющую в данной выборке указанный порядковый номер, причем записи нумеруются с единицы.</td></tr></table></div>После оператора OPEN, кстати, текущей записи нет (текущей записью является несуществующая запись с номером ноль). То есть, сразу после открытия курсора оператор FETCH CURRENT выполнять нельзя.</p>
 Слово NEXT в операторе FETCH можно опускать - оно принимается по умолчанию. Вместо ключевого слова PREVIOUS можно использовать синоним PRIOR.</p>
 В конкретных языках программирования для задания переменных можно (как и для оператора SELECT) использовать расширение INTO со списком переменных:</p>
 ... INTO &lt;переменная&gt;, &lt;переменна&gt; ...</p>
@@ -789,7 +789,7 @@ EXECUTE cr_trig<br>
 5.7.3. Хранимые процедуры</p>
 Хранимая процедура представляет собой один из вариантов программного наполнения базы данных. Фактически, это некоторая процедура, доступная пользователям. Пользователь (в соответствии со своими правами, естественно) может создать, удалить или выполнить хранимую процедуру.</p>
 Основное назначение хранимых процедур - это функциональное расширение схемы базы данных. Хранимая процедура может содержать некоторый нетривиальный набор операторов, реализующий то или иное логическое действие. Например, администратор банковской системы разработал хранимую процедуру, которая реализует функцию "занести на счет номер X сумму Y". Программист, разрабатывающий приложение пользуется этой процедурой, но не знает КАК именно она это делает. В результате:</p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>- когда меняется алгоритм данного действия (например, было принято решение сразу списывать налог), то администратор меняет только эту хранимую процедуру, и все приложению сразу начинают работать по-новому;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>- никто кроме администратора не знает о том, как устроена схема базы данных и меньше шансов, что кто-то использует эти знания в корыстных целях;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>- независимо от типа рабочего места одно и тоже действие выполняется гарантированно одними и теми же операторами - выше надежность разработанной системы;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>- так как хранимая процедура пишется одним человеком, а используется многими, то можно ожидать повышение темпов разработки конечной ситемы.</td></tr></table></div>И, естественно, нельзя сбрасывать со счетов увеличение скорости обработки запросов пользователей. Ведь, как и в случае с подготавливаемыми операторами (смотри предыдущий параграф), действия по анализу хранимой процедуры выполняются единожды -при определении этой процедуры.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>- когда меняется алгоритм данного действия (например, было принято решение сразу списывать налог), то администратор меняет только эту хранимую процедуру, и все приложению сразу начинают работать по-новому;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>- никто кроме администратора не знает о том, как устроена схема базы данных и меньше шансов, что кто-то использует эти знания в корыстных целях;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>- независимо от типа рабочего места одно и тоже действие выполняется гарантированно одними и теми же операторами - выше надежность разработанной системы;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>- так как хранимая процедура пишется одним человеком, а используется многими, то можно ожидать повышение темпов разработки конечной ситемы.</td></tr></table></div>И, естественно, нельзя сбрасывать со счетов увеличение скорости обработки запросов пользователей. Ведь, как и в случае с подготавливаемыми операторами (смотри предыдущий параграф), действия по анализу хранимой процедуры выполняются единожды -при определении этой процедуры.</p>
 Для написания хранимых процедур используется сильно расширенный SQL. Причем, расширение делается не за счет увеличения числа операторов манипулирования данными, а за счет управляющих структур - ведь в SQL нет ни оператора присваивания, ни циклов, ни процедур. Формально не очень понятно, можно ли считать язык написания хранимых процедур частью SQL или нет. Скорее нет, это самостоятельный язык, но эти два языка настолько тесно связаны, что рассматривать их по отдельности бессмысленно.</p>
 Языки написания хранимых процедур в настоящий момент сильно различается у разных производителей. Для серверов Informix язык для создания хранимых процедур носит название SPL - Stored Procedure Languages. Именно его (точнее, его подмножество), мы и рассмотрим.</p>
 Хранимая процедура создается оператором</p>
@@ -1203,9 +1203,9 @@ INSERT INTO protocol(user_id, action, date)<br>
 5.9.2. Права на уровне базы данных</p>
 Имеется три категории прав на уровне базы данных. Это право на адимнистрирование (DBA), право на управление ресурсами (RESOURCE), право на доступ (CONNECT). Некоторые пользователи могут вообще не иметь каких-либо прав, связанных с конкретной базой данных.</p>
 Пользователь, имеющий права на доступ (CONNECT) имеет возможность получать и модифицировать данные в базе. Он может модифицировать те объекты, которыми владеет. Любой пользователь, имеющий право доступа может делать следующее:</p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>выполнять операторы SELECT, INSERT, DELETE, UPDATE, если это ему позволено на уровне объекта (таблицы);</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>создавать новую псевдотаблицу (VIEW) по таблицам (см. ниже), если он имеет права на выборку по требуемым таблицам;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>создавать синонимы (см. ниже);</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>создавать временные таблицы и индексы по временным таблицам;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>изменять или удалять те объекты, которыми владеет;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>управлять правами других пользователей на объекты, которыми владеет.</td></tr></table></div>Пользователь, имеющий права на управление ресурсами (RESOURCE), в дополнение к тем правам, которые имеют пользователии с правом на доступ, может также создавать новые объекты. Например, такой пользователь может создать таблицу, триггер, индекс и т.д. Как только он создает какой-то объект, он становится его владельцем.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>выполнять операторы SELECT, INSERT, DELETE, UPDATE, если это ему позволено на уровне объекта (таблицы);</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>создавать новую псевдотаблицу (VIEW) по таблицам (см. ниже), если он имеет права на выборку по требуемым таблицам;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>создавать синонимы (см. ниже);</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>создавать временные таблицы и индексы по временным таблицам;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>изменять или удалять те объекты, которыми владеет;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>управлять правами других пользователей на объекты, которыми владеет.</td></tr></table></div>Пользователь, имеющий права на управление ресурсами (RESOURCE), в дополнение к тем правам, которые имеют пользователии с правом на доступ, может также создавать новые объекты. Например, такой пользователь может создать таблицу, триггер, индекс и т.д. Как только он создает какой-то объект, он становится его владельцем.</p>
 Право на администрирование базы данных (DBA) подразумевает следующие возможности:</p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>удалить базу данных (выполнить оператор DROP DATABASE);</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>удалять любые объекты вне зависимости от того, кто ими владеет;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>раздавать и менять права доступа других пользователей к базе данных в целом и к отдельным объектам.</td></tr></table></div>Когда пользователь создает базу данных, он автоматически получает право на администрирование этой базы. Никакие другие пользователи не имеют никаких прав по отношению к данной базе данных. Для того, чтобы другие пользователи смогли иметь какие-то права на данную базу, эти права надо явно передать. Для этого используется оператор</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>удалить базу данных (выполнить оператор DROP DATABASE);</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>удалять любые объекты вне зависимости от того, кто ими владеет;</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>раздавать и менять права доступа других пользователей к базе данных в целом и к отдельным объектам.</td></tr></table></div>Когда пользователь создает базу данных, он автоматически получает право на администрирование этой базы. Никакие другие пользователи не имеют никаких прав по отношению к данной базе данных. Для того, чтобы другие пользователи смогли иметь какие-то права на данную базу, эти права надо явно передать. Для этого используется оператор</p>
 GRANT &lt;тип права на базу данных&gt; TO &lt;имя пользователя&gt;</p>
 При управлении правами на уровне базы данных имя базы не указывается.&nbsp; Подразумевается текущая база данных. Примеры оператора GRANT:</p>
 GRANT DBA TO andy</p>
@@ -1229,7 +1229,7 @@ REVOKE RESOURCE FROM micky</p>
 Если пользователь имеет права на базу данных, это не означает автоматически, что он имеет возможность получать любую информацию из любой таблицы.&nbsp; Наличие права на уровне базы данных означает возможность подключиться к базе данных, то есть выполнить оператор DATABASE. Все дальнейшие действия с содержимым базы данных производятся в соответствии с правами на уровне объектов (таблиц и процедур).</p>
 Каждая таблица в базе данных имеет своего владельца. Когда, например, какой-либо пользователь создает таблицу, он автоматически становится владельцем этой таблицы. Владелец может поменять таблицу, удалить ее, дать другому пользователю права на использование этой талицы.</p>
 Права на уровне таблиц бывают следующего типа:</p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>SELECT - право на получение информации из таблицы. При необходимости можно дополнительно указать те поля, значения которых доступны. То есть можно указать, что </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>DELETE - право на удаление записей из таблицы.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>INDEX - право на создание индексов для данной таблицы (индексы будут рассмотрены позднее). Для использования этого права надо иметь право на управление ресурсами на уровне всей базы.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>ALTER - право на изменение структуры таблицы, то есть право добавлять или удалять колонки, изменять их тип, создавать или удалять ограничители.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>REFERENCES - право на задание ссылочных ограничетелей для данной таблицы. Для данного права можно специфицировать поля, которые можно использовать в ограничителях.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>ALL - все перечисленные выше права на таблицу.</td></tr></table></div>Синтаксис оператора передачи права на таблицу выглядит следующим образом:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>SELECT - право на получение информации из таблицы. При необходимости можно дополнительно указать те поля, значения которых доступны. То есть можно указать, что </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>DELETE - право на удаление записей из таблицы.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>INDEX - право на создание индексов для данной таблицы (индексы будут рассмотрены позднее). Для использования этого права надо иметь право на управление ресурсами на уровне всей базы.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>ALTER - право на изменение структуры таблицы, то есть право добавлять или удалять колонки, изменять их тип, создавать или удалять ограничители.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>REFERENCES - право на задание ссылочных ограничетелей для данной таблицы. Для данного права можно специфицировать поля, которые можно использовать в ограничителях.</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>ALL - все перечисленные выше права на таблицу.</td></tr></table></div>Синтаксис оператора передачи права на таблицу выглядит следующим образом:</p>
 GRANT &lt;тип права на таблицу&gt; ON &lt;имя таблицы&gt; TO &lt;имя пользователя&gt;</p>
 Вместо имени пользователя можно использовать слово PUBLIC, означающее всех пользоователей. Например:</p>
 GRANT ALL ON persons TO micky<br>
@@ -1698,128 +1698,128 @@ SELECT streets FROM table1 ORDER by streets</p>
 &nbsp;</p>
 Таблица “Дети”</p>
 <table cellspacing="0" cellpadding="2" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
-<tr >
-<td >ID</p>
+<tr>
+<td>ID</p>
 </td>
-<td >Фамилия</p>
+<td>Фамилия</p>
 </td>
-<td >Имя</p>
+<td>Имя</p>
 </td>
-<td >Отчество</p>
+<td>Отчество</p>
 </td>
-<td >Родитель</p>
-</td>
-</tr>
-<tr >
-<td >7</p>
-</td>
-<td >Иванов</p>
-</td>
-<td >Игорь</p>
-</td>
-<td >Иванович</p>
-</td>
-<td >106</p>
+<td>Родитель</p>
 </td>
 </tr>
-<tr >
-<td >8</p>
+<tr>
+<td>7</p>
 </td>
-<td >Иванова</p>
+<td>Иванов</p>
 </td>
-<td >Анна</p>
+<td>Игорь</p>
 </td>
-<td >Ивановна</p>
+<td>Иванович</p>
 </td>
-<td >106</p>
-</td>
-</tr>
-<tr >
-<td >14</p>
-</td>
-<td >Петров</p>
-</td>
-<td >Сергей</p>
-</td>
-<td >Петрович</p>
-</td>
-<td >107</p>
+<td>106</p>
 </td>
 </tr>
-<tr >
-<td >. .</p>
+<tr>
+<td>8</p>
 </td>
-<td >. . . .</p>
+<td>Иванова</p>
 </td>
-<td >. . . </p>
+<td>Анна</p>
 </td>
-<td >. . . .</p>
+<td>Ивановна</p>
 </td>
-<td >. . ..
+<td>106</p>
+</td>
+</tr>
+<tr>
+<td>14</p>
+</td>
+<td>Петров</p>
+</td>
+<td>Сергей</p>
+</td>
+<td>Петрович</p>
+</td>
+<td>107</p>
+</td>
+</tr>
+<tr>
+<td>. .</p>
+</td>
+<td>. . . .</p>
+</td>
+<td>. . . </p>
+</td>
+<td>. . . .</p>
+</td>
+<td>. . ..
 </td>
 </tr>
 </table>
 &nbsp;</p>
 Таблица “Сотрудники”:</p>
 <table cellspacing="0" cellpadding="2" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
-<tr >
-<td >ID</p>
+<tr>
+<td>ID</p>
 </td>
-<td >Фамилия</p>
+<td>Фамилия</p>
 </td>
-<td >Имя</p>
+<td>Имя</p>
 </td>
-<td >Отчество</p>
+<td>Отчество</p>
 </td>
-<td >. . . </p>
-</td>
-</tr>
-<tr >
-<td >106</p>
-</td>
-<td >Иванов</p>
-</td>
-<td >Иван</p>
-</td>
-<td >Иванович</p>
-</td>
-<td >. . . .</p>
+<td>. . . </p>
 </td>
 </tr>
-<tr >
-<td >107</p>
+<tr>
+<td>106</p>
 </td>
-<td >Петров</p>
+<td>Иванов</p>
 </td>
-<td >Петр</p>
+<td>Иван</p>
 </td>
-<td >Петрович</p>
+<td>Иванович</p>
 </td>
-<td >. . . .</p>
-</td>
-</tr>
-<tr >
-<td >108</p>
-</td>
-<td >Сидоров</p>
-</td>
-<td >Сидор</p>
-</td>
-<td >Сидорович</p>
-</td>
-<td >. . . .</p>
+<td>. . . .</p>
 </td>
 </tr>
-<tr >
-<td >. .</p>
+<tr>
+<td>107</p>
 </td>
-<td >. . . .</p>
+<td>Петров</p>
 </td>
-<td >. . . </p>
+<td>Петр</p>
 </td>
-<td >. . . .</p>
+<td>Петрович</p>
 </td>
-<td >. . ..
+<td>. . . .</p>
+</td>
+</tr>
+<tr>
+<td>108</p>
+</td>
+<td>Сидоров</p>
+</td>
+<td>Сидор</p>
+</td>
+<td>Сидорович</p>
+</td>
+<td>. . . .</p>
+</td>
+</tr>
+<tr>
+<td>. .</p>
+</td>
+<td>. . . .</p>
+</td>
+<td>. . . </p>
+</td>
+<td>. . . .</p>
+</td>
+<td>. . ..
 </td>
 </tr>
 </table>
@@ -1857,133 +1857,133 @@ SELECT price FROM contracts WHERE MONTH(was_signed)=2</p>
 Первый подход, когда информация о всех сотрудниках хранится в едином файле, приведет к излишнему расходу памяти (серым цветом показаны неиспользуемые поля в таблице):</p>
 &nbsp;</p>
 <table cellspacing="0" cellpadding="4" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
-<tr >
-<td >Фамилия</p>
+<tr>
+<td>Фамилия</p>
 </td>
-<td >Имя</p>
+<td>Имя</p>
 </td>
-<td >Отчество</p>
+<td>Отчество</p>
 </td>
-<td >Должность</p>
+<td>Должность</p>
 </td>
-<td >Оклад</p>
+<td>Оклад</p>
 </td>
-<td >Премия<br>
+<td>Премия<br>
 <p>(%)</p>
 </td>
-<td >Комиссия<br>
+<td>Комиссия<br>
 <p>(%)</p>
 </td>
-<td >Сумма<br>
+<td>Сумма<br>
 <p>сделок</p>
 </td>
 </tr>
-<tr >
-<td >Иванов</p>
+<tr>
+<td>Иванов</p>
 </td>
-<td >Иван</p>
+<td>Иван</p>
 </td>
-<td >Иванович</p>
+<td>Иванович</p>
 </td>
-<td >продавец</p>
+<td>продавец</p>
 </td>
-<td >1000</p>
+<td>1000</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >0.5</p>
+<td>0.5</p>
 </td>
-<td >500000</p>
-</td>
-</tr>
-<tr >
-<td >Петров</p>
-</td>
-<td >Петр</p>
-</td>
-<td >Петрович</p>
-</td>
-<td >продавец</p>
-</td>
-<td >1000</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >0.6</p>
-</td>
-<td >400000</p>
+<td>500000</p>
 </td>
 </tr>
-<tr >
-<td >Сидоров</p>
+<tr>
+<td>Петров</p>
 </td>
-<td >Сидор</p>
+<td>Петр</p>
 </td>
-<td >Сидорович</p>
+<td>Петрович</p>
 </td>
-<td >инженер</p>
+<td>продавец</p>
 </td>
-<td >1500</p>
+<td>1000</p>
 </td>
-<td >20</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>0.6</p>
 </td>
-<td >&nbsp;</p>
-</td>
-</tr>
-<tr >
-<td >Матвеев</p>
-</td>
-<td >Матвей</p>
-</td>
-<td >Матвеевич</p>
-</td>
-<td >инженер</p>
-</td>
-<td >1600</p>
-</td>
-<td >20</p>
-</td>
-<td >&nbsp;</p>
-</td>
-<td >&nbsp;</p>
+<td>400000</p>
 </td>
 </tr>
-<tr >
-<td >Степанов</p>
+<tr>
+<td>Сидоров</p>
 </td>
-<td >Степан</p>
+<td>Сидор</p>
 </td>
-<td >Степанович</p>
+<td>Сидорович</p>
 </td>
-<td >админист.</p>
+<td>инженер</p>
 </td>
-<td >1700</p>
+<td>1500</p>
 </td>
-<td >&nbsp;</p>
+<td>20</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
 </tr>
-<tr >
-<td >Кузьмин</p>
+<tr>
+<td>Матвеев</p>
 </td>
-<td >Кузьма</p>
+<td>Матвей</p>
 </td>
-<td >Кузьмич</p>
+<td>Матвеевич</p>
 </td>
-<td >админист.</p>
+<td>инженер</p>
 </td>
-<td >1800</p>
+<td>1600</p>
 </td>
-<td >&nbsp;</p>
+<td>20</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;
+<td>&nbsp;</p>
+</td>
+</tr>
+<tr>
+<td>Степанов</p>
+</td>
+<td>Степан</p>
+</td>
+<td>Степанович</p>
+</td>
+<td>админист.</p>
+</td>
+<td>1700</p>
+</td>
+<td>&nbsp;</p>
+</td>
+<td>&nbsp;</p>
+</td>
+<td>&nbsp;</p>
+</td>
+</tr>
+<tr>
+<td>Кузьмин</p>
+</td>
+<td>Кузьма</p>
+</td>
+<td>Кузьмич</p>
+</td>
+<td>админист.</p>
+</td>
+<td>1800</p>
+</td>
+<td>&nbsp;</p>
+</td>
+<td>&nbsp;</p>
+</td>
+<td>&nbsp;
 </td>
 </tr>
 </table>
@@ -1993,141 +1993,141 @@ SELECT price FROM contracts WHERE MONTH(was_signed)=2</p>
 &nbsp;</p>
 Таблица “Продавцы”</p>
 <table cellspacing="0" cellpadding="4" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
-<tr >
-<td >Фамилия</p>
+<tr>
+<td>Фамилия</p>
 </td>
-<td >Имя</p>
+<td>Имя</p>
 </td>
-<td >Отчество</p>
+<td>Отчество</p>
 </td>
-<td >Должность</p>
+<td>Должность</p>
 </td>
-<td >Оклад</p>
+<td>Оклад</p>
 </td>
-<td >Комиссия<br>
+<td>Комиссия<br>
 <p>(%)</p>
 </td>
-<td >Сумма<br>
+<td>Сумма<br>
 <p>сделок</p>
 </td>
 </tr>
-<tr >
-<td >Иванов</p>
+<tr>
+<td>Иванов</p>
 </td>
-<td >Иван</p>
+<td>Иван</p>
 </td>
-<td >Иванович</p>
+<td>Иванович</p>
 </td>
-<td >продавец</p>
+<td>продавец</p>
 </td>
-<td >1000</p>
+<td>1000</p>
 </td>
-<td >0.5</p>
+<td>0.5</p>
 </td>
-<td >500000</p>
+<td>500000</p>
 </td>
 </tr>
-<tr >
-<td >Петров</p>
+<tr>
+<td>Петров</p>
 </td>
-<td >Петр</p>
+<td>Петр</p>
 </td>
-<td >Петрович</p>
+<td>Петрович</p>
 </td>
-<td >продавец</p>
+<td>продавец</p>
 </td>
-<td >1000</p>
+<td>1000</p>
 </td>
-<td >0.6</p>
+<td>0.6</p>
 </td>
-<td >400000
+<td>400000
 </td>
 </tr>
 </table>
 &nbsp;</p>
 Таблица “Инженеры”</p>
 <table cellspacing="0" cellpadding="4" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
-<tr >
-<td >Фамилия</p>
+<tr>
+<td>Фамилия</p>
 </td>
-<td >Имя</p>
+<td>Имя</p>
 </td>
-<td >Отчество</p>
+<td>Отчество</p>
 </td>
-<td >Должность</p>
+<td>Должность</p>
 </td>
-<td >Оклад</p>
+<td>Оклад</p>
 </td>
-<td >Премия<br>
+<td>Премия<br>
 <p>(%)</p>
 </td>
 </tr>
-<tr >
-<td >Сидоров</p>
+<tr>
+<td>Сидоров</p>
 </td>
-<td >Сидор</p>
+<td>Сидор</p>
 </td>
-<td >Сидорович</p>
+<td>Сидорович</p>
 </td>
-<td >инженер</p>
+<td>инженер</p>
 </td>
-<td >1500</p>
+<td>1500</p>
 </td>
-<td >20</p>
+<td>20</p>
 </td>
 </tr>
-<tr >
-<td >Матвеев</p>
+<tr>
+<td>Матвеев</p>
 </td>
-<td >Матвей</p>
+<td>Матвей</p>
 </td>
-<td >Матвеевич</p>
+<td>Матвеевич</p>
 </td>
-<td >инженер</p>
+<td>инженер</p>
 </td>
-<td >1600</p>
+<td>1600</p>
 </td>
-<td >20
+<td>20
 </td>
 </tr>
 </table>
 &nbsp;</p>
 Таблица “Администраторы”</p>
 <table cellspacing="0" cellpadding="4" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
-<tr >
-<td >Фамилия</p>
+<tr>
+<td>Фамилия</p>
 </td>
-<td >Имя</p>
+<td>Имя</p>
 </td>
-<td >Отчество</p>
+<td>Отчество</p>
 </td>
-<td >Должность</p>
+<td>Должность</p>
 </td>
-<td >Оклад</p>
-</td>
-</tr>
-<tr >
-<td >Степанов</p>
-</td>
-<td >Степан</p>
-</td>
-<td >Степанович</p>
-</td>
-<td >админист.</p>
-</td>
-<td >1700</p>
+<td>Оклад</p>
 </td>
 </tr>
-<tr >
-<td >Кузьмин</p>
+<tr>
+<td>Степанов</p>
 </td>
-<td >Кузьма</p>
+<td>Степан</p>
 </td>
-<td >Кузьмич</p>
+<td>Степанович</p>
 </td>
-<td >админист.</p>
+<td>админист.</p>
 </td>
-<td >1800
+<td>1700</p>
+</td>
+</tr>
+<tr>
+<td>Кузьмин</p>
+</td>
+<td>Кузьма</p>
+</td>
+<td>Кузьмич</p>
+</td>
+<td>админист.</p>
+</td>
+<td>1800
 </td>
 </tr>
 </table>
@@ -2147,7 +2147,7 @@ SELECT price FROM contracts WHERE MONTH(was_signed)=2</p>
 Реляционные СУБД, в отличии от “чистых” объектно-ориентированных СУБД, имеют реально работающие стандарты - стандарты на язык запросов SQL. Кроме того, существует огромная база заказчиков, которые пока не готовы отходить от реляционной технологии. И фирмы-производители реляционных СУБД пошли по пути внедрения объектной технологии в отработанную и популярную технологию реляционных СУБД. В частности, сейчас готовится к выходу стандарт SQL-3, в котором уже заложена поддержка объектно-ориентированной концепции.</p>
 Основная идея объектно-реляционного подхода - это допущение использовать в качестве атрибутов не только простые, атомарные типы данных, но и абстрактные типы данных. Кроме того, предполагается реализовать возможность наследования типов и данных.</p>
 Технология абстрактных типов данных предполагает:</p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>инкапсуляцию (сокрытие деталей реализации внутри типа);</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>полиморфизм (применимость одной операции к разным типам и разный способ вычисления в зависимости от типа);</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>позднее связывание (определение реального типа объекта в момент исполнения);</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>расширяемость (возможность определить новый тип);</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>наследуемость типов (возможность определить новый тип на основе существующего);</td></tr></table></div>Данное предложение, формально говоря, противоречит концепции реляционных СУБД. Первая нормальная форма требует, чтобы значения атрибутов были только атомарными. Однако, если ввести модифицированную первую нормальную форму, в которой допускалось бы неатомарность атрибутов, то все последующие выводы и рассуждения реляционной теории можно будет приложить и к модифицированной первой нормальной форме. Атомарность или неатомарность атрибутов явным образом нигде не используется, поэтому все выводы о полноте такой модели останутся верными.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>инкапсуляцию (сокрытие деталей реализации внутри типа);</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>полиморфизм (применимость одной операции к разным типам и разный способ вычисления в зависимости от типа);</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>позднее связывание (определение реального типа объекта в момент исполнения);</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>расширяемость (возможность определить новый тип);</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>наследуемость типов (возможность определить новый тип на основе существующего);</td></tr></table></div>Данное предложение, формально говоря, противоречит концепции реляционных СУБД. Первая нормальная форма требует, чтобы значения атрибутов были только атомарными. Однако, если ввести модифицированную первую нормальную форму, в которой допускалось бы неатомарность атрибутов, то все последующие выводы и рассуждения реляционной теории можно будет приложить и к модифицированной первой нормальной форме. Атомарность или неатомарность атрибутов явным образом нигде не используется, поэтому все выводы о полноте такой модели останутся верными.</p>
 Итак, объектно-реляционный подход представляет собой расширение классический реляционных СУБД, базирующихся на языке SQL. Язык SQL и, соответственно, реляционная модель, расширяются возможностью вводить абстрактные типы данных и организовывать иерархию типов и данных. Следовательно, обеспечиваются все требования, ассоциируемые с объектно-ориентированной технологией (см. Объектно-ориентированные СУБД), но при этом обеспечивается совместимость со старыми приложениями, инструментами и технологиями.</p>
 5.12.4. Реализация объектного подхода в Informix</p>
 Informix DS/Universal Data Option - объектно-реляционная СУБД</p>
@@ -2178,7 +2178,7 @@ CREATE FUNCTION Plus(float16, float) RETURNING float16 . . . .;<br>
 После того, как все нужные функции определены, можно использовать тип float16 наравне с другими базовыми типами (FLOAT, SMALLFLOAT, INTEGER и т.д.). При этом для хранения, поиска и индексирования используются стандартные механизмы Informix Dynamic Server.</p>
 Составные типы данных</p>
 Informix DS/Universal Data Option позволяет определять новые составные типы данных. К доступным структурам, которые можно использовать для построения составных типов, относятся:</p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>запись</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>множество</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>список</td></tr></table></div>Запись представляет собой возможность ввести именованные поля. Cтруктура запись&nbsp; структуре record в языке Паскаль и struct в языке C/C++. Тип данных со структурой запись вводится оператором:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>запись</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>множество</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>список</td></tr></table></div>Запись представляет собой возможность ввести именованные поля. Cтруктура запись&nbsp; структуре record в языке Паскаль и struct в языке C/C++. Тип данных со структурой запись вводится оператором:</p>
 CREATE ROW TYPE &lt;имя типа&gt; (<br>
  &nbsp; &nbsp; &nbsp; &nbsp;&lt;имя поля&gt; &lt;тип поля&gt;, . . . <br>
 <p>)</p>
@@ -2247,20 +2247,20 @@ CREATE TABLE engineers OF TYPE engineer_t UNDER TABLE employees;<br>
 В результате, мы имеем не три разных независимых таблицы, а одну главную таблицу (employees) и две наследованные таблицы (sales и engineers). Внимательный читатель может сказать, что ранее мы критиковали реализацию из трех таблиц как очень неудобную и ненадежную. Но в случае иерархии таблиц правильнее говорить об общей таблице и о двух ее подтаблицах. Каждая запись в наследованной таблице принадлежит и главной тоже (обратное неверно). </p>
 Таблица employees</p>
 <table cellspacing="0" cellpadding="4" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
-<tr >
-<td >Фамилия</p>
+<tr>
+<td>Фамилия</p>
 </td>
-<td >Имя</p>
+<td>Имя</p>
 </td>
-<td >Отчество</p>
+<td>Отчество</p>
 </td>
-<td >Должность</p>
+<td>Должность</p>
 </td>
-<td >Оклад</p>
+<td>Оклад</p>
 </td>
 <td colspan="2" ><br>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
 <td colspan="2" ><br>
 </td>
@@ -2269,56 +2269,56 @@ CREATE TABLE engineers OF TYPE engineer_t UNDER TABLE employees;<br>
 <td rowspan="6" style="border: solid 1px #000000;"><br>
 </td>
 </tr>
-<tr >
-<td >Степанов</p>
+<tr>
+<td>Степанов</p>
 </td>
-<td >Степан</p>
+<td>Степан</p>
 </td>
-<td >Степанович</p>
+<td>Степанович</p>
 </td>
-<td >админист.</p>
+<td>админист.</p>
 </td>
-<td >1700</p>
+<td>1700</p>
 </td>
 <td colspan="2" ><br>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
 <td colspan="2" ><br>
 </td>
 </tr>
-<tr >
-<td >Кузьмин</p>
+<tr>
+<td>Кузьмин</p>
 </td>
-<td >Кузьма</p>
+<td>Кузьма</p>
 </td>
-<td >Кузьмич</p>
+<td>Кузьмич</p>
 </td>
-<td >админист.</p>
+<td>админист.</p>
 </td>
-<td >1800</p>
+<td>1800</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
 <td colspan="3" >Таблица Sales</p>
 </td>
 <td colspan="3" >&nbsp;</p>
 </td>
 </tr>
-<tr >
-<td >&nbsp;</p>
+<tr>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
 <td colspan="2" >&nbsp;</p>
 </td>
-<td >Комиссия<br>
+<td>Комиссия<br>
 <p>(%)</p>
 </td>
 <td colspan="2" >Сумма<br>
@@ -2327,56 +2327,56 @@ CREATE TABLE engineers OF TYPE engineer_t UNDER TABLE employees;<br>
 <td colspan="2" style="border: solid 1px #000000;"><br>
 </td>
 </tr>
-<tr >
-<td >Иванов</p>
+<tr>
+<td>Иванов</p>
 </td>
-<td >Иван</p>
+<td>Иван</p>
 </td>
-<td >Иванович</p>
+<td>Иванович</p>
 </td>
-<td >продавец</p>
+<td>продавец</p>
 </td>
-<td >1000</p>
+<td>1000</p>
 </td>
 <td colspan="2" >&nbsp;</p>
 </td>
-<td >0.5</p>
+<td>0.5</p>
 </td>
 <td colspan="2" >500000</p>
 </td>
 <td colspan="2" style="border: solid 1px #000000;"><br>
 </td>
 </tr>
-<tr >
-<td >Петров</p>
+<tr>
+<td>Петров</p>
 </td>
-<td >Петр</p>
+<td>Петр</p>
 </td>
-<td >Петрович</p>
+<td>Петрович</p>
 </td>
-<td >продавец</p>
+<td>продавец</p>
 </td>
-<td >1000</p>
+<td>1000</p>
 </td>
 <td colspan="2" >&nbsp;</p>
 </td>
-<td >0.6</p>
+<td>0.6</p>
 </td>
 <td colspan="2" >400000</p>
 </td>
 <td colspan="2" style="border: solid 1px #000000;"><br>
 </td>
 </tr>
-<tr >
-<td >&nbsp;</p>
+<tr>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
 <td colspan="2" >Премия<br>
 <p>(%)</p>
@@ -2386,20 +2386,20 @@ CREATE TABLE engineers OF TYPE engineer_t UNDER TABLE employees;<br>
 <td colspan="2" >&nbsp;</p>
 </td>
 </tr>
-<tr >
-<td >Сидоров</p>
+<tr>
+<td>Сидоров</p>
 </td>
-<td >Сидор</p>
+<td>Сидор</p>
 </td>
-<td >Сидорович</p>
+<td>Сидорович</p>
 </td>
-<td >инженер</p>
+<td>инженер</p>
 </td>
-<td >1500</p>
+<td>1500</p>
 </td>
 <td colspan="2" >20</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
 <td colspan="2" >&nbsp;</p>
 </td>
@@ -2410,20 +2410,20 @@ CREATE TABLE engineers OF TYPE engineer_t UNDER TABLE employees;<br>
 <td style="border: solid 1px #000000;"><br>
 </td>
 </tr>
-<tr >
-<td >Матвеев</p>
+<tr>
+<td>Матвеев</p>
 </td>
-<td >Матвей</p>
+<td>Матвей</p>
 </td>
-<td >Матвеевич</p>
+<td>Матвеевич</p>
 </td>
-<td >инженер</p>
+<td>инженер</p>
 </td>
-<td >1600</p>
+<td>1600</p>
 </td>
 <td colspan="2" >20</p>
 </td>
-<td >&nbsp;</p>
+<td>&nbsp;</p>
 </td>
 <td colspan="2" >&nbsp;</p>
 </td>
@@ -2442,88 +2442,88 @@ CREATE TABLE engineers OF TYPE engineer_t UNDER TABLE employees;<br>
 SELECT * FROM employees</p>
 &nbsp;</p>
 <table cellspacing="0" cellpadding="4" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
-<tr >
-<td >Фамилия</p>
+<tr>
+<td>Фамилия</p>
 </td>
-<td >Имя</p>
+<td>Имя</p>
 </td>
-<td >Отчество</p>
+<td>Отчество</p>
 </td>
-<td >Должность</p>
+<td>Должность</p>
 </td>
-<td >Оклад</p>
-</td>
-</tr>
-<tr >
-<td >Степанов</p>
-</td>
-<td >Степан</p>
-</td>
-<td >Степанович</p>
-</td>
-<td >админист.</p>
-</td>
-<td >1700</p>
+<td>Оклад</p>
 </td>
 </tr>
-<tr >
-<td >Кузьмин</p>
+<tr>
+<td>Степанов</p>
 </td>
-<td >Кузьма</p>
+<td>Степан</p>
 </td>
-<td >Кузьмич</p>
+<td>Степанович</p>
 </td>
-<td >админист.</p>
+<td>админист.</p>
 </td>
-<td >1800</p>
-</td>
-</tr>
-<tr >
-<td >Иванов</p>
-</td>
-<td >Иван</p>
-</td>
-<td >Иванович</p>
-</td>
-<td >продавец</p>
-</td>
-<td >1000</p>
+<td>1700</p>
 </td>
 </tr>
-<tr >
-<td >Петров</p>
+<tr>
+<td>Кузьмин</p>
 </td>
-<td >Петр</p>
+<td>Кузьма</p>
 </td>
-<td >Петрович</p>
+<td>Кузьмич</p>
 </td>
-<td >продавец</p>
+<td>админист.</p>
 </td>
-<td >1000</p>
-</td>
-</tr>
-<tr >
-<td >Сидоров</p>
-</td>
-<td >Сидор</p>
-</td>
-<td >Сидорович</p>
-</td>
-<td >инженер</p>
-</td>
-<td >1500</p>
+<td>1800</p>
 </td>
 </tr>
-<tr >
-<td >Матвеев</p>
+<tr>
+<td>Иванов</p>
 </td>
-<td >Матвей</p>
+<td>Иван</p>
 </td>
-<td >Матвеевич</p>
+<td>Иванович</p>
 </td>
-<td >инженер</p>
+<td>продавец</p>
 </td>
-<td >1600
+<td>1000</p>
+</td>
+</tr>
+<tr>
+<td>Петров</p>
+</td>
+<td>Петр</p>
+</td>
+<td>Петрович</p>
+</td>
+<td>продавец</p>
+</td>
+<td>1000</p>
+</td>
+</tr>
+<tr>
+<td>Сидоров</p>
+</td>
+<td>Сидор</p>
+</td>
+<td>Сидорович</p>
+</td>
+<td>инженер</p>
+</td>
+<td>1500</p>
+</td>
+</tr>
+<tr>
+<td>Матвеев</p>
+</td>
+<td>Матвей</p>
+</td>
+<td>Матвеевич</p>
+</td>
+<td>инженер</p>
+</td>
+<td>1600
 </td>
 </tr>
 </table>
@@ -2532,47 +2532,47 @@ SELECT * FROM employees</p>
 SELECT * FROM engineers</p>
 &nbsp;</p>
 <table cellspacing="0" cellpadding="4" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
-<tr >
-<td >Фамилия</p>
+<tr>
+<td>Фамилия</p>
 </td>
-<td >Имя</p>
+<td>Имя</p>
 </td>
-<td >Отчество</p>
+<td>Отчество</p>
 </td>
-<td >Должность</p>
+<td>Должность</p>
 </td>
-<td >Оклад</p>
+<td>Оклад</p>
 </td>
-<td >Премия<br>
+<td>Премия<br>
 <p>(%)</p>
 </td>
 </tr>
-<tr >
-<td >Сидоров</p>
+<tr>
+<td>Сидоров</p>
 </td>
-<td >Сидор</p>
+<td>Сидор</p>
 </td>
-<td >Сидорович</p>
+<td>Сидорович</p>
 </td>
-<td >инженер</p>
+<td>инженер</p>
 </td>
-<td >1500</p>
+<td>1500</p>
 </td>
-<td >20</p>
+<td>20</p>
 </td>
 </tr>
-<tr >
-<td >Матвеев</p>
+<tr>
+<td>Матвеев</p>
 </td>
-<td >Матвей</p>
+<td>Матвей</p>
 </td>
-<td >Матвеевич</p>
+<td>Матвеевич</p>
 </td>
-<td >инженер</p>
+<td>инженер</p>
 </td>
-<td >1600</p>
+<td>1600</p>
 </td>
-<td >20
+<td>20
 </td>
 </tr>
 </table>
@@ -2581,40 +2581,40 @@ SELECT * FROM engineers</p>
 SELECT * FROM ONLY(employees)</p>
 &nbsp;</p>
 <table cellspacing="0" cellpadding="4" border="0" style="border: none border-spacing:0px; border-collapse: collapse;">
-<tr >
-<td >Фамилия</p>
+<tr>
+<td>Фамилия</p>
 </td>
-<td >Имя</p>
+<td>Имя</p>
 </td>
-<td >Отчество</p>
+<td>Отчество</p>
 </td>
-<td >Должность</p>
+<td>Должность</p>
 </td>
-<td >Оклад</p>
-</td>
-</tr>
-<tr >
-<td >Степанов</p>
-</td>
-<td >Степан</p>
-</td>
-<td >Степанович</p>
-</td>
-<td >админист.</p>
-</td>
-<td >1700</p>
+<td>Оклад</p>
 </td>
 </tr>
-<tr >
-<td >Кузьмин</p>
+<tr>
+<td>Степанов</p>
 </td>
-<td >Кузьма</p>
+<td>Степан</p>
 </td>
-<td >Кузьмич</p>
+<td>Степанович</p>
 </td>
-<td >админист.</p>
+<td>админист.</p>
 </td>
-<td >1800
+<td>1700</p>
+</td>
+</tr>
+<tr>
+<td>Кузьмин</p>
+</td>
+<td>Кузьма</p>
+</td>
+<td>Кузьмич</p>
+</td>
+<td>админист.</p>
+</td>
+<td>1800
 </td>
 </tr>
 </table>
@@ -2640,7 +2640,7 @@ CREATE FUNCTION assign(pic picture) RETURNS POINTER<br>
  &nbsp; &nbsp; &nbsp; &nbsp;EXTERNAL NAME &#8216;/usr/bin/my_assign()&#8217;<br>
 <p> &nbsp; &nbsp; &nbsp; &nbsp;LANGUAGE C NOT VARIANT;</p>
 Если мы хотим для нового типа ввести специальные алгоритмы индексации и поиска, то надо описать следующие функции:</p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>my_am_scancost_index - оценка стоимости использования индекса</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>my_am_open_index - открыть внешний файл с индексом</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>my_am_bedinscan_index - начать просмотр по индексу</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>my_am_getnext_index - взять следующий элемент индекса</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>my_am_endscan_index - закончить просмотр индекса</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="19">&#183;</td><td>my_am_close_index - закрыть внешний файл с индексом</td></tr></table></div>Далее, надо указать, что вводится новый способ индексирования (pic_tree) и разработанные функции будут использоваться для индексирования созданного типа данных:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>my_am_scancost_index - оценка стоимости использования индекса</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>my_am_open_index - открыть внешний файл с индексом</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>my_am_bedinscan_index - начать просмотр по индексу</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>my_am_getnext_index - взять следующий элемент индекса</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>my_am_endscan_index - закончить просмотр индекса</td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 8px 0px 8px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="19">&#183;</td><td>my_am_close_index - закрыть внешний файл с индексом</td></tr></table></div>Далее, надо указать, что вводится новый способ индексирования (pic_tree) и разработанные функции будут использоваться для индексирования созданного типа данных:</p>
 CREATE ACCESS_METHOD pic_tree(<br>
  &nbsp; &nbsp; &nbsp; &nbsp;am_scancost_index = my_am_scancost_index,<br>
  &nbsp; &nbsp; &nbsp; &nbsp;am_open_index = my_am_open_index ,<br>
@@ -2656,12 +2656,11 @@ CREATE TABLE photos(<br>
 5.12.5. Итак…</p>
 <p>Informix DS/Universal Data Option обеспечивает объектно-ориентированную технологию технологию за счет реализации механизмов инкапсуляции, полиморфизма и наследования в среду традиционной реляционной СУБД. Можно спорить о достоинствах или недостатках такого подхода, но реальностью является то, что такая технология нужна, и она реально существует.</p>
 <p>Грачев А.Ю. &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Введение в СУБД Informix</p>
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

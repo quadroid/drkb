@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Примеры использования Drag &amp; Drop для различных визуальных компонентов</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,16 +13,14 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Примеры использования Drag &amp; Drop для различных визуальных компонентов</h1>
 <div id="date">01.01.2010</div>
 
-
 <p>Перетаскивание информации с помощью мыши стало стандартом для программ, работающих в Windows. Часто это бывает удобно и позволяет добиться более быстрой работы. В данной статье я постарался показать максимальное количество примеров использования данной технологии при разработке приложений в среде Delphi. Конечно, результат может быть достигнут различными путями, продемонстрированные приемы не являются единственными и, возможно, не всегда самые оптимальные, но вполне работоспособны, и указывают направление поиска. Надеюсь, что они побудят начинающих программистов к более широкому использованию Drag'n'Drop в своих программах, тем более что пользователи, особенно неопытные, быстро привыкают к перетаскивание и часто его применяют. </p>
-
 <p>Проще всего делать Drag из тех компонентов, для которых однозначно ясно, что именно перетаскивать. Для этого устанавливаем у источника DragMode = dmAutomatic, а у приемника пишем обработчики событий OnDragOver - разрешение на прием, и OnDragDrop - действия, производимые при окончании перетаскивания. </p>
 
 <pre name="code" class="delphi">
@@ -45,7 +44,6 @@ begin
 end;
 </pre>
 
-
 <p>Теперь рассмотрим копирование в упорядоченный список ListBox1 из другого списка. В OnDragOver проверяем, выбран ли хоть один элемент в источнике: </p>
 <pre name="code" class="delphi">
 Accept := (Source = ListBox2) and (ListBox2.ItemIndex &gt;= 0);
@@ -60,13 +58,11 @@ for i := 0 to ListBox2.Items.Count - 1 do
       ListBox1.Items.Add(ListBox2.Items[i]);
 </pre>
 
-
 <p>Для ListBox2 реализуем перенос строк из ListBox1 и перестановку элементов в желаемом порядке. В OnDragOver разрешаем Drag из любого ListBox: </p>
 
 <pre name="code" class="delphi">
 Accept := (Source is TListBox) and ((Source as TListBox).ItemIndex &gt;= 0);
 </pre>
-
 
 <p>А OnDragDrop будет выглядеть так: </p>
 
@@ -89,7 +85,6 @@ begin
   end;
 end;
 </pre>
-
 
 <p>Научимся переносить текст в Memo, вставляя его в нужное место. Поскольку я выбрал в качестве источника любой из ListBox, подключим в Инспекторе Объектов для OnDragOver уже написанный ранее обработчик ListBox2DragOver, а в OnDragDrop напишем </p>
 <pre name="code" class="delphi">
@@ -125,7 +120,6 @@ begin
     RichEdit1.Lines.Add(Memo1.SelText);
 end;
 </pre>
-
 
 <p>Рассмотрим теперь перетаскивание в ListView1 (ViewStyle = vsReport). В OnDragOver разрешим прием из ListBox2 и из себя же: </p>
 
@@ -178,7 +172,6 @@ begin
 end;
 </pre>
 
-
 <p>Для ListView2 установим ViewStyle = vsSmallIcon и покажем, как вручную расставлять значки. В OnDragOver зададим условие </p>
 <pre name="code" class="delphi">
 Accept := (Sender = Source) and
@@ -190,7 +183,6 @@ Accept := (Sender = Source) and
 <pre name="code" class="delphi">
 ListView2.Selected.SetPosition(Point(X,Y));
 </pre>
-
 
 <p>Перетаскивание в TreeView - довольно любопытная тема, здесь порой приходится разрабатывать алгоритмы обхода ветвей для достижения желаемого поведения. Для TreeView1 разрешим перестановку своих узлов в другое положение. В OnDragOver проверим, не происходит ли перетаскивание узла на свой же дочерний во избежание бесконечной рекурсии: </p>
 <pre name="code" class="delphi">
@@ -253,7 +245,6 @@ begin
   CopyNode(TreeView1.Selected, Node);
 end;
 </pre>
-
 
 <p>Рассмотрим теперь перенос ячеек в StringGrid1. Поскольку, как и в случае с Memo, простое нажатие левой кнопки занято под другие действия, установим DragMode = dmManual и будем запускать Drag при нажатии левой кнопки, удерживая клавиши Alt или Ctrl. Запишем в OnMouseDown: </p>
 <pre name="code" class="delphi">
@@ -337,7 +328,6 @@ if Source = StringGrid2 then
   end;
 </pre>
 
-
 <p>Теперь покажем, как этот диапазон ячеек из StringGrid2 перенести в Memo2. Для этого в OnDragOver Memo2 пишем: </p>
 
 <pre name="code" class="delphi">
@@ -363,14 +353,10 @@ begin
       end
 </pre>
 
-
 <p>Кроме того, в Memo2 можно переносить выбранную запись из DBGrid1, у которого установлено в Options dgRowSelect = True. В сетке отображается таблица из стандартной поставки Delphi DBDEMOS - Animals.dbf. Перетаскивание осуществляется аналогично StringGrid2, правой кнопкой мыши, только по событию OnMouseMove </p>
-
 <p>if ssRight in Shift then</p>
 <p> &nbsp;&nbsp; DBGrid1.BeginDrag(true);</p>
-
 <p>Код в Memo2DragDrop, относящийся к переносу из DBGrid1: </p>
-
 <p>else</p>
 <p> &nbsp;&nbsp; with DBGrid1.DataSource.DataSet do</p>
 <p> &nbsp;&nbsp; begin</p>
@@ -381,31 +367,23 @@ begin
 <p> &nbsp;&nbsp; end;</p>
 <p>// в случае dgRowSelect = False для переноса одного поля достаточно сделать</p>
 <p>// memo2.lines.add(DbGrid1.SelectedField.AsString);</p>
-
 <p>Drag из DBGrid1 принимается также на Panel3, условие приема очевидно, а OnDragDrop выглядит так: </p>
-
 <p>  Panel3.Height := 300;&nbsp; // раскрываем панель</p>
 <p>  Image1.visible := True;</p>
 <p>  OleContainer1.Visible := false;</p>
 <p>  Image1.Picture.Assign(DBGrid1.DataSource.DataSet.FieldByName('BMP'));</p>
 <p>// показываем графическое поле текущей записи таблицы</p>
-
 <p>Теперь покажу, как можно передвигать мышью визуальные компоненты в Run-Time. Для Panel1 установим DragMode = dmAutomatic, в OnDragOver формы пишем: </p>
-
 <p>var</p>
 <p>  Ct: TControl;</p>
 <p>begin</p>
 <p>  Ct := ControlAtPos(Point(X + Panel1.Width, Y + Panel1.Height), True, True);</p>
 <p>// для упрощения проверяем перекрытие с другими контролами только правого нижнего угла</p>
 <p>  Accept := (Source = Panel1) and ((Ct = nil) or (Ct = Panel1));</p>
-
 <p>и в OnDragDrop формы очень просто </p>
-
 <p>Panel1.Left := X;</p>
 <p>Panel1.Top := Y;</p>
-
 <p>Другой метод перетаскивания можно встретить в каждом FAQ по Delphi: </p>
-
 <p>procedure TForm1.Panel2MouseDown(Sender: TObject; Button: TMouseButton;</p>
 <p>  Shift: TShiftState; X, Y: Integer);</p>
 <p>const</p>
@@ -414,22 +392,14 @@ begin
 <p>  ReleaseCapture;</p>
 <p>  Panel2.Perform(WM_SysCommand, SC_DragMove, 0);</p>
 <p>end;</p>
-
 <p>И в завершение реализация популярной задачи перетаскивания значков файлов на форму из Проводника. Для этого следует описать обработчик сообщения WM_DROPFILES </p>
-
 <p>private</p>
 <p> procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;</p>
-
 <p>В OnCreate формы разрешить прием файлов </p>
-
 <p>  DragAcceptFiles(Handle, true);</p>
-
 <p>и в OnDestroy отключить его </p>
-
 <p>  DragAcceptFiles(Handle, False);</p>
-
 <p>Процедура обработки приема файлов может выглядеть так: </p>
-
 <p>procedure TForm1.WMDropFiles(var Msg: TWMDropFiles);</p>
 <p>const</p>
 <p>  maxlen = 254;</p>
@@ -440,7 +410,6 @@ begin
 <p>  fname: string;</p>
 <p>begin</p>
 <p>  h := Msg.Drop;</p>
-
 <p>  // дана реализация для одного файла, а </p>
 <p>  //если предполагается принимать группу файлов, то можно добавить:</p>
 <p>  //num:=DragQueryFile(h,Dword(-1),nil,0);</p>
@@ -448,7 +417,6 @@ begin
 <p>  //&nbsp; DragQueryFile(h,i,pchr,maxlen);</p>
 <p>  //...обработка каждого</p>
 <p>  //end;</p>
-
 <p>  DragQueryFile(h, 0, pchr, maxlen);</p>
 <p>  fname := string(pchr);</p>
 <p>  if lowercase(extractfileext(fname)) = '.bmp' then</p>
@@ -473,19 +441,15 @@ begin
 <p> &nbsp;&nbsp; Memo2.Lines.Add(fname);</p>
 <p>  DragFinish(h);</p>
 <p>end;</p>
-
 <p>При перетаскивании на форму файла с расширением Bmp он отображается в Image1, находящемся на Panel3, Doc загружается в OleContainer, для Htm запускается Internet Explorer или другой браузер по умолчанию, Txt отображается в Memo2, а для остальных файлов в Memo2 будет просто показано имя. </p>
-
 <p>Полагаю, на основе содержащихся в статье приемов будет нетрудно организовать перетаскивание и для других, не описанных здесь, визуальных компонентов. </p>
-
 <p>В заключение хочу выразить благодарность Игорю Шевченко и Максиму Власову за ценные советы при подготовке примеров... Автор статьи:&nbsp; Борис Новгородов, Новосибирск, 2002 </p>
-
 <p>Взято с сайта <a href="http://www.emanual.ru" target="_blank">www.emanual.ru</a></p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

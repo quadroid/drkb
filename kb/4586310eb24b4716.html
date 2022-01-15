@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Написание сервисов Windows NT на WinAPI</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,18 +13,16 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Написание сервисов Windows NT на WinAPI</h1>
 <div id="date">01.01.2010</div>
 
-
 <p>Источник: delphi.xonix.ru</p>
 <p>Причиной написания этой статьи, как не странно, стала необходимость написания своего сервиса. Но в Borland'е решили немного "порадовать" нас, пользователей Delphi 6 Personal, не добавив возможности создания сервисов (в остальных версиях Delphi 5 и 6 эта возможность имеется в виде класса TService). Решив, что еще не все потеряно, взял на проверку компоненты из одноименного раздела этого сайта. Первый оказался с многочисленными багами, а до пробы второго я не дошел, взглянув на исходник - модуль Forms в Uses это не только окошки, но и более 300 килобайт "веса" программы. Бессмысленного увеличения размера не хотелось и пришлось творить свое.</p>
 <p>Так как сервис из воздуха не сотворишь, то мой исходник и эта статья очень сильно опираются на MSDN. </p>
-
 <p>Итак, приступим к написанию своего сервиса...</p>
 <p>Обычный Win32-сервис это обычная программа. Программу рекомендуется сделать консольной (DELPHI MENU | Project | Options.. | Linker [X]Generate Console Application) и крайне рекомендуется сделать ее без форм !!! и удалить модуль Forms из Uses. Рекомендуется потому, что, во-первых, это окошко показывать не стоит потому, что оно позволит любому юзеру, прибив ваше окошко прибить и сервис и, во-вторых, конечно же, размер файла (19Kb против 350 ). Поэтому удаляем форму (DELPHI MENU | Project | Remove from project... ). Удалив все формы, перейдем на главный модуль проекта, в котором удаляем текст между begin и end и Forms из Uses и добавляем Windows и WinSvc. В результате должно получиться что-то вроде этого</p>
 <pre name="code" class="delphi">
@@ -44,9 +43,7 @@ end.
 <p>На этом подготовительный этап закончен - начинаем писАть сервис.</p>
 Главная часть программы &nbsp; &nbsp; &nbsp; 
 <p>Как уже отмечалось - сервис это обычная программа. Программа в Pascal'е находится между begin и end. После запуска нашего сервиса (здесь и далее под запуском сервиса понимается именно запуск его из Менеджера сервисов, а не просто запуск exe'шника сервиса) менеджер сервисов ждет пока наш сервис вызовет функцию StartServiceCtrlDispatcher.Ждать он будет недолго - если в нашем exe'шнике несколько сервисов то секунд 30, если один - около секунды, поэтому помещаем вызов StartServiceCtrlDispatcher поближе к begin. </p>
-
 <p>StartServiceCtrlDispatcher качестве аргумента требует _SERVICE_TABLE_ENTRYA, поэтому добавляем в var DispatchTable : array [0..кол-во сервисов] of _SERVICE_TABLE_ENTRYA; и заполняем этот массив (естественно перед вызовом StartServiceCtrlDispatcher).</p>
-
 <p>Т.к. в нашем ехешнике будет 1 сервис, то заполняем его так :</p>
 <pre name="code" class="delphi">
  DispatchTable[0].lpServiceName:=ServiceName;
@@ -55,7 +52,6 @@ end.
  DispatchTable[1].lpServiceName:=nil;
  DispatchTable[1].lpServiceProc:=nil;
 </pre>
-
 
 <p>Советую завести константы ServiceName - имя сервиса и ServiceDisplayName - отображаемое имя.</p>
 <p>ServiceProc - основная функция сервиса(о ней ниже), а в функцию мы передаем ее адрес.</p>
@@ -73,23 +69,19 @@ begin
 end.
 </pre>
 
-
 <p>StartServiceCtrlDispatcher выполнится только после того, как все сервисы будут остановлены.</p>
-
 <p>Функция LogError протоколирует ошибки - напишите ее сами.</p>
 Функция ServiceMain &nbsp; &nbsp; &nbsp; 
 <p>ServiceMain - основная функция сервиса. Если в ехешнике несколько сервисов, но для каждого сервиса пишется своя ServiceMain функция. Имя функции может быть любым! и передается в DispatchTable.lpServiceProc:=@ServiceMain (см.предыдущущий абзац). У меня она называется ServiceProc и описывается так:</p>
 <p>procedure ServiceProc(argc : DWORD;var argv : array of PChar);stdcall;</p>
 <p>argc кол-во аргументов и их массив argv передаются менеджером сервисов из настроек сервиса. НЕ ЗАБЫВАЙТЕ STDCALL!!! Такая забывчивость - частая причина ошибки в программе.</p>
-
 <p>В ServiceMain требуется выполнить подготовку к запуску сервиса и зарегистрировать обработчик сообщений от менеджера сервисов (Handler). Опять после запуска ServiceMain и до запуска RegisterServiceCtrlHandler должно пройти минимум времени. Если сервису надо делать что-нибудь очень долго и обязательно до вызова RegisterServiceCtrlHandler, то надо посылать сообщение SERVICE_START_PENDING функией SetServiceStatus.</p>
-
 <p>Итак, в RegisterServiceCtrlHandler передаем название нашего сервиса и адрес функции Handler'а (см.далее). Далее выполняем подготовку к запуску и настройку сервиса. Остановимся на настройке поподробнее.</p>
 <p>Эта самая настройка var ServiceStatus : SERVICE_STATUS; </p>
 <p>(ServiceStatusHandle : SERVICE_STATUS_HANDLE и ServiceStatus надо сделать глобальными переменными и поместить их выше всех функций).</p>
 
 <table cellspacing="0" cellpadding="0" border="0" style="border: none border-spacing:0px;">
-<tr >
+<tr>
 <td width="241" style="width: 241px;">dwServiceType - тип сервиса</p>
 </td>
 <td width="241" style="width: 241px;">
@@ -97,7 +89,7 @@ end.
 <td width="241" style="width: 241px;">
 </td>
 </tr>
-<tr >
+<tr>
 <td width="241" style="width: 241px;">SERVICE_WIN32_OWN_PROCESS</p>
 </td>
 <td width="241" style="width: 241px;">Одиночный сервис</p>
@@ -105,7 +97,7 @@ end.
 <td width="241" style="width: 241px;">
 </td>
 </tr>
-<tr >
+<tr>
 <td width="241" style="width: 241px;">SERVICE_WIN32_SHARE_PROCESS</p>
 </td>
 <td width="241" style="width: 241px;">Несколько сервисов в одном процессе</p>
@@ -113,7 +105,7 @@ end.
 <td width="241" style="width: 241px;">
 </td>
 </tr>
-<tr >
+<tr>
 <td width="241" style="width: 241px;">SERVICE_INTERACTIVE_PROCESS</p>
 </td>
 <td width="241" style="width: 241px;">интерактивный сервис (может взаимодействовать с пользователем).</p>
@@ -130,17 +122,11 @@ SERVICE_ACCEPT_STOP &nbsp; &nbsp; &nbsp; &nbsp;остановка сервиса
 SERVICE_ACCEPT_SHUTDOWN &nbsp; &nbsp; &nbsp; &nbsp;перезагрузка компьютера &nbsp; &nbsp; &nbsp; 
 SERVICE_ACCEPT_PARAMCHANGE &nbsp; &nbsp; &nbsp; &nbsp;изменение параметров сервиса без перезапуска (Win2000 и выше) &nbsp; &nbsp; &nbsp; 
 <p>Остальные сообщения смотрите опять же в MSDN (куда уж без него ;-)</p>
-
 <p>dwWin32ExitCode и dwServiceSpecificExitCode - коды ошибок сервиса. Если все идет нормально, то они должны быть равны нулю, иначе коду ошибки.</p>
-
 <p>dwCheckPoint - если сервис выполняет какое-нибудь долгое действие при остановке, запуске и т.д. то dwCheckPoint является индикатором прогресса (увеличивайте его, чтобы дать понять, что сервис не завис), иначе он должен быть равен нулю.</p>
-
 <p>dwWaitHint - время, через которое сервис должен послать свой новый статус менеджеру сервисов при выполнении действия (запуска, остановки и т.д.). Если dwCurrentState и dwCheckPoint через это кол-во миллисекунд не изменится, то менеджер сервисов решит, что произошла ошибка.</p>
-
 <p>dwCurrentState - см. где-то здесь Ставим его в SERVICE_RUNNING, если сервис запущен</p>
-
 <p>После заполнения этой структуры посылаем наш новый статус функцией SetServiceStatus и мы работаем :).</p>
-
 <p>После этого пишем код самого сервиса. Я вернусь к этому попозже.</p>
 <p>Вот так выглядит моя ServiceMain :</p>
 <pre name="code" class="delphi">
@@ -196,7 +182,6 @@ end;
 <p>Функция Handler будет вызываться менеджером сервисов при передаче сообщений сервису. Опять же название функции - любое. Адрес функции передается с помощью функции RegisterServiceCtrlHandler (см. выше). Функция имеет один параметр типа DWORD (Cardinal) - сообщение сервису. Если в одном процессе несколько сервисов - для каждого из них должна быть своя функция.</p>
 <p>procedure ServiceCtrlHandler(Opcode : Cardinal);stdcall;</p>
 <p>Опять не забываем про stdcall.</p>
-
 <p>Итак, функция получает код сообщения, который мы и проверяем. Начинаем вспоминать, что мы писали в ServiceStatus.dwControlsAccepted. У меня это SERVICE_ACCEPT_STOP и SERVICE_ACCEPT_PAUSE_CONTINUE, значит, мне надо проверять сообщения SERVICE_CONTROL_PAUSE, SERVICE_CONTROL_CONTINUE, SERVICE_CONTROL_STOP и выполнять соответствующие действия. Остальные сообщения:</p>
 
 ServiceStatus.dwControlsAccepted &nbsp; &nbsp; &nbsp; &nbsp;Обрабатываемые сообщения &nbsp; &nbsp; &nbsp; 
@@ -205,7 +190,6 @@ SERVICE_ACCEPT_STOP &nbsp; &nbsp; &nbsp; &nbsp;SERVICE_CONTROL_STOP &nbsp; &nbsp
 SERVICE_ACCEPT_SHUTDOWN &nbsp; &nbsp; &nbsp; &nbsp;SERVICE_CONTROL_SHUTDOWN &nbsp; &nbsp; &nbsp; 
 SERVICE_ACCEPT_PARAMCHANGE &nbsp; &nbsp; &nbsp; &nbsp;SERVICE_CONTROL_PARAMCHANGE &nbsp; &nbsp; &nbsp; 
 <p>Также надо обрабатывать SERVICE_CONTROL_INTERROGATE. Что это такое - непонятно, но обрабатывать надо :) Передаем новый статус сервиса менеджеру сервисов функцией SetServiceStatus.</p>
-
 <p>Пример функции Handler:</p>
 <pre name="code" class="delphi">
 procedure ServiceCtrlHandler(Opcode : Cardinal);stdcall;
@@ -249,7 +233,6 @@ begin
 end;
 </pre>
 
-
 Реализация главной функции программы &nbsp; &nbsp; &nbsp; 
 <p>В функции ServiceMain (см.там, где отмечено) пишем код сервиса. Так как сервис обычно постоянно находится в памяти компьютера, то скорее всего код будет находиться в цикле. Например в таком :</p>
 <pre name="code" class="delphi">
@@ -291,14 +274,12 @@ CloseHandle(hThread);
    end;
 </pre>
 
-
 <p>Взято из <a href="http://forum.sources.ru" target="_blank">http://forum.sources.ru</a></p>
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

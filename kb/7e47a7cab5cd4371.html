@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Естественные ключи против искуственных ключей</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,13 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Естественные ключи против искуственных ключей</h1>
 <div id="date">01.01.2010</div>
-
 
 <p>Естественные ключи против искуственных ключей</p>
 Автор: Анатолий Тенцер, статья 6-20 июля 1999 года, версия 1.1. </p>
@@ -30,7 +30,7 @@
 <p>или </p>
 <p>Суррогатный Ключ (СК) - автоматически сгенерированное поле, никак не связанное с информационным содержанием записи. Обычно в роли СК выступает автоинкрементное поле типа INTEGER. </p>
 <p>Есть два мнения: </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>СК должны использоваться, только если ЕК не существует. Если же ЕК существует, то идентификация записи внутри БД осуществляется по имеющемуся ЕК; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>СК должны добавляться в любую таблицу, на которую существуют ссылки (REFERENCES) из других таблиц, и связи между ними должны организовываться только при помощи СК. Разумеется, поиск записи и представление её пользователю по прежнему производятся на основании ЕК. </td></tr></table></div>Естественно, можно представить себе и некое промежуточное мнение, но сейчас дискуссия ведётся в рамках двух вышеизложенных. </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>СК должны использоваться, только если ЕК не существует. Если же ЕК существует, то идентификация записи внутри БД осуществляется по имеющемуся ЕК; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>СК должны добавляться в любую таблицу, на которую существуют ссылки (REFERENCES) из других таблиц, и связи между ними должны организовываться только при помощи СК. Разумеется, поиск записи и представление её пользователю по прежнему производятся на основании ЕК. </td></tr></table></div>Естественно, можно представить себе и некое промежуточное мнение, но сейчас дискуссия ведётся в рамках двух вышеизложенных. </p>
 Когда появляются СК </p>
 <p>Для понимания места и значения СК рассмотрим этап проектирования, на котором они вводятся в структуру БД, и методику их введения. </p>
 <p>Для ясности рассмотрим БД из 2-х отношений - Города (City) и Люди (People) Предполагаем, что город характеризуется Hазванием (Name), все города имеют разные названия, человек характеризуется Фамилией (Family), номером паспорта (Passport) и городом проживания (City). Также полагаем, что каждый человек имеет уникальный номер паспорта. Hа этапе составления инфологической модели БД её структура одинакова и для ЕК и для СК.</p>
@@ -43,8 +43,6 @@ CREATE TABLE People(
  City VARCHAR(30) NOT NULL REFERENCES City(Name)
 );
 </pre>
-
-
 
 <p>Для ЕК все готово. Для СК делаем еще один этап и преобразуем таблицы следующим образом: </p>
 CREATE TABLE City(</p>
@@ -63,8 +61,6 @@ CREATE TABLE People(
  CityId INT NOT NULL REFERENCES City(Id)
 );
 </pre>
-
-
 
 <p>Обращаю внимание, что: </p>
 <p>Все условия, диктуемые предметной областью (уникальность имени города и номера паспорта) продолжают присутствовать в БД, только обеспечиваются не условием PRIMARY KEY, а условием UNIQUE; </p>
@@ -94,20 +90,16 @@ CREATE TABLE People(
 
 Увеличение скорости выборки данных </p>
 <p>Вопрос достаточно спорный, однако, исходя из предположений, что: </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>База данных нормализована; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Записей в таблицах много (десятки тысяч и более); </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Запросы преимущественно возвращают ограниченные наборы данных (максимум единицы процентов от размера таблицы). </td></tr></table></div>быстродействие системы на СК будет ощутимо выше. И вот почему: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>База данных нормализована; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>Записей в таблицах много (десятки тысяч и более); </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>Запросы преимущественно возвращают ограниченные наборы данных (максимум единицы процентов от размера таблицы). </td></tr></table></div>быстродействие системы на СК будет ощутимо выше. И вот почему: </p>
 <p>ЕК могут потенциально дать более высокое быстродействие, когда: </p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Требуется только информация, входящая в первичные ключи связанных таблиц; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>нет условий WHERE по полям связанных таблиц. </td></tr></table></div>Т.е., в нашем примере это запрос типа: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>Требуется только информация, входящая в первичные ключи связанных таблиц; </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>нет условий WHERE по полям связанных таблиц. </td></tr></table></div>Т.е., в нашем примере это запрос типа: </p>
 <pre name="code" class="sql">SELECT Family, City FROM People;
 </pre>
-
-
 
 <p>В случае СК этот запрос будет выглядеть как </p>
 <pre name="code" class="sql">SELECT P.Family, C.Name
   FROM People P INNER JOIN City C ON P.CityId = C.Id;
 </pre>
-
-
 
 <p>Казалось бы, ЕК дает более простой запрос с меньшим количеством таблиц, который выполнится быстрее. Hо и тут не всё так просто: размеры таблиц для ЕК - больше (см. выше) и дисковая активность легко съест преимущество, полученное за счёт отсутствия JOIN`а. Ещё сильнее это скажется, если при выборке данных используется их фильтрование (а при сколько-либо существенном объеме таблиц оно используется обязательно). Дело в том, что поиск, как правило, осуществляется по информативным полям типа CHAR, DATETIME и т.п. Поэтому часто бывает быстрее найти в справочной таблице набор значений, ограничивающий возвращаемый запросом результат, а затем путем JOIN`а по быстрому INTEGER-индексу отобрать подходящие записи из большой таблицы. Например:</p>
 
@@ -120,8 +112,6 @@ CREATE TABLE People(
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FROM People P INNER JOIN City C ON P.CityId = C.Id</p>
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WHERE C.Name = 'Иваново';
 </pre>
-
-
 
 <p>В случае ЕК - будет INDEX SCAN большой таблицы People по CHARACTER-индексу. В случае СК - INDEX SCAN меньшей CITY и JOIN по эффективному INTEGER индексу. </p>
 <p>А вот если заменить = 'Иваново' на LIKE '%ваново', то речь пойдет о торможении ЕК относительно СК на порядок и более. </p>
@@ -154,8 +144,6 @@ DELETE </p>
     FROM People P INNER JOIN City C ON P.CityId = C.Id
 </pre>
 
-
-
 <p>И можно иметь все те же прелести. С более, правда, высоким быстродействием. При этом неплохо упомянуть, что в случае ЕК многим придется программировать каскадные операции, и, не дай Бог в распределённой среде, бороться с проблемами быстродействия. Hа фоне этого "короткие" запросы уже не кажутся столь привлекательными. </p>
 
 Введение ЕК нарушает третью нормальную форму </p>
@@ -170,15 +158,14 @@ DELETE </p>
 <p>Максимальной информативностью обладает таблица, содержащая всю БД в виде flat-file. Любое "повышение информативности таблиц" есть увеличение степени дублирования в них информации, что не обязательно есть хорошо. Да и вообще термин "Информативность таблицы" сомнителен. Видимо, более важна информативность БД, которая в обоих случаях одинакова. </p>
 Заключение </p>
 <p>В общем-то, выводы очевидны &#8211; введение СК позволяет получить лучше управляемую, более компактную и быстродействующую БД. Разумеется, это не панацея. В некоторых случаях (например, таблица на которую нет REFERENCES и в которую осуществляется интенсивная вставка данных и т.п.) более верно использовать ЕК или не использовать ПК вообще (последнее категорически противопоказано для многих РСУБД и средств разработки клиентских приложений). Но речь шла именно о типовой методике, которую надо рекомендовать к применению в общем случае. Уникальные ситуации могут потребовать уникальных же решений (иногда и нормализацией приходится поступаться). </p>
-
 <p>Тенцер А. Л.</p>
 <p>ICQ UIN 15925834</p>
 <p>tolik@katren.nsk.ru?subject=about-natural-keys-versus-artificial-keys-by-Tentser-letter </p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

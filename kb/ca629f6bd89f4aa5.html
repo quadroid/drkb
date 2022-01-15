@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Borland Delphi / C++Builder ToolsAPI или взгляд на Borland IDE изнутри</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,29 +13,22 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Borland Delphi / C++Builder ToolsAPI или взгляд на Borland IDE изнутри</h1>
 <div id="date">01.01.2010</div>
-
 <p id="author">Автор: Андрей Семак</p>
-
 <p><b>Введение</b></p>
-
 <p>Рано или поздно каждому профессиональному разработчику программного обеспечения становится тесной среда обитания. По мнению автора, читатель понял, что речь идет о среде разработки, в которой обитает разработчик. У кого это "дом", у кого "строительная площадка", а у кого и то, и другое. В этой статье мы рассмотрим возможность расширения нашего дома. Мы покажем, как именно можно наращивать мощность IDE своими силами, будь то среда разработки Borland Delphi или Borland C++ Builder.</p>
 <p>У многих из вас возникало желание добавить несколько полезных функций в любимое IDE. Разработчики фирмы Borland не оставили без внимания эту полезную возможность. Они разработали набор интерфейсов, позволяющих расширять возможности среды, хотя, к сожалению, отсутствие документации по данному вопросу мешает самостоятельному изучению. Жалкие комментарии в исходных текстах не могут воспроизвести всю мощь, которую предоставляет IDE разработчику расширений. Автор статьи попытается передать читателю опыт своих изысканий и постарается своими советами уберечь читателя от многих подводных камней.</p>
 <p>Документ построен таким образом, чтобы мы переходили от этапа к этапу от простого к сложному. Насколько это удалось, судить вам. Вместе c вами мы рассмотрим на примерах все сервисы, предоставляемые IDE Borland Delphi\C++Builder.</p>
 <p>Итак, начнем? </p>
-
 <p><b>Что такое ToolsAPI?</b></p>
-
 <p>Многие спросят: "Что такое ToolsAPI?" На что смело можно ответить: ToolsAPI - это набор программных интерфейсов, позволяющих: получать информацию о происходящих в IDE событиях, вызывать функции IDE, создавать свои собственные функции, которые потом будут доступны в среде разработки. Этот набор позволяет нам создавать свои собственные меню, кнопки управления и так далее.</p>
 <p>Этот набор интерфейсов размещен в файле ToolsAPI.pas, находящийся в директории {IDEROOT}\Source\Toolsapi\ вашего каталога Delphi\C++Builder.</p>
-
 <p><b>Старый "стиль" и "новый стиль" ToolsAPI</b></p>
-
 <p>Существует две модели интерфейсов ToolsAPI, или как их называют - "старый" и "новый" стили. Старый стиль был реализован в средах Delphi 3-4 и C++ Builder 3.-4. Начиная с Delphi 5 и C++ Builder 5, в среду встроена реализация нового стиля. В этом документе мы будем рассматривать только "новый стиль". "Почему?" - возможно, спросите вы. А потому, - ответит автор - что фирма Borland более не развивает интерфейсы "старого" стиля. Это не значит, что расширения, написанные в старом стиле, не будут работать. Разработчики Borland оставили API старого стиля для совместимости с предыдущими версиями IDE. Интерфейсы "старого" ToolsAPI находятся в директории Source\Toolsapi\ в следующих файлах:</p>
 
 1. editintf.pas</p>
@@ -43,29 +37,22 @@
 4. istreams.pas</p>
 5. toolintf.pas</p>
 6. vcsintf.pas</p>
-
 <p>Но они нам не понадобятся. Вы спросите, как их различать? Интерфейсы нового стиля имеют префикс "IOTA" и "INTA", а "старого" содержат префикс "TI". Поэтому, их можно различить с первого взгляда. Запомним это.</p>
 <p id="note">Примечание</p>
 <p>Если читатель будет интересоваться "старым" стилем, автор рекомендует обратиться в Интернете к странице Сергея Орлика (в данный момент Сергей работает в российском представительстве Borland). К сожалению, с октября 1999 года страница автором более не поддерживается. Также на его сайте есть ссылка на PDF документ, демонстрирующий архитектуру ToolsAPI "нового" стиля, но для Delphi/C++Builder 4 (http://www.geocities.com/SiliconValley/Way/9006/otapi.pdf)</p>
-
 <p><b>Особенности ToolsAPI в Delphi/C++ Builder различных версий</b></p>
-
 <p>На первый взгляд IDE Delphi и C++Builder идентичны. Автор возьмет на себя смелость заявить, что и внутренних отличий так же практически нет. Во всяком случае, в разрезе ToolAPI. То есть, ToolsAPI Delphi5 тождественен ТoolsAPI С++Builder5 и так далее. </p>
 <p>Расширения, собранные на Delphi без проблем работают в C++Builder аналогичной версии. Согласитесь, это очень удобно. Создав полезную функцию для IDE Delphi, вы всегда сможете использовать её в С++Builder той же версии. </p>
 <p>Многие спрашивают: "А как же столь популярный Borland Jbuilder?" Jbuilder - это продукт полностью написанный на Java. Он также имеет ToolsAPI, но кардинально отличается от рассматриваемого нами. </p>
 <p id="note">Примечание</p>
 <p>В этом документе Borland Jbuilder рассматриваться не будет.</p>
-
 <p><b>Типы экспертов</b></p>
-
 <p>Немного терминологии. "Экспертом" мы называем набор функций, расширяющий возможности IDE и выполненный в виде загружаемого модуля. В "новом" стиле нет понятия "Expert" (пережиток "старого стиля"), но есть понятие "Wizard". На самом деле это одно и тоже. Автор взял за основу слово "Эксперт" потому что, по его мнению, оно более точно характеризует предмет нашего с вами внимания.</p>
 <p>Существуют два типа исполнения экспертов:</p>
 
 1. В виде пакетов (расширение файла .BPL)</p>
 2. В виде библиотек (расширение файла .DLL)</p>
-
 <p>В этом документе мы рассмотрим оба типа, особенности их создания и регистрации. У каждого из этих двух типов есть преимущества и недостатки.</p>
-
 <p><b>Пакеты</b></p>
 
 Эксперты, выполненные в виде пакетов (BPL), регистрируются как обычные пакеты с компонентами прямо из среды разработки. </p>
@@ -73,7 +60,6 @@
 <p><img src="pic/clip0273.gif" width="345" height="325" border="0" alt="clip0273"><br>
 <p>рис. 1</p>
 Чтобы временно отключить эксперта, достаточно снять галочку напротив пакета в списке этого окна. Для того, чтобы удалить его из системы, следует выбрать пакет в списке и нажать кнопку "Remove".</p>
-
 <p><b>Библиотеки</b></p>
 
 У этого типа экспертов более сложная регистрация. Для регистрации нам необходимо запустить редактор реестра вашей операционной системы (regedit.exe) и открыть ключ HKEY_CURRENT_USER\Software\Borland\Delphi(или C++Builder)\X.X\Experts, где X.X версия Delphi\C++Builder.</p>
@@ -103,7 +89,7 @@
 Итак, время заглянуть в файл ToolsAPI.pas. Этот файл содержит целый ряд сервисов, которые помогут получать информацию из IDE.</p>
 Знакомьтесь - IBorlandIDEServices. Это самый "главный" интерфейс. Из него мы получим все необходимые нам интерфейсы-сервисы. Все интерфейсы, содержащие в себе слово "Services" являются производными от IBorlandIDEServices.</p>
 Указатель на IBorlandIDEServices можно получить двумя способами. </p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Через экспортную функцию регистрации эксперта путем присвоения указателя глобальной переменной BorlandIDEServices. (в случае с библиотекой) </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>Через уже определенную глобальную переменную BorlandIDEServices (используя пакеты) </td></tr></table></div>Методы получения указателя на IBorlandIDEServices мы рассмотрим на примере в разделе 9. <br>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">1.</td><td>Через экспортную функцию регистрации эксперта путем присвоения указателя глобальной переменной BorlandIDEServices. (в случае с библиотекой) </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">2.</td><td>Через уже определенную глобальную переменную BorlandIDEServices (используя пакеты) </td></tr></table></div>Методы получения указателя на IBorlandIDEServices мы рассмотрим на примере в разделе 9. <br>
 &nbsp;<br>
 <p>Например, нам необходимо получить указатель на INTAServices. Для этого достаточно написать следующую функцию: </p>
 <pre name="code" class="delphi">
@@ -113,7 +99,6 @@ begin
 end;
 </pre>
 Аналогичные функции можно создать для всех остальных сервисов. Мы рассмотрим каждый сервис отдельно по мере изучения материала.</p>
-
 <p><b>Первый эксперт</b></p>
 
 Первым продемонстрируем пример создания эксперта в пакете. Для этого нам необходимо загрузить среду разработки Borland Delphi и создать новый пакет (New Package). Добавим в него новый модуль (Unit). В секции interface необходимо включить объявления ToolsAPI - toolsapi.pas. </p>
@@ -131,7 +116,7 @@ public
 end;
 </pre>
 Теперь рассмотрим все методы по очереди. </p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>GetIDString. Этот метод должен возвращать уникальную строку для идентификации эксперта внутри IDE. Например: "MY.FIRST.EXPERT". Если IDE обнаружит два расширения с одинаковыми идентификаторами, то среда разработки выдаст сообщение об ошибке, и загрузится только первый эксперт. Об этом нужно помнить. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>GetName. Должен вернуть имя эксперта. Например: "MyFirstExpert" </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>GetState. Имеет два состояния: wsEnabled, wsChecked. В нашем примере метод будет возвращать wsEnabled. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">4.</td><td>Execute. Метод выполнится, когда эксперт запустится. В данном случае будет выводить MessageBox. </td></tr></table></div>Итак, реализация: </p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">1.</td><td>GetIDString. Этот метод должен возвращать уникальную строку для идентификации эксперта внутри IDE. Например: "MY.FIRST.EXPERT". Если IDE обнаружит два расширения с одинаковыми идентификаторами, то среда разработки выдаст сообщение об ошибке, и загрузится только первый эксперт. Об этом нужно помнить. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">2.</td><td>GetName. Должен вернуть имя эксперта. Например: "MyFirstExpert" </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">3.</td><td>GetState. Имеет два состояния: wsEnabled, wsChecked. В нашем примере метод будет возвращать wsEnabled. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">4.</td><td>Execute. Метод выполнится, когда эксперт запустится. В данном случае будет выводить MessageBox. </td></tr></table></div>Итак, реализация: </p>
 <pre name="code" class="delphi">
 Implementation{ TFirstExpert }
  
@@ -203,7 +188,7 @@ end;
 Эксперта на базе IOTAMenuWizard нельзя заставить подключиться к другим пунктам главного меню. Но есть другие способы, которые мы рассмотрим далее в этой статье. </p>
 Пришла пора ознакомиться с методом и особенностями реализации экспертов в библиотеках. Для начала создадим проект библиотеки (DLL). </p>
 Для успешной регистрации эксперта в IDE необходимо реализовать две функции. Это (см. ToolsAPi.pas): </p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>InitWizard </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>DoneWizard </td></tr></table></div>Прошу обратить внимание читателя на то, что данный тип регистрации не подразумевает динамическое отключение (выгрузку) расширения из среды, как это было с пакетами. Эксперт регистрируется во время загрузки среды разработки и существует на протяжении всего времени, пока IDE загружено.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">1.</td><td>InitWizard </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">2.</td><td>DoneWizard </td></tr></table></div>Прошу обратить внимание читателя на то, что данный тип регистрации не подразумевает динамическое отключение (выгрузку) расширения из среды, как это было с пакетами. Эксперт регистрируется во время загрузки среды разработки и существует на протяжении всего времени, пока IDE загружено.</p>
 Итак, рассмотрим более детально функцию регистрации: </p>
 <pre name="code" class="delphi">
 function InitWizard(const BorlandIDEServices: IBorlandIDEServices;  
@@ -211,7 +196,7 @@ RegisterProc: TWizardRegisterProc;
 var Terminate: TWizardTerminateProc): Boolean; stdcall;
 </pre>
 &nbsp;</p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>BorlandIDEServices. Константа с указателем IBorlandIDEServices. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>RegisterProc. Указатель на процедуру регистрации. (Не будем использовать). </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>Указатель на процедуру, которая выполнится по завершении работы расширения. </td></tr></table></div>Реализуем эти функции в DPR-файле проекта библиотеки: </p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">1.</td><td>BorlandIDEServices. Константа с указателем IBorlandIDEServices. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">2.</td><td>RegisterProc. Указатель на процедуру регистрации. (Не будем использовать). </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">3.</td><td>Указатель на процедуру, которая выполнится по завершении работы расширения. </td></tr></table></div>Реализуем эти функции в DPR-файле проекта библиотеки: </p>
 <pre name="code" class="delphi">
 library FisrtExpertDll;
  
@@ -271,7 +256,7 @@ end.
 Сохраним модуль с реализацией TfirstExpert под именем FirstExpClassDLL.pas в каталог с проектом библиотеки и удалим из него процедуру регистрации для пакетов. Расширение в DLL реализовано. Осталось подключить его в среду. </p>
 Как это сделать мы рассматривали в пятом разделе данной статьи. </p>
 Для упрощения установки библиотеки, мы можем воспользоваться функциями регистрации COM-объектов. Читателю известно, что регистрация COM-объектов в DLL осуществляется утилитой RegSvr32.exe, которая поставляется с любой операционной системой Windows. Для этого необходимо включить в исходный код проекта 2 экспортируемые функции: </p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>DllRegisterServer </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>DllUnRegisterServer </td></tr></table></div>Эти функции описаны в модуле ComServ, который так же необходимо включить в uses секцию проекта. </p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">1.</td><td>DllRegisterServer </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">2.</td><td>DllUnRegisterServer </td></tr></table></div>Эти функции описаны в модуле ComServ, который так же необходимо включить в uses секцию проекта. </p>
 Но для полноценной установки необходимо, чтобы библиотека определила свое местонахождение. Воспользуемся для этого сервисной функцией, которая возвращает полный путь к библиотеке. </p>
 <pre name="code" class="delphi">
 function GetDLLFileName: string;
@@ -429,70 +414,70 @@ end;
 </pre>
 Нас интересует метод FileNotification, который позволит получать сообщения об операциях с файлами в IDE. Именно его мы и будем использовать в рассматриваемом примере. Из ToolsAPI.pas видно, что параметр NotifyCode может принимать следующие значения: </p>
 <table width="100%" cellspacing="1" cellpadding="3" border="0" style="border: none border-spacing:1px;">
-<tr >
-<td ><p>Значение параметра </p>
+<tr>
+<td><p>Значение параметра </p>
 </td>
-<td ><p>Описание</p>
-</td>
-</tr>
-<tr >
-<td ><p>OfnFileOpening </p>
-</td>
-<td ><p>Перед открытием файла FileName</p>
+<td><p>Описание</p>
 </td>
 </tr>
-<tr >
-<td ><p>OfnFileOpened </p>
+<tr>
+<td><p>OfnFileOpening </p>
 </td>
-<td ><p>Файл FileName открыт в IDE</p>
-</td>
-</tr>
-<tr >
-<td ><p>OfnFileClosing </p>
-</td>
-<td ><p>Перед закрытием файла FileName</p>
+<td><p>Перед открытием файла FileName</p>
 </td>
 </tr>
-<tr >
-<td ><p>OfnDefaultDesktopLoad </p>
+<tr>
+<td><p>OfnFileOpened </p>
 </td>
-<td ><p>Загружены настройки для IDE по умолчанию</p>
-</td>
-</tr>
-<tr >
-<td ><p>OfnDefaultDesktopSave </p>
-</td>
-<td ><p>Сохранены настройки IDE по умолчанию</p>
+<td><p>Файл FileName открыт в IDE</p>
 </td>
 </tr>
-<tr >
-<td ><p>OfnProjectDesktopLoad </p>
+<tr>
+<td><p>OfnFileClosing </p>
 </td>
-<td ><p>Загружены настройки для проекта FileName</p>
-</td>
-</tr>
-<tr >
-<td ><p>OfnProjectDesktopSave </p>
-</td>
-<td ><p>Сохранены настройки для проекта FileName</p>
+<td><p>Перед закрытием файла FileName</p>
 </td>
 </tr>
-<tr >
-<td ><p>OfnPackageInstalled </p>
+<tr>
+<td><p>OfnDefaultDesktopLoad </p>
 </td>
-<td ><p>Пакет FileName с компонентами или экспертами установлен в IDE</p>
-</td>
-</tr>
-<tr >
-<td ><p>OfnPackageUninstalled </p>
-</td>
-<td ><p>Пакет FileName с компонентами или экспертами удален из IDE</p>
+<td><p>Загружены настройки для IDE по умолчанию</p>
 </td>
 </tr>
-<tr >
-<td ><p>OfnActiveProjectChanged </p>
+<tr>
+<td><p>OfnDefaultDesktopSave </p>
 </td>
-<td ><p>Вызывается только при работе с группой проектов, если количество проектов более одного. Важно: данный тип отсутствует в IDE версии ниже 6.
+<td><p>Сохранены настройки IDE по умолчанию</p>
+</td>
+</tr>
+<tr>
+<td><p>OfnProjectDesktopLoad </p>
+</td>
+<td><p>Загружены настройки для проекта FileName</p>
+</td>
+</tr>
+<tr>
+<td><p>OfnProjectDesktopSave </p>
+</td>
+<td><p>Сохранены настройки для проекта FileName</p>
+</td>
+</tr>
+<tr>
+<td><p>OfnPackageInstalled </p>
+</td>
+<td><p>Пакет FileName с компонентами или экспертами установлен в IDE</p>
+</td>
+</tr>
+<tr>
+<td><p>OfnPackageUninstalled </p>
+</td>
+<td><p>Пакет FileName с компонентами или экспертами удален из IDE</p>
+</td>
+</tr>
+<tr>
+<td><p>OfnActiveProjectChanged </p>
+</td>
+<td><p>Вызывается только при работе с группой проектов, если количество проектов более одного. Важно: данный тип отсутствует в IDE версии ниже 6.
 </td>
 </tr>
 </table>
@@ -678,7 +663,7 @@ type
 end;
 </pre>
 ActionList. Позволяет получить доступ к главному ActionList IDE </p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>ImageList. Позволяет получить доступ к списку с картинками 16x16 IDE </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>MainMenu. Позволяет получить доступ к главному меню среды разработки. </td></tr></table></div>Допустим, мы хотим добавить новый пункт меню в главное меню IDE и потом назначить на него горячую клавишу. </p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">1.</td><td>ImageList. Позволяет получить доступ к списку с картинками 16x16 IDE </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">2.</td><td>MainMenu. Позволяет получить доступ к главному меню среды разработки. </td></tr></table></div>Допустим, мы хотим добавить новый пункт меню в главное меню IDE и потом назначить на него горячую клавишу. </p>
 Автор обращает внимание читателя на то, что IDE не поддерживает стандартный механизм ShortCuts для TAction, как принято в VCL. Назначение "горячих кнопок" требует иного подхода. Но об этом позже. </p>
 Для начала создадим новый пункт меню. Для этого необходимо получить ActionList и MainMenu. Определим функцию получения INTAServices: </p>
 <pre name="code" class="delphi">
@@ -846,7 +831,7 @@ type
     ...
   end;
 </pre>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Метод GetOptionNames возвращает массив имен параметров. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>Метод EditOptions вызывает диалог настройки опций среды разработки (В данном случае для проекта. См. рис. 3) </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>С помощью свойства Values можно получать и присваивать значения опциям по именам из TOTAOptionNameArray. </td></tr></table></div>Следующая функция возвращает выходную директорию компилятора для текущего проекта: </p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">1.</td><td>Метод GetOptionNames возвращает массив имен параметров. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">2.</td><td>Метод EditOptions вызывает диалог настройки опций среды разработки (В данном случае для проекта. См. рис. 3) </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">3.</td><td>С помощью свойства Values можно получать и присваивать значения опциям по именам из TOTAOptionNameArray. </td></tr></table></div>Следующая функция возвращает выходную директорию компилятора для текущего проекта: </p>
 <pre name="code" class="delphi">
 function GetOutCompilerPath: string;
 var  Project: IOTAProject;
@@ -881,7 +866,7 @@ type
   end;
 </pre>
 Рассмотрим, какие из методов нам понадобится реализовать: </p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>AfterSave. Вызывается после сохранения содержимого модуля на диск. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>BeforeSave. Вызывается перед сохранением модуля на диск </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>Destroyed. Вызывается, если модуль был закрыт. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">4.</td><td>Modified. Вызовется, если модуль был изменен. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">5.</td><td>ModuleRenamed. Вызывается при выполнении операции переименования. NewName содержит новое имя модуля. </td></tr></table></div>Заставим нотификатор модуля узнать, к какому именно файлу он относится. Введем переменную класса FfileName и переопределим конструктор нотификатора для того, чтобы во время посылки сообщения в MessageWindow мы могли точно знать, над которым из файлов происходит операция:</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">1.</td><td>AfterSave. Вызывается после сохранения содержимого модуля на диск. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">2.</td><td>BeforeSave. Вызывается перед сохранением модуля на диск </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">3.</td><td>Destroyed. Вызывается, если модуль был закрыт. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">4.</td><td>Modified. Вызовется, если модуль был изменен. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">5.</td><td>ModuleRenamed. Вызывается при выполнении операции переименования. NewName содержит новое имя модуля. </td></tr></table></div>Заставим нотификатор модуля узнать, к какому именно файлу он относится. Введем переменную класса FfileName и переопределим конструктор нотификатора для того, чтобы во время посылки сообщения в MessageWindow мы могли точно знать, над которым из файлов происходит операция:</p>
 <pre name="code" class="delphi">
 constructor TModuleNotifier.Create(FileName: string);
 begin
@@ -1050,7 +1035,7 @@ public
   function GetGlyph: Cardinal;
 end;
 </pre>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>GetAuthor должен возвращать имя автора </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>GetComment - комментарий </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>GetPage - имя страницы, на которой будет расположена иконка эксперта </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">4.</td><td>GetGlyph - дескриптор иконки. В нашем случае вернем нуль. </td></tr></table></div>Реализуем методы IOTARepositoryWizard: </p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">1.</td><td>GetAuthor должен возвращать имя автора </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">2.</td><td>GetComment - комментарий </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">3.</td><td>GetPage - имя страницы, на которой будет расположена иконка эксперта </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">4.</td><td>GetGlyph - дескриптор иконки. В нашем случае вернем нуль. </td></tr></table></div>Реализуем методы IOTARepositoryWizard: </p>
 <pre name="code" class="delphi">
 function TFirstRepositoryExpert.GetAuthor: string;
 begin
@@ -1109,20 +1094,20 @@ end;
 </pre>
 Функция GetEditWindow методом перебора форм у экземпляра TApplication ищет окно редактора исходного текста по имени. А функция GetEditWindowPopup пытается обнаружить экземпляр выпадающего меню редактора.</p>
 Как видно из примера поиск происходит по имени и типу компонента. "А как узнать имя и тип искомого элемента управления?", - спросите вы. Для этого существует два способа. </p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Метод перебора элементов принадлежащих родителю (свойство Parent) через TComponent.Components </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>Использовать DAP - Delphi Application Peeper. Это разработка известного в определенных кругах донецкого разработчика Виктора Трунова. Утилита доступна на сайте компании Devrace по адресу http://www.devrace.com/dap. Это самый простой способ получить все необходимые данные. Она позволяет просматривать published свойства компонентов в RunTime, изучить установленные обработчики событий, иерархию наследования и так далее. Автор рекомендует эту утилиту всем, у кого возникает желание изучить IDE изнутри. </td></tr></table></div>Изложенная автором методика, только теоретически демонстрирует основные приемы. Читатель, руководствуясь этими принципами, может пойти намного дальше.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">1.</td><td>Метод перебора элементов принадлежащих родителю (свойство Parent) через TComponent.Components </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">2.</td><td>Использовать DAP - Delphi Application Peeper. Это разработка известного в определенных кругах донецкого разработчика Виктора Трунова. Утилита доступна на сайте компании Devrace по адресу http://www.devrace.com/dap. Это самый простой способ получить все необходимые данные. Она позволяет просматривать published свойства компонентов в RunTime, изучить установленные обработчики событий, иерархию наследования и так далее. Автор рекомендует эту утилиту всем, у кого возникает желание изучить IDE изнутри. </td></tr></table></div>Изложенная автором методика, только теоретически демонстрирует основные приемы. Читатель, руководствуясь этими принципами, может пойти намного дальше.</p>
 <p><b>Известные ошибки в ToolsAPI различных версий IDE</b></p>
 </pre>
 Известные ошибки в Delphi 7 Open Tools API (некоторые есть в Delphi/C++ Builder 6)</p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>IOTAComponent.GetParent всегда возвращает nil. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Вызов IOTAEditView.SetTempMsg убирает закладку диаграмм редактора кода при нажатии кнопки "назад" в редакторе исходного кода </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Некоторые из IOTAProjectOptions не работают, например IncludeVersionInfo и ModuleAttribs. Также некоторые полезные опции, такие как BreakOnException, отсутствуют. Некоторые опции, например LibraryPath, непостоянны в течение сессии. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Параметр HowMany в методе IOTAEditPosition.Delete игнорируется. В результате, метод всегда возвращает один символ. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>IOTASourceEditor.SetSyntaxHighlighter отменен и больше не может использоваться. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Указание IOTAEditView.CursorPos не обновляет позицию курсора в окне редактора в строке состояния. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Среда не убирает экземпляры IOTACustomMessage из окна Message View до выгрузки эксперта. Это может привести к аварийной ситуации, так как среда обращается к невыгруженной библиотеке. Обходный путь - вызвать ClearToolMessages перед тем, как ваш эксперт выгружается, если он добавил свои сообщения. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>IOTAToDoManager.ProjectChanged никогда не вызывается. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Вы не можете добавить такие горячие клавиши, как Ctrl+/ и Ctrl+K. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>IOTAResourceEntry.DataSize должен делиться на 4 (выравниваться по 4-х байтной границе), иначе вы получите ошибку RLINK32 при компиляции. </td></tr></table></div>Известные ошибки в Delphi 6 Open Tools API (некоторые есть в Delphi/C++ Builder 5) </p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>TIModuleInterface.GetFormInterface не реализован и всегда возвращает нулевое значение. Вместо него вы должны использовать IOTAFormEditor. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Интерфейсы Open Tools назначения горячих клавиш иногда вызывают Aссess Violation при использовании IOTAKeyBoardServices.AddKeyboardBinding. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Каждый раз при использовании IOTAEditView.PosToCharPos вызывает Aссess Violation в dfwedit.dll. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>IOTAEditorServices.TopView вызывает Aссess Violation в пакете coride, если он вызван, когда ни один файл не открыт. </td></tr></table></div>Известные ошибки в C++Builder 5.01 Open Tools API </p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Если вызвать IOTAModule.GetModuleFileCount с открытым модулем без связанной формы, он возвращает 2, но если вызвать IOTAModule.GetModuleFileEditor с индексом 1, возникает Aссess Violation, и индекс 2 возвращает файл *.h. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Установка опции проекта LibDir при использовании OTAProjectOptions.Values выдает Aссess Violation. </td></tr></table></div>Известные ошибки в Delphi 5.01 Open Tools API </p>
-<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Вызов IOTAModuleServices.OpenProject в файле BPG приводит к аварийному закрытию среды. Вместо этого используйте IOTAModuleServices.OpenFile. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>При создании в IOTAProjectGroup.FileName, вы не получаете полное имя пути. Вместо него используйте IOTAModule, который реализует IOTAProjectGroup. Его свойство FileName выдаст полный путь. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Опции проекта MajorVersion, MinorVersion, Release, и Build не обновляют опции диалога проекта при их определении. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>Вы не можете использовать интерфейсы для назначения горячих клавиш типа Ctrl+Enter, Shift+Enter. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#183;</td><td>При открытии файла BPG, IOTAIDENotifier отошлет параметр с пустым именем файла вместе с ofnFileOpened в метод FileNotification. </td></tr></table></div><p>В среде возникают Aссess Violation или I/O ошибки при задании имени файла без полного пути при использовании IOTAProjectCreator.GetFileName.</p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>IOTAComponent.GetParent всегда возвращает nil. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Вызов IOTAEditView.SetTempMsg убирает закладку диаграмм редактора кода при нажатии кнопки "назад" в редакторе исходного кода </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Некоторые из IOTAProjectOptions не работают, например IncludeVersionInfo и ModuleAttribs. Также некоторые полезные опции, такие как BreakOnException, отсутствуют. Некоторые опции, например LibraryPath, непостоянны в течение сессии. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Параметр HowMany в методе IOTAEditPosition.Delete игнорируется. В результате, метод всегда возвращает один символ. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>IOTASourceEditor.SetSyntaxHighlighter отменен и больше не может использоваться. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Указание IOTAEditView.CursorPos не обновляет позицию курсора в окне редактора в строке состояния. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Среда не убирает экземпляры IOTACustomMessage из окна Message View до выгрузки эксперта. Это может привести к аварийной ситуации, так как среда обращается к невыгруженной библиотеке. Обходный путь - вызвать ClearToolMessages перед тем, как ваш эксперт выгружается, если он добавил свои сообщения. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>IOTAToDoManager.ProjectChanged никогда не вызывается. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Вы не можете добавить такие горячие клавиши, как Ctrl+/ и Ctrl+K. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>IOTAResourceEntry.DataSize должен делиться на 4 (выравниваться по 4-х байтной границе), иначе вы получите ошибку RLINK32 при компиляции. </td></tr></table></div>Известные ошибки в Delphi 6 Open Tools API (некоторые есть в Delphi/C++ Builder 5) </p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>TIModuleInterface.GetFormInterface не реализован и всегда возвращает нулевое значение. Вместо него вы должны использовать IOTAFormEditor. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Интерфейсы Open Tools назначения горячих клавиш иногда вызывают Aссess Violation при использовании IOTAKeyBoardServices.AddKeyboardBinding. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Каждый раз при использовании IOTAEditView.PosToCharPos вызывает Aссess Violation в dfwedit.dll. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>IOTAEditorServices.TopView вызывает Aссess Violation в пакете coride, если он вызван, когда ни один файл не открыт. </td></tr></table></div>Известные ошибки в C++Builder 5.01 Open Tools API </p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Если вызвать IOTAModule.GetModuleFileCount с открытым модулем без связанной формы, он возвращает 2, но если вызвать IOTAModule.GetModuleFileEditor с индексом 1, возникает Aссess Violation, и индекс 2 возвращает файл *.h. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Установка опции проекта LibDir при использовании OTAProjectOptions.Values выдает Aссess Violation. </td></tr></table></div>Известные ошибки в Delphi 5.01 Open Tools API </p>
+<div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Вызов IOTAModuleServices.OpenProject в файле BPG приводит к аварийному закрытию среды. Вместо этого используйте IOTAModuleServices.OpenFile. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>При создании в IOTAProjectGroup.FileName, вы не получаете полное имя пути. Вместо него используйте IOTAModule, который реализует IOTAProjectGroup. Его свойство FileName выдаст полный путь. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Опции проекта MajorVersion, MinorVersion, Release, и Build не обновляют опции диалога проекта при их определении. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>Вы не можете использовать интерфейсы для назначения горячих клавиш типа Ctrl+Enter, Shift+Enter. </td></tr></table></div><div style="text-align: justify; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 7px 0px 7px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#183;</td><td>При открытии файла BPG, IOTAIDENotifier отошлет параметр с пустым именем файла вместе с ofnFileOpened в метод FileNotification. </td></tr></table></div><p>В среде возникают Aссess Violation или I/O ошибки при задании имени файла без полного пути при использовании IOTAProjectCreator.GetFileName.</p>
 <p><a href="http://www.delphikingdom.com" target="_blank">http://www.delphikingdom.com</a></p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

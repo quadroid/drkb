@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Принцип создания плагинов в Delphi</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,19 +13,15 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Принцип создания плагинов в Delphi</h1>
 <div id="date">01.01.2010</div>
 
-
-
 <p>Иногда нужные мысли приходят после того, как программа сдана заказчику. Для этого придумали плугины. Плугины - это простая dll библиотека, в которой обязательно присутствует ряд процедур и функций, которые выполняют определенные разработчиком действия, например (из моей практики) : function PluginType : PChar; - функция, определяющая назначение плугина. function PluginName : PChar; - функция, которая возвращает название плугина. Это название будет отоброжаться в меню. function PluginExec(AObject:ТТип) : boolean; - главный обработчик, выполняет определённые действия и возвращает TRUE; и ещё, я делал res файл с небольшим битмапом и компилировал его вместе с плугином, который отображался в меню соответствующего плугина. Откомпилировать res фaйл можно так: 1. создайте файл с расширением *.rc 2. напишите в нём : bitmap RCDATA LOADONCALL 1.bmp где bitmap - это идентификатор ресурса RCDATA LOADONCALL - тип и параметр 1.bmp - имя локального файла для кампиляций 3. откомпилируйте этот файл программой brcc32.exe, лежащей в папке ...\Delphi5\BIN\ . </p>
-
 <p>Загрузка плугина</p>
-
 <p>Перейдём к теоретической части.</p>
 <p>раз плугин это dll значит её можно подгрузить следующими способами:</p>
 <p>1. Прищипыванием её к программе!</p>
@@ -52,9 +49,7 @@
 end;
 </pre>
 
-
 <p>Вот этот способ больше подходит для построения плугинов!</p>
-
 <p>Функции:</p>
 <p> function LoadLibrary(lpLibFileName : Pchar):THandle;</p>
 <p> &nbsp; &nbsp; &nbsp; &nbsp;//как вы поняли&nbsp; загружает dll и возвращает её хендл</p>
@@ -62,11 +57,8 @@ end;
 <p> &nbsp; &nbsp; &nbsp; &nbsp;// пытается найти обработчик в переданной ей хендле dll,</p>
 <p> при успешном выполнении возвращает указатель обработчика.</p>
 <p> function FreeLibrary(LibModule: THandle); //освобождает память, занитую dll</p>
-
 <p>Самое сложное в построений плугинов, это не реализация всего кода, а придусмотрение всего, для чего в программе могут они понадобиться! То есть придусмотреть все возможные типы плугинов! А это не так просто.</p>
-
 <p>Вот полноценный пример реализации простой программы для поддержки плугинов...</p>
-
 <p>Исходный текст модуля программы:</p>
 <pre name="code" class="delphi">
 unit Unit1;
@@ -99,7 +91,6 @@ implementation
  
 {$R *.DFM}
 </pre>
-
 
 <p>Процедура загрузки плугина. Здесь мы загружаем, вносим имя dll в список </p>
 <p>и создаём для него пункт меню; загружаем из dll картинку для пункта меню </p>
@@ -134,8 +125,6 @@ begin
  end; 
 end;
 </pre>
-
-
 
 <p>Процедура выполнения плугина. Здесь мы загружаем, узнаём тип и выполняем&nbsp; </p>
 
@@ -192,9 +181,6 @@ end;
 end.
 </pre>
 
-
-
-
 <p>здесь написан простой исходный текст dll, то есть нашего плугина</p>
 <p>Он обязательно возвращает название, тип и выполняет свои задачи </p>
 <pre name="code" class="delphi">
@@ -215,8 +201,6 @@ function PluginName:Pchar;
         //Вот оно, название плугина. Эта строчка будет в менюшке
  end;
 </pre>
-
-
 
 <p>Функция выполнения плугина! Здесь мы рисуем на переданной канве </p>
 <p>анимационную строку.&nbsp; </p>
@@ -259,19 +243,16 @@ exports
 end.
 </pre>
 
-
 <p>Пару советов :</p>
 <p>1. Не оставляйте у своих плугинов расширение *.dll, это не катит. А вот сделайте, например *.plu . Просто в исходном тексте плугина напишите {$E plu} Ну и в исходном тексте программы ищите не Dll, а уже plu.</p>
-
 <p>2. Когда вы сдаёте программу, напишите к ней уже готовых несколько плугинов, что бы юзеру было интересно искать новые. </p>
 <p>3. Сделайте поддержку обновления через интернет. То есть программа заходит на ваш сервер, узнаёт, есть ли новые плугины или нет, если есть - то она их загружает. Этим вы увеличите спрос своей программы и конечно трафик своего сайта!</p>
-
 <p>Взято с сайта <a href="http://www.emanual.ru" target="_blank">www.emanual.ru</a></p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

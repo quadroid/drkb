@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Как использовать в своей программе API DirectSound и DirectSound3D?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,16 +13,14 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Как использовать в своей программе API DirectSound и DirectSound3D?</h1>
 <div id="date">01.01.2010</div>
 
-
 <p>Представляю вашему вниманию рабочий пример использования DirectSound на Delphi + несколько полезных процедур. В этом примере создается один первичный SoundBuffer и 2 статических, вторичных; в них загружаются 2 WAV файла. Первичный буфер создается процедурой AppCreateWritePrimaryBuffer, а любой вторичный - AppCreateWritePrimaryBuffer. Так как вторичный буфер связан с WAV файлом, то при создании буфера нужно определить его параметры в соответствии со звуковым файлом, эти характеристики (Samples, Bits, IsStereo) задаются в виде параметров процедуры. Time - время WAV'файл в секундах (округление в сторону увеличения). При нажатии на кнопку происходит микширование из вторичных буферов в первичный. AppWriteDataToBuffer позволяет записать в буфер PCM сигнал. Процедура CopyWAVToBuffer открывает WAV файл, отделяет заголовок, читает чанк 'data' и копирует его в буфер (при этом сначала считывается размер данных, так как в некоторых WAV файлах существует текстовый довесок, и если его не убрать, в динамиках возможен треск). </p>
-
 <p>Пример 1-ый </p>
 <pre name="code" class="delphi">
 unit Unit1;
@@ -213,15 +212,12 @@ end;
 end.
 </pre>
 <p>Пример 2-ой </p>
-
 <p>Представляю вашему вниманию очередной пример работы с DirectSound на Delphi. В этом примере показан принцип работы с 3D буфером. Итак, процедуры AppCreateWritePrimaryBuffer, AppWriteDataToBuffer, CopyWAVToBuffer я оставил без изменения (см. письма с до этого). Процедура AppCreateWriteSecondary3DBuffer является полным аналогом процедуры AppCreateWriteSecondaryBuffer, за исключением флага DSBCAPS_CTRL3D, который указывает на то, что со статическим вторичным буфером будет связан еще один буфер - SecondarySound3DBuffer. Чтобы его инициализировать, а также установить некоторые начальные значения (положение в пространстве, скорость и .т.д.) вызывается процедура AppSetSecondary3DBuffer, в качестве параметров которой передаются сам SecondarySoundBuffer и связанный с ним SecondarySound3DBuffer. В этой процедуре SecondarySound3DBuffer инициализируется с помощью метода QueryInterface c соответствующим флагом. Кроме того, здесь же устанавливается положение источника звука в пространстве: SetPosition(Pos,1,1,0). X,Y,Z Таким образом в начальный момент времени источник находится на высоте 1 м (ось Y направлена вертикально вверх, а ось Z - "в экран"). Если смотреть сверху : </p>
-
 <p>^ Z</p>
 <p>|</p>
 <p>|</p>
 <p>|</p>
 <p>O----------------&gt; X</p>
-
 <p>Точка O (фактически вы) имеет координаты (0,0), источник звука А(-25,1). Разумеется понятие "метр" весьма условно. При нажатии на кнопку в буфер SecondarySoundBuffer загружается звук 'xhe4.wav'. Это звук работающего винта вертолета, его длина (звука) ровно 3.99 с (а размер буфера ровно 4 с). Далее происходит микширование из вторичного буфера в первичный с флагом DSBPLAY_LOOPING, что позволяет сделать многократно повторяющийся звук; время в 0.01 с ухом практически не улавливается и получается непрерывный звук летящего вертолета. После этого запускется таймер (поле INTERVAL в Инспекторе Оъектов установлено в 1). Разумеется вам совсем необязательно делать именно так, это просто пример. В процедуре Timer1Timer просто меняется координата X с шагом 0.1. В итоге получаем летящий вертолет слева направо. Заодно можете проверить, правильно ли у вас расположены колонки. </p>
 <pre name="code" class="delphi">
 unit Unit1;
@@ -442,12 +438,11 @@ end.
 </pre>
 
 <p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Как свернуть прогу в tray?</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,14 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Как свернуть прогу в tray?</h1>
 <div id="date">01.01.2010</div>
-
-
 
 <p>Проще всего использовать RxTrayIcon компонент из библиотеки RxLib </p>
 <pre name="code" class="delphi">
@@ -39,11 +38,10 @@ RxTrayIcon1.Hide;
 end;
 </pre>
 
-
 <p id="author">Автор: Vit</p>
 <p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
 
-<hr />Нет такого понятия "свернуть в трей". Есть возможность только добавлять, удалять и менять значок в области трея. Сама же программа просто прячется.</p>
+<hr/>Нет такого понятия "свернуть в трей". Есть возможность только добавлять, удалять и менять значок в области трея. Сама же программа просто прячется.</p>
 <p>Для изменения значка в трее используется класс TShellNotifyIcon модуля ShellApi</p>
 <p>Объявим следующую процедруру:</p>
 <p>Параметры к ней такие: n - номер операции ( 1 - добавить, 2 - удалить, 3 - заменить) и Icon - сама иконка с которой будет делаться эта операция</p>
@@ -69,7 +67,6 @@ End;
 end;
 </pre>
 
-
 <p>Теперь, нам нужно отловить минимизацию приложения, для того, чтобы заменить стандартное действие Windows на "свёртывание в трей". Объявляем в секции protected процедуру</p>
 <pre name="code" class="delphi">
 protected
@@ -87,7 +84,6 @@ procedure ControlWindow(var Msg: TMessage); message WM_SYSCOMMAND;
       inherited;
   end;
 </pre>
-
 
 <p>Теперь нам нужно, чтобы значок в трее мог реагировать на манипуляции с ним. Если Вы внимательно посмотрите процедру Ic(), то Вы увидите там ссылку на сообщение WM_USER+1. Это не что иное, как сообщение, которое приходит нам от этого значка. Обычно для значка в трее делают всплывающее меню и выводят там те или иные действия. Но TPopUpMenu делается обычно для правой кнопки, по левой же просто активируют приложение. На форму кидаем комопонент TPopUpMenu (пусть это будет PopUpMenu1) и заносим в него все пункты меню, которые мы хотим, чтобы онм появилис в меню, которое будет всплывать по нажатию правой кнопки на значке.</p>
 <p>После этого описываем обработчик: В вышеназванную секцию protected добавляем ещё одну процедуру IconMouse, которая будет реагировать на сообщение WM_USER+1</p>
@@ -121,13 +117,11 @@ protected
 </pre>
 
 <p>Для выполнения пунктов всплывающего меню, пишите стандартные обработчики onClick() для его пунктов.</p>
-
 <p>Данный опус писался только в форме, в IDE не тестировался . Всё работает конечно, но не обессудьте, если будут ошибочки мелкие. </p>
 <p id="author">Автор: Song</p>
-
 <p>Взято с Vingrad.ru <a href="http://forum.vingrad.ru" target="_blank">http://forum.vingrad.ru</a></p>
 
-<hr />Для&nbsp; работы&nbsp; с&nbsp; SystemTray&nbsp; существует всего одна функция. Вот ее</p>
+<hr/>Для&nbsp; работы&nbsp; с&nbsp; SystemTray&nbsp; существует всего одна функция. Вот ее</p>
 <p>Си-прототип:</p>
 <pre name="code" class="delphi">
        WINSHELLAPI BOOL WINAPI Shell_NotifyIcon(
@@ -180,15 +174,13 @@ protected
 <p> &nbsp;&nbsp;&nbsp; uID,&nbsp; uFlags,&nbsp; uCallbackMessage, hIcon. Поле szTip можно оставить</p>
 <p> &nbsp;&nbsp;&nbsp; пустым,&nbsp; если&nbsp; вам не нужен ToolTip. Поле uFlags должно содержать</p>
 <p> &nbsp;&nbsp;&nbsp; как минимум NIF_MESSAGE | NIF_ICON.</p>
-
 <p>Взято из FAQ: </p>
 <a href="http://blackman.km.ru/myfaq/cont4.phtml]http://blackman.km.ru/myfaq/cont4.phtml" target="_blank">http://blackman.km.ru/myfaq/cont4.phtml]http://blackman.km.ru/myfaq/cont4.phtml</a></p>
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>БД &ndash; хранилище объектов (статья)</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,19 +13,18 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">БД &ndash; хранилище объектов (статья)</h1>
 <div id="date">01.01.2010</div>
 
-
 <p>Классической методикой проектирования БД является создание отдельной таблицы для каждой описываемой моделью данных сущности, затем, в процессе нормализации &#8211; выделение отдельных таблиц для хранения атрибутов сущности (таблицы-справочники). Такой подход хорошо работает для БД с относительно небольшим количеством описываемых объектов (десятки) и при несложных и статичных связях между ними. Однако, любое изменение структуры хранимых данных приводит к внесению изменений в структуру таблиц, эти данные отображающих. Несложная на этапе разработки, эта операция становится крайне проблематичной при больших объемах данных и отсутствии у разработчика непосредственного доступа к БД (например, если она стоит у заказчика). Многим, наверное, знакомы громоздкие, медленные и требующие огромного дискового пространства операции по конвертированию БД при переходе на новую версию продукта. Не менее неприятна работа с БД, исторически разросшейся до сотен таблиц, структуру которой сложно даже изобразить в читабельном виде. В связи с этим встает вопрос &#8211; а нельзя ли создать структуру данных, не требующую переделок при появлении новых сущностей, позволяющую хранить произвольную информацию и при этом достаточно простую и эффективную? Чудес, увы, не бывает. Любая универсальная система менее эффективна, чем специализированная. Однако, возможно создание решения, сочетающего приемлемую производительность и простоту с достаточной степенью универсальности.</p>
 
 Базовые тезисы</p>
 <p>Прежде чем продолжать, необходимо сформулировать основные принципы, на которых будет строиться проектируемая БД.</p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>Каждая сущность, информация о которой хранится в БД &#8211; это объект</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>Каждый объект уникален в пределах БД и имеет уникальный идентификатор.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>Объект имеет свойства (строковые, числовые, временные, перечислимые), которые описывают атрибуты сущности.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">4.</td><td>Объекты могут быть связаны между собой произвольным образом. Связь характеризуется связанными объектами и типом связи. Например, сотрудник фирмы может быть связан с отделом, в котором он работает связью типа «сотрудник в отделе» и т.п. Связь в некотором роде аналогична понятию ссылки на таблицу-справочник в традиционной модели БД.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">5.</td><td>Объект может быть хранилищем. В этом случае допускается хранение на нем других объектов (например, товара на складе).</td></tr></table></div>Такая БД не привязана ни к какой бизнес модели и позволяет реализовать «над собой» практически любую бизнес-логику. Логика выделяется в отдельный программный слой и, как правило, реализуется на сервере приложений, где по запросу клиента создаются объекты, загружающие информацию о себе из БД и реализующие «поведение» объектов реального мира. В то же время, в силу однообразности модели хранения эти объекты несложно создаются на основе базовых классов, инкапсулирующих функциональность по загрузке и сохранению свойств и связей в БД.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">1.</td><td>Каждая сущность, информация о которой хранится в БД &#8211; это объект</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">2.</td><td>Каждый объект уникален в пределах БД и имеет уникальный идентификатор.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">3.</td><td>Объект имеет свойства (строковые, числовые, временные, перечислимые), которые описывают атрибуты сущности.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">4.</td><td>Объекты могут быть связаны между собой произвольным образом. Связь характеризуется связанными объектами и типом связи. Например, сотрудник фирмы может быть связан с отделом, в котором он работает связью типа «сотрудник в отделе» и т.п. Связь в некотором роде аналогична понятию ссылки на таблицу-справочник в традиционной модели БД.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">5.</td><td>Объект может быть хранилищем. В этом случае допускается хранение на нем других объектов (например, товара на складе).</td></tr></table></div>Такая БД не привязана ни к какой бизнес модели и позволяет реализовать «над собой» практически любую бизнес-логику. Логика выделяется в отдельный программный слой и, как правило, реализуется на сервере приложений, где по запросу клиента создаются объекты, загружающие информацию о себе из БД и реализующие «поведение» объектов реального мира. В то же время, в силу однообразности модели хранения эти объекты несложно создаются на основе базовых классов, инкапсулирующих функциональность по загрузке и сохранению свойств и связей в БД.</p>
 
 Объекты</p>
 <p>Объект в нашей БД &#8211; это скорее логическое понятие, его главное назначение &#8211; предоставить уникальный идентификатор, по которому он будет отличаться. Кроме этого, каждый объект обладает типом. Типы описываются таблицей:</p>
@@ -48,13 +48,12 @@ SELECT O.Id, O.ItemName, OT.ItemName
  WHERE OT.Code = 'EMPLOYEE'
 </pre>
 
-
 <p>Однако, наименования явно недостаточно для описания произвольного объекта из реального мира. Поэтому дополним создаваемую БД группой таблиц для описания свойств объектов.</p>
 
 Свойства</p>
 <p>Свойства объектов отражают реальные атрибуты описываемых ими сущностей. Все они принадлежат к какому-то объекту и содержат некую информацию об атрибуте и его величине, причем список атрибутов общий для всех объектов одного и того же типа.</p>
 <p>Величина же может выражаться данными различного типа. Будем хранить в БД атрибуты следующих типов:</p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Строковые</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Числовые. Различия между целыми и вещественными числами делать не будем, полагая целые подмножеством вещественных. Если задача диктует невозможность применения данного подхода &#8211; придется выделять эти атрибуты в различные типы</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Исторические (дата и время)</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>Перечислимые (например, форма собственности фирмы)</td></tr></table></div>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>Строковые</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>Числовые. Различия между целыми и вещественными числами делать не будем, полагая целые подмножеством вещественных. Если задача диктует невозможность применения данного подхода &#8211; придется выделять эти атрибуты в различные типы</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>Исторические (дата и время)</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>Перечислимые (например, форма собственности фирмы)</td></tr></table></div>
 Строковые атрибуты</p>
 <p>Для описания атрибутов заведем таблицу</p>
 StrDesc &nbsp; &nbsp; &nbsp; 
@@ -87,7 +86,6 @@ SELECT O.ItemName, S.Value
    AND SD.Code = 'EMAIL'
 </pre>
 
-
 <p>Для получения списка всех сотрудников, с указанием адресов электронной почты для тех, у кого они есть запрос надо модифицировать:</p>
 <pre name="code" class="sql">
 SELECT O.ItemName, S.Value
@@ -100,7 +98,6 @@ SELECT O.ItemName, S.Value
    AND SD.Code = 'EMAIL'
 </pre>
 
-
 <p>Интересный эффект можно получить, создав у различных типов объектов атрибуты с одинаковыми значениями поля Code. Предположим, что у объектов типов EMPLOYEE (сотрудник) и FIRM (организация) есть строковые атрибуты с одинаковым именем 'EMAIL'. Тогда можно одним запросом получить адресную книгу по всем известным в БД почтовым адресам.</p>
 <pre name="code" class="sql">
 SELECT O.ItemName, OT.ItemName, S.Value
@@ -111,7 +108,6 @@ SELECT O.ItemName, OT.ItemName, S.Value
  WHERE SD.Code = 'EMAIL'
 ORDER BY OT.ItemName, O.ItemName
 </pre>
-
 
 <p>Если впоследствии добавится еще какой-то объект, имеющий аналогичный атрибут &#8211; его наличие будет немедленно учтено и он появится в списке без каких-либо модификаций БД и запросов. Добиться подобного результата в БД с традиционной структурой будет, как минимум, сложно.</p>
 
@@ -164,8 +160,6 @@ WHERE OT.Code = 'EMPLOYEE'
                         AND H.ItemDate &lt;= :DateParam
                         AND S1.Code IN ('EMPLOYEED', 'DISMISS'))
 </pre>
-
-
 
 Перечислимые атрибуты</p>
 <p>Последним видом атрибутов будут перечислимые типы, которые могут принимать одно из заранее заданного набора значений. Для этих данных нам понадобится не две, как для остальных, а три таблицы. Первая из них задаёт, какие перечисления допустимы для выбранного типа объекта:</p>
@@ -229,7 +223,6 @@ WHERE OT.Code = 'DEPARTMENT'
   AND Department.ItemName = 'Отдел поставок'
 </pre>
 
-
 <p>Опытные разработчики, видимо уже заметили слабость предлагаемой схемы &#8211; связи никак не контролируются и ничто не гарантирует, что "сотрудником" отдела не окажется счет-фактура. Поскольку описание связей между объектами является "сердцем" разрабатываемой БД, необходимо ввести в неё механизм, контролирующий допустимость устанавливаемой связи. Таким механизмом служит таблица допустимых связей:</p>
 AllowedLinks &nbsp; &nbsp; &nbsp; 
 Id INTEGER &nbsp; &nbsp; &nbsp; &nbsp;Первичный ключ &nbsp; &nbsp; &nbsp; 
@@ -256,7 +249,7 @@ ItemDate DATETIME &nbsp; &nbsp; &nbsp; &nbsp;Дата перемещения &nb
 <p>Рассмотрим некоторые поля этой таблицы подробнее.</p>
 <p>OperationId</p>
 <p>Каждая операция может состоять из нескольких перемещений. Например, расход товара со склада и приход его на фирму-покупателя. Чтобы иметь возможность логически связать эти перемещения они группируются в операцию. В то же время операция часто имеет ряд дополнительных атрибутов (менеджер, срок выполнения, тип) и т.п. Поэтому &#8211; объявим операцию объектом, и будем хранить информацию о ней наравне с другими объектами БД. Можно завести отдельные типы объектов для различных операций, диктуемых предметной областью. Наша схема позволяет легко определить такие виды операций как:</p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>продажа товара &#8211; расход товара со склада, приход денег в кассу, расход денег с фирмы-покупателя, приход товара на фирму-покупатель</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>конвертация &#8211; расход одной валюты и приход другой (возможно на другой счет)</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>производство &#8211; расход нескольких товаров со склада материалов и приход одного (или нескольких же) других товаров на склад готовой продукции</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">&#8226;</td><td>бухгалтерская проводка &#8211; дебет одного счета и кредит другого (либо нескольких других)</td></tr></table></div>и т.п.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>продажа товара &#8211; расход товара со склада, приход денег в кассу, расход денег с фирмы-покупателя, приход товара на фирму-покупатель</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>конвертация &#8211; расход одной валюты и приход другой (возможно на другой счет)</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>производство &#8211; расход нескольких товаров со склада материалов и приход одного (или нескольких же) других товаров на склад готовой продукции</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">&#8226;</td><td>бухгалтерская проводка &#8211; дебет одного счета и кредит другого (либо нескольких других)</td></tr></table></div>и т.п.</p>
 
 ContainerId</p>
 <p>Ссылка на объект-хранилище на который приходят, либо с которого уходят материальные ценности. Таким объектом может быть склад, касса, фирма-контрагент и т.п. Хранилище само может выступать как перемещаемый объект &#8211; например, гвозди лежат в ящике, а ящик лежит на складе.</p>
@@ -336,7 +329,6 @@ SELECT O.Id, S1.Value AS Family, S2.Value AS FirstName,
    AND S.Code = 'BIRTHDATE'
 </pre>
 
-
 <p>Кроме неудобства в написании (об этом мы поговорим позже) такой запрос может привести еще и к медленному выполнению на сервере. Выходом из ситуации может послужить автоматическое формирование в поле Objects.ItemName краткого описания объекта, необходимого для поиска его в списке себе подобных и использование преимущественно этого поля. Прочие атрибуты, выводимые в список объектов должны по возможности исключаться из него. Как правило, это условие вполне выполнимо. Практика показывает, что вывод имени объекта и двух-трех атрибутов вполне достаточен для его выбора и практически не создают проблем для сервера.</p>
 
 Сложность в понимании структуры и выборке данных</p>
@@ -374,7 +366,6 @@ SELECT O.Id, S1.Value AS Family, S2.Value AS FirstName,
    AND S.Code = 'BIRTHDATE'
 </pre>
 
-
 <p>Очевидно, что такой запрос уже гораздо проще воспринимается неподготовленным человеком. Также можно создать представления для различных типов объектов с набором их наиболее употребимых атрибутов.</p>
 
 Построение клиентской части</p>
@@ -386,15 +377,14 @@ SELECT O.Id, S1.Value AS Family, S2.Value AS FirstName,
 <p>В TBaseDBObject реализуется базовая функциональность по загрузке свойств из БД и сохранению их в БД, а также интерфейсные методы, позволяющие ему общаться со слоем представления данных, расположенном на клиентской машине. Наследники создаются для каждого типа объектов в БД и реализуют логику их поведения. Возможна реализация этих объектов как COM &#8211; серверов, скомпилированных в отдельные DLL и подключаемых в основному модулю сервера приложений при необходимости (либо, например, как объектов Microsoft Transaction Server).</p>
 <p><img src="pic/clip0178.gif" width="855" height="643" border="0" alt="clip0178"></p>
 <p>При построении интерфейса пользователя удобно реализовать набор базовых классов, умеющих работать с информацией о произвольном объекте БД. Такие классы, оформленные в виде компонентов, позволяют легко компоновать интерфейсные решения для работы с конкретными типами объектов. На рисунке приведены два таких компонента &#8211; наследник TListBox, отображающий информацию о свойствах объекта и наследник TTreeView, отображающий другие объекты, связанные с выбранным и типы связей. Оба они реализованы независимыми от типа конкретного объекта, за счет единообразия хранения информации о свойствах и связях. Такая пара компонентов легко позволяет реализовать произвольное перемещение по связям между объектами в БД, что достаточно сложно реализуется в традиционной БД.</p>
-
 <p>Тенцер А. Л.</p>
 <p>ICQ UIN 15925834</p>
 <p>tolik@katren.nsk.ru</p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

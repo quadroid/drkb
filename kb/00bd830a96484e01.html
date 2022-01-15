@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Вызов Delphi DLL из MS Visual C++</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,16 +13,14 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Вызов Delphi DLL из MS Visual C++</h1>
 <div id="date">01.01.2010</div>
 
-
 <p>Во-первых, Вам необходимо объявить все экспортируемые в Delphi DLL функции с ключевыми словами export; stdcall; </p>
-
 <p>Во-вторых, файл заголовка VC++ должен объявить все функции как тип __declspec(dllexport) __stdcall (применяйте двойное подчеркивание в секции объявления прототипа функции extern "C" { ... }. (вместо этого можно также использовать __declspec(dllimport)...). Для примера:</p>
 
 <pre name="code" class="delphi">extern "C" {
@@ -35,7 +34,6 @@ plusone name 'plusone@4'
 </pre>
 
 <p>Число, следующее за символом @, является общей длиной в байтах всех функциональных аргументов. Самый простой путь для обнаружения неправильных значений - попытаться слинковать Вашу VC++ программу и посмотреть на наличие возможной ошибки компоновщика "unresolved external". </p>
-
 <p>И, наконец, Вы можете легко создать библиотеку импорта, используя утилиту LIB из поставки VC++. Для этого необходимо вручную (!!) создать .DEF-файл для Вашей DLL с секцией экспорта, перечисляющей имена и/или порядковые номера всех экспортируемых DLL функций. Формат .DEF-файла очень прост:</p>
 
 <pre name="code" class="delphi">
@@ -47,7 +45,6 @@ plusone@4
 </pre>
 
 <p>Затем запускаете LIB из командной строки DOS/Win95, и в качестве параметра подставляете имя .DEF-файла. Например, LIB /DEF:MYDLL.DEF. Наконец, через диалог Build|Settings|Linker Вы информируете VC++ о полученном .LIB-файле. </p>
-
 <p>Вот пример кода: </p>
 
 <pre name="code" class="delphi">
@@ -386,13 +383,10 @@ end.
 </pre>
 
 <p>Затем, для вызова этих функций из вашего C кода, сделайте следующее: </p>
-
 <p>В вашем .DEF-файле добавьте следующие строки:</p>
-
 <p>IMPORTS</p>
 <p>  Min&nbsp; =MINMAX.Min</p>
 <p>  Max&nbsp; =MINMAX.Max</p>
-
 <p>Объявите в вашем C-приложени прототип функций, как показано ниже:</p>
 
 <pre name="code" class="delphi">
@@ -401,12 +395,11 @@ end.
 </pre>
 
 <p>Теперь из любого места вашего приложения вы можете вызвать функции Min и Max.</p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

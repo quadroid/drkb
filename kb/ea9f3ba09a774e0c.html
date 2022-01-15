@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Работа с типом Comp</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,22 +13,17 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Работа с типом Comp</h1>
 <div id="date">01.01.2010</div>
 
-
 <p>Были какие-то разговоры о том, что тип Comp является каким-то ущербным, недоделанным типом данных, что даже не существует подпрограмм, осуществляющих конвертацию Comp в string и обратно. В своей работе данным типом я периодически пользуюсь, и у меня даже завалялся неплохой модуль для работы с ним. Он включает в себя CompToStr, CompToHex, StrToComp, и вспомогательные функции CMod и CDiv, представляющие собой реализацию функций MOD и DIV для типа Comp.</p>
-
 <p>Я обнаружил кое-что интересное в работе функций CMod и CDiv. Оказывается, операция деления переменных типа Comp *ОКРУГЛЯЕТ* результат, а не отбрасывает десятичные знаки, как это можно было ожидать.</p>
-
 <p>Также я обнаружил некоторые странности на границах диапазона Comp. Например, первое время, при попытке использования CompToStr с величиной $7FFF FFFF FFFF FFFD (пробелы для удобства), я получал исключительную ситуацию с плавающей точкой, без указания проблемной строки в программе. Зато вторичная попытка исключения не вызывала. Потрясающе странно! Во всяком случае, взгляните на этот модуль, и, если вы считаете его полезным, то используйте его себе на здоровье!</p>
-
 <p>Если вы посмотрите на реализацию данного формата, то увидите, что это просто два двойных слова, сочлененных вместе. Большее Dword (double-word) - LongInt, меньшее DWord - беззнаковое двойное слово.</p>
-
 <p>Пояснение от Jin X:</p>
 <p>Дело в том, что Delphi для работы с типом данных Comp использует не арифметические команды процессора (как при работе с типами Integer, Word и т.п), а математический сопроцессор. Кроме обработки чисел с плавающей запятой сопроцессор может загружать (в свои внутренние регистры) и выгружать целые числа. Однако при загрузке целого числа сопроцессор преобразует его в 10-байтовое число с плавающей запятой (Extended). Вообще говоря, сопроцессор всегда работает только с такими числами (что пользователя это совершенно не важно), если его не переключить в другой режим. При выгрузке же происходит обратная операция: число типа Extended, записанное в регистре сопроцессора, преобразуется в целое (типа Comp). Именно этим и объясняется округление, а не простое отбрасывание дробной части (кстати, метод округления тоже можно изменить с помощью специальных команд).</p>
 
@@ -160,12 +156,11 @@ end.
 
 <p>Взято из Советов по Delphi от <a href="mailto:mailto:webmaster@webinspector.com" target="_blank">Валентина Озерова</a></p>
 <p>Сборник Kuliba</p>
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

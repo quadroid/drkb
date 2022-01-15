@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Получение Gaussian Blur</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,24 +13,18 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Получение Gaussian Blur</h1>
 <div id="date">01.01.2010</div>
 
-
 <p id="author">Автор: Den is Com </p>
-
 <p>Ну вот, добрались и до фильтров. В неформальных испытаниях этот код оказался вдвое быстрее, чем это делает Adobe Photoshop. Мне кажется есть множество фильтров, которые можно переделать или оптимизировать для быстроты обработки изображений. </p>
-
 <p>Ядро гауссовой функции exp(-(x^2 + y^2)) есть разновидность формулы f(x)*g(y), которая означает, что мы можем выполнить двумерную свертку, делая последовательность одномерных сверток - сначала мы свертываем каждую строчку изображения, затем - каждую колонку. Хороший повод для ускорения (N^2 становится N*2). Любая свертка требует некоторого место для временного хранения результатов - ниже в коде программа BlurRow как раз распределяет и освобождает память для каждой колонки. Вероятно это должно ускорить обработку изображения, правда не ясно насколько. </p>
-
 <p>Поле "size" в записи TKernel ограничено значением 200. Фактически, если вы хотите использовать еще больший радиус, это не вызовет проблем - попробуйте со значениями radius = 3, 5 или другими. Для большого количества данных методы свертки на поверку оказываются эффективнее преобразований Фурье (как показали опыты). </p>
-
 <p>Еще один комментарий все же необходим: гауссово размывание имеет одно магическое свойство, а именно - вы можете сначала размыть каждую строчку (применить фильтр), затем каждую колонку - фактически получается значительно быстрее, чем двумерная свертка. </p>
-
 <p>Во всяком случае вы можете сделать так:</p>
 
 <pre name="code" class="delphi">
@@ -244,9 +239,6 @@ end;
 end.
 </pre>
 
-
-
-
 <p>Должно работать, если только вы не удалите некоторый код вместе с глупыми коментариями. Для примера: </p>
 
 <pre name="code" class="delphi">
@@ -267,16 +259,11 @@ begin
 end;
 </pre>
 
-
-
-
 <p>Имейте в виду, что 24-битные изображения при системной 256-цветной палитре требуют некоторых дополнительных хитростей, так как эти изображения не только выглядят в таком случае немного "странными", но и серьезно нарушают работу фильтра. </p><p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
 
-<hr />Гауссово размывание (Gaussian Blur) в Delphi (продолжение) - Создание тени у метки</p>
+<hr/>Гауссово размывание (Gaussian Blur) в Delphi (продолжение) - Создание тени у метки</p>
 <p id="author">Автор: Den is Com </p>
-
 <p>Данный метод позволяет создавать тень у текстовых меток TLabel. Не требует лазить в Photoshop и что-то ваять там - тень рисуется динамически, поэтому и объём программы не раздувает. Создание тени присходит в фоновом режиме, во время "простоя" процессора. </p>
-
 <p>Пример использования:</p>
 
 <pre name="code" class="delphi">
@@ -284,9 +271,6 @@ ShowFade(CaptionLabel);
 //или
 ShowFadeWithParam(CaptionLabel,3,3,2,clGray);
 </pre>
-
-
-
 
 <p>Blur.pas</p>
 
@@ -441,14 +425,10 @@ end.
 
 <p>Взято с <a href="http://delphiworld.narod.ru" target="_blank">http://delphiworld.narod.ru</a></p>
 
-
-<hr />
+<hr/>
 <p>The gaussian kernel exp(-(x^2 + y^2)) is of the form f(x)*g(y), which means that you can perform a two-dimensional convolution by doing a sequence of one-dimensional convolutions - first you convolve each row and then each column. This is much faster (an N^2 becomes an N*2). Any convolution requires some temporary storage - below the BlurRow routine allocates and frees the memory, meaning that it gets allocated and freed once for each row. Probably changing this would speed it up some, it's not entirely clear how much.</p>
-
 <p>The kernel "size" is limited to 200 entries. In fact if you use radius anything like that large it will take forever - you want to try this with a radius = 3 or 5 or something. For a kernel with that many entries a straight convolution is the thing to do, while when the kernel gets much larger Fourier transform techniques will be better (I couldn't say what the actual cutoff is.)</p>
-
 <p>One comment that needs to be made is that a gaussian blur has the magical property that you can blur each row one by one and then blur each column - this is much faster than an actual 2-d convolution.</p>
-
 <p>Anyway, you can do this:</p>
 
 <pre name="code" class="delphi">
@@ -622,7 +602,6 @@ end;
 end.
 </pre>
 
-
 <p>Example:</p>
 <pre name="code" class="delphi">
 procedure TForm1.Button1Click(Sender: TObject);
@@ -641,16 +620,13 @@ begin
 end;
 </pre>
 
-
-
-
 <p>Note that displaying 24-bit bitmaps on a 256-color system requires some special tricks - if this looks funny at 256 colors it doesn't prove the blur is wrong.</p>
 <p>Взято с Delphi Knowledge Base: <a href="http://www.baltsoft.com/" target="_blank">http://www.baltsoft.com/</a></p>
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>

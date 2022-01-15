@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Реализация интерфейсов</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" href="css/css.css" rel="stylesheet" />
-  <link type="text/css" href="css/sh.css" rel="stylesheet" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link type="text/css" href="css/css.css" rel="stylesheet"/>
+  <link type="text/css" href="css/sh.css" rel="stylesheet"/>
   <script language="javascript" src="js/shInit.js"></script>
   <script language="javascript" src="js/shCore.js"></script>
   <script language="javascript" src="js/shBrushDelphi.js"></script>
@@ -12,13 +13,12 @@
 <body>
 <div id="layout">
 <div id="header">
-  <div id="logo"><img id="logo" src="img/logo.png" /></div>
+  <a title="DRKB Library" href="../splash.html"><div id="logo"></div></a>
 </div>
 <div id="content">
 <div id="explorer">DRKB Explorer</div>
   <h1 id="title">Реализация интерфейсов</h1>
 <div id="date">01.01.2010</div>
-
 
 <p>Реализацией интерфейса в Delphi всегда выступает класс. Для этого в объявлении класса необходимо указать, какие интерфейсы он реализует.</p>
 <pre name="code" class="delphi">
@@ -27,7 +27,6 @@ type
     // Реализация методов
   end;
 </pre>
-
 
 <p>Класс TMyClass реализует интерфейсы IMyInterface и IDropTarget. Необходимо понимать, что реализация классом нескольких интерфейсов не означает множественного наследования и вообще наследования класса от интерфейса. Указание интерфейсов в описании класса означает лишь то, что в данном классе реализованы все эти интерфейсы.</p>
 <p>Класс должен иметь методы, точно соответствующие по именам и спискам параметров всем методам всех объявленных в его заголовке интерфейсов.</p>
@@ -66,7 +65,6 @@ begin
 end;
 </pre>
 
-
 <p>Данный код выглядит довольно странно, поэтому остановимся на нем подробнее.</p>
 <p>Во-первых &#8211; оператор присваивания при приведении типа данных к интерфейсу неявно вызывает метод _AddRef. При этом количество ссылок на интерфейс увеличивается на 1.</p>
 <p>Во-вторых &#8211; код не содержит никаких попыток освободить память, выделенную под объект TTest. Тем не менее, если выполнить эту программу, то на экран будет выведено сообщение о том, что деструктор был вызван. Это происходит потому, что при выходе переменной, ссылающейся на интерфейс за область видимости (либо, при присвоении ей другого значения) компилятор Delphi генерирует код для вызова метода _Release, информируя реализацию о том, что ссылка на неё больше не нужна.</p>
@@ -84,7 +82,6 @@ begin
 end;   // в этот момент произойдет ошибка
 </pre>
 
-
 <p>Если вы хотите уничтожить реализацию интерфейса немедленно, не дожидаясь выхода переменной за область видимости &#8211; просто присвойте ей значение NIL</p>
 <pre name="code" class="delphi">
 var
@@ -98,9 +95,8 @@ begin
 end;
 </pre>
 
-
 <p>Обратите особое внимание, что вызовы методов IUnknown осуществляются Delphi неявно и автоматически. Поэтому &#8211; не вызывайте методов IUnknown самостоятельно. Это может нарушить нормальную работу автоматического подсчета ссылок и привести к не освобождению памяти, либо нарушениям защиты памяти при работе с интерфейсами. Во избежание этого &#8211; необходимо просто помнить, что:</p>
-<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">1.</td><td>При приведении типа объекта к интерфейсу, вызывается метод _AddRef.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">2.</td><td>При выходе переменной, ссылающейся на интерфейс за область видимости, либо при присвоении ей другого значения вызывается метод _Release</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr ><td width="24">3.</td><td>Единожды запросив у объекта интерфейс, Вы в дальнейшем не должны освобождать объект вручную. Лучше вообще, начиная с этого момента работать с объектом только через интерфейсные ссылки.</td></tr></table></div>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">1.</td><td>При приведении типа объекта к интерфейсу, вызывается метод _AddRef.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">2.</td><td>При выходе переменной, ссылающейся на интерфейс за область видимости, либо при присвоении ей другого значения вызывается метод _Release</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr><td width="24">3.</td><td>Единожды запросив у объекта интерфейс, Вы в дальнейшем не должны освобождать объект вручную. Лучше вообще, начиная с этого момента работать с объектом только через интерфейсные ссылки.</td></tr></table></div>
 <p>В рассмотренных примерах код для получения интерфейса у класса генерировался (с проверкой типов) на этапе компиляции. Если класс не реализует требуемого интерфейса, то программа не откомпилируется. Однако, существует возможность запросить интерфейс и во время выполнения программы. Для этого служит оператор as, который вызывает QueryInterface и, в случае успеха, возвращает ссылку на полученный интерфейс. В противном случае генерируется исключение.</p>
 <p>Например, следующий код будет успешно откомпилирован, но вызовет ошибку «Interface not supported» при выполнении:</p>
 <pre name="code" class="delphi">
@@ -119,9 +115,7 @@ begin
 end;
 </pre>
 
-
 <p>Будет успешно компилироваться и исполняться.</p>
-
 <p>Реализация интерфейсов &#8211; расширенное рассмотрение</p>
 <p>
 <p>Рассмотрим вопросы реализации интерфейсов подробнее.</p>
@@ -139,7 +133,6 @@ type
   end;
 </pre>
 
-
 <p>Теперь создадим класс, который будет реализовывать оба этих интерфейса</p>
 <pre name="code" class="delphi">
   TTest2 = class(TInterfacedObject, ITest, ITest2)
@@ -150,7 +143,6 @@ type
   end;
 </pre>
 
-
 <p>Как видно, класс не может содержать сразу двух методов Beep. Поэтому, Delphi предоставляет способ для разрешения конфликтов имен, позволяя явно указать какой метод класса будет служить реализацией соответствующего метода интерфейса.</p>
 <p>Если реализация методов TTest2.Beep1 и TTest2.Beep2 идентична, то можно не создавать двух разных методов, а объявить класс следующим образом:</p>
 <pre name="code" class="delphi">
@@ -160,7 +152,6 @@ type
     procedure ITest2.Beep = MyBeep;
   end;
 </pre>
-
 
 <p>При реализации классов, поддерживающих множество интерфейсов и много методов может оказаться удобным делегировать реализацию некоторых их них дочерним классам. Рассмотрим пример класса, реализующего два интерфейса:</p>
 <pre name="code" class="delphi">
@@ -184,7 +175,6 @@ type
     destructor Destroy; override;
   end;
 </pre>
-
 
 <p>Для делегирования реализации интерфейса другому классу служит ключевое слово implements</p>
 <pre name="code" class="delphi">
@@ -233,12 +223,11 @@ begin
 end;
 </pre>
 
-
 </div>
 
-<hr />
 <div id="footer">
-<p>&copy; DRKB Library, 2010<br />Разработка и поддержка &mdash; <a href="http://www.drkb.ru/" target="_blank">Quadr0</a></p>
+<hr/>
+<p>Материал из DRKB Library<br/>Разработка и поддержка &mdash; <a title="DRKB на GitHub" href="https://github.com/quadroid/drkb" target="_blank">Quadr0</a></p>
 </div>
 </div>
 </body>
