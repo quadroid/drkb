@@ -1,7 +1,12 @@
-Delphi Russian Knowledge Base Explorer
-======================================
+<p align="center"><img alt="DRKB 3.1" src="/kb/img/splash.png"/></p>
+<h1 align="center">Delphi Russian Knowledge Base</h1>
 
-![DRKB Logo](/kb/img/splash.png)
+<!--
+![DRKB 3.1](/kb/img/splash.png)
+
+Delphi Russian Knowledge Base
+=============================
+-->
 
 **Delphi Russian Knowledge Base** was a massive collection of articles covering Delphi language, its IDE, various Windows APIs, algorithms, and other related technologies and fields where Delphi could be applied. The project is long dead and almost all material is in (surprise) Russian (except a handful of articles in English), but it still might be interesting for its historical or nostalgia value, or even useful to someone still dealing with antique Win32 applications.
 
@@ -14,3 +19,7 @@ While DRKB is predominantly in Russian, the DRKB Explorer is fully translated in
 ![Screenshot](/screenshots/6.png)
 
 See [screenshots](/screenshots) if you have trouble changing language to English.
+
+## Support
+
+If you like DRKB, [send me a 🍩](https://www.buymeacoffee.com/quadroid "Support")
