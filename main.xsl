@@ -327,7 +327,7 @@ function main() {
   const progress = document.getElementById("progress");
   const items = Array.from(document.getElementsByTagName("li"));
   const container = tree.parentNode;
-  const searchDelay = 2000;
+  const searchDelay = 1000;
   let searchTimeout = 0;
   let lastTerm = "";
   let lastSelected;
@@ -372,7 +372,7 @@ function main() {
   function hideProgress() {
     currView.style.opacity = '';
     progress.style.display = "none";
-  } 
+  }
 
   function showResults() {
     switchBtn.classList.add("enabled");
