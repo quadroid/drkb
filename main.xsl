@@ -327,7 +327,7 @@ function main() {
   const progress = document.getElementById("progress");
   const items = Array.from(document.getElementsByTagName("li"));
   const container = tree.parentNode;
-  const searchDelay = 1000;
+  const searchDelay = 650;
   let searchTimeout = 0;
   let lastTerm = "";
   let lastSelected;
